@@ -13,11 +13,9 @@ Claude Code를 쓴다면 새 세션에서 `/kickoff` 를 먼저 실행하세요.
 
 ## 브랜치 전략
 - `main` 은 보호 브랜치. 직접 push 하지 않고 PR로 병합합니다.
-- 브랜치 이름:
-  - 기능: `feat/<요약>` (예: `feat/landing-hero`)
-  - 수정: `fix/<요약>`
-  - 문서: `docs/<요약>`
-  - 잡일: `chore/<요약>`
+- 브랜치 이름: 작업자에 따라 각자의 브랜치에 pushß
+  - hanna
+  - jeongwon
 
 ## 커밋
 [Conventional Commits](https://www.conventionalcommits.org/) 사용:
