@@ -9,27 +9,27 @@
 이 저장소는 **Claude Code로 기획→디자인→개발을 협업**하기 위한 하네스를 포함합니다.
 팀 규칙과 에이전트 사용법은 [CLAUDE.md](CLAUDE.md)에 있습니다.
 
-## 퀵스타트
+## 현재 상태 — 기획·페르소나 검증 단계
 
-```bash
-npm install
-npm run dev        # http://localhost:3000
+지금은 코드 개발 전 단계입니다. 합성 페르소나로 타겟·문구·가격 가설을 검증 중이며,
+검증용 랜딩 시안은 브라우저에서 바로 열 수 있습니다 (서버·설치 불필요):
+
+```
+persona-simulation/landing/index.html    # ?variant=A~E 로 제안 문구 전환, ?clean=1 로 운영 툴바 숨김
 ```
 
-기타 명령: `npm run build` · `npm run lint` · `npm run typecheck`(= `tsc --noEmit`)
+사용법·검증 절차는 [persona-simulation/README.md](persona-simulation/README.md) 참고.
 
-> ⚠️ 일부 Windows 머신에서 네이티브 노드 애드온 로딩 세그폴트로 `next dev`/`lint`가 크래시할 수 있습니다.
-> 원인과 우회법은 [CONTRIBUTING.md](CONTRIBUTING.md#트러블슈팅) 참고.
+> 기존 Next.js 앱 코드는 기획 단계 정리를 위해 제거했습니다. git 이력에 보존되어 있어
+> 개발 재개 시 복원하거나 새로 시작할 수 있습니다.
 
 ## 폴더 구조
 
 ```
-docs/        기획 (포지셔닝·리서치·PRD·페르소나·로드맵·의사결정)
-design/      디자인 (디자인시스템·카피·와이어프레임)
-app/         Next.js App Router (랜딩·신청 폼)
-components/  UI 컴포넌트
-lib/         로거·리드 처리 등
-.claude/     에이전트팀(agents) · 슬래시 명령(commands) · 팀 설정(settings.json)
+docs/                기획 (포지셔닝·리서치·PRD·페르소나·로드맵·의사결정)
+design/              디자인 (디자인시스템·카피·와이어프레임)
+persona-simulation/  페르소나 검증용 랜딩 시안·카피 팩·스크린샷·결과 기록 (비배포)
+.claude/             에이전트팀(agents) · 슬래시 명령(commands) · 팀 설정(settings.json)
 ```
 
 ## Claude Code로 시작하기
@@ -51,7 +51,8 @@ lib/         로거·리드 처리 등
 | `/status` | 로드맵 대비 진척 |
 
 ## 로드맵
-- **Phase 1 (현재):** 랜딩페이지 + 무료 "5분 진단" 신청 (수요 검증)
+- **지금:** 기획·페르소나 검증 (합성 페르소나로 문구·가격 가설 사전 검증)
+- **Phase 1:** 랜딩페이지 실배포 + 무료 "5분 진단" 신청 (수요 검증)
 - **Phase 2:** 한 사이클을 경험하는 작동 서비스 (범위 미정)
 
 자세히: [docs/04-roadmap.md](docs/04-roadmap.md)
