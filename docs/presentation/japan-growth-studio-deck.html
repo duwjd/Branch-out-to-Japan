@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japan Growth Studio — 기획 장표</title>
+<style>
+/* ===== Design Tokens — 뷰티·신뢰 톤 (차분·정돈, 과한 채도 지양) ===== */
+:root{
+  --bg:        #F7F4EF;   /* warm paper */
+  --surface:   #FFFFFF;
+  --ink:       #23213A;   /* indigo ink */
+  --ink-soft:  #5B5876;
+  --ink-faint: #918EA6;
+  --primary:   #3B3670;   /* deep indigo */
+  --primary-2: #55508F;
+  --rose:      #C4707F;   /* muted rose accent */
+  --rose-soft: #F3E4E4;
+  --gold:      #B99B6B;
+  --line:      #E9E4DA;
+  --band:      #2E2B55;   /* insight band */
+  --ok:#4E9B6F; --sig:#C9963F; --no:#A5A1B5;
+  --shadow: 0 18px 44px rgba(46,43,85,.08), 0 2px 8px rgba(46,43,85,.05);
+  --r-lg: 28px; --r-md: 20px; --r-sm: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#28263F;
+  font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  color:var(--ink); overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  word-break:keep-all;
+}
+/* ===== 1920×1080 stage, scaled to viewport ===== */
+#stage{
+  position:absolute; top:50%; left:50%;
+  width:1920px; height:1080px;
+  transform-origin:center center;
+  background:var(--bg);
+  box-shadow:0 30px 90px rgba(0,0,0,.45);
+}
+.slide{
+  position:absolute; inset:0; padding:88px 110px 72px;
+  display:none; flex-direction:column; background:var(--bg);
+}
+.slide.active{display:flex}
+
+/* ===== Shared components ===== */
+.slide-head{display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:52px}
+.badge{
+  display:inline-flex;align-items:center;
+  background:var(--primary);color:#fff;
+  font-size:21px;font-weight:700;letter-spacing:.4px;
+  padding:11px 30px;border-radius:999px;
+}
+.kicker{font-size:24px;font-weight:600;color:var(--ink-soft);letter-spacing:.2px}
+.card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--shadow);
+  padding:44px 46px;
+}
+.card h3{font-size:29px;font-weight:800;color:var(--primary);letter-spacing:-.2px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:30px}
+.foot{
+  position:absolute;left:110px;right:110px;bottom:34px;
+  font-size:16.5px;color:var(--ink-faint);display:flex;justify-content:space-between;gap:24px;
+}
+.stat-num{font-size:74px;font-weight:800;letter-spacing:-1.5px;color:var(--primary);line-height:1}
+.stat-num .u{font-size:38px;font-weight:700}
+.stat-lbl{font-size:21px;color:var(--ink-soft);margin-top:12px;line-height:1.45}
+.accent{color:var(--rose)}
+.band{
+  background:var(--band);color:#fff;border-radius:var(--r-lg);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.band .band-title{
+  background:rgba(255,255,255,.08);padding:22px 46px;
+  font-size:27px;font-weight:800;letter-spacing:.3px;border-bottom:1px solid rgba(255,255,255,.12);
+}
+.band{display:flex;flex-direction:column}
+.band .band-body{padding:34px 46px;display:flex;flex-direction:column;gap:26px;flex:1;justify-content:center}
+.divider{height:1px;background:var(--line);margin:26px 0}
+.note{
+  display:flex;align-items:center;gap:14px;
+  background:var(--rose-soft);border:1px solid #E7CFCF;color:#7C4450;
+  border-radius:var(--r-sm);padding:16px 24px;font-size:20px;font-weight:600;
+}
+.note .i{flex:none;width:26px;height:26px;border-radius:50%;background:var(--rose);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800}
+
+/* ===== Cover ===== */
+.cover{justify-content:center;align-items:flex-start;background:
+  radial-gradient(900px 600px at 82% 18%, rgba(196,112,127,.14), transparent 60%),
+  radial-gradient(1100px 800px at 90% 95%, rgba(59,54,112,.10), transparent 55%),
+  var(--bg);}
+.cover .eyebrow{font-size:27px;font-weight:600;color:var(--ink-soft);letter-spacing:.5px;margin-bottom:26px}
+.cover h1{font-size:132px;font-weight:800;letter-spacing:-3px;color:var(--primary);line-height:1.02}
+.cover h1 .dot{color:var(--rose)}
+.cover .headline{margin-top:36px;font-size:44px;font-weight:700;color:var(--ink);letter-spacing:-.5px}
+.cover .sub{margin-top:18px;font-size:26px;color:var(--ink-soft);line-height:1.6}
+.cover .meta{position:absolute;left:110px;bottom:64px;font-size:20px;color:var(--ink-faint);display:flex;gap:14px;align-items:center}
+.cover .meta b{color:var(--ink-soft);font-weight:700}
+.cover .chips{margin-top:52px;display:flex;gap:16px}
+.cover .chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;
+  padding:14px 28px;font-size:22px;font-weight:700;color:var(--primary);box-shadow:var(--shadow)}
+.cover .art{position:absolute;right:96px;top:50%;transform:translateY(-50%);}
+
+/* ===== Journey flow ===== */
+.flow{display:grid;grid-template-columns:1fr 64px 1fr 64px 1fr;align-items:stretch}
+.flow .step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow);padding:30px 32px;display:flex;flex-direction:column;gap:10px}
+.flow .arrow{display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:34px;font-weight:300}
+.flow .stage-lbl{font-size:18px;font-weight:800;color:var(--rose);letter-spacing:1.5px}
+.flow .stage-main{font-size:27px;font-weight:800;color:var(--ink)}
+.flow .stage-desc{font-size:19px;color:var(--ink-soft);line-height:1.55}
+
+/* ===== Funnel ===== */
+.funnel{display:grid;grid-template-columns:1.06fr 60px 1.18fr 60px 1.18fr 60px .92fr;align-items:stretch}
+.fstep{border-radius:var(--r-md);padding:30px 28px;display:flex;flex-direction:column;gap:12px;
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.fstep .tier{font-size:19px;font-weight:800;letter-spacing:1.2px;color:var(--ink-faint)}
+.fstep .price{font-size:40px;font-weight:800;color:var(--primary);letter-spacing:-1px}
+.fstep .price small{font-size:21px;font-weight:700;color:var(--ink-soft)}
+.fstep .fdesc{font-size:19px;color:var(--ink-soft);line-height:1.55}
+.fstep.hub{background:var(--band);border-color:var(--band)}
+.fstep.hub .tier{color:rgba(255,255,255,.65)}
+.fstep.hub .price{color:#fff}
+.fstep.hub .fdesc{color:rgba(255,255,255,.82)}
+.fstep .tag{align-self:flex-start;background:var(--rose);color:#fff;font-size:16.5px;font-weight:800;
+  border-radius:999px;padding:5px 14px;letter-spacing:.4px}
+.farrow{display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:30px}
+
+/* ===== Hypothesis grid ===== */
+.hgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.hcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow);padding:24px 26px;display:flex;flex-direction:column;gap:10px}
+.hcard .hid{display:flex;align-items:center;justify-content:space-between}
+.hcard .hno{font-size:21px;font-weight:800;color:var(--primary)}
+.hcard p{font-size:18.5px;line-height:1.5;color:var(--ink);font-weight:600}
+.hcard .hv{font-size:16.5px;color:var(--ink-faint)}
+.dot{display:inline-flex;align-items:center;gap:7px;font-size:15.5px;font-weight:700}
+.dot::before{content:"";width:11px;height:11px;border-radius:50%;background:currentColor}
+.dot.ok{color:var(--ok)} .dot.sig{color:var(--sig)} .dot.no{color:var(--no)}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:8px}
+.timeline::before{content:"";position:absolute;left:3%;right:3%;top:11px;height:3px;background:var(--line);border-radius:2px}
+.tstep{position:relative;padding-top:36px;text-align:center}
+.tstep::before{content:"";position:absolute;top:2px;left:50%;transform:translateX(-50%);
+  width:21px;height:21px;border-radius:50%;background:var(--surface);border:5px solid var(--primary)}
+.tstep.rose::before{border-color:var(--rose)}
+.tstep .tw{font-size:19px;font-weight:800;color:var(--primary)}
+.tstep.rose .tw{color:var(--rose)}
+.tstep .td{font-size:17.5px;color:var(--ink-soft);margin-top:5px;line-height:1.45}
+
+/* ===== lists ===== */
+.klist{display:flex;flex-direction:column;gap:18px}
+.klist .row{display:flex;gap:18px;align-items:flex-start}
+.klist .row .k{flex:none;width:9px;height:9px;border-radius:50%;background:var(--rose);margin-top:12px}
+.klist .row .t{font-size:21.5px;line-height:1.55;color:var(--ink)}
+.klist .row .t b{color:var(--primary)}
+
+/* svg charts */
+.chartbox{display:flex;align-items:center;gap:40px}
+
+/* ===== Nav (screen only) ===== */
+.nav{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:50;
+  display:flex;align-items:center;gap:18px;background:rgba(20,18,38,.72);backdrop-filter:blur(8px);
+  border-radius:999px;padding:10px 20px}
+.nav button{background:rgba(255,255,255,.12);border:none;color:#fff;width:38px;height:38px;
+  border-radius:50%;font-size:17px;cursor:pointer}
+.nav button:hover{background:rgba(255,255,255,.25)}
+.nav .cnt{color:rgba(255,255,255,.75);font-size:15px;min-width:52px;text-align:center}
+
+/* ===== Print: one slide per page ===== */
+@media print{
+  body{background:#fff;overflow:visible}
+  #stage{position:static;transform:none!important;width:1920px;height:auto;box-shadow:none}
+  .slide{display:flex!important;position:relative;width:1920px;height:1080px;page-break-after:always}
+  .nav{display:none}
+  @page{size:1920px 1080px;margin:0}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ═══════════ 1 · COVER ═══════════ -->
+<section class="slide cover active" id="s1">
+  <div class="eyebrow">한국 뷰티 브랜드를 위한 일본 진출 콘텐츠 진단 · 제작 · 운영</div>
+  <h1>Japan Growth<br>Studio<span class="dot">.</span></h1>
+  <div class="headline">번역이 아니라, 일본 고객 관점의 <span class="accent">재설계</span></div>
+  <div class="sub">일본의 콘텐츠 문법과 규제 룰셋이 내장된 뷰티 중소기업용 그로스 스튜디오</div>
+  <div class="chips">
+    <div class="chip">① 진단 리포트</div>
+    <div class="chip">② 마케팅 스튜디오</div>
+    <div class="chip">③ 운영</div>
+  </div>
+  <div class="meta"><b>Branch-out-to-Japan</b> · 기획 검증 리뷰 · 2026. 07</div>
+  <svg class="art" width="560" height="560" viewBox="0 0 560 560" fill="none" aria-hidden="true">
+    <circle cx="300" cy="260" r="196" stroke="#3B3670" stroke-opacity=".16" stroke-width="2"/>
+    <circle cx="300" cy="260" r="140" stroke="#C4707F" stroke-opacity=".30" stroke-width="2"/>
+    <circle cx="300" cy="260" r="88"  fill="#3B3670" fill-opacity=".05"/>
+    <circle cx="404" cy="140" r="10" fill="#C4707F" fill-opacity=".75"/>
+    <circle cx="150" cy="330" r="7"  fill="#3B3670" fill-opacity=".45"/>
+    <circle cx="420" cy="390" r="5"  fill="#B99B6B" fill-opacity=".8"/>
+    <text x="300" y="252" text-anchor="middle" font-size="40" font-weight="800" fill="#3B3670" font-family="inherit">KR → JP</text>
+    <text x="300" y="298" text-anchor="middle" font-size="21" font-weight="600" fill="#5B5876" font-family="inherit">메시지 재설계</text>
+  </svg>
+</section>
+
+<!-- ═══════════ 2 · MARKET ═══════════ -->
+<section class="slide" id="s2">
+  <div class="slide-head">
+    <div class="badge">Background</div>
+    <div class="kicker">Market Landscape</div>
+  </div>
+  <div class="grid-2" style="flex:1;align-items:stretch">
+    <div class="card" style="display:flex;flex-direction:column">
+      <h3>K-뷰티, 일본에서 이미 1위 — 성장은 꺾이는 국면</h3>
+      <div class="divider"></div>
+      <div class="chartbox" style="flex:1">
+        <div style="flex:1">
+          <svg width="100%" height="210" viewBox="0 0 340 210" aria-hidden="true">
+            <circle cx="105" cy="105" r="78" fill="none" stroke="#EDE9E0" stroke-width="26"/>
+            <circle cx="105" cy="105" r="78" fill="none" stroke="#3B3670" stroke-width="26"
+              stroke-dasharray="150.9 339.1" stroke-linecap="round" transform="rotate(-90 105 105)"/>
+            <text x="105" y="100" text-anchor="middle" font-size="34" font-weight="800" fill="#3B3670" font-family="inherit">30.8%</text>
+            <text x="105" y="128" text-anchor="middle" font-size="15" fill="#5B5876" font-family="inherit">수입 점유율</text>
+          </svg>
+          <div class="stat-lbl" style="text-align:center">일본 수입화장품<br><b style="color:var(--primary)">4년 연속 1위</b></div>
+        </div>
+        <div style="flex:1.15">
+          <div style="display:flex;align-items:flex-end;gap:34px;height:190px;padding:0 8px">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:10px">
+              <div style="font-size:30px;font-weight:800;color:var(--primary)">+40%</div>
+              <div style="width:74px;height:128px;background:linear-gradient(180deg,#55508F,#3B3670);border-radius:10px 10px 4px 4px"></div>
+              <div style="font-size:18px;color:var(--ink-soft)">2024</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:10px">
+              <div style="font-size:30px;font-weight:800;color:var(--rose)">+5.6%</div>
+              <div style="width:74px;height:26px;background:var(--rose);border-radius:8px 8px 4px 4px"></div>
+              <div style="font-size:18px;color:var(--ink-soft)">2025</div>
+            </div>
+          </div>
+          <div class="stat-lbl" style="text-align:center">대일 수출 증가율 급감<br>— 니즈가 <b style="color:var(--rose)">"진출"에서 "정착·운영"으로</b> 이동</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column">
+      <h3>지원 서비스 지형 — 사람은 많고, 소프트웨어가 없다</h3>
+      <div class="divider"></div>
+      <div style="display:flex;gap:36px;align-items:center;flex:1">
+        <div style="flex:1;text-align:center">
+          <div class="stat-num">~90<span class="u">%</span></div>
+          <div class="stat-lbl">진출 지원 서비스 중<br><b style="color:var(--primary)">사람이 붙는 에이전시</b> 비중<br>(운영대행 · PR · 인허가)</div>
+        </div>
+        <div style="width:1px;align-self:stretch;background:var(--line)"></div>
+        <div style="flex:1;text-align:center">
+          <div class="stat-num accent" style="color:var(--rose)">공백</div>
+          <div class="stat-lbl">콘텐츠 진단·제작을 다루는<br><b style="color:var(--rose)">완제형 SW 툴은 거의 부재</b><br>(유일 SW형은 성분 규제 특화)</div>
+        </div>
+      </div>
+      <div class="note" style="margin-top:26px"><span class="i">!</span> 반복적·규칙 기반 업무를 값비싼 인력이 처리 중 — 자동화 여지가 큰 틈</div>
+    </div>
+  </div>
+  <div class="foot"><span>* 00_시장리서치_K뷰티_일본진출_지원서비스 (2026-07-02, 딥리서치 22건 교차검증)</span><span>Japan Growth Studio</span></div>
+</section>
+
+<!-- ═══════════ 3 · USER BEHAVIOR ═══════════ -->
+<section class="slide" id="s3">
+  <div class="slide-head">
+    <div class="badge">Background</div>
+    <div class="kicker">Japanese Beauty Consumer Behavior</div>
+  </div>
+  <div class="card" style="padding:38px 46px">
+    <h3 style="margin-bottom:26px">일본 뷰티 구매 여정 — 인스타그램은 "파는 곳"이 아니라 "첫 관문"</h3>
+    <div class="flow">
+      <div class="step">
+        <div class="stage-lbl">STEP 1 · 인지</div>
+        <div class="stage-main">Instagram</div>
+        <div class="stage-desc">뷰티 정보 탐색 시 <b>가장 먼저 방문하는 플랫폼 1위</b> — 저장하고 나중에 확인</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <div class="stage-lbl">STEP 2 · 검증</div>
+        <div class="stage-main">@cosme · LIPS</div>
+        <div class="stage-desc">口コミ(리뷰)로 교차 확인 — <b>두 번째 방문은 명확한 구매 의도</b>를 동반</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <div class="stage-lbl">STEP 3 · 전환</div>
+        <div class="stage-main">YouTube · EC</div>
+        <div class="stage-desc">구매 경험률 <b>YouTube 75%</b>로 최강, TikTok 40%(10대 60%)</div>
+      </div>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-top:30px;flex:1">
+    <div class="card" style="padding:34px 42px;display:flex;flex-direction:column;justify-content:center">
+      <h3 style="font-size:25px">SNS로 화장품을 조사하는 이유</h3>
+      <div style="display:flex;gap:40px;margin-top:24px">
+        <div>
+          <div class="stat-num" style="font-size:60px">38.4<span class="u">%</span></div>
+          <div class="stat-lbl">"실제 유저의 목소리·평가"<br>= 口コミ 드리븐 문화</div>
+        </div>
+        <div>
+          <div class="stat-num" style="font-size:60px">30.0<span class="u">%</span></div>
+          <div class="stat-lbl">"인기·유행 상품 파악"<br>= 랭킹·트렌드 민감</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="stat-lbl" style="margin:0">2025~26 알고리즘은 <b style="color:var(--primary)">좋아요보다 저장·공유 우선</b> — 저장률 2~3% 초과 시 발견탭 노출 가속</div>
+    </div>
+    <div class="card" style="padding:34px 42px;display:flex;flex-direction:column;justify-content:center">
+      <h3 style="font-size:25px">콘텐츠 수요는 시즌이 만든다 — 반복·예측 가능</h3>
+      <div class="klist" style="margin-top:26px;gap:22px">
+        <div class="row"><div class="k"></div><div class="t"><b>Qoo10 메가와리 연 4회</b> (3·6·9·11월) — K-뷰티 최대 판촉</div></div>
+        <div class="row"><div class="k"></div><div class="t"><b>크리스마스 코프레</b> — 8월 말 정보 해금 → 9~10월 예약 → 10월 하순~11월 발매</div></div>
+        <div class="row"><div class="k"></div><div class="t"><b>UV 상전 4~7월</b> · 가을 신색 9월 — 연중 사이클 고정</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>* istyle 2023.6 (여성 1,600명) · AppBrew/LIPS 2024.10 (n=2,840, 뷰티 고관여 표본)</span><span>Japan Growth Studio</span></div>
+</section>
+
+<!-- ═══════════ 4 · PROBLEM ═══════════ -->
+<section class="slide" id="s4">
+  <div class="slide-head">
+    <div class="badge">Background</div>
+    <div class="kicker">Problem Definition</div>
+  </div>
+  <div class="grid-3" style="flex:1">
+    <div class="card" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="stat-lbl" style="font-size:18px;font-weight:800;color:var(--rose);letter-spacing:1px;margin:0 0 14px">PROBLEM 1</div>
+      <h3>번역해도 문법이 다르다</h3>
+      <div class="divider"></div>
+      <div class="klist">
+        <div class="row"><div class="k"></div><div class="t">일본: <b>단일 제품 × 상세 효능 소구</b>, 세밀한 메시지 지정</div></div>
+        <div class="row"><div class="k"></div><div class="t">한국: 비교·정리형 + 높은 크리에이티브 자유도</div></div>
+        <div class="row"><div class="k"></div><div class="t">한국식 콘텐츠의 직역은 <b>스타일부터 어긋남</b></div></div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="stat-lbl" style="font-size:18px;font-weight:800;color:var(--rose);letter-spacing:1px;margin:0 0 14px">PROBLEM 2</div>
+      <h3>표현 규제의 책임은 브랜드가 진다</h3>
+      <div class="divider"></div>
+      <div class="klist">
+        <div class="row"><div class="k"></div><div class="t">화장품 효능 표현은 <b>법정 56개 항목으로 한정</b> — 「美白」「治る」 금지</div></div>
+        <div class="row"><div class="k"></div><div class="t">위반 시 <b>매출액 4.5% 과징금</b> + 형사처벌</div></div>
+        <div class="row"><div class="k"></div><div class="t">스테마 규제(2023.10~) 처분 대상은 인플루언서가 아닌 <b>광고주(브랜드)</b></div></div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="stat-lbl" style="font-size:18px;font-weight:800;color:var(--rose);letter-spacing:1px;margin:0 0 14px">PROBLEM 3</div>
+      <h3>리뷰 드리븐 구조를 모른 채 투자</h3>
+      <div class="divider"></div>
+      <div class="klist">
+        <div class="row"><div class="k"></div><div class="t">인스타에서 <b>바로 팔려고 함</b> — 전환은 리뷰·YouTube의 몫</div></div>
+        <div class="row"><div class="k"></div><div class="t">저장률·口コミ 연결 설계 없이 게시물만 누적</div></div>
+        <div class="row"><div class="k"></div><div class="t">운영 중 브랜드의 진짜 페인 = <b>리뷰 정체 → 랭킹 정체</b></div></div>
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:300px 1fr;margin-top:34px;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)">
+    <div style="background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:27px;font-weight:800">우리가 발견한 기회</div>
+    <div style="background:var(--surface);border:1px solid var(--line);border-left:none;display:flex;align-items:center;gap:16px;padding:30px 40px;font-size:26px;font-weight:700;color:var(--ink)">
+      <span style="flex:none;width:30px;height:30px;border-radius:50%;background:var(--rose);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800">!</span>
+      일본의 콘텐츠 문법·규제 룰셋이 <b style="color:var(--rose)">&nbsp;내장된 도구의 부재&nbsp;</b> — 에이전시(사람)와 범용 생성툴 사이의 빈자리
+    </div>
+  </div>
+  <div class="foot"><span>* 일본 뷰티 인스타그램 리서치 §2·7·8 (薬機法·스테마 규제: 소비자청 공식 등 교차검증) · THECOO 한일 비교</span><span>Japan Growth Studio</span></div>
+</section>
+
+<!-- ═══════════ 5 · CORE INSIGHT ═══════════ -->
+<section class="slide" id="s5">
+  <div class="slide-head">
+    <div class="badge">Core Insight</div>
+    <div class="kicker">User Research를 통한 핵심 Insight</div>
+  </div>
+  <div class="grid-3">
+    <div class="card" style="padding:34px 38px">
+      <h3 style="font-size:25.5px">S1 · 입점 준비/직전 <span style="font-size:17px;color:var(--rose);vertical-align:middle">— 1차 타겟</span></h3>
+      <div class="stat-lbl" style="margin-top:14px">"통할지 확신이 없다, 대행 전에 점검하고 싶다" — 문제 공감 최고 세그먼트. <b style="color:var(--primary)">진단 리포트 30만 원 수용 17/20</b></div>
+    </div>
+    <div class="card" style="padding:34px 38px">
+      <h3 style="font-size:25.5px">S2 · 운영 중·정체 <span style="font-size:17px;color:var(--rose);vertical-align:middle">— 지불 여력 최대</span></h3>
+      <div class="stat-lbl" style="margin-top:14px">"리뷰가 안 쌓여 랭킹이 안 오른다" — 공감은 확보, <b style="color:var(--primary)">해결 메커니즘 제시가 관건</b></div>
+    </div>
+    <div class="card" style="padding:34px 38px">
+      <h3 style="font-size:25.5px">S3·S4 · 위임형 & 규제 민감</h3>
+      <div class="stat-lbl" style="margin-top:14px">"배우지 않고 결과물만" + "문구마다 위반 여부 즉시 확인" — <b style="color:var(--primary)">약기법 체크가 가장 강한 훅</b></div>
+    </div>
+  </div>
+  <div class="band" style="margin-top:32px;flex:1">
+    <div class="band-title">Core Insight — 세 문장의 JTBD</div>
+    <div class="band-body">
+      <div style="display:flex;gap:20px;align-items:flex-start">
+        <div style="flex:none;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800">1</div>
+        <div><div style="font-size:24.5px;font-weight:700;line-height:1.5">"일본 진출을 준비할 때, <b style="color:#E8B4BC">대행사에 큰돈 쓰기 전에</b> 내 콘텐츠가 일본에서 통할지 확인하고 뭘 고칠지 알고 싶다."</div></div>
+      </div>
+      <div style="display:flex;gap:20px;align-items:flex-start">
+        <div style="flex:none;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800">2</div>
+        <div><div style="font-size:24.5px;font-weight:700;line-height:1.5">"효능 문구를 쓸 때마다, <b style="color:#E8B4BC">일본 규제 위반인지 즉시 확인</b>하고 안전한 대체 표현을 받고 싶다."</div></div>
+      </div>
+      <div style="display:flex;gap:20px;align-items:flex-start">
+        <div style="flex:none;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800">3</div>
+        <div><div style="font-size:24.5px;font-weight:700;line-height:1.5">"일본에서 매출·리뷰가 정체일 때, <b style="color:#E8B4BC">리뷰가 쌓이는 구조</b>로 콘텐츠와 운영을 바로잡고 싶다."</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>* 합성 페르소나 시뮬레이션 120회 (0차 사전 검토 — 실고객 인터뷰로 검증 예정)</span><span>Japan Growth Studio</span></div>
+</section>
+
+<!-- ═══════════ 6 · SOLUTION ═══════════ -->
+<section class="slide" id="s6">
+  <div class="slide-head">
+    <div class="badge">Solution</div>
+    <div class="kicker">Service Concept</div>
+  </div>
+  <div class="card" style="text-align:center;padding:40px 60px">
+    <div style="font-size:22px;font-weight:800;color:var(--rose);letter-spacing:1px;margin-bottom:14px">서비스 목표</div>
+    <div style="font-size:31px;font-weight:700;line-height:1.5;color:var(--ink)">한국 뷰티 브랜드의 콘텐츠를 <b style="color:var(--primary)">일본 고객 관점으로 진단</b>하고,<br>일본향 <b style="color:var(--primary)">제작·운영까지 한곳에서</b> — 일본 문법·규제 룰셋이 내장된 그로스 스튜디오</div>
+  </div>
+  <div class="grid-3" style="margin-top:32px;flex:1">
+    <div class="card" style="display:flex;flex-direction:column">
+      <h3>① 진단 리포트</h3>
+      <div class="stat-lbl" style="margin:6px 0 0;font-weight:700;color:var(--rose)">"통할지"를 측정 가능하게</div>
+      <div class="divider"></div>
+      <div class="klist">
+        <div class="row"><div class="k"></div><div class="t"><b>일본 문법 진단 점수</b> — 소구 구조·정보 밀도·KPI 설계</div></div>
+        <div class="row"><div class="k"></div><div class="t"><b>NG/OK 표현 검출·재작성</b> — 薬機法 조항 근거 제시</div></div>
+        <div class="row"><div class="k"></div><div class="t">일본향 페르소나 · USP 재정의 + Before/After</div></div>
+      </div>
+      <div style="margin-top:auto;padding-top:26px;font-size:17.5px;font-weight:700;color:var(--ink-faint)">개발 7/11 ~ 7/17 · 검증 가설 H1 · H2 · H6</div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column">
+      <h3>② 마케팅 스튜디오</h3>
+      <div class="stat-lbl" style="margin:6px 0 0;font-weight:700;color:var(--rose)">일본 문법 템플릿으로 제작</div>
+      <div class="divider"></div>
+      <div class="klist">
+        <div class="row"><div class="k"></div><div class="t">인스타 피드·카루셀 — <b>図解 구조·그리드 규칙 내장</b></div></div>
+        <div class="row"><div class="k"></div><div class="t">상세페이지 일본향 전환 · 썸네일</div></div>
+        <div class="row"><div class="k"></div><div class="t"><b>시즌 캘린더 기획</b> — 메가와리·코프레·UV 사이클</div></div>
+      </div>
+      <div style="margin-top:auto;padding-top:26px;font-size:17.5px;font-weight:700;color:var(--ink-faint)">개발 7/18 ~ 7/24 · 검증 가설 H3 · H4</div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column">
+      <h3>③ 운영</h3>
+      <div class="stat-lbl" style="margin:6px 0 0;font-weight:700;color:var(--rose)">리뷰가 쌓이는 구조로</div>
+      <div class="divider"></div>
+      <div class="klist">
+        <div class="row"><div class="k"></div><div class="t"><b>리뷰 메커니즘</b> — 저장 → UGC → 口コミ 연결 설계</div></div>
+        <div class="row"><div class="k"></div><div class="t">인플루언서 브리핑 키트 — PR 표기·NG 표현 관리</div></div>
+        <div class="row"><div class="k"></div><div class="t">브랜드 자산 관리 · 리포트 재점검</div></div>
+      </div>
+      <div style="margin-top:auto;padding-top:26px;font-size:17.5px;font-weight:700;color:var(--ink-faint)">개발 7/25 ~ 7/31 · 검증 가설 H5</div>
+    </div>
+  </div>
+  <div class="foot"><span>* 상품 구조: decisions/2026-07-04 · 니즈 매핑: 유저니즈·비즈니스 가설 문서 §3</span><span>Japan Growth Studio</span></div>
+</section>
+
+<!-- ═══════════ 7 · BUSINESS MODEL ═══════════ -->
+<section class="slide" id="s7">
+  <div class="slide-head">
+    <div class="badge">Business Model</div>
+    <div class="kicker">Revenue Funnel — 가격이 아니라 순서가 설계의 핵심</div>
+  </div>
+  <div class="funnel">
+    <div class="fstep">
+      <div class="tier">FREE · 웻지</div>
+      <div class="price">약기법 체커</div>
+      <div class="fdesc">URL·캡션 입력 → 위반 표현 검출 + 조항 근거. <b>결과 자체가 증거이자 영업</b></div>
+    </div>
+    <div class="farrow">→</div>
+    <div class="fstep hub">
+      <div class="tier">REPORT · 전환 허브</div>
+      <div class="price">30만 <small>원 / 1회</small></div>
+      <div class="fdesc">일본 문법 진단 점수 + NG/OK 재작성 + 페르소나·USP. <b style="color:#E8B4BC">수용 17/20 — 가격 저항 소멸</b></div>
+      <div class="tag">모든 전환이 여기를 지난다</div>
+    </div>
+    <div class="farrow">→</div>
+    <div class="fstep">
+      <div class="tier">GROWTH · 시즌 구독</div>
+      <div class="price">월 20만 <small>원</small></div>
+      <div class="fdesc">시즌 캘린더 기획 + 월 콘텐츠 패키지. <b>Report 비용 첫 달 공제</b> — "결과 보고 구독" 경로를 상품화</div>
+    </div>
+    <div class="farrow">→</div>
+    <div class="fstep">
+      <div class="tier">SCALE</div>
+      <div class="price" style="font-size:30px">운영 확장</div>
+      <div class="fdesc">리뷰 메커니즘 · 기업 매칭 — Report·Growth 검증 후 재설계</div>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-top:36px">
+    <div class="card" style="padding:32px 40px">
+      <h3 style="font-size:25px">왜 구독이 유지되는가 — 시즌이 갱신을 만든다</h3>
+      <div class="stat-lbl" style="margin-top:14px;line-height:1.6">메가와리 연 4회 + 코프레·UV·신색 사이클로 <b style="color:var(--primary)">"다음 시즌 대비" 수요가 매달 존재</b>. 구독의 근거를 금액이 아닌 캘린더에 둔다. 장벽은 가격이 아니라 "결과물 확인 전 월정액" — 브릿지로 해소.</div>
+    </div>
+    <div class="card" style="padding:32px 40px">
+      <h3 style="font-size:25px">해자 — 축적형 룰셋 데이터 자산</h3>
+      <div class="stat-lbl" style="margin-top:14px;line-height:1.6"><b style="color:var(--primary)">NG/OK 표현쌍 DB</b>(법 기반·변동 적음) → 일본 문법 체크 항목 → 시즌 캘린더 → 벤치마크 계정 DB 순으로 축적. 에이전시는 인력에 묶여 못 만들고, 범용 생성툴에는 없는 자산.</div>
+    </div>
+  </div>
+  <div class="foot"><span>* 시뮬레이션 2차(합성 페르소나 20명) 행동 패턴 기반 가설 — 실고객 검증 전</span><span>Japan Growth Studio</span></div>
+</section>
+
+<!-- ═══════════ 8 · HYPOTHESES & ROADMAP ═══════════ -->
+<section class="slide" id="s8">
+  <div class="slide-head">
+    <div class="badge">Validation</div>
+    <div class="kicker">Hypotheses &amp; Roadmap — 가설은 검증 상태와 함께</div>
+  </div>
+  <div class="hgrid">
+    <div class="hcard"><div class="hid"><span class="hno">H1</span><span class="dot sig">시뮬 신호</span></div><p>Report 30만이 전환 관문이다</p><div class="hv">검증: 실고객 인터뷰·유료 제안</div></div>
+    <div class="hcard"><div class="hid"><span class="hno">H2</span><span class="dot sig">시뮬 신호</span></div><p>약기법 체커가 최강 무료 웻지다</p><div class="hv">검증: 3차 시뮬 → 랜딩 A/B</div></div>
+    <div class="hcard"><div class="hid"><span class="hno">H3</span><span class="dot no">미검증</span></div><p>구독 갱신의 근거는 시즌 캘린더다</p><div class="hv">검증: UT → 베타 갱신률</div></div>
+    <div class="hcard"><div class="hid"><span class="hno">H4</span><span class="dot no">미검증</span></div><p>위임형은 "초안 도착" 모드로 회수된다</p><div class="hv">검증: 3차 시뮬 (P15~17)</div></div>
+    <div class="hcard"><div class="hid"><span class="hno">H5</span><span class="dot no">미검증</span></div><p>운영 정체는 리뷰 메커니즘으로 전환된다</p><div class="hv">검증: 3차 시뮬 (P09·11·13)</div></div>
+    <div class="hcard"><div class="hid"><span class="hno">H6</span><span class="dot sig">시뮬 신호</span></div><p>신뢰는 채점 기준 공개 + 샘플 실물로 확보된다</p><div class="hv">검증: 3차 시뮬 (가상 증거 제거)</div></div>
+    <div class="hcard"><div class="hid"><span class="hno">H7</span><span class="dot no">미검증</span></div><p>일본 문법 룰셋은 축적형 해자가 된다</p><div class="hv">검증: 구축 비용 실측·경쟁 관찰</div></div>
+    <div class="hcard"><div class="hid"><span class="hno">H8</span><span class="dot ok">여정 검증</span></div><p>인스타 KPI 재정의가 진단의 권위를 만든다</p><div class="hv">검증: 인터뷰 반응 (구조는 외부 검증됨)</div></div>
+  </div>
+  <div class="card" style="margin-top:34px;flex:1;padding:38px 52px;display:flex;flex-direction:column;justify-content:space-between">
+    <h3 style="font-size:25px;margin-bottom:8px">검증 · 개발 타임라인</h3>
+    <div class="timeline" style="margin-top:26px">
+      <div class="tstep"><div class="tw">7/5 ~ 7/6</div><div class="td">주말 리서치<br>니즈·가설 확정</div></div>
+      <div class="tstep rose"><div class="tw">~ 7/10</div><div class="td">3차 시뮬 (H2·4·5·6)<br>실고객 인터뷰 착수 (H1·8)</div></div>
+      <div class="tstep"><div class="tw">7/11 ~ 7/31</div><div class="td">3축 순차 개발<br>리포트 → 스튜디오 → 운영</div></div>
+      <div class="tstep rose"><div class="tw">8/1 ~ 8/3</div><div class="td">UT — 3축 완주율<br>신뢰·구독 반응 (H3)</div></div>
+      <div class="tstep"><div class="tw">8/9</div><div class="td">발표<br>검증 결과 반영</div></div>
+    </div>
+    <div style="display:flex;gap:36px;align-items:center;border-top:1px solid var(--line);padding-top:24px;margin-top:30px">
+      <span class="dot ok" style="font-size:17px">여정 검증 — 외부 리서치 교차확인</span>
+      <span class="dot sig" style="font-size:17px">시뮬 신호 — 합성 페르소나 반응 (실고객 검증 전)</span>
+      <span class="dot no" style="font-size:17px">미검증 — 추론 단계, 반증 조건과 함께 관리</span>
+    </div>
+  </div>
+  <div class="foot"><span>* 유저니즈·비즈니스 가설 문서 §5 — 각 가설은 폐기 기준을 명시해 관리</span><span>Japan Growth Studio</span></div>
+</section>
+
+</div><!-- /stage -->
+
+<div class="nav">
+  <button onclick="go(cur-1)" aria-label="이전">←</button>
+  <span class="cnt"><span id="c">1</span> / <span id="t">8</span></span>
+  <button onclick="go(cur+1)" aria-label="다음">→</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let cur=1;
+document.getElementById('t').textContent=slides.length;
+function go(n){
+  if(n<1)n=1; if(n>slides.length)n=slides.length; cur=n;
+  slides.forEach((s,i)=>s.classList.toggle('active',i===n-1));
+  document.getElementById('c').textContent=n;
+  history.replaceState(null,'','#'+n);
+}
+function fit(){
+  const s=Math.min(innerWidth/1920,innerHeight/1080);
+  document.getElementById('stage').style.transform=
+    `translate(-50%,-50%) scale(${s})`;
+}
+addEventListener('resize',fit);fit();
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(cur+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(cur-1)}
+});
+const h=parseInt(location.hash.slice(1));if(h)go(h);else go(1);
+</script>
+</body>
+</html>
