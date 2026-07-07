@@ -1,0 +1,14 @@
+{
+  "name": "branch-out-to-japan",
+  "version": "0.1.0",
+  "private": true,
+  "description": "일본 시장 진출 브랜드 전환 스튜디오 — 데이터 수집 도구 포함",
+  "scripts": {
+    "crawl:rakuten-api": "node scripts/crawl/rakuten.mjs",
+    "crawl:rakuten-browser": "node scripts/crawl/rakuten-browser.mjs",
+    "crawl:cosme": "node scripts/crawl/cosme.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

@@ -43,3 +43,11 @@ next-env.d.ts
 
 # Claude Code — 개인 로컬 설정은 커밋하지 않음 (팀 공용 설정은 .claude/settings.json)
 .claude/settings.local.json
+
+# 크롤 원본 이미지는 커밋하지 않음 (저작물·대용량). 메타데이터(.jsonl/.csv/.md)와 .gitkeep은 유지
+/data/raw/**/*.jpg
+/data/raw/**/*.jpeg
+/data/raw/**/*.png
+/data/raw/**/*.webp
+/data/raw/**/*.gif
+/data/raw/**/*.avif
