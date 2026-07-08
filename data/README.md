@@ -16,7 +16,9 @@ data/
 │   └── sns-copy/                # SNS 문구·유행어 (tiktok / cosme / instagram-manual)
 └── processed/                   # 정제·라벨링 산출물 (커밋함)
     ├── product-catalog.jsonl    # 제품 이미지 메타데이터 카탈로그
-    └── sns-lexicon.csv          # 일본 뷰티 유행어/문구 사전
+    ├── sns-lexicon.csv          # 일본 뷰티 유행어/문구 사전
+    ├── thumbnail-style-labels.jsonl   # 썸네일 스타일 라벨 (층화 표본 120장)
+    └── thumbnail-style-prompts.json   # KR→JP 썸네일 변환 프롬프트 팩 (GPT Image 2.0)
 ```
 
 ## 수집 규칙 (전 소스 공통)
@@ -51,3 +53,24 @@ data/
 term,reading,source,category,exampleContext,frequency,collectedAt
 毛穴,けあな,cosme,피부고민,"毛穴の黒ずみが気になる",高,2026-07-08
 ```
+
+### thumbnail-style-labels.jsonl (한 줄 = 썸네일 1건)
+층화 표본 120장(라쿠텐 70 · 아마존 34 · Qoo10 16)의 스타일 라벨. `id`는 product-catalog.jsonl 참조.
+스타일 정의·경계 규칙: `docs/research/jp-thumbnail-style-taxonomy.md`.
+```json
+{
+  "id": "rakuten_tvert_352",
+  "source": "rakuten",
+  "category": "skincare",
+  "styleCategory": "E",             // A~H | noise
+  "styleSignals": ["awardRibbonStack", "whiteProduct"],
+  "isNoise": false,
+  "notes": "라벨 근거 메모 (한국어)"
+}
+```
+
+### thumbnail-style-prompts.json
+KR 썸네일/제품컷 → 일본향 썸네일 변환용 **GPT Image 2.0 프롬프트 팩** (스타일 A~H, 카테고리별 1개).
+`{{slot}}` 치환 후 사용. 실적 배지 슬롯은 `requiresProof: true` — 근거 미입력 시 해당 문단 제거가 기본값(경품표시법 가드).
+일본어 카피 슬롯은 jp-localizer 산출물만 주입한다.
+조립 절차·API 호출·워크드 예시: `docs/specs/02-thumbnail-converter-spec.md` (파이프라인 스펙).
