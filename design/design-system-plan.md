@@ -111,3 +111,18 @@ Header `45:5` · Hero `45:15` · Problem `45:26` · Solution `46:2` · Before/Af
 3. Section → Figma Component 승격(instance 기반 재사용) 검토.
 4. Icon 세트(Lucide) 도입 + 히어로/섹션 이미지 자산.
 5. (수요검증 진행 시) 랜딩 실배포 준비 — 카피 확정 → 프론트 구현.
+
+---
+
+# Update — 2026-07-08 오후 (한국어 B2B 카피 정렬)
+
+> 방향 확정: 랜딩 1차 고객 = **대일 수출 준비 한국 회사** → 본문은 **한국어 B2B**. 일본어는 Before/After 샘플에만.
+
+- **랜딩 카피 한국어 B2B로 복원** — Sections/Desktop/Mobile 전 프레임. 일본어는 Before/After 샘플 본문에만 유지(세라마이드 크림 예시). Before/After 하단에 "예시 카피" 노트 추가.
+- **메인 CTA = `무료 진단 신청` 확정** (폼 제출 `무료 진단 신청하기`).
+- **Lead Form 상태 추가** — helper(라이브) + success 확인 패널(3곳). Components 페이지에 **Input — States**(Default/Helper/Error/Success, `feedback/*` 변수 바인딩) 그룹 신설.
+- **Footer 대비 통과** — 링크 ≈10.6:1(AAA), 저작권 ≈6.3:1(AA).
+- **제목 hug/줄바꿈 정리** 완료(한국어 기준 재hug).
+- **"5분" 표기 삭제** — Offer/How/FAQ/Final CTA에서 `무료 5분 진단`·`5분 만에` 제거(→ `무료 진단`/`사전 진단`). 잔여 0건. **[보류]** 소요시간 확정 시 되돌릴 수 있음.
+- **Section Component 승격은 여전히 보류.** ([[추가 검토가 필요한 항목]] 참조)
+- 상세 인수인계: `design/handoff-landing-design-system.md` §9.
