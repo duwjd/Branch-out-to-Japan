@@ -53,7 +53,7 @@ tokens:
     floating: "0px 4px 12px rgba(0,0,0,0.08)"
     modal: "0px 8px 24px rgba(0,0,0,0.12)"
   components:
-    button-primary: { type: button, bg: "#d93636", fg: "#ffffff", radius: 8, padding: "7px 14px", font: "14px/400 Pretendard Variable", use: "Sign-up / apply CTA (filled)" }
+    button-primary: { type: button, bg: "#ff6464", fg: "#ffffff", radius: 8, padding: "7px 14px", font: "14px/400 Pretendard Variable", use: "Sign-up / apply CTA (filled)" }
     button-secondary: { type: button, fg: "#202124", radius: 8, padding: "7px 14px", font: "14px/400 Pretendard Variable", use: "Header nav text button" }
     filter-chip: { type: badge, fg: "#202124", radius: 10, padding: "7px 9px 7px 11px", font: "14px/400 Pretendard Variable", use: "Filter taxonomy chip, hover bg #f6f6f6" }
     jobcard: { type: card, bg: "#ffffff", radius: 12, padding: "12px 16px", use: "Job posting card, no shadow, gutter separation" }
@@ -87,7 +87,7 @@ The signature surface is the **JobCard** — a 12px-radius white container holdi
 ### Primary (Brand)
 - **Wanted Blue** (`#0066FF`): PANTONE 2195 C. The only interaction color. Sign-up CTAs, apply buttons, link text, focus rings, selection highlights. Verified against `brandcenter` and live `rgb(0, 102, 255)` on `회원가입/로그인` button.
 - **Wanted Black** (`#14191E`): Brand-center secondary. Logo lockup on light backgrounds, marketing typography. Distinct from UI heading color `#202124`.
-- **Primary Strong** (`#D93636`): Accessibility-safe coral. Use for filled CTA backgrounds, text links, focus rings, and selection / active states — clears WCAG AA with white text (≈4.6:1). `primary` (`#FF6464`) stays the brand / standard coral; pair it with white only on large (≥18px or bold) or decorative text (≈2.9:1, below AA for normal text).
+- **Primary Strong** (`#D93636`): Hover / pressed / active coral, and contrast support for small interactive text (text links, small labels on light) where `#FF6464` would fail AA. Clears WCAG AA with white text (≈4.6:1). **Not for default CTA backgrounds** — the default CTA / primary button uses `primary` (`#FF6464`); reserve `#D93636` for hover, pressed, active, and focus/contrast support. Kept distinct from `error` (`#F0483C`), which is validation / destructive only.
 
 ### Brand Accent (Marketing Only)
 - **Orange** (`#FF5C00`): Brand accent — promotional banners, brand campaigns. Never on functional UI.
@@ -149,7 +149,7 @@ Wanted's product UI is implemented in two parallel layers: **`wds-*`** classes (
 ### Buttons
 
 **Primary CTA / Brand**
-- Background: transparent (text-only on header) → `#D93636` (filled on apply / sign-up surfaces)
+- Background: transparent (text-only on header) → `#FF6464` (filled on apply / sign-up surfaces)
 - Text: `#D93636` (text variant) → `#FFFFFF` (filled)
 - Border: none
 - Radius: 8px
@@ -361,7 +361,7 @@ Detailed input variants (text/number/textarea/search) live in the `@wanteddev/wd
 ## 7. Do's and Don'ts
 
 ### Do
-- Use `primary-strong` (`#D93636`) for interactive elements that carry white or small text — filled CTA backgrounds, text links, focus rings, selection / active states (clears AA at ≈4.6:1). Reserve `#FF6464` + white for large (≥18px or bold) or decorative emphasis (≈2.9:1, below AA for normal text)
+- Use `primary` (`#FF6464`) for default CTAs, primary buttons, and large emphasis; use `primary-strong` (`#D93636`) for hover / pressed / active and for small interactive text (text links) where white/small text needs AA. Reserve `error` (`#F0483C`) for validation / destructive states only — never a CTA
 - Pair Pretendard Variable (UI) and Wanted Sans (brand) — never mix them in the same surface
 - Use 12px radius for JobCard and any "container of job content" surface — it's the recognizable Wanted shape
 - Use `#F6F6F6` for segmented-control tracks and secondary panels — it's the Wanted "surface grey"
@@ -405,8 +405,8 @@ Detailed input variants (text/number/textarea/search) live in the `@wanteddev/wd
 ## 9. Agent Prompt Guide
 
 ### Quick Color Reference
-- Primary / Interactive: `#FF6464` (Coral) — brand / large / decorative
-- Primary Strong (a11y): `#D93636` — filled CTA, text links, focus ring, selection / active (white-text safe ≈4.6:1)
+- Primary / Default CTA: `#FF6464` (Coral) — default CTA, primary button, large emphasis
+- Primary Strong (`#D93636`): hover / pressed / active · text-link & small-text contrast (NOT default CTA bg) · distinct from error `#F0483C`
 - Heading text: `#202124`
 - Body text: `#414245`
 - Secondary text: `rgba(55, 56, 60, 0.61)`
@@ -418,14 +418,14 @@ Detailed input variants (text/number/textarea/search) live in the `@wanteddev/wd
 
 ### Example Component Prompts
 - "Create a JobCard: white bg, 12px radius, 4:3 thumbnail with top-corners-only radius (12 12 0 0), 50px-square company logo (9px radius) overlapping bottom-left of thumbnail. Below thumbnail: 12 16px padding, position title 16px weight 600 `#202124`, company name 13px weight 400 `#414245`, location + experience caption 12px `rgba(55,56,60,0.61)`, optional 합격보상금 badge as small pill at top-right of thumbnail. Bookmark icon button 40px circle, top-right of card."
-- "Build a sign-up CTA: `#D93636` background, white text 14px weight 400, 8px radius, 32px height (header) or 48px (apply page), 7px 14px padding. No shadow."
+- "Build a sign-up CTA: `#FF6464` background, white text 14px weight 400, 8px radius, 32px height (header) or 48px (apply page), 7px 14px padding. No shadow."
 - "Design a filter chip row: horizontal scroll on mobile. Each chip 36px height, 10px radius, transparent bg with `#202124` text 14px weight 400, 7–11px asymmetric padding. Active chip uses `#F6F6F6` background. Country chip (`한국`) uses 10px radius with trailing chevron."
 - "Create a segmented control for sort (최신순/추천순/인기순): `#F6F6F6` container at 40px height, 10px radius, 0 4px padding. Active segment is white at 32px height with 8px radius. Inactive segments transparent. 14px Pretendard Variable text."
 - "Design a referral-reward badge (합격보상금 100만원): translucent overlay at top-left of JobCard thumbnail, white 12px weight 600 text, no background shape — just text on a subtle dark gradient overlay across the top 30% of the thumbnail for legibility."
 
 ### Iteration Guide
 1. Always use Pretendard Variable for product UI, Wanted Sans for marketing
-2. The interactive coral is `#FF6464` (brand) or `#D93636` (`primary-strong`, where white/small text needs AA) — never an unrelated hue, even if a Material/Tailwind coral looks close
+2. The default CTA / primary button is `#FF6464`; `#D93636` (`primary-strong`) is only for hover / pressed / active and small-text contrast — never the default CTA background, and never confused with `error` `#F0483C`
 3. JobCard 12px radius is non-negotiable — that radius is the brand
 4. Borders should be `rgba(112, 115, 124, 0.16)` translucent — not a solid `#EBEBEB`
 5. Use grid gutter (20–24px) for card separation, not shadow
@@ -467,7 +467,7 @@ What Wanted refuses: urgency marketing, salary obfuscation, recruiter spam tone.
 
 1. **One screen, one decision.** Job feed shows job cards. Job detail shows one job. Apply flow shows one form. No "promoted alongside organic" mixed-intent screens that blur user goals.
 2. **Salary is sacred.** Every job posting surfaces a salary range or `회사 내규` disclosure — never hidden, never "ask in interview." The grid layout is built to make salary visible without clicking through.
-3. **Brand coral is interaction, not decoration.** `#D93636` (`primary-strong`) carries the interactive elements — links, CTAs, focus rings, and selection / active states — while `#FF6464` stays the brand / standard coral for large or decorative use. Marketing illustrations may use the accent palette (orange/pink/sky/violet), but the product UI is monochromatic coral.
+3. **Coral is the brand action color.** `#FF6464` (`primary`) is the default CTA / primary button / large emphasis; `#D93636` (`primary-strong`) handles hover / pressed / active and small-text contrast — not the default CTA background, and kept distinct from `error` `#F0483C` (validation only). Marketing illustrations may use the accent palette (orange/pink/sky/violet), but the product UI is monochromatic coral.
 4. **The card is the brand.** JobCard's 12px radius, 4:3 thumbnail, bottom-left logo crop, and bookmark-top-right placement are the strongest visual signature. Other surfaces should reference its rhythm, not invent new ones.
 5. **Korean-first, English-parity.** Wanted serves a Korean-primary audience with global ambitions. UI strings are written in Korean first; English translations preserve sentence structure, not literal word order.
 6. **Density follows context.** Job feed is dense (4×N grid). Job detail is spacious (single column, large vertical rhythm). The deeper the user goes, the more breathing room they get.
@@ -494,14 +494,14 @@ What Wanted refuses: urgency marketing, salary obfuscation, recruiter spam tone.
 | **Loading (first paint)** | Skeleton blocks at `#F6F6F6` matching final JobCard dimensions — 4:3 thumbnail rectangle + 3 horizontal line placeholders for title/company/salary. 12px radius preserved. |
 | **Loading (refresh / pagination)** | Inline spinner at bottom of feed in `#FF6464`. No overlay, no blocking. Existing cards stay rendered. |
 | **Error (form field)** | `#F0483C` 1px border on input + 13px `#F0483C` helper text below. One actionable sentence. |
-| **Error (network failure)** | Centered message with `#202124` heading + `#414245` body, retry button in `#D93636`. No illustration on inline errors; only on full-page outages. |
-| **Error (full-page server outage)** | White screen, centered Wanted logo at top, single-line message in 16px `#202124` weight 600, retry button in `#D93636` filled style. |
+| **Error (network failure)** | Centered message with `#202124` heading + `#414245` body, retry button in `#FF6464`. No illustration on inline errors; only on full-page outages. |
+| **Error (full-page server outage)** | White screen, centered Wanted logo at top, single-line message in 16px `#202124` weight 600, retry button in `#FF6464` filled style. |
 | **Success (applied)** | Brief inline flash — bookmark turns `#D93636`, "지원완료" badge appears in `#00B97C` for 2s, then settles to a persistent "지원함" status pill. No toast — application is a state change, not an event. |
 | **Success (saved / bookmarked)** | Bookmark icon fills `#D93636`, brief 200ms scale animation (1.0 → 1.15 → 1.0) with `ease-spring` easing. No toast. |
 | **Skeleton** | `#F6F6F6` blocks at exact final dimensions. 1.5s shimmer with 6% white highlight gradient. JobCard skeletons preserve 12px radius and 4:3 thumbnail aspect. |
 | **Disabled** | Button opacity drops to 0.4. Disabled inputs keep their `rgba(112,115,124,0.16)` border (geometry stable). Disabled chips show `#747579` text on transparent background. |
 | **Hover (chip / button)** | Background transitions to `#F6F6F6` over 150ms with `ease-standard`. Text color unchanged. |
-| **Focus (keyboard)** | 2px outline ring in `#D93636` with 2px offset. Replaces hover background — focused element doesn't double up bg-change + ring. |
+| **Focus (keyboard)** | 2px outline ring in `#FF6464` with 2px offset. Replaces hover background — focused element doesn't double up bg-change + ring. |
 
 ## 15. Motion & Easing
 

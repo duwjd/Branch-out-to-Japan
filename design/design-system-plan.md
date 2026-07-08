@@ -131,3 +131,9 @@ Header `45:5` · Hero `45:15` · Problem `45:26` · Solution `46:2` · Before/Af
 - Before/After 카드를 **"일본어 예시 + 한국어 해설"** 구조로 보완(1차 고객=한국 기업이 개선 포인트를 즉시 이해하도록).
 - 카드 구조: 태그(KR) → 일본어 샘플 → 구분선 → 한국어 라벨 → 3불릿 → (섹션 하단) 예시 노트. After 라벨=`primary-strong`, 개선 불릿=`success`.
 - 반영: Sections `46:18` · Desktop `50:54` · Mobile `51:37`. 기존 1줄 카드 노트는 3불릿으로 통합. 상세: handoff §10.
+
+## 버튼 컬러 정책 재조정 (2026-07-08)
+- **default CTA/primary button 배경 = `primary #FF6464`** (기존 `primary-strong #D93636`은 에러처럼 보여 변경).
+- `primary-strong #D93636` = **hover/pressed/active/contrast 보조** (기본 CTA 배경 아님, 토큰 삭제 안 함). `error #F0483C` = validation 전용.
+- Figma: Variable `interactive/default → coral/base(#FF6464)` 재지정 → 바인딩 CTA·Button Primary 일괄 전환. `interactive/hover(#D93636)` 신설. Text Link는 #D93636 유지. Color System §3/§4/§5 갱신.
+- ⚠️ 접근성: `#FF6464`+white ≈2.9:1(AA 미달) — 브랜드 우선 결정, CTA는 large/bold 흰 텍스트. 상세: handoff §11.

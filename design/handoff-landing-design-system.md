@@ -168,3 +168,30 @@ Figma `Sections`(`45:3`) · `Landing / Desktop`(`50:3`) · `Landing / Mobile`(`5
    - 일본어 샘플은 **약기법(薬機法) 검수 필요**.
    - **Section은 아직 Component 미승격** (3곳 동기화 필요).
    - **핵심 카피 팀 최종 승인 필요.**
+
+---
+
+## 11. 업데이트 (2026-07-08) — 버튼 컬러 정책 재조정
+
+**이유:** Primary Button 배경이 `primary-strong #D93636`이라 **에러/위험 상태처럼** 보임. CTA는 에러가 아니라 브랜드 행동 유도이므로 **기본 배경을 `primary #FF6464`로** 변경.
+
+### 새 토큰 역할 (확정)
+- `primary #FF6464` — **brand coral / default CTA / primary button / large emphasis**
+- `primary-tint #FFF8F8` — tint surface · CTA band · soft selection background
+- `primary-strong #D93636` — **hover / pressed / active / focus·contrast support** (기본 CTA 배경으로는 사용하지 않음). 작은 텍스트·텍스트 링크 대비 보조.
+- `error #F0483C` — **error / destructive / validation only** (CTA 색과 명확히 구분)
+
+### Figma 반영
+- **Variable `interactive/default` → `coral/base(#FF6464)` 재지정** → 바인딩된 모든 CTA(Header/Hero/Offer/Final CTA/Lead submit) + Components `Button` Primary가 **일괄 #FF6464**로 전환.
+- **`interactive/hover(#D93636)` 신설** (hover/pressed/active용).
+- **Text Link 컴포넌트(`40:16`)는 #D93636 유지** — 작은 링크 텍스트 대비.
+- **Color System 보드**: §3 `Primary button`·`Focus ring` 샘플 → `#FF6464`(+caption); §1 primary/primary-strong 카드 노트, §2 Interactive 설명, §4 Product-UI 패널(주블록=primary #FF6464·보조=primary-strong #D93636), §5 Do/Don't 문구 갱신. (Selection/Active/Text link 샘플은 #D93636 유지)
+- `primary-strong` 토큰은 **삭제하지 않음**. focus ring은 `#FF6464`(필요 시 `#FFF8F8` 조합)로 정리.
+
+### 문서 반영
+- `design/DESIGN.md` — button-primary bg(#ff6464), §2 Primary Strong 역할, §7 Do, §9 Quick Ref, §12 원칙, §14 focus/retry 적용값 갱신. error vs CTA 역할 차이 명시.
+
+### 접근성 주의점 (중요)
+- **`#FF6464` + 흰 텍스트 ≈ 2.9:1 → WCAG AA(4.5:1)·대형 텍스트(3:1) 모두 근소 미달.** 이번 변경은 "에러처럼 안 보이게" 하는 **브랜드 우선 결정**.
+- 완화책: CTA는 **large/bold 흰 텍스트** 사용, hover 시 `#D93636`로 대비 보강, **작은 인터랙티브 텍스트·링크는 `#D93636`** 사용.
+- **[동기화 필요] `design/DESIGN.md` ↔ `design/references/wanted-design.md`** — 이번엔 DESIGN.md만 수정해 두 파일이 diverge. 필요 시 wanted-design.md 동기화.
