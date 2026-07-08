@@ -1,13 +1,26 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "createdAt": "2026-07-08",
+  "updatedAt": "2026-07-08",
   "targetModel": "gpt-image-2.0",
-  "purpose": "한국 썸네일/제품 이미지(input image)를 일본향 제품 썸네일로 변환하는 카테고리별 프롬프트 팩. 근거: docs/research/jp-thumbnail-style-taxonomy.md, 라벨: data/processed/thumbnail-style-labels.jsonl",
+  "purpose": "한국 썸네일/제품 이미지(input image)를 일본향 제품 썸네일로 변환하는 카테고리별 프롬프트 팩. 근거: docs/research/jp-thumbnail-style-taxonomy.md, 라벨: data/processed/thumbnail-style-labels.jsonl, 파이프라인 스펙: docs/specs/02-thumbnail-converter-spec.md",
   "usageNotes": [
     "input image = 한국 썸네일 또는 제품 단독컷. 제품이 선명하고 가려지지 않아야 한다.",
     "{{slot}} 플레이스홀더는 호출 시점에 채워서 promptTemplate을 완성한다. 일본어 텍스트 슬롯은 jp-localizer 산출(약기법 검수 통과) 카피만 주입한다.",
     "conditionalBadgeSlots는 requiresProof=true이면 근거 데이터(수상명·연도·부문·집계기간 등)가 있을 때만 해당 문단을 프롬프트에 포함한다. 근거가 없으면 문단째 제거 — 배지 없는 이미지가 생성되는 것이 기본값이다.",
-    "commonConstraints와 commonNegativeConstraints를 각 카테고리 constraints 뒤에 이어붙여 하나의 프롬프트로 만든다."
+    "조립 순서: [입력이 프로모 썸네일이면 inputCleanupNote] → promptTemplate(슬롯 치환 완료) → 'Strict requirements:' 아래에 카테고리 constraints → commonConstraints → 카테고리 negativeConstraints → commonNegativeConstraints를 불릿으로 이어붙여 하나의 프롬프트로 만든다."
+  ],
+  "inputCleanupNote": {
+    "when": "입력 이미지가 제품 단독컷이 아니라 오버레이(카피·뱃지·가격·테두리)가 있는 프로모 썸네일일 때, 최종 프롬프트 맨 앞에 프리펜드한다.",
+    "template": "The input is a Korean promotional thumbnail: first isolate the physical product exactly as it appears, discarding every existing overlay element (frames, badges, price bands, character stickers, and all Hangul text)."
+  },
+  "slotFillingRules": [
+    "성분 데이터가 입력에 없으면 성분명을 절대 지어내지 않는다 — D의 ingredientVisual은 제형 비주얼(물방울·크림 스미어·거품 등)로 대체하고, 성분 소구가 필요하면 브랜드에게 성분 데이터를 추가로 받는다.",
+    "トーンアップ·透明感·白浮きしない 등 외관 변화 카피에는 footnoteJa에 '※メーキャップ効果による'를 기본으로 넣는다 (일본 관례·약기법 대응).",
+    "가격 슬롯(G.priceBlock)의 이중가격(취소선 통상가)은 실제 통상 판매 실적이 있는 가격만 — 유리오인(有利誤認) 리스크.",
+    "F(모델+카피형)는 브랜드 보유 모델컷이 있을 때만 선택한다. 없으면 B/D로 대체 (인물 합성 금지).",
+    "가격·할인율 등 법적 구속력 있는 텍스트는 모델 렌더링 대신 생성 후 코드 오버레이(하이브리드)를 권장 — 스펙 문서 §3-6 참조.",
+    "한국 카피는 직역하지 않는다 — 의도를 추출해 일본 고민 어휘·관례어로 재설계한 카피(jp-localizer 산출)만 슬롯에 넣는다. 예: '쿨톤 치트키' → '白浮きしない、透け感トーンアップUV'."
   ],
   "defaults": {
     "size": "1024x1024",

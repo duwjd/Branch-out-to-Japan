@@ -73,3 +73,4 @@ term,reading,source,category,exampleContext,frequency,collectedAt
 KR 썸네일/제품컷 → 일본향 썸네일 변환용 **GPT Image 2.0 프롬프트 팩** (스타일 A~H, 카테고리별 1개).
 `{{slot}}` 치환 후 사용. 실적 배지 슬롯은 `requiresProof: true` — 근거 미입력 시 해당 문단 제거가 기본값(경품표시법 가드).
 일본어 카피 슬롯은 jp-localizer 산출물만 주입한다.
+조립 절차·API 호출·워크드 예시: `docs/specs/02-thumbnail-converter-spec.md` (파이프라인 스펙).

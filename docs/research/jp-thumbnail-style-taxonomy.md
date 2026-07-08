@@ -138,6 +138,7 @@
 |---|---|
 | `data/processed/thumbnail-style-labels.jsonl` | 120장 스타일 라벨 — 기능의 few-shot 예시·분류기 평가셋 |
 | `data/processed/thumbnail-style-prompts.json` | 카테고리별 GPT Image 2.0 변환 프롬프트 팩 — 스튜디오 기능이 직접 로드 |
+| `docs/specs/02-thumbnail-converter-spec.md` | 변환 기능 구현 스펙 — 파이프라인 6단계·조립 알고리즘·워크드 예시·검증 계획 |
 | 이 문서 | 유형 정의·경계 규칙·법적 가드의 단일 근거 |
 
 프롬프트 실생성 검증(카테고리당 샘플 생성)은 이번 범위에서 제외 — **스튜디오(②) 개발 시 수행** (2026-07-08 결정).
