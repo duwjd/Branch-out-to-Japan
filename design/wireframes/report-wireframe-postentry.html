@@ -1,0 +1,1902 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>① 진단 리포트 · S2(입점 후·매출 저조) · 티어 입력 + 리포트 · 와이어프레임</title>
+<!--
+  ════════════════════════════════════════════════════════════════════════════
+  비배포 · 프론트 개발 착수용 와이어프레임 (단일 HTML, 무의존).
+  CSP 안전: 외부 CSS/JS/폰트/이미지 없음. 상호작용은 <details>·탭 시연만(무JS).
+  세그먼트: S2 = 입점 후·매출 저조 (S1=입점 전의 파생). 본 시안은 S2-b(리뷰 0)를 기본 상태로 시연.
+
+  근거: docs/specs/02-report-spec-postentry.md (§3 입력 · §4 블록 재배치+신규A/C · §5 산출물 · §6 구독)
+        design/wireframes/report-wireframe.html (S1 베이스 · CSS 토큰·컴포넌트·9블록 골격 재사용)
+        docs/specs/report-sample-cica-ampoule.md (콘텐츠 깊이 기준선)
+        design/wireframes/deliverable-proto-cica.html (블록8이 링크·요약 참조하는 30만 산출물 실물)
+  ※ 화면 속 점수·문구·성분·페르소나·일본어 카피·검수자명·경쟁사 리뷰는 UI 시연용 예시 데이터.
+    가상 성과 스탯(87%·+214% 류)·가짜 리뷰·성과 보장은 넣지 않는다(증거 원칙).
+
+  ── IA 노트 (S2 · 블록 재배치 · 신규 A/C) ───────────────────────────────────
+  [S1 대비 델타만 표기 · 공통 구조/증거원칙/집계엔진/약기법 감사 계약은 베이스 계승]
+    화면 1 · 티어 입력 폼  /report/new?seg=postentry
+       └ S1 폼 골격 재사용 + §3.1 추가 필드(가볍게):
+           liveDetailUrl(현재 라이브 상세 URL = 진단 대상, 판매 중 상세)
+           reviewUrl(리뷰 페이지 URL · 분기 키: 있으면 S2-a 자기리뷰 / 없으면 S2-b 경쟁사 마이닝)
+           competitorUrl(Tier2) · funnelSignal(선택·아는 값만)
+       └ 톤: "이미 판매 중" (上市 전 → 재진단)
+    화면 2 · 리포트 (S2 블록 순서 · §4.1 그대로):
+       0 표지(재진단 프레이밍 + 퍼널 요약 1줄 + 30만·산출물 명시)
+       1 요약
+       [신규A] 퍼널 분해 진단 (a 노출·유입 / b 클릭·썸네일 / c 전환·상세, 책임구간=b·c, 정직 고지 배너)
+       [신규C] 리뷰 축적 병목 진단 (진단→설계, 경계 배너: 수·평점 보장 안 함 → 실행은 구독③)
+       2 페르소나·구매반대이유·USP
+       6′ 리뷰 인과 (S2-b 경쟁사 상위 상품 실측 리뷰 마이닝 · "자사 리뷰 미보유" 라벨)
+       3 약기법 (라이브 리스크 톤 · 검수자 자격·경력 명시)
+       4 벤치마크
+       5 A~E 점수
+       7 재작성
+       8 현재 실물 Before/After (deliverable-proto-cica.html 산출물 링크·요약)
+       9 맺음 + 구독 CTA (관측 지표 명시 · 구독 가격대 밴드 · 개선확인→구독 루프)
+
+  [증거 원칙 · S2 특화]
+    · 경쟁사 리뷰 = 실제 리뷰만(마이닝 가정), "자사 리뷰 미보유" 라벨 필수.
+    · 퍼널 진단 = 성과 예측 아님. 유입(a) 실행 안 함(대행 금지) → 정직 고지 + 구독 동선.
+    · 리뷰 병목 = 수·평점 보장 안 함(스테마 규제·성과보장 회피). 진단·설계까지가 리포트.
+    · 종합점수 = 관례 충족도(성과 예측 아님). 30만 = 구독 획득용 유료 파일럿(트라이얼).
+  ════════════════════════════════════════════════════════════════════════════
+-->
+<style>
+  /* ── A안 · 신뢰 자산 네이비 토큰 (report-wireframe.html 계승) ───────── */
+  :root {
+    --primary: #233a66;
+    --deep: #141f38;
+    --canvas: #fafaf7;
+    --soft: #eef1f4;
+    --ink: #1c2433;
+    --ink-mute: #5b6472;
+    --hairline: #dde1e6;
+    --gold: #b98a2f;
+    --gold-text: #8a6516;
+    --rose-text: #a83e57;
+    --danger: #b23a48;
+    --danger-bg: #faeef0;
+    --safe: #2c6e49;
+    --safe-bg: #eaf4ee;
+    --warn-text: #8a6516;
+    --warn-bg: #fbf4e4;
+
+    --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
+      "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", sans-serif;
+
+    --shadow-card: 0 1px 2px rgba(20,31,56,.04), 0 8px 24px rgba(20,31,56,.06);
+    --radius: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 68px; }
+  body {
+    font-family: var(--font-sans);
+    background: #e7e9ee;
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  :lang(ja) { font-family: "Hiragino Sans", "Noto Sans JP", var(--font-sans); }
+
+  /* 접근성: 포커스 링 */
+  a:focus-visible, button:focus-visible, summary:focus-visible,
+  input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px;
+  }
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* ── 상단 문서 네비 ─────────────────────────────────── */
+  .docnav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(250,250,247,.92); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .docnav-inner {
+    max-width: 1120px; margin: 0 auto; padding: 12px 24px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .docnav .logo { font-weight: 700; font-size: 15px; letter-spacing: -.01em; }
+  .docnav .logo .dot { color: var(--primary); }
+  .docnav .tag {
+    font-size: 10.5px; color: var(--ink-mute); border: 1px solid var(--hairline);
+    border-radius: 999px; padding: 3px 9px;
+  }
+  .docnav .tag.seg { color: var(--gold-text); border-color: var(--gold); background: #fff; }
+  .docnav .links { display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto; }
+  .docnav .links a {
+    font-size: 12px; color: var(--ink-mute); text-decoration: none;
+    padding: 6px 10px; border-radius: 8px;
+  }
+  .docnav .links a:hover { background: var(--soft); color: var(--primary); }
+
+  /* ── 문서 레이아웃 ──────────────────────────────────── */
+  .doc { max-width: 1120px; margin: 0 auto; padding: 40px 24px 96px; }
+  .doc-head { margin-bottom: 8px; }
+  .doc-head h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; }
+  .doc-head .sub { font-size: 14px; color: var(--ink-mute); margin-top: 8px; max-width: 820px; }
+  .doc-head .meta {
+    margin-top: 14px; font-size: 12px; color: var(--ink-mute);
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .doc-head .meta span { background: var(--soft); border-radius: 6px; padding: 4px 10px; }
+  .doc-head .meta span.new { background: #fff; border: 1px solid var(--gold); color: var(--gold-text); }
+
+  .screen { margin-top: 56px; scroll-margin-top: 68px; }
+  .screen-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+  .screen-num {
+    font-size: 12px; font-weight: 700; color: #fff; background: var(--primary);
+    border-radius: 6px; padding: 3px 8px; letter-spacing: .02em;
+  }
+  .screen-head h2 { font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+  .screen-head .role { font-size: 12.5px; color: var(--ink-mute); }
+  .screen-desc { font-size: 13px; color: var(--ink-mute); margin: 4px 0 18px; max-width: 860px; }
+  .screen-desc b { color: var(--ink); font-weight: 600; }
+
+  .frame {
+    background: var(--canvas); border: 1px solid var(--hairline);
+    border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-card);
+  }
+  .chrome {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; background: #f1f2f5; border-bottom: 1px solid var(--hairline);
+  }
+  .chrome .dots { display: flex; gap: 6px; }
+  .chrome .dots i { width: 11px; height: 11px; border-radius: 50%; background: #d3d7de; display: block; }
+  .chrome .url {
+    font-size: 11.5px; color: var(--ink-mute); background: #fff;
+    border: 1px solid var(--hairline); border-radius: 999px; padding: 4px 12px;
+    margin-left: 8px; flex: 1; max-width: 440px;
+  }
+  .appbar {
+    display: flex; align-items: center; gap: 20px;
+    padding: 14px 24px; border-bottom: 1px solid var(--hairline);
+  }
+  .appbar .brand { font-weight: 700; font-size: 15px; letter-spacing: -.01em; }
+  .appbar .brand .dot { color: var(--primary); }
+  .appbar nav { display: flex; gap: 4px; }
+  .appbar nav a {
+    font-size: 12.5px; color: var(--ink-mute); text-decoration: none;
+    padding: 6px 12px; border-radius: 8px;
+  }
+  .appbar nav a.on { color: var(--primary); background: var(--soft); font-weight: 600; }
+  .appbar .right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--soft);
+    border: 1px solid var(--hairline); display: grid; place-items: center;
+    font-size: 11px; color: var(--ink-mute); font-weight: 600;
+  }
+
+  .pad { padding: 28px 24px; }
+  .pad-lg { padding: 40px 28px; }
+
+  /* 버튼 */
+  .btn {
+    font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+    border-radius: 10px; padding: 10px 18px; border: 1px solid transparent;
+    display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-ghost { background: #fff; color: var(--primary); border-color: var(--hairline); }
+  .btn-gold { background: var(--gold); color: #2a1f05; }
+  .btn-sm { padding: 7px 13px; font-size: 12px; }
+  .btn-block { width: 100%; justify-content: center; }
+  .btn[aria-disabled="true"], .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  /* 공통 카드 */
+  .card { background: #fff; border: 1px solid var(--hairline); border-radius: 12px; padding: 20px; }
+  .card-soft { background: var(--soft); border-color: var(--hairline); }
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--primary);
+  }
+  .muted { color: var(--ink-mute); }
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 760px) { .g2, .g3 { grid-template-columns: 1fr; } .appbar nav { display: none; } }
+
+  .sec-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .sec-sub { font-size: 12.5px; color: var(--ink-mute); margin-bottom: 16px; }
+  .section-block { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--hairline); scroll-margin-top: 68px; }
+  .section-block:first-of-type { border-top: 0; padding-top: 0; }
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--primary);
+    display: inline-flex; align-items: center; gap: 7px; margin-bottom: 6px;
+  }
+  .section-label .tagk {
+    background: var(--primary); color: #fff; border-radius: 5px; padding: 2px 8px; font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+  .section-label .tagk.newk { background: var(--gold); color: #2a1f05; letter-spacing: 0; }
+  .section-label .new {
+    background: var(--gold); color: #3a2c08; border-radius: 5px; padding: 2px 7px; font-size: 10px;
+  }
+
+  /* 배지 모음 */
+  .pill {
+    font-size: 11px; font-weight: 600; border-radius: 999px; padding: 4px 11px;
+    display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent;
+  }
+  .pill-trust { color: var(--gold-text); border-color: var(--gold); background: #fff; }
+  .pill-warn { color: var(--warn-text); background: var(--warn-bg); }
+  .pill-info { color: var(--primary); background: var(--soft); }
+  .pill-na { color: var(--ink-mute); background: var(--soft); }
+  .pill-carry { color: var(--safe); background: var(--safe-bg); }
+  .pill-danger { color: var(--danger); background: var(--danger-bg); }
+
+  /* 판정 배지 (약기법 감사) */
+  .verdict { font-size: 11px; font-weight: 700; border-radius: 6px; padding: 3px 9px; white-space: nowrap; display: inline-block; }
+  .verdict.ng { color: var(--danger); background: var(--danger-bg); }
+  .verdict.cond { color: var(--warn-text); background: var(--warn-bg); }
+  .verdict.ok { color: var(--safe); background: var(--safe-bg); }
+
+  /* 주석(annotation) */
+  .notes { margin-top: 14px; display: grid; gap: 8px; }
+  .note { font-size: 12px; color: var(--ink-mute); padding-left: 26px; position: relative; line-height: 1.55; }
+  .note::before {
+    content: attr(data-n); position: absolute; left: 0; top: 0;
+    width: 18px; height: 18px; border-radius: 50%; background: var(--deep); color: #fff;
+    font-size: 10px; font-weight: 700; display: grid; place-items: center;
+  }
+  .note b { color: var(--ink); font-weight: 600; }
+
+  /* ── 폼: 티어 헤더 + 정밀도 게이지 ──────────────────── */
+  .tier-head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;
+  }
+  .tier-badge { font-size: 10.5px; font-weight: 700; letter-spacing: .03em; border-radius: 6px; padding: 3px 9px; }
+  .tier-badge.t0 { background: var(--primary); color: #fff; }
+  .tier-badge.t1 { background: var(--soft); color: var(--primary); border: 1px solid var(--primary); }
+  .tier-badge.t2 { background: #fff; color: var(--gold-text); border: 1px solid var(--gold); }
+  .tier-req { font-size: 11px; color: var(--danger); font-weight: 700; }
+  .tier-opt { font-size: 11px; color: var(--ink-mute); font-weight: 600; }
+
+  .gauge {
+    background: var(--soft); border: 1px solid var(--hairline); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 22px;
+  }
+  .gauge .glabel { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .gauge .glabel .l { font-size: 12.5px; font-weight: 700; }
+  .gauge .glabel .r { font-size: 11.5px; color: var(--ink-mute); }
+  .gauge .gtrack { display: flex; gap: 4px; margin: 12px 0 8px; }
+  .gauge .gseg { flex: 1; height: 8px; border-radius: 999px; background: var(--hairline); }
+  .gauge .gseg.fill { background: var(--primary); }
+  .gauge .gseg.fill.gold { background: var(--gold); }
+  .gauge .gends { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-mute); }
+  .gauge .gends .now { color: var(--primary); font-weight: 700; }
+
+  /* 폼 필드 */
+  .field { margin-bottom: 18px; }
+  .field > label, .field .field-legend {
+    display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 7px;
+  }
+  fieldset { border: 0; }
+  .req { color: var(--danger); }
+  .hint { font-size: 11px; color: var(--ink-mute); font-weight: 400; margin-left: 4px; }
+  .input, .textarea, .select {
+    width: 100%; font-family: inherit; font-size: 13px; color: var(--ink);
+    background: #fff; border: 1px solid var(--hairline); border-radius: 9px; padding: 10px 12px;
+  }
+  .input::placeholder, .textarea::placeholder { color: #aab0b9; }
+  .textarea { min-height: 78px; resize: vertical; }
+  .field-help { font-size: 11.5px; color: var(--ink-mute); margin-top: 6px; }
+
+  .tier-group {
+    border: 1px solid var(--hairline); border-radius: 12px; padding: 20px; margin-bottom: 18px;
+  }
+  .tier-group.t0 { border-color: var(--primary); background: #fff; }
+  .tier-group.t1 { background: #fff; }
+  .tier-group.t2 { background: var(--canvas); }
+
+  /* 선택 칩 */
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    font-size: 12.5px; border: 1px solid var(--hairline); border-radius: 999px;
+    padding: 8px 15px; background: #fff; color: var(--ink); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; position: relative;
+  }
+  .chip input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .chip.on, .chip:has(input:checked) { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .chip small { font-size: 10.5px; opacity: .8; }
+
+  /* 입력 방식 탭 */
+  .sourcetab { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .sourcetab button {
+    font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--hairline); background: #fff; color: var(--ink-mute);
+    border-radius: 10px; padding: 9px 15px; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .sourcetab button.on { border-color: var(--primary); color: var(--primary); background: var(--soft); }
+  .sourcetab .primary-path {
+    font-size: 10px; font-weight: 700; background: var(--gold); color: #3a2c08;
+    border-radius: 5px; padding: 2px 6px;
+  }
+
+  /* 처리 로딩 */
+  .loading { display: grid; gap: 14px; padding: 20px 0; }
+  .loading-bar { height: 8px; border-radius: 999px; background: var(--hairline); overflow: hidden; }
+  .loading-bar i { display: block; height: 100%; background: var(--primary); border-radius: 999px; }
+  .loading-steps { display: grid; gap: 8px; }
+  .loading-steps li {
+    list-style: none; font-size: 12.5px; display: flex; align-items: center; gap: 9px; color: var(--ink-mute);
+  }
+  .loading-steps li b {
+    width: 18px; height: 18px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    font-size: 10px; font-weight: 700; background: var(--soft); color: var(--ink-mute);
+  }
+  .loading-steps li.done { color: var(--ink); }
+  .loading-steps li.done b { background: var(--safe); color: #fff; }
+  .loading-steps li.now { color: var(--primary); font-weight: 600; }
+  .loading-steps li.now b { background: var(--primary); color: #fff; }
+
+  /* 에러/안내 배너 */
+  .banner {
+    display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px;
+    border-radius: 10px; padding: 12px 14px; line-height: 1.55;
+  }
+  .banner.err { background: var(--danger-bg); color: var(--danger); }
+  .banner.warn { background: var(--warn-bg); color: var(--warn-text); }
+  .banner a { color: inherit; font-weight: 700; }
+  .banner b { font-weight: 700; }
+
+  /* ── 블록 0 · 표지 (Cover) ─────────────── */
+  .cover {
+    background: linear-gradient(180deg, #fff 0%, var(--canvas) 100%);
+    border: 1px solid var(--hairline); border-top: 4px solid var(--primary);
+    border-radius: 14px; padding: 32px; box-shadow: var(--shadow-card);
+  }
+  .cover .kicker { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); }
+  .cover h2 { font-size: 24px; font-weight: 700; letter-spacing: -.02em; margin: 10px 0 4px; }
+  .cover .subject { font-size: 13px; color: var(--ink-mute); }
+  .cover-funnel {
+    margin: 18px 0 4px; padding: 13px 16px; background: var(--danger-bg); border: 1px solid #f2d4d9;
+    border-radius: 12px; font-size: 13px; color: var(--danger); line-height: 1.55; display: flex; gap: 10px; align-items: flex-start;
+  }
+  .cover-funnel b { color: #8f2c39; }
+  .cover-price {
+    display: flex; align-items: baseline; gap: 8px; margin: 16px 0 8px;
+    padding: 16px 18px; background: var(--soft); border-radius: 12px; flex-wrap: wrap;
+  }
+  .cover-price .amt { font-size: 30px; font-weight: 700; letter-spacing: -.02em; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .cover-price .unit { font-size: 14px; color: var(--ink); font-weight: 600; }
+  .cover-price .note2 { font-size: 11.5px; color: var(--ink-mute); margin-left: auto; }
+  .cover-deliver {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 18px;
+  }
+  .cover-deliver .dv {
+    font-size: 11.5px; font-weight: 600; color: var(--primary); background: #fff;
+    border: 1px solid var(--primary); border-radius: 8px; padding: 6px 11px; display: inline-flex; gap: 6px; align-items: center;
+  }
+  .cover-deliver .dv small { color: var(--ink-mute); font-weight: 400; }
+  .cover-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  @media (max-width: 620px) { .cover-meta { grid-template-columns: 1fr; } }
+  .cover-meta div { padding: 14px 16px; border-bottom: 1px solid var(--hairline); }
+  .cover-meta div:nth-child(odd) { border-right: 1px solid var(--hairline); }
+  @media (max-width: 620px) { .cover-meta div:nth-child(odd) { border-right: 0; } }
+  .cover-meta dt { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; color: var(--primary); text-transform: uppercase; }
+  .cover-meta dd { font-size: 13px; margin-top: 4px; line-height: 1.5; }
+  .cover-meta dd .sig { font-weight: 700; }
+  .cover-limits { margin-top: 16px; font-size: 11.5px; color: var(--ink-mute); line-height: 1.65; background: #fff; border: 1px dashed var(--hairline); border-radius: 10px; padding: 13px 15px; }
+  .cover-limits b { color: var(--ink); }
+
+  /* ── 블록 1 · 진단 요약 헤더 ─────────────────────── */
+  .summary-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 760px) { .summary-grid { grid-template-columns: 1fr; } }
+  .score-card { background: var(--soft); border: 1px solid var(--hairline); border-radius: 12px; padding: 24px; }
+  .score-row { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .score-num { font-size: 52px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--primary); line-height: 1; }
+  .score-unit { font-size: 15px; color: var(--ink-mute); }
+  .score-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+  .score-frame { font-size: 12px; color: var(--ink-mute); margin-top: 12px; line-height: 1.6; }
+  .score-frame b { color: var(--ink); }
+  .axis-mini { display: grid; gap: 6px; margin-top: 16px; }
+  .axis-mini .row { display: grid; grid-template-columns: 84px 1fr 34px; align-items: center; gap: 8px; font-size: 11px; }
+  .axis-mini .row .an { color: var(--ink); font-weight: 600; }
+  .axis-mini .row .ab { height: 6px; border-radius: 999px; background: var(--hairline); overflow: hidden; }
+  .axis-mini .row .ab i { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
+  .axis-mini .row .ab i.low { background: var(--danger); }
+  .axis-mini .row .ab i.mid { background: var(--gold); }
+  .axis-mini .row .av { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-mute); font-weight: 700; }
+
+  .priority-list { display: grid; gap: 10px; }
+  .priority-item {
+    background: #fff; border: 1px solid var(--hairline); border-radius: 10px; padding: 13px 14px;
+    display: flex; gap: 11px; align-items: flex-start;
+  }
+  .rank {
+    flex: none; width: 22px; height: 22px; border-radius: 6px; background: var(--deep); color: #fff;
+    font-size: 11px; font-weight: 700; display: grid; place-items: center; font-variant-numeric: tabular-nums;
+  }
+  .priority-item .t { font-size: 13px; font-weight: 600; }
+  .priority-item .d { font-size: 11.5px; color: var(--ink-mute); margin-top: 2px; }
+  .priority-item .ref { font-size: 10.5px; color: var(--primary); font-weight: 600; margin-top: 4px; }
+
+  /* ══════════ 신규A · 퍼널 분해 진단 ══════════ */
+  .funnel { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; gap: 8px; margin: 8px 0 16px; }
+  @media (max-width: 820px) { .funnel { grid-template-columns: 1fr; } .funnel .farw { display: none; } }
+  .fstage {
+    position: relative; border: 1px solid var(--hairline); border-radius: 12px; padding: 16px 15px 15px; background: #fff;
+  }
+  .fstage .fk { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-mute); }
+  .fstage .ft { font-size: 14.5px; font-weight: 700; margin: 5px 0 6px; }
+  .fstage .fd { font-size: 12px; color: var(--ink-mute); line-height: 1.55; }
+  .fstage .fverdict { margin-top: 10px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; border-radius: 6px; padding: 4px 9px; }
+  .fstage .fverdict.weak { color: var(--danger); background: var(--danger-bg); }
+  .fstage .fverdict.susp { color: var(--warn-text); background: var(--warn-bg); }
+  .fstage.ours { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary) inset; }
+  .fstage.ours::before {
+    content: "우리가 책임지는 구간"; position: absolute; top: -10px; left: 12px;
+    font-size: 10px; font-weight: 700; color: #fff; background: var(--primary); border-radius: 999px; padding: 3px 9px;
+  }
+  .fstage.outside { background: var(--canvas); border-style: dashed; }
+  .fstage.outside::before {
+    content: "우리 범위 밖(진단만)"; position: absolute; top: -10px; left: 12px;
+    font-size: 10px; font-weight: 700; color: var(--ink-mute); background: #fff; border: 1px solid var(--hairline); border-radius: 999px; padding: 3px 9px;
+  }
+  .funnel .farw { align-self: center; color: var(--ink-mute); font-weight: 700; font-size: 14px; }
+  .honesty {
+    display: grid; gap: 12px; grid-template-columns: 1fr auto; align-items: center;
+    background: var(--warn-bg); border: 1px solid #ecd9a8; border-radius: 12px; padding: 16px 18px; margin-top: 6px;
+  }
+  @media (max-width: 680px) { .honesty { grid-template-columns: 1fr; } }
+  .honesty .htxt { font-size: 12.5px; color: var(--warn-text); line-height: 1.6; }
+  .honesty .htxt b { color: #6b4e10; }
+  .honesty .hcta { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ══════════ 신규C · 리뷰 축적 병목 진단 ══════════ */
+  .bottleneck-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 820px) { .bottleneck-cols { grid-template-columns: 1fr; } }
+  .bn-card { border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .bn-card .bh { padding: 13px 16px; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .bn-card.diag .bh { background: var(--danger-bg); color: var(--danger); }
+  .bn-card.design .bh { background: var(--safe-bg); color: var(--safe); }
+  .bn-card .bh .step { font-size: 10px; background: currentColor; color: #fff; border-radius: 5px; padding: 2px 7px; }
+  .bn-list { padding: 14px 16px; display: grid; gap: 10px; }
+  .bn-list .bl { font-size: 12.5px; line-height: 1.55; display: grid; gap: 3px; }
+  .bn-list .bl .bcause { font-weight: 600; color: var(--ink); }
+  .bn-list .bl .bwhy { font-size: 11.5px; color: var(--ink-mute); }
+  .bn-flow {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 4px 0 12px;
+    font-size: 12px; background: var(--soft); border-radius: 10px; padding: 12px 14px;
+  }
+  .bn-flow .fn { font-weight: 700; color: var(--primary); background: #fff; border: 1px solid var(--hairline); border-radius: 8px; padding: 5px 10px; }
+  .bn-flow .arw { color: var(--ink-mute); }
+  .bn-kit { border: 1px dashed var(--gold); background: #fff; border-radius: 10px; padding: 13px 15px; margin-top: 12px; font-size: 12px; line-height: 1.6; }
+  .bn-kit b { color: var(--gold-text); }
+  .boundary {
+    margin-top: 16px; border: 1px solid var(--primary);
+    border-radius: 12px; background: #fff; padding: 16px 18px;
+    display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+  }
+  @media (max-width: 680px) { .boundary { grid-template-columns: 1fr; } }
+  .boundary .btxt { font-size: 12.5px; line-height: 1.6; }
+  .boundary .btxt .bt-h { font-weight: 700; color: var(--primary); display: block; margin-bottom: 3px; }
+  .boundary .btxt b { color: var(--danger); }
+
+  /* 페르소나 카드 */
+  .persona { display: grid; grid-template-columns: auto 1fr; gap: 18px; }
+  @media (max-width: 620px) { .persona { grid-template-columns: 1fr; } }
+  .persona .face {
+    width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: #fff;
+    display: grid; place-items: center; font-size: 22px; font-weight: 600;
+  }
+  .persona .who { font-size: 15px; font-weight: 700; }
+  .persona .meta { font-size: 12px; color: var(--ink-mute); margin-top: 3px; }
+  .persona-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 14px; }
+  @media (max-width: 620px) { .persona-grid { grid-template-columns: 1fr; } }
+  .persona-grid dt { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; color: var(--primary); text-transform: uppercase; }
+  .persona-grid dd { font-size: 12.5px; margin-top: 3px; line-height: 1.55; }
+  .journey {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 16px;
+    font-size: 12px; background: var(--soft); border-radius: 10px; padding: 12px 14px;
+  }
+  .journey .j { font-weight: 600; color: var(--ink); }
+  .journey .arw { color: var(--ink-mute); }
+  .journey .anchor { color: var(--rose-text); font-weight: 700; }
+
+  .objections { display: grid; gap: 8px; margin-top: 14px; }
+  .objection {
+    display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; line-height: 1.55;
+    background: #fff; border: 1px solid var(--hairline); border-left: 3px solid var(--rose-text);
+    border-radius: 0 10px 10px 0; padding: 11px 14px;
+  }
+  .objection .q { color: var(--rose-text); font-weight: 700; }
+  .objection .jp2 { color: var(--ink); }
+  .objection .whm { color: var(--ink-mute); font-size: 11.5px; margin-top: 2px; }
+
+  /* USP 표 */
+  .usp-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .usp-table th, .usp-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+  .usp-table thead th { font-size: 11px; letter-spacing: .03em; color: var(--ink-mute); background: var(--soft); font-weight: 700; }
+  .usp-table tbody tr:last-child td { border-bottom: 0; }
+  .usp-table .kr { color: var(--ink); }
+  .usp-table .risk { color: var(--danger); }
+  .usp-table .jp { color: var(--ink); font-weight: 500; }
+  .usp-table .xref { display: inline-block; margin-top: 6px; font-size: 10.5px; color: var(--primary); font-weight: 700; }
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-wrap { border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  @media (max-width: 720px) { .usp-table th, .usp-table td { min-width: 190px; } }
+
+  /* ══════════ 블록 6′ · 경쟁사 리뷰 마이닝 ══════════ */
+  .mining-banner {
+    display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start;
+    background: #fff; border: 1px solid var(--gold);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+  }
+  .mining-banner .mlabel {
+    font-size: 10.5px; font-weight: 700; color: var(--gold-text); background: var(--warn-bg);
+    border-radius: 6px; padding: 6px 9px; white-space: nowrap; text-align: center; line-height: 1.4;
+  }
+  .mining-banner .mtxt { font-size: 12.5px; color: var(--ink); line-height: 1.6; }
+  .mining-banner .mtxt b { color: var(--gold-text); }
+  .causal { display: grid; gap: 12px; }
+  .causal-row { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; gap: 8px; }
+  @media (max-width: 760px) { .causal-row { grid-template-columns: 1fr; } .causal-row .arw { display: none; } }
+  .causal-cell {
+    background: #fff; border: 1px solid var(--hairline); border-radius: 10px; padding: 13px 14px; font-size: 12px; line-height: 1.5;
+  }
+  .causal-cell .ck { font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .causal-cell.c1 { border-left: 3px solid var(--rose-text); }
+  .causal-cell.c1 .ck { color: var(--rose-text); }
+  .causal-cell.c2 .ck { color: var(--warn-text); }
+  .causal-cell.c3 { background: var(--soft); }
+  .causal-cell.c3 .ck { color: var(--primary); }
+  .causal-cell .jp3 { color: var(--ink); font-weight: 600; }
+  .causal-cell .rvsrc { display: block; margin-top: 6px; font-size: 10.5px; color: var(--ink-mute); }
+  .causal .arw { align-self: center; color: var(--ink-mute); font-weight: 700; }
+
+  /* ── 블록 3 · 약기법 전수 감사표 ─────────────────── */
+  .audit-frame { border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .audit-disclaimer {
+    background: var(--warn-bg); color: var(--warn-text); font-size: 12px; line-height: 1.6;
+    padding: 13px 16px; border-bottom: 1px solid var(--hairline);
+  }
+  .audit-disclaimer b { color: #6b4e10; }
+  .audit-live {
+    background: var(--danger-bg); color: var(--danger); font-size: 12.5px; line-height: 1.6;
+    padding: 13px 16px; border-bottom: 1px solid var(--hairline); font-weight: 600;
+  }
+  .audit-live b { color: #8f2c39; }
+  .audit-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .audit-table th, .audit-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+  .audit-table thead th { font-size: 11px; letter-spacing: .03em; color: var(--ink-mute); background: var(--soft); font-weight: 700; }
+  .audit-table .kcode { font-weight: 700; color: var(--ink-mute); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .audit-table .kr { color: var(--ink); }
+  .audit-table .why { color: var(--ink-mute); font-size: 11.5px; line-height: 1.55; }
+  .audit-table .why sup { color: var(--primary); font-weight: 700; }
+  .audit-table .alt { color: var(--ink); font-weight: 500; }
+  .audit-table tr.hi td { background: var(--danger-bg); }
+  @media (max-width: 860px) { .audit-table th, .audit-table td { min-width: 150px; } .audit-table .why { min-width: 220px; } .audit-table .alt { min-width: 220px; } }
+  .audit-summary {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    padding: 14px 16px; background: var(--canvas); border-bottom: 1px solid var(--hairline); font-size: 12.5px;
+  }
+  .audit-summary .lead { font-weight: 700; }
+  .signature { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; padding: 16px; background: #fff; }
+  .signature .seal {
+    width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--primary); color: var(--primary);
+    display: grid; place-items: center; font-size: 11px; font-weight: 700; text-align: center; line-height: 1.2; flex: none;
+  }
+  .signature .sig-body { font-size: 12px; color: var(--ink-mute); line-height: 1.55; }
+  .signature .sig-body b { color: var(--ink); }
+  .signature .sig-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .signature .sig-cred { font-size: 11.5px; color: var(--primary); font-weight: 600; margin-top: 2px; }
+
+  /* ── 블록 4 · 벤치마크 ─────────────── */
+  .bench-quote { background: #fff; border: 1px solid var(--hairline); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+  .bench-quote .bt { font-size: 12.5px; font-weight: 700; margin-bottom: 6px; }
+  .bench-quote .src { font-size: 11px; color: var(--ink-mute); margin-bottom: 6px; }
+  .bench-quote code { display: inline-block; background: var(--soft); border-radius: 5px; padding: 2px 7px; font-size: 11.5px; color: var(--ink); margin: 2px 3px 2px 0; }
+  .bench-quote .vs { font-size: 11.5px; color: var(--ink-mute); margin-top: 8px; }
+  .bench-quote .vs b { color: var(--danger); }
+  .bench-table, .lex-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .bench-table th, .bench-table td, .lex-table th, .lex-table td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+  .bench-table thead th, .lex-table thead th { font-size: 11px; color: var(--ink-mute); background: var(--soft); font-weight: 700; }
+  .bench-table .jpc { color: var(--ink); }
+  .bench-table .krc { color: var(--danger); }
+  .bench-table .gap { color: var(--ink-mute); font-size: 11.5px; }
+  .lex-table code { background: var(--soft); border-radius: 4px; padding: 1px 6px; font-size: 11.5px; }
+  @media (max-width: 780px) { .bench-table th, .bench-table td, .lex-table th, .lex-table td { min-width: 150px; } }
+
+  /* ── 블록 5 · 점수 그룹 막대 + 아코디언 ──────────── */
+  .group-bars { display: grid; gap: 14px; margin: 4px 0 22px; }
+  .group-bar .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .group-bar .gname { font-size: 12.5px; font-weight: 600; }
+  .group-bar .gname .w { font-size: 10.5px; color: var(--ink-mute); font-weight: 400; margin-left: 6px; }
+  .group-bar .gpct { font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--primary); }
+  .bar { height: 8px; border-radius: 999px; background: var(--hairline); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
+  .bar i.low { background: var(--danger); }
+  .bar i.mid { background: var(--gold); }
+  .rubric-group { border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+  .rubric-group > .gh { padding: 13px 16px; background: var(--soft); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .rubric-group > .gh .gt { font-size: 13px; font-weight: 700; }
+  .rubric-group > .gh .gs { font-size: 12.5px; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .item { border-top: 1px solid var(--hairline); }
+  .item > summary { list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; gap: 11px; }
+  .item > summary::-webkit-details-marker { display: none; }
+  .item > summary::after { content: "▾"; margin-left: auto; color: var(--ink-mute); font-size: 11px; transition: transform .15s; }
+  .item[open] > summary::after { transform: rotate(180deg); }
+  .score-chip { flex: none; width: 30px; height: 24px; border-radius: 6px; display: grid; place-items: center; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .score-chip.s0 { background: var(--danger-bg); color: var(--danger); }
+  .score-chip.s1 { background: var(--warn-bg); color: var(--warn-text); }
+  .score-chip.s2 { background: var(--safe-bg); color: var(--safe); }
+  .item .icode { font-size: 11px; font-weight: 700; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+  .item .ilabel { font-size: 12.5px; font-weight: 600; }
+  .item-body { padding: 0 16px 16px 57px; display: grid; gap: 12px; }
+  @media (max-width: 620px) { .item-body { padding-left: 16px; } }
+  .evi { font-size: 12px; line-height: 1.55; }
+  .evi .k { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .03em; color: var(--primary); text-transform: uppercase; margin-bottom: 3px; }
+  .evi blockquote { border-left: 3px solid var(--hairline); padding: 6px 0 6px 12px; margin: 0; color: var(--ink); background: var(--soft); border-radius: 0 6px 6px 0; }
+  .evi .corpus { color: var(--ink-mute); }
+  .evi .corpus code { background: var(--soft); border-radius: 4px; padding: 1px 5px; font-size: 11.5px; color: var(--ink); }
+  .item.na { opacity: .72; }
+
+  /* ── 블록 7 · NG/OK 재작성 카드 ─────── */
+  .rw-card { border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+  .rw-card .cols { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 680px) { .rw-card .cols { grid-template-columns: 1fr; } }
+  .rw-card .col { padding: 16px 18px; }
+  .rw-card .before { background: #fff; border-right: 1px solid var(--hairline); }
+  @media (max-width: 680px) { .rw-card .before { border-right: 0; border-bottom: 1px solid var(--hairline); } }
+  .rw-card .after { background: var(--soft); }
+  .rw-card .lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; margin-bottom: 9px; display: inline-flex; align-items: center; gap: 6px; }
+  .rw-card .before .lbl { color: var(--danger); }
+  .rw-card .after .lbl { color: var(--safe); }
+  .rw-card .flag { font-size: 10px; font-weight: 700; border-radius: 5px; padding: 2px 6px; }
+  .rw-card .flag.ng { color: var(--danger); background: var(--danger-bg); }
+  .rw-card .flag.ok { color: var(--safe); background: var(--safe-bg); }
+  .rw-card p.jp { font-size: 13.5px; line-height: 1.7; color: var(--ink); font-weight: 500; }
+  .rw-card .krgloss { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--hairline); font-size: 12px; color: var(--ink-mute); line-height: 1.55; }
+  .rw-card .krgloss .kk { font-size: 10px; font-weight: 700; letter-spacing: .04em; color: var(--primary); text-transform: uppercase; display: block; margin-bottom: 3px; }
+  .rw-card .krgloss b { color: var(--ink); }
+  .rw-card .foot { padding: 13px 18px; border-top: 1px solid var(--hairline); background: #fff; font-size: 11.5px; color: var(--ink-mute); line-height: 1.6; display: grid; gap: 5px; }
+  .rw-card .foot .problem b { color: var(--danger); }
+  .rw-card .foot .reason b { color: var(--ink); }
+  .rw-card .foot .added b { color: var(--safe); }
+  .rw-card .foot .ref { color: var(--primary); font-weight: 700; }
+  .rw-card .foot .ref .usp { color: var(--gold-text); }
+
+  /* ══════════ 블록 8 · 현재 실물 Before/After (산출물 프리뷰) ══════════ */
+  .live-compare { border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .lc-row { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 720px) { .lc-row { grid-template-columns: 1fr; } }
+  .lc-col { padding: 0; }
+  .lc-col .lc-head { padding: 12px 16px; font-size: 11px; font-weight: 700; letter-spacing: .03em; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .lc-col.before .lc-head { background: #fff; color: var(--ink-mute); border-bottom: 1px solid var(--hairline); }
+  .lc-col.after .lc-head { background: var(--primary); color: #fff; }
+  .lc-col.before { border-right: 1px solid var(--hairline); background: #fff; }
+  @media (max-width: 720px) { .lc-col.before { border-right: 0; border-bottom: 1px solid var(--hairline); } }
+  .lc-col.after { background: var(--soft); }
+  .lc-shot {
+    margin: 16px; border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden; background: var(--canvas);
+  }
+  .lc-thumb {
+    aspect-ratio: 1 / 1; display: grid; place-items: center; text-align: center; padding: 18px;
+    background: repeating-linear-gradient(45deg, #eceef1, #eceef1 10px, #f4f5f7 10px, #f4f5f7 20px);
+    color: var(--ink-mute); font-size: 12px; line-height: 1.5;
+  }
+  .lc-col.after .lc-thumb {
+    background: linear-gradient(160deg, #f4f6f9, #e9edf3); color: var(--primary); font-weight: 600;
+  }
+  .lc-thumb .lc-hero { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 6px; line-height: 1.45; }
+  .lc-col.after .lc-thumb .lc-hero { color: var(--primary); }
+  .lc-badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  .lc-badges span { font-size: 10px; font-weight: 600; background: #fff; border: 1px solid var(--hairline); border-radius: 5px; padding: 2px 6px; color: var(--ink); }
+  .lc-body { padding: 0 16px 16px; font-size: 12px; color: var(--ink-mute); line-height: 1.6; }
+  .lc-body .add { color: var(--safe); font-weight: 600; }
+  .lc-real {
+    display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center;
+    margin-top: 16px; padding: 16px 18px; background: var(--deep); color: #fff; border-radius: 12px;
+  }
+  @media (max-width: 620px) { .lc-real { grid-template-columns: 1fr; } }
+  .lc-real .lc-real-txt { font-size: 12.5px; line-height: 1.6; opacity: .95; }
+  .lc-real .lc-real-txt b { color: #fff; }
+  .lc-real .lc-real-cta { display: flex; gap: 8px; flex-wrap: wrap; }
+  .lc-real .btn-ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.4); }
+
+  /* ══════════ 블록 9 · 맺음 + 구독 CTA ══════════ */
+  .closing-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 760px) { .closing-cols { grid-template-columns: 1fr; } }
+  .closing-card { background: #fff; border: 1px solid var(--hairline); border-radius: 12px; padding: 18px; }
+  .closing-card .ch { font-size: 12.5px; font-weight: 700; margin-bottom: 8px; }
+  .closing-card.risk .ch { color: var(--danger); }
+  .closing-card.loss .ch { color: var(--gold-text); }
+  .closing-card.why .ch { color: var(--primary); }
+  .closing-card ul { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.6; color: var(--ink); }
+  .refs { margin-top: 16px; font-size: 11.5px; color: var(--ink-mute); line-height: 1.75; }
+  .refs b { color: var(--ink); }
+  .refs sup { color: var(--primary); font-weight: 700; }
+
+  /* 관측 지표 3종 */
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 8px 0 4px; }
+  @media (max-width: 680px) { .metrics { grid-template-columns: 1fr; } }
+  .metric { background: #fff; border: 1px solid var(--hairline); border-radius: 12px; padding: 15px 16px; }
+  .metric .mk { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--primary); }
+  .metric .mt { font-size: 13.5px; font-weight: 700; margin: 5px 0 4px; }
+  .metric .mt .stage { font-size: 10px; font-weight: 700; color: #fff; background: var(--primary); border-radius: 5px; padding: 2px 6px; margin-left: 4px; }
+  .metric .md { font-size: 11.5px; color: var(--ink-mute); line-height: 1.5; }
+
+  /* 개선 확인 → 구독 루프 도식 */
+  .loop { display: flex; align-items: stretch; gap: 6px; flex-wrap: wrap; margin: 8px 0 4px; }
+  .loop .lp { flex: 1; min-width: 130px; background: #fff; border: 1px solid var(--hairline); border-radius: 12px; padding: 13px 14px; position: relative; }
+  .loop .lp .lpn { font-size: 10px; font-weight: 700; color: #fff; background: var(--primary); border-radius: 50%; width: 18px; height: 18px; display: grid; place-items: center; }
+  .loop .lp .lpt { font-size: 12.5px; font-weight: 700; margin: 8px 0 3px; }
+  .loop .lp .lpd { font-size: 11px; color: var(--ink-mute); line-height: 1.5; }
+  .loop .lp.last { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary) inset; }
+  .loop .lparw { align-self: center; color: var(--ink-mute); font-weight: 700; }
+  @media (max-width: 680px) { .loop .lparw { display: none; } .loop .lp { min-width: 0; } }
+
+  /* 구독 가격대 밴드 */
+  .price-band { border: 1px solid var(--primary); border-radius: 14px; overflow: hidden; margin-top: 16px; }
+  .price-band .pb-head { background: var(--primary); color: #fff; padding: 13px 18px; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .price-band .pb-head .pb-note { font-size: 11px; font-weight: 400; opacity: .85; }
+  .pb-tiers { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 620px) { .pb-tiers { grid-template-columns: 1fr; } }
+  .pb-tier { padding: 18px; background: #fff; }
+  .pb-tier + .pb-tier { border-left: 1px solid var(--hairline); }
+  @media (max-width: 620px) { .pb-tier + .pb-tier { border-left: 0; border-top: 1px solid var(--hairline); } }
+  .pb-tier .pt-name { font-size: 13px; font-weight: 700; color: var(--primary); }
+  .pb-tier .pt-price { font-size: 20px; font-weight: 700; margin: 6px 0 2px; letter-spacing: -.01em; }
+  .pb-tier .pt-price .per { font-size: 12px; font-weight: 400; color: var(--ink-mute); }
+  .pb-tier .pt-scope { font-size: 11.5px; color: var(--ink-mute); line-height: 1.6; margin-top: 6px; }
+  .pb-foot { padding: 12px 18px; background: var(--canvas); font-size: 11px; color: var(--ink-mute); line-height: 1.6; border-top: 1px solid var(--hairline); }
+
+  /* CTA */
+  .cta-panel { background: var(--deep); color: #fff; border-radius: 12px; padding: 26px; margin-top: 22px; }
+  .cta-panel h3 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+  .cta-panel p { font-size: 13px; opacity: .9; margin-top: 8px; line-height: 1.6; }
+  .cta-panel .btn-ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.4); }
+  .cta-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+  .legend { margin-top: 44px; padding: 18px 20px; background: var(--soft); border-radius: 12px; font-size: 12px; color: var(--ink-mute); line-height: 1.7; }
+  .legend b { color: var(--ink); }
+  .legend code { background: #fff; border: 1px solid var(--hairline); border-radius: 4px; padding: 1px 5px; }
+
+  /* 리포트 목차 */
+  .toc { display: flex; gap: 6px; flex-wrap: wrap; padding: 14px 24px; background: var(--canvas); border-bottom: 1px solid var(--hairline); }
+  .toc a { font-size: 11.5px; color: var(--ink-mute); text-decoration: none; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--hairline); background: #fff; }
+  .toc a:hover { color: var(--primary); border-color: var(--primary); }
+  .toc a.new { color: var(--gold-text); border-color: var(--gold); }
+</style>
+</head>
+<body>
+
+  <!-- ═══════════ 상단 문서 네비 ═══════════ -->
+  <nav class="docnav" aria-label="와이어프레임 화면 목록">
+    <div class="docnav-inner">
+      <span class="logo">Japan Growth Studio<span class="dot">.</span></span>
+      <span class="tag seg">① 진단 리포트 · <b>S2 입점 후·매출 저조</b></span>
+      <div class="links">
+        <a href="#s1">화면 1 · 티어 입력</a>
+        <a href="#s2">화면 2 · 리포트</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="doc">
+
+    <!-- ═══════════ 문서 헤더 ═══════════ -->
+    <header class="doc-head">
+      <h1>① 진단 리포트 · <span style="color:var(--primary)">S2</span> — 판매 중 상세 재진단</h1>
+      <p class="sub">
+        스펙 <b>docs/specs/02-report-spec-postentry.md</b>(§3 입력·§4 블록 재배치+신규A/C·§5 산출물·§6 구독)을 옮긴
+        개발 착수용 시안입니다. <b>S1(입점 전)</b> 와이어프레임을 베이스로 CSS 토큰·컴포넌트·블록 골격을 계승하고,
+        <b>이미 판매 중인데 왜 전환이 안 되는가</b>를 진단하도록 블록을 재배치했습니다. 본 시안은 <b>S2-b(리뷰 0)</b> 상태를 기본 시연.
+      </p>
+      <div class="meta">
+        <span>톤 = A안 신뢰 자산 네이비 (S1 토큰 계승)</span>
+        <span class="new">신규A · 퍼널 분해 진단</span>
+        <span class="new">신규C · 리뷰 축적 병목 진단</span>
+        <span>블록6′ 경쟁사 리뷰 마이닝 (자사 리뷰 미보유)</span>
+        <span>증거 원칙: 가상 스탯·가짜 리뷰·성과 보장 금지</span>
+      </div>
+    </header>
+
+    <!-- ═══════════ 화면 1 · 티어 입력 폼 (S2 필드 추가) ═══════════ -->
+    <section class="screen" id="s1" aria-labelledby="s1-h">
+      <div class="screen-head">
+        <span class="screen-num">화면 1</span>
+        <h2 id="s1-h">티어 입력 폼 <span style="font-size:13px;font-weight:400;color:var(--ink-mute)">— 이미 판매 중</span></h2>
+        <span class="role">S1 폼 골격 재사용 + S2 전용 필드(라이브 상세·리뷰·경쟁 상품·유입 신호)</span>
+      </div>
+      <p class="screen-desc">
+        S1과 동일하게 <b>Tier 0만으로 리포트가 끝까지</b> 나옵니다. 다만 진단 대상이 "上市 전 초안"이 아니라
+        <b>지금 판매 중인 라이브 상세</b>이므로, <b>현재 라이브 상세 URL</b>을 진단 소스로 받고
+        <b>리뷰 URL 유무로 S2-a(자기 리뷰) / S2-b(경쟁사 마이닝)를 자동 분기</b>합니다.
+      </p>
+
+      <div class="frame">
+        <div class="chrome">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">japan-growth-studio.app/report/new?seg=postentry</span>
+        </div>
+
+        <form class="pad-lg" onsubmit="return false" aria-label="진단 리포트 S2 티어 입력 폼">
+
+          <!-- S2 세그먼트 안내 배너 -->
+          <div class="banner" style="background:var(--soft);color:var(--ink);margin-bottom:22px;">
+            <span aria-hidden="true">◷</span>
+            <span><b>입점 후 재진단 모드.</b> 이미 楽天·Qoo10 등에서 판매 중이라면 이 폼입니다.
+              <b>판매 중 상세를 그대로 진단</b>하고, 매출이 안 오르는 원인을 <b>노출·유입 / 클릭·썸네일 / 전환·상세</b>로 분해합니다.
+              (입점 전이라면 <a href="report-wireframe.html">S1 진단 폼</a>으로)</span>
+          </div>
+
+          <!-- 정밀도 게이지 -->
+          <div class="gauge" role="group" aria-label="입력 정밀도 게이지">
+            <div class="glabel">
+              <span class="l">진단 정밀도</span>
+              <span class="r">지금: Tier 0 충족 · <b style="color:var(--primary)">기본형으로 생성 가능</b></span>
+            </div>
+            <div class="gtrack" aria-hidden="true">
+              <span class="gseg fill"></span>
+              <span class="gseg fill"></span>
+              <span class="gseg"></span>
+              <span class="gseg"></span>
+              <span class="gseg"></span>
+            </div>
+            <div class="gends">
+              <span class="now">일반형(카테고리 코퍼스)</span>
+              <span>→ 라이브 상세 실측 · 경쟁 리뷰 마이닝 · 유입 신호 대입</span>
+            </div>
+          </div>
+
+          <!-- ── Tier 0 (필수) ── -->
+          <div class="tier-group t0">
+            <div class="tier-head">
+              <span class="tier-badge t0">Tier 0</span>
+              <span style="font-size:13px;font-weight:700;">필수 — 이것만으로 리포트가 끝까지 나옵니다</span>
+              <span class="tier-req">*필수</span>
+            </div>
+
+            <fieldset class="field" style="margin-top:14px;">
+              <span class="field-legend" id="cat-lbl">카테고리 <span class="req">*</span> <span class="hint">E군 채점·가중·벤치마크의 키</span></span>
+              <div class="chips" role="radiogroup" aria-labelledby="cat-lbl">
+                <label class="chip on"><input type="radio" name="category" value="skincare" checked>スキンケア <small>skincare</small></label>
+                <label class="chip"><input type="radio" name="category" value="makeup">メイク <small>makeup</small></label>
+                <label class="chip"><input type="radio" name="category" value="suncare">日焼け止め <small>suncare</small></label>
+                <label class="chip"><input type="radio" name="category" value="cleansing">クレンジング <small>cleansing</small></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="field">
+              <span class="field-legend" id="cls-lbl">제품 분류 <span class="req">*</span> <span class="hint">약기법 라이브 리스크 판정 프레임의 키</span></span>
+              <div class="chips" role="radiogroup" aria-labelledby="cls-lbl">
+                <label class="chip on"><input type="radio" name="productClass" value="화장품" checked>화장품</label>
+                <label class="chip"><input type="radio" name="productClass" value="의약외품">의약외품(의약부외품)</label>
+                <label class="chip"><input type="radio" name="productClass" value="미상">잘 모르겠음</label>
+              </div>
+            </fieldset>
+
+            <!-- S2 신규: 현재 라이브 상세 URL (진단 대상) -->
+            <fieldset class="field" style="margin-bottom:0;">
+              <legend class="field-legend">진단할 콘텐츠 <span class="req">*</span> <span class="hint">지금 판매 중인 상세 = Before 실물</span></legend>
+
+              <div class="sourcetab" role="tablist" aria-label="입력 방식">
+                <button type="button" role="tab" aria-selected="true" class="on">현재 라이브 상세 URL <span class="primary-path">S2</span></button>
+                <button type="button" role="tab" aria-selected="false">텍스트 붙여넣기</button>
+              </div>
+
+              <div role="tabpanel" aria-label="라이브 상세 URL">
+                <label for="liveUrl" class="visually-hidden">현재 라이브 상세 URL</label>
+                <input id="liveUrl" class="input" type="url" value="https://item.rakuten.co.jp/haruon/cica-ampoule/"
+                  placeholder="예) https://item.rakuten.co.jp/브랜드/제품/">
+                <p class="field-help">
+                  <b>지금 팔리고 있는 그 상세</b>를 넣으세요. 이 URL이 <b>블록8 Before(현재 실물)</b>의 소스가 됩니다.
+                  URL에서 본문을 못 가져오면 <b>텍스트 붙여넣기 탭</b>으로 (KR 상세는 이미지 위주가 많음 · 이미지 OCR은 v2).
+                </p>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- ── Tier 1 (선택 · 분기 키 포함) ── -->
+          <div class="tier-group t1">
+            <div class="tier-head">
+              <span class="tier-badge t1">Tier 1</span>
+              <span style="font-size:13px;font-weight:700;">선택 — 넣을수록 "라이브 실측형"으로 정밀화</span>
+              <span class="tier-opt">선택</span>
+            </div>
+            <p class="field-help" style="margin:2px 0 16px;">
+              비워도 리포트는 나옵니다. <b>리뷰 URL은 진단 경로를 가르는 분기 키</b>입니다. <b>가짜값 금지.</b>
+            </p>
+
+            <div class="grid g2" style="align-items:start;">
+              <div>
+                <!-- S2 신규: 판매 채널 -->
+                <fieldset class="field">
+                  <span class="field-legend" id="ch-lbl">판매 채널 <span class="hint">썸네일·상세 규격, 퍼널 진단 기준</span></span>
+                  <div class="chips" role="radiogroup" aria-labelledby="ch-lbl">
+                    <label class="chip on"><input type="radio" name="salesChannel" value="qoo10" checked>Qoo10</label>
+                    <label class="chip"><input type="radio" name="salesChannel" value="rakuten">楽天</label>
+                    <label class="chip"><input type="radio" name="salesChannel" value="amazon">Amazon JP</label>
+                    <label class="chip"><input type="radio" name="salesChannel" value="own">자사몰</label>
+                  </div>
+                  <p class="field-help">미상 시 <b>Qoo10 가정</b> + 규격 경고를 표기합니다.</p>
+                </fieldset>
+                <div class="field" style="margin-bottom:0;">
+                  <label for="productName">제품명 <span class="hint">표지·페르소나 정밀화</span></label>
+                  <input id="productName" class="input" value="CICA 鎮静アンプル" placeholder="예) CICA 鎮静アンプル">
+                </div>
+              </div>
+              <div>
+                <!-- S2 신규: 리뷰 URL (분기 키) -->
+                <div class="field">
+                  <label for="reviewUrl">리뷰 페이지 URL <span class="hint">분기 키 · 楽天/Qoo10/@cosme</span></label>
+                  <input id="reviewUrl" class="input" type="url" placeholder="예) .../review/  (없으면 비워두세요)">
+                  <div class="banner warn" style="margin-top:8px;">
+                    <span aria-hidden="true">⑂</span>
+                    <span><b>자동 분기.</b> 리뷰 URL을 <b>넣으면 S2-a</b>(당신 제품 <b>자기 리뷰 실측</b>) ·
+                      <b>비우면 S2-b</b>(리뷰 0 가정 → <b>경쟁 상위 상품 실측 리뷰 마이닝</b>)로 블록6′가 바뀝니다.
+                      <b>지금은 비어 있어 S2-b로 진행됩니다.</b></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Tier 2 (선택 · 경쟁/유입 신호) ── -->
+          <div class="tier-group t2">
+            <div class="tier-head">
+              <span class="tier-badge t2">Tier 2</span>
+              <span style="font-size:13px;font-weight:700;">선택 — 경쟁 상품·유입 신호로 퍼널·마이닝 정밀화</span>
+              <span class="tier-opt">아는 값만</span>
+            </div>
+
+            <div class="grid g2" style="align-items:start;margin-top:12px;">
+              <!-- S2 신규: 경쟁 상품 URL -->
+              <div class="field" style="margin-bottom:0;">
+                <label for="competitorUrl">경쟁 상품 URL <span class="hint">S2-b 마이닝·벤치마크 정밀화</span></label>
+                <input id="competitorUrl" class="input" type="url" placeholder="예) 같은 CICA 카테고리 상위 상품 URL">
+                <p class="field-help">비우면 <b>카테고리 코퍼스 상위</b>를 자동 선정합니다. 당신이 고객을 뺏기고 있는 그 상품을 넣으면 정밀해집니다.</p>
+              </div>
+              <!-- S2 신규: 유입/전환 신호 (아는 값만) -->
+              <fieldset class="field" style="margin-bottom:0;">
+                <legend class="field-legend">유입/전환 신호 <span class="hint">아는 값만 · 퍼널 분해 정밀화</span></legend>
+                <div class="grid g2" style="gap:8px;">
+                  <input class="input" inputmode="numeric" placeholder="월 노출수 (선택)">
+                  <input class="input" inputmode="decimal" placeholder="썸네일 클릭률 % (선택)">
+                  <input class="input" inputmode="decimal" placeholder="상세 전환율 % (선택)">
+                  <input class="input" inputmode="numeric" placeholder="누적 리뷰 수 (선택)">
+                </div>
+                <p class="field-help"><b>없어도 됩니다.</b> 결측 시 <b>정성 퍼널 진단</b>으로 대체하며 가짜값은 넣지 않습니다.</p>
+              </fieldset>
+            </div>
+          </div>
+
+          <!-- 제출 -->
+          <div class="banner" style="background:var(--soft);color:var(--ink-mute);margin:8px 0 18px;">
+            <span aria-hidden="true">✓</span>
+            <span>지금 입력만으로 <b>재진단 리포트 생성 가능</b>. 리뷰 URL 미입력 → <b>S2-b(경쟁사 리뷰 마이닝)</b> 경로로 산출됩니다.</span>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+            <a href="#" class="btn btn-ghost">임시 저장</a>
+            <a href="#s2" class="btn btn-primary">판매 중 상세 재진단 시작 →</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="notes">
+        <p class="note" data-n="1"><b>진단 대상 전환:</b> S1의 "上市 전 초안" → S2는 <b>현재 라이브 상세 URL</b>(=Before 실물 소스). 톤 전반 "이미 판매 중".</p>
+        <p class="note" data-n="2"><b>리뷰 URL = 분기 키:</b> 있으면 S2-a(자기 리뷰) · 없으면 S2-b(경쟁사 마이닝). 강제로 묻지 않고 URL 유무로 자동 분기(§3.1).</p>
+        <p class="note" data-n="3"><b>유입/전환 신호는 "아는 값만":</b> 강제하지 않음. 결측 시 정성 퍼널 진단으로 대체, 가짜값 금지(증거 원칙).</p>
+      </div>
+    </section>
+
+    <!-- ═══════════ 화면 2 · 리포트 (S2 블록 순서) ═══════════ -->
+    <section class="screen" id="s2" aria-labelledby="s2-h">
+      <div class="screen-head">
+        <span class="screen-num">화면 2</span>
+        <h2 id="s2-h">재진단 리포트 (S2 블록 순서 · 1페이지 스크롤)</h2>
+        <span class="role">0 표지 → 1 요약 → A 퍼널 → C 리뷰 병목 → 2 페르소나 → 6′ 리뷰 → 3 약기법 → 4 벤치 → 5 점수 → 7 재작성 → 8 실물 → 9 맺음·구독</span>
+      </div>
+      <p class="screen-desc">
+        S1의 9블록을 재배치하고 <b>신규A(퍼널 분해)·신규C(리뷰 축적 병목)</b>를 요약 직후에 삽입했습니다.
+        "왜 전환이 안 되는가"를 <b>퍼널·리뷰 병목으로 먼저 진단</b>한 뒤, 재설계·현재 실물 Before/After·구독 루프로 잇습니다.
+      </p>
+
+      <div class="frame">
+        <div class="chrome">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">japan-growth-studio.app/report/haruon-cica-ampoule?seg=postentry</span>
+        </div>
+        <div class="appbar">
+          <span class="brand">Japan Growth Studio<span class="dot">.</span></span>
+          <nav aria-label="제품 내부 네비">
+            <a href="#s2" class="on">진단 리포트</a>
+            <a href="#">스튜디오</a>
+            <a href="#">운영</a>
+          </nav>
+          <div class="right">
+            <a href="#" class="btn btn-ghost btn-sm">PDF 내보내기</a>
+            <span class="avatar" aria-hidden="true">하</span>
+          </div>
+        </div>
+
+        <!-- 리포트 목차 (S2 순서) -->
+        <nav class="toc" aria-label="리포트 블록 목차">
+          <a href="#b0">0 표지</a>
+          <a href="#b1">1 요약</a>
+          <a href="#bA" class="new">A 퍼널 분해</a>
+          <a href="#bC" class="new">C 리뷰 병목</a>
+          <a href="#b2">2 페르소나·USP</a>
+          <a href="#b6">6′ 리뷰 인과</a>
+          <a href="#b3">3 약기법</a>
+          <a href="#b4">4 벤치마크</a>
+          <a href="#b5">5 A~E 점수</a>
+          <a href="#b7">7 재작성</a>
+          <a href="#b8">8 현재 실물 B/A</a>
+          <a href="#b9">9 맺음·구독</a>
+        </nav>
+
+        <article class="pad-lg">
+
+          <!-- ═══ 블록 0 · 표지 (재진단 프레이밍) ═══ -->
+          <section class="section-block" id="b0" aria-labelledby="b0-h" style="margin-top:0;">
+            <span class="section-label"><span class="tagk">0</span> 재진단 요약 표지</span>
+            <div class="cover">
+              <div class="kicker">판매 중 상세 재진단 리포트 · S2 입점 후</div>
+              <h2 id="b0-h">판매 중 상세 재진단 — 왜 전환이 안 되는가.</h2>
+              <p class="subject">HARUON · CICA 鎮静アンプル · スキンケア / 화장품 상정 · Qoo10·楽天 Japan <b>판매 중</b> · 진단 대상: 현재 라이브 상세</p>
+
+              <!-- 퍼널 진단 요약 1줄 -->
+              <div class="cover-funnel">
+                <span aria-hidden="true">◆</span>
+                <span><b>어디가 새는가.</b> 노출은 있으나 <b>썸네일이 '진정'만 외쳐 클릭(b)이 약하고</b>,
+                  들어와도 <b>상세(c)에 근거·무첨가·성분 정량이 없어 전환이 끊김</b> — 리뷰 0이 이 둘을 더 악화.
+                  <b>우리가 책임지는 구간 = 클릭(b)·전환(c).</b> (상세는 신규A)</span>
+              </div>
+
+              <div class="cover-price">
+                <span class="amt">300,000</span><span class="unit">원 · 고정가</span>
+                <span class="note2">추가 비용 없음 · 1회 재진단</span>
+              </div>
+              <!-- 산출물 명시 (리포트+썸네일+상세 1건) -->
+              <div class="cover-deliver">
+                <span class="dv">◈ 진단 리포트 <small>재배치 9블록 + 신규A/C</small></span>
+                <span class="dv">◈ 일본향 썸네일 1개 <small>클릭(b) 구간</small></span>
+                <span class="dv">◈ 상세페이지 1건 <small>전환(c) 구간 · full</small></span>
+              </div>
+
+              <dl class="cover-meta">
+                <div>
+                  <dt>진단 범위</dt>
+                  <dd>퍼널 분해 · 리뷰 축적 병목 · 薬機法 라이브 리스크 · A~E 점수 · 페르소나·USP · 경쟁사 리뷰 마이닝 · 현재 실물 Before/After</dd>
+                </div>
+                <div>
+                  <dt>실명 검수자 (약기법 감사)</dt>
+                  <dd><span class="sig">김○○ · 약무 자문</span> <span class="muted" style="font-size:11px;">경력 N년 (예시 · 자격은 블록 3)</span></dd>
+                </div>
+                <div>
+                  <dt>발행일 · 경로</dt>
+                  <dd>2026.07.08 · <b>S2-b</b>(리뷰 URL 미입력 → 경쟁사 마이닝) · 정밀도: 기본형(Tier 0)</dd>
+                </div>
+                <div>
+                  <dt>종합 점수</dt>
+                  <dd><b style="color:var(--primary);font-size:16px;">38</b> / 100 <span class="muted" style="font-size:11px;">일본 상세 관례 충족도 (성과 예측 아님)</span></dd>
+                </div>
+              </dl>
+
+              <p class="cover-limits">
+                <b>한계·위상 고지.</b> 종합 점수는 <b>관례 충족도</b>이며 매출·순위 예측이 아닙니다. 퍼널 진단은 성과 예측이 아니고,
+                유입(a) 구간의 <b>실행(광고·계정 운영)은 하지 않습니다</b>(진단만). 리뷰 축적은 <b>진단·설계까지</b>이며
+                <b>리뷰 수·평점을 보장하지 않습니다</b>(스테마 규제·성과보장 회피). 이 30만은 <b>구독(②③) 획득용 유료 파일럿</b>입니다.
+              </p>
+            </div>
+          </section>
+
+          <!-- ═══ 블록 1 · 진단 요약 헤더 ═══ -->
+          <section class="section-block" id="b1" aria-labelledby="b1-h">
+            <span class="section-label"><span class="tagk">1</span> 진단 요약</span>
+            <h3 id="b1-h" class="sec-title">종합 점수 · 최우선 재설계 · 총평</h3>
+            <p class="sec-sub">판매 중 상세 기준. 밴드 라벨은 미표기(§9-Q3 보류)</p>
+
+            <div class="summary-grid">
+              <div class="score-card">
+                <div class="muted" style="font-size:12.5px;font-weight:600;">일본 상세 관례 충족도 <span style="font-weight:400;">(예시)</span></div>
+                <div class="score-row">
+                  <span class="score-num">38</span><span class="score-unit">/ 100</span>
+                </div>
+                <div class="score-badges">
+                  <span class="pill pill-trust">✔ 채점 기준 공개</span>
+                  <span class="pill pill-info">라쿠텐 상세 304건 코퍼스</span>
+                  <span class="pill pill-danger">薬機法 라이브 리스크 6</span>
+                </div>
+                <p class="score-frame">
+                  <b>총평.</b> 이미 판매 중이나 <b>클릭(썸네일)·전환(상세) 두 구간이 동시에 약합니다.</b>
+                  효능 주장을 뒷받침할 <b>근거 라벨·성분 정량·제3자 지표가 전무</b>하고, 한국식 "즉각 진정·재생·치료" 단정이
+                  <b>지금 라이브에 그대로 걸려</b> 薬機法 고위험 6문장으로 남아 있습니다. <b>리뷰 0</b>이 신뢰 공백을 더 키웁니다.
+                </p>
+                <div class="axis-mini" aria-label="A~E 축별 점수 미리보기">
+                  <div class="row"><span class="an">A 신뢰</span><span class="ab"><i class="low" style="width:10%"></i></span><span class="av">10%</span></div>
+                  <div class="row"><span class="an">B 무첨가</span><span class="ab"><i class="low" style="width:2%"></i></span><span class="av">0%</span></div>
+                  <div class="row"><span class="an">C 서사</span><span class="ab"><i class="mid" style="width:33%"></i></span><span class="av">33%</span></div>
+                  <div class="row"><span class="an">D 성분</span><span class="ab"><i class="low" style="width:25%"></i></span><span class="av">25%</span></div>
+                  <div class="row"><span class="an">E 적합성</span><span class="ab"><i class="low" style="width:12%"></i></span><span class="av">12%</span></div>
+                </div>
+                <p class="muted" style="font-size:11px;margin-top:12px;">
+                  * 점수는 "관례 충족도"이며 매출·순위 예측이 아닙니다.
+                  <br>검수자: <b style="color:var(--ink)">김○○ · 약무 자문 (경력 N년)</b> — 자격 상세는 블록 3.
+                </p>
+              </div>
+
+              <div>
+                <div class="sec-title">최우선 재설계 3가지</div>
+                <p class="sec-sub">라이브 리스크·저점 항목·퍼널 병목에서 자동 도출</p>
+                <div class="priority-list">
+                  <div class="priority-item">
+                    <span class="rank">1</span>
+                    <div>
+                      <div class="t">라이브에 걸린 "재생·치료·시술" 즉시 삭제</div>
+                      <div class="d">K4·K9 「재생」「치료」「시술 후」는 화장품·의약외품 어느 등급으로도 불가. <b>지금 판매 중 문장</b>이라 리스크 즉발.</div>
+                      <div class="ref">근거: 약기법 감사 K4·K9 【불가】 (라이브) · E4(0점)</div>
+                    </div>
+                  </div>
+                  <div class="priority-item">
+                    <span class="rank">2</span>
+                    <div>
+                      <div class="t">썸네일에서 '진정' 오소구 교체 → 클릭(b) 회복</div>
+                      <div class="d">검색 퍼스트뷰가 '鎮静'만 외쳐 일본 검색·클릭이 약함. CICA·병풀·무첨가 키워드로 재설계.</div>
+                      <div class="ref">근거: 퍼널 분해 (b) · 벤치마크 검색표기 전환</div>
+                    </div>
+                  </div>
+                  <div class="priority-item">
+                    <span class="rank">3</span>
+                    <div>
+                      <div class="t">상세에 근거·무첨가·성분 정량 심어 전환(c) 회복</div>
+                      <div class="d">効能評価·○○フリー·배합률이 없어 들어온 고객이 이탈. 리뷰 0이라 제3자 근거로도 못 메움.</div>
+                      <div class="ref">근거: A1·A2·B1·B2·D1(0점) · 퍼널 (c)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ 블록 A · 퍼널 분해 진단 (신규 핵심) ═══ -->
+          <section class="section-block" id="bA" aria-labelledby="bA-h">
+            <span class="section-label"><span class="tagk newk">신규 A</span> 퍼널 분해 진단 <span class="new">S2 핵심</span></span>
+            <h3 id="bA-h" class="sec-title">"안 팔린다"를 세 구간으로 분해 — 어디가 새는가</h3>
+            <p class="sec-sub">
+              유입/전환 신호 <b>미입력 → 정성 진단</b>으로 산출(신호를 넣으면 실측 대입). 우리가 고칠 수 있는 구간을 정직하게 못박습니다.
+            </p>
+
+            <div class="funnel" role="list" aria-label="퍼널 3단 분해">
+              <div class="fstage outside" role="listitem">
+                <div class="fk">단계 a</div>
+                <div class="ft">노출 · 유입</div>
+                <div class="fd">검색·랭킹·광고로 상세까지 사람이 오는가. <b>리뷰 0 → 랭킹 알고리즘 입력 약함</b>이 유입도 눌렀을 가능성.</div>
+                <span class="fverdict susp">△ 정성상 의심 (신호 미입력)</span>
+              </div>
+              <span class="farw" aria-hidden="true">→</span>
+              <div class="fstage ours" role="listitem">
+                <div class="fk">단계 b</div>
+                <div class="ft">클릭 · 썸네일</div>
+                <div class="fd">검색 퍼스트뷰 썸네일이 클릭을 만드는가. 현재 <b>'鎮静'만 외쳐</b> 일본 검색·클릭이 약함.</div>
+                <span class="fverdict weak">✕ 약함 · 재설계 대상</span>
+              </div>
+              <span class="farw" aria-hidden="true">→</span>
+              <div class="fstage ours" role="listitem">
+                <div class="fk">단계 c</div>
+                <div class="ft">전환 · 상세</div>
+                <div class="fd">들어온 사람이 사는가. <b>근거·무첨가·성분 정량 부재</b> + 라이브 약기법 리스크로 확신이 안 섬.</div>
+                <span class="fverdict weak">✕ 약함 · 재설계 대상</span>
+              </div>
+            </div>
+
+            <p class="muted" style="font-size:12px;margin:2px 0 14px;">
+              <b>우리가 책임지는 구간 = (b) 썸네일 · (c) 상세</b> — 30만 산출물(썸네일 1 + 상세 1)이 정확히 이 두 구간을 교체합니다.
+              (a) 유입 구간은 <b>진단만</b> 하고 실행(광고·계정 운영)은 하지 않습니다.
+            </p>
+
+            <!-- 정직 고지 배너 + 다음 스텝 동선 -->
+            <div class="honesty" role="note">
+              <div class="htxt">
+                <b>정직 고지.</b> 만약 원인이 <b>(a) 유입 자체</b>라면, 썸네일·상세를 아무리 고쳐도 방문자 수가 늘지 않아
+                <b>한계</b>가 있습니다. 이 경우 상세부터가 아니라 <b>유입부터 점검</b>해야 하며, 유입은 우리 리포트 범위 밖입니다 —
+                유입 실행(랭킹·기프팅·채널 운영)은 <b>구독(③ 운영)</b>에서 다룹니다.
+              </div>
+              <div class="hcta">
+                <a href="#bC" class="btn btn-ghost btn-sm">리뷰·유입 병목 보기 →</a>
+                <a href="#b9" class="btn btn-primary btn-sm">구독(③)에서 다루는 법 →</a>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ 블록 C · 리뷰 축적 병목 진단 (신규 핵심 · H5 대응) ═══ -->
+          <section class="section-block" id="bC" aria-labelledby="bC-h">
+            <span class="section-label"><span class="tagk newk">신규 C</span> 리뷰 축적 병목 진단 <span class="new">S2 핵심 · H5</span></span>
+            <h3 id="bC-h" class="sec-title">진짜 병목은 상세가 아니라 "리뷰가 안 쌓이는 것"</h3>
+            <p class="sec-sub">
+              @cosme·Qoo10 랭킹은 <b>리뷰 수·평점이 알고리즘 입력</b>입니다. 상세만 고쳐도 리뷰가 안 붙으면 매출은 안 오릅니다 —
+              그래서 <b>왜 안 쌓이나(진단)</b>와 <b>초기 리뷰 확보 경로(설계)</b>를 정면으로 다룹니다.
+            </p>
+
+            <div class="bottleneck-cols">
+              <!-- ① 진단 -->
+              <div class="bn-card diag">
+                <div class="bh"><span class="step">진단</span> 왜 리뷰가 안 쌓이나</div>
+                <div class="bn-list">
+                  <div class="bl"><span class="bcause">① 유입 자체 부족</span><span class="bwhy">방문이 적으니 구매·리뷰 모수가 안 생김 (퍼널 a와 연동).</span></div>
+                  <div class="bl"><span class="bcause">② 리뷰 유도 장치 부재</span><span class="bwhy">구매 후 리뷰를 요청하는 문안·동선(동봉 카드·팔로업)이 상세·CRM에 없음.</span></div>
+                  <div class="bl"><span class="bcause">③ 구매 후 이탈</span><span class="bwhy">기대치(즉각 진정) ↔ 체감 갭 → 리뷰를 안 쓰거나 저평점.</span></div>
+                  <div class="bl"><span class="bcause">④ 초기 신뢰 공백</span><span class="bwhy">리뷰 0 → 첫 구매자가 안 생기는 "닭·달걀" — 카테고리 초기 진입 공백.</span></div>
+                </div>
+              </div>
+              <!-- ② 설계 -->
+              <div class="bn-card design">
+                <div class="bh"><span class="step">설계</span> 초기 리뷰 확보 경로 (실행 아님)</div>
+                <div class="bn-list" style="padding-bottom:6px;">
+                  <div class="bn-flow" aria-label="초기 리뷰 확보 퍼널">
+                    <span class="fn">샘플링</span><span class="arw">→</span>
+                    <span class="fn">나노 인플루언서</span><span class="arw">→</span>
+                    <span class="fn">UGC</span><span class="arw">→</span>
+                    <span class="fn">랭킹 진입</span>
+                  </div>
+                  <div class="bl"><span class="bcause">리뷰 유도 문안</span><span class="bwhy">구매 후 「使い心地、聞かせてください」 등 저압박 요청 문안 세트(스테마 표기 준수).</span></div>
+                  <div class="bn-kit">
+                    <b>◈ 기프팅 브리핑 키트 + 스테마 PR 표기 가이드.</b><br>
+                    나노 인플루언서에게 보낼 제품 설명·소구 포인트·금지 표현(약기법)·<b>「#PR」「提供」 표기 규칙</b>을 1장으로.
+                    <span class="muted">— 스테마(ステマ)규제 위반 없이 초기 UGC를 만드는 브리핑 문서.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 경계 배너 (필수) -->
+            <div class="boundary" role="note">
+              <div class="btxt">
+                <span class="bt-h">◇ 경계 — 여기까지가 리포트, 그 다음은 구독.</span>
+                리포트는 <b>리뷰 수·평점을 보장하지 않습니다</b>(스테마 규제·성과보장 회피). 우리가 하는 것은
+                <b>진단 + 확보 경로 설계</b>까지입니다. 실제 <b>지속 실행(샘플링·기프팅·UGC 운영)은 구독(③ 운영)</b>에서 다룹니다 —
+                <b>이 리뷰 병목이 곧 구독으로 넘어갈 이유</b>입니다.
+              </div>
+              <a href="#b9" class="btn btn-primary btn-sm">구독(③)으로 실행하기 →</a>
+            </div>
+          </section>
+
+          <!-- ═══ 블록 2 · 페르소나·구매반대이유·USP ═══ -->
+          <section class="section-block" id="b2" aria-labelledby="b2-h">
+            <span class="section-label"><span class="tagk">2</span> 페르소나 · 구매여정 · USP 재정의</span>
+            <h3 id="b2-h" class="sec-title">한국 타깃이 아니라, 지금 당신을 지나쳐 경쟁사로 간 일본 고객</h3>
+            <p class="sec-sub">"어디서 확신을 얻는가" + "왜 당신 걸 안 사고 옆 걸 샀는가(구매 반대 이유)"</p>
+
+            <div class="card">
+              <div class="persona">
+                <div class="face" aria-hidden="true" lang="ja">直</div>
+                <div>
+                  <div class="who" lang="ja">ナオ(仮) · 26–34세 · 회사원 · 도쿄권</div>
+                  <div class="meta" lang="ja">敏感肌 / ゆらぎ肌 · 가격 감도 중(¥2,000~4,000대 수용) · K-뷰티 호의적이나 과장 광고 경계</div>
+
+                  <dl class="persona-grid">
+                    <div><dt>피부 고민</dt><dd lang="ja">季節の変わり目·마스크·수면부족으로 肌荒れ·乾燥·ゆらぎ 반복.</dd></div>
+                    <div><dt>구매 동기</dt><dd>"効く"보다 <b lang="ja">"荒れてる時に使える? 刺激ない?"</b> — 안심 근거를 찾음.</dd></div>
+                    <div><dt>구매 전 확인 행동</dt><dd>@cosme·LIPS에서 <b lang="ja">口コミ 평점·件数·成分</b>을 먼저 확인. <b>리뷰 0이면 후보에서 탈락.</b></dd></div>
+                    <div><dt>신뢰 트리거</dt><dd lang="ja"><b>効能評価試験済み</b> · ○○フリー 무첨가 · 성분 배합률 · 集計日 있는 리뷰 수.</dd></div>
+                  </dl>
+
+                  <div class="journey" aria-label="구매 여정">
+                    <span class="j" lang="ja">Instagram·TikTok 인지("使ってみた")</span><span class="arw">→</span>
+                    <span class="j" lang="ja">@cosme·口コミ·랭킹 검증</span><span class="anchor">← 리뷰 0이라 여기서 이탈</span><span class="arw">→</span>
+                    <span class="j" lang="ja">楽天·Qoo10 상세 근거 확인 후 전환</span>
+                  </div>
+
+                  <div class="objections" aria-label="구매 반대 이유(첫 의문)">
+                    <div class="objection">
+                      <span class="q">①</span>
+                      <div><span class="jp2" lang="ja">「鎮静って言うけど、化粧品でそんな効果出るの?」</span>
+                        <div class="whm">진정이라는데 화장품이 그런 효과가 나? → 과장 의심. K3·K10 즉효 단정이 이 의문을 정면 자극.</div></div>
+                    </div>
+                    <div class="objection">
+                      <span class="q">②</span>
+                      <div><span class="jp2" lang="ja">「私の敏感肌に刺激ないの? 何が入ってて、何が入ってないの?」</span>
+                        <div class="whm">자극·무첨가 정보 요구 → B군 미탑재로 답을 못 줌.</div></div>
+                    </div>
+                    <div class="objection">
+                      <span class="q">③</span>
+                      <div><span class="jp2" lang="ja">「口コミゼロ…誰も使ってないの? ちょっと不安」</span>
+                        <div class="whm">리뷰 0 = 사회적 증거 부재 → 첫 구매를 망설이고 리뷰 있는 경쟁사로 이탈(블록6′ 마이닝 근거).</div></div>
+                    </div>
+                  </div>
+                  <p class="muted" style="font-size:11.5px;margin-top:12px;">
+                    근거: skincare 코퍼스 상위 패턴 + 구매여정 원칙(인스타→口コミ→전환) · 리뷰 0 반영(반대이유 ③ 갱신) · 콜③ grounding.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;">
+              <div class="sec-title">USP 재정의 — 한국식 소구 → 일본 고객이 사는 이유</div>
+              <p class="sec-sub">번역이 아니라 <b>정보 구조(근거·등급·무첨가·성분 정량·제3자 지표)</b> 재설계. 각 행은 블록 7 실행 문장과 연결.</p>
+              <div class="table-wrap">
+                <div class="scroll-x">
+                  <table class="usp-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">현재 라이브(KR) 소구</th>
+                        <th scope="col">일본 고객에게 읽히는 방식 (리스크)</th>
+                        <th scope="col">재정의된 일본향 구매이유 (USP)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="kr">「즉각 진정 · 트러블 싹」 즉효·단정</td>
+                        <td class="risk">과장·효과 단정 → 薬機法 위반(라이브) + 반대 이유 ① 자극</td>
+                        <td class="jp" lang="ja">「乾燥による肌あれ※が気になる肌を、うるおいで整える」+ 근거 뒤 배치<span class="xref">→ 블록7 재작성 #1</span></td>
+                      </tr>
+                      <tr>
+                        <td class="kr">「병풀 99% 고농축」 형용사</td>
+                        <td class="risk">"무엇의 99%"인지 불명 → 誤認 리스크, 검증 불가</td>
+                        <td class="jp" lang="ja">「CICA(ツボクサエキス)を○%配合※」정확 배합률·부위 표기<span class="xref">→ 블록7 재작성 #2</span></td>
+                      </tr>
+                      <tr>
+                        <td class="kr">「7無処方」 무첨가 강조(추정)</td>
+                        <td class="risk">"무엇을 뺐는지" 불명 → 敏感肌 문법(○○フリー) 미탑재</td>
+                        <td class="jp" lang="ja">「合成香料・鉱物油・パラベン フリー」+ 敏感肌 대상 표시<span class="xref">→ 블록7 재작성 #3</span></td>
+                      </tr>
+                      <tr>
+                        <td class="kr">「리뷰 미쳤다」 (실제론 리뷰 0)</td>
+                        <td class="risk">사회적 증거 공백 → 반대 이유 ③ 직격. 가짜 리뷰로 메우면 景表法·스테마 위반</td>
+                        <td class="jp" lang="ja">초기 리뷰 확보 설계(신규C) + 「累計出荷○本 ※集計時点」 확인분만<span class="xref">→ 블록C·9 구독</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <p class="muted" style="font-size:11px;margin-top:8px;">
+                * 재정의안의 수치·라벨은 <b>실제로 확인된 경우에만</b> 사용합니다. 가짜 인증·가짜 수치·가짜 리뷰는 삽입하지 않습니다.
+              </p>
+            </div>
+          </section>
+
+          <!-- ═══ 블록 6′ · 경쟁사 리뷰 마이닝 (S2-b) ═══ -->
+          <section class="section-block" id="b6" aria-labelledby="b6-h">
+            <span class="section-label"><span class="tagk">6′</span> 리뷰(口コミ) 인과 — 경쟁사 마이닝 <span class="new">S2-b 변형</span></span>
+            <h3 id="b6-h" class="sec-title">당신이 놓친 고객이, 경쟁사 리뷰에 남긴 말</h3>
+            <p class="sec-sub">자사 리뷰가 없어 <b>경쟁 상위 상품의 실측 리뷰</b>를 인용 · <b>가짜 리뷰는 생성하지 않습니다</b></p>
+
+            <!-- 경쟁사 실측 / 자사 미보유 라벨 배너 -->
+            <div class="mining-banner">
+              <span class="mlabel">경쟁사<br>실측 인용<br>·<br>자사 리뷰<br>미보유</span>
+              <span class="mtxt">
+                <b>왜 경쟁사 리뷰인가.</b> 당신 제품은 <b>리뷰 0(S2-b)</b>이라 자기 리뷰 실측이 불가합니다. 대신
+                <b>같은 CICA 카테고리 상위 경쟁 상품의 실제 리뷰</b>에서, 일본 고객이 <b>구매 전 무엇을 확인하려 했는지</b>를 마이닝했습니다.
+                아래 ①은 경쟁사 상세에 달린 실제 리뷰(예시 인용), ③은 <b>그 고객이 원한 정보를 당신 상세는 안 주고 있음</b>을 연결합니다.
+                <span class="muted">(리뷰 URL을 넣으면 자사 리뷰 실측=S2-a로 전환)</span>
+              </span>
+            </div>
+
+            <div class="causal">
+              <div class="causal-row">
+                <div class="causal-cell c1">
+                  <span class="ck">① 경쟁사 리뷰 실측(마이닝)</span>
+                  <span class="jp3" lang="ja">「成分表示がちゃんとあって、敏感肌でも安心して買えた」</span>
+                  <span class="rvsrc">— 경쟁 상위 CICA 상품 리뷰 (실측 인용 · 자사 아님)</span>
+                </div>
+                <span class="arw" aria-hidden="true">→</span>
+                <div class="causal-cell c2">
+                  <span class="ck">② 유발되는 구매 심리</span>
+                  성분·무첨가가 <b>명시된 쪽</b>을 안심하고 선택 → 정보 있는 경쟁사로 전환.
+                </div>
+                <span class="arw" aria-hidden="true">→</span>
+                <div class="causal-cell c3">
+                  <span class="ck">③ 당신 상세의 공백</span>
+                  <span class="jp3">B군(무첨가·성분 정량) 부재</span> → 이 고객이 확인하려던 정보를 못 줘서 놓침. 블록7 #2·#3에서 보강.
+                </div>
+              </div>
+
+              <div class="causal-row">
+                <div class="causal-cell c1">
+                  <span class="ck">① 경쟁사 리뷰 실측(마이닝)</span>
+                  <span class="jp3" lang="ja">「口コミ件数が多くて、ランキングで見つけて買いました」</span>
+                  <span class="rvsrc">— 경쟁 상위 CICA 상품 리뷰 (실측 인용 · 자사 아님)</span>
+                </div>
+                <span class="arw" aria-hidden="true">→</span>
+                <div class="causal-cell c2">
+                  <span class="ck">② 유발되는 구매 심리</span>
+                  <b>리뷰 件数·랭킹</b>이 발견·신뢰의 입구 → 리뷰 0인 당신은 애초에 검색·비교선상에 안 뜸.
+                </div>
+                <span class="arw" aria-hidden="true">→</span>
+                <div class="causal-cell c3">
+                  <span class="ck">③ 당신 상세의 공백</span>
+                  상세 재작성만으로는 이 갭을 못 메움 → <span class="jp3">신규C 리뷰 축적 설계</span>가 병행돼야 하는 직접 근거.
+                </div>
+              </div>
+
+              <div class="causal-row">
+                <div class="causal-cell c1">
+                  <span class="ck">① 경쟁사 리뷰 실측(마이닝)</span>
+                  <span class="jp3" lang="ja">「'鎮静'を期待したけど、そこは普通。保湿は良かった」</span>
+                  <span class="rvsrc">— 경쟁 상위 CICA 상품 리뷰 (실측 인용 · 자사 아님)</span>
+                </div>
+                <span class="arw" aria-hidden="true">→</span>
+                <div class="causal-cell c2">
+                  <span class="ck">② 유발되는 구매 심리</span>
+                  '진정' 기대 ↔ 체감 갭 → 이 카테고리는 <b>「保湿·整える」로 기대치를 잡는 쪽</b>이 만족·재구매.
+                </div>
+                <span class="arw" aria-hidden="true">→</span>
+                <div class="causal-cell c3">
+                  <span class="ck">③ 당신 상세의 공백</span>
+                  <span class="jp3">K3「즉각 진정」</span>이 같은 갭을 <b>더 크게</b> 만듦 → 「うるおいで整える」로 기대치 관리(블록7 #1).
+                </div>
+              </div>
+            </div>
+            <p class="muted" style="font-size:11px;margin-top:10px;">
+              근거: 경쟁 상위 상품 리뷰 실측 마이닝(예시 인용·날조 없음) · <b>자사 리뷰 미보유(S2-b)</b> · 리뷰 URL 입력 시 자사 실측(S2-a)로 전환.
+            </p>
+          </section>
+
+          <!-- ═══ 블록 3 · 薬機法 감사 (라이브 리스크 톤) ═══ -->
+          <section class="section-block" id="b3" aria-labelledby="b3-h">
+            <span class="section-label"><span class="tagk">3</span> 薬機法(약기법) 표현 감사 <span class="new">라이브 리스크</span></span>
+            <h3 id="b3-h" class="sec-title">지금 판매 중 문장의 즉시 리스크 — 문장별 【불가 / 조건부 / 가능】</h3>
+            <p class="sec-sub">판정 프레임: <b>화장품</b> 상정. 침투는 「角質層まで」까지, "치료·재생·병원급"은 의약품적 효능으로 화장품 NG.</p>
+
+            <div class="audit-frame">
+              <!-- 라이브 리스크 강조 배너 (S2 톤) -->
+              <p class="audit-live">
+                ⚠ <b>이 문장들은 예정된 초안이 아니라 "지금 판매 페이지에 걸려 있는" 문장</b>입니다.
+                아래 【불가】 6건은 즉시 리스크로, 상세 교체 전까지 노출이 계속됩니다. <b>오늘 우선 삭제 대상.</b>
+              </p>
+              <p class="audit-disclaimer">
+                <b>이 감사는 문장 재설계 관점의 「1차 스크리닝」입니다.</b> 공개 규정·업계 適正広告ガイドライン에 근거하며,
+                <b>법적 위반의 확정 판정이 아닙니다.</b> 최종 적법성은 배합 성분·승인 구분·문맥 전체에 따라 달라지므로
+                <b>약무(薬務) 전문가·행정 확인을 권장</b>합니다.
+              </p>
+
+              <div class="audit-summary">
+                <span class="lead">감사 요약 (라이브)</span>
+                <span class="verdict ng">불가 6</span>
+                <span class="verdict cond">조건부 5</span>
+                <span class="verdict ok">가능 0</span>
+                <span class="muted" style="font-size:11.5px;">11개 라이브 문장 중 · 최고위험: <b style="color:var(--danger)" lang="ja">K4 「재생·치료」</b></span>
+              </div>
+
+              <div class="scroll-x">
+                <table class="audit-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">라이브 원문(KR)</th>
+                      <th scope="col">판정</th>
+                      <th scope="col">근거 (왜 / 어떤 조항)</th>
+                      <th scope="col">합법 대체 표현(JP) — 소구 유지</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="kcode">K1</td>
+                      <td class="kr">병원 안 가도 되는 진정의 답</td>
+                      <td><span class="verdict ng">불가</span></td>
+                      <td class="why">「병원 대체」=의료·의약품 비교로 효과 암시. 「鎮静」도 화장품 효능 56항목 밖.<sup>[1][2][3]</sup></td>
+                      <td class="alt" lang="ja">ゆらぎがちな肌※に、うるおいで満たすという答え。 <span class="muted">※季節や乾燥による変化</span></td>
+                    </tr>
+                    <tr>
+                      <td class="kcode">K2</td>
+                      <td class="kr">피부 속 깊은 곳까지 파고드는</td>
+                      <td><span class="verdict cond">조건부</span></td>
+                      <td class="why">침투는 「角質層まで」로 한정해야. "깊은 곳"은 真皮 침투 암시. 각층 한정+※각주면 가능.<sup>[2][4]</sup></td>
+                      <td class="alt" lang="ja">角層のすみずみ※まで、うるおいで満たすCICAアンプル。 <span class="muted">※角質層まで</span></td>
+                    </tr>
+                    <tr>
+                      <td class="kcode">K3</td>
+                      <td class="kr">트러블 싹, 붉은기 싹 — 바르는 순간 즉각 진정</td>
+                      <td><span class="verdict ng">불가</span></td>
+                      <td class="why">「消す」=효과 보증·의약품적 / 「赤み」=염증 개선 암시 / 「즉각」=근거 없는 즉효 단정.<sup>[2][6]</sup></td>
+                      <td class="alt" lang="ja">乾燥による肌あれ※が気になる季節に。うるおいでキメを整えて。 <span class="muted">※角層</span></td>
+                    </tr>
+                    <tr class="hi">
+                      <td class="kcode">K4</td>
+                      <td class="kr">손상된 장벽을 <b>재생</b>시켜 근본부터 <b>치료</b></td>
+                      <td><span class="verdict ng">불가</span></td>
+                      <td class="why"><b>최고위험 · 라이브.</b> 「再生」「修復」「治療」는 전형적 의약품적 효능. 어느 등급으로도 불가.<sup>[2][3][6]</sup></td>
+                      <td class="alt" lang="ja">うるおいのヴェールで肌を包み、乾燥に負けないなめらかな肌へ。</td>
+                    </tr>
+                    <tr>
+                      <td class="kcode">K6</td>
+                      <td class="kr">3개월 만에 10만 병 완판, 리뷰 미쳤다고 난리</td>
+                      <td><span class="verdict cond">조건부</span></td>
+                      <td class="why">판매 실적은 사실이면 가능. 단 집계 시점·출처 명기 필수, 구어체 煽り는 景表法 유의. <b>실제 리뷰 0이면 "리뷰 난리"는 허위.</b><sup>[6][7]</sup></td>
+                      <td class="alt" lang="ja">おかげさまで、累計出荷○本。 <span class="muted">※2026年○月時点・自社出荷実績(확인분만)</span></td>
+                    </tr>
+                    <tr>
+                      <td class="kcode">K9</td>
+                      <td class="kr">피부과 시술 후에도 안심하고 쓰는 재생 앰플</td>
+                      <td><span class="verdict ng">불가</span></td>
+                      <td class="why">「施術後」=의료 행위 연관 / 「再生」=의약품적 / 「安心」안전성 단정도 景表法 유의.<sup>[2][3][6]</sup></td>
+                      <td class="alt" lang="ja">パッチテスト済み※。デイリーケアに。 <span class="muted">※すべての方に刺激が起きないわけではありません</span></td>
+                    </tr>
+                    <tr>
+                      <td class="kcode">…</td>
+                      <td class="kr" colspan="4" style="color:var(--ink-mute)">K5·K7·K8·K10·K11 등 나머지 5문장(조건부·불가)도 동일 패턴으로 전개 — 개발 시 S1 감사표(report-wireframe.html 블록3) 골격 반복.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 실명 검수자 서명 + 자격·경력 (§4.4 검증 반영) -->
+              <div class="signature">
+                <div class="seal" aria-hidden="true">약무<br>검수</div>
+                <div class="sig-body">
+                  <div class="sig-name">김○○ · 약무 자문 <span class="muted" style="font-weight:400;font-size:11px;">(예시)</span></div>
+                  <div class="sig-cred">약무 자문 · 화장품 약사법(薬機法) 광고 심사 경력 N년 · ○○ 자격 보유 <span class="muted" style="font-weight:400;">(자격·경력 명시 — 검증 반영)</span></div>
+                  본 감사표는 발행 전 실명 검수자가 100% 검토·서명했습니다. 서명 없는 리포트는 발행되지 않습니다.
+                  이 서명은 <b>1차 스크리닝 검토</b>에 대한 것이며, 최종 적법성 보증이 아닙니다.
+                </div>
+              </div>
+            </div>
+            <p class="muted" style="font-size:11px;margin-top:8px;">조항 각주 <sup>[1]~[7]</sup>의 규정 원문·해설 링크는 블록 9 §규정 출처에 정리됩니다.</p>
+          </section>
+
+          <!-- ═══ 블록 4 · 카테고리 경쟁 벤치마크 (요약 계승) ═══ -->
+          <section class="section-block" id="b4" aria-labelledby="b4-h">
+            <span class="section-label"><span class="tagk">4</span> 카테고리 경쟁 벤치마크</span>
+            <h3 id="b4-h" class="sec-title">감이 아니라, 일본 상위 skincare 실측 표현에 당신 카피를 대조</h3>
+            <p class="sec-sub">표본: <code style="background:var(--soft);padding:1px 5px;border-radius:4px;">detail-ocr.jsonl</code> skincare 90건 · 인용은 전부 코퍼스 실제 일본어 원문(OCR·채널 한계 전제)</p>
+
+            <div style="display:grid;gap:10px;margin-bottom:18px;">
+              <div class="bench-quote">
+                <div class="bt">① 효능 뒤엔 반드시 <b>근거 라벨 + ※조건 각주</b></div>
+                <div class="src">아스타리프트(FUJIFILM) 화장수 · line 164</div>
+                <code lang="ja">効能評価試験済み</code><code lang="ja">※角質層まで</code><code lang="ja">＊朝と夜お使いの場合</code>
+                <div class="vs">→ 당신의 <b>K5 "72시간 강력한 진정력"</b>과 정확히 반대. 최상위 브랜드는 효능을 스스로 좁힌다.</div>
+              </div>
+              <div class="bench-quote">
+                <div class="bt">② 성분은 "좋다"가 아니라 <b>배합률·기전</b>으로</div>
+                <div class="src">트베르(TOUT VERT) 화장수 · line 1–3</div>
+                <code lang="ja">グリシルグリシン 6%</code><code lang="ja">アゼライン酸誘導体</code>
+                <div class="vs">→ 당신의 <b>K7 "99% 고농축"</b>은 크지만 불명확. 일본 관례는 작아도 정확한 수치.</div>
+              </div>
+              <div class="bench-quote">
+                <div class="bt">③ 같은 CICA도 일본은 <b>"整える·防ぐ" 프레임</b></div>
+                <div class="src">idio(イディオ) CICA 화장수 · line 184</div>
+                <code lang="ja">肌荒れを防ぎながら</code><code lang="ja">CICA（ツボクサエキス）</code>
+                <div class="vs">→ "즉각 진정"이 아니라 「肌荒れを防ぐ」로 쓰고, 성분명을 검색 친화 표기로 병기.</div>
+              </div>
+            </div>
+
+            <div class="sec-title" style="margin-top:6px;">검색 친화 표기 전환 <span class="hint" style="font-weight:400;">sns-lexicon.csv 빈도 근거 · 썸네일(b) 키워드와 직결</span></div>
+            <p class="sec-sub">한국식 표기를 일본 검색·口コミ 실사용 표기로 (괄호=코퍼스 빈도)</p>
+            <div class="table-wrap">
+              <div class="scroll-x">
+                <table class="lex-table">
+                  <thead><tr><th scope="col">개념(KR)</th><th scope="col">일본 검색친화 표기(권장)</th><th scope="col">빈도 근거</th></tr></thead>
+                  <tbody>
+                    <tr><td>시카/병풀</td><td lang="ja"><code>CICA</code> 병기 + <code>ツボクサエキス</code></td><td class="muted">CICA(41) · 성분 상위</td></tr>
+                    <tr><td>진정</td><td lang="ja">(검색어로 약함) → <code>肌荒れ</code>·<code>敏感肌</code>·<code>ゆらぎ肌</code>·<code>整える</code></td><td class="muted">敏感肌(172) · 肌荒れ·低刺激(50)</td></tr>
+                    <tr><td>고보습</td><td lang="ja"><code>保湿</code>·<code>高保湿</code>·<code>うるおい</code></td><td class="muted">保湿(258) · 潤い(54)</td></tr>
+                    <tr><td>무첨가</td><td lang="ja"><code>無添加</code>·<code>無香料</code>·<code>○○フリー</code></td><td class="muted">無添加(80)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="banner" style="background:var(--soft);color:var(--ink-mute);margin-top:14px;">
+              <span aria-hidden="true">ⓘ</span>
+              <span>"진정(鎮静)"은 한국에선 최강 소구어지만 <b>일본에선 화장품 효능도 아니고 검색어로도 약합니다.</b>
+                이것이 <b>썸네일 클릭(b)이 안 나오는</b> 직접 원인 — 코퍼스는 일본 고객이 같은 니즈를
+                <b lang="ja">肌荒れ·敏感肌·ゆらぎ肌·整える</b>로 검색·구매함을 보여줍니다. (블록4 상세 대비표는 S1 골격 계승·개발 시 반복)</span>
+            </div>
+          </section>
+
+          <!-- ═══ 블록 5 · A~E 점수 (A그룹 전개 · 나머지 축약) ═══ -->
+          <section class="section-block" id="b5" aria-labelledby="b5-h">
+            <span class="section-label"><span class="tagk">5</span> 일본 문법 진단 점수 (A~E 루브릭)</span>
+            <h3 id="b5-h" class="sec-title">각 항목 0/1/2 · 그룹 막대 + 항목 아코디언 · 채점 기준 공개</h3>
+            <p class="sec-sub">종합 38점 = 그룹 점수 × 카테고리 가중치(skincare). 점수만 던지지 않고 <b>점수·통과기준·내 문장·코퍼스 근거</b> 4요소를 폅니다.</p>
+
+            <div class="group-bars" role="img" aria-label="A~E 그룹별 점수 막대">
+              <div class="group-bar"><div class="top"><span class="gname">A 신뢰 구축 <span class="w">가중 0.30</span></span><span class="gpct">10%</span></div><div class="bar"><i class="low" style="width:10%"></i></div></div>
+              <div class="group-bar"><div class="top"><span class="gname">B 무첨가·안전 <span class="w">가중 0.15</span></span><span class="gpct">0%</span></div><div class="bar"><i class="low" style="width:2%"></i></div></div>
+              <div class="group-bar"><div class="top"><span class="gname">C 서사 구조 <span class="w">가중 0.25</span></span><span class="gpct">33%</span></div><div class="bar"><i class="mid" style="width:33%"></i></div></div>
+              <div class="group-bar"><div class="top"><span class="gname">D 성분 프레이밍 <span class="w">가중 0.20</span></span><span class="gpct">25%</span></div><div class="bar"><i class="low" style="width:25%"></i></div></div>
+              <div class="group-bar"><div class="top"><span class="gname">E 카테고리 적합성 <span class="w">가중 0.10 · skincare=E4만</span></span><span class="gpct">12%</span></div><div class="bar"><i class="low" style="width:12%"></i></div></div>
+            </div>
+
+            <div class="rubric-group">
+              <div class="gh"><span class="gt">A · 신뢰 구축</span><span class="gs">10% (1 / 10)</span></div>
+              <details class="item" open>
+                <summary><span class="score-chip s0" aria-label="0점">0</span><span class="icode">A1</span><span class="ilabel">효능 주장에 근거 라벨이 있는가</span></summary>
+                <div class="item-body">
+                  <p class="evi"><span class="k">통과 기준</span> <span lang="ja">効能評価試験済み</span> 등 시험·근거 표기가 효능 주장에 붙어 있어야 함.</p>
+                  <p class="evi"><span class="k">내 문장 (라이브)</span><blockquote>「바르는 순간 즉각 진정」「72시간 지속되는 강력한 진정력」 (근거 표기 없이 단정만)</blockquote></p>
+                  <p class="evi corpus"><span class="k">코퍼스 근거</span> 라쿠텐 상위는 효능 문장에 <code lang="ja">効能評価試験済み</code>·<code lang="ja">※角質層まで</code> 병기(아스타리프트).</p>
+                </div>
+              </details>
+              <details class="item">
+                <summary><span class="score-chip s0" aria-label="0점">0</span><span class="icode">A2</span><span class="ilabel">조건 각주(※)로 효능 범위를 한정했는가</span></summary>
+                <div class="item-body">
+                  <p class="evi"><span class="k">통과 기준</span> <code lang="ja">※1 角質層まで</code> 식으로 적용 범위를 한정.</p>
+                  <p class="evi"><span class="k">내 문장 (라이브)</span><blockquote>「깊은 곳까지 파고드는」 (범위 한정 각주 없이 무한정 침투 주장)</blockquote></p>
+                  <p class="evi corpus"><span class="k">코퍼스 근거</span> 상위 상세는 <code lang="ja">※角層まで</code>로 스스로 범위를 못박음.</p>
+                </div>
+              </details>
+              <details class="item">
+                <summary><span class="score-chip s0" aria-label="0점">0</span><span class="icode">A4</span><span class="ilabel">제3자 지표(랭킹·리뷰수·수상)로 신뢰를 제시했는가</span></summary>
+                <div class="item-body">
+                  <p class="evi"><span class="k">통과 기준</span> <code lang="ja">ランキング1位</code>+集計日, <code lang="ja">レビュー○件</code> 등.</p>
+                  <p class="evi"><span class="k">내 문장 (라이브)</span><blockquote>「10만 병 완판, 리뷰 미쳤다」 (<b>실제 리뷰 0</b> · 집계일·출처 없는 구어 과장 — 오히려 감점/허위 리스크)</blockquote></p>
+                  <p class="evi corpus"><span class="k">코퍼스 근거</span> 상위 상세는 <code lang="ja">集計日：5/11〜5/17</code>과 함께 랭킹·리뷰수 노출. <b>리뷰 0 해소는 신규C 설계 영역.</b></p>
+                </div>
+              </details>
+              <p class="evi muted" style="padding:0 16px 14px;">A3·A5 및 B~E 그룹도 동일 패턴으로 전개(개발 시 S1 블록5 골격 반복). 집계는 <b>결정적</b> — 항목 0/1/2만 LLM, 가중·합산은 코드.</p>
+            </div>
+          </section>
+
+          <!-- ═══ 블록 7 · NG/OK 재작성 (2카드 전개 · 나머지 반복) ═══ -->
+          <section class="section-block" id="b7" aria-labelledby="b7-h">
+            <span class="section-label"><span class="tagk">7</span> NG/OK 재작성 (Before/After + KR 병기)</span>
+            <h3 id="b7-h" class="sec-title">"이 라이브 문장을 이렇게 바꾸세요" — 일본어를 못 읽어도 검수 가능</h3>
+            <p class="sec-sub">각 카드 6요소: Before(KR·라이브) · 문제 · After(JP) · <b>KR 역문</b> · 이유 · 무엇을 더했나 · USP 상호참조</p>
+
+            <div class="rw-card">
+              <div class="cols">
+                <div class="col before">
+                  <div class="lbl"><span class="flag ng">NG</span> BEFORE · 라이브 원문(KR)</div>
+                  <p class="jp">「트러블 싹, 붉은기 싹 — 바르는 순간 즉각 진정」</p>
+                </div>
+                <div class="col after">
+                  <div class="lbl"><span class="flag ok">OK</span> AFTER · 재설계(JP)</div>
+                  <p class="jp" lang="ja">「乾燥による肌あれ※が気になる季節に。<br>うるおいでキメを整えて。」<br><span class="muted" style="font-size:11px;">※角層</span></p>
+                  <div class="krgloss">
+                    <span class="kk">KR 역문 (이 일본어가 전하는 의미)</span>
+                    「건조로 인한 <b>피부 거칠음</b>이 신경 쓰이는 계절에. 촉촉함으로 <b>결을 정돈</b>하세요.」
+                  </div>
+                </div>
+              </div>
+              <div class="foot">
+                <span class="problem"><b>문제</b> 薬機法 K3【불가·라이브】 + C3·A3. 「消す·즉각」효과 보증·의약품적 효능.</span>
+                <span class="reason"><b>이유</b> 「진정·트러블 제거」를 화장품 효능 범위 「整える(정돈)」로 치환, 즉단정 제거.</span>
+                <span class="added"><b>더한 것</b> ※각주(角層 한정) · 계절 사용 씬으로 공감 유지.</span>
+                <span class="ref">→ 루브릭 C3·A3 · 약기법 K3 · <span class="usp">USP 표 1행 실행</span></span>
+              </div>
+            </div>
+
+            <div class="rw-card">
+              <div class="cols">
+                <div class="col before">
+                  <div class="lbl"><span class="flag ng">NG</span> BEFORE · 라이브 원문(KR)</div>
+                  <p class="jp">「민감성·트러블 피부를 위한 병원 처방급 케어」</p>
+                </div>
+                <div class="col after">
+                  <div class="lbl"><span class="flag ok">OK</span> AFTER · 재설계(JP)</div>
+                  <p class="jp" lang="ja">「敏感肌※の方の毎日にも。低刺激設計。<br>合成香料・鉱物油・パラベン フリー。」<br><span class="muted" style="font-size:11px;">※すべての方に刺激が起きないわけではありません</span></p>
+                  <div class="krgloss">
+                    <span class="kk">KR 역문 (이 일본어가 전하는 의미)</span>
+                    「<b>민감한 피부</b>인 분의 일상에도. <b>저자극 설계</b>. 합성향료·광물유·파라벤 <b>무첨가</b>.」
+                  </div>
+                </div>
+              </div>
+              <div class="foot">
+                <span class="problem"><b>문제</b> 薬機法 K8【조건부】 + B1·B2. "병원급"=의료 비교 암시, 무첨가 라벨 부재(경쟁사 리뷰가 원하던 정보).</span>
+                <span class="reason"><b>이유</b> 의료 비교 삭제 → <b>대상 표시(敏感肌の方へ)</b> + 검증형 무첨가 라벨로 안심 근거화.</span>
+                <span class="added"><b>더한 것</b> ○○フリー 라벨(뺀 것 명시) · 면책 각주.</span>
+                <span class="ref">→ 루브릭 B1·B2 · 약기법 K8 · <span class="usp">USP 표 3행 실행 · 블록6′ 마이닝 대응</span></span>
+              </div>
+            </div>
+
+            <p class="muted" style="font-size:11px;">
+              * After는 일본어를 포함하지만 목적은 <b>정보 구조 재설계</b>(번역 아님). 나머지 재작성 카드(#3~)는 S1 블록7 골격으로 반복. 수치·인증은 <b>확인된 경우에만</b> 기입.
+            </p>
+          </section>
+
+          <!-- ═══ 블록 8 · 현재 실물 Before/After (산출물 프리뷰) ═══ -->
+          <section class="section-block" id="b8" aria-labelledby="b8-h">
+            <span class="section-label"><span class="tagk">8</span> 현재 실물 Before / After <span class="new">30만 산출물</span></span>
+            <h3 id="b8-h" class="sec-title">예시가 아니라, <u>당신 제품</u>의 교체 실물</h3>
+            <p class="sec-sub">
+              Before = 지금 판매 중인 <b>당신의 라이브</b> 썸네일·상세 → After = 재설계 완성 실물(썸네일 1 + 상세 1건).
+              <b>말이 아니라 실물로</b> "재설계"를 증명합니다 (크몽 2만원 저가 제작과의 차이 = 각 요소에 붙는 <b>근거 주석</b>).
+            </p>
+
+            <div class="live-compare">
+              <div class="lc-row">
+                <!-- BEFORE = 현재 라이브 (플레이스홀더) -->
+                <div class="lc-col before">
+                  <div class="lc-head"><span>BEFORE · 현재 라이브 (당신 실물)</span><span class="pill pill-danger" style="font-size:9.5px;padding:2px 7px;">지금 판매 중</span></div>
+                  <div class="lc-shot">
+                    <div class="lc-thumb">
+                      <div>
+                        <div class="lc-hero">예민해진 피부,<br>병원 안 가도 되는 진정의 답</div>
+                        <div class="muted" style="font-size:11px;">현재 상세/썸네일 캡처 자리<br>(라이브 URL에서 자동 수집 · 플레이스홀더)</div>
+                        <div class="lc-badges"><span style="color:var(--danger);border-color:#eeb;">鎮静 즉각</span><span style="color:var(--danger);">재생·치료</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="lc-body">
+                    즉각 진정·재생·치료 단정(K3/K4/K9 라이브 리스크) · 근거·무첨가·성분 정량 부재 · 썸네일이 '진정'만 외침 → 클릭(b)·전환(c) 동시 약화.
+                  </div>
+                </div>
+                <!-- AFTER = 재설계 실물 (산출물 프리뷰) -->
+                <div class="lc-col after">
+                  <div class="lc-head"><span>AFTER · 재설계 실물 (30만 산출물)</span><span class="pill pill-carry" style="font-size:9.5px;padding:2px 7px;">교체용 완성본</span></div>
+                  <div class="lc-shot">
+                    <div class="lc-thumb">
+                      <div>
+                        <div class="lc-hero" lang="ja">ゆらぎがちな肌※1に、<br>うるおいという選択を。</div>
+                        <div class="muted" style="font-size:11px;color:var(--primary);">Qoo10 정사각 썸네일 + full 상세<br>(반자동 조립 · 근거 주석 포함)</div>
+                        <div class="lc-badges"><span lang="ja">CICA/ツボクサエキス</span><span lang="ja">合成香料フリー</span><span lang="ja">パッチテスト済み</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="lc-body">
+                    <span class="add">CICA(ツボクサエキス) 검색표기</span> · <span class="add">○○フリー 무첨가 라벨</span> · <span class="add">角層 한정 ※각주</span> ·
+                    <span class="add">効能評価/累計出荷는 확인분만(플레이스홀더)</span> — 각 요소에 <b>왜 이 문장인지(약기법·코퍼스·구매반대이유)</b> 주석.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 산출물 실물 링크 (deliverable-proto-cica.html 참조 · 재제작 안 함) -->
+            <div class="lc-real">
+              <div class="lc-real-txt">
+                <b>◈ 이 Before/After의 완성 실물</b>은 이미 조립돼 있습니다 — <b>상세페이지 1건(full 세로 스크롤) + 썸네일 1개</b>,
+                각 핵심 요소에 <b>재설계 근거 주석</b>(K코드 회피·코퍼스 라인·페르소나 반대이유·USP)이 토글로 붙어 있습니다.
+                <span class="muted" style="opacity:.85;">(반자동 조립 ~60–70% · 카피 100% 재사용 · 이 리포트가 그대로 산출물이 됨)</span>
+              </div>
+              <div class="lc-real-cta">
+                <a href="deliverable-proto-cica.html" class="btn btn-gold btn-sm">산출물 실물 열기 (상세+썸네일) →</a>
+                <a href="deliverable-proto-cica.html#log" class="btn btn-ghost btn-sm">조립 로그 보기</a>
+              </div>
+            </div>
+            <p class="muted" style="font-size:11px;margin-top:8px;">
+              * 이미지 자산은 회색 플레이스홀더(브랜드 제품컷 수급 이슈이지 창작 아님). 수치·인증·무첨가 라벨은 <b>확인된 경우에만</b> 기입(플레이스홀더 표기). 실물 브랜드 사칭·가짜 리뷰 금지.
+            </p>
+          </section>
+
+          <!-- ═══ 블록 9 · 맺음 + 구독 CTA (§6.3) ═══ -->
+          <section class="section-block" id="b9" aria-labelledby="b9-h">
+            <span class="section-label"><span class="tagk">9</span> 맺음 · 관측 지표 · 개선 확인 → 구독</span>
+            <h3 id="b9-h" class="sec-title">이 재진단이 남기는 것, 그리고 다음</h3>
+
+            <div class="closing-cols">
+              <div class="closing-card risk">
+                <div class="ch">오늘 당장 내려야 할 것 (라이브 리스크)</div>
+                <ul>
+                  <li>K4·K9 「재생·치료·시술」 — 지금 걸린 최고위험</li>
+                  <li>K3·K10 「즉각·사라진다」 — 효과 보증</li>
+                  <li>썸네일 '鎮静' 오소구 → 검색 키워드로</li>
+                </ul>
+              </div>
+              <div class="closing-card loss">
+                <div class="ch">없어서 손해 보는 것</div>
+                <ul>
+                  <li>効能評価試験済み · ※조건 각주</li>
+                  <li>○○フリー 무첨가·パッチテスト 라벨</li>
+                  <li>리뷰(사회적 증거) — 신규C 설계 대상</li>
+                </ul>
+              </div>
+              <div class="closing-card why">
+                <div class="ch">번역이 아니라 재설계인 이유</div>
+                <ul>
+                  <li>같은 CICA를 일본은 「肌荒れ·整える·防ぐ」로 판다</li>
+                  <li>"진정" 직역은 위법이면서 검색·클릭도 안 됨</li>
+                  <li>리뷰·신뢰 축을 새로 심는 작업(구독 영역)</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- 관측 지표 3종 (§6.3 검증 반영) -->
+            <div style="margin-top:22px;">
+              <div class="sec-title">개선을 무엇으로 확인하나 — 관측 지표 3종</div>
+              <p class="sec-sub"><b>우리가 성과를 보장·대리측정하지 않습니다.</b> 당신이 자기 채널에서 <b>교체 전후를 직접 관측</b>할 지표만 명시합니다.</p>
+              <div class="metrics">
+                <div class="metric">
+                  <div class="mk">클릭 구간</div>
+                  <div class="mt">썸네일 CTR<span class="stage">b</span></div>
+                  <div class="md">썸네일 교체 <b>전후</b> 검색결과 클릭률. 검색 노출 대비 클릭 회복 여부.</div>
+                </div>
+                <div class="metric">
+                  <div class="mk">전환 구간</div>
+                  <div class="mt">상세 전환율<span class="stage">c</span></div>
+                  <div class="md">상세 교체 <b>전후</b> 방문 대비 구매율. 근거·무첨가 보강이 확신으로 이어지는지.</div>
+                </div>
+                <div class="metric">
+                  <div class="mk">축적 구간</div>
+                  <div class="mt">리뷰 유입 수<span class="stage" style="background:var(--gold);color:#2a1f05;">C</span></div>
+                  <div class="md">신규C 설계 후 <b>신규 리뷰 유입 건수</b>. 랭킹 진입의 선행 지표.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 개선 확인 → 구독 루프 도식 -->
+            <div style="margin-top:22px;">
+              <div class="sec-title">개선 확인 → 구독 루프</div>
+              <p class="sec-sub">30만 = 구독 획득용 <b>유료 파일럿(트라이얼)</b>. 산출물로 개선 여지를 <b>직접</b> 본 뒤 흐름을 사는 구조.</p>
+              <div class="loop" role="list" aria-label="개선 확인 구독 루프">
+                <div class="lp" role="listitem"><span class="lpn">1</span><div class="lpt">산출물 교체</div><div class="lpd">썸네일·상세를 당신 채널에 반영.</div></div>
+                <span class="lparw" aria-hidden="true">→</span>
+                <div class="lp" role="listitem"><span class="lpn">2</span><div class="lpt">직접 관측</div><div class="lpd">CTR·전환율·리뷰 유입을 스스로 확인.</div></div>
+                <span class="lparw" aria-hidden="true">→</span>
+                <div class="lp" role="listitem"><span class="lpn">3</span><div class="lpt">개선 여지 확인</div><div class="lpd">"되는 방향"을 숫자로 납득.</div></div>
+                <span class="lparw" aria-hidden="true">→</span>
+                <div class="lp last" role="listitem"><span class="lpn">4</span><div class="lpt">구독(②③) 전환</div><div class="lpd">신제품·시즌·A/B·리뷰 운영을 <b>흐름</b>으로.</div></div>
+              </div>
+            </div>
+
+            <!-- 구독 가격대 밴드 (§6.3 사전 공개 · 필수) -->
+            <div class="price-band">
+              <div class="pb-head">
+                <span>구독 가격대 사전 안내 <span class="pb-note">— 30만 제안 시점에 미리 명시(불투명하면 전환이 막힘)</span></span>
+                <span class="pb-note">월 산출물 범위 포함 · 예시 밴드</span>
+              </div>
+              <div class="pb-tiers">
+                <div class="pb-tier">
+                  <div class="pt-name">② 마케팅 스튜디오 (Growth)</div>
+                  <div class="pt-price">월 ○○만 원대 <span class="per">/ month (밴드)</span></div>
+                  <div class="pt-scope">신제품·시즌(메가와리 등)마다 상세·썸네일 지속 제작 · A/B 개선 · 복수 채널 전개. <b>"1건"이 아니라 볼륨·흐름.</b></div>
+                </div>
+                <div class="pb-tier">
+                  <div class="pt-name">③ 운영 (Scale)</div>
+                  <div class="pt-price">월 ○○만 원대 <span class="per">/ month (밴드)</span></div>
+                  <div class="pt-scope">신규C 리뷰 확보 <b>실행</b>(샘플링·기프팅·UGC·랭킹 운영) · 口コミ 축적 · 지속 관측 지원. (유입 실행 = 이 구간)</div>
+                </div>
+              </div>
+              <div class="pb-foot">
+                * 가격대는 <b>예시 밴드</b>(파일럿 확정 후 실수치 공개). 나중에 훅 올려부르지 않도록 <b>제안 시점에 범위를 못박습니다.</b>
+                성과 보장이 아니며, 실행 지원의 범위·산출물 볼륨을 파는 구독입니다.
+              </div>
+            </div>
+
+            <!-- 규정 출처 (요약 계승) -->
+            <div class="card" style="margin-top:18px;">
+              <div class="sec-title">규정 출처 (약기법 감사 각주 [1]~[7])</div>
+              <p class="refs">
+                <sup>[1]</sup> 厚労省 「化粧品の効能の範囲」(효능 56항목) · <sup>[2]</sup> 化粧品工業連合会 「適正広告ガイドライン」(角質層まで·効果暗示) ·
+                <sup>[3]</sup> 医薬部外品 효능효과 통지(유효성분 승인) · <sup>[5]</sup> 効能評価試験(数値持続 근거) · <sup>[7]</sup> 景品表示法(集計時点·출처).
+                <span class="muted" style="display:block;margin-top:6px;">* 원문 PDF·해설 링크는 PDF 리포트 각주에 하이퍼링크로 포함(S1 블록9 골격 계승).</span>
+              </p>
+            </div>
+
+            <!-- 한계 고지 -->
+            <div class="banner" style="background:var(--warn-bg);color:var(--warn-text);margin-top:14px;">
+              <span aria-hidden="true">!</span>
+              <span><b>한계 고지.</b> 薬機法 감사는 <b>1차 스크리닝</b> · 코퍼스는 <b>楽天 단일 채널 표본</b>(304건, OCR 노이즈 전제) ·
+                퍼널·리뷰 병목은 <b>진단이며 성과 예측·보장이 아님</b> · 경쟁사 리뷰는 실측 인용(자사 리뷰 미보유) · 종합 점수는 관례 충족도.</span>
+            </div>
+
+            <!-- 다음 단계 CTA (구독 전환) -->
+            <div class="cta-panel">
+              <h3>다음 단계 — 실물을 교체하고, 개선을 직접 확인하세요</h3>
+              <p>여기서 나온 페르소나·USP·재작성이 <b>마케팅 스튜디오(②)</b>로, 리뷰 확보 실행·랭킹 축적은 <b>운영(③)</b>으로 이어집니다.
+                (유입·리뷰 실행은 이 리포트 밖 → 구독에서. 물류·통관·광고 대행이 아니라, 사전 진단 → 실행 지원 흐름.)</p>
+              <div class="cta-actions">
+                <a href="deliverable-proto-cica.html" class="btn btn-gold btn-sm">교체할 실물 보기 →</a>
+                <a href="#" class="btn btn-primary btn-sm">구독(②③) 상담 →</a>
+                <a href="#" class="btn btn-ghost btn-sm">PDF로 결재 올리기</a>
+              </div>
+            </div>
+          </section>
+
+        </article>
+      </div>
+
+      <div class="notes">
+        <p class="note" data-n="1"><b>블록 재배치(§4.1):</b> 요약 직후 <b>신규A 퍼널 → 신규C 리뷰 병목</b>을 배치해 "왜 전환이 안 되는가"를 먼저 진단, 이후 재설계·실물·구독으로 잇는다.</p>
+        <p class="note" data-n="2"><b>신규A 퍼널:</b> a(유입)=범위 밖 진단만 / b·c=책임 구간(테두리·배지 강조). 정직 고지 배너 뒤에 <b>구독 동선</b> 필수.</p>
+        <p class="note" data-n="3"><b>신규C 리뷰 병목:</b> 진단(왜 안 쌓이나)+설계(확보 경로·기프팅 키트). <b>경계 배너</b>로 "수·평점 보장 안 함 → 실행은 구독③" 시각 연결.</p>
+        <p class="note" data-n="4"><b>블록6′·8·9 변형:</b> 6′=경쟁사 실측 마이닝(자사 미보유 라벨) · 8=현재 실물 B/A(산출물 링크·재제작 안 함) · 9=관측지표 3종+구독 가격 밴드+개선→구독 루프.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════ 범례 ═══════════ -->
+    <div class="legend">
+      <b>이 문서에 대하여</b> · 비배포 · 프론트 개발 착수용 와이어프레임(단일 HTML, 무의존, CSP 안전).
+      <b>S2(입점 후·매출 저조)</b> 변형으로, S1(<code>report-wireframe.html</code>)의 CSS 토큰·컴포넌트·블록 골격을 계승하고
+      스펙 <b>docs/specs/02-report-spec-postentry.md</b>의 §3 입력·§4 블록 재배치+<b>신규A(퍼널)/신규C(리뷰 병목)</b>·§5 산출물·§6 구독을 반영했습니다.
+      아코디언은 시맨틱 <code>&lt;details&gt;/&lt;summary&gt;</code>로 키보드·스크린리더 기본 지원(추가 JS 없음). 넓은 표는 자체 <code>overflow-x</code>로 가로 스크롤을 가둡니다.
+      블록8의 산출물 실물은 <code>deliverable-proto-cica.html</code>을 <b>링크·요약 참조</b>(재제작 안 함).
+      화면 속 점수·페르소나·일본어 문구·검수자명·경쟁사 리뷰는 UI 시연용 <b>예시 데이터</b>이며 실제 진단 결과가 아닙니다.
+      가상 성과 스탯·가짜 리뷰·성과 보장은 넣지 않습니다(증거 원칙).
+    </div>
+
+  </main>
+</body>
+</html>
