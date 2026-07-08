@@ -3,6 +3,8 @@
 > 토큰이 정해지면 여기에 기록하고, 구현은 Tailwind 설정/유틸에 반영한다.
 > `designer` 에이전트가 `/design-page` 진행 중 채운다.
 
+> **톤 제안 3안 검토 중** → [brand-tone-proposals.md](brand-tone-proposals.md) · 시각 비교 [wireframes/tone-preview.html](wireframes/tone-preview.html). 팀 확정 시 선택안의 토큰을 아래 TBD에 반영.
+
 ## 컬러 (정의 예정)
 | 역할 | 토큰 | 값 |
 |---|---|---|
