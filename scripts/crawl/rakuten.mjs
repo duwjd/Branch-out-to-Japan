@@ -12,13 +12,12 @@
  * 앱ID 발급: https://webservice.rakuten.co.jp/ (무료). .env 의 RAKUTEN_APP_ID 로도 읽음.
  */
 
-import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { logger } from './lib/logger.mjs';
 import { searchItems, toCatalogRecord, sleep } from './lib/rakutenClient.mjs';
 import { CATEGORIES } from './lib/categories.mjs';
 import { REPO_ROOT, CATALOG_PATH, ensureDirs, loadExistingIds, appendRecords, downloadImage } from './lib/catalog.mjs';
+import { readEnvValue } from './lib/env.mjs';
 
 const IMAGE_SUBDIR = 'raw/product-thumbnails/rakuten';
 const REQUEST_DELAY_MS = 1200; // 라쿠텐 API·이미지 서버 예의상 요청 간 딜레이
@@ -34,19 +33,6 @@ function parseArgs(argv) {
     else if (a === '--category') out.only = argv[++i];
   }
   return out;
-}
-
-/** .env 에서 KEY=VALUE 를 읽어 하나만 반환(dotenv 미의존). @returns {string|undefined} */
-async function readEnvValue(key) {
-  if (process.env[key]) return process.env[key];
-  const envPath = path.join(REPO_ROOT, '.env');
-  if (!existsSync(envPath)) return undefined;
-  const text = await readFile(envPath, 'utf8');
-  for (const line of text.split('\n')) {
-    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-    if (m && m[1] === key) return m[2].replace(/^["']|["']$/g, '');
-  }
-  return undefined;
 }
 
 /** 한 카테고리를 목표 수량까지 수집. @returns {Promise<object[]>} 신규 레코드들 */

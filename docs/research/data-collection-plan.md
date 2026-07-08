@@ -39,6 +39,9 @@
 
 **주의:** 저속(1~2초 딜레이)·소량 우선. 분석 목적상 브랜드당 대표 1~3개면 충분.
 **산출물:** 이미지 → 폴더, 메타 → `product-catalog.jsonl` (type=`detail`).
+**OCR 텍스트 레이어:** 상세 이미지는 `ocr-detail.mjs`(Claude 비전 + Batch API)로 일본어 텍스트화 →
+`data/processed/detail-ocr.jsonl`(rawText·appeals·ingredients·trustBadges). 상품명이 아닌 **실제 소구 문장**이
+①(카피 갭 진단)·②(생성 grounding)·렉시콘의 핵심 코퍼스가 됨.
 
 ## ③ SNS 유행어/뷰티 문구 — `data/raw/sns-copy/`
 

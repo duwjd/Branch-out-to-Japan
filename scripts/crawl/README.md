@@ -11,7 +11,8 @@
 | Amazon JP | `amazon.mjs` | 헤드리스 검색 | ✅ 썸네일 328 (풀해상도) |
 | Qoo10 | `qoo10.mjs` | 헤드리스 랭킹 | △ 16 (랭킹 상위만 노출·고품질) |
 | @cosme | `cosme.mjs` | 헤드리스 랭킹 | ✅ 68 제품·브랜드명 (SNS 어휘) |
-| 렉시콘 빌드 | `build-lexicon.mjs` | 코퍼스 집계 | ✅ 101 용어 |
+| 상세 OCR | `ocr-detail.mjs` | Claude 비전 + Batch API | 상세 이미지 → 소구 문장·성분·배지 텍스트화 |
+| 렉시콘 빌드 | `build-lexicon.mjs` | 코퍼스 집계 | ✅ 101 용어 (상품명 + @cosme + 상세 OCR) |
 | Yahoo 쇼핑 | (미구현) | 헤드리스 | △ 가능하나 셀렉터 지저분 |
 | TikTok CC | (불가) | — | ✗ 전체 트렌드가 로그인 게이트(비로그인 3개 미리보기만) |
 | Instagram | (수작업) | — | ✗ ToS상 스크래핑 불가 → 수작업 큐레이션 |
@@ -49,6 +50,30 @@ node scripts/crawl/rakuten-browser.mjs --per-category 5 --no-images --headful  #
 - 실제 UA·JS 렌더링만. **CAPTCHA 우회·핑거프린트 스푸핑은 하지 않음**(설계 원칙).
 - 페이지 이동 간 2.5초 딜레이. 썸네일은 600×600으로 업스케일 저장.
 - 상품 0개 응답 시 "차단/결과끝"으로 보고 다음 키워드로 넘어감.
+
+## 상세 이미지 OCR (`ocr-detail.mjs`, Claude 비전 + Batch API)
+
+②(`rakuten-detail.mjs`)가 모은 상세 소구 이미지를 **일본어 OCR로 텍스트화**하고
+소구 문장·성분·신뢰배지를 구조화 추출한다. → ①(카피 갭 진단)·②(생성 grounding)·렉시콘의 코퍼스.
+
+### 준비
+```bash
+npm install                          # @anthropic-ai/sdk 설치
+# .env 에 ANTHROPIC_API_KEY 설정 (https://console.anthropic.com) 또는 `ant auth login`
+```
+
+### 실행
+```bash
+node scripts/crawl/ocr-detail.mjs --dry-run    # 건수·예상비용만(무전송)
+node scripts/crawl/ocr-detail.mjs --limit 3    # 소량 실제 배치(스모크)
+node scripts/crawl/ocr-detail.mjs              # 전체(313장 ≈ $2, Sonnet5 Batch)
+node scripts/crawl/build-lexicon.mjs           # OCR 텍스트 반영해 렉시콘 재빌드
+```
+
+### 동작 메모
+- **Message Batches API**(비동기·50% 할인). 모델 `claude-sonnet-5`, 사고 비활성(OCR은 인지 작업).
+- 배치 id를 `.ocr-batch-state.json`(gitignore)에 저장 → 폴링 중단돼도 **재개**. 완료 시 상태파일 제거.
+- 재실행 시 `detail-ocr.jsonl`의 기존 id를 스킵. 산출물은 파생 텍스트라 **커밋 대상**.
 
 ## B. 라쿠텐 썸네일 — API 버전 (`rakuten.mjs`, 권장)
 

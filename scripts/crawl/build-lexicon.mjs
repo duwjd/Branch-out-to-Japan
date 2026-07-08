@@ -20,6 +20,7 @@ import { BEAUTY_TERMS } from './lib/beautyTerms.mjs';
 
 const CATALOG_PATH = path.join(REPO_ROOT, 'data/processed/product-catalog.jsonl');
 const COSME_DIR = path.join(REPO_ROOT, 'data/raw/sns-copy/cosme');
+const OCR_PATH = path.join(REPO_ROOT, 'data/processed/detail-ocr.jsonl');
 const OUT_PATH = path.join(REPO_ROOT, 'data/processed/sns-lexicon.csv');
 
 /** 카타카나 자동발굴에서 제외할 이커머스 판촉어(뷰티 어휘 아님). */
@@ -59,6 +60,18 @@ async function loadCorpus() {
         const val = tab >= 0 ? l.slice(tab + 1).trim() : l.trim();
         if (val) lines.push({ text: val, source: 'cosme' });
       }
+    }
+  }
+  // 상세 이미지 OCR — 실제 소구 문장(짧은 상품명이 아닌 본문 카피). 코퍼스 질을 크게 높인다.
+  if (existsSync(OCR_PATH)) {
+    const text = await readFile(OCR_PATH, 'utf8');
+    for (const l of text.split('\n')) {
+      if (!l.trim()) continue;
+      try {
+        const r = JSON.parse(l);
+        if (r.rawText) lines.push({ text: r.rawText, source: 'rakuten-detail-ocr' });
+        for (const a of r.appeals || []) lines.push({ text: a, source: 'rakuten-detail-ocr' });
+      } catch { /* skip */ }
     }
   }
   return lines;

@@ -6,9 +6,14 @@
   "scripts": {
     "crawl:rakuten-api": "node scripts/crawl/rakuten.mjs",
     "crawl:rakuten-browser": "node scripts/crawl/rakuten-browser.mjs",
-    "crawl:cosme": "node scripts/crawl/cosme.mjs"
+    "crawl:amazon": "node scripts/crawl/amazon.mjs",
+    "crawl:qoo10": "node scripts/crawl/qoo10.mjs",
+    "crawl:cosme": "node scripts/crawl/cosme.mjs",
+    "crawl:ocr": "node scripts/crawl/ocr-detail.mjs",
+    "build:lexicon": "node scripts/crawl/build-lexicon.mjs"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
     "playwright": "^1.49.0"
   }
 }

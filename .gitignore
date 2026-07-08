@@ -51,3 +51,8 @@ next-env.d.ts
 /data/raw/**/*.webp
 /data/raw/**/*.gif
 /data/raw/**/*.avif
+
+# OCR 배치 진행 상태(임시). 결과물 detail-ocr.jsonl 은 커밋함
+/data/processed/.ocr-batch-state.json
+# OCR 크기초과 이미지 정규화 임시 산출(재생성 가능)
+/data/processed/.ocr-normalized/
