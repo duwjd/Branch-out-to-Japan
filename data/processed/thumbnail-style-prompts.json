@@ -1,0 +1,287 @@
+{
+  "version": "1.1.0",
+  "createdAt": "2026-07-08",
+  "updatedAt": "2026-07-08",
+  "targetModel": "gpt-image-2.0",
+  "purpose": "한국 썸네일/제품 이미지(input image)를 일본향 제품 썸네일로 변환하는 카테고리별 프롬프트 팩. 근거: docs/research/jp-thumbnail-style-taxonomy.md, 라벨: data/processed/thumbnail-style-labels.jsonl, 파이프라인 스펙: docs/specs/02-thumbnail-converter-spec.md",
+  "usageNotes": [
+    "input image = 한국 썸네일 또는 제품 단독컷. 제품이 선명하고 가려지지 않아야 한다.",
+    "{{slot}} 플레이스홀더는 호출 시점에 채워서 promptTemplate을 완성한다. 일본어 텍스트 슬롯은 jp-localizer 산출(약기법 검수 통과) 카피만 주입한다.",
+    "conditionalBadgeSlots는 requiresProof=true이면 근거 데이터(수상명·연도·부문·집계기간 등)가 있을 때만 해당 문단을 프롬프트에 포함한다. 근거가 없으면 문단째 제거 — 배지 없는 이미지가 생성되는 것이 기본값이다.",
+    "조립 순서: [입력이 프로모 썸네일이면 inputCleanupNote] → promptTemplate(슬롯 치환 완료) → 'Strict requirements:' 아래에 카테고리 constraints → commonConstraints → 카테고리 negativeConstraints → commonNegativeConstraints를 불릿으로 이어붙여 하나의 프롬프트로 만든다."
+  ],
+  "inputCleanupNote": {
+    "when": "입력 이미지가 제품 단독컷이 아니라 오버레이(카피·뱃지·가격·테두리)가 있는 프로모 썸네일일 때, 최종 프롬프트 맨 앞에 프리펜드한다.",
+    "template": "The input is a Korean promotional thumbnail: first isolate the physical product exactly as it appears, discarding every existing overlay element (frames, badges, price bands, character stickers, and all Hangul text)."
+  },
+  "slotFillingRules": [
+    "성분 데이터가 입력에 없으면 성분명을 절대 지어내지 않는다 — D의 ingredientVisual은 제형 비주얼(물방울·크림 스미어·거품 등)로 대체하고, 성분 소구가 필요하면 브랜드에게 성분 데이터를 추가로 받는다.",
+    "トーンアップ·透明感·白浮きしない 등 외관 변화 카피에는 footnoteJa에 '※メーキャップ効果による'를 기본으로 넣는다 (일본 관례·약기법 대응).",
+    "가격 슬롯(G.priceBlock)의 이중가격(취소선 통상가)은 실제 통상 판매 실적이 있는 가격만 — 유리오인(有利誤認) 리스크.",
+    "F(모델+카피형)는 브랜드 보유 모델컷이 있을 때만 선택한다. 없으면 B/D로 대체 (인물 합성 금지).",
+    "가격·할인율 등 법적 구속력 있는 텍스트는 모델 렌더링 대신 생성 후 코드 오버레이(하이브리드)를 권장 — 스펙 문서 §3-6 참조.",
+    "한국 카피는 직역하지 않는다 — 의도를 추출해 일본 고민 어휘·관례어로 재설계한 카피(jp-localizer 산출)만 슬롯에 넣는다. 예: '쿨톤 치트키' → '白浮きしない、透け感トーンアップUV'."
+  ],
+  "defaults": {
+    "size": "1024x1024",
+    "aspectRatio": "1:1",
+    "inputFidelity": "high",
+    "typography": "Informational overlay text: modern Japanese gothic sans (e.g. Noto Sans JP feel). Premium vertical copy: mincho serif feel. Never stylize glyphs to the point of illegibility."
+  },
+  "commonConstraints": [
+    "Preserve the product from the input image exactly: same shape, proportions, cap, label layout, logo, and colors. Never redraw, translate, or invent any text printed on the physical package.",
+    "Render every overlay text EXACTLY as provided in the slots, character by character, in natural Japanese typography. Do not add, translate, or improvise any text that is not provided.",
+    "Photorealistic e-commerce product photography quality; clean edges; no artifacts around the product silhouette.",
+    "Square 1:1 composition with safe margins: keep all text and badges at least 4% away from the edges."
+  ],
+  "commonNegativeConstraints": [
+    "No Korean (Hangul) characters anywhere in the generated overlays or background.",
+    "No Chinese (simplified or traditional) characters; Japanese kanji/kana only as provided in slots.",
+    "No garbled, invented, or misspelled Japanese glyphs; if a text slot is empty, render no text in that zone.",
+    "No fabricated rankings, awards, No.1 claims, SPF values, prices, or efficacy claims that were not explicitly provided.",
+    "No watermarks, no picture frames or borders around the image (Rakuten guideline), no QR codes.",
+    "Do not distort, recolor, or restyle the product itself."
+  ],
+  "styleCategories": [
+    {
+      "id": "A",
+      "slug": "clean-studio-pack-shot",
+      "nameKo": "클린 스튜디오 단독컷",
+      "nameJa": "クリーン物撮り",
+      "description": "흰 배경 + 제품 단독. 오버레이 없음. 패키지 인쇄면이 정보를 전달하는 일본식 카탈로그 컷.",
+      "platformFit": ["amazon-jp", "rakuten"],
+      "bestFor": "아마존JP 메인 이미지(규정 준수), 텍스트 과밀 한국 썸네일의 1차 클린화, 전 제품군",
+      "promptTemplate": "Transform the provided Korean product image into a clean Japanese e-commerce main thumbnail. Isolate the product exactly as it appears and place it centered on a pure white (#FFFFFF) seamless studio background. Remove every digital overlay, sticker, promotional text, and decorative background element from the original image, keeping only the physical product (and its retail box beside it, only if {{includeBox}} is 'yes'). Soft, even softbox lighting; a gentle natural drop shadow beneath the product and a very subtle floor reflection. The product fills about 80-85% of the frame height. {{compositionNote}}",
+      "textSlots": {
+        "includeBox": {"required": false, "lang": "n/a", "description": "'yes'면 제품 옆에 리테일 박스 함께 배치", "example": "yes"},
+        "compositionNote": {"required": false, "lang": "en", "description": "추가 구도 지시(듀오 배치, 배리에이션 그리드 등)", "example": "Arrange the two sizes side by side, larger one on the left."}
+      },
+      "conditionalBadgeSlots": {},
+      "constraints": [
+        "Amazon main-image compliance: absolutely no overlay text, badges, logos, or graphics outside the physical product."
+      ],
+      "negativeConstraints": ["No props, no hands, no colored backdrop."],
+      "exampleRefs": ["amazon_B0F7X64NXX", "amazon_B0BT99BF83", "rakuten_rakuten24_4971650801537", "rakuten_f253839-hino_54000100"]
+    },
+    {
+      "id": "B",
+      "slug": "texture-swatch",
+      "nameKo": "제품+텍스처 스와치",
+      "nameJa": "テクスチャースウォッチ",
+      "description": "클린 컷에 내용물 텍스처(스미어·크러시·방울·거품)를 더한 무텍스트 컷. 아마존JP K뷰티 표준.",
+      "platformFit": ["amazon-jp", "rakuten", "qoo10"],
+      "bestFor": "발색·제형이 소구점인 색조/제형 제품 (틴트, 팔레트, 젤, 크림)",
+      "promptTemplate": "Transform the provided Korean product image into a Japanese e-commerce thumbnail in the 'product + texture swatch' style. Keep the product exactly as it appears, centered or slightly off-center on a pure white background, and add a realistic macro texture swatch of the product's content behind or beside it: {{textureDescription}}. The swatch color must match the actual product shade {{shadeColor}}. Soft studio lighting, gentle shadow. No text anywhere. If {{showOpenProduct}} is 'yes', show the product opened with its applicator visible.",
+      "textSlots": {
+        "textureDescription": {"required": true, "lang": "en", "description": "제형별 스와치 묘사: 젤=투명 스미어, 크림=소프트 스미어, 파우더=크러시, 틴트=글로시 스트로크, 폼=거품", "example": "a glossy diagonal smear of the tint, thick at the top and tapering down"},
+        "shadeColor": {"required": true, "lang": "en", "description": "실제 제품 색상 설명", "example": "muted rose pink (#C4626E)"},
+        "showOpenProduct": {"required": false, "lang": "n/a", "description": "'yes'면 개봉 상태 + 어플리케이터 노출", "example": "yes"}
+      },
+      "conditionalBadgeSlots": {},
+      "constraints": [
+        "The texture swatch must look physically plausible for the product type; do not exaggerate glitter or wetness."
+      ],
+      "negativeConstraints": ["No text, no badges, no hands."],
+      "exampleRefs": ["amazon_B0BY8NVDX5", "amazon_B0DHXRCC7J", "rakuten_etvos_ag10623", "rakuten_0101marui_cf019978340101"]
+    },
+    {
+      "id": "C",
+      "slug": "official-shop-trust",
+      "nameKo": "공식샵 신뢰 배지형",
+      "nameJa": "公式ショップ信頼バッジ型",
+      "description": "公式ショップ 칩 + 신뢰 배지 + 하단 기능 카피 밴드. 라쿠텐 공식샵 전형 문법.",
+      "platformFit": ["rakuten"],
+      "bestFor": "라쿠텐 입점 브랜드의 대표 썸네일, 기능성 스킨케어/선케어",
+      "promptTemplate": "Transform the provided Korean product image into a Rakuten official-brand-shop style thumbnail. Layout: (1) Top-left: a compact brand chip — brand logo text '{{brandName}}' with a small attached tag reading '公式ショップ' in white on a dark accent block. (2) Center: the product as the hero, unchanged, on a background of {{backgroundVisual}}. (3) Bottom: a horizontal copy band with the Japanese catch copy '{{catchCopyJa}}' in bold gothic type, dark text on light band (or white on dark, matching {{accentColor}}). (4) Optional feature chips near the product: {{featureChipsJa}} as small rounded rectangles. {{rankingBadgeParagraph}} Keep total text coverage under 20% of the image area.",
+      "textSlots": {
+        "brandName": {"required": true, "lang": "ja/en", "description": "브랜드명 (로마자 또는 카타카나)", "example": "AESTURA"},
+        "backgroundVisual": {"required": true, "lang": "en", "description": "배경 묘사 (성분 비주얼·무드 조명 등)", "example": "soft grey studio gradient with faint golden ingredient bubbles floating"},
+        "catchCopyJa": {"required": true, "lang": "ja", "description": "하단 밴드 카피 (jp-localizer 산출)", "example": "外部刺激に負けない肌へ"},
+        "featureChipsJa": {"required": false, "lang": "ja", "description": "기능 칩 배열 (최대 3개)", "example": "SPF50+ / PA++++ / 医薬部外品"},
+        "accentColor": {"required": false, "lang": "en", "description": "브랜드 액센트 컬러", "example": "deep navy (#1A2B4C)"}
+      },
+      "conditionalBadgeSlots": {
+        "rankingBadgeParagraph": {
+          "requiresProof": true,
+          "proofFields": ["rankTitle", "genre", "aggregationDate"],
+          "template": "(5) Top-right: a gold laurel ranking medal reading '{{rankTitle}}' with smaller text '{{genre}}' and a footnote line '{{aggregationDate}}' in fine print beneath the medal.",
+          "legalNote": "실제 랭킹 실적(장르·집계일)이 있을 때만 포함. 근거 없는 랭킹 배지는 경품표시법 우량오인 리스크 — 미입력 시 이 문단을 프롬프트에서 제거한다.",
+          "example": {"rankTitle": "楽天ランキング1位", "genre": "美容・コスメ・香水 > 日焼け止め", "aggregationDate": "2026/6/14更新 [集計日6/13]"}
+        }
+      },
+      "constraints": [
+        "Badges and chips must follow Rakuten conventions: official chip top-left, medal top-right, copy band bottom.",
+        "Any No.1 or ranking claim must visually include its fine-print footnote."
+      ],
+      "negativeConstraints": ["No price, no discount, no coupon elements in this style."],
+      "exampleRefs": ["rakuten_orbis-shop_r4908064090790", "rakuten_decencia_d0019", "rakuten_cetaphil-official-gkk_10000005", "rakuten_aestura-japan_atobarrier365cream"]
+    },
+    {
+      "id": "D",
+      "slug": "copy-ingredient-visual",
+      "nameKo": "캐치카피+성분 비주얼형",
+      "nameJa": "キャッチコピー×成分ビジュアル型",
+      "description": "대형 일본어 캐치카피 + 성분·제형 비주얼 + 기능 칩. '주장이 아니라 근거'의 썸네일판.",
+      "platformFit": ["rakuten", "qoo10"],
+      "bestFor": "성분 소구 스킨케어 (세럼·토너·크림), D2C 브랜드",
+      "promptTemplate": "Transform the provided Korean product image into a Japanese ingredient-forward thumbnail. Layout: (1) Top: the Japanese catch copy '{{catchCopyJa}}' in large bold gothic type across the upper zone, dark charcoal text (or {{copyColor}}). (2) Center: the product unchanged as hero, surrounded by realistic ingredient visuals: {{ingredientVisual}}. (3) A small feature chip reading '{{featureChipJa}}' in a rounded outline box near the bottom-left. (4) Small fine-print footnote line '{{footnoteJa}}' at the very bottom in light grey, if provided. {{rankingBadgeParagraph}} Background: {{backgroundColor}} with soft depth-of-field. Text coverage under 20%.",
+      "textSlots": {
+        "catchCopyJa": {"required": true, "lang": "ja", "description": "성분/효능 캐치카피 (jp-localizer 산출, 약기법 검수 통과분)", "example": "ビタミンC＆レチノール"},
+        "copyColor": {"required": false, "lang": "en", "description": "카피 색", "example": "deep green (#1F4D3A)"},
+        "ingredientVisual": {"required": true, "lang": "en", "description": "성분 비주얼 묘사", "example": "translucent golden oil droplets and glossy spheres floating around the bottle"},
+        "featureChipJa": {"required": false, "lang": "ja", "description": "고민 키워드 칩", "example": "毛穴ケア"},
+        "footnoteJa": {"required": false, "lang": "ja", "description": "※각주 (성분 배합 목적 등 근거 표기)", "example": "※整肌成分として配合"},
+        "backgroundColor": {"required": true, "lang": "en", "description": "배경색/무드", "example": "pale warm yellow gradient"}
+      },
+      "conditionalBadgeSlots": {
+        "rankingBadgeParagraph": {
+          "requiresProof": true,
+          "proofFields": ["rankTitle", "genre", "aggregationDate"],
+          "template": "(5) Bottom-right corner: a small gold ranking medal reading '{{rankTitle}}' with fine-print '{{genre}} {{aggregationDate}}' beneath it.",
+          "legalNote": "실제 랭킹 실적이 있을 때만 포함. 미입력 시 문단 제거.",
+          "example": {"rankTitle": "ジャンル1位", "genre": "美容液", "aggregationDate": "2026/6/30更新"}
+        }
+      },
+      "constraints": [
+        "Ingredient visuals must be plausible for the stated ingredient (oil droplets for oils, water spheres for aqueous, botanical elements for extracts).",
+        "If an efficacy-adjacent word is used in the copy, the footnote slot should carry its qualifier."
+      ],
+      "negativeConstraints": ["No model/person, no price elements."],
+      "exampleRefs": ["rakuten_rise-store_biyoueki", "rakuten_kiso_kiso-k47", "qoo10_8366671829", "rakuten_fancl-shop_3735-51"]
+    },
+    {
+      "id": "E",
+      "slug": "award-stack",
+      "nameKo": "수상 실적 스택형",
+      "nameJa": "受賞実績スタック型",
+      "description": "클린 제품컷 + 수상 리본 메달 스택이 유일한 오버레이. 실제 수상 이력 전용.",
+      "platformFit": ["rakuten", "amazon-jp"],
+      "bestFor": "베스트코스메·미디어 어워드 수상 이력이 있는 제품",
+      "promptTemplate": "Transform the provided Korean product image into a Japanese award-showcase thumbnail. The product stands unchanged, slightly right of center, on a pure white (or {{backgroundTone}}) background with soft shadow. {{awardStackParagraph}} No other text or graphics. Elegant, restrained, high-trust mood.",
+      "textSlots": {
+        "backgroundTone": {"required": false, "lang": "en", "description": "배경 톤 (기본 순백)", "example": "very pale blush pink"}
+      },
+      "conditionalBadgeSlots": {
+        "awardStackParagraph": {
+          "requiresProof": true,
+          "proofFields": ["awards[].title", "awards[].year", "awards[].category", "awards[].rank", "awards[].footnote"],
+          "template": "On the left side, stack {{awardCount}} vertical ribbon-medal badges, each a classic Japanese best-cosme ribbon medal: {{awardsRendered}}. Each medal shows the award title, year, category, and rank exactly as given, with the footnote '{{awardFootnoteJa}}' in fine print at the bottom of the image.",
+          "legalNote": "실제 수상 내역(수상명·연도·부문·순위·근거 각주)이 있을 때만 이 유형을 사용한다. 수상 이력이 없으면 이 카테고리 자체를 선택하지 않는 것이 원칙 (E는 배지가 본체이므로).",
+          "example": {"awardsRendered": "medal 1: black circle 'Rakuten Best Cosme 2024' with pink ribbon reading '化粧水・ローション 第1位'; medal 2: 'Rakuten Best Cosme 2024' with ribbon '総合大賞 第7位'", "awardFootnoteJa": "※楽天ベストコスメ2024 受賞（化粧水部門）"}
+        }
+      },
+      "constraints": [
+        "Medal design language: dark circular core, laurel or ribbon frame, serif/mincho award title, rank in large numerals.",
+        "Maximum 3 medals; align them in a tidy vertical stack with even spacing."
+      ],
+      "negativeConstraints": ["No catch copy, no price, no ingredient visuals — the awards are the message."],
+      "exampleRefs": ["rakuten_tvert_352", "rakuten_tvert_972273", "amazon_B0CZTH6RN3", "rakuten_129-ink_ink90-3"]
+    },
+    {
+      "id": "F",
+      "slug": "model-copy",
+      "nameKo": "모델+카피형",
+      "nameJa": "モデル×コピー型",
+      "description": "모델 클로즈업 40%+ + 캐치카피 + 사용부위/배리에이션 인셋. Qoo10 K뷰티 표준.",
+      "platformFit": ["qoo10", "rakuten"],
+      "bestFor": "색조(틴트·치크·아이), 효과 시연이 중요한 제품",
+      "promptTemplate": "Transform the provided images into a Japanese K-beauty model thumbnail (Qoo10/Rakuten style). Use the provided model photo as-is for the main visual{{modelHandling}} — the model occupies roughly the left or center 50% of the frame. Layout: (1) The Japanese catch copy '{{catchCopyJa}}' in rounded bold gothic type near the top, in {{copyColor}} with a subtle white keyline for legibility. (2) The product (unchanged from the product image) placed in the lower foreground. (3) {{insetParagraph}} (4) Optional small badges as provided: {{smallBadgesJa}}. Background: {{backgroundMood}}. Text coverage under 25%. {{awardStackParagraph}}",
+      "textSlots": {
+        "modelHandling": {"required": true, "lang": "en", "description": "모델 소스 지시. 브랜드 보유컷 사용이 원칙. 보유컷이 없으면 이 유형 대신 B/D 권장", "example": " (crop to a chin-to-brow close-up focusing on the lips)"},
+        "catchCopyJa": {"required": true, "lang": "ja", "description": "감각 카피 (jp-localizer 산출)", "example": "ぷるんと密着 バズりリップ"},
+        "copyColor": {"required": false, "lang": "en", "description": "카피 색", "example": "vivid magenta (#E0326E)"},
+        "insetParagraph": {"required": false, "lang": "en", "description": "인셋 지시: 사용부위 클로즈업 원형 인셋, 색상 스와치 열, 全○色 그리드 등. Before/After는 약기법 검토 전 금지", "example": "A circular inset at bottom-left showing a macro close-up of glossy lips wearing the shade."},
+        "smallBadgesJa": {"required": false, "lang": "ja", "description": "소형 배지 (NEW·全7色·新発売 등 사실 표기만)", "example": "NEW / 全7色"},
+        "backgroundMood": {"required": true, "lang": "en", "description": "배경 무드", "example": "soft ivory studio with warm daylight"}
+      },
+      "conditionalBadgeSlots": {
+        "awardStackParagraph": {
+          "requiresProof": true,
+          "proofFields": ["awards[].title", "awards[].year", "awards[].category", "awards[].rank"],
+          "template": "(5) A compact stack of award badges on the side reading exactly: {{awardsRendered}}, each with its fine-print qualifier.",
+          "legalNote": "실제 수상/랭킹 실적이 있을 때만 포함. 미입력 시 문단 제거.",
+          "example": {"awardsRendered": "'LIPS ベストコスメ2025 第1位（涙袋マスカラ）'"}
+        }
+      },
+      "constraints": [
+        "Use ONLY the provided model photo; do not synthesize a new human face. If no model photo is provided, this style must not be selected.",
+        "Before/After comparison insets are prohibited unless the copy passed 薬機法 review and the flag beforeAfterApproved=true is explicitly given.",
+        "Model retouching limited to lighting/color harmonization; do not alter facial features."
+      ],
+      "negativeConstraints": ["No synthesized celebrity-like faces, no skin-defect exaggeration."],
+      "exampleRefs": ["rakuten_tirtir_waterism_lipseries", "qoo10_8370478649", "qoo10_8365798343", "rakuten_norm-plus_nm1007-f"]
+    },
+    {
+      "id": "G",
+      "slug": "promo-price",
+      "nameKo": "프로모션 강조형",
+      "nameJa": "プロモ・価格訴求型",
+      "description": "가격·할인·세트·GIFT 요소가 주인공인 정보 밀도 최상 유형. Qoo10 메가포/기획전 표준.",
+      "platformFit": ["qoo10", "rakuten"],
+      "bestFor": "세트/기획전/쿠폰 프로모션, Qoo10 메가와리·메가포",
+      "promptTemplate": "Transform the provided Korean product image into a Japanese promotion-forward thumbnail (Qoo10 style). Layout: (1) Top: the set/offer title '{{setTitleJa}}' in bold gothic on a colored banner. (2) Center: the product(s) unchanged{{bundleComposition}}. (3) Bottom third: a price band showing {{priceBlock}} in high-contrast type — sale price largest. (4) {{giftInsetParagraph}} (5) Small qualifier chips as provided: {{qualifierChipsJa}}. (6) Bottom edge: a brand band reading '{{brandName}} 公式ショップ' in clean type. Fine-print footnote '{{footnoteJa}}' above the brand band if provided. {{rankingBadgeParagraph}} Palette: {{palette}}. Energetic but tidy; text coverage may reach 35%.",
+      "textSlots": {
+        "setTitleJa": {"required": true, "lang": "ja", "description": "세트/오퍼 타이틀", "example": "自由に選べる！美容液2個セット"},
+        "bundleComposition": {"required": false, "lang": "en", "description": "세트 구성 배치 지시 (+기호 연결 등)", "example": ", arranged as two hero bottles joined by a '+' sign with the full lineup fanned out on the right"},
+        "priceBlock": {"required": true, "lang": "ja", "description": "가격 표기. 이중가격은 실제 통상가 실적이 있을 때만 (有利誤認 리스크). 예: 通常価格 취소선 + 세일가 + 할인율", "example": "'通常価格 ¥3,470' struck through, then '¥1,999（税込）' and '最大59%オフ'"},
+        "giftInsetParagraph": {"required": false, "lang": "en", "description": "GIFT 인셋 지시 (실제 증정 내용만)", "example": "A rounded inset box at right labeled '限定GIFT' showing the mini tint duo."},
+        "qualifierChipsJa": {"required": false, "lang": "ja", "description": "한정 문구 칩 (사실만: 数量限定·先着○名 등)", "example": "数量限定 / メガポ限定価格"},
+        "brandName": {"required": true, "lang": "ja/en", "description": "브랜드명", "example": "numbuzin"},
+        "footnoteJa": {"required": false, "lang": "ja", "description": "※각주 (쿠폰 적용 조건 등)", "example": "※クーポン適用、ポイント還元込みの実質価格"},
+        "palette": {"required": true, "lang": "en", "description": "프로모 컬러 팔레트", "example": "brand pink and white with dark navy price text"}
+      },
+      "conditionalBadgeSlots": {
+        "rankingBadgeParagraph": {
+          "requiresProof": true,
+          "proofFields": ["rankTitle", "aggregationDate"],
+          "template": "Add a small ranking badge reading '{{rankTitle}}' with fine-print '{{aggregationDate}}'.",
+          "legalNote": "실제 랭킹 실적이 있을 때만. 미입력 시 문단 제거.",
+          "example": {"rankTitle": "Qoo10 1位", "aggregationDate": "2026/6 集計"}
+        }
+      },
+      "constraints": [
+        "Every price, discount rate, gift, and limited-quantity claim must come from the slots verbatim — they are legally binding offer terms.",
+        "二重価格(취소선 통상가)는 priceBlock에 명시적으로 제공된 경우에만 렌더링한다."
+      ],
+      "negativeConstraints": ["No invented urgency text (今だけ, 残りわずか etc.) unless provided in slots."],
+      "exampleRefs": ["qoo10_8365200734", "qoo10_8373100937", "rakuten_torriden-official_skincare5set", "rakuten_arianakosume_4909978147105-ra"]
+    },
+    {
+      "id": "H",
+      "slug": "premium-mood",
+      "nameKo": "프리미엄 무드형",
+      "nameJa": "プレミアムムード型",
+      "description": "시네마틱/라이프스타일 연출이 주인공. 배지 최소, 세로쓰기 카피 1문장 이하. 브랜드 무드 구축용.",
+      "platformFit": ["rakuten"],
+      "bestFor": "중고가 스킨케어·브랜드 플래그십 상품 (라쿠텐 공식샵)",
+      "promptTemplate": "Transform the provided Korean product image into a premium Japanese brand-mood thumbnail. Scene: {{sceneDescription}} — cinematic lighting, shallow depth of field, editorial quality. The product stands unchanged as the hero. {{verticalCopyParagraph}} {{officialChipParagraph}} No other badges, chips, or price elements. Overall mood: {{moodKeywords}}. Text coverage under 10%.",
+      "textSlots": {
+        "sceneDescription": {"required": true, "lang": "en", "description": "연출 장면 (브랜드 컬러 풀블리드 / 라이프스타일 세팅 / 컨셉 아트 / 마크로 아트)", "example": "a deep crimson silk backdrop with the jar centered on a subtle pedestal, one soft spotlight from upper left"},
+        "verticalCopyParagraph": {"required": false, "lang": "en+ja", "description": "세로쓰기 카피 문단. 카피는 jp-localizer 산출", "example": "On the right side, render the copy '湯上がりのような血色ツヤ肌' vertically (tategaki) in elegant mincho serif, dark grey."},
+        "officialChipParagraph": {"required": false, "lang": "en+ja", "description": "공식 칩 문단 (라쿠텐 공식샵일 때)", "example": "Top-left, a small brand chip: 'Attenir' logo with '公式ショップ' tag in red."},
+        "moodKeywords": {"required": true, "lang": "en", "description": "무드 키워드", "example": "quiet luxury, onsen-fresh warmth, editorial stillness"}
+      },
+      "conditionalBadgeSlots": {},
+      "constraints": [
+        "Vertical Japanese text must read top-to-bottom, right-to-left, with correct glyph orientation.",
+        "Lighting on the product must match the scene's light direction; the product must still look exactly like the input."
+      ],
+      "negativeConstraints": ["No medals, no price, no promotional chips — mood only."],
+      "exampleRefs": ["rakuten_attenir_132551", "rakuten_sk-ii_spc-rn", "rakuten_esteelauder_130789", "rakuten_kyunan_yasai-uvcream"]
+    }
+  ],
+  "selectionGuide": {
+    "byPlatform": {
+      "amazon-jp": ["A", "B"],
+      "rakuten-official": ["C", "H", "D", "E"],
+      "rakuten-reseller": ["A", "G"],
+      "qoo10": ["G", "F", "D"]
+    },
+    "tieBreakRules": [
+      "F vs G: 인물·사용 비주얼이 40%+ 이고 가격이 하단 1/5 이하면 F, 가격·세트·GIFT 요소가 2개 이상 크면 G.",
+      "C vs H: 랭킹·수상·포인트 배지가 있으면 C, 무드가 주도하고 배지가 없으면 H.",
+      "C vs D: 배지·신뢰 요소가 핵심이면 C, 카피+성분 비주얼이 핵심이고 배지가 보조면 D.",
+      "A vs B: 텍스처 요소가 있으면 B, 없으면 A."
+    ]
+  }
+}
