@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>브랜드 톤 3안 비교 프리뷰 — Japan Growth Studio</title>
+<!--
+  비배포 · 팀 내부 비교용 시안.
+  근거 문서: design/brand-tone-proposals.md (기획 문서 기반 3안 · 대비비 실측값 포함)
+  화면 속 점수·문구는 UI 시연을 위한 예시 데이터이며 실제 진단 결과가 아님.
+-->
+<style>
+  :root {
+    --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
+      "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    --font-serif: "Noto Serif KR", "Apple SD Gothic Neo", "Hiragino Mincho ProN",
+      "Yu Mincho", serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font-sans);
+    background: #e9e7e2;
+    color: #222;
+    padding: 32px 20px 64px;
+  }
+  .page-head { max-width: 1280px; margin: 0 auto 28px; }
+  .page-head h1 { font-size: 20px; font-weight: 700; }
+  .page-head p { font-size: 13px; color: #666; margin-top: 6px; line-height: 1.6; }
+
+  .tones {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+  }
+
+  /* ── 톤별 토큰 스코프 ─────────────────────────────── */
+  .tone-a {
+    --primary: #233a66; --deep: #141f38; --canvas: #fafaf7; --soft: #eef1f4;
+    --ink: #1c2433; --ink-mute: #5b6472; --hairline: #dde1e6;
+    --accent: #b98a2f; --accent-text: #8a6516; --beauty-text: #a83e57;
+    --danger: #b23a48; --danger-bg: #faeef0; --safe: #2c6e49; --safe-bg: #eaf4ee;
+    --font-display: var(--font-sans);
+  }
+  .tone-b {
+    --primary: #0e6b5c; --deep: #0a3d33; --canvas: #fbfaf6; --soft: #edf2ec;
+    --ink: #22302b; --ink-mute: #5c6b64; --hairline: #dee5df;
+    --accent: #d4577a; --accent-text: #b03d60; --beauty-text: #b03d60;
+    --danger: #b23a48; --danger-bg: #faeef0; --safe: #0e6b5c; --safe-bg: #e9f2ef;
+    /* B안 제안: 세리프 디스플레이("성분 라벨" 감성), 근거는 brand-tone-proposals.md */
+    --font-display: var(--font-serif);
+  }
+  .tone-c {
+    --primary: #26437e; --deep: #16294f; --canvas: #f8f4ec; --soft: #efe6d5;
+    --ink: #2a2c33; --ink-mute: #6a6456; --hairline: #e2d9c8;
+    --accent: #d94f35; --accent-text: #b13a24; --beauty-text: #a05b72;
+    --danger: #b23a48; --danger-bg: #f7e9e6; --safe: #2c6e49; --safe-bg: #eaf1e6;
+    --font-display: var(--font-sans);
+  }
+
+  /* ── 톤 패널 공통 ─────────────────────────────────── */
+  .tone {
+    background: var(--canvas);
+    color: var(--ink);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .tone-label {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .tone-label strong { font-size: 14px; }
+  .tone-label span { font-size: 11px; color: var(--ink-mute); }
+
+  .tone-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+
+  /* 미니 헤더 */
+  .mini-header { display: flex; justify-content: space-between; align-items: center; }
+  .brand { font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+  .brand .dot { color: var(--primary); }
+  .nav-chip {
+    font-size: 11px; color: var(--ink-mute);
+    border: 1px solid var(--hairline); border-radius: 999px; padding: 4px 10px;
+  }
+
+  /* ① 진단 점수 카드 */
+  .score-card {
+    background: var(--soft);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .score-card h2 { font-size: 13px; font-weight: 600; color: var(--ink-mute); }
+  .score-row { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
+  .score-num {
+    font-family: var(--font-display);
+    font-size: 40px; font-weight: 600; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; color: var(--primary);
+  }
+  .score-unit { font-size: 13px; color: var(--ink-mute); }
+  .score-badge {
+    margin-left: auto; font-size: 11px; font-weight: 600;
+    color: var(--accent-text);
+    border: 1px solid var(--accent); border-radius: 999px; padding: 3px 10px;
+  }
+  .criteria { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .criteria li { list-style: none; font-size: 12px; }
+  .criteria .name { display: flex; justify-content: space-between; color: var(--ink); margin-bottom: 3px; }
+  .criteria .name em { font-style: normal; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+  .bar { height: 5px; border-radius: 999px; background: var(--hairline); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
+  .score-note { margin-top: 12px; font-size: 11px; color: var(--ink-mute); line-height: 1.5; }
+  .score-note a { color: var(--primary); }
+
+  /* ② 약기법 체커 */
+  .checker { border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .checker h2 {
+    font-size: 12px; font-weight: 600; padding: 10px 16px;
+    border-bottom: 1px solid var(--hairline); color: var(--ink-mute);
+  }
+  .check-item { padding: 12px 16px; display: flex; gap: 10px; align-items: flex-start; }
+  .check-item + .check-item { border-top: 1px solid var(--hairline); }
+  .flag {
+    flex: none; font-size: 10px; font-weight: 700; border-radius: 4px;
+    padding: 2px 6px; margin-top: 2px;
+  }
+  .flag.ng { color: var(--danger); background: var(--danger-bg); }
+  .flag.ok { color: var(--safe); background: var(--safe-bg); }
+  .check-item p { font-size: 12.5px; line-height: 1.6; }
+  .check-item .phrase-ng { color: var(--danger); text-decoration: line-through; }
+  .check-item .phrase-ok { color: var(--safe); font-weight: 600; }
+  .check-item .law { display: block; font-size: 11px; color: var(--ink-mute); margin-top: 2px; }
+
+  /* 뷰티 포인트 문장 */
+  .beauty-line { font-size: 12px; color: var(--beauty-text); }
+
+  /* ③ CTA */
+  .cta-panel {
+    background: var(--deep); color: #fff;
+    border-radius: 12px; padding: 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .cta-panel p { font-size: 13px; line-height: 1.6; opacity: 0.92; }
+  .cta-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    border-radius: 999px; padding: 10px 18px; cursor: pointer; border: none;
+  }
+  .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.45); }
+</style>
+</head>
+<body>
+  <header class="page-head">
+    <h1>브랜드 톤 3안 비교 프리뷰</h1>
+    <p>
+      동일한 미니 UI(① 진단 점수 카드 ② 약기법 체커 ③ CTA)를 3개 톤으로 렌더링.
+      근거·토큰 표는 <strong>design/brand-tone-proposals.md</strong> 참고.
+      화면 속 점수·문구는 UI 시연용 예시 데이터.
+    </p>
+  </header>
+
+  <main class="tones">
+
+    <!-- ══════════ A안 ══════════ -->
+    <section class="tone tone-a" aria-labelledby="label-a">
+      <div class="tone-label">
+        <strong id="label-a">A안 · 신뢰 자산 네이비 ★추천</strong>
+        <span>전문 진단 · 품의 통과형</span>
+      </div>
+      <div class="tone-body">
+        <div class="mini-header">
+          <span class="brand">Japan Growth Studio<span class="dot">.</span></span>
+          <span class="nav-chip">진단 리포트</span>
+        </div>
+
+        <article class="score-card">
+          <h2>일본 문법 진단 점수 <small>(예시)</small></h2>
+          <div class="score-row">
+            <span class="score-num">62</span><span class="score-unit">/ 100</span>
+            <span class="score-badge">채점 기준 공개</span>
+          </div>
+          <ul class="criteria">
+            <li><span class="name">표현 규제 (薬機法) <em>3건 위반</em></span><div class="bar"><i style="width:40%"></i></div></li>
+            <li><span class="name">단일제품 소구 구조 <em>충족</em></span><div class="bar"><i style="width:85%"></i></div></li>
+            <li><span class="name">리뷰(口コミ) 연결 설계 <em>미흡</em></span><div class="bar"><i style="width:30%"></i></div></li>
+          </ul>
+          <p class="score-note">모든 항목은 채점 기준과 법 조항 근거를 함께 공개합니다.</p>
+        </article>
+
+        <article class="checker">
+          <h2>약기법 표현 체크 (예시)</h2>
+          <div class="check-item">
+            <span class="flag ng">NG</span>
+            <p><span class="phrase-ng">「シミが消える美白クリーム」</span>
+              <span class="law">薬機法: 화장품 효능 56항목 외 표현 · 「美白」 단독 사용 불가</span></p>
+          </div>
+          <div class="check-item">
+            <span class="flag ok">OK</span>
+            <p><span class="phrase-ok">「メラニンの生成を抑え、シミ・そばかすを防ぐ」</span>
+              <span class="law">승인 효능 범위 내 대체 표현</span></p>
+          </div>
+        </article>
+
+        <p class="beauty-line">뷰티 포인트 텍스트: 계절 신색, 지금 일본에서 통하는 톤.</p>
+
+        <div class="cta-panel">
+          <p>AI가 초안을 빠르게, 일본향 전문가가 신뢰를.<br />대행사에 큰돈 쓰기 전에 먼저 진단하세요.</p>
+          <div class="cta-actions">
+            <button type="button" class="btn btn-primary">무료 약기법 체크</button>
+            <button type="button" class="btn btn-ghost">샘플 리포트 보기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ B안 ══════════ -->
+    <section class="tone tone-b" aria-labelledby="label-b">
+      <div class="tone-label">
+        <strong id="label-b">B안 · 클린 뷰티 랩 그린</strong>
+        <span>더마 · 검사기관형</span>
+      </div>
+      <div class="tone-body">
+        <div class="mini-header">
+          <span class="brand">Japan Growth Studio<span class="dot">.</span></span>
+          <span class="nav-chip">진단 리포트</span>
+        </div>
+
+        <article class="score-card">
+          <h2>일본 문법 진단 점수 <small>(예시)</small></h2>
+          <div class="score-row">
+            <span class="score-num">62</span><span class="score-unit">/ 100</span>
+            <span class="score-badge">채점 기준 공개</span>
+          </div>
+          <ul class="criteria">
+            <li><span class="name">표현 규제 (薬機法) <em>3건 위반</em></span><div class="bar"><i style="width:40%"></i></div></li>
+            <li><span class="name">단일제품 소구 구조 <em>충족</em></span><div class="bar"><i style="width:85%"></i></div></li>
+            <li><span class="name">리뷰(口コミ) 연결 설계 <em>미흡</em></span><div class="bar"><i style="width:30%"></i></div></li>
+          </ul>
+          <p class="score-note">모든 항목은 채점 기준과 법 조항 근거를 함께 공개합니다.</p>
+        </article>
+
+        <article class="checker">
+          <h2>약기법 표현 체크 (예시)</h2>
+          <div class="check-item">
+            <span class="flag ng">NG</span>
+            <p><span class="phrase-ng">「シミが消える美白クリーム」</span>
+              <span class="law">薬機法: 화장품 효능 56항목 외 표현 · 「美白」 단독 사용 불가</span></p>
+          </div>
+          <div class="check-item">
+            <span class="flag ok">OK</span>
+            <p><span class="phrase-ok">「メラニンの生成を抑え、シミ・そばかすを防ぐ」</span>
+              <span class="law">승인 효능 범위 내 대체 표현</span></p>
+          </div>
+        </article>
+
+        <p class="beauty-line">뷰티 포인트 텍스트: 계절 신색, 지금 일본에서 통하는 톤.</p>
+
+        <div class="cta-panel">
+          <p>AI가 초안을 빠르게, 일본향 전문가가 신뢰를.<br />대행사에 큰돈 쓰기 전에 먼저 진단하세요.</p>
+          <div class="cta-actions">
+            <button type="button" class="btn btn-primary">무료 약기법 체크</button>
+            <button type="button" class="btn btn-ghost">샘플 리포트 보기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ C안 ══════════ -->
+    <section class="tone tone-c" aria-labelledby="label-c">
+      <div class="tone-label">
+        <strong id="label-c">C안 · 아이(藍) 인디고 × 와시(和紙)</strong>
+        <span>일본을 아는 스튜디오형</span>
+      </div>
+      <div class="tone-body">
+        <div class="mini-header">
+          <span class="brand">Japan Growth Studio<span class="dot">.</span></span>
+          <span class="nav-chip">진단 리포트</span>
+        </div>
+
+        <article class="score-card">
+          <h2>일본 문법 진단 점수 <small>(예시)</small></h2>
+          <div class="score-row">
+            <span class="score-num">62</span><span class="score-unit">/ 100</span>
+            <span class="score-badge">채점 기준 공개</span>
+          </div>
+          <ul class="criteria">
+            <li><span class="name">표현 규제 (薬機法) <em>3건 위반</em></span><div class="bar"><i style="width:40%"></i></div></li>
+            <li><span class="name">단일제품 소구 구조 <em>충족</em></span><div class="bar"><i style="width:85%"></i></div></li>
+            <li><span class="name">리뷰(口コミ) 연결 설계 <em>미흡</em></span><div class="bar"><i style="width:30%"></i></div></li>
+          </ul>
+          <p class="score-note">모든 항목은 채점 기준과 법 조항 근거를 함께 공개합니다.</p>
+        </article>
+
+        <article class="checker">
+          <h2>약기법 표현 체크 (예시)</h2>
+          <div class="check-item">
+            <span class="flag ng">NG</span>
+            <p><span class="phrase-ng">「シミが消える美白クリーム」</span>
+              <span class="law">薬機法: 화장품 효능 56항목 외 표현 · 「美白」 단독 사용 불가</span></p>
+          </div>
+          <div class="check-item">
+            <span class="flag ok">OK</span>
+            <p><span class="phrase-ok">「メラニンの生成を抑え、シミ・そばかすを防ぐ」</span>
+              <span class="law">승인 효능 범위 내 대체 표현</span></p>
+          </div>
+        </article>
+
+        <p class="beauty-line">뷰티 포인트 텍스트: 계절 신색, 지금 일본에서 통하는 톤.</p>
+
+        <div class="cta-panel">
+          <p>AI가 초안을 빠르게, 일본향 전문가가 신뢰를.<br />대행사에 큰돈 쓰기 전에 먼저 진단하세요.</p>
+          <div class="cta-actions">
+            <button type="button" class="btn btn-primary">무료 약기법 체크</button>
+            <button type="button" class="btn btn-ghost">샘플 리포트 보기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>
