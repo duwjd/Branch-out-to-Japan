@@ -13,6 +13,7 @@
 ## 현재 단계
 - **빌드(개발 스프린트) 단계** — 3축 서비스를 **직접 개발**하기로 확정(2026-07-04, `docs/decisions/DECISIONS.md`). 개발 스프린트: 주말 리서치(7/5~7/6) → 데이터 수집·정제 → IA·플로우 설계 → 1차 개발(리포트 7/11~17 · 스튜디오 7/18~24 · 운영 7/25~31) → UT(8/1~8/3) → 개선·완성(8/4~8/9) → 발표.
 - 자세히: `docs/04-roadmap.md`. 상품 구조: `docs/decisions/2026-07-04-상품-구조-구체화.md`.
+- ① 진단 리포트 설계 자산(2026-07-08): 스펙 `docs/specs/01-report-spec.md`(9블록·티어 입력) · 심화 샘플 `docs/specs/report-sample-cica-ampoule.md` · 메시지 관례 루브릭 `docs/research/jp-detail-message-patterns.md` · 페르소나 검증 `docs/research/리포트샘플-페르소나-검증.md`. 데이터: `data/processed/detail-ocr.jsonl`·`sns-lexicon.csv`.
 - 참고 자산: 페르소나 검증 랜딩 시안 `persona-simulation/landing/index.html`(비배포), 근거 문서 `docs/research/ 페르소나 검증형 MVP 실행안.md`.
 - ※ 이전의 "컨시어지형 MVP · 랜딩 검증(Phase 1/2)" 로드맵은 빌드 전환 결정으로 대체됨. 기존 Next.js 앱 코드는 git 이력에 보존.
 
