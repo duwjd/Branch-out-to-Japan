@@ -126,3 +126,8 @@ Header `45:5` · Hero `45:15` · Problem `45:26` · Solution `46:2` · Before/Af
 - **"5분" 표기 삭제** — Offer/How/FAQ/Final CTA에서 `무료 5분 진단`·`5분 만에` 제거(→ `무료 진단`/`사전 진단`). 잔여 0건. **[보류]** 소요시간 확정 시 되돌릴 수 있음.
 - **Section Component 승격은 여전히 보류.** ([[추가 검토가 필요한 항목]] 참조)
 - 상세 인수인계: `design/handoff-landing-design-system.md` §9.
+
+## Before/After 한국어 해설 구조 (2026-07-08)
+- Before/After 카드를 **"일본어 예시 + 한국어 해설"** 구조로 보완(1차 고객=한국 기업이 개선 포인트를 즉시 이해하도록).
+- 카드 구조: 태그(KR) → 일본어 샘플 → 구분선 → 한국어 라벨 → 3불릿 → (섹션 하단) 예시 노트. After 라벨=`primary-strong`, 개선 불릿=`success`.
+- 반영: Sections `46:18` · Desktop `50:54` · Mobile `51:37`. 기존 1줄 카드 노트는 3불릿으로 통합. 상세: handoff §10.
