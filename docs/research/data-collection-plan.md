@@ -28,6 +28,7 @@
 
 **수집 파라미터 (제안):** 카테고리 = 스킨케어/색조/선케어/클렌징 등, 인기순 상위 N개(카테고리당 100~200), 키워드 = `化粧水`, `美容液`, `日焼け止め`, `ティント` 등.
 **산출물:** 이미지 → 폴더, 메타 → `data/processed/product-catalog.jsonl` (type=`thumbnail`).
+**분석 산출물(2026-07-08):** 스타일 분류 체계 → `docs/research/jp-thumbnail-style-taxonomy.md` · 스타일 라벨 120장 → `data/processed/thumbnail-style-labels.jsonl` · KR→JP 변환 프롬프트 팩 → `data/processed/thumbnail-style-prompts.json`.
 
 ## ② 상세페이지 이미지 — `data/raw/product-detail/`
 
