@@ -9,32 +9,32 @@
   근거 문서:
     - docs/decisions/2026-07-04-상품-구조-구체화.md (3축 구조)
     - docs/06-유저니즈-비즈니스-가설.md (무료 웻지 → 리포트 관문 퍼널)
-    - design/brand-tone-proposals.md (A안 신뢰 자산 네이비 ★추천 토큰 적용)
+    - design/DESIGN.md (코랄 시스템)
   화면 속 점수·문구·수치는 UI 시연을 위한 예시 데이터이며 실제 진단 결과가 아님.
   톤 확정(팀 투표) 후 :root 토큰만 교체하면 B/C안으로 전환 가능.
 -->
 <style>
-  /* ── A안 · 신뢰 자산 네이비 토큰 (brand-tone-proposals.md) ───────── */
+  /* ── 코랄 토큰 (design/DESIGN.md 준수) ───────── */
   :root {
-    --primary: #233a66;
-    --deep: #141f38;
-    --canvas: #fafaf7;
-    --soft: #eef1f4;
-    --ink: #1c2433;
-    --ink-mute: #5b6472;
-    --hairline: #dde1e6;
-    --gold: #b98a2f;
-    --gold-text: #8a6516;
-    --rose-text: #a83e57;
-    --danger: #b23a48;
-    --danger-bg: #faeef0;
-    --safe: #2c6e49;
-    --safe-bg: #eaf4ee;
+    --primary: #D93636;
+    --deep: #202124;
+    --canvas: #FFFFFF;
+    --soft: #F6F6F6;
+    --ink: #202124;
+    --ink-mute: #5F6165;
+    --hairline: #E4E7EC;
+    --gold: #FFAB00;
+    --gold-text: #7A5200;
+    --rose-text: #D93636;
+    --danger: #F0483C;
+    --danger-bg: #FDECEB;
+    --safe: #036C4A;
+    --safe-bg: #E6F7F0;
 
     --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
       "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", sans-serif;
 
-    --shadow-card: 0 1px 2px rgba(20,31,56,.04), 0 8px 24px rgba(20,31,56,.06);
+    --shadow-card: 0 1px 2px rgba(32,33,36,.04), 0 8px 24px rgba(32,33,36,.06);
     --radius: 14px;
   }
 
@@ -42,7 +42,7 @@
   html { scroll-behavior: smooth; scroll-padding-top: 68px; }
   body {
     font-family: var(--font-sans);
-    background: #e7e9ee;
+    background: #ECEDEF;
     color: var(--ink);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -186,7 +186,7 @@
   .funnel .step .price { font-size: 11px; color: var(--gold-text); font-weight: 700; margin-top: 8px; }
   .funnel .step::after {
     content: "→"; position: absolute; right: -11px; top: 50%; transform: translateY(-50%);
-    z-index: 2; color: var(--ink-mute); font-size: 15px; background: #e7e9ee; padding: 2px;
+    z-index: 2; color: var(--ink-mute); font-size: 15px; background: #ECEDEF; padding: 2px;
   }
   .funnel .step:last-child::after { content: ""; }
   @media (max-width: 760px) {
@@ -286,7 +286,7 @@
     width: 100%; max-width: 260px; aspect-ratio: 1/1; background: #fff; border: 1px solid var(--hairline);
     border-radius: 12px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; overflow: hidden;
   }
-  .studio .canvas .thumb .img { flex: 1; background: linear-gradient(135deg, #eef1f4, #dfe3ea); display: grid; place-items: center; color: #aeb5c0; font-size: 12px; }
+  .studio .canvas .thumb .img { flex: 1; background: linear-gradient(135deg, #F6F6F6, #dfe3ea); display: grid; place-items: center; color: #aeb5c0; font-size: 12px; }
   .studio .canvas .thumb .cap { padding: 12px; }
   .studio .canvas .thumb .cap .jp-title { font-size: 13px; font-weight: 700; }
   .studio .canvas .thumb .cap .jp-sub { font-size: 11px; color: var(--ink-mute); margin-top: 3px; }
@@ -330,7 +330,7 @@
   <nav class="docnav">
     <div class="docnav-inner">
       <span class="logo">Japan Growth Studio<span class="dot">.</span></span>
-      <span class="tag">와이어프레임 · A안 네이비</span>
+      <span class="tag">와이어프레임 · 코랄</span>
       <div class="links">
         <a href="#map">사이트맵</a>
         <a href="#home">① 홈</a>
@@ -355,7 +355,7 @@
       </p>
       <div class="meta">
         <span>3축 = ① 진단 리포트 · ② 마케팅 스튜디오 · ③ 운영</span>
-        <span>톤 = A안 신뢰 자산 네이비 (팀 투표 확정 시 토큰 교체)</span>
+        <span>톤 = 코랄 (design/DESIGN.md)</span>
         <span>화면 내 수치·문구는 예시 데이터</span>
       </div>
     </header>
@@ -530,7 +530,7 @@
       <div class="notes">
         <p class="note" data-n="1"><b>무료 웻지 우선:</b> 히어로 CTA·미니 체커로 가입 전 체험 → 진단 리포트 전환.</p>
         <p class="note" data-n="2"><b>AI 불신 우회:</b> "사람이 감수" 서사를 신뢰 3열에 명시(범용 AI 생성툴 인상 방지).</p>
-        <p class="note" data-n="3"><b>금지 포지션 회피:</b> 과채도·네온 없이 네이비 기반 담담한 신뢰 톤.</p>
+        <p class="note" data-n="3"><b>금지 포지션 회피:</b> 과채도·네온 없이 담담한 신뢰 톤(코랄).</p>
       </div>
     </section>
 
@@ -1023,9 +1023,9 @@
                 <div style="padding:14px 16px;border-bottom:1px solid var(--hairline);">
                   <div style="font-size:12.5px;font-weight:600;margin-bottom:10px;">생성한 콘텐츠 (8)</div>
                   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-                    <div style="aspect-ratio:1;background:linear-gradient(135deg,#eef1f4,#dfe3ea);border-radius:8px;border:1px solid var(--hairline);"></div>
-                    <div style="aspect-ratio:1;background:linear-gradient(135deg,#eef1f4,#dfe3ea);border-radius:8px;border:1px solid var(--hairline);"></div>
-                    <div style="aspect-ratio:1;background:linear-gradient(135deg,#eef1f4,#dfe3ea);border-radius:8px;border:1px solid var(--hairline);"></div>
+                    <div style="aspect-ratio:1;background:linear-gradient(135deg,#F6F6F6,#dfe3ea);border-radius:8px;border:1px solid var(--hairline);"></div>
+                    <div style="aspect-ratio:1;background:linear-gradient(135deg,#F6F6F6,#dfe3ea);border-radius:8px;border:1px solid var(--hairline);"></div>
+                    <div style="aspect-ratio:1;background:linear-gradient(135deg,#F6F6F6,#dfe3ea);border-radius:8px;border:1px solid var(--hairline);"></div>
                     <div style="aspect-ratio:1;background:var(--soft);border-radius:8px;border:1px dashed var(--hairline);display:grid;place-items:center;font-size:11px;color:var(--ink-mute);">+5</div>
                   </div>
                 </div>
@@ -1049,11 +1049,11 @@
     <!-- ═══════════ 범례 ═══════════ -->
     <div class="legend">
       <b>이 문서에 대하여</b> · 비배포 팀 내부 검토용 와이어프레임입니다.
-      톤은 <b>A안 "신뢰 자산 네이비"(★추천)</b> 토큰으로 렌더링했으며, 팀 투표로 B/C안이 확정되면
+      톤은 <b>코랄(design/DESIGN.md)</b> 토큰으로 렌더링했으며, 팀 투표로 B/C안이 확정되면
       <code>:root</code> 토큰만 교체하면 됩니다.
       화면 속 점수·페르소나·일본어 문구는 UI 시연용 <b>예시 데이터</b>이며 실제 진단 결과가 아닙니다.
       근거: <b>docs/decisions/2026-07-04-상품-구조-구체화.md</b>(3축) ·
-      <b>design/brand-tone-proposals.md</b>(톤) · <b>docs/06-유저니즈-비즈니스-가설.md</b>(퍼널).
+      <b>design/DESIGN.md</b>(코랄 시스템) · <b>docs/06-유저니즈-비즈니스-가설.md</b>(퍼널).
     </div>
 
   </div>

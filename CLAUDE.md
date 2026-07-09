@@ -13,8 +13,11 @@
 ## 현재 단계
 - **빌드(개발 스프린트) 단계** — 3축 서비스를 **직접 개발**하기로 확정(2026-07-04, `docs/decisions/DECISIONS.md`). 개발 스프린트: 주말 리서치(7/5~7/6) → 데이터 수집·정제 → IA·플로우 설계 → 1차 개발(리포트 7/11~17 · 스튜디오 7/18~24 · 운영 7/25~31) → UT(8/1~8/3) → 개선·완성(8/4~8/9) → 발표.
 - 자세히: `docs/04-roadmap.md`. 상품 구조: `docs/decisions/2026-07-04-상품-구조-구체화.md`.
-- ① 진단 리포트 설계 자산(2026-07-08): 스펙 `docs/specs/01-report-spec.md`(9블록·티어 입력) · 심화 샘플 `docs/specs/report-sample-cica-ampoule.md` · 메시지 관례 루브릭 `docs/research/jp-detail-message-patterns.md` · 페르소나 검증 `docs/research/리포트샘플-페르소나-검증.md`. 데이터: `data/processed/detail-ocr.jsonl`·`sns-lexicon.csv`.
-- 참고 자산: 페르소나 검증 랜딩 시안 `persona-simulation/landing/index.html`(비배포), 근거 문서 `docs/research/ 페르소나 검증형 MVP 실행안.md`.
+- ① 진단 리포트 설계 자산(2026-07-08): 스펙 `docs/specs/01-report-spec.md`(9블록·티어 입력) · 심화 샘플 `docs/specs/01-report-sample-cica-ampoule.md` · 메시지 관례 루브릭 `docs/research/jp-detail-message-patterns.md` · 페르소나 검증 `docs/research/simulations/리포트샘플-페르소나-검증.md`. 데이터: `data/processed/detail-ocr.jsonl`·`sns-lexicon.csv`.
+- 데이터 플로우 정본(2026-07-09): `docs/08-data-flow.md` — 입력→가공→출력 E2E, LLM 콜별 요청/응답 계약(§4), 엔티티·저장(§6), 화면↔데이터 매핑(§7). 개발 시 `01-report-spec.md`와 함께 참조.
+- 개발 스펙(2026-07-09): `docs/09-dev-spec.md` — 스택·라우트 맵·모듈 구조 + ① 스프린트 마일스톤 M0~M4(엔진 우선). "어떻게 짓는가"는 이 문서, 내용·계약은 01/08 정본.
+- **구현 현황(2026-07-09): `docs/10-implementation-status.md`** — 기능 검증 빌드 완료: 랜딩 + ① 리포트 한 사이클(입력→LLM 4콜 파이프라인→9블록 뷰→검수 서명→발행) 실 LLM E2E 통과. 실행 방법(⚠ 한글 경로 차단 → `C:\dev\jgs-run` 미러, CONTRIBUTING 참조)·코드 맵·잔여 작업은 이 문서.
+- 참고 자산: 페르소나 검증 랜딩 시안 `persona-simulation/landing/index.html`(비배포), 근거 문서 `docs/research/archive/페르소나-검증형-MVP-실행안.md`.
 - ※ 이전의 "컨시어지형 MVP · 랜딩 검증(Phase 1/2)" 로드맵은 빌드 전환 결정으로 대체됨. 기존 Next.js 앱 코드는 git 이력에 보존.
 
 ## 절대 하지 말 것 (금지 포지션)

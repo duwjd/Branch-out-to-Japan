@@ -7,17 +7,17 @@
 <!--
   ════════════════════════════════════════════════════════════════════════════
   비배포 · 프로토타입 · 예시 데이터 (단일 HTML · 외부 의존 0 · CSP 안전 · 무JS)
-  목적(02-report-spec-postentry.md §5): S2(입점 후·매출 저조) 30만 포함 실물 산출물 2종의
+  목적(01-report-spec-postentry.md §5): S2(입점 후·매출 저조) 30만 포함 실물 산출물 2종의
     "반자동 조립" 프로토. 검증: (Q4) 조립 산출물이 "돈값" 품질을 내는가 ·
     (§5.3) 크몽 2만원 저가 제작과 구별되는 "근거가 붙은 실물"이 legible한가.
 
   ── 재사용 근거(grounding · 새 창작 최소화) ─────────────────────────────────
-    · 상세/썸네일 JP 카피 = report-sample-cica-ampoule.md 블록7·8 + report-wireframe.html
+    · 상세/썸네일 JP 카피 = 01-report-sample-cica-ampoule.md 블록7·8 + report-wireframe.html
       블록7/8의 합법 대체 표현을 그대로 조립(창작 아님).
     · 근거 주석 = 블록3 약기법 감사표(K1~K11 판정) + 블록4 코퍼스 실측 인용
       (asta line164 · tvert line1-3 · idio line184 · sns-lexicon 빈도) + 블록2 페르소나
       ナオ 구매 반대이유 + USP 재정의표(U1~U4).
-    · 디자인 토큰(:root) = report-wireframe.html A안 신뢰 자산 네이비.
+    · 디자인 토큰(:root) = report-wireframe.html 코랄(design/DESIGN.md).
 
   ── 증거 원칙(엄수) ─────────────────────────────────────────────────────────
     · 배합률·집계시점·효능평가시험·송료는 미확인 → ◯% / ◯月時点 플레이스홀더 +
@@ -29,33 +29,33 @@
   ════════════════════════════════════════════════════════════════════════════
 -->
 <style>
-  /* ── A안 · 신뢰 자산 네이비 토큰 (report-wireframe.html 계승) ───────── */
+  /* ── 코랄 토큰 (design/DESIGN.md 준수) ───────── */
   :root {
-    --primary: #233a66;
-    --deep: #141f38;
-    --canvas: #fafaf7;
-    --soft: #eef1f4;
-    --ink: #1c2433;
-    --ink-mute: #5b6472;
-    --hairline: #dde1e6;
-    --gold: #b98a2f;
-    --gold-text: #8a6516;
-    --rose-text: #a83e57;
-    --danger: #b23a48;
-    --danger-bg: #faeef0;
-    --safe: #2c6e49;
-    --safe-bg: #eaf4ee;
-    --warn-text: #8a6516;
-    --warn-bg: #fbf4e4;
+    --primary: #D93636;
+    --deep: #202124;
+    --canvas: #FFFFFF;
+    --soft: #F6F6F6;
+    --ink: #202124;
+    --ink-mute: #5F6165;
+    --hairline: #E4E7EC;
+    --gold: #FFAB00;
+    --gold-text: #7A5200;
+    --rose-text: #D93636;
+    --danger: #F0483C;
+    --danger-bg: #FDECEB;
+    --safe: #036C4A;
+    --safe-bg: #E6F7F0;
+    --warn-text: #7A5200;
+    --warn-bg: #FFF6E5;
     --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
       "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", sans-serif;
-    --shadow-card: 0 1px 2px rgba(20,31,56,.04), 0 8px 24px rgba(20,31,56,.06);
+    --shadow-card: 0 1px 2px rgba(32,33,36,.04), 0 8px 24px rgba(32,33,36,.06);
     --radius: 14px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; scroll-padding-top: 64px; -webkit-text-size-adjust: 100%; }
   body {
-    font-family: var(--font-sans); background: #e7e9ee; color: var(--ink);
+    font-family: var(--font-sans); background: #ECEDEF; color: var(--ink);
     line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
   :lang(ja) { font-family: "Hiragino Sans", "Noto Sans JP", var(--font-sans); }
@@ -133,7 +133,7 @@
   .ph.sq { aspect-ratio: 1 / 1; border-radius: 10px; }
   .ph .phcap { display: block; font-weight: 700; }
   .ph .phsub { display: block; font-size: 10px; font-weight: 500; margin-top: 3px; color: #9aa1ad; }
-  .mock-tag { position: absolute; left: 8px; bottom: 8px; background: rgba(20,31,56,.72); color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .02em; padding: 3px 8px; border-radius: 6px; z-index: 2; }
+  .mock-tag { position: absolute; left: 8px; bottom: 8px; background: rgba(32,33,36,.72); color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .02em; padding: 3px 8px; border-radius: 6px; z-index: 2; }
 
   /* 상세 카피 타이포 */
   .kicker { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); }
@@ -308,7 +308,7 @@
               <tr><td>근거 주석(K코드·코퍼스 라인·반대이유·USP)</td><td>블록3 감사표 + 블록4 코퍼스 + 블록2 페르소나</td><td><span class="tag-a semi">조립+편집</span></td></tr>
               <tr><td>배합률 ◯% · 집계 ◯月時点 · 송료 플레이스홀더</td><td>증거 원칙(미확인), 확인 후 기입</td><td><span class="tag-a semi">조립+편집</span></td></tr>
               <tr><td>썸네일 소구 1줄 + 성분/무첨가 배지</td><td>블록8-1·§4-3 검색표기 조립</td><td><span class="tag-a semi">조립+편집</span></td></tr>
-              <tr><td>블록 순서·상세 레이아웃·디자인 토큰</td><td>일본 상세 관례 구조 + A안 토큰</td><td><span class="tag-a hand">수작업</span></td></tr>
+              <tr><td>블록 순서·상세 레이아웃·디자인 토큰</td><td>일본 상세 관례 구조 + 코랄 토큰</td><td><span class="tag-a hand">수작업</span></td></tr>
               <tr><td>제품 이미지·질감컷·씬컷</td><td>브랜드 제공 필요(현재 플레이스홀더)</td><td><span class="tag-a hand">수작업</span></td></tr>
             </tbody>
           </table>
@@ -658,7 +658,7 @@
           <li><b>남은 리스크:</b> 현재 이미지는 <b>AI 생성 포토리얼 목업(ChatGPT)</b>으로 채워 SVG 대비 비주얼 완성도가 크게 올랐으나, <b>실제 HARUON 제품컷은 아님</b>. 크몽과의 "비주얼 완성도" 대결은 이 수준으로 1차 검증 가능하되, 실제 브랜드 제품컷 반영 시 최종 확정(Q7).</li>
         </ol>
         <p class="legend">
-          근거: docs/specs/report-sample-cica-ampoule.md(블록2·3·4·7·8) · docs/specs/02-report-spec-postentry.md(§5·§5.2·§5.3) · design/wireframes/report-wireframe.html(:root 토큰·블록7/8 카피). 薬機法 판정은 공개 규정 기반 1차 스크리닝(법률 자문 아님). 코퍼스 인용은 楽天 skincare 90건 표본.
+          근거: docs/specs/01-report-sample-cica-ampoule.md(블록2·3·4·7·8) · docs/specs/01-report-spec-postentry.md(§5·§5.2·§5.3) · design/wireframes/report-wireframe.html(:root 토큰·블록7/8 카피). 薬機法 판정은 공개 규정 기반 1차 스크리닝(법률 자문 아님). 코퍼스 인용은 楽天 skincare 90건 표본.
         </p>
       </div>
     </section>

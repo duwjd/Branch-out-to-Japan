@@ -9,9 +9,9 @@
   비배포 · 프론트 개발 착수용(2026-07-11~) 와이어프레임 (단일 HTML, 무의존).
   CSP 안전: 외부 CSS/JS/폰트/이미지 없음. 상호작용은 <details>·탭 시연만(무JS).
   근거: docs/specs/01-report-spec.md v2 (§3 티어 입력 · §4 9블록 출력 · §8 화면흐름)
-        docs/specs/report-sample-cica-ampoule.md (블록별 콘텐츠 깊이 기준선)
+        docs/specs/01-report-sample-cica-ampoule.md (블록별 콘텐츠 깊이 기준선)
         docs/research/jp-detail-message-patterns.md §4 (A~E 루브릭)
-        design/brand-tone-proposals.md (A안 신뢰 자산 네이비 토큰)
+        design/DESIGN.md (코랄 시스템)
   ※ 화면 속 점수·문구·성분·페르소나·일본어 카피·검수자명은 UI 시연용 예시 데이터.
     실제 진단 결과가 아니며, 코퍼스 실측 밖 가상 스탯은 넣지 않는다(증거 원칙).
 
@@ -61,29 +61,29 @@
   ════════════════════════════════════════════════════════════════════════════
 -->
 <style>
-  /* ── A안 · 신뢰 자산 네이비 토큰 (brand-tone-proposals.md) ───────── */
+  /* ── 코랄 토큰 (design/DESIGN.md 준수) ───────── */
   :root {
-    --primary: #233a66;
-    --deep: #141f38;
-    --canvas: #fafaf7;
-    --soft: #eef1f4;
-    --ink: #1c2433;
-    --ink-mute: #5b6472;
-    --hairline: #dde1e6;
-    --gold: #b98a2f;
-    --gold-text: #8a6516;
-    --rose-text: #a83e57;
-    --danger: #b23a48;
-    --danger-bg: #faeef0;
-    --safe: #2c6e49;
-    --safe-bg: #eaf4ee;
-    --warn-text: #8a6516;
-    --warn-bg: #fbf4e4;
+    --primary: #D93636;
+    --deep: #202124;
+    --canvas: #FFFFFF;
+    --soft: #F6F6F6;
+    --ink: #202124;
+    --ink-mute: #5F6165;
+    --hairline: #E4E7EC;
+    --gold: #FFAB00;
+    --gold-text: #7A5200;
+    --rose-text: #D93636;
+    --danger: #F0483C;
+    --danger-bg: #FDECEB;
+    --safe: #036C4A;
+    --safe-bg: #E6F7F0;
+    --warn-text: #7A5200;
+    --warn-bg: #FFF6E5;
 
     --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
       "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", sans-serif;
 
-    --shadow-card: 0 1px 2px rgba(20,31,56,.04), 0 8px 24px rgba(20,31,56,.06);
+    --shadow-card: 0 1px 2px rgba(32,33,36,.04), 0 8px 24px rgba(32,33,36,.06);
     --radius: 14px;
   }
 
@@ -91,7 +91,7 @@
   html { scroll-behavior: smooth; scroll-padding-top: 68px; }
   body {
     font-family: var(--font-sans);
-    background: #e7e9ee;
+    background: #ECEDEF;
     color: var(--ink);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -689,12 +689,12 @@
       <h1>① 진단 리포트 · 티어 입력 폼 + 리포트 9블록</h1>
       <p class="sub">
         스펙 <b>docs/specs/01-report-spec.md v2</b>의 <b>티어 입력(§3)·9블록 출력(§4)·화면 흐름(§8)</b>을 옮긴
-        개발 착수용 시안입니다. 깊이 기준선은 <b>report-sample-cica-ampoule.md</b>(약기법 전수 감사·코퍼스 실측 대비).
+        개발 착수용 시안입니다. 깊이 기준선은 <b>01-report-sample-cica-ampoule.md</b>(약기법 전수 감사·코퍼스 실측 대비).
         핵심은 <b>번역이 아닌 "일본 고객 관점의 메시지 재설계"</b>를 채점 기준·코퍼스 근거·실명 검수와 함께
         <b>결재 올릴 수 있는 문서</b>로 보여주는 것.
       </p>
       <div class="meta">
-        <span>톤 = A안 신뢰 자산 네이비 (팀 확정 시 :root 토큰 교체)</span>
+        <span>톤 = 코랄 (design/DESIGN.md)</span>
         <span>점수·문구·페르소나·검수자명은 예시 데이터</span>
         <span>증거 원칙: 가상 스탯·익명 사례·성과 보장·가짜 리뷰 금지</span>
         <span>신규 핵심: 품의 표지 · 약기법 감사표 · JP+KR 병기 카드</span>
@@ -1910,13 +1910,13 @@
     <!-- ═══════════ 범례 ═══════════ -->
     <div class="legend">
       <b>이 문서에 대하여</b> · 비배포 · 프론트 개발 착수용 와이어프레임(단일 HTML, 무의존, CSP 안전).
-      스펙 v2의 <b>9블록 + 티어 입력</b> 구조를 반영했습니다. 톤은 <b>A안 "신뢰 자산 네이비"</b> 토큰으로 렌더링했으며,
+      스펙 v2의 <b>9블록 + 티어 입력</b> 구조를 반영했습니다. 톤은 <b>코랄(design/DESIGN.md)</b> 토큰으로 렌더링했으며,
       팀 확정 시 <code>:root</code> 토큰만 교체하면 됩니다. 아코디언은 시맨틱 <code>&lt;details&gt;/&lt;summary&gt;</code>로
       키보드·스크린리더를 기본 지원합니다(추가 JS 없음). 넓은 표(약기법 감사·벤치마크·USP)는 자체
       <code>overflow-x</code>로 가로 스크롤을 가둡니다(페이지 가로 스크롤 없음).
       화면 속 점수·페르소나·일본어 문구·검수자명은 UI 시연용 <b>예시 데이터</b>이며 실제 진단 결과가 아닙니다.
-      근거: <b>docs/specs/01-report-spec.md v2</b>(§3·§4·§8) · <b>docs/specs/report-sample-cica-ampoule.md</b>(깊이 기준선) ·
-      <b>docs/research/jp-detail-message-patterns.md</b>(§4 A~E 루브릭) · <b>design/brand-tone-proposals.md</b>(톤).
+      근거: <b>docs/specs/01-report-spec.md v2</b>(§3·§4·§8) · <b>docs/specs/01-report-sample-cica-ampoule.md</b>(깊이 기준선) ·
+      <b>docs/research/jp-detail-message-patterns.md</b>(§4 A~E 루브릭) · <b>design/DESIGN.md</b>(코랄 시스템).
     </div>
 
   </main>

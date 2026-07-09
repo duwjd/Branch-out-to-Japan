@@ -56,3 +56,9 @@ next-env.d.ts
 /data/processed/.ocr-batch-state.json
 # OCR 크기초과 이미지 정규화 임시 산출(재생성 가능)
 /data/processed/.ocr-normalized/
+
+# 로컬 파일 스토어 (Supabase 미설정 시 dev 폴백 — 커밋하지 않음)
+/.data/
+
+# 엔진 CLI·테스트 컴파일 산출물 (tsc -p tsconfig.node.json)
+/.tmp-node/

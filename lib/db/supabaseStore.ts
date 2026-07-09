@@ -1,0 +1,188 @@
+/**
+ * Supabase 저장 구현 — 08 §6 엔티티의 테이블 매핑(스키마: supabase/schema.sql).
+ * 서버 전용(service role 키 사용 — 클라이언트 번들에 절대 노출 금지).
+ */
+
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { DiagnosisRequestRecord, ReportRecord, ReviewQueueItem, Store } from './store';
+import type { BlocksJson, ReportStatus, TierInput } from '../engine/types';
+import type { LlmCallLogEntry } from '../engine/llm/client';
+
+interface RequestRow {
+  id: string;
+  tier_input: TierInput;
+  precision_limited: boolean;
+  status: ReportStatus;
+  stage: string | null;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ReportRow {
+  request_id: string;
+  blocks_json: BlocksJson;
+  overall_score: number;
+  group_scores: ReportRecord['groupScores'];
+  top3: ReportRecord['top3'];
+  reviewer_name: string | null;
+  reviewer_signed_at: string | null;
+  rejected_reason: string | null;
+  published_at: string | null;
+  created_at: string;
+}
+
+function toRequestRecord(row: RequestRow): DiagnosisRequestRecord {
+  return {
+    id: row.id,
+    tierInput: row.tier_input,
+    precisionLimited: row.precision_limited,
+    status: row.status,
+    stage: row.stage,
+    error: row.error,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toReportRecord(row: ReportRow): ReportRecord {
+  return {
+    requestId: row.request_id,
+    blocksJson: row.blocks_json,
+    overallScore: row.overall_score,
+    groupScores: row.group_scores,
+    top3: row.top3,
+    reviewerName: row.reviewer_name,
+    reviewerSignedAt: row.reviewer_signed_at,
+    rejectedReason: row.rejected_reason,
+    publishedAt: row.published_at,
+    createdAt: row.created_at,
+  };
+}
+
+/** Supabase 스토어 생성 — 호출 전 env 존재는 getStore()가 보장 */
+export function createSupabaseStore(): Store {
+  const client: SupabaseClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+    process.env.SUPABASE_SERVICE_ROLE_KEY as string,
+    { auth: { persistSession: false } },
+  );
+
+  /** supabase 오류를 명시적으로 던진다(원인 파악용) */
+  function must<T>(result: { data: T | null; error: { message: string } | null }, op: string): T {
+    if (result.error) throw new Error(`supabase ${op} 실패: ${result.error.message}`);
+    return result.data as T;
+  }
+
+  return {
+    kind: () => 'supabase',
+
+    async createRequest(input: TierInput) {
+      const result = await client
+        .from('diagnosis_requests')
+        .insert({ tier_input: input, status: 'submitted' })
+        .select()
+        .single<RequestRow>();
+      return toRequestRecord(must(result, 'createRequest'));
+    },
+
+    async getRequest(id) {
+      const result = await client.from('diagnosis_requests').select().eq('id', id).maybeSingle<RequestRow>();
+      if (result.error) throw new Error(`supabase getRequest 실패: ${result.error.message}`);
+      return result.data ? toRequestRecord(result.data) : null;
+    },
+
+    async updateRequest(id, patch) {
+      const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      if (patch.status !== undefined) row.status = patch.status;
+      if (patch.stage !== undefined) row.stage = patch.stage;
+      if (patch.error !== undefined) row.error = patch.error;
+      if (patch.precisionLimited !== undefined) row.precision_limited = patch.precisionLimited;
+      const result = await client.from('diagnosis_requests').update(row).eq('id', id);
+      if (result.error) throw new Error(`supabase updateRequest 실패: ${result.error.message}`);
+    },
+
+    async saveReport(report: ReportRecord) {
+      const result = await client.from('reports').upsert(
+        {
+          request_id: report.requestId,
+          blocks_json: report.blocksJson,
+          overall_score: report.overallScore,
+          group_scores: report.groupScores,
+          top3: report.top3,
+          reviewer_name: report.reviewerName,
+          reviewer_signed_at: report.reviewerSignedAt,
+          rejected_reason: report.rejectedReason,
+          published_at: report.publishedAt,
+        },
+        { onConflict: 'request_id' },
+      );
+      if (result.error) throw new Error(`supabase saveReport 실패: ${result.error.message}`);
+    },
+
+    async getReport(requestId) {
+      const result = await client.from('reports').select().eq('request_id', requestId).maybeSingle<ReportRow>();
+      if (result.error) throw new Error(`supabase getReport 실패: ${result.error.message}`);
+      return result.data ? toReportRecord(result.data) : null;
+    },
+
+    async listByStatus(status: ReportStatus) {
+      const requests = must(
+        await client.from('diagnosis_requests').select().eq('status', status).order('created_at'),
+        'listByStatus.requests',
+      ) as RequestRow[];
+      if (requests.length === 0) return [];
+      const reports = must(
+        await client.from('reports').select().in('request_id', requests.map((r) => r.id)),
+        'listByStatus.reports',
+      ) as ReportRow[];
+      const byId = new Map(reports.map((r) => [r.request_id, r]));
+      const items: ReviewQueueItem[] = [];
+      for (const request of requests) {
+        const report = byId.get(request.id);
+        if (report) items.push({ request: toRequestRecord(request), report: toReportRecord(report) });
+      }
+      return items;
+    },
+
+    async signReport(requestId, reviewerName) {
+      const now = new Date().toISOString();
+      const reportResult = await client
+        .from('reports')
+        .update({ reviewer_name: reviewerName, reviewer_signed_at: now, published_at: now, rejected_reason: null })
+        .eq('request_id', requestId);
+      if (reportResult.error) throw new Error(`supabase signReport 실패: ${reportResult.error.message}`);
+      const requestResult = await client
+        .from('diagnosis_requests')
+        .update({ status: 'published', updated_at: now })
+        .eq('id', requestId);
+      if (requestResult.error) throw new Error(`supabase signReport(status) 실패: ${requestResult.error.message}`);
+    },
+
+    async rejectReport(requestId, reason) {
+      const now = new Date().toISOString();
+      const reportResult = await client.from('reports').update({ rejected_reason: reason }).eq('request_id', requestId);
+      if (reportResult.error) throw new Error(`supabase rejectReport 실패: ${reportResult.error.message}`);
+      const requestResult = await client
+        .from('diagnosis_requests')
+        .update({ status: 'rejected', updated_at: now })
+        .eq('id', requestId);
+      if (requestResult.error) throw new Error(`supabase rejectReport(status) 실패: ${requestResult.error.message}`);
+    },
+
+    async saveLlmLog(requestId, entry: LlmCallLogEntry) {
+      const result = await client.from('llm_call_logs').insert({
+        request_id: requestId,
+        call_name: entry.callName,
+        model: entry.model,
+        mode: entry.mode,
+        request_summary: entry.requestSummary,
+        response_body: entry.responseBody,
+        usage: entry.usage,
+        status: entry.status,
+        duration_ms: entry.durationMs,
+      });
+      if (result.error) throw new Error(`supabase saveLlmLog 실패: ${result.error.message}`);
+    },
+  };
+}
