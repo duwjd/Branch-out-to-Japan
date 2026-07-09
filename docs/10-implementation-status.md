@@ -86,7 +86,7 @@ supabase/schema.sql               # 테이블 3종 + RLS · docs/setup-supabase.
 | `npm run typecheck` | ✅ 0 오류 |
 | `npm run test` (node:test) | ✅ 5/5 — 집계 결정성(AC-2.2)·E군 분모 제외(AC-2.3)·가중치 합=1.00·공식 스팟체크 |
 | CLI 목 모드 | ✅ 9블록 완성 · 16ms |
-| **실 LLM E2E** (cica 카피 11문장) | ✅ 약 2분 · **종합 17/100** — 스펙 정본 샘플([[specs/report-sample-cica-ampoule]]) 18/100과 1점 차 · 감사 **불가 8·조건부 3·가능 0**(샘플 "11개 중 8개 위반"과 정합) · 재작성 5건(KR 역해설 포함, AC-3.1·3.2) |
+| **실 LLM E2E** (cica 카피 11문장) | ✅ 약 2분 · **종합 17/100** — 스펙 정본 샘플([[specs/01-report-sample-cica-ampoule]]) 18/100과 1점 차 · 감사 **불가 8·조건부 3·가능 0**(샘플 "11개 중 8개 위반"과 정합) · 재작성 5건(KR 역해설 포함, AC-3.1·3.2) |
 | 발행 사이클 | ✅ needsReview → 큐 표시 → 실명 서명 → published → 큐 0건. 검수자명 UTF-8 저장 정상 |
 | 게이트 | ✅ 50자 미만 서버 400("최소 50자…") · 폼 버튼 잠금 |
 

@@ -1,6 +1,6 @@
 /**
  * 엔진 CLI 러너 — 화면 없이 파이프라인을 실행해 blocksJson을 확인한다(09 §3).
- * 기본 입력: cica 샘플 카피 K1~K11 (docs/specs/report-sample-cica-ampoule.md — 골든 픽스처).
+ * 기본 입력: cica 샘플 카피 K1~K11 (docs/specs/01-report-sample-cica-ampoule.md — 골든 픽스처).
  *
  * 사용:
  *   npm run report:cli                # .env에 키 없으면 목 모드

@@ -613,7 +613,7 @@ erDiagram
 | ① 처리 로딩 (`report`) | `DiagnosisRequest.status` 폴링 | — | §3.3 상태 머신 |
 | ① 리포트 9블록 뷰 (`report`) | `Report`·`AuditSentence` | — | published만 사용자 노출 |
 | ① PDF 내보내기 (`report`) | `Report.pdfPath` | `Report.pdfPath`(최초 생성 시) | |
-| ① S2 재진단 뷰 (`report-postentry`) | `Report`(S2 블록 구성) | — | S2 스펙(`02-report-spec-postentry`)과 입력 차이는 해당 스펙에서 |
+| ① S2 재진단 뷰 (`report-postentry`) | `Report`(S2 블록 구성) | — | S2 스펙(`01-report-spec-postentry`)과 입력 차이는 해당 스펙에서 |
 | ② 썸네일 변환기 (`service`) | `BrandProfile`·프롬프트 팩 | `GeneratedAsset` + `LlmCallLog` | §5.1 |
 | ③ 자산 라이브러리 (`service`) | `Report`·`GeneratedAsset` | — | 재조회 전용 |
 | **검수자용 내부 화면 — 와이어프레임 없음 (공백)** | `Report(needsReview)`·`AuditSentence` | `Report.reviewerName/signedAt`·status 전이 | **§8-D4 — 최소 1화면(큐 목록+감사표 검토+서명/반려) 신규 설계 필요** |

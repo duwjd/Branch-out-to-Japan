@@ -1,7 +1,7 @@
 # persona-simulation — 페르소나 검증용 랜딩페이지
 
 > **⚠ 이 폴더의 산출물은 실제 배포물이 아니다.**
-> AI 합성 페르소나에게 제시할 자극물(stimulus)로, `docs/research/ 페르소나 검증형 MVP 실행안.md`의
+> AI 합성 페르소나에게 제시할 자극물(stimulus)로, `docs/research/archive/페르소나-검증형-MVP-실행안.md`의
 > "0차 검증"(광고 집행 전 사전 검증)을 위해 만들어졌다. 백엔드 없음, 폼은 가짜 제출.
 
 ## 폴더 구조

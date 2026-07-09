@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
   "status": "v0-unreviewed",
-  "reviewNote": "⚠ v0 — jp-localizer·약무 전문가 검토 전. 출처는 report-sample-cica-ampoule.md §9-2 각주 [1]~[7]과 01-report-spec 블록3-0 프레임에서 도출. 검토 후 status를 reviewed로 갱신할 것.",
+  "reviewNote": "⚠ v0 — jp-localizer·약무 전문가 검토 전. 출처는 01-report-sample-cica-ampoule.md §9-2 각주 [1]~[7]과 01-report-spec 블록3-0 프레임에서 도출. 검토 후 status를 reviewed로 갱신할 것.",
   "usage": "콜②(약기법 감사)·무료 체커의 grounding + clauseRefs 검증 키 집합. 리포트 블록9 규정 출처 렌더의 원천.",
   "gradeFrame": {
     "note": "일본 스킨케어는 薬機法상 세 등급으로 나뉘며 등급마다 말할 수 있는 효능 범위가 법으로 정해져 있다. productClass 미상 시 化粧品으로 상정하고 경고를 표기한다.",

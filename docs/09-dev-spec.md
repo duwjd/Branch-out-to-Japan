@@ -106,7 +106,7 @@ scripts/
 | 수단 | 대상 | 기준 |
 |---|---|---|
 | 단위테스트(node:test) | `rules/aggregate` 등 `rules/*` | 결정성: 같은 입력 → 같은 출력 (AC-2.2) |
-| 골든 픽스처 | cica 샘플 카피 → CLI 실행 | [[specs/report-sample-cica-ampoule]]과 점수·판정 **방향** 대조 (완전 일치 요구 아님 — LLM 편차는 `LlmCallLog`로 관찰, 08 §8-D6) |
+| 골든 픽스처 | cica 샘플 카피 → CLI 실행 | [[specs/01-report-sample-cica-ampoule]]과 점수·판정 **방향** 대조 (완전 일치 요구 아님 — LLM 편차는 `LlmCallLog`로 관찰, 08 §8-D6) |
 | 수동 E2E 체크리스트 | 입력 → 열람 → 서명 → PDF | 로드맵 "한 사이클 작동" · UT(8/1~3) 시나리오와 동일 |
 | typecheck / CI | 전체 | PR 병합 전 (CONTRIBUTING) |
 
