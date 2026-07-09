@@ -15,12 +15,14 @@
 
 | 축 | 핵심 | 성숙도 |
 |---|---|---|
-| **① 진단 리포트** | 일본향 페르소나·USP 재정의 + 薬機法 전수 감사 + 비포&애프터 (AI 진단·9블록) | 스펙 확정 v2 |
+| **① 진단 리포트** | 일본향 페르소나·USP 재정의 + 薬機法 전수 감사 + 비포&애프터 (AI 진단·9블록). **30만에 실물 산출물 2종(썸네일1+상세1) 포함** | 스펙 확정 v2 (S2 초안) |
 | **② 마케팅 스튜디오** | 상세페이지 일본향 전환 · 썸네일 생성 · 인스타 피드 생성 | 썸네일 파이프라인 확정 |
-| **③ 운영** | 일본 기업 매칭 · 브랜드 자산 관리 · (검토) 성과 판별 | 방향 정의 |
+| **③ 운영** | 리뷰 축적 운영 · 일본 기업 매칭 · 브랜드 자산 관리 · (검토) 성과 판별 | 방향 정의 |
 
 전환 허브 = **① 진단 리포트**(무료 약기법 체커가 입구, 고정가 퍼널이 ②·③로 연결). 공통 엔티티 = **브랜드 프로필**.
-상세: [docs/07-ia.md](docs/07-ia.md) · [docs/decisions/2026-07-04-상품-구조-구체화.md](docs/decisions/2026-07-04-상품-구조-구체화.md)
+**세그먼트 2분리**: S1(입점 전) / **S2(입점 후·매출저조)** — S2는 재진단 리포트(퍼널·리뷰 병목) + 리뷰 축적 운영을 Growth(월 20만)에 편입.
+**커머셜**: Free → Report 30만(실물 포함) → Growth 월 20만(리뷰 운영·첫 달 진단비 공제) → Scale.
+상세: [docs/07-ia.md](docs/07-ia.md) · [상품 구조](docs/decisions/2026-07-04-상품-구조-구체화.md) · [의사결정](docs/decisions/DECISIONS.md)
 
 ---
 
@@ -30,11 +32,11 @@
 
 지금까지 쌓인 것:
 - **정보구조(IA)**: [docs/07-ia.md](docs/07-ia.md) — 3축 전체 사이트맵·화면 인벤토리·유저플로우
-- **스펙**: [진단 리포트](docs/specs/01-report-spec.md)(9블록·티어 입력) · [썸네일 변환기](docs/specs/02-thumbnail-converter-spec.md) · [심화 샘플](docs/specs/report-sample-cica-ampoule.md)
-- **디자인 시스템**: [design/DESIGN.md](design/DESIGN.md) (코랄 팔레트·컴포넌트·상태 규약)
-- **와이어프레임(핸드오프)**: 공개+온보딩 6화면 · 앱 메인(대시보드) · UX 점검 — 아래 참조
+- **스펙**: [진단 리포트 S1](docs/specs/01-report-spec.md)(9블록·티어) · [S2 입점후](docs/specs/02-report-spec-postentry.md)(퍼널·리뷰 병목) · [구독 재구성](docs/specs/03-구독플랜-재구성-제안.md) · [썸네일 변환기](docs/specs/02-thumbnail-converter-spec.md) · [심화 샘플](docs/specs/report-sample-cica-ampoule.md)
+- **디자인 시스템**: [design/DESIGN.md](design/DESIGN.md) (**코랄 단일 시스템** · 컴포넌트 · 상태 규약)
+- **와이어프레임(핸드오프)**: 공개+온보딩 6화면 · 앱 메인(대시보드) · S1/S2 리포트 · S2 산출물 프로토 · UX 점검 — 아래 참조
 - **데이터**: 일본 쇼핑몰 제품 카탈로그·상세 OCR·SNS 렉시콘·썸네일 스타일 팩 (`data/processed/`)
-- **검증**: 합성 페르소나 20인 시뮬레이션 + 리포트 샘플 6인 검증 (`docs/research/`)
+- **검증**: 합성 페르소나 20인 시뮬레이션 + 리포트 샘플 6인 검증 + S2 재시뮬 (`docs/research/`)
 
 ## 지금 바로 볼 수 있는 것 (설치·서버 불필요)
 
@@ -43,7 +45,9 @@
 ```
 design/wireframes/public-onboarding-wireframe.html   # 공개+온보딩 6화면 (랜딩·체커·샘플·요금·로그인·브랜드프로필)
 design/wireframes/app-wireframe.html                 # 앱 메인(대시보드)
-design/wireframes/report-wireframe.html              # 진단 리포트 화면(티어 입력 + 9블록)
+design/wireframes/report-wireframe.html              # 진단 리포트 S1(티어 입력 + 9블록)
+design/wireframes/report-wireframe-postentry.html    # S2 입점후 재진단(퍼널 분해·리뷰 병목)
+design/wireframes/deliverable-proto-cica.html        # S2 30만 산출물 프로토(상세+썸네일, 근거 주석)
 persona-simulation/landing/index.html                # 페르소나 검증용 랜딩 시안 (비배포)
 ```
 
