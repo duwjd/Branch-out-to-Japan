@@ -7,7 +7,7 @@
 
 ## 진척 (2026-07-09 기준)
 - ✅ **데이터 수집·정제**(7/7 예정분) 완료 — 라쿠텐 썸네일·상세 OCR(312건)·SNS 렉시콘. 파이프라인 코드 커밋([[research/data-collection-plan]]).
-- ✅ **진단 리포트 IA·스펙·화면 선행 완료** — 예정보다 앞서 진행: 일본향 메시지 관례 루브릭([[research/jp-detail-message-patterns]]) → 리포트 스펙 v2(9블록, [[specs/01-report-spec]]) → 심화 샘플([[specs/report-sample-cica-ampoule]]) → 와이어프레임 → **페르소나 6인 검증**([[research/리포트샘플-페르소나-검증]], 6/6 조건부 결제 의향).
+- ✅ **진단 리포트 IA·스펙·화면 선행 완료** — 예정보다 앞서 진행: 일본향 메시지 관례 루브릭([[research/jp-detail-message-patterns]]) → 리포트 스펙 v2(9블록, [[specs/01-report-spec]]) → 심화 샘플([[specs/01-report-sample-cica-ampoule]]) → 와이어프레임 → **페르소나 6인 검증**([[research/simulations/리포트샘플-페르소나-검증]], 6/6 조건부 결제 의향).
 - ✅ **서비스 전체 IA·와이어프레임 정비 완료**(2026-07-09) — 3축 통합 IA([[07-ia]]) · 공개+온보딩 6화면 & 앱 메인(대시보드) 와이어프레임(`design/wireframes/`) · UX·접근성 점검(`design/wireframes/ux-review.md`) · 랜딩 12섹션 확정 카피.
 - ⏳ **다음:** 7/11 리더 피드백 전 — 검수자 정책 확정([[05-open-questions]] #9) · 결제 게이트·커머셜 반영 방식(UX점검 플래그) · 리포트 실동 개발(①) 착수 준비.
 

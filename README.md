@@ -32,7 +32,7 @@
 
 지금까지 쌓인 것:
 - **정보구조(IA)**: [docs/07-ia.md](docs/07-ia.md) — 3축 전체 사이트맵·화면 인벤토리·유저플로우
-- **스펙**: [진단 리포트 S1](docs/specs/01-report-spec.md)(9블록·티어) · [S2 입점후](docs/specs/02-report-spec-postentry.md)(퍼널·리뷰 병목) · [구독 재구성](docs/specs/03-구독플랜-재구성-제안.md) · [썸네일 변환기](docs/specs/02-thumbnail-converter-spec.md) · [심화 샘플](docs/specs/report-sample-cica-ampoule.md)
+- **스펙**: [진단 리포트 S1](docs/specs/01-report-spec.md)(9블록·티어) · [S2 입점후](docs/specs/01-report-spec-postentry.md)(퍼널·리뷰 병목) · [구독 재구성](docs/specs/03-구독플랜-재구성-제안.md) · [썸네일 변환기](docs/specs/02-thumbnail-converter-spec.md) · [심화 샘플](docs/specs/01-report-sample-cica-ampoule.md)
 - **디자인 시스템**: [design/DESIGN.md](design/DESIGN.md) (**코랄 단일 시스템** · 컴포넌트 · 상태 규약)
 - **와이어프레임(핸드오프)**: 공개+온보딩 6화면 · 앱 메인(대시보드) · S1/S2 리포트 · S2 산출물 프로토 · UX 점검 — 아래 참조
 - **데이터**: 일본 쇼핑몰 제품 카탈로그·상세 OCR·SNS 렉시콘·썸네일 스타일 팩 (`data/processed/`)

@@ -2,7 +2,7 @@
 
 > **용도:** AI 합성 페르소나 검증용 랜딩페이지(한국어, 단일 페이지)의 전체 카피.
 > **타겟 독자:** 소형 K-뷰티 브랜드 마케터/대표 (Qoo10 Japan·라쿠텐 입점 고민, 일본어 번역은 가능하나 일본 고객에게 먹히는 표현을 모름, 대행사 비용 부담, 사전 진단에는 지불 의향 있음).
-> **출처:** `docs/research/ 페르소나 검증형 MVP 실행안.md` §6·§7·§11, `docs/00-positioning.md`, `docs/03-personas.md`, `docs/02-product-spec.md`
+> **출처:** `docs/research/archive/페르소나-검증형-MVP-실행안.md` §6·§7·§11, `docs/00-positioning.md`, `docs/03-personas.md`, `docs/02-product-spec.md`
 > **작성:** jp-localizer · 2026-07-03
 >
 > **구현 규칙:** 히어로 섹션만 A~E 변형으로 교체 테스트한다. §2 이하 고정 섹션은 모든 변형에서 동일하게 사용한다.
