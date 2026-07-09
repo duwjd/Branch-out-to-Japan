@@ -62,40 +62,41 @@ scripts/
 ## 4. ① 리포트 스프린트 마일스톤 (7/11~17 · 엔진 우선)
 
 > 접근: **엔진(파이프라인)을 CLI로 먼저 완성·검증 → 화면 연결.** 리스크(LLM 품질·비용)가 엔진에 있으므로 M1~M2에서 확인하고, 화면(M3)은 검증된 엔진에 붙인다. 로드맵 완료 기준 = "진단 리포트 한 사이클 작동".
+> **진척 스냅샷·실행 방법·검증 결과 = [[10-implementation-status]]** (2026-07-09 기능 검증 빌드로 M0~M4 대부분 선행 완료 — 실 LLM E2E 통과).
 
 ### M0 · 준비 (7/11)
-- [ ] `data/processed/detail-ocr.jsonl` 복구 확인 (`git restore` — 08 §2 플래그)
-- [ ] D1(Supabase)·D6(재현성) 팀 확정 → `decisions/DECISIONS.md` 기록, `01-report-spec` §9-Q5 문구 갱신
-- [ ] Next 스캐폴딩 + Supabase 프로젝트 + `.env.example`
-- [ ] `scripts/aggregate` 작성 → `data/processed/benchmark-aggregates.json` 산출·커밋
-- [ ] 규정 출처 요약 자산 작성 (콜②·체커 grounding — jp-localizer 협업)
-- **DoD:** `npm run typecheck` 통과 · 사전집계 파일 커밋
+- [x] `data/processed/detail-ocr.jsonl` 복구 확인 (`git restore` — 08 §2 플래그)
+- [ ] D1(Supabase)·D6(재현성) 팀 확정 → `decisions/DECISIONS.md` 기록, `01-report-spec` §9-Q5 문구 갱신 *(기본안으로 구현 선행 — 기록만 잔여)*
+- [x] Next 스캐폴딩 + `.env.example` + Supabase 스키마·셋업 문서 *(프로젝트 생성·키는 사용자 액션 — `setup-supabase.md`)*
+- [x] `scripts/aggregate` 작성 → `data/processed/benchmark-aggregates.json` 산출·커밋
+- [x] 규정 출처 요약 자산 작성 — **v0 미검토** (jp-localizer·약무 검토 잔여)
+- **DoD:** `npm run typecheck` 통과 ✅ · 사전집계 파일 커밋 대기
 
 ### M1 · 엔진 코어 (7/12~13)
-- [ ] `rules/normalize`(문장분해 K1..Kn) · `rules/presignals`
-- [ ] `llm/call1` 콜① 구현 (스키마·grounding·캐싱 — 08 §4.0~4.1)
-- [ ] `rules/aggregate` 집계·가중·Top3 + **결정성 단위테스트**(같은 items → 같은 종합점수, AC-2.2)
-- [ ] `scripts/run-report.mjs`로 텍스트 입력 → 점수 출력
-- **DoD:** 동일 입력 2회 실행 → 종합점수 동일(테스트) · cica 샘플 카피로 축별 점수 대조 리뷰
+- [x] `rules/normalize`(문장분해 K1..Kn) · `rules/presignals`
+- [x] `llm/call1` 콜① 구현 (스키마·grounding·캐싱 — 08 §4.0~4.1)
+- [x] `rules/aggregate` 집계·가중·Top3 + **결정성 단위테스트**(같은 items → 같은 종합점수, AC-2.2)
+- [x] `scripts/run-report.ts`로 텍스트 입력 → 점수 출력
+- **DoD:** 동일 입력 2회 → 종합점수 동일(테스트 5/5) ✅ · cica 실 LLM 17/100 = 정본 샘플 18/100과 1점 차 ✅
 
 ### M2 · 엔진 완성 (7/13~15)
-- [ ] `llm/call2`(감사)·`llm/call3`(페르소나) — 콜①과 병렬 실행 (08 §4.7)
-- [ ] `rules/benchmark`(사전집계 대비) · `llm/call4`(재작성) · `rules/assemble`(9블록 조립)
-- [ ] `LlmCallLog` 기록 · 폴백 규칙(콜② 실패 = 잡 실패 — 08 §3.2 표)
-- **DoD:** CLI로 blocksJson 완성 산출 · 증거원칙 육안 체크(가짜 수치·인증·리뷰 0건)
+- [x] `llm/call2`(감사)·`llm/call3`(페르소나) — 콜①과 병렬 실행 (08 §4.7)
+- [x] `rules/benchmark`(사전집계 대비) · `llm/call4`(재작성) · `rules/assemble`(9블록 조립)
+- [x] `LlmCallLog` 기록 · 폴백 규칙(콜② 실패 = 잡 실패 — 08 §3.2 표)
+- **DoD:** CLI로 blocksJson 완성 산출 ✅ · 증거원칙 육안 체크 ✅
 
 ### M3 · 화면 (7/14~16 — M2와 병행 가능)
-- [ ] Supabase Auth(`/login`) + 온보딩 최소형(`/onboarding` — 프리필용 필드만)
-- [ ] `/app/report/new` 티어 폼 (50자 하드게이트·200자 배지·프리필 — 08 §3.1)
-- [ ] 제출 → `DiagnosisRequest` 저장 → 잡 실행 → `/app/report/[id]` 상태 폴링 로딩
-- [ ] 9블록 뷰 렌더 (핵심 컴포넌트: 품의 표지·감사표·JP+KR 병기 카드 — 스펙 §8)
-- **DoD:** 웹에서 입력 → 리포트 열람 한 사이클 (AC-1.1)
+- [ ] Supabase Auth(`/login`) + 온보딩 최소형(`/onboarding`) *(기능 검증 빌드에서 **의도적 제외**(비로그인) — 도입 시점 팀 결정)*
+- [x] `/app/report/new` 티어 폼 (50자 하드게이트·200자 배지 — 프리필은 온보딩 도입 시)
+- [x] 제출 → `DiagnosisRequest` 저장 → 잡 실행 → `/app/report/[id]` 상태 폴링 로딩
+- [x] 9블록 뷰 렌더 (품의 표지·감사표·JP+KR 병기 카드 포함)
+- **DoD:** 웹에서 입력 → 리포트 열람 한 사이클 (AC-1.1) ✅
 
 ### M4 · 발행 체계 (7/16~17)
-- [ ] `/admin/review` 검수 큐 — 목록·감사표 검토·실명 서명/반려 (08 §3.3 상태 머신)
+- [x] `/admin/review` 검수 큐 — 목록·감사표 검토·실명 서명/반려 (08 §3.3 상태 머신) *(접근 제어는 인증 도입 시)*
 - [ ] PDF 내보내기 (블록0 표지 연동 — 08 §8-D7)
-- [ ] *(stretch)* 랜딩 `/` · 무료 체커 `/checker`(+비로그인 3회 — 08 §8-D8)
-- **DoD:** needsReview → 서명 → published → PDF 다운로드 · **서명 없는 발행 불가**(스펙 성공지표)
+- [ ] *(stretch)* 무료 체커 `/checker`(+비로그인 3회 — 08 §8-D8) — 랜딩 `/`는 완료
+- **DoD:** needsReview → 서명 → published ✅ · **서명 없는 발행 불가** ✅ · PDF 잔여
 
 ### ② 마케팅 스튜디오 (7/18~24) · ③ 운영 (7/25~31)
 > 각 스프린트 시작 시 이 형식으로 섹션 추가. ②는 `02-thumbnail-converter-spec` §5 실검증(API 키)부터, ③은 스펙 확정부터.
