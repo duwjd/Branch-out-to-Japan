@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>공개 영역 + 인증/온보딩 와이어프레임 · Japan Growth Studio</title>
+<!--
+  ════════════════════════════════════════════════════════════════════
+  비배포 · 기획→디자인 핸드오프용 와이어프레임 (공개 영역 + 인증/온보딩)
+  ────────────────────────────────────────────────────────────────────
+  성격: UI 기획 산출물. 레이아웃·요소·카피·인터랙션·상태를 명세한다.
+        최종 비주얼(정밀 스타일·간격·이미지·모션)은 디자이너가 완성한다.
+  담는 화면(6):
+    1) 랜딩(공개)         2) 무료 약기법 체커(공개)   3) 샘플 리포트 미리보기(공개)
+    4) 요금(공개)          5) 로그인/회원가입(인증)     6) 브랜드 프로필 등록(온보딩)
+  근거 문서:
+    - docs/07-ia.md (사이트맵·세그먼트·유저플로우)
+    - docs/specs/01-report-spec.md (체커·리포트 블록0/3/7·Tier0 택소노미)
+    - design/DESIGN.md (디자인 시스템 단일 기준 · 코랄 · §14 상태 규약)
+    - design/handoff-landing-design-system.md (CTA 코랄 정책·접근성)
+  v2(2026-07-09): UX/접근성 점검(ux-review.md) 반영 — chip 접근성·label 연결·배지 대비·
+    모바일 햄버거·대표 상태(empty/disabled/URL실패/무료소진/로그인탭)·택소노미 정본 통일·랜딩 확정 카피.
+  ⚠ CTA 정책: #FF6464 배경 + large/bold 흰 텍스트만. 작은 흰 텍스트 금지(AA 미달).
+    작은 인터랙티브 텍스트·링크·소형 배지는 #D93636. 파란 primary 금지.
+  화면 속 점수·문구·법조항은 UI 시연용 예시이며 실제 진단 결과가 아니다.
+  상세 명세는 public-onboarding-spec.md, 점검 결과는 ux-review.md 참조.
+  ════════════════════════════════════════════════════════════════════
+-->
+<style>
+  :root {
+    --primary: #FF6464;
+    --primary-strong: #D93636;
+    --primary-tint: #FFF8F8;
+    --error: #F0483C;
+    --error-tint: #FDECEB;
+    --error-ink: #A4271D;
+    --success: #00B97C;
+    --success-tint: #E6F7F0;
+    --success-ink: #036C4A;
+    --warning: #FFAB00;
+    --warning-tint: #FFF6E5;
+    --warning-ink: #7A5200;
+
+    --heading: #202124;
+    --body: #414245;
+    --secondary: rgba(55,56,60,.61);
+    --surface: #ffffff;
+    --surface-subtle: #F6F6F6;
+    --border: rgba(112,115,124,.22);
+    --border-soft: rgba(112,115,124,.14);
+
+    --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
+      "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    --shadow-float: 0 4px 12px rgba(32,33,36,.08);
+    --shadow-modal: 0 8px 24px rgba(32,33,36,.12);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 68px; }
+  body { font-family: var(--font-sans); background: #ECEDEF; color: var(--body); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  /* reduced-motion (DESIGN.md §14) */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+
+  /* 문서 네비 (와이어프레임 도구용) */
+  .docnav { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-soft); }
+  .docnav-inner { max-width: 1185px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .docnav .logo { font-weight: 700; font-size: 15px; letter-spacing: -.01em; color: var(--heading); }
+  .docnav .logo .dot { color: var(--primary); }
+  .docnav .tag { font-size: 10.5px; color: var(--secondary); border: 1px solid var(--border); border-radius: 999px; padding: 3px 9px; }
+  .docnav .links { display: flex; gap: 2px; flex-wrap: wrap; margin-left: auto; }
+  .docnav .links a { font-size: 12px; color: var(--secondary); text-decoration: none; padding: 6px 10px; border-radius: 8px; }
+  .docnav .links a:hover { background: var(--surface-subtle); color: var(--primary-strong); }
+
+  .doc { max-width: 1185px; margin: 0 auto; padding: 40px 24px 96px; }
+  .doc-head { margin-bottom: 20px; }
+  .doc-head h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: var(--heading); }
+  .doc-head .sub { font-size: 14px; color: var(--secondary); margin-top: 8px; max-width: 780px; }
+  .doc-head .meta { margin-top: 14px; font-size: 12px; color: var(--secondary); display: flex; gap: 8px; flex-wrap: wrap; }
+  .doc-head .meta span { background: var(--surface-subtle); border-radius: 6px; padding: 4px 10px; }
+  .doc-head .meta .warn { background: var(--primary-tint); color: var(--primary-strong); font-weight: 600; }
+
+  .screen { margin-top: 52px; scroll-margin-top: 68px; }
+  .screen-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+  .screen-num { font-size: 12px; font-weight: 700; color: #fff; background: var(--primary-strong); border-radius: 6px; padding: 3px 9px; letter-spacing: .02em; }
+  .screen-head h2 { font-size: 19px; font-weight: 700; letter-spacing: -.01em; color: var(--heading); }
+  .screen-head .role { font-size: 12.5px; color: var(--secondary); }
+  .screen-link { font-size: 12px; color: var(--secondary); margin: 2px 0 16px; }
+  .screen-link b { color: var(--primary-strong); font-weight: 600; }
+
+  .frame { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-float); }
+  .chrome { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #F1F2F4; border-bottom: 1px solid var(--border-soft); }
+  .chrome .dots { display: flex; gap: 6px; }
+  .chrome .dots i { width: 11px; height: 11px; border-radius: 50%; background: #D3D7DE; display: block; }
+  .chrome .url { font-size: 11.5px; color: var(--secondary); background: #fff; border: 1px solid var(--border-soft); border-radius: 999px; padding: 4px 12px; margin-left: 8px; flex: 1; max-width: 440px; }
+  .chrome .vp { margin-left: auto; font-size: 10.5px; color: var(--secondary); }
+
+  .pad { padding: 26px 24px; }
+  .pad-lg { padding: 36px 28px; }
+
+  /* 제품 상단바 */
+  .appbar { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--border-soft); }
+  .appbar .brand { font-weight: 700; font-size: 15px; letter-spacing: -.01em; color: var(--heading); }
+  .appbar .brand .dot { color: var(--primary); }
+  .appbar nav { display: flex; gap: 2px; }
+  .appbar nav a { font-size: 12.5px; color: var(--secondary); text-decoration: none; padding: 6px 12px; border-radius: 8px; }
+  .appbar nav a.on { color: var(--primary-strong); background: var(--primary-tint); font-weight: 600; }
+  .appbar .right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .hamburger { display: none; font-size: 18px; line-height: 1; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; cursor: pointer; color: var(--heading); }
+
+  /* 버튼 · CTA 정책 반영 */
+  .btn { font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 10px; padding: 12px 20px; border: 1px solid transparent; display: inline-flex; align-items: center; justify-content: center; gap: 7px; text-decoration: none; line-height: 1.2; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-strong); }
+  .btn-secondary { background: #fff; color: var(--heading); border-color: var(--border); }
+  .btn-secondary:hover { background: var(--surface-subtle); }
+  .btn-text { background: transparent; color: var(--primary-strong); padding: 10px 12px; }
+  .btn-sm { padding: 9px 15px; font-size: 13px; border-radius: 9px; }
+  .btn-block { width: 100%; }
+  .btn.is-disabled { background: var(--surface-subtle); color: var(--secondary); border-color: var(--border); cursor: not-allowed; opacity: .6; pointer-events: none; }
+  .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+  a.tlink { color: var(--primary-strong); font-weight: 600; text-decoration: none; }
+  a.tlink:hover { text-decoration: underline; }
+
+  .card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .card-soft { background: var(--surface-subtle); border-color: var(--border-soft); }
+  .card-tint { background: var(--primary-tint); border-color: rgba(255,100,100,.28); }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary-strong); }
+  .muted { color: var(--secondary); }
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 860px) {
+    .g2, .g3, .g4 { grid-template-columns: 1fr; }
+    .appbar nav { display: none; }
+    .hamburger { display: inline-block; }
+  }
+
+  .sec-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--heading); }
+  .sec-sub { font-size: 12.5px; color: var(--secondary); margin-bottom: 16px; }
+
+  /* 랜딩 섹션 골격 라벨 */
+  .sk { border: 1px dashed var(--border); border-radius: 10px; padding: 16px 18px; background: #fff; }
+  .sk + .sk { margin-top: 12px; }
+  .sk-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .sk-tag { font-size: 10.5px; font-weight: 700; color: var(--primary-strong); background: var(--primary-tint); border-radius: 5px; padding: 2px 8px; letter-spacing: .02em; }
+  .sk-name { font-size: 13.5px; font-weight: 700; color: var(--heading); }
+  .sk-role { font-size: 11.5px; color: var(--secondary); margin-left: auto; }
+  .sk p { font-size: 12.5px; color: var(--body); }
+  .sk .lead { font-size: 13px; color: var(--heading); font-weight: 600; }
+  .cta-inline { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* 폼 필드 */
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 6px; color: var(--heading); }
+  .field .req { color: var(--error); }
+  .field .opt, .field .hint { font-size: 11px; color: var(--secondary); font-weight: 400; margin-left: 4px; }
+  .input, .textarea, .select { width: 100%; font-family: inherit; font-size: 13px; color: var(--heading); background: #fff; border: 1px solid var(--border); border-radius: 9px; padding: 11px 12px; }
+  .input:focus, .textarea:focus, .select:focus { outline: 2px solid var(--primary); outline-offset: 1px; border-color: var(--primary); }
+  .input::placeholder, .textarea::placeholder { color: #A9AEB6; }
+  .textarea { min-height: 78px; resize: vertical; }
+  .field-help { font-size: 11px; color: var(--secondary); margin-top: 5px; }
+  .field-error { font-size: 11px; color: var(--error); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+  .field-success { font-size: 11px; color: var(--success-ink); margin-top: 5px; }
+  .input.is-error { border-color: var(--error); }
+  .input.is-success { border-color: var(--success); }
+
+  /* 파일 업로드 (네이티브 input + label 연결) */
+  .filelabel { display: block; border: 1.5px dashed var(--border); border-radius: 10px; padding: 22px; text-align: center; font-size: 12.5px; color: var(--secondary); background: #fff; cursor: pointer; }
+  .filelabel:focus-within, .filelabel:hover { border-color: var(--primary); }
+  .filelabel input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+  /* Chip = 접근성 버튼 */
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { font-family: inherit; font-size: 12px; border: 1px solid var(--border); border-radius: 999px; padding: 7px 14px; background: #fff; color: var(--body); cursor: pointer; }
+  .chip[aria-pressed="true"], .chip[aria-checked="true"] { background: var(--primary-tint); color: var(--primary-strong); border-color: var(--primary); font-weight: 600; }
+  .chip:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+  /* 스텝 인디케이터 */
+  .steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; align-items: center; }
+  .steps .s { font-size: 12px; color: var(--secondary); display: flex; align-items: center; gap: 7px; }
+  .steps .s b { width: 20px; height: 20px; border-radius: 50%; background: var(--surface-subtle); color: var(--secondary); display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+  .steps .s.on { color: var(--heading); font-weight: 600; }
+  .steps .s.on b { background: var(--primary); color: #fff; }
+  .steps .s.done b { background: var(--success); color: #fff; }
+  .steps .sep { color: var(--border); }
+
+  /* 상태 배너 (아이콘은 aria-hidden) */
+  .banner { font-size: 12px; border-radius: 9px; padding: 10px 12px; display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+  .banner .bi { flex: none; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; color: #fff; margin-top: 1px; }
+  .banner.info { background: var(--surface-subtle); color: var(--body); }
+  .banner.info .bi { background: var(--secondary); }
+  .banner.warn { background: var(--warning-tint); color: var(--warning-ink); }
+  .banner.warn .bi { background: var(--warning); }
+  .banner.err { background: var(--error-tint); color: var(--error-ink); }
+  .banner.err .bi { background: var(--error); }
+  .banner.ok { background: var(--success-tint); color: var(--success-ink); }
+  .banner.ok .bi { background: var(--success); }
+
+  /* 약기법 체커 결과 — 배지 대비 개선(tint 배경 + 진한 텍스트) */
+  .checker { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; }
+  .checker h4 { font-size: 12.5px; font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--border-soft); color: var(--secondary); }
+  .check-item { padding: 14px 16px; display: flex; gap: 10px; align-items: flex-start; }
+  .check-item + .check-item { border-top: 1px solid var(--border-soft); }
+  .flag { flex: none; font-size: 10.5px; font-weight: 700; border-radius: 5px; padding: 3px 7px; margin-top: 2px; border: 1px solid transparent; }
+  .flag.ng { color: var(--error-ink); background: var(--error-tint); border-color: rgba(240,72,60,.4); }
+  .flag.ok { color: var(--success-ink); background: var(--success-tint); border-color: rgba(0,185,124,.4); }
+  .check-item p { font-size: 13px; line-height: 1.6; color: var(--heading); }
+  .phrase-ng { color: var(--error-ink); text-decoration: line-through; }
+  .phrase-ok { color: var(--success-ink); font-weight: 600; }
+  .law { display: block; font-size: 11px; color: var(--secondary); margin-top: 3px; }
+
+  /* 리포트 프리뷰 블록 */
+  .rep-block { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .rep-block + .rep-block { margin-top: 14px; }
+  .rep-label { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: var(--surface-subtle); border-bottom: 1px solid var(--border-soft); }
+  .rep-label .tagk { font-size: 11px; font-weight: 700; color: #fff; background: var(--primary-strong); border-radius: 5px; padding: 2px 8px; }
+  .rep-label .tt { font-size: 13px; font-weight: 700; color: var(--heading); }
+  .rep-body { padding: 16px; }
+  .locked { position: relative; }
+  .locked .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.86) 78%); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 18px; }
+  .locked .veil a.lockmsg { font-size: 12px; font-weight: 600; color: var(--primary-strong); background: #fff; border: 1px solid var(--primary); border-radius: 999px; padding: 7px 16px; box-shadow: var(--shadow-float); text-decoration: none; }
+  .audit { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .audit th, .audit td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+  .audit th { font-size: 11px; color: var(--secondary); font-weight: 600; background: #fff; }
+  .verdict { font-size: 10.5px; font-weight: 700; border-radius: 5px; padding: 2px 7px; border: 1px solid transparent; }
+  .verdict.no { color: var(--error-ink); background: var(--error-tint); border-color: rgba(240,72,60,.4); }
+  .verdict.cond { color: var(--warning-ink); background: var(--warning-tint); border-color: var(--warning); }
+  .verdict.ok { color: var(--success-ink); background: var(--success-tint); border-color: rgba(0,185,124,.4); }
+
+  /* before/after 병기 카드 */
+  .ba { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  @media (max-width: 620px) { .ba { grid-template-columns: 1fr; } }
+  .ba > div { padding: 16px; }
+  .ba .before { background: #fff; border-right: 1px solid var(--border-soft); }
+  .ba .after { background: var(--primary-tint); }
+  .ba .lbl { font-size: 11px; font-weight: 700; letter-spacing: .04em; margin-bottom: 8px; }
+  .ba .before .lbl { color: var(--secondary); }
+  .ba .after .lbl { color: var(--primary-strong); }
+  .ba p { font-size: 12.5px; line-height: 1.6; color: var(--heading); }
+  .ba .kr { font-size: 11px; color: var(--secondary); margin-top: 6px; display: block; }
+
+  /* 요금 tier */
+  .tiers { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .tiers { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .tiers { grid-template-columns: 1fr; } }
+  .tier { position: relative; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 22px 18px; display: flex; flex-direction: column; }
+  .tier-featured { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+  .tier .badge { position: absolute; top: -11px; left: 18px; font-size: 10.5px; font-weight: 700; color: #fff; background: var(--primary-strong); border-radius: 999px; padding: 4px 11px; }
+  .tier h3 { font-size: 17px; font-weight: 700; color: var(--heading); }
+  .tier .for { font-size: 12px; color: var(--secondary); margin: 6px 0 14px; min-height: 32px; }
+  .tier .price { font-size: 22px; font-weight: 700; color: var(--heading); letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+  .tier .price small { font-size: 12px; color: var(--secondary); font-weight: 500; }
+  .tier .includes { list-style: none; margin: 14px 0 18px; display: grid; gap: 8px; flex: 1; }
+  .tier .includes li { font-size: 12px; color: var(--body); line-height: 1.45; padding-left: 20px; position: relative; }
+  .tier .includes li::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--success-ink); font-weight: 700; }
+  .tier .includes li.plus { padding-left: 0; font-size: 11px; font-weight: 700; color: var(--primary-strong); }
+  .tier .includes li.plus::before { content: ""; }
+  .tier .bridge { font-size: 10.5px; color: var(--primary-strong); font-weight: 600; margin-top: -6px; }
+  .pricing-note { margin-top: 20px; font-size: 12px; color: var(--secondary); line-height: 1.7; background: var(--surface-subtle); border-radius: 10px; padding: 14px 16px; }
+  .pricing-note strong { color: var(--heading); }
+
+  /* 인증 탭 */
+  .authtabs { display: flex; gap: 4px; background: var(--surface-subtle); border-radius: 10px; padding: 4px; margin-bottom: 20px; }
+  .authtabs [role=tab] { flex: 1; font-family: inherit; font-size: 13px; font-weight: 600; border: none; background: transparent; color: var(--secondary); padding: 9px; border-radius: 8px; cursor: pointer; }
+  .authtabs [role=tab][aria-selected=true] { background: #fff; color: var(--heading); box-shadow: var(--shadow-float); }
+  .authtabs [role=tab]:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+  .authcard { max-width: 420px; margin: 0 auto; }
+  .authcol { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 720px) { .authcol { grid-template-columns: 1fr; } }
+  .divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: var(--secondary); font-size: 11px; }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border-soft); }
+  .social { display: grid; gap: 8px; }
+
+  /* 주석 각주 */
+  .notes { margin-top: 14px; display: grid; gap: 8px; }
+  .note { font-size: 12px; color: var(--secondary); padding-left: 26px; position: relative; line-height: 1.55; }
+  .note::before { content: attr(data-n); position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%; background: var(--heading); color: #fff; font-size: 10px; font-weight: 700; display: grid; place-items: center; }
+  .note b { color: var(--heading); font-weight: 600; }
+  .note.ask::before { background: var(--primary-strong); content: "?"; }
+  .note.ask { color: var(--primary-strong); }
+  .note.fix::before { background: var(--success); content: "✓"; }
+
+  .legend { margin-top: 44px; padding: 18px 20px; background: #fff; border: 1px solid var(--border); border-radius: 12px; font-size: 12px; color: var(--secondary); line-height: 1.7; }
+  .legend b { color: var(--heading); }
+  .legend code { background: var(--surface-subtle); border-radius: 4px; padding: 1px 5px; font-size: 11px; }
+</style>
+</head>
+<body>
+
+  <nav class="docnav">
+    <div class="docnav-inner">
+      <span class="logo">Japan Growth Studio<span class="dot">.</span></span>
+      <span class="tag">와이어프레임 v2 · 공개+온보딩 · 코랄</span>
+      <div class="links">
+        <a href="#s1">1 랜딩</a>
+        <a href="#s2">2 약기법 체커</a>
+        <a href="#s3">3 샘플 리포트</a>
+        <a href="#s4">4 요금</a>
+        <a href="#s5">5 로그인/가입</a>
+        <a href="#s6">6 브랜드 프로필</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="doc">
+    <header class="doc-head">
+      <h1>공개 영역 + 인증/온보딩 와이어프레임</h1>
+      <p class="sub">
+        <b style="color:var(--heading)">기획 → 디자인 핸드오프용</b> 저채도 와이어프레임입니다.
+        레이아웃·요소·카피·인터랙션·상태를 명세하고, 최종 비주얼은 디자이너가
+        <code style="font-size:12px">design/DESIGN.md</code> 시스템으로 완성합니다.
+        상세 명세는 <b style="color:var(--heading)">public-onboarding-spec.md</b>, 점검 결과는 <b style="color:var(--heading)">ux-review.md</b>.
+      </p>
+      <div class="meta">
+        <span>범위 = 공개(랜딩·체커·샘플·요금) + 인증/온보딩(로그인·브랜드 프로필)</span>
+        <span>토큰 = 코랄 #FF6464 (DESIGN.md 확정)</span>
+        <span class="warn">CTA: 코랄 배경 + large/bold 흰 텍스트만 · 작은 흰 텍스트 금지 · 파란 primary 금지</span>
+        <span>규격 = Desktop 1200 / Mobile 390 · 콘텐츠 max 1185</span>
+        <span>v2: UX·접근성 점검 반영</span>
+      </div>
+    </header>
+
+    <!-- ═══════════ 1. 랜딩 (공개) · 확정 카피 반영 ═══════════ -->
+    <section class="screen" id="s1">
+      <div class="screen-head">
+        <span class="screen-num">공개 1</span>
+        <h2>랜딩 페이지</h2>
+        <span class="role">유입 · 전환 목표 = 무료 진단 시작</span>
+      </div>
+      <p class="screen-link">
+        전환 목표: <b>무료 진단 시작</b> · out → <b>무료 약기법 체커 / 요금 / 로그인·가입</b>
+        · 카피 전문: spec §1 · 고밀도 시안: <code style="font-size:11px">persona-simulation/landing/index2.html</code>
+      </p>
+
+      <div class="frame">
+        <div class="chrome">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">japan-growth-studio.app</span>
+          <span class="vp">Desktop 1200</span>
+        </div>
+
+        <!-- Header -->
+        <div class="appbar">
+          <span class="brand">Japan Growth Studio<span class="dot">.</span></span>
+          <nav aria-label="주요 메뉴">
+            <a href="#s1" class="on">서비스</a>
+            <a href="#ba">Before·After</a>
+            <a href="#s4">요금</a>
+            <a href="#faq">FAQ</a>
+          </nav>
+          <div class="right">
+            <a href="#s5" class="btn btn-text btn-sm">로그인</a>
+            <a href="#s2" class="btn btn-primary btn-sm">무료 진단 시작</a>
+            <button class="hamburger" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobileMenu">☰</button>
+          </div>
+        </div>
+
+        <div class="pad-lg">
+          <!-- Hero -->
+          <div class="sk">
+            <div class="sk-head"><span class="sk-tag">HERO</span><span class="sk-name">히어로</span><span class="sk-role">정체성 선언 + 1차 CTA</span></div>
+            <p style="font-size:22px;font-weight:700;color:var(--heading);line-height:1.3;letter-spacing:-.01em;">번역이 아니라, 일본 고객 관점의 메시지 재설계</p>
+            <p style="margin-top:10px;max-width:560px;">한국 상세페이지·SNS 문구를 일본 구매자가 <b>'사는 이유'</b>로 다시 씁니다. 일본어로 옮기는 게 아니라, 무엇을 근거로 신뢰하고 구매하는지를 역설계해 문장을 다시 짓습니다. <b>일본향 전문가가 확정하고, AI가 속도를 냅니다.</b></p>
+            <div class="cta-inline">
+              <a href="#s2" class="btn btn-primary btn-sm">무료 진단 시작</a>
+              <a href="#s3" class="btn btn-secondary btn-sm">샘플 리포트 보기</a>
+            </div>
+          </div>
+
+          <!-- Stats → 정성 신뢰요소 -->
+          <div class="sk">
+            <div class="sk-head"><span class="sk-tag">STATS</span><span class="sk-name">숫자 대신 근거 방식</span><span class="sk-role">실측 전 · 가상 통계 금지</span></div>
+            <p class="lead">숫자로 설득하지 않습니다. 근거로 보여드립니다.</p>
+            <p style="margin-top:6px;">薬機法 조항 각주 · 채점 기준 공개 · 라쿠텐 상세 코퍼스 대조 · 한국어 역해설 병기. (정착률·만족도 등 미확정 수치는 비노출)</p>
+          </div>
+
+          <!-- Problem 2-track -->
+          <div class="sk">
+            <div class="sk-head"><span class="sk-tag">PROBLEM</span><span class="sk-name">지금 어떤 상황이신가요? (2트랙 탭)</span><span class="sk-role">세그먼트 분기</span></div>
+            <p><b>① 입점 준비(S1):</b> "번역은 끝냈는데, 이게 일본에서 통할지 확신이 없다" · <b>② 운영 정체(S2):</b> "입점은 했는데 리뷰(口コミ)도 랭킹도 오르지 않는다". 방문자가 자기 상황을 고르게 한다.</p>
+          </div>
+
+          <!-- Service 3axis -->
+          <div class="sk">
+            <div class="sk-head"><span class="sk-tag">SERVICE</span><span class="sk-name">진단부터 제작·운영까지, 한 곳에서</span><span class="sk-role">3축</span></div>
+            <div class="grid g3" style="margin-top:4px;">
+              <div class="card card-soft"><b style="color:var(--heading)">① 진단 리포트</b><p class="muted" style="font-size:12px;margin-top:4px;">薬機法 전수 감사 + 페르소나·USP 재정의 + 근거 기반 재작성</p></div>
+              <div class="card card-soft"><b style="color:var(--heading)">② 마케팅 스튜디오</b><p class="muted" style="font-size:12px;margin-top:4px;">자산만 연결하면 재설계된 상세·썸네일·피드 초안이 도착</p></div>
+              <div class="card card-soft"><b style="color:var(--heading)">③ 운영</b><p class="muted" style="font-size:12px;margin-top:4px;">시즌 사이클 대응 + 일본 기업 매칭</p></div>
+            </div>
+          </div>
+
+          <!-- Before/After -->
+          <div class="sk" id="ba">
+            <div class="sk-head"><span class="sk-tag">B/A ★</span><span class="sk-name">직역하면 이렇게, 재설계하면 이렇게</span><span class="sk-role">최강 자산 · 카테고리 탭</span></div>
+            <div class="ba" style="margin-top:4px;">
+              <div class="before"><div class="lbl">BEFORE · 한국식 직역</div><p lang="ja">シミが消える美白クリーム</p><span class="kr">(직역: 기미가 사라지는 미백 크림)</span></div>
+              <div class="after"><div class="lbl">AFTER · 일본향 재설계</div><p lang="ja">メラニンの生成を抑え、シミ・そばかすを防ぐ ※薬用(医薬部外品)の場合</p><span class="kr">(멜라닌 생성을 억제해 기미·주근깨를 예방. 승인 효능 범위 내. 승인 없으면 인상 표현으로 낮춤)</span></div>
+            </div>
+            <p class="muted" style="font-size:11.5px;margin-top:8px;">스킨케어·미백·더마·향 등 카테고리 탭으로 확대(전문은 spec §1). 자기 카테고리가 없으면 이탈.</p>
+          </div>
+
+          <!-- How -->
+          <div class="sk">
+            <div class="sk-head"><span class="sk-tag">HOW</span><span class="sk-name">배울 것 없습니다. 자산만 연결하면 됩니다.</span><span class="sk-role">배달형 안심</span></div>
+            <p>① 브랜드 자산 연결 → ② <b>전문가가 확정, AI가 속도</b> → ③ 한국어 역해설이 붙은 초안·완성본 도착. 새로 배울 도구도, 새로 쓸 원고도 없다. ('생성기' 표현 금지)</p>
+          </div>
+
+          <!-- Compliance -->
+          <div class="sk">
+            <div class="sk-head"><span class="sk-tag">COMPLY</span><span class="sk-name">그 効能 문구, 일본에선 광고가 내려갈 수도 있습니다</span><span class="sk-role">S4 훅</span></div>
+            <p>화장품·의약외품이 말할 수 있는 효능 범위는 薬機法으로 정해져 있다. 지금 쓰는 문구를 붙여넣고 <b>가입 없이</b> 확인 → <a class="tlink" href="#s2">무료 약기법 체커</a>.</p>
+          </div>
+
+          <!-- Trust -->
+          <div class="sk">
+            <div class="sk-head"><span class="sk-tag">TRUST</span><span class="sk-name">AI가 먼저가 아닙니다. 사람이 확정합니다.</span><span class="sk-role">검수자 실명 미정</span></div>
+            <p>모든 판정·재설계는 일본 약무·현지화 담당자의 검토·서명을 거쳐 발행. 근거 각주 · 채점 기준 공개 · 사람 서명 발행. <b>검수자 실명 정책 확정 시 프로필(Avatar) 삽입</b>(현재 프로세스 중심 서술).</p>
+          </div>
+
+          <!-- Pricing summary -->
+          <div class="sk">
+            <div class="sk-head"><span class="sk-tag">PRICING</span><span class="sk-name">고정가입니다. 견적 왕복이 없습니다.</span><span class="sk-role">→ 요금 화면(4)</span></div>
+            <p>진단 30만(1건 고정) · Growth 월 20만(첫 달 진단비 공제) · 결과물 보기 전 월정액 아님 · 언제든 해지. <a class="tlink" href="#s4">요금 전체 보기</a></p>
+          </div>
+
+          <!-- FAQ + Final CTA -->
+          <div class="grid g2" style="margin-top:12px;">
+            <div class="sk" id="faq" style="margin:0;">
+              <div class="sk-head"><span class="sk-tag">FAQ</span><span class="sk-name">자주 묻는 질문</span></div>
+              <p>번역과 차이 / AI 신뢰 / 약기법 판정 신뢰 / 일본어 못 읽어도 검수 / 결과물 전 비용·해지 (전문 spec §1). Accordion.</p>
+            </div>
+            <div class="sk" style="margin:0;background:var(--primary-tint);border-color:rgba(255,100,100,.28);">
+              <div class="sk-head"><span class="sk-tag">FINAL CTA</span><span class="sk-name">지금 쓰는 문구부터, 무료로 진단해 보세요.</span></div>
+              <p>가입 없이 체커로 시작하거나, 실제 카피로 만든 샘플 리포트를 먼저 볼 수 있습니다.</p>
+              <div class="cta-inline"><a href="#s2" class="btn btn-primary btn-sm">무료 진단 시작</a><a href="#s3" class="btn btn-secondary btn-sm">샘플 리포트 보기</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <p class="note" data-n="1"><b>사람 먼저 프레이밍:</b> 히어로/How에서 "전문가 확정 → AI 속도" 순서 고정('AI 자동' 거부감 6인).</p>
+        <p class="note" data-n="2"><b>증거 원칙:</b> Stats를 가상 숫자 대신 '근거 방식'으로 전환(가상 통계 최대 이탈 트리거 대응).</p>
+        <p class="note fix" data-n="3"><b>[반영] CTA 링크화:</b> 히어로·파이널 CTA를 `&lt;a&gt;`로 승격(키보드 포커스·이동 가능).</p>
+        <p class="note fix" data-n="4"><b>[반영] 모바일 햄버거:</b> nav가 사라지던 결함 → `☰` 토글 placeholder(aria-expanded/controls).</p>
+        <p class="note ask" data-n="5"><b>디자이너 결정:</b> 12섹션 세로 리듬·이미지 사용처. 카피 최종 승인은 팀(spec §1 확정본 기준).</p>
+      </div>
+    </section>
+
+    <!-- ═══════════ 2. 무료 약기법 체커 (공개) ═══════════ -->
+    <section class="screen" id="s2">
+      <div class="screen-head">
+        <span class="screen-num">공개 2</span>
+        <h2>무료 약기법 체커</h2>
+        <span class="role">전환 허브 in-link · 비로그인 가능</span>
+      </div>
+      <p class="screen-link">in ← <b>랜딩</b> · out → <b>회원가입(직행)</b> 또는 <b>샘플 리포트(선택)</b></p>
+
+      <div class="frame">
+        <div class="chrome">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">japan-growth-studio.app/checker</span>
+          <span class="vp">비로그인 · 2/3회 남음</span>
+        </div>
+        <div class="pad-lg">
+          <div class="grid g2" style="align-items:start;">
+            <!-- 입력 -->
+            <div>
+              <div class="sec-title">진단할 일본어 문구</div>
+              <p class="sec-sub">상세페이지·SNS·광고 문구를 붙여넣으세요. URL도 가능.</p>
+              <label for="ckText" style="display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;">문구 또는 URL</label>
+              <textarea id="ckText" class="textarea" style="min-height:130px;" placeholder="例) シミが消える美白クリーム。塗るだけで10歳若返る肌へ…"></textarea>
+              <div style="margin-top:12px;">
+                <span id="pcLabel" style="display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;">제품 분류 <span class="req">*</span> <span class="hint">허용 표현이 다릅니다</span></span>
+                <div class="chips" role="radiogroup" aria-labelledby="pcLabel">
+                  <button type="button" class="chip" role="radio" aria-checked="true">화장품</button>
+                  <button type="button" class="chip" role="radio" aria-checked="false">의약외품</button>
+                  <button type="button" class="chip" role="radio" aria-checked="false">건강식품</button>
+                  <button type="button" class="chip" role="radio" aria-checked="false">잘 모르겠음</button>
+                </div>
+              </div>
+              <a href="#ckResult" class="btn btn-primary btn-block" style="margin-top:16px;">약기법 위반 진단하기</a>
+              <div class="banner info" style="margin-top:10px;"><span class="bi" aria-hidden="true">i</span><span>비로그인 <b>3회 무료</b>(현재 2/3 남음). 가입하면 <b>월 3회</b>로 전환 · 결과 저장·전체 진단 가능.</span></div>
+
+              <!-- disabled 상태 예시(제품분류 미선택) -->
+              <div style="margin-top:18px;border-top:1px dashed var(--border);padding-top:14px;">
+                <p class="muted" style="font-size:11px;margin-bottom:6px;">▽ 상태 예시 · 제품 분류 미선택 시</p>
+                <span class="btn btn-primary btn-block is-disabled" aria-disabled="true">약기법 위반 진단하기</span>
+                <p class="field-help">제품 분류를 선택하면 진단할 수 있어요.</p>
+              </div>
+            </div>
+
+            <!-- 결과 -->
+            <div id="ckResult">
+              <div class="sec-title">진단 결과 <span class="muted" style="font-weight:400;font-size:12px;">(예시)</span></div>
+              <p class="sec-sub">위반 2건 · 안전 1건</p>
+              <div class="checker">
+                <h4>표현별 진단</h4>
+                <div class="check-item">
+                  <span class="flag ng">NG</span>
+                  <p><span class="phrase-ng" lang="ja">「シミが消える」</span>
+                    <span class="law">薬機法 · 화장품 효능 56항목 외 · 단정적 효능 표현 불가</span></p>
+                </div>
+                <div class="check-item">
+                  <span class="flag ng">NG</span>
+                  <p><span class="phrase-ng" lang="ja">「10歳若返る」</span>
+                    <span class="law">노화 회복 단정 · 誇大広告에 해당</span></p>
+                </div>
+                <div class="check-item">
+                  <span class="flag ok">OK</span>
+                  <p><span class="phrase-ok" lang="ja">「うるおいを与え、乾燥による小じわを目立たなくする」</span>
+                    <span class="law">2011 후생노동성 통지 승인 표현</span></p>
+                </div>
+              </div>
+
+              <div class="card card-tint" style="margin-top:16px;">
+                <b style="color:var(--heading);font-size:14px;">문구 한 줄 말고, 상세페이지 전체가 궁금하다면?</b>
+                <p class="muted" style="font-size:12.5px;margin-top:6px;">왜·어떻게 고칠지 + 전체 문법 진단 + 재작성 = 진단 리포트.</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+                  <a href="#s5" class="btn btn-primary btn-sm">진단 시작 · 가입</a>
+                  <a href="#s3" class="btn btn-secondary btn-sm">샘플 먼저 보기</a>
+                </div>
+              </div>
+
+              <!-- 상태 예시: empty(위반 0건) / URL fetch 실패 -->
+              <div style="margin-top:18px;border-top:1px dashed var(--border);padding-top:14px;display:grid;gap:10px;">
+                <p class="muted" style="font-size:11px;">▽ 상태 예시</p>
+                <div class="banner ok"><span class="bi" aria-hidden="true">✓</span><span><b>위반 0건 · 좋은 시작이에요.</b> 지금 문구는 안전합니다. 다만 '통하는 구조'인지는 전체 진단에서 확인하세요.</span></div>
+                <div class="banner err"><span class="bi" aria-hidden="true">!</span><span><b>URL을 가져오지 못했어요.</b> 비공개·차단 페이지일 수 있어요. 문구를 직접 붙여넣어 주세요. <a class="tlink" href="#ckText">직접 입력</a></span></div>
+                <div class="banner warn"><span class="bi" aria-hidden="true">!</span><span><b>무료 3회를 모두 사용했어요.</b> 가입하면 계속 진단할 수 있어요. <a class="tlink" href="#s5">가입하고 계속</a></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <p class="note fix" data-n="1"><b>[반영] chip 접근성:</b> `role=radio`+`aria-checked`+포커스 링(키보드 선택 가능).</p>
+        <p class="note fix" data-n="2"><b>[반영] 대표 상태:</b> disabled+이유 · empty(0건) · URL fetch 실패 · 무료 소진 예시 추가.</p>
+        <p class="note fix" data-n="3"><b>[반영] 전환 정정:</b> 진단 CTA는 같은 화면 결과(#ckResult)로, 업셀은 가입 직행+샘플 병치.</p>
+        <p class="note ask" data-n="4"><b>디자이너/팀:</b> 결과 로딩 UI · 익명 3회 카운트 저장방식(쿠키/IP) · URL 판별 로직.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════ 3. 샘플 리포트 미리보기 (공개) ═══════════ -->
+    <section class="screen" id="s3">
+      <div class="screen-head">
+        <span class="screen-num">공개 3</span>
+        <h2>샘플 리포트 미리보기</h2>
+        <span class="role">30만 가치 증명 · 선택 신뢰 부스터</span>
+      </div>
+      <p class="screen-link">in ← <b>체커/랜딩/요금</b> · out → <b>회원가입 → 브랜드 프로필</b></p>
+
+      <div class="frame">
+        <div class="chrome">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">japan-growth-studio.app/report/sample</span>
+        </div>
+        <div class="pad-lg">
+          <div class="banner ok" style="margin-bottom:16px;"><span class="bi" aria-hidden="true">✓</span><span>이 샘플은 <b>실제 카피로 생성</b>한 진단 견본입니다(예시 브랜드). 전체 리포트는 9블록으로 제공됩니다.</span></div>
+
+          <div class="rep-block">
+            <div class="rep-label"><span class="tagk">블록 0</span><span class="tt">품의용 요약 표지</span></div>
+            <div class="rep-body">
+              <div class="grid g2">
+                <div><p class="muted" style="font-size:12px;">종합 진단</p><p style="font-size:34px;font-weight:700;color:var(--heading);font-variant-numeric:tabular-nums;">18<span style="font-size:15px;color:var(--secondary);">/100</span></p><p class="muted" style="font-size:12px;">약기법 위반 다수 · 일본 상세 관례 미충족</p></div>
+                <div class="card card-soft">
+                  <p style="font-size:12px;font-weight:700;color:var(--heading);">다음 단계 · 고정가</p>
+                  <p class="muted" style="font-size:11.5px;margin-top:6px;line-height:1.7;">① 진단 <b>30만</b>(고정) → ② 마케팅 스튜디오 <b>월 20만</b>(첫 달 진단비 공제) → ③ 운영은 ②구독 내 확장. <b>견적 왕복 없이 고정가.</b></p>
+                </div>
+              </div>
+              <p class="muted" style="font-size:11px;margin-top:10px;">※ "상사에 그대로 제출" 가능한 품의용 표지. 견적 불투명 이탈을 해소하는 장치.</p>
+            </div>
+          </div>
+
+          <div class="rep-block">
+            <div class="rep-label"><span class="tagk">블록 3</span><span class="tt">약기법 전수 감사표</span><span class="muted" style="font-size:11px;margin-left:auto;">최고 만족 · 30만 정당화 핵심</span></div>
+            <div class="rep-body" style="padding:0;">
+              <table class="audit">
+                <thead><tr><th style="width:38%">원문 표현</th><th style="width:16%">판정</th><th>조항 근거 · 합법 대체</th></tr></thead>
+                <tbody>
+                  <tr><td lang="ja">シミが消える</td><td><span class="verdict no">불가</span></td><td>효능 범위 초과 → 「メラニンの生成を抑え、シミを防ぐ」</td></tr>
+                  <tr><td lang="ja">10歳若返る</td><td><span class="verdict no">불가</span></td><td>誇大広告 → 표현 삭제·대체</td></tr>
+                  <tr><td lang="ja">敏感肌にも安心</td><td><span class="verdict cond">조건부</span></td><td>단정 회피 시 조건부 가능 → 「肌にやさしい設計」</td></tr>
+                  <tr><td lang="ja">乾燥による小じわを目立たなくする</td><td><span class="verdict ok">가능</span></td><td>2011 통지 승인 표현</td></tr>
+                </tbody>
+              </table>
+              <div style="padding:12px 16px;border-top:1px solid var(--border-soft);font-size:11px;color:var(--secondary);">1차 스크리닝(문장 재설계 관점) · 법적 확정 판정 아님 · 상장 전 전문가 확인 권고 · <b style="color:var(--primary-strong)">실명 검수자 서명</b>(정책 확정 예정).</div>
+            </div>
+          </div>
+
+          <div class="rep-block locked">
+            <div class="rep-label"><span class="tagk">블록 7</span><span class="tt">NG/OK 재작성 · JP+KR 병기</span></div>
+            <div class="rep-body">
+              <div class="ba">
+                <div class="before"><div class="lbl">NG(원문)</div><p lang="ja">シミが消える美白クリームで、塗るだけ10歳若返る</p></div>
+                <div class="after"><div class="lbl">OK(재작성)</div><p lang="ja">メラニンにアプローチし、明るく澄んだ印象へ導く美白※クリーム</p><span class="kr">(한국어 역해설: 멜라닌에 작용해 밝고 맑은 인상으로 이끄는 미백 크림. 일본어를 못 읽어도 검수 가능)</span></div>
+              </div>
+              <div class="veil"><a class="lockmsg" href="#s5">🔒 전체 재작성 5쌍은 리포트에서 · 전체 진단 받기</a></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:20px;justify-content:center;flex-wrap:wrap;">
+            <a href="#s5" class="btn btn-primary">이 진단, 내 브랜드로 받기</a>
+            <a href="#s4" class="btn btn-secondary">요금 보기</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <p class="note" data-n="1"><b>실물이 신뢰다:</b> 블록0·3·7은 시뮬 6인이 "30만 값한다"로 지목한 핵심이라 미리보기에 전면 배치.</p>
+        <p class="note fix" data-n="2"><b>[반영] veil 클릭화:</b> 잠금 메시지를 링크(`&lt;a&gt;`)로 → 전환 손실 감소.</p>
+        <p class="note ask" data-n="3"><b>디자이너:</b> 감사표 모바일 반응형(가로 스크롤 vs 카드화), veil 강도.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════ 4. 요금 (공개) ═══════════ -->
+    <section class="screen" id="s4">
+      <div class="screen-head">
+        <span class="screen-num">공개 4</span>
+        <h2>요금</h2>
+        <span class="role">고정가 퍼널 · 견적 왕복 없음</span>
+      </div>
+      <p class="screen-link">in ← <b>랜딩/샘플/체커</b> · out → <b>회원가입</b></p>
+
+      <div class="frame">
+        <div class="chrome">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">japan-growth-studio.app/pricing</span>
+        </div>
+        <div class="pad-lg">
+          <div style="text-align:center;margin-bottom:26px;">
+            <p class="eyebrow">Pricing</p>
+            <p style="font-size:22px;font-weight:700;color:var(--heading);letter-spacing:-.01em;margin-top:6px;">고정가입니다. 견적 왕복이 없습니다.</p>
+            <p class="muted" style="font-size:13px;margin-top:6px;">지금 단계에 맞는 축부터. 모든 유료 플랜에 약기법 1차 체크 포함.</p>
+          </div>
+
+          <ul class="tiers">
+            <li class="tier">
+              <h3>Free</h3>
+              <p class="for">일본 진출이 처음이라 감부터 잡고 싶을 때</p>
+              <p class="price tnum">0원</p>
+              <ul class="includes">
+                <li>일본 진출 마케팅 체크리스트</li>
+                <li>무료 약기법 체커 (가입 시 월 3회)</li>
+                <li>카테고리별 Before/After 사례</li>
+              </ul>
+              <a class="btn btn-secondary btn-block btn-sm" href="#s5">무료로 시작</a>
+            </li>
+            <li class="tier">
+              <h3>Report</h3>
+              <p class="for">큰돈 쓰기 전, 방향부터 확인하고 싶을 때</p>
+              <p class="price tnum">30만 원 <small>/ 1회</small></p>
+              <ul class="includes">
+                <li class="plus">FREE 포함 +</li>
+                <li>진단 리포트 전체 9블록 (페르소나·USP 재정의)</li>
+                <li>약기법 전수 감사 + 합법 대체 표현</li>
+                <li>NG/OK 재작성 · 한국어 병기 · 품의용 PDF</li>
+                <li>영업일 7일 내 · 보완 1회</li>
+              </ul>
+              <a class="btn btn-secondary btn-block btn-sm" href="#s3">샘플 먼저 보기</a>
+            </li>
+            <li class="tier tier-featured">
+              <span class="badge">추천</span>
+              <h3>Growth</h3>
+              <p class="for">진단대로 콘텐츠를 만들어야 할 때</p>
+              <p class="price tnum">월 20만 원</p>
+              <p class="bridge">첫 달 진단비 30만 공제</p>
+              <ul class="includes">
+                <li class="plus">REPORT 포함 +</li>
+                <li>마케팅 스튜디오 · 상세페이지 전환</li>
+                <li>썸네일·인스타 피드 생성</li>
+                <li>브랜드 자산 관리 · 분기 재점검</li>
+              </ul>
+              <a class="btn btn-primary btn-block btn-sm" href="#s5">이 플랜으로 시작</a>
+            </li>
+            <li class="tier">
+              <h3>Scale</h3>
+              <p class="for">운영·매칭까지 한곳에서 관리할 때</p>
+              <p class="price tnum">추후 <small>공개</small></p>
+              <ul class="includes">
+                <li class="plus">GROWTH 포함 +</li>
+                <li>일본 기업 매칭 (유통·커머스)</li>
+                <li>약기법 상시 모니터링</li>
+                <li>성과 판별 시스템 β (검토)</li>
+              </ul>
+              <a class="btn btn-secondary btn-block btn-sm" href="#s5">도입 상담</a>
+            </li>
+          </ul>
+          <p class="pricing-note"><strong>대행사 계약처럼 무겁지 않습니다.</strong> 모든 플랜 고정가 · 견적 왕복 없이 시작 · 언제든 해지. 품의용 소개서·견적서 PDF 제공.</p>
+        </div>
+      </div>
+
+      <div class="notes">
+        <p class="note fix" data-n="1"><b>[반영] 브릿지 카피:</b> Growth 배지 옆 "첫 달 진단비 공제"로 '결과물 전 월정액' 마찰 상쇄.</p>
+        <p class="note ask" data-n="2"><b>[플래그] featured 위치:</b> 검증 퍼널은 'Report 먼저'라 추천을 Report로 옮길지 A/B는 팀 결정(ux-review C5).</p>
+        <p class="note" data-n="3"><b>배지 대비:</b> 소형 흰 텍스트 배지는 `#D93636` 배경(코랄+작은 흰텍스트 금지).</p>
+      </div>
+    </section>
+
+    <!-- ═══════════ 5. 로그인 / 회원가입 (인증) ═══════════ -->
+    <section class="screen" id="s5">
+      <div class="screen-head">
+        <span class="screen-num">인증 5</span>
+        <h2>로그인 / 회원가입</h2>
+        <span class="role">신규 화면 · 가입 = 온보딩 시작</span>
+      </div>
+      <p class="screen-link">in ← <b>체커/샘플/요금 CTA</b> · out(가입) → <b>브랜드 프로필</b> / out(로그인) → <b>대시보드</b></p>
+
+      <div class="frame">
+        <div class="chrome">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">japan-growth-studio.app/signup</span>
+        </div>
+        <div class="pad-lg">
+          <div class="authcol">
+            <!-- 회원가입 탭(활성) -->
+            <div class="authcard" style="margin:0;">
+              <div class="authtabs" role="tablist" aria-label="인증">
+                <button role="tab" aria-selected="false">로그인</button>
+                <button role="tab" aria-selected="true">회원가입</button>
+              </div>
+              <div class="field">
+                <label for="suEmail">이메일 <span class="req">*</span></label>
+                <input id="suEmail" class="input" type="email" placeholder="you@brand.com" autocomplete="email">
+                <p class="field-help">로그인 ID로 사용됩니다.</p>
+              </div>
+              <div class="field">
+                <label for="suPw">비밀번호 <span class="req">*</span></label>
+                <input id="suPw" class="input is-success" type="password" placeholder="영문·숫자 포함 8자 이상" autocomplete="new-password">
+                <p class="field-success">사용 가능한 비밀번호입니다.</p>
+              </div>
+              <div class="field">
+                <label for="suBrand">브랜드명 <span class="req">*</span></label>
+                <input id="suBrand" class="input is-error" type="text" placeholder="예) 글로우리프" autocomplete="organization" aria-describedby="suBrandErr">
+                <p class="field-error" id="suBrandErr"><span aria-hidden="true">✕</span> 브랜드명을 입력해 주세요.</p>
+              </div>
+              <label style="display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:var(--secondary);margin-bottom:8px;">
+                <input type="checkbox"> <span>(필수) 서비스 이용약관 및 개인정보 수집·이용에 동의합니다.</span>
+              </label>
+              <div class="banner err" style="margin-bottom:12px;"><span class="bi" aria-hidden="true">!</span><span>약관 동의가 필요합니다. (상태 예시)</span></div>
+              <a href="#s6" class="btn btn-primary btn-block">가입하고 브랜드 등록 시작</a>
+              <div class="divider">또는</div>
+              <div class="social">
+                <a href="#s6" class="btn btn-secondary btn-block btn-sm">Google로 계속하기</a>
+                <a href="#s6" class="btn btn-secondary btn-block btn-sm">카카오로 계속하기</a>
+              </div>
+            </div>
+
+            <!-- 로그인 탭 상태 예시 -->
+            <div class="authcard" style="margin:0;">
+              <div class="authtabs" role="tablist" aria-label="인증(로그인 탭 예시)">
+                <button role="tab" aria-selected="true">로그인</button>
+                <button role="tab" aria-selected="false">회원가입</button>
+              </div>
+              <p class="muted" style="font-size:11px;margin-bottom:12px;">▽ 로그인 탭 상태 예시</p>
+              <div class="field">
+                <label for="liEmail">이메일</label>
+                <input id="liEmail" class="input" type="email" placeholder="you@brand.com" autocomplete="email">
+              </div>
+              <div class="field">
+                <label for="liPw">비밀번호</label>
+                <input id="liPw" class="input is-error" type="password" placeholder="비밀번호" autocomplete="current-password" aria-describedby="liErr">
+                <p class="field-error" id="liErr"><span aria-hidden="true">✕</span> 이메일 또는 비밀번호가 올바르지 않습니다.</p>
+              </div>
+              <a href="#s6" class="btn btn-primary btn-block">로그인</a>
+              <p class="muted" style="font-size:11.5px;text-align:center;margin-top:12px;"><a class="tlink" href="#s5">비밀번호 찾기</a></p>
+              <div class="banner info" style="margin-top:10px;"><span class="bi" aria-hidden="true">i</span><span>이미 가입된 이메일로 가입 시도 시 → 로그인 탭으로 안내(상태 예시).</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <p class="note fix" data-n="1"><b>[반영] 로그인 탭·분기:</b> 로그인 폼 렌더 + 로그인 실패/중복 이메일 예시 + label for/id + tablist ARIA.</p>
+        <p class="note fix" data-n="2"><b>[반영] 약관 미동의:</b> 제출 시 에러 배너 예시.</p>
+        <p class="note ask" data-n="3"><b>[플래그]:</b> 소셜 로그인 제공 여부 · 비밀번호 규칙 정책 · 리드 저장 방식(spec §8).</p>
+      </div>
+    </section>
+
+    <!-- ═══════════ 6. 브랜드 프로필 등록 (온보딩) ═══════════ -->
+    <section class="screen" id="s6">
+      <div class="screen-head">
+        <span class="screen-num">온보딩 6</span>
+        <h2>브랜드 프로필 등록</h2>
+        <span class="role">공통 엔티티 생성 · 진단 전 자산 수집</span>
+      </div>
+      <p class="screen-link">in ← <b>회원가입</b> · out → <b>진단 리포트 입력폼(① Tier 0, 프리필)</b></p>
+
+      <div class="frame">
+        <div class="chrome">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">japan-growth-studio.app/onboarding</span>
+          <span class="vp">2 / 4 단계</span>
+        </div>
+        <div class="pad-lg">
+          <div class="banner info" style="margin-bottom:16px;"><span class="bi" aria-hidden="true">i</span><span><b>2단계까지 작성했어요. 이어서 작성할까요?</b> (임시저장 복귀 상태 예시)</span></div>
+
+          <div class="steps">
+            <span class="s done"><b>✓</b> 브랜드 기본</span><span class="sep">›</span>
+            <span class="s on"><b>2</b> 채널·판매페이지</span><span class="sep">›</span>
+            <span class="s"><b>3</b> 제품 문서</span><span class="sep">›</span>
+            <span class="s"><b>4</b> 진단 요청</span>
+          </div>
+
+          <div class="grid g2" style="align-items:start;">
+            <div>
+              <div class="field">
+                <label for="obBrand">브랜드명 <span class="req">*</span></label>
+                <input id="obBrand" class="input" value="글로우리프" placeholder="예) 글로우리프">
+              </div>
+              <div class="field">
+                <span id="obCatL" style="display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;">카테고리 <span class="req">*</span> <span class="hint">대표 1개 · 리포트 채점 키</span></span>
+                <div class="chips" role="radiogroup" aria-labelledby="obCatL">
+                  <button type="button" class="chip" role="radio" aria-checked="true">스킨케어 / スキンケア</button>
+                  <button type="button" class="chip" role="radio" aria-checked="false">메이크업 / メイク</button>
+                  <button type="button" class="chip" role="radio" aria-checked="false">선케어 / 日焼け止め</button>
+                  <button type="button" class="chip" role="radio" aria-checked="false">클렌징 / クレンジング</button>
+                </div>
+              </div>
+              <div class="field">
+                <span id="obTagL" style="display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;">포지셔닝 태그 <span class="opt">(선택·복수)</span> <span class="hint">카테고리와 별개</span></span>
+                <div class="chips" role="group" aria-labelledby="obTagL">
+                  <button type="button" class="chip" role="checkbox" aria-checked="false">더마</button>
+                  <button type="button" class="chip" role="checkbox" aria-checked="true">클린·비건</button>
+                  <button type="button" class="chip" role="checkbox" aria-checked="false">남성</button>
+                </div>
+              </div>
+              <div class="field">
+                <span id="obPcL" style="display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;">제품 분류 <span class="req">*</span> <span class="hint">허용 표현이 다릅니다</span></span>
+                <div class="chips" role="radiogroup" aria-labelledby="obPcL">
+                  <button type="button" class="chip" role="radio" aria-checked="true">화장품</button>
+                  <button type="button" class="chip" role="radio" aria-checked="false">의약외품</button>
+                  <button type="button" class="chip" role="radio" aria-checked="false">건강식품</button>
+                  <button type="button" class="chip" role="radio" aria-checked="false">잘 모르겠음</button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="obKrHome">한국 채널 · 홈페이지/판매 <span class="hint">URL</span></label>
+                <input id="obKrHome" class="input" placeholder="https://smartstore.naver.com/...">
+              </div>
+              <div class="field">
+                <label for="obKrSns">한국 채널 · SNS <span class="opt">(선택)</span></label>
+                <input id="obKrSns" class="input" placeholder="https://instagram.com/...">
+              </div>
+              <div class="field">
+                <label for="obJp">일본 채널 <span class="opt">(선택)</span> <span class="hint">Qoo10·라쿠텐·아마존JP</span></label>
+                <input id="obJp" class="input" placeholder="https://www.qoo10.jp/...">
+              </div>
+            </div>
+
+            <div>
+              <div class="field">
+                <span style="display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;">상세페이지 이미지 / 문서 <span class="opt">(선택)</span> <span class="hint">진단 정확도 ↑</span></span>
+                <label class="filelabel" for="obFile">
+                  <input id="obFile" type="file" multiple accept="image/png,image/jpeg,application/pdf">
+                  파일을 끌어다 놓거나 클릭해서 업로드<br>
+                  <span style="font-size:11px;">PNG · JPG · PDF · 상세페이지 캡처</span>
+                </label>
+              </div>
+              <div class="field">
+                <label for="obDoc">제품 관리 정보 <span class="opt">(선택)</span> <span class="hint">상품명·용량·규격·바코드</span></label>
+                <textarea id="obDoc" class="textarea" placeholder="상품명 / 용량 / 원가·판매가(JPY) / 국가별 바코드 / 주요 성분…"></textarea>
+              </div>
+              <div class="field">
+                <label for="obOffline">오프라인 이력 <span class="opt">(선택)</span></label>
+                <input id="obOffline" class="input" placeholder="전시회·박람회·팝업스토어 기록">
+              </div>
+              <div class="card card-tint" style="font-size:12px;">
+                <b style="color:var(--heading)">왜 이렇게 많이 물어보나요?</b><br>
+                <span class="muted">우리는 번역이 아니라 <b style="color:var(--heading)">재설계</b>를 합니다. 브랜드 맥락이 많을수록 일본 구매자에게 맞는 USP를 정확히 도출합니다. 선택 항목은 나중에 채워도 됩니다.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="banner ok" style="margin-top:18px;"><span class="bi" aria-hidden="true">✓</span><span>여기서 만든 <b>브랜드 프로필</b>은 진단·스튜디오·운영 3축이 함께 사용합니다. 리포트 입력폼(Tier 0)에 <b>카테고리·제품분류·채널이 프리필</b>됩니다.</span></div>
+
+          <div style="display:flex;gap:10px;margin-top:20px;justify-content:space-between;flex-wrap:wrap;">
+            <a href="#s6" class="btn btn-text">이전</a>
+            <div style="display:flex;gap:10px;">
+              <a href="#s6" class="btn btn-secondary">임시 저장</a>
+              <a href="#s6" class="btn btn-primary">다음 · 제품 문서 →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <p class="note fix" data-n="1"><b>[반영] 택소노미 정본:</b> 카테고리=리포트 엔진 키(일·한 병기), 마케팅 속성은 '포지셔닝 태그'로 분리, 제품분류 4종 통일.</p>
+        <p class="note fix" data-n="2"><b>[반영] 접근성:</b> chip=버튼(role), 한국 채널 2필드 분리·개별 label, dropzone=네이티브 file input+label.</p>
+        <p class="note fix" data-n="3"><b>[반영] 복귀·프리필:</b> "이어서 작성" 배너 + 리포트 Tier0 프리필 명시(중복 입력 제거).</p>
+        <p class="note ask" data-n="4"><b>디자이너:</b> 업로드 진행/성공/실패 상태 · 복귀 단계 UX · 모바일 단일 컬럼.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════ 범례 ═══════════ -->
+    <div class="legend">
+      <b>이 와이어프레임 읽는 법 · 디자이너 인계 메모</b><br>
+      · 저채도 골격입니다. 정밀 스타일·간격·이미지·모션은 <code>design/DESIGN.md</code> 시스템으로 완성해 주세요.<br>
+      · <b>CTA 코랄 정책</b>: <code>#FF6464</code> 배경은 large/bold 흰 텍스트에만. 작은 인터랙티브 텍스트·링크·소형 배지는 <code>#D93636</code>. 파란 primary 금지.<br>
+      · <span class="note fix" style="padding-left:22px;position:relative;display:inline;">✓ 표시</span> = 이번 UX 점검(ux-review.md) 반영 항목. <span style="color:var(--primary-strong);font-weight:600;">? 표시</span> = 디자이너/팀 결정 필요.<br>
+      · 컴포넌트는 발명하지 말고 기존 인벤토리 사용. 카피는 한국어 B2B(일본어는 예시만), 미확정 수치 금지.<br>
+      · 상세 명세는 <b>public-onboarding-spec.md</b>, 점검 상세는 <b>ux-review.md</b>.
+    </div>
+  </div>
+
+</body>
+</html>
