@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* 기능 검증 빌드 최소 스타일 — 디자인 확정(design/) 후 교체 전제.
+   접근성 기본(포커스 링)만 전역으로 잡는다. */
+
+:focus-visible {
+  outline: 2px solid #ff6464; /* design 시스템 primary — public-onboarding-spec §0 */
+  outline-offset: 2px;
+}
+
+body {
+  @apply bg-white text-neutral-900 antialiased;
+}

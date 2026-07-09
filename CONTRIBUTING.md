@@ -60,3 +60,14 @@ Next의 SWC 바이너리나 eslint의 `unrs-resolver` 같은 네이티브 모듈
 - 실제 런타임 확인은 **정상 머신 또는 CI**에서.
 - 근본 해결 시도: 백신 실시간 검사에서 프로젝트 폴더/Node 예외 등록, 또는 `npm install` 재시도, Node 버전 변경.
 - `npm install` 이 `unrs-resolver` postinstall 에서 크래시하면 `npm install --ignore-scripts` 로 설치(앱 실행에는 영향 없음, eslint 리졸버만 비활성).
+
+### (2026-07-09 규명) 위 세그폴트의 실제 원인 — **한글 경로에서 대용량 JS 실행 차단**
+분리 실험 결과: 같은 파일이 `%TEMP%`·`C:\dev` 등 **영문 경로에서는 정상 실행**되고, 이 저장소의 한글 경로에서만 access violation(0xC0000005)으로 죽습니다. 파일 **읽기**는 통과하고 **실행(대용량 JS·네이티브 바이너리)** 만 차단됩니다. 영향: `tsc`(typescript 7 네이티브 포함), `tsx`/`vitest`(esbuild), `next dev`.
+
+이 저장소의 대응(이미 반영됨):
+- **typescript는 5.x 고정**(7은 네이티브 컴파일러라 같은 차단에 걸림), 테스트는 vitest 대신 **node 내장 러너**(`npm run test` = tsc 컴파일 → `node --test`).
+- **실행·검증은 영문 경로 미러에서**: 아래 한 줄로 `C:\dev\jgs-run`에 미러 후 그 안에서 `npm run dev`/`typecheck`/`test` 실행. **소스 수정·git은 항상 원본(이 폴더)에서** 하고, 수정 후 미러를 다시 동기화한다(증분이라 수 초).
+  ```powershell
+  robocopy "<이 저장소 경로>" "C:\dev\jgs-run" /MIR /XD .git .next .tmp-node .data node_modules\.cache /NFL /NDL /NJH /NP
+  ```
+- 근본 해결: 저장소를 영문 경로로 이전(clone)하거나 보안SW 예외 등록 — 팀 결정 필요.

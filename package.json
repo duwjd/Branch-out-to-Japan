@@ -4,6 +4,13 @@
   "private": true,
   "description": "일본 시장 진출 브랜드 전환 스튜디오 — 데이터 수집 도구 포함",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc -p tsconfig.node.json && node --test \".tmp-node/lib/**/*.test.js\"",
+    "aggregate": "node scripts/aggregate/aggregate-benchmark.mjs",
+    "report:cli": "tsc -p tsconfig.node.json && node .tmp-node/scripts/run-report.js",
     "crawl:rakuten-api": "node scripts/crawl/rakuten.mjs",
     "crawl:rakuten-browser": "node scripts/crawl/rakuten-browser.mjs",
     "crawl:amazon": "node scripts/crawl/amazon.mjs",
@@ -12,8 +19,21 @@
     "crawl:ocr": "node scripts/crawl/ocr-detail.mjs",
     "build:lexicon": "node scripts/crawl/build-lexicon.mjs"
   },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
+    "@supabase/supabase-js": "^2.110.2",
+    "next": "^16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
   "devDependencies": {
-    "@anthropic-ai/sdk": "^0.68.0",
-    "playwright": "^1.49.0"
+    "@tailwindcss/postcss": "^4.3.2",
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "playwright": "^1.49.0",
+    "postcss": "^8.5.16",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^5.9.3"
   }
 }
