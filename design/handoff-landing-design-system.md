@@ -195,3 +195,26 @@ Figma `Sections`(`45:3`) · `Landing / Desktop`(`50:3`) · `Landing / Mobile`(`5
 - **`#FF6464` + 흰 텍스트 ≈ 2.9:1 → WCAG AA(4.5:1)·대형 텍스트(3:1) 모두 근소 미달.** 이번 변경은 "에러처럼 안 보이게" 하는 **브랜드 우선 결정**.
 - 완화책: CTA는 **large/bold 흰 텍스트** 사용, hover 시 `#D93636`로 대비 보강, **작은 인터랙티브 텍스트·링크는 `#D93636`** 사용.
 - **[동기화 필요] `design/DESIGN.md` ↔ `design/references/wanted-design.md`** — 이번엔 DESIGN.md만 수정해 두 파일이 diverge. 필요 시 wanted-design.md 동기화.
+
+---
+
+## 12. 업데이트 (2026-07-09) — Refined Landing v2 DS 정합성 감사 & 정리
+
+> 대상: Figma 페이지 **`04 Screen Refinement`(`110:298`)** — 기존 `Landing`(`50:2`)과 **별개로 새로 그린 리파인 랜딩**(Desktop `110:2201` / Mobile `110:2676`). DS를 재사용하지 않고 직접 그려져 정합성 이슈가 있었음. 전수 감사·정리 문서: [`design/audit-refined-landing-ds.md`](./audit-refined-landing-ds.md).
+
+### 이번 세션 완료
+1. **CTA 컬러 정정** — 버튼 오프스펙 `#f04e4e` 25개 → coral `#ff6464`(변수 바인딩). 텍스트 링크 CTA는 `coral/strong #d93636`.
+2. **① 컴포넌트(부분)** — 채움형 CTA **17개 → DS `Button`(Primary) 인스턴스화**(데스크톱+모바일).
+3. **② 타이포(부분)** — **232개 텍스트 스타일 연결 + 9개 크기 정규화**. 오프스케일 제목 34→32·30→24·22→20·18→20.
+4. **③ 컬러 바인딩/라디우스** — raw fill **555개 변수 바인딩(96%)** + 카드 **radius 16→12**.
+
+### 보류/백로그 (다음 세션)
+- **[deferred] ④ 그리드·컨테이너** — 1185폭+컬럼그리드. 정렬 재배치 시각영향 커서 **나중에 검토**.
+- **[수동] ⑤ 외부 UI 킷 detach** — Plugin API 불가. Figma Assets 패널에서 Material 3/Simple DS/Apple 수동 제거(인스턴스 0, 영향 없음).
+- **[별도 세션 · 큰 작업]** DS 자체 확장 필요:
+  - ~~**컴포넌트 슬롯화** → 카드/인풋/배지 인스턴스화(①잔여).~~ ✅ **완료(2026-07-10)**: Button 라인변형·**Input 5필드**·**Badge(Status Pill) 10**·**Card 6타입 16장**(PricingCard/ReportCard/CheckerMock/ResultPreview/BeforeCard/AfterCard) 인스턴스화 + `success-tint` 토큰·아이콘 4종·`Status Pill` 세트 신설. 상세: `audit-refined-landing-ds.md` §1·§8.
+  - **타이포 램프에 굵기·히어로 변형 추가** → 미연결 텍스트(강조·히어로 ~100개) 스타일화(②잔여).
+  - **오프토큰 토큰 신설**(success-tint·bg/inverse·다크푸터 그레이) → 잔여 21 fill 바인딩(③잔여).
+  - 상세 백로그: `audit-refined-landing-ds.md` §8.
+
+> ⚠️ Figma는 git 대상 아님 — 위 상태는 본 문서와 `audit-refined-landing-ds.md`의 node id로 참조(§8 정책 동일).
