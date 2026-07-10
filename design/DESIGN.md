@@ -327,11 +327,22 @@ Detailed input variants (text/number/textarea/search) live in the `@wanteddev/wd
 - Header height: 56px on desktop, 52px on mobile
 
 ### Grid & Container
-- Max content width: 1185px (observed on `JobList_JobList__filter` div)
-- Job feed grid: 4 columns at ≥1185px / 3 at ≥768px / 2 at ≥480px / 1 at <480px
-- Card width at 4-col: ~252px (matches `AdCard_AdCard__thumbnail` width)
-- Gutter: 20px horizontal, 24px vertical
-- Page horizontal padding: 0 (cards flush to grid edge) with internal card padding handling visual breathing room
+
+> **본 서비스 표준 그리드 (Refined Landing 실측 기준, 2026-07-10).** 아래는 Wanted 잡피드 그리드(1185/4-col job cards)를 참조하되 실제 제품/랜딩에 맞춰 확정한 **12컬럼 그리드**다. 제품 UI·랜딩은 이 그리드를 표준으로 한다.
+
+- **Frame(뷰포트)**: Desktop `1200` / Mobile `390`
+- **Outer margin(좌우)**: Desktop `40` / Mobile `20`
+- **Content width**: Desktop **`1120`** (1200 − 40×2) / Mobile `350`
+- **Columns**: **12** (Desktop) / **4** (Mobile), alignment `STRETCH`
+- **Gutter**: **`20px`** (Desktop) / `16px` (Mobile)
+- **Column width**: Desktop **`75px`** = (1120 − 11×20) / 12
+- **Span 관례**: 3열 카드 = **4컬럼**(360px = 4×75+3×20) · 2열 카드 = **6컬럼**(550px)
+- Figma 레이아웃 그리드 적용됨 — Desktop `110:2201`(12/20/40), Mobile `110:2676`(4/16/20). 상세: `design/audit-refined-landing-ds.md` §4.
+
+<!-- (참조·구버전) Wanted 잡피드: max 1185 / 4-col(≥1185)·3(≥768)·2(≥480)·1(<480) / card ~252 / gutter 20×24. 잡보드 전용이라 본 서비스 표준에서 제외. -->
+
+### 그리드 정합 (JobCard 잔재 정리)
+- 위 12컬럼이 유일 표준. `1185/4-col`·`JobCard 252px` 등 잡피드 수치는 참조 이력으로만 남기고 신규 화면에 사용하지 않는다.
 
 ### Whitespace Philosophy
 - **Generous filter zone**: 45px above the filter row, 20px below — the filter UI deserves emphasis as the primary navigation pattern.
