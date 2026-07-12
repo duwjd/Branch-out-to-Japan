@@ -65,6 +65,46 @@ tokens:
   components_harvested: true
 ---
 
+> **⚠ 문서 성격 (2026-07-13 갱신).** 이 문서는 원티드 Montage 레퍼런스를 **시드**로 시작했다. 그러나 **본 서비스 디자인 시스템은 스티비(Stibee) coral `#ff6464` 기반으로 확정**되었다. 확정 토큰·컴포넌트의 스냅샷은 아래 **§0 Figma 구현 현황**과 [design-system.md](design-system.md)이다. §1–§15에 남아 있는 원티드 브랜드 서사(**Wanted Blue `#0066FF`**·JobCard·합격보상금·Wanted Sans·페르소나 등)는 **시드 레퍼런스 잔재**로, 본 서비스에는 적용하지 않는다 — 브랜드 원색은 blue가 아니라 **coral**이다. (frontmatter의 `primary_color: #ff6464`, §5 그리드, §7 Do/Don't는 이미 coral 기준.)
+
+## 0. Figma 구현 현황 (확정)
+
+### Figma 원본 (source of truth)
+- 파일: `2조 생존자들` — fileKey `C3FYvw7rhJrrHK4HgCZzBt`
+- 변수 계층: `1. Primitives`(원색) → `2. Semantic`(역할) → `3. Scale`(space·radius). 브랜드 원색 `coral/base #ff6464`, hover `coral/strong #d93636`, 틴트 `coral/tint #fff8f8`.
+- 로컬 컴포넌트·스타일 페이지: **Components (Local · Stibee)**
+
+### 로컬 메인 컴포넌트
+전 variant가 `2. Semantic`/`3. Scale` 토큰(색·padding·gap·radius)에 바인딩됨.
+
+| 컴포넌트 | Variants |
+|---|---|
+| **Button** | Type(Primary·Secondary·Tertiary) × State(Default·Hover·Disabled) |
+| **TextInput** | Default·Focus·Error·Disabled |
+| **Select** | Default·Focus·Disabled |
+| **Checkbox / Radio** | Unchecked·Checked·Disabled |
+| **Chip** | Default·Selected |
+| **Badge** | Neutral·Success·Warning·Error |
+| **Card** | Default·Hover(Elevation/Floating)·Selected(coral border) |
+
+> 인풋 포커스/선택 아웃라인은 브랜드 coral이 아니라 **회색**(`Cool Neutral/50 #70737c`). CTA·칩·Solid 아이콘버튼만 coral.
+
+### Effect Styles (쉐도우)
+- `Elevation / Floating` = `0 4 12 rgba(0,0,0,0.08)` — 드롭다운·팝오버·카드 hover
+- `Elevation / Modal` = `0 8 24 rgba(0,0,0,0.12)` — 다이얼로그·시트
+
+### Grid Styles (반응형)
+- `Grid / Wide (≥1185)` — 12col · gutter 32 · 1120 centered
+- `Grid / Desktop (768–1185)` — 12col · gutter 24 · margin 40 (STRETCH)
+- `Grid / Tablet (480–768)` — 8col · gutter 20 · margin 32 (STRETCH)
+- `Grid / Mobile (<480)` — 4col · gutter 16 · margin 20 (STRETCH)
+
+> §5 Grid & Container(본 서비스 표준 1120/12)·§6 Depth & Elevation(Floating/Modal)과 정합.
+
+### 원티드 → 스티비 이전 경위
+- 초기 원티드 Montage 컴포넌트를 복사해 착수했으나, 복사분은 **원격 라이브러리에 연결된 인스턴스**라 메인 편집이 불가했다. 색상은 인스턴스 오버라이드로 스티비화(파일 내 원격 바인딩 0건)했고, 핵심 컴포넌트는 위 표대로 **로컬 메인으로 재구축**해 원격 의존을 제거했다.
+- 상세 스냅샷·근거: [design-system.md](design-system.md).
+
 ## 1. Visual Theme & Atmosphere
 
 Wanted (원티드) is Korea's largest career marketplace — a recruitment platform run by **Wanted Lab** (원티드랩, founded 2015) that brokers matches between 3.6M+ working professionals and 35K+ companies through AI matching, referral bonuses (합격보상금), and a long-form job-posting format that reads more like a company introduction than a classified ad. The product's visual identity rejects the generic "job board" vocabulary (slate grays, stock photography, Times New Roman density) and instead borrows from Korean fintech and SaaS: a single saturated brand blue, a calm white-and-warm-grey canvas, generous whitespace around job cards, and a custom typeface — **Wanted Sans** — built in-house for "all possibilities of working people."
@@ -592,15 +632,16 @@ than transaction-blue") are editorial readings of the design vs Toss's
 
 ## Included Components
 
-The following components are part of this design system:
+The following components are part of this design system (로컬 메인, §0 참조):
 
 - Button
-- Input
-- Table
-- Card
+- TextInput
+- Select
+- Checkbox
+- Radio
+- Chip
 - Badge
-- Tabs
-- Dialog
+- Card
 
 
 ---
