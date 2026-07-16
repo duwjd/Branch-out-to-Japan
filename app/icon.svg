@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="KGLOW">
+<title>KGLOW 심볼</title>
+<defs>
+<linearGradient id="ltm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8570"/><stop offset="1" stop-color="#FF6A57"/></linearGradient>
+<linearGradient id="dkm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E85742"/><stop offset="1" stop-color="#D8402B"/></linearGradient>
+<clipPath id="cpm"><circle cx="100" cy="100" r="100"/></clipPath></defs><g transform="translate(0.00,0.00) scale(1.00000)" clip-path="url(#cpm)">
+      <circle cx="100" cy="100" r="100" fill="url(#ltm)"/>
+      <path d="M -10,114 C 45,138 125,108 210,26 L 210,210 L -10,210 Z" fill="#fff"/>
+      <path d="M -10,128 C 45,152 125,120 210,38 L 210,210 L -10,210 Z" fill="url(#dkm)"/>
+    </g>
+</svg>

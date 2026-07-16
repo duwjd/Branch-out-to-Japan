@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { KglowLogo } from '@/components/brand/Logo';
 
 /**
  * 랜딩(메인) 페이지 — 기능 검증 빌드.
@@ -57,8 +58,8 @@ export default function LandingPage() {
       {/* 1 Header */}
       <header className="sticky top-0 z-10 border-b border-neutral-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <Link href="/" className="text-sm font-bold tracking-tight">
-            Japan Growth Studio
+          <Link href="/" aria-label="KGLOW 홈">
+            <KglowLogo height={22} />
           </Link>
           <nav aria-label="주요 메뉴" className="flex items-center gap-4 text-sm">
             <a href="#service" className="text-neutral-600 hover:text-neutral-900">서비스</a>
@@ -269,7 +270,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-neutral-200">
         <div className="mx-auto max-w-4xl px-6 py-8 text-sm text-neutral-500">
-          Japan Growth Studio — 기능 검증 빌드. 디자인은 확정 후 교체됩니다.
+          KGLOW — 기능 검증 빌드. 디자인은 확정 후 교체됩니다.
           <span className="mx-2">·</span>
           <Link href="/admin/review" className="text-[#D93636] underline">검수자 화면(내부)</Link>
         </div>

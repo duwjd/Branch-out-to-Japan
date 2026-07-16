@@ -1,0 +1,1072 @@
+<!--
+  KGLOW — 브랜드 아이덴티티 문서 (Brand Identity Document)
+  단일 파일 자기완결형. 폰트만 CDN, 이미지는 assets/img/ 상대경로.
+  정본 컬러 = 코랄 시스템(#FF6464 / #D93636 / #FFF8F8). 파랑 primary 금지.
+  이미지 크레딧/라이선스: 문서 하단 §13(브랜드 거버넌스) 참조.
+  최종 갱신: 2026-07-13
+-->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KGLOW — 브랜드 아이덴티티</title>
+<meta name="description" content="한국 뷰티 브랜드의 일본 진출을 돕는 KGLOW의 브랜드 아이덴티티 문서 — 전략·보이스·비주얼 시스템." />
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     TOKENS — 정본 코랄 시스템 (design/DESIGN.md · handoff)
+     ============================================================ */
+  :root{
+    /* Coral primary family */
+    --primary:#FF6464;          /* 브랜드 / 기본 CTA / large-bold 강조 / 장식 */
+    --primary-strong:#D93636;   /* hover·pressed·active·focus / 텍스트 링크·소형 인터랙션(흰 위 AA) */
+    --primary-tint:#FFF8F8;     /* 틴트 면 · CTA 밴드 · 선택 배경 */
+    --primary-tint-2:#FFF0F0;   /* 한 단계 진한 틴트(대비용) */
+
+    /* Ink & surface */
+    --heading:#202124;
+    --body:#414245;
+    --muted:#5F6165;            /* 캡션·부가설명 (흰 위 ≈5.9:1, AA OK) */
+    --secondary:rgba(55,56,60,.61); /* DS 원본 토큰(장식·비필수 메타) */
+    --disabled:#747579;
+    --surface:#ffffff;
+    --surface-subtle:#F6F6F6;
+    --backdrop:#ECEDEF;
+    --divider:#EBEBEB;
+    --hairline:#E4E7EC;
+    --border:rgba(112,115,124,.22);
+    --border-soft:rgba(112,115,124,.14);
+    --brand-black:#14191E;
+
+    /* Semantic */
+    --error:#F0483C; --error-tint:#FDECEB; --error-ink:#A4271D;
+    --success:#00B97C; --success-tint:#E6F6F0; --success-ink:#036C4A;
+    --warning:#FFAB00; --warning-tint:#FFF6E5; --warning-ink:#7A5200;
+
+    /* Marketing accents — 장식 전용, UI 인터랙션 금지 */
+    --accent-orange:#FF5C00; --accent-pink:#FF8EFF; --accent-sky:#00ADFF; --accent-violet:#8364FF;
+
+    /* Type */
+    --font-sans:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo",
+      "Noto Sans KR","Hiragino Sans","Noto Sans JP",sans-serif;
+    --font-jp:"Noto Sans JP","Hiragino Sans",var(--font-sans);
+
+    /* Shape */
+    --r-sm:6px; --r-md:8px; --r-lg:12px; --r-pill:9999px; --radius:12px;
+    --shadow-card:0 1px 2px rgba(32,33,36,.04),0 8px 24px rgba(32,33,36,.06);
+    --shadow-float:0 4px 12px rgba(32,33,36,.08);
+
+    /* Layout */
+    --sidebar:264px;
+    --content:1120px;
+    --ease:cubic-bezier(.22,1,.36,1); /* ease-out-expo-ish */
+
+    /* z-scale */
+    --z-sticky:100; --z-nav:200;
+  }
+
+  /* ============================================================
+     RESET / BASE
+     ============================================================ */
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  @media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
+  body{
+    margin:0;
+    font-family:var(--font-sans);
+    color:var(--body);
+    background:var(--surface);
+    font-size:16px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    font-feature-settings:"tnum" 0;
+  }
+  :lang(ja){font-family:var(--font-jp)}
+  h1,h2,h3,h4{color:var(--heading);line-height:1.28;margin:0;text-wrap:balance;letter-spacing:-.015em}
+  p{margin:0}
+  a{color:var(--primary-strong);text-underline-offset:2px}
+  a:hover{text-decoration:underline}
+  img{max-width:100%;display:block}
+  strong{font-weight:700;color:var(--heading)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,"Courier New",monospace;font-size:.86em;background:var(--surface-subtle);color:var(--heading);padding:1px 6px;border-radius:5px}
+  ::selection{background:var(--primary-tint-2);color:var(--heading)}
+  :focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:3px}
+
+  .skip{position:absolute;left:-9999px;top:8px;background:var(--heading);color:#fff;padding:10px 16px;border-radius:8px;z-index:999}
+  .skip:focus{left:16px}
+
+  /* ============================================================
+     SHELL — sticky sidebar + main
+     ============================================================ */
+  .shell{display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr)}
+
+  .sidebar{
+    position:sticky;top:0;align-self:start;height:100vh;
+    border-right:1px solid var(--hairline);
+    background:var(--surface);
+    padding:28px 22px 24px;
+    display:flex;flex-direction:column;gap:20px;
+    overflow-y:auto;z-index:var(--z-nav);
+  }
+  .brand-lockup{font-size:17px;font-weight:800;color:var(--heading);letter-spacing:-.02em;line-height:1.25}
+  .brand-lockup .dot{color:var(--primary)}
+  .brand-lockup small{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.02em;margin-top:4px}
+
+  .toc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+  .toc a{
+    display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:baseline;
+    text-decoration:none;color:var(--body);
+    padding:7px 10px;border-radius:8px;font-size:13.5px;line-height:1.35;
+    transition:background .18s var(--ease),color .18s var(--ease);
+  }
+  .toc a .n{font-size:11px;font-weight:600;color:var(--disabled);font-variant-numeric:tabular-nums}
+  .toc a:hover{background:var(--surface-subtle);color:var(--heading)}
+  .toc a.active{background:var(--primary-tint);color:var(--primary-strong);font-weight:600}
+  .toc a.active .n{color:var(--primary)}
+  .side-meta{margin-top:auto;font-size:11.5px;color:var(--muted);line-height:1.6;border-top:1px solid var(--hairline);padding-top:16px}
+  .side-meta b{color:var(--body);font-weight:600}
+
+  /* ============================================================
+     MAIN / SECTION RHYTHM
+     ============================================================ */
+  main{min-width:0}
+  .section{padding:clamp(56px,7vw,104px) clamp(24px,5vw,72px);border-bottom:1px solid var(--hairline)}
+  .inner{max-width:var(--content);margin:0 auto}
+  .prose{max-width:46em}
+  .sec-head{margin-bottom:clamp(28px,4vw,44px)}
+  .sec-num{display:block;font-size:clamp(40px,6vw,64px);font-weight:800;line-height:1;color:#FFC9C9;letter-spacing:-.03em;margin-bottom:6px}
+  .sec-head h2{font-size:clamp(26px,3.4vw,38px);letter-spacing:-.02em}
+  .sec-lead{margin-top:14px;font-size:clamp(16px,1.5vw,18px);color:var(--muted);max-width:44em;line-height:1.65}
+  .eyebrow{font-size:12.5px;font-weight:600;color:var(--primary-strong);margin-bottom:10px}
+
+  /* utilities */
+  .grid{display:grid;gap:clamp(16px,2vw,24px)}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  .cols-3{grid-template-columns:repeat(3,1fr)}
+  .cols-4{grid-template-columns:repeat(4,1fr)}
+  .stack{display:flex;flex-direction:column}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);font-size:14px;font-weight:600;color:var(--heading)}
+  .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--primary)}
+  .photo{width:100%;object-fit:cover;border-radius:var(--r-lg);background:var(--surface-subtle);display:block}
+  figure{margin:0}
+  figcaption{font-size:12.5px;color:var(--muted);margin-top:8px}
+  .card{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--r-lg);padding:clamp(18px,2vw,24px);box-shadow:var(--shadow-card)}
+
+  /* ============================================================
+     00 · COVER / HERO
+     ============================================================ */
+  .cover{
+    padding:0;border-bottom:1px solid var(--hairline);
+    background:linear-gradient(180deg,var(--primary-tint) 0%,#fff 100%);
+  }
+  .cover-inner{max-width:var(--content);margin:0 auto;padding:clamp(48px,7vw,96px) clamp(24px,5vw,72px);
+    display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(32px,5vw,64px);align-items:center}
+  .cover-kicker{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--primary-strong);
+    background:#fff;border:1px solid var(--border-soft);padding:7px 14px;border-radius:var(--r-pill);box-shadow:var(--shadow-card)}
+  .cover h1{font-size:clamp(30px,4.6vw,52px);line-height:1.18;letter-spacing:-.028em;margin:22px 0 0}
+  .cover h1 em{font-style:normal;color:var(--primary-strong)}
+  .cover-def{margin-top:22px;font-size:clamp(15px,1.5vw,17px);color:var(--body);max-width:38em;line-height:1.68}
+  .cover-def b{color:var(--heading)}
+  .cover-chips{margin-top:26px}
+  .cover-figure{position:relative}
+  .cover-figure .photo{aspect-ratio:4/5;box-shadow:var(--shadow-float)}
+  .cover-wordmark{font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:-.02em;color:var(--heading)}
+  .cover-wordmark .dot{color:var(--primary)}
+  .cover-badge{position:absolute;left:-14px;bottom:22px;background:#fff;border:1px solid var(--border-soft);border-radius:var(--r-lg);
+    padding:12px 16px;box-shadow:var(--shadow-float);max-width:240px}
+  .cover-badge .k{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:3px}
+  .cover-badge .v{font-size:14px;color:var(--heading);font-weight:700;line-height:1.4}
+  .cover-badge .v .jp{color:var(--primary-strong)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .reveal{opacity:0;transform:translateY(14px);animation:rise .7s var(--ease) forwards}
+    .reveal.d1{animation-delay:.06s}.reveal.d2{animation-delay:.12s}.reveal.d3{animation-delay:.18s}.reveal.d4{animation-delay:.24s}
+    @keyframes rise{to{opacity:1;transform:none}}
+  }
+
+  /* ============================================================
+     01 · STORY  ·  concept illustration
+     ============================================================ */
+  .split{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,4vw,56px);align-items:center}
+  .story-quote{font-size:clamp(19px,2.1vw,24px);line-height:1.5;color:var(--heading);font-weight:600;letter-spacing:-.01em}
+  .story-quote .hl{background:linear-gradient(transparent 62%,var(--primary-tint-2) 62%);padding:0 2px}
+  .story-note{margin-top:18px;color:var(--body);font-size:16px;line-height:1.7}
+  .illus{width:100%;height:auto;display:block;border-radius:var(--r-lg)}
+  .illus-wrap{background:var(--primary-tint);border:1px solid var(--border-soft);border-radius:16px;padding:clamp(22px,3vw,36px)}
+  .mission{margin-top:34px;background:var(--brand-black);color:#fff;border-radius:16px;padding:clamp(24px,3vw,36px)}
+  .mission .k{font-size:12.5px;color:#C9CBCF;font-weight:600;margin-bottom:12px}
+  .mission p{font-size:clamp(17px,1.9vw,21px);line-height:1.55;color:#fff;font-weight:600;letter-spacing:-.01em}
+  .mission p .c{color:#FF8A8A}
+  .axis-head{margin:40px 0 16px;font-size:16px;font-weight:700;color:var(--heading)}
+  .axis{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .ax{background:var(--surface-subtle);border:1px solid var(--border-soft);border-radius:16px;padding:20px 20px 22px}
+  .ax-img{background:var(--primary-tint);border-radius:12px;height:132px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+  .ax-img img{max-height:98px;width:auto}
+  .ax b{font-size:15px;color:var(--heading);display:block}
+  .ax p{margin-top:6px;font-size:13.5px;color:var(--muted);line-height:1.55}
+
+  /* ============================================================
+     02 · TARGET / segments — 비-동일카드 레이아웃(테이블형)
+     ============================================================ */
+  .seg-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14.5px}
+  .seg-table th,.seg-table td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--hairline);vertical-align:top}
+  .seg-table thead th{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.02em;border-bottom:1px solid var(--border)}
+  .seg-table td.tag{white-space:nowrap;font-weight:700;color:var(--heading)}
+  .seg-table td.tag .s{display:inline-block;min-width:30px;color:var(--primary-strong)}
+  .seg-table tr td.pri{color:var(--primary-strong);font-weight:600}
+  .jtbd{margin-top:30px;display:grid;gap:14px}
+  .jtbd li{list-style:none;padding:16px 18px;background:var(--surface-subtle);border-radius:var(--r-lg);font-size:15px;line-height:1.6;color:var(--body)}
+  .jtbd li b{display:block;color:var(--primary-strong);font-size:12.5px;margin-bottom:5px;font-weight:700}
+
+  /* ============================================================
+     03 · PERSONALITY — 3 word moodboard
+     ============================================================ */
+  .persona-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,2vw,22px)}
+  .pcard{border-radius:16px;overflow:hidden;background:var(--surface);border:1px solid var(--border-soft)}
+  .pcard .photo{aspect-ratio:3/4;border-radius:0}
+  .pcard .body{padding:18px 18px 20px}
+  .pcard .w{font-size:22px;font-weight:800;color:var(--heading);letter-spacing:-.02em}
+  .pcard .w .en{font-size:12px;color:var(--muted);font-weight:600;margin-left:7px;letter-spacing:.02em}
+  .pcard .d{margin-top:8px;font-size:14px;color:var(--body);line-height:1.6}
+  .emo{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap}
+  .emo .e{flex:1 1 220px;background:var(--primary-tint);border:1px solid var(--border-soft);border-radius:var(--r-lg);padding:18px 20px}
+  .emo .e b{color:var(--primary-strong);font-size:15px}
+  .emo .e p{margin-top:4px;font-size:14px;color:var(--body)}
+
+  /* ============================================================
+     04 · VOICE & TONE
+     ============================================================ */
+  .vt{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+  .vt .col{border-radius:var(--r-lg);padding:20px 22px;border:1px solid var(--border-soft)}
+  .vt .do{background:var(--success-tint)}
+  .vt .dont{background:var(--surface-subtle)}
+  .vt .col h4{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:14px}
+  .vt .do h4{color:var(--success-ink)}
+  .vt .dont h4{color:var(--muted)}
+  .vt ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+  .vt li{font-size:14.5px;line-height:1.5;color:var(--body)}
+  .vt li .jp,.vt li .kk{display:block}
+  .vt .dont li{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(0,0,0,.2)}
+  .ic{width:17px;height:17px;flex:0 0 auto;vertical-align:-3px}
+  .rule{margin-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+  .rule .r{flex:1 1 240px;border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;background:#fff}
+  .rule .r b{color:var(--heading);font-size:15px}
+  .rule .r p{margin-top:5px;font-size:13.5px;color:var(--muted)}
+  .banwords{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
+  .banword{font-size:13px;color:var(--error-ink);background:var(--error-tint);border:1px solid rgba(240,72,60,.2);padding:6px 12px;border-radius:var(--r-pill);font-weight:600}
+
+  /* ============================================================
+     05 · BEFORE / AFTER  (signature)
+     ============================================================ */
+  .ba{display:grid;gap:clamp(18px,2.4vw,26px)}
+  .ba-row{display:grid;grid-template-columns:150px 1fr 1fr;gap:16px;align-items:stretch;
+    border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--shadow-card)}
+  .ba-thumb{position:relative}
+  .ba-thumb .photo{height:100%;min-height:170px;border-radius:0}
+  .ba-thumb .cat{position:absolute;left:10px;top:10px;background:rgba(20,25,30,.72);color:#fff;font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:var(--r-pill)}
+  .ba-cell{padding:20px 22px;display:flex;flex-direction:column;gap:8px}
+  .ba-cell.before{background:var(--surface-subtle)}
+  .ba-cell.after{background:var(--primary-tint);border-left:1px solid var(--border-soft)}
+  .ba-tag{font-size:11.5px;font-weight:700;letter-spacing:.04em}
+  .ba-cell.before .ba-tag{color:var(--muted)}
+  .ba-cell.after .ba-tag{color:var(--primary-strong)}
+  .ba-jp{font-size:16px;line-height:1.5;color:var(--heading);font-weight:500}
+  .ba-cell.before .ba-jp{color:#6a6c70}
+  .ba-kr{font-size:13px;color:var(--muted);line-height:1.5}
+  .ba-why{margin-top:auto;font-size:12.5px;color:var(--primary-strong);display:flex;gap:6px;align-items:flex-start}
+  .ba-legend{margin-top:20px;font-size:13px;color:var(--muted);background:var(--surface-subtle);border-radius:var(--r-lg);padding:14px 18px;line-height:1.6}
+  .ba-legend b{color:var(--body)}
+
+  /* ============================================================
+     06 · LOGO / WORDMARK
+     ============================================================ */
+  .wm-stage{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+  .wm-hero{background:var(--surface-subtle);border-radius:16px;padding:clamp(30px,5vw,60px);display:flex;align-items:center;justify-content:center}
+  .wm-hero .mark{font-size:clamp(26px,3.6vw,42px);font-weight:800;letter-spacing:-.025em;color:var(--heading)}
+  .wm-hero .mark .dot{color:var(--primary)}
+  .wm-dark{background:var(--brand-black);border-radius:16px;display:flex;align-items:center;justify-content:center;padding:30px}
+  .wm-dark .mark{font-size:clamp(20px,2.6vw,30px);font-weight:800;letter-spacing:-.025em;color:#fff}
+  .wm-dark .mark .dot{color:var(--primary)}
+  .wm-specs{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .spec{border:1px solid var(--border-soft);border-radius:var(--r-lg);padding:16px 18px}
+  .spec .k{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px}
+  .spec .v{font-size:14px;color:var(--body);line-height:1.55}
+  .dont-grid{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .dont-item{border:1px solid var(--border-soft);border-radius:var(--r-lg);padding:14px 16px;font-size:13px}
+  .dont-item .x{display:flex;align-items:center;gap:7px;color:var(--error-ink);font-weight:700;font-size:12.5px;margin-bottom:8px}
+  .dont-item .m{font-weight:800;letter-spacing:-.02em;color:var(--disabled)}
+
+  /* ============================================================
+     07 · COLOR
+     ============================================================ */
+  .swatch-hero{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .sw{border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border-soft);background:#fff}
+  .sw .chip-c{height:96px}
+  .sw .meta{padding:12px 14px}
+  .sw .role{font-size:13px;font-weight:700;color:var(--heading)}
+  .sw .hex{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:3px}
+  .sw .use{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
+  .sw-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:14px}
+  .sw-mini{border:1px solid var(--border-soft);border-radius:var(--r-md);overflow:hidden}
+  .sw-mini .c{height:52px}
+  .sw-mini .m{padding:9px 11px;font-size:11.5px}
+  .sw-mini .m .r{font-weight:700;color:var(--heading)}
+  .sw-mini .m .h{color:var(--muted);font-variant-numeric:tabular-nums}
+  .a11y-note{margin-top:22px;display:flex;gap:14px;align-items:flex-start;background:var(--warning-tint);border:1px solid rgba(255,171,0,.28);border-radius:var(--r-lg);padding:16px 18px}
+  .a11y-note .ic{color:var(--warning-ink);width:20px;height:20px}
+  .a11y-note p{font-size:14px;color:#6b4a00;line-height:1.6}
+  .a11y-note b{color:var(--warning-ink)}
+  .subhead{font-size:13px;font-weight:700;color:var(--heading);margin:26px 0 4px;text-transform:none}
+  .accent-strip{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .accent-strip .a{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);border:1px solid var(--border-soft);border-radius:var(--r-pill);padding:5px 12px 5px 6px}
+  .accent-strip .a i{width:20px;height:20px;border-radius:50%;display:block}
+
+  /* ============================================================
+     08 · TYPOGRAPHY
+     ============================================================ */
+  .specimen{background:var(--surface-subtle);border-radius:16px;padding:clamp(26px,4vw,48px)}
+  .specimen .big{font-size:clamp(56px,11vw,120px);font-weight:800;line-height:.98;letter-spacing:-.03em;color:var(--heading)}
+  .specimen .big .c{color:var(--primary)}
+  .specimen .set{margin-top:18px;display:flex;flex-wrap:wrap;gap:24px;align-items:baseline}
+  .specimen .set .kr{font-size:34px;font-weight:700;color:var(--heading)}
+  .specimen .set .jp{font-size:34px;font-weight:700;color:var(--heading)}
+  .specimen .set small{font-size:12px;color:var(--muted);font-weight:500;display:block;margin-top:4px}
+  .type-scale{width:100%;border-collapse:collapse;margin-top:22px}
+  .type-scale td,.type-scale th{padding:12px 14px;border-bottom:1px solid var(--hairline);text-align:left;vertical-align:baseline}
+  .type-scale th{font-size:12px;color:var(--muted);font-weight:600}
+  .type-scale .spec-txt{color:var(--heading)}
+  .type-scale .meta{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .type-note{margin-top:18px;font-size:14px;color:var(--body);line-height:1.7;max-width:44em}
+
+  /* ============================================================
+     09 · IMAGERY MOOD
+     ============================================================ */
+  .mood-gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:12px}
+  .mood-gallery figure:nth-child(1){grid-column:span 2;grid-row:span 2}
+  .mood-gallery .photo{height:100%;aspect-ratio:auto}
+  .mood-gallery figure:nth-child(1) .photo{min-height:280px}
+  .mood-gallery figure:not(:nth-child(1)) .photo{aspect-ratio:4/3}
+  .img-do{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .img-do .box{border-radius:var(--r-lg);padding:18px 20px;border:1px solid var(--border-soft)}
+  .img-do .yes{background:var(--success-tint)}
+  .img-do .no{background:var(--surface-subtle)}
+  .img-do h4{display:flex;gap:8px;align-items:center;font-size:14px;margin-bottom:10px}
+  .img-do .yes h4{color:var(--success-ink)}
+  .img-do .no h4{color:var(--muted)}
+  .img-do ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:var(--body)}
+  .img-do .no ul{color:var(--muted)}
+
+  /* ============================================================
+     10 · GRID / SPACING / SHAPE
+     ============================================================ */
+  .diagram{background:var(--surface-subtle);border-radius:16px;padding:clamp(22px,3vw,36px)}
+  .grid-viz{display:grid;grid-template-columns:repeat(12,1fr);gap:8px;height:120px;margin-top:6px}
+  .grid-viz span{background:var(--primary-tint-2);border-radius:4px;border:1px solid rgba(255,100,100,.25)}
+  .space-scale{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-top:8px}
+  .space-scale .u{text-align:center}
+  .space-scale .u i{display:block;background:var(--primary);border-radius:3px;margin:0 auto 8px}
+  .space-scale .u b{font-size:11.5px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+  .radius-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
+  .radius-row .rr{text-align:center}
+  .radius-row .rr i{display:block;width:74px;height:74px;background:var(--primary-tint);border:1.5px solid var(--primary);margin-bottom:8px}
+  .radius-row .rr b{font-size:12px;color:var(--muted);font-weight:600}
+  .shape-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .shape-cols>div{background:#fff;border:1px solid var(--border-soft);border-radius:var(--r-lg);padding:18px 20px}
+  .shape-cols h4{font-size:13px;margin-bottom:14px;color:var(--heading)}
+
+  /* ============================================================
+     11 · COMPONENTS
+     ============================================================ */
+  .comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  .comp{background:#fff;border:1px solid var(--border-soft);border-radius:var(--r-lg);padding:22px}
+  .comp .lab{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:16px}
+  .btn{font-family:inherit;font-size:14px;font-weight:700;border-radius:var(--r-md);padding:11px 18px;border:1px solid transparent;cursor:pointer;transition:background .16s var(--ease),color .16s var(--ease),border-color .16s var(--ease)}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-strong)}
+  .btn-outline{background:#fff;border-color:var(--primary);color:var(--primary-strong)}
+  .btn-outline:hover{background:var(--primary-tint)}
+  .btn-text{background:transparent;color:var(--primary-strong);padding:11px 6px}
+  .btn-text:hover{text-decoration:underline}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill)}
+  .b-suc{background:var(--success-tint);color:var(--success-ink)}
+  .b-warn{background:var(--warning-tint);color:var(--warning-ink)}
+  .b-err{background:var(--error-tint);color:var(--error-ink)}
+  .b-neu{background:var(--surface-subtle);color:var(--muted)}
+  .field{display:block}
+  .field label{display:block;font-size:12.5px;color:var(--body);font-weight:600;margin-bottom:7px}
+  .field input{width:100%;font-family:inherit;font-size:14px;color:var(--heading);background:#fff;border:1px solid var(--border);border-radius:9px;padding:11px 13px}
+  .field input::placeholder{color:var(--disabled)}
+  .field input:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:transparent}
+  .seg{display:inline-flex;background:var(--surface-subtle);border-radius:10px;padding:3px}
+  .seg button{font-family:inherit;border:none;background:transparent;font-size:13px;color:var(--muted);padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+  .seg button.on{background:#fff;color:var(--heading);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .comp-card{border:1px solid var(--border-soft);border-radius:var(--r-lg);overflow:hidden}
+  .comp-card .ph{height:90px;background:var(--primary-tint)}
+  .comp-card .cc{padding:12px 14px}
+  .comp-card .cc b{font-size:14px;color:var(--heading)}
+  .comp-card .cc span{font-size:12.5px;color:var(--muted);display:block;margin-top:2px}
+
+  /* ============================================================
+     12 · APPLICATIONS
+     ============================================================ */
+  .apps{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+  .mock{border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--shadow-card)}
+  .mock-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid var(--hairline);background:var(--surface-subtle)}
+  .mock-bar i{width:9px;height:9px;border-radius:50%;background:#D5D7DB}
+  .mock-bar .u{margin-left:10px;font-size:11.5px;color:var(--muted)}
+  .mock-hero{position:relative}
+  .mock-hero .photo{aspect-ratio:16/10;border-radius:0}
+  .mock-hero .ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,248,248,.96) 0%,rgba(255,248,248,.7) 46%,rgba(255,248,248,0) 100%);padding:clamp(18px,3vw,32px);display:flex;flex-direction:column;justify-content:center}
+  .mock-hero .wm{font-size:14px;font-weight:800;color:var(--heading);letter-spacing:-.02em}
+  .mock-hero .wm .dot{color:var(--primary)}
+  .mock-hero h3{font-size:clamp(16px,2vw,22px);margin:10px 0;letter-spacing:-.02em;max-width:15em}
+  .mock-hero .btn{align-self:flex-start;font-size:12.5px;padding:9px 14px}
+  .mock-report{padding:18px 20px}
+  .mock-report .rt{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .mock-report .rt b{font-size:14px;color:var(--heading)}
+  .score{display:flex;align-items:baseline;gap:6px}
+  .score .n{font-size:30px;font-weight:800;color:var(--primary-strong);letter-spacing:-.02em}
+  .score .d{font-size:13px;color:var(--muted)}
+  .bars{display:grid;gap:9px;margin-top:4px}
+  .bars .bar{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;font-size:12px;color:var(--muted)}
+  .bars .track{height:8px;background:var(--surface-subtle);border-radius:var(--r-pill);overflow:hidden}
+  .bars .fill{height:100%;background:var(--primary);border-radius:var(--r-pill)}
+
+  /* ============================================================
+     13 · GOVERNANCE
+     ============================================================ */
+  .gov{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .gov .g{border:1px solid var(--border-soft);border-radius:var(--r-lg);padding:20px 22px;background:#fff}
+  .gov .g h4{font-size:15px;margin-bottom:10px;color:var(--heading)}
+  .gov .g p{font-size:14px;color:var(--body);line-height:1.65}
+  .gov .g p+p{margin-top:8px}
+  .gov .g .en{color:var(--muted);font-size:13px}
+  .credits{margin-top:16px;border:1px solid var(--border-soft);border-radius:var(--r-lg);padding:18px 22px;background:var(--surface-subtle)}
+  .credits h4{font-size:13px;color:var(--heading);margin-bottom:10px}
+  .credits ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .credits li b{color:var(--body);font-weight:600}
+
+  footer.doc{background:var(--brand-black);color:#C9CBCF;padding:clamp(40px,6vw,72px) clamp(24px,5vw,72px)}
+  footer.doc .inner{max-width:var(--content);margin:0 auto;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end}
+  footer.doc .wm{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em}
+  footer.doc .wm .dot{color:var(--primary)}
+  footer.doc .wm small{display:block;font-size:12px;font-weight:500;color:#9A9C9F;margin-top:8px;letter-spacing:.01em}
+  footer.doc .meta{font-size:12.5px;color:#9A9C9F;text-align:right;line-height:1.7}
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width:1080px){
+    .cover-inner,.split,.wm-stage,.apps{grid-template-columns:1fr}
+    .cover-figure{order:-1;max-width:420px}
+    .wm-specs{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:900px){
+    :root{--sidebar:0px}
+    .shell{grid-template-columns:1fr}
+    .sidebar{
+      position:sticky;top:0;height:auto;flex-direction:row;align-items:center;gap:14px;
+      border-right:none;border-bottom:1px solid var(--hairline);padding:12px 18px;overflow-x:auto;
+    }
+    .brand-lockup{flex:0 0 auto}.brand-lockup small{display:none}
+    .toc{flex-direction:row;flex-wrap:nowrap;gap:2px}
+    .toc a{grid-template-columns:auto;white-space:nowrap;padding:8px 12px}
+    .toc a .lab-t{display:inline}.toc a .n{display:none}
+    .side-meta{display:none}
+  }
+  @media (max-width:720px){
+    .cols-2,.cols-3,.cols-4,.persona-grid,.vt,.swatch-hero,.wm-specs,.img-do,.shape-cols,.gov,.mood-gallery,.axis{grid-template-columns:1fr}
+    .mood-gallery figure:nth-child(1){grid-column:span 1;grid-row:span 1}
+    .ba-row{grid-template-columns:1fr}
+    .ba-thumb .photo{min-height:150px}
+    .ba-cell.after{border-left:none;border-top:1px solid var(--border-soft)}
+    .seg-table thead{display:none}
+    .seg-table td{display:block;border:none;padding:4px 0}
+    .seg-table tr{display:block;padding:14px 0;border-bottom:1px solid var(--hairline)}
+    .cover h1{font-size:30px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  }
+</style>
+
+<a class="skip" href="#main">본문 바로가기</a>
+
+<div class="shell">
+  <!-- ===================== SIDEBAR / TOC ===================== -->
+  <aside class="sidebar">
+    <div class="brand-lockup"><img src="logo/kglow-logo.svg" alt="KGLOW" style="height:20px;width:auto;display:block">
+      <small>브랜드 아이덴티티 · 2026</small>
+    </div>
+    <nav aria-label="문서 목차">
+      <ul class="toc" id="toc">
+        <li><a href="#cover"><span class="n">00</span><span class="lab-t">표지</span></a></li>
+        <li><a href="#story"><span class="n">01</span><span class="lab-t">브랜드 스토리</span></a></li>
+        <li><a href="#target"><span class="n">02</span><span class="lab-t">타깃 · 페르소나</span></a></li>
+        <li><a href="#personality"><span class="n">03</span><span class="lab-t">브랜드 개성</span></a></li>
+        <li><a href="#voice"><span class="n">04</span><span class="lab-t">보이스 &amp; 톤</span></a></li>
+        <li><a href="#beforeafter"><span class="n">05</span><span class="lab-t">Before / After</span></a></li>
+        <li><a href="#logo"><span class="n">06</span><span class="lab-t">로고 · 워드마크</span></a></li>
+        <li><a href="#color"><span class="n">07</span><span class="lab-t">컬러</span></a></li>
+        <li><a href="#type"><span class="n">08</span><span class="lab-t">타이포그래피</span></a></li>
+        <li><a href="#imagery"><span class="n">09</span><span class="lab-t">비주얼 무드</span></a></li>
+        <li><a href="#grid"><span class="n">10</span><span class="lab-t">그리드 · 간격</span></a></li>
+        <li><a href="#components"><span class="n">11</span><span class="lab-t">컴포넌트</span></a></li>
+        <li><a href="#applications"><span class="n">12</span><span class="lab-t">적용 예시</span></a></li>
+        <li><a href="#governance"><span class="n">13</span><span class="lab-t">거버넌스</span></a></li>
+      </ul>
+    </nav>
+    <div class="side-meta">
+      <b>정본 컬러 · 코랄</b><br>#FF6464 / #D93636 / #FFF8F8<br>
+      <span style="opacity:.8">일본 시장 진출 브랜드 전환 스튜디오</span>
+    </div>
+  </aside>
+
+  <main id="main">
+
+    <!-- ===================== 00 · COVER ===================== -->
+    <section class="cover" id="cover">
+      <div class="cover-inner">
+        <div>
+          <span class="cover-kicker reveal"><span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--primary);display:inline-block"></span> Brand Identity Document</span>
+          <h1 class="reveal d1">번역이 아니라,<br><em>일본 고객 관점</em>의<br>메시지 재설계.</h1>
+          <p class="cover-def reveal d2">한국 뷰티 브랜드의 상세페이지·SNS·광고 문구를 <b>일본 고객 관점으로 진단</b>하고, 일본향 카피·콘텐츠·운영을 한곳에서 다루는 <b>KGLOW</b>. 일본 문법·규제 룰셋이 내장된 Japan Growth Studio입니다.</p>
+          <div class="cover-chips chips reveal d3">
+            <span class="chip"><span class="dot"></span>차분한</span>
+            <span class="chip"><span class="dot"></span>정돈된</span>
+            <span class="chip"><span class="dot"></span>근거 있는</span>
+          </div>
+        </div>
+        <figure class="cover-figure reveal d2">
+          <img class="photo" src="assets/img/hero.jpg" alt="자연광 아래 정돈된 뉴트럴 톤의 스킨케어 제품 정물 — 차분하고 근거 있는 브랜드 무드" />
+          <div class="cover-badge">
+            <div class="k">핵심 차별점</div>
+            <div class="v">일본 고객이 <span class="jp" lang="ja">「買う理由」</span>로<br>다시 쓰는 메시지</div>
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===================== 01 · STORY ===================== -->
+    <section class="section" id="story">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">01</span>
+          <h2>브랜드 스토리</h2>
+          <p class="sec-lead">번역은 문장을 옮긴다. 우리는 <strong>사는 이유</strong>를 다시 짓는다. 대행사에 큰돈 쓰기 전, 지금 콘텐츠가 일본에서 통할지 먼저 진단하는 자리 — 그 빈자리에서 브랜드가 시작됐다.</p>
+        </header>
+        <div class="split">
+          <div>
+            <p class="story-quote">“일본 고객에게 <span class="hl">어떤 말로 팔아야 할지</span> 모르겠다. 한국식 상세페이지를 그대로 번역해도 되나? 대행사에 맡기기 전에 <span class="hl">통할 가능성</span>이 있는지 먼저 알고 싶다.”</p>
+            <p class="story-note">단순 제작툴·번역툴이 해결하지 못하는 바로 이 지점이 우리의 자리다. 우리는 광고 영상을 만들지도, 문장을 옮기지도 않는다. <strong>일본 고객에게 팔릴 ‘말’과 콘텐츠 방향</strong>을 정해준다.</p>
+            <div class="mission">
+              <div class="k">MISSION</div>
+              <p>한국 뷰티 브랜드의 콘텐츠를 <span class="c">일본 고객 관점으로 진단</span>하고, 일본향 제작·운영까지 <span class="c">한곳에서</span> 잇는다.</p>
+            </div>
+          </div>
+          <div class="illus-wrap reveal">
+            <!-- 컨셉 일러스트: 직역 → 재설계 (자체 제작 SVG, 코랄) -->
+            <svg class="illus" viewBox="0 0 420 320" role="img" aria-label="한국어 원문을 일본 고객 관점의 메시지로 재설계하는 과정 다이어그램">
+              <defs><style>.st{fill:#fff;stroke:#E4E7EC;stroke-width:1.5}.ln{stroke:#D9DBDF;stroke-width:6;stroke-linecap:round}.lnc{stroke:#FF6464;stroke-width:6;stroke-linecap:round}.tx{fill:#9A9C9F;font:600 12px sans-serif}.txc{fill:#D93636;font:700 12px sans-serif}</style></defs>
+              <rect x="20" y="40" width="150" height="200" rx="12" class="st"/>
+              <text x="34" y="66" class="tx">직역 (Before)</text>
+              <line x1="36" y1="92" x2="150" y2="92" class="ln"/>
+              <line x1="36" y1="112" x2="150" y2="112" class="ln"/>
+              <line x1="36" y1="132" x2="120" y2="132" class="ln"/>
+              <line x1="36" y1="176" x2="150" y2="176" class="ln"/>
+              <line x1="36" y1="196" x2="132" y2="196" class="ln"/>
+              <!-- arrow -->
+              <path d="M188 140 h44" stroke="#FF6464" stroke-width="3" fill="none"/>
+              <path d="M228 132 l10 8 l-10 8" fill="none" stroke="#FF6464" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="210" cy="112" r="15" fill="#FFF0F0" stroke="#FF6464" stroke-width="1.5"/>
+              <path d="M204 112 l4 4 l8 -9" fill="none" stroke="#D93636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="250" y="40" width="150" height="200" rx="12" class="st" style="stroke:#FF6464"/>
+              <text x="264" y="66" class="txc">재설계 (After)</text>
+              <line x1="266" y1="92" x2="380" y2="92" class="lnc"/>
+              <line x1="266" y1="112" x2="380" y2="112" class="lnc"/>
+              <line x1="266" y1="132" x2="350" y2="132" class="lnc"/>
+              <rect x="266" y="164" width="114" height="52" rx="8" fill="#FFF8F8" stroke="#FFD5D5" stroke-width="1.5"/>
+              <text x="278" y="186" class="txc" style="font-size:10px">※ 근거 · 조건限定</text>
+              <text x="278" y="204" class="tx" style="font-size:10px">薬機法 セーフ表現</text>
+              <text x="118" y="284" class="tx" style="text-anchor:middle">한국어 원문</text>
+              <text x="325" y="284" class="txc" style="text-anchor:middle">일본 구매자의 언어</text>
+            </svg>
+          </div>
+        </div>
+        <div class="axis-head">진단부터 제작·운영까지, 한 곳에서</div>
+        <div class="axis">
+          <figure class="ax">
+            <div class="ax-img"><img src="assets/img/concept-diagnosis.svg" alt="일본 고객 관점으로 콘텐츠를 진단하는 개념 일러스트" loading="lazy" /></div>
+            <b>① 진단 리포트</b>
+            <p>지금 콘텐츠가 일본 고객에게 어떻게 읽히는지, 무엇부터 고쳐야 하는지 정리한 AI 진단.</p>
+          </figure>
+          <figure class="ax">
+            <div class="ax-img"><img src="assets/img/concept-redesign.svg" alt="한국 콘텐츠를 일본향으로 재설계·제작하는 개념 일러스트" loading="lazy" /></div>
+            <b>② 마케팅 스튜디오</b>
+            <p>한국 SNS·상세페이지를 일본 소비자가 선호하는 스타일로 재설계하고 제작한다.</p>
+          </figure>
+          <figure class="ax">
+            <div class="ax-img"><img src="assets/img/concept-growth.svg" alt="리뷰가 쌓이는 구조로 운영·성장하는 개념 일러스트" loading="lazy" /></div>
+            <b>③ 운영</b>
+            <p>리뷰(口コミ)가 쌓이는 구조로 콘텐츠와 운영을 이어가 매출 정체를 돌파한다.</p>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 02 · TARGET ===================== -->
+    <section class="section" id="target">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">02</span>
+          <h2>타깃 · 페르소나</h2>
+          <p class="sec-lead">3~15인 규모 <strong>인디 코스메틱 브랜드의 마케터 겸 대표</strong>. 국내 매출은 있으나 일본은 처음. “일본어 번역은 되지만, 일본 고객에게 먹히는 표현은 모른다.”</p>
+        </header>
+        <div class="split" style="align-items:flex-start">
+          <div>
+            <table class="seg-table">
+              <thead><tr><th>세그먼트</th><th>상황</th><th>핵심 페인</th></tr></thead>
+              <tbody>
+                <tr><td class="tag"><span class="s">S1</span>입점 준비</td><td>진출 준비, 미입점</td><td class="pri">번역만으로 될지 확신 없음 · 어디부터 손댈지 막막 <em>(1차 타깃)</em></td></tr>
+                <tr><td class="tag"><span class="s">S2</span>매출 저조</td><td>입점 후 정체</td><td class="pri">리뷰(口コミ)가 안 붙어 랭킹이 안 오름 <em>(구매력 최상)</em></td></tr>
+                <tr><td class="tag"><span class="s">S3</span>리소스 부재</td><td>손·감각 없음</td><td>직접 쓰는 툴이면 또 배워야 함 → 위임 원함</td></tr>
+                <tr><td class="tag"><span class="s">S4</span>규제 민감</td><td>의약외품·기능성</td><td>薬機法 경계 모름 · 상시 체크 니즈</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <ul class="jtbd">
+              <li><b>JTBD · 진단</b>대행사에 큰돈 쓰기 전에, 내 콘텐츠가 일본에서 통할지 확인하고 뭘 고칠지 알고 싶다.</li>
+              <li><b>JTBD · 규제</b>효능 문구를 쓸 때마다 일본 규제 위반인지 즉시 확인하고, 안전한 대체 표현을 받고 싶다.</li>
+              <li><b>JTBD · 성장</b>매출·리뷰가 정체일 때, 리뷰가 쌓이는 구조로 콘텐츠와 운영을 바로잡고 싶다.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 03 · PERSONALITY ===================== -->
+    <section class="section" id="personality">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">03</span>
+          <h2>브랜드 개성</h2>
+          <p class="sec-lead">일본 시장의 신뢰감과 뷰티 카테고리의 깨끗함이 만나는 세 단어. 과장·감성 호소 대신 구체적 예시와 절차로 전문성을 증명한다.</p>
+        </header>
+        <div class="persona-grid">
+          <figure class="pcard">
+            <img class="photo" src="assets/img/mood-calm.jpg" alt="부드러운 자연광이 드는 미니멀한 스킨케어 장면 — 차분함" />
+            <figcaption class="body"><div class="w">차분한 <span class="en">Calm</span></div><p class="d">넉넉한 여백과 낮은 채도. 서두르지 않고, 시끄럽지 않게. 신뢰는 조용한 지면에서 자란다.</p></figcaption>
+          </figure>
+          <figure class="pcard">
+            <img class="photo" src="assets/img/mood-ordered.jpg" alt="정렬된 뉴트럴 톤 화장품 플랫레이 — 정돈됨" />
+            <figcaption class="body"><div class="w">정돈된 <span class="en">Ordered</span></div><p class="d">명확한 위계와 일관된 규칙. 무엇을 얼마에 받는지 한눈에 이해되는 정돈된 구성.</p></figcaption>
+          </figure>
+          <figure class="pcard">
+            <img class="photo" src="assets/img/mood-evidence.jpg" alt="크림·세럼의 매크로 텍스처 디테일 — 근거 있는" />
+            <figcaption class="body"><div class="w">근거 있는 <span class="en">Evidence</span></div><p class="d">비포&애프터 예시, 채점 기준, 법 조항. 화려한 장식이 아니라 증거로 설득한다.</p></figcaption>
+          </figure>
+        </div>
+        <div class="emo">
+          <div class="e"><b>안심</b><p>방향을 잡아주는 전문가가 곁에 있다는 감각.</p></div>
+          <div class="e"><b>명료함</b><p>무엇을, 얼마에, 어떻게 받는지 즉시 이해된다.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 04 · VOICE ===================== -->
+    <section class="section" id="voice">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">04</span>
+          <h2>보이스 &amp; 톤</h2>
+          <p class="sec-lead">“숫자로 설득하지 않습니다. 근거로 보여드립니다.” 부드럽지만 명확하게 — 과장을 덜어내고, 조건과 절차로 전문성을 증명하는 목소리.</p>
+        </header>
+        <div class="vt">
+          <div class="col do">
+            <h4>
+              <svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#00B97C" opacity=".16"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#036C4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              이렇게 씁니다
+            </h4>
+            <ul>
+              <li><span class="kk">“일본 상세페이지가 신뢰를 만드는 3가지 근거.”</span></li>
+              <li><span class="kk">“고정가입니다. 견적 왕복이 없습니다.”</span></li>
+              <li><span class="kk">“일본향 전문가가 확정하고, AI가 속도를 냅니다.”</span></li>
+              <li><span class="kk">“그 効能 문구, 일본에선 광고가 내려갈 수도 있습니다.”</span></li>
+            </ul>
+          </div>
+          <div class="col dont">
+            <h4>
+              <svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#747579" opacity=".16"/><path d="M7 7l6 6M13 7l-6 6" stroke="#747579" stroke-width="2" stroke-linecap="round"/></svg>
+              이렇게 쓰지 않습니다
+            </h4>
+            <ul>
+              <li>“일본에서 대박나는 비결, 지금 공개!”</li>
+              <li>“지금 놓치면 후회하는 마지막 기회.”</li>
+              <li>“AI가 알아서 자동으로 다 해드립니다.”</li>
+              <li>“고객 만족도 300% 폭발적 상승 보장.”</li>
+            </ul>
+          </div>
+        </div>
+        <div class="banwords" aria-label="금지 표현">
+          <span class="banword">대박</span>
+          <span class="banword">놓치지 마세요</span>
+          <span class="banword">약 ○○만원 (모호한 가격)</span>
+          <span class="banword">가짜 후기·실적</span>
+          <span class="banword">폭발적 · 최고 · 유일</span>
+        </div>
+        <div class="rule">
+          <div class="r"><b>사람이 확정, AI가 속도</b><p>“AI가 먼저”가 아니라 “사람이 확정”. 순서를 바꾸지 않는다.</p></div>
+          <div class="r"><b>증거로만 신뢰</b><p>가상 통계·익명 후기·허위 실적은 넣지 않는다. 샘플·기준·법 조항으로만.</p></div>
+          <div class="r"><b>부드럽지만 명확하게</b><p>따뜻함을 위해 명료함을 희생하지 않는다. 둘 다 가져간다.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 05 · BEFORE / AFTER ===================== -->
+    <section class="section" id="beforeafter">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="eyebrow">시그니처 · 우리를 증명하는 섹션</span>
+          <span class="sec-num">05</span>
+          <h2>Before / After — 직역 vs 재설계</h2>
+          <p class="sec-lead">한국식 과장·직역을 일본 소비자가 신뢰하는 <strong>근거 기반 표현</strong>으로 다시 짓는다. 일본 상세는 “믿어달라”고 말하지 않고 “이렇게 검증됐다”고 보여준다 — 효능·근거·조건限定(※)이 한 세트로 움직인다.</p>
+        </header>
+        <div class="ba">
+          <div class="ba-row">
+            <div class="ba-thumb"><img class="photo" src="assets/img/moodboard-2.jpg" alt="세럼 텍스처 매크로" /><span class="cat">스킨케어 · CICA</span></div>
+            <div class="ba-cell before"><span class="ba-tag">BEFORE · 직역</span><p class="ba-jp" lang="ja">塗る瞬間、トラブルを消す。即・鎮静CICAアンプル</p><p class="ba-kr">바르는 순간 트러블을 없앤다 — 단정·과장, 효능 단언</p></div>
+            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">乾燥による肌あれ<span style="color:#D93636">※</span>が気になる肌を、うるおいでキメ整える。</p><p class="ba-kr">건조로 인한 거칠어짐이 신경 쓰이는 피부를 결정돈. <b>※角層</b></p><p class="ba-why">▲ 조건限定 + 각주로 薬機法 세이프</p></div>
+          </div>
+          <div class="ba-row">
+            <div class="ba-thumb"><img class="photo" src="assets/img/moodboard-1.jpg" alt="뉴트럴 톤 화장품 정물" /><span class="cat">미백 · 기능성</span></div>
+            <div class="ba-cell before"><span class="ba-tag">BEFORE · 직역</span><p class="ba-jp" lang="ja">シミが消える美白クリーム</p><p class="ba-kr">기미가 사라지는 미백 크림 — 결과 단언(위반 소지)</p></div>
+            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">メラニンの生成を抑え、シミ・そばかすを防ぐ。<span style="color:#D93636">※</span></p><p class="ba-kr">멜라닌 생성을 억제해 기미·주근깨를 예방. <b>※薬用(의약외품)의 경우</b></p><p class="ba-why">▲ 승인된 효능 범위 + 조건 명시</p></div>
+          </div>
+          <div class="ba-row">
+            <div class="ba-thumb"><img class="photo" src="assets/img/moodboard-3.jpg" alt="식물 성분(병풀) 이미지" /><span class="cat">더마 · 敏感肌</span></div>
+            <div class="ba-cell before"><span class="ba-tag">BEFORE · 직역</span><p class="ba-jp" lang="ja">病院処方級、肌を治療するケア</p><p class="ba-kr">병원 처방급, 피부를 치료하는 케어 — 의약품 오인</p></div>
+            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">敏感肌<span style="color:#D93636">※</span>の方の毎日にも。パッチテスト済み・無添加処方。</p><p class="ba-kr">민감 피부에도 매일. 패치테스트 완료·무첨가 처방. <b>※角層</b></p><p class="ba-why">▲ 치료 주장 삭제 + 검증 사실로 전환</p></div>
+          </div>
+          <div class="ba-row">
+            <div class="ba-thumb"><img class="photo" src="assets/img/moodboard-4.jpg" alt="일본 미니멀 정물" /><span class="cat">향 · 바디</span></div>
+            <div class="ba-cell before"><span class="ba-tag">BEFORE · 직역</span><p class="ba-jp" lang="ja">一日中香りが持続、ストレスを解消する</p><p class="ba-kr">하루종일 향 지속, 스트레스를 해소한다 — 효과 단언</p></div>
+            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">気分に寄り添う、みずみずしい香り。朝のひと吹きで、自分を整える時間に。</p><p class="ba-kr">기분에 다가서는 산뜻한 향. 아침 한 번의 분사로 나를 정돈하는 시간.</p><p class="ba-why">▲ 단언 대신 정서적 서사로</p></div>
+          </div>
+        </div>
+        <p class="ba-legend"><b>왜 이렇게 바꾸는가.</b> 일본 상세페이지의 관례는 효능을 <b>조건限定(※·＊ 각주)</b>과 <b>근거</b>로 감싸는 것이다. 직역은 이 관례를 놓쳐 신뢰를 잃거나 薬機法 위반이 된다. 우리는 라쿠텐 300+ 상세페이지에서 역설계한 메시지 관례 루브릭으로 문장을 다시 짓는다.</p>
+      </div>
+    </section>
+
+    <!-- ===================== 06 · LOGO ===================== -->
+    <section class="section" id="logo">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">06</span>
+          <h2>로고 · 워드마크</h2>
+          <p class="sec-lead">로고는 <strong>코랄 구체 + 네이비 워드마크</strong>의 가로형 락업이다. 구체를 가로지르는 흰 스우시는 <strong>‘직역의 표면을 갈라 다시 짓는 선’</strong> — 한국(K)의 제품이 일본 고객의 관점에서 다시 빛나는(GLOW) 지점을 뜻한다. 자산 정본과 전체 규칙은 <a href="logo/README.md"><code>design/brand/logo/README.md</code></a>.</p>
+        </header>
+        <div class="wm-stage">
+          <div class="wm-hero"><img src="logo/kglow-logo.svg" alt="KGLOW 로고" style="width:100%;max-width:420px;height:auto"></div>
+          <div class="wm-dark"><img src="logo/kglow-logo-onDark.svg" alt="어두운 배경용 KGLOW 로고" style="width:100%;max-width:240px;height:auto"></div>
+        </div>
+        <div class="wm-specs">
+          <div class="spec"><div class="k">구성</div><div class="v">구체(심볼) + <code>KGLOW</code> 워드마크. 기본은 가로형, 정사각 자리(파비콘·아바타)에만 구체 단독.</div></div>
+          <div class="spec"><div class="k">서체</div><div class="v">Montserrat 700을 <strong>패스로 아웃라인</strong>한 자산이 정본. 폰트 설치가 필요 없고, 다른 서체로 재조판하지 않는다.</div></div>
+          <div class="spec"><div class="k">색 (로고 전용 고정색)</div><div class="v">워드마크 네이비 <code>#22304F</code> · 구체 <code>#FF8570</code>→<code>#FF6A57</code> / <code>#E85742</code>→<code>#D8402B</code> · 스우시 <code>#FFFFFF</code>.<br><b>UI 토큰 아님</b> — CTA·칩은 그대로 코랄 <code>#FF6464</code>.</div></div>
+          <div class="spec"><div class="k">보호 여백 · 최소 크기</div><div class="v">사방으로 <strong>구체 지름의 0.25배</strong> 여백. 가로형 최소 높이 20px(인쇄 7mm), 구체 단독 16px(5mm). 그 이하는 네이비 <code>K</code> 이니셜.</div></div>
+        </div>
+        <div class="dont-grid">
+          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#A4271D" stroke-width="2" stroke-linecap="round"/></svg>워드마크 코랄 금지</span><span class="m" style="color:#FF6464">KGLOW</span></div>
+          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#A4271D" stroke-width="2" stroke-linecap="round"/></svg>다른 서체 재조판 금지</span><span class="m" style="font-family:Georgia,serif;font-style:italic">KGLOW</span></div>
+          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#A4271D" stroke-width="2" stroke-linecap="round"/></svg>표기 변형 금지</span><span class="m">KGlow · K-Glow</span></div>
+          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#A4271D" stroke-width="2" stroke-linecap="round"/></svg>장평 왜곡 금지</span><span class="m" style="transform:scaleX(1.35);transform-origin:left;display:inline-block">KGLOW</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 07 · COLOR ===================== -->
+    <section class="section" id="color">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">07</span>
+          <h2>컬러</h2>
+          <p class="sec-lead">브랜드 액션 컬러는 <strong>코랄 단일 시스템</strong>. 파랑 primary는 쓰지 않는다. 코랄은 결정적인 순간에만 등장해, 낮은 채도의 지면 위에서 목소리가 된다.</p>
+        </header>
+        <div class="swatch-hero">
+          <div class="sw"><div class="chip-c" style="background:#FF6464"></div><div class="meta"><div class="role">Primary · 코랄</div><div class="hex">#FF6464 · rgb(255,100,100)</div><div class="use">브랜드 · 기본 CTA · large/bold 강조 · 장식</div></div></div>
+          <div class="sw"><div class="chip-c" style="background:#D93636"></div><div class="meta"><div class="role">Primary Strong</div><div class="hex">#D93636 · rgb(217,54,54)</div><div class="use">hover·pressed·active·focus · 텍스트 링크 · 소형 인터랙션</div></div></div>
+          <div class="sw"><div class="chip-c" style="background:#FFF8F8;border-bottom:1px solid var(--hairline)"></div><div class="meta"><div class="role">Primary Tint</div><div class="hex">#FFF8F8 · rgb(255,248,248)</div><div class="use">틴트 면 · CTA 밴드 · 선택 배경</div></div></div>
+        </div>
+
+        <div class="subhead">뉴트럴 · 텍스트 &amp; 서피스</div>
+        <div class="sw-row">
+          <div class="sw-mini"><div class="c" style="background:#202124"></div><div class="m"><div class="r">Heading</div><div class="h">#202124</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#414245"></div><div class="m"><div class="r">Body</div><div class="h">#414245</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#5F6165"></div><div class="m"><div class="r">Muted</div><div class="h">#5F6165</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#F6F6F6;border-bottom:1px solid var(--hairline)"></div><div class="m"><div class="r">Surface Subtle</div><div class="h">#F6F6F6</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#14191E"></div><div class="m"><div class="r">Brand Black</div><div class="h">#14191E</div></div></div>
+        </div>
+
+        <div class="subhead">시맨틱</div>
+        <div class="sw-row">
+          <div class="sw-mini"><div class="c" style="background:#F0483C"></div><div class="m"><div class="r">Error</div><div class="h">#F0483C</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#00B97C"></div><div class="m"><div class="r">Success</div><div class="h">#00B97C</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#FFAB00"></div><div class="m"><div class="r">Warning</div><div class="h">#FFAB00</div></div></div>
+        </div>
+
+        <div class="a11y-note">
+          <svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2l8 14H2L10 2z" stroke="#7A5200" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8v4M10 14.5v.5" stroke="#7A5200" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <p><b>접근성 트레이드오프.</b> 코랄 <code>#FF6464</code> + 흰 텍스트는 약 <b>2.9:1</b>로 WCAG AA 미달이다. 따라서 흰 텍스트는 <b>large/bold(≥18px 또는 굵은 14px)에만</b> 쓰고, 소형 텍스트·링크·배지는 <code>#D93636</code>(흰 위 ≈4.6:1)을 쓴다. 의도된 규칙이다.</p>
+        </div>
+
+        <div class="subhead">마케팅 액센트 <span style="font-weight:500;color:var(--muted)">— 장식 전용, 제품 UI 인터랙션 금지</span></div>
+        <div class="accent-strip">
+          <span class="a"><i style="background:#FF5C00"></i>Orange #FF5C00</span>
+          <span class="a"><i style="background:#FF8EFF"></i>Pink #FF8EFF</span>
+          <span class="a"><i style="background:#00ADFF"></i>Sky #00ADFF</span>
+          <span class="a"><i style="background:#8364FF"></i>Violet #8364FF</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 08 · TYPOGRAPHY ===================== -->
+    <section class="section" id="type">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">08</span>
+          <h2>타이포그래피</h2>
+          <p class="sec-lead">한국어 우선, <strong>Pretendard 단일 서체</strong>로 위계는 굵기와 크기로만 만든다. 일본어 예시는 <code>:lang(ja)</code>로 Noto Sans JP·Hiragino로 전환된다.</p>
+        </header>
+        <div class="specimen">
+          <div class="big">명료<span class="c">.</span></div>
+          <div class="set">
+            <div><span class="kr">가나다라 ABCabc 0123</span><small>Pretendard Variable · 한국어 본문</small></div>
+            <div><span class="jp" lang="ja">うるおい · キメ整える</span><small>Noto Sans JP · 일본어 예시</small></div>
+          </div>
+        </div>
+        <table class="type-scale">
+          <thead><tr><th style="width:44%">역할</th><th>스펙</th></tr></thead>
+          <tbody>
+            <tr><td class="spec-txt" style="font-size:30px;font-weight:800;letter-spacing:-.02em">Display</td><td class="meta">32px · 700 · 1.25 &nbsp;(히어로 예외 44px)</td></tr>
+            <tr><td class="spec-txt" style="font-size:24px;font-weight:700">H1 · 페이지 타이틀</td><td class="meta">24px · 700 · 1.4</td></tr>
+            <tr><td class="spec-txt" style="font-size:20px;font-weight:700">H2 · 섹션</td><td class="meta">20px · 700 · 1.4</td></tr>
+            <tr><td class="spec-txt" style="font-size:16px;font-weight:600">Subtitle</td><td class="meta">16px · 600 · 1.5</td></tr>
+            <tr><td class="spec-txt" style="font-size:14px">Body · 표준 본문</td><td class="meta">14px · 400 · 1.6</td></tr>
+            <tr><td class="spec-txt" style="font-size:13px">Body Small</td><td class="meta">13px · 400 · 1.5</td></tr>
+            <tr><td class="spec-txt" style="font-size:12px">Caption · 메타</td><td class="meta">12px · 400 · 1.5</td></tr>
+            <tr><td class="spec-txt" style="font-size:10px;font-weight:500">MICRO</td><td class="meta">10px · 500 · 1.4</td></tr>
+          </tbody>
+        </table>
+        <p class="type-note"><strong>원칙.</strong> 두 서체를 한 화면에서 섞지 않는다. 본문 400 · 강조 600 · 제목 700의 세 굵기로 위계를 만든다. 한국어 본문과 일본어 예시가 한 문단에 공존해도 무너지지 않도록 폰트 스택을 설계한다.</p>
+      </div>
+    </section>
+
+    <!-- ===================== 09 · IMAGERY ===================== -->
+    <section class="section" id="imagery">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">09</span>
+          <h2>비주얼 무드 · 포토그래피</h2>
+          <p class="sec-lead">저채도의 뉴트럴·코랄 톤, 자연광, 정돈된 여백. 피사체는 제품·성분·텍스처와 일본 미니멀. ‘깨끗한 뷰티 랩’의 감도를 유지한다.</p>
+        </header>
+        <div class="mood-gallery">
+          <figure><img class="photo" src="assets/img/moodboard-1.jpg" alt="뉴트럴 베이지 배경의 스킨케어 제품 정물, 자연광" /></figure>
+          <figure><img class="photo" src="assets/img/moodboard-2.jpg" alt="크림·세럼의 부드러운 텍스처 매크로" /></figure>
+          <figure><img class="photo" src="assets/img/moodboard-3.jpg" alt="식물 성분·보태니컬 디테일, 저채도" /></figure>
+          <figure><img class="photo" src="assets/img/moodboard-4.jpg" alt="일본 미니멀 감성의 정돈된 정물" /></figure>
+          <figure><img class="photo" src="assets/img/mood-ordered.jpg" alt="정렬된 화장품 플랫레이" /></figure>
+        </div>
+        <div class="img-do">
+          <div class="box yes">
+            <h4><svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#00B97C" opacity=".16"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#036C4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>DO</h4>
+            <ul><li>저채도·뉴트럴·자연광, 넉넉한 여백</li><li>제품·성분·텍스처의 정돈된 정물</li><li>일본식 미니멀·청결의 감도</li></ul>
+          </div>
+          <div class="box no">
+            <h4><svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#747579" opacity=".16"/><path d="M7 7l6 6M13 7l-6 6" stroke="#747579" stroke-width="2" stroke-linecap="round"/></svg>DON'T</h4>
+            <ul><li>네온·과채도·요란한 그라데이션</li><li>과장된 실적 배너·시끄러운 그래픽</li><li>가짜 고객 로고·후기로 쓰는 인물 스톡</li></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 10 · GRID ===================== -->
+    <section class="section" id="grid">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">10</span>
+          <h2>그리드 · 간격 · 형태</h2>
+          <p class="sec-lead">데스크톱 <strong>1120px 콘텐츠 · 12컬럼 · 20px 거터</strong>가 표준. 간격은 4의 배수, 카드는 12px 라운드. 분리는 그림자보다 여백과 틴트로 만든다.</p>
+        </header>
+        <div class="diagram">
+          <div style="font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:10px">1120 / 12 컬럼 / 거터 20px (컬럼 75px)</div>
+          <div class="grid-viz"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="subhead">간격 스케일 · base 4</div>
+        <div class="space-scale">
+          <div class="u"><i style="width:4px;height:4px"></i><b>4</b></div>
+          <div class="u"><i style="width:8px;height:8px"></i><b>8</b></div>
+          <div class="u"><i style="width:12px;height:12px"></i><b>12</b></div>
+          <div class="u"><i style="width:16px;height:16px"></i><b>16</b></div>
+          <div class="u"><i style="width:20px;height:20px"></i><b>20</b></div>
+          <div class="u"><i style="width:24px;height:24px"></i><b>24</b></div>
+          <div class="u"><i style="width:32px;height:32px"></i><b>32</b></div>
+          <div class="u"><i style="width:64px;height:64px"></i><b>64</b></div>
+        </div>
+
+        <div class="subhead">라운드</div>
+        <div class="radius-row">
+          <div class="rr"><i style="border-radius:6px"></i><b>6 · sm</b></div>
+          <div class="rr"><i style="border-radius:8px"></i><b>8 · md</b></div>
+          <div class="rr"><i style="border-radius:12px"></i><b>12 · 카드</b></div>
+          <div class="rr"><i style="border-radius:9999px"></i><b>pill</b></div>
+        </div>
+
+        <div class="subhead">그림자 · 절제</div>
+        <div class="shape-cols">
+          <div><h4>Rest</h4><div style="height:40px;border-radius:8px;background:#fff;border:1px solid var(--border-soft)"></div><p style="font-size:12px;color:var(--muted);margin-top:8px">그림자 없음 — 여백·틴트로 분리</p></div>
+          <div><h4>Card</h4><div style="height:40px;border-radius:8px;background:#fff;box-shadow:var(--shadow-card)"></div><p style="font-size:12px;color:var(--muted);margin-top:8px">0 1px 2px / 0 8px 24px</p></div>
+          <div><h4>Float</h4><div style="height:40px;border-radius:8px;background:#fff;box-shadow:var(--shadow-float)"></div><p style="font-size:12px;color:var(--muted);margin-top:8px">0 4px 12px · 팝오버·모달</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 11 · COMPONENTS ===================== -->
+    <section class="section" id="components">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">11</span>
+          <h2>컴포넌트</h2>
+          <p class="sec-lead">코랄 시스템으로 구현한 핵심 요소들. 인터랙션 색은 코랄 계열만 — hover는 <code>#D93636</code>, 포커스 링은 <code>#FF6464</code>.</p>
+        </header>
+        <div class="comp-grid">
+          <div class="comp"><div class="lab">버튼</div><div class="btn-row"><button class="btn btn-primary">진단 시작하기</button><button class="btn btn-outline">샘플 보기</button><button class="btn btn-text">자세히 →</button></div></div>
+          <div class="comp"><div class="lab">배지 · 상태 필</div><div class="btn-row"><span class="badge b-suc">발행 완료</span><span class="badge b-warn">검수 중</span><span class="badge b-err">위반 소지</span><span class="badge b-neu">초안</span></div></div>
+          <div class="comp"><div class="field"><label for="d1">브랜드 URL</label><input id="d1" type="text" placeholder="https://brand.example.com" /></div></div>
+          <div class="comp"><div class="lab">세그먼트</div><div class="seg"><button class="on">진단</button><button>제작</button><button>운영</button></div></div>
+          <div class="comp"><div class="lab">카드</div><div class="comp-card"><div class="ph"></div><div class="cc"><b>진단 리포트</b><span>9블록 · 薬機法 감사 · 0–100 점수</span></div></div></div>
+          <div class="comp"><div class="lab">칩</div><div class="chips"><span class="chip"><span class="dot"></span>CICA</span><span class="chip" style="background:var(--primary-strong);color:#fff;border-color:transparent">선택됨</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 12 · APPLICATIONS ===================== -->
+    <section class="section" id="applications">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">12</span>
+          <h2>적용 예시</h2>
+          <p class="sec-lead">브랜드가 실제 지면에서 어떻게 서는가 — 랜딩 히어로와 진단 리포트. 시스템이 그대로 작동하는 모습.</p>
+        </header>
+        <div class="apps">
+          <div class="mock">
+            <div class="mock-bar"><i></i><i></i><i></i><span class="u">japan-growth.studio</span></div>
+            <div class="mock-hero">
+              <img class="photo" src="assets/img/product-hero.jpg" alt="뉴트럴 배경의 단일 코스메틱 제품컷" />
+              <div class="ov">
+                <div class="wm"><img src="logo/kglow-logo-onDark.svg" alt="KGLOW" style="height:14px;width:auto;display:block"></div>
+                <h3>지금 쓰는 문구부터,<br>무료로 진단해 보세요.</h3>
+                <button class="btn btn-primary">약기법 무료 체크</button>
+              </div>
+            </div>
+          </div>
+          <div class="mock">
+            <div class="mock-bar"><i></i><i></i><i></i><span class="u">진단 리포트</span></div>
+            <div class="mock-report">
+              <div class="rt"><b>일본 적합도</b><span class="badge b-suc">검수 완료</span></div>
+              <div class="score"><span class="n">72</span><span class="d">/ 100 · B등급</span></div>
+              <div class="bars">
+                <div class="bar"><span>신뢰 구축</span><div class="track"><div class="fill" style="width:78%"></div></div></div>
+                <div class="bar"><span>안전 프레이밍</span><div class="track"><div class="fill" style="width:64%"></div></div></div>
+                <div class="bar"><span>서사 구조</span><div class="track"><div class="fill" style="width:70%"></div></div></div>
+                <div class="bar"><span>성분 프레이밍</span><div class="track"><div class="fill" style="width:82%"></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 13 · GOVERNANCE ===================== -->
+    <section class="section" id="governance" style="border-bottom:none">
+      <div class="inner">
+        <header class="sec-head">
+          <span class="sec-num">13</span>
+          <h2>브랜드 거버넌스</h2>
+          <p class="sec-lead">브랜드를 지키는 내부 규율. 이 문서는 팀과 모든 세션이 공유하는 브랜드 단일 정본이다.</p>
+        </header>
+        <div class="gov">
+          <div class="g"><h4>근거로만 신뢰를 만든다</h4><p>가상 통계·익명 후기·허위 실적은 넣지 않는다(페르소나 검증 최대 이탈 트리거). 신뢰는 샘플 리포트 실물·채점 기준 공개·법 조항 근거로만 만든다.</p></div>
+          <div class="g"><h4>네이밍 정본</h4><p>고객 대면 이름은 <strong>KGLOW</strong> 하나로 통일한다(전부 대문자 · <code>KGlow</code>·<code>K-Glow</code> 금지). 이전 이름 <code>Japan Growth Studio</code>는 이름이 아니라 카테고리 서술어로만 남는다. 내부 팀 코드네임 ‘생존자들’은 대면 카피에 쓰지 않는다 — 자사 네이밍도 페르소나로 검증해 결정한, 근거 기반 판단이다.</p></div>
+          <div class="g"><h4>접근성 기준</h4><p>WCAG AA 이상. 본문 대비 ≥4.5:1, 포커스 가시화, 시맨틱 태그, 폼 label 연결. 코랄+흰 텍스트의 의도적 트레이드오프는 <code>#D93636</code>으로 보완한다.</p></div>
+          <div class="g"><h4>산출물 자정 규칙</h4><p>산출물이 범용 자동생성·번역툴로 흐르면 즉시 교정한다. 우리의 경계선은 언제나 <strong>일본 고객 관점의 메시지 재설계</strong>다.</p></div>
+        </div>
+        <!-- IMAGE CREDITS (full sources)
+          hero.jpg        — Cup of Couple,        Pexels — pexels.com/photo/8015890/
+          mood-calm.jpg   — KATRIN BOLOVTSOVA,    Pexels — pexels.com/photo/6311830/
+          mood-ordered.jpg— DS stories,           Pexels — pexels.com/photo/7256060/
+          mood-evidence.jpg — Ani Coloca,         Pexels — pexels.com/photo/30229020/
+          moodboard-1.jpg — Polina,               Pexels — pexels.com/photo/8100691/
+          moodboard-2.jpg — Jana Kukebal,         Pexels — pexels.com/photo/6496466/
+          moodboard-3.jpg — vishnuvardhan J S,    Pexels — pexels.com/photo/37357248/
+          moodboard-4.jpg — Valentin Ivantsov,    Pexels — pexels.com/photo/34589778/
+          product-hero.jpg— Artem Podrez,         Pexels — pexels.com/photo/6801177/
+          concept-*.svg   — unDraw (undraw.co), coral #FF6464 recolor
+          License: Pexels License + unDraw open-source — 모두 상업적 이용 가능, 저작자 표시 불필요.
+        -->
+        <div class="credits">
+          <h4>이미지 크레딧 · 라이선스</h4>
+          <ul id="credits-list">
+            <li><b>사진 · Pexels License</b> (상업적 이용 가능·저작자 표시 불필요) — Cup of Couple · KATRIN BOLOVTSOVA · DS stories · Ani Coloca · Polina · Jana Kukebal · vishnuvardhan J S · Valentin Ivantsov · Artem Podrez <span style="color:var(--disabled)">(pexels.com)</span></li>
+            <li><b>컨셉 일러스트 · unDraw</b> (오픈소스·상업적 이용 가능) — 코랄 <code>#FF6464</code> 리컬러 <span style="color:var(--disabled)">(undraw.co)</span></li>
+            <li><b>다이어그램</b> — 자체 제작 원본 인라인 SVG(코랄 시스템).</li>
+            <li>전 이미지: 저채도 뉴트럴·코랄 무드로 큐레이션 · 가독 텍스트·로고·후기용 인물 배제.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="doc">
+  <div class="inner">
+    <div class="wm"><img src="logo/kglow-logo-onDark.svg" alt="KGLOW" style="height:22px;width:auto;display:block;margin-bottom:8px">
+      <small>일본 시장 진출 브랜드 전환 스튜디오 · Brand Identity Document</small>
+    </div>
+    <div class="meta">정본 컬러 = 코랄 시스템<br>최종 갱신 2026-07-13<br>번역이 아니라, 일본 고객 관점의 메시지 재설계.</div>
+  </div>
+</footer>
+
+<script>
+  // Scroll-spy: 현재 섹션을 TOC에 반영 (IntersectionObserver, 콘텐츠 가시성은 CSS 기본값으로 보장)
+  (function(){
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = {};
+    links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+    var sections = Object.keys(map).map(function(id){ return document.getElementById(id); }).filter(Boolean);
+    if(!('IntersectionObserver' in window) || !sections.length) return;
+    var current = null;
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var id = e.target.id;
+          if(current) current.classList.remove('active');
+          if(map[id]){ map[id].classList.add('active'); current = map[id];
+            // 모바일 상단바에서 활성 항목을 보이게
+            if(window.innerWidth <= 900 && current.scrollIntoView){ current.scrollIntoView({block:'nearest', inline:'center'}); }
+          }
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    sections.forEach(function(s){ io.observe(s); });
+  })();
+</script>
