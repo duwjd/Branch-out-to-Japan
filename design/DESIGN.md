@@ -67,6 +67,8 @@ tokens:
 
 > **⚠ 문서 성격 (2026-07-13 갱신).** 이 문서는 원티드 Montage 레퍼런스를 **시드**로 시작했다. 그러나 **본 서비스 디자인 시스템은 스티비(Stibee) coral `#ff6464` 기반으로 확정**되었다. 확정 토큰·컴포넌트의 스냅샷은 아래 **§0 Figma 구현 현황**과 [design-system.md](design-system.md)이다. §1–§15에 남아 있는 원티드 브랜드 서사(**Wanted Blue `#0066FF`**·JobCard·합격보상금·Wanted Sans·페르소나 등)는 **시드 레퍼런스 잔재**로, 본 서비스에는 적용하지 않는다 — 브랜드 원색은 blue가 아니라 **coral**이다. (frontmatter의 `primary_color: #ff6464`, §5 그리드, §7 Do/Don't는 이미 coral 기준.)
 
+> **로고 네이비는 위 경고의 예외다 (2026-07-16).** 서비스명 **KGLOW** 로고의 네이비 `#22304F`는 시드 잔재인 Wanted Blue와 무관한 **로고 전용 고정색**이므로 코랄로 리스킨하지 않는다. UI 토큰은 그대로 coral. 자산·규칙: [brand/logo/README.md](brand/logo/README.md).
+
 ## 0. Figma 구현 현황 (확정)
 
 ### Figma 원본 (source of truth)

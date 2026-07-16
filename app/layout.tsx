@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Japan Growth Studio — 일본 고객 관점의 메시지 재설계',
+  title: 'KGLOW — 일본 고객 관점의 메시지 재설계',
   description:
     '한국 뷰티 브랜드의 상세페이지·SNS 문구를 일본 고객 관점으로 진단하고, 일본향 콘텐츠 제작·운영을 한곳에서.',
 };
