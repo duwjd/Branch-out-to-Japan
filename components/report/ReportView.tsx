@@ -8,8 +8,6 @@ import type { BlocksJson } from '@/lib/engine/types';
 
 interface ReportViewProps {
   blocks: BlocksJson;
-  reviewerName: string | null;
-  reviewerSignedAt: string | null;
 }
 
 const GROUP_LABELS: Record<string, string> = {
@@ -39,7 +37,28 @@ function Block({ no, title, children }: { no: number; title: string; children: R
   );
 }
 
-export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportViewProps) {
+/**
+ * 데이터 잠금 블록(브랜드 진단 · 스펙 §3.3) — 산출하지 않은 것을 빈 값·0건으로 위장하지 않는다(증거 원칙).
+ * 잠긴 이유와 여는 방법을 명시한다 — 브랜드+제품 진단으로의 상향 동선을 겸한다.
+ */
+function LockedBlock({ no, title, unlocks }: { no: number; title: string; unlocks: string }) {
+  return (
+    <Block no={no} title={title}>
+      <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-5 text-sm">
+        <p className="font-semibold text-neutral-700">
+          <span className="mr-2 rounded bg-neutral-200 px-1.5 py-0.5 text-xs font-bold text-neutral-600">잠김</span>
+          이 블록은 브랜드 진단에 포함되지 않습니다
+        </p>
+        <p className="mt-2 text-neutral-600">
+          고객 문장이 없어 산출할 수 없습니다. 상세페이지 카피를 넣으면 {unlocks} — 새 진단에서 제품 정보의
+          &ldquo;진단 대상 콘텐츠&rdquo;를 채워 주세요.
+        </p>
+      </div>
+    </Block>
+  );
+}
+
+export function ReportView({ blocks }: ReportViewProps) {
   const b = blocks;
   return (
     <article className="space-y-2">
@@ -65,42 +84,51 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
           <div><dt className="inline font-semibold">발행일: </dt><dd className="inline">{b.block0.issuedAt}</dd></div>
           <div className="sm:col-span-2"><dt className="inline font-semibold">진단 범위: </dt><dd className="inline">{b.block0.scope}</dd></div>
           <div className="sm:col-span-2"><dt className="inline font-semibold">한계 요약: </dt><dd className="inline">{b.block0.limitSummary}</dd></div>
-          <div className="sm:col-span-2">
-            <dt className="inline font-semibold">검수자: </dt>
-            <dd className="inline">
-              {reviewerName
-                ? `${reviewerName} (서명 ${reviewerSignedAt?.slice(0, 10) ?? ''})`
-                : '검수 대기 — 서명 후 발행됩니다'}
-            </dd>
-          </div>
         </dl>
       </Block>
 
-      {/* 블록 1 — 진단 요약 헤더 */}
+      {/* 블록 1 — 진단 요약 헤더 (scored 판별 유니온 — 점수 없는 리포트에 0을 그리지 않는다) */}
       <Block no={1} title="진단 요약 — 일본 상세 관례 충족도">
-        <div className="flex flex-wrap items-end gap-6">
-          <p>
-            <span className="text-5xl font-extrabold">{b.block1.overallScore}</span>
-            <span className="text-xl text-neutral-500"> / 100</span>
-          </p>
-          <ul className="flex flex-wrap gap-2 text-xs">
-            {b.block1.trustBadges.map((badge) => (
-              <li key={badge} className="rounded-full border border-neutral-300 px-2 py-1 text-neutral-600">{badge}</li>
-            ))}
-          </ul>
-        </div>
-        <p className="text-xs text-neutral-500">종합점수는 성과 예측이 아니라 &ldquo;일본 상세 관례 충족도&rdquo;입니다.</p>
-        <p className="max-w-2xl whitespace-pre-line text-neutral-800">{b.block1.summaryText}</p>
-        <div>
-          <h3 className="text-sm font-semibold">최우선 재설계 Top 3</h3>
-          <ol className="mt-2 space-y-1 text-sm">
-            {b.block1.top3.map((t, i) => (
-              <li key={t.itemId}>
-                <span className="font-semibold text-[#D93636]">{i + 1}. {t.itemId}</span> {t.title} — {t.score}점
-              </li>
-            ))}
-          </ol>
-        </div>
+        {b.block1.scored ? (
+          <>
+            <div className="flex flex-wrap items-end gap-6">
+              <p>
+                <span className="text-5xl font-extrabold">{b.block1.overallScore}</span>
+                <span className="text-xl text-neutral-500"> / 100</span>
+              </p>
+              <ul className="flex flex-wrap gap-2 text-xs">
+                {b.block1.trustBadges.map((badge) => (
+                  <li key={badge} className="rounded-full border border-neutral-300 px-2 py-1 text-neutral-600">{badge}</li>
+                ))}
+              </ul>
+            </div>
+            <p className="text-xs text-neutral-500">종합점수는 성과 예측이 아니라 &ldquo;일본 상세 관례 충족도&rdquo;입니다.</p>
+            <p className="max-w-2xl whitespace-pre-line text-neutral-800">{b.block1.summaryText}</p>
+            <div>
+              <h3 className="text-sm font-semibold">최우선 재설계 Top 3</h3>
+              <ol className="mt-2 space-y-1 text-sm">
+                {b.block1.top3.map((t, i) => (
+                  <li key={t.itemId}>
+                    <span className="font-semibold text-[#D93636]">{i + 1}. {t.itemId}</span> {t.title} — {t.score}점
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm">
+              <p className="font-semibold text-neutral-800">종합점수 없음 — {b.block1.lockedReason}</p>
+              <p className="mt-1 text-neutral-600">{b.block1.unlockHint}</p>
+            </div>
+            <ul className="flex flex-wrap gap-2 text-xs">
+              {b.block1.trustBadges.map((badge) => (
+                <li key={badge} className="rounded-full border border-neutral-300 px-2 py-1 text-neutral-600">{badge}</li>
+              ))}
+            </ul>
+            <p className="max-w-2xl whitespace-pre-line text-neutral-800">{b.block1.summaryText}</p>
+          </>
+        )}
       </Block>
 
       {/* 블록 2 — 페르소나·구매여정·USP */}
@@ -153,7 +181,10 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
         </div>
       </Block>
 
-      {/* 블록 3 — 약기법 전수 감사 */}
+      {/* 블록 3 — 약기법 전수 감사 (null = 브랜드 진단 데이터 잠금) */}
+      {b.block3 === null ? (
+        <LockedBlock no={3} title="薬機法 표현 전수 감사 (1차 스크리닝)" unlocks="문장별 불가/조건부/가능 판정과 조항 각주·합법 대체 표현이 열립니다" />
+      ) : (
       <Block no={3} title="薬機法 표현 전수 감사 (1차 스크리닝)">
         <p className="rounded-lg bg-neutral-50 p-3 text-sm text-neutral-700">{b.block3.gradeNote}</p>
         <div className="overflow-x-auto">
@@ -206,6 +237,7 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
         </div>
         <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-600">{b.block3.disclaimer}</p>
       </Block>
+      )}
 
       {/* 블록 4 — 벤치마크 */}
       <Block no={4} title={`카테고리 경쟁 벤치마크 (코퍼스 ${b.block4.sampleCount}건 실측)`}>
@@ -234,7 +266,8 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
                 <tr key={row.device} className="border-b border-neutral-100 align-top">
                   <td className="py-2 pr-3 font-medium">{row.device}</td>
                   <td className="py-2 pr-3 text-neutral-700" lang="ja">{row.corpusExample}</td>
-                  <td className={`py-2 pr-3 font-medium ${row.customerStatus === '관찰됨' ? 'text-emerald-700' : 'text-red-700'}`}>{row.customerStatus}</td>
+                  {/* 3분기: 관찰됨(녹) / 미확인(중립 — 브랜드 진단: 찾아본 적 없음) / 미관찰(적 — 찾아봤는데 없음) */}
+                  <td className={`py-2 pr-3 font-medium ${row.customerStatus === '관찰됨' ? 'text-emerald-700' : row.customerStatus === '미확인' ? 'text-neutral-500' : 'text-red-700'}`}>{row.customerStatus}</td>
                   <td className="py-2 text-neutral-600">{row.gapNote}</td>
                 </tr>
               ))}
@@ -255,7 +288,10 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
         )}
       </Block>
 
-      {/* 블록 5 — A~E 점수 */}
+      {/* 블록 5 — A~E 점수 (null = 브랜드 진단 데이터 잠금) */}
+      {b.block5 === null ? (
+        <LockedBlock no={5} title="일본 문법 진단 점수 (A~E 루브릭)" unlocks="A~E 축별 채점과 통과 기준·내 문장·코퍼스 근거가 열립니다" />
+      ) : (
       <Block no={5} title="일본 문법 진단 점수 (A~E 루브릭)">
         <div className="space-y-2">
           {Object.entries(b.block5.groupScores).map(([group, score]) => (
@@ -265,7 +301,8 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
                 <div className="h-full bg-[#FF6464]" style={{ width: `${score}%` }} />
               </div>
               <span className="w-14 text-right tabular-nums">{score}%</span>
-              <span className="w-16 text-right text-xs text-neutral-500">가중 {b.block5.weights[group as keyof typeof b.block5.weights]}</span>
+              {/* b.block5!는 이 분기(=== null의 반대)에서만 렌더되지만 콜백 스코프라 TS 좁힘이 풀린다 */}
+              <span className="w-16 text-right text-xs text-neutral-500">가중 {b.block5!.weights[group as 'A' | 'B' | 'C' | 'D' | 'E']}</span>
             </div>
           ))}
         </div>
@@ -288,6 +325,7 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
           ))}
         </div>
       </Block>
+      )}
 
       {/* 블록 6 — 리뷰 인과 서사 */}
       <Block no={6} title="리뷰(口コミ) 인과 서사 — 카테고리 일반형">
@@ -314,7 +352,10 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
         <p className="text-xs text-neutral-500">{b.block6.generalNote}</p>
       </Block>
 
-      {/* 블록 7 — NG/OK 재작성 */}
+      {/* 블록 7 — NG/OK 재작성 (null = 브랜드 진단 잠금 / rewrites:[] = 콜④ 실패 폴백 — 의미가 다르다) */}
+      {b.block7 === null ? (
+        <LockedBlock no={7} title="NG/OK 재작성 (Before/After + 한국어 병기)" unlocks="저점 문장의 Before/After 재작성과 한국어 역해설이 열립니다" />
+      ) : (
       <Block no={7} title="NG/OK 재작성 (Before/After + 한국어 병기)">
         {b.block7.rewrites.length === 0 ? (
           <p className="text-sm text-neutral-500">재작성 생성에 실패했습니다 — 재실행 시 채워집니다.</p>
@@ -355,8 +396,12 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
           </div>
         )}
       </Block>
+      )}
 
-      {/* 블록 8 — 비포&애프터 샘플 */}
+      {/* 블록 8 — 비포&애프터 샘플 (null = 브랜드 진단 데이터 잠금) */}
+      {b.block8 === null ? (
+        <LockedBlock no={8} title="비포&애프터 샘플 (한 블록 통째 재구성)" unlocks="한 블록을 통째로 재구성한 일본어 샘플과 한국어 병기가 열립니다" />
+      ) : (
       <Block no={8} title="비포&애프터 샘플 (한 블록 통째 재구성)">
         {b.block8.afterJaBlock ? (
           <div className="rounded-xl border border-neutral-200 p-5 text-sm">
@@ -371,6 +416,7 @@ export function ReportView({ blocks, reviewerName, reviewerSignedAt }: ReportVie
           <p className="text-sm text-neutral-500">샘플 생성에 실패했습니다 — 재실행 시 채워집니다.</p>
         )}
       </Block>
+      )}
 
       {/* 블록 9 — 맺음 */}
       <Block no={9} title="맺음 · 규정 출처 · 한계 · 다음 단계">

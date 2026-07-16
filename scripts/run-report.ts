@@ -30,15 +30,19 @@ const CICA_COPY = [
 ].join('\n');
 
 const FIXTURE_INPUT: TierInput = {
+  mode: 'brandProduct',
+  // 브랜드 섹션 (스펙 §3.1 v4)
+  brandName: 'HARUON',
+  positioning: { tags: ['calming', 'sensitive', 'ingredientLed'], note: '민감성 피부를 위한 병풀 진정 앰플 중심 스킨케어' },
   category: 'skincare',
+  targetMemo: '민감성 피부, 20~30대',
+  // 제품 섹션
   productClass: '화장품',
   sourceType: 'text',
   sourceText: CICA_COPY,
-  brandName: 'HARUON',
   productName: 'CICA 진정 앰플',
   keyIngredients: ['센텔라아시아티카(CICA)'],
   priceJpy: 2800,
-  targetMemo: '민감성 피부, 20~30대',
 };
 
 async function main(): Promise<void> {
@@ -62,11 +66,12 @@ async function main(): Promise<void> {
   const b = result.blocksJson;
   logger.info('파이프라인 완료', {
     durationMs: Date.now() - startedAt,
+    mode: b.meta.mode,
     overallScore: result.overallScore,
     groupScores: result.groupScores,
     top3: result.top3.map((t) => `${t.itemId}(${t.score})`),
-    auditSummary: b.block3.summary,
-    rewriteCount: b.block7.rewrites.length,
+    auditSummary: b.block3?.summary ?? '(브랜드 진단 — 감사 없음)',
+    rewriteCount: b.block7?.rewrites.length ?? 0,
     blocks: Object.keys(b).filter((k) => k.startsWith('block')).length,
   });
 
@@ -76,9 +81,9 @@ async function main(): Promise<void> {
   } else {
     // 요약만 출력(전체는 --out으로)
     process.stdout.write('\n[블록1 총평]\n' + b.block1.summaryText + '\n');
-    process.stdout.write('\n[블록3 감사 요약] ' + JSON.stringify(b.block3.summary) + '\n');
+    process.stdout.write('\n[블록3 감사 요약] ' + JSON.stringify(b.block3?.summary ?? null) + '\n');
     process.stdout.write(
-      '\n[블록7 재작성 1건 예시]\n' + JSON.stringify(b.block7.rewrites[0] ?? null, null, 2) + '\n',
+      '\n[블록7 재작성 1건 예시]\n' + JSON.stringify(b.block7?.rewrites[0] ?? null, null, 2) + '\n',
     );
   }
 }

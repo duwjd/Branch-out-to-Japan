@@ -16,42 +16,46 @@ function pickQuote(badges: { text: string; count: number }[], patterns: RegExp[]
   return '';
 }
 
-/** 사전집계 + 사전 신호로 벤치마크 데이터를 만든다 */
-export function buildBenchmark(category: Category, signals: PreSignals): BenchmarkData {
+/**
+ * 사전집계 + 사전 신호로 벤치마크 데이터를 만든다.
+ * signals=null 은 브랜드 진단(콘텐츠 미제출) — 이때 "내 콘텐츠" 칸은 반드시 '미확인'이다.
+ * '미관찰'은 *찾아봤는데 없었다*는 주장이라, 찾아본 적 없는 콘텐츠에 쓰면 근거 없는 판정이 된다(증거 원칙).
+ */
+export function buildBenchmark(category: Category, signals: PreSignals | null): BenchmarkData {
   const agg = getCategoryAggregate(category);
   if (!agg) {
     return { sampleCount: 0, corpusQuotes: [], comparisonRows: [], searchTermRows: [] };
   }
 
-  const devices: { device: string; patterns: RegExp[]; customerHas: boolean; gapNote: string }[] = [
+  const devices: { device: string; patterns: RegExp[]; customerHas: boolean | null; gapNote: string }[] = [
     {
       device: '효능 근거 라벨',
       patterns: [/効能評価|試験/],
-      customerHas: false, // 근거 라벨 존재는 콜①(A1)이 판정 — 여기선 각주·수치 신호로 근사
+      customerHas: signals ? false : null, // 근거 라벨 존재는 콜①(A1)이 판정 — 여기선 각주·수치 신호로 근사
       gapNote: '효능 주장에 시험·근거 라벨을 세트로 붙이는 것이 관례 (루브릭 A1)',
     },
     {
       device: '조건 각주(※/＊)',
       patterns: [/※|＊/],
-      customerHas: signals.hasFootnoteMark,
+      customerHas: signals ? signals.hasFootnoteMark : null,
       gapNote: '주장의 범위를 스스로 한정하는 각주 문화 (루브릭 A2)',
     },
     {
       device: '프리 처방(무첨가) 라벨',
       patterns: [/フリー|無添加|無香料|無着色/],
-      customerHas: signals.hasFreeLabel,
+      customerHas: signals ? signals.hasFreeLabel : null,
       gapNote: '"무엇을 뺐나"를 배지로 명시 (루브릭 B1)',
     },
     {
       device: '제3자 지표(랭킹·리뷰·수상)',
       patterns: [/ランキング|1位|受賞|レビュー|ベストコスメ/],
-      customerHas: signals.hasThirdPartyProof,
+      customerHas: signals ? signals.hasThirdPartyProof : null,
       gapNote: '자화자찬 대신 검증 가능한 외부 지표 + 집계일 (루브릭 A4)',
     },
     {
       device: '성분 정량(%)·기전',
       patterns: [/\d+(\.\d+)?%|配合/],
-      customerHas: signals.hasIngredientPercent,
+      customerHas: signals ? signals.hasIngredientPercent : null,
       gapNote: '성분명 + 농도·기전까지 제시 (루브릭 D1·D2)',
     },
   ];
@@ -67,8 +71,9 @@ export function buildBenchmark(category: Category, signals: PreSignals): Benchma
     comparisonRows.push({
       device: d.device,
       corpusExample: quote || '(이 표본에서 대표 표현 미발견)',
-      customerStatus: d.customerHas ? '관찰됨' : '미관찰',
-      gapNote: d.gapNote,
+      // 3분기: 관찰됨 / 미관찰(스캔했는데 없음) / 미확인(스캔 자체를 안 함 — 브랜드 진단)
+      customerStatus: d.customerHas === null ? '미확인' : d.customerHas ? '관찰됨' : '미관찰',
+      gapNote: d.customerHas === null ? '상세페이지 카피를 넣으면 대비가 산출됩니다' : d.gapNote,
     });
   }
 

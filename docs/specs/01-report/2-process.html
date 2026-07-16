@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>① 진단 리포트 · 와이어프레임 · 2. 진단 처리</title>
+<!--
+  비배포 · 기획 검토용. 정본: 01-report-ui-기획서.md # 2. 진단 처리 (PROCESS-00~03)
+  구현 대조: app/app/report/[id]/page.tsx · app/api/report/[id]/status/route.ts
+-->
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<header class="docnav">
+  <div class="docnav-inner">
+    <a class="logo" href="index.html">KGLOW<em>.</em> 와이어프레임</a>
+    <span class="tag">① 진단 리포트</span>
+    <nav class="links">
+      <a href="index.html">플로우 맵</a>
+      <a href="1-input.html">1 · 입력</a>
+      <a class="on" href="2-process.html">2 · 처리</a>
+      <a href="3-report.html">3 · 리포트</a>
+      <a href="01-report-ui-기획서.md">기획서 ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main class="doc">
+  <div class="doc-head">
+    <h1>2. 진단 처리</h1>
+    <p class="sub">
+      <code>/app/report/:id</code> · 기획서 <b>PROCESS-00 ~ PROCESS-03</b>.
+      같은 URL이 상태에 따라 처리 로딩 / 실패 / 리포트로 갈린다. 이 파일은 앞의 둘을 다룬다.
+      리포트는 <a class="backlink" href="3-report.html">3 · 리포트</a>.
+    </p>
+    <p class="meta">
+      <span>2.5초 폴링</span>
+      <span>규칙 5단계 + LLM 4콜</span>
+      <span>실 LLM 약 2분</span>
+    </p>
+  </div>
+
+  <!-- ══ 처리 로딩 ═══════════════════════════════ -->
+  <section class="screen" id="f-loading">
+    <div class="screen-head">
+      <span class="screen-num">PROCESS-01</span>
+      <h2>처리 로딩</h2>
+      <span class="role">submitted · processing</span>
+    </div>
+    <p class="screen-desc">
+      진입 즉시 1회 조회하고 이후 <b>2.5초 간격</b>으로 폴링한다. 터미널 상태에 닿으면 멈춘다.
+      <b>남은 시간을 예측하지 않는다</b> &mdash; LLM 콜 소요를 알 수 없으므로 비율 없는 진행 바를 쓴다.
+    </p>
+
+    <div class="frame">
+      <div class="chrome">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="url">kglow.app/app/report/r_8f31c0a2</span>
+      </div>
+      <div class="pad-lg">
+        <div class="stack-wide">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap">
+            <a class="backlink" href="1-input.html">← 새 진단</a>
+            <span class="badge badge-warn">로컬 저장(dev)</span>
+          </div>
+
+          <div class="card" style="margin-top:16px; text-align:center; padding:40px 24px" role="status" aria-live="polite">
+            <p class="h-sec" style="font-size:17px">진단 리포트를 생성하고 있습니다…</p>
+            <p class="t-body" style="margin-top:8px">루브릭 채점 · 약기법 감사 · 페르소나 (병렬 진단 중)</p>
+            <div class="progress" style="margin-top:22px"><i></i></div>
+            <p class="t-help" style="margin-top:16px">규칙 엔진 + LLM 4콜 파이프라인 &mdash; 수 분이 걸릴 수 있습니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">
+      <b>1b</b> 단계명은 내부 코드가 아니라 한글로 보여준다. 사용자가 알아야 할 것은
+      &ldquo;<code>llmCalls</code> 중&rdquo;이 아니라 &ldquo;무엇을 하는 중&rdquo;인지다.
+      화면을 닫아도 처리는 백그라운드에서 계속된다(<b>PROCESS-03</b>).
+    </p>
+  </section>
+
+  <!-- ══ 단계 매핑 ═══════════════════════════════ -->
+  <section class="screen" id="f-stages">
+    <div class="screen-head">
+      <span class="screen-num">PROCESS-01</span>
+      <h2>7단계 진행</h2>
+      <span class="role">1b · 단계명 매핑</span>
+    </div>
+    <p class="screen-desc">
+      파이프라인의 7단계가 순서대로 흐른다. 화면에는 <b>현재 단계 한 줄만</b> 노출되고,
+      아래는 그 매핑을 검토용으로 펼친 것이다(실제 화면에 목록은 없다).
+    </p>
+
+    <div class="frame">
+      <div class="pad">
+        <ul class="stagelist">
+          <li class="done"><span class="dot"></span>콘텐츠 정규화 · 문장 분해<span class="code">normalize</span></li>
+          <li class="done"><span class="dot"></span>신뢰 장치 신호 추출<span class="code">presignals</span></li>
+          <li class="now"><span class="dot"></span>루브릭 채점 · 약기법 감사 · 페르소나 (병렬 진단 중)<span class="code">llmCalls</span></li>
+          <li><span class="dot"></span>점수 집계(결정적)<span class="code">aggregate</span></li>
+          <li><span class="dot"></span>코퍼스 벤치마크 대비<span class="code">benchmark</span></li>
+          <li><span class="dot"></span>NG/OK 재작성 · 총평 생성<span class="code">call4</span></li>
+          <li><span class="dot"></span>9블록 조립<span class="code">assemble</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="note">
+      단계가 미상이면 &ldquo;대기 중&rdquo;을 출력한다. <code>llmCalls</code>는 콜①②③을 <b>병렬</b>로
+      돌리므로 한 줄로 묶어 보여준다. 집계는 코드가 하므로 <b>결정적</b>이다.
+    </p>
+  </section>
+
+  <!-- ══ 최초 로딩 · 폴링 오류 ═══════════════════ -->
+  <section class="screen" id="f-pollerr">
+    <div class="screen-head">
+      <span class="screen-num">PROCESS-01</span>
+      <h2>최초 로딩 · 폴링 오류</h2>
+      <span class="role">1c</span>
+    </div>
+    <p class="screen-desc">
+      폴링이 실패해도 <b>폴링을 멈추지 않는다</b>. 다음 회차가 성공하면 오류 메시지가 사라진다.
+      일시적 네트워크 오류로 사용자를 내쫓지 않기 위해서다.
+    </p>
+
+    <p class="state-label">최초 응답 전</p>
+    <div class="frame">
+      <div class="pad">
+        <div class="stack-wide">
+          <p class="t-body" role="status">불러오는 중…</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="state-label">폴링 응답 오류 (재시도는 계속됨)</p>
+    <div class="frame">
+      <div class="pad">
+        <div class="stack-wide">
+          <p class="alert alert-error" role="alert">HTTP 503</p>
+          <div class="card" style="margin-top:14px; text-align:center; padding:32px 24px" role="status">
+            <p class="h-sec" style="font-size:17px">진단 리포트를 생성하고 있습니다…</p>
+            <p class="t-body" style="margin-top:8px">점수 집계(결정적)</p>
+            <div class="progress" style="margin-top:20px"><i></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 처리 실패 ═══════════════════════════════ -->
+  <section class="screen" id="f-failed">
+    <div class="screen-head">
+      <span class="screen-num">PROCESS-02</span>
+      <h2>처리 실패</h2>
+      <span class="role">failed</span>
+    </div>
+    <p class="screen-desc">
+      <b>약기법 감사(콜②) 실패는 잡 전체 실패로 처리한다</b> &mdash; 감사표 없는 리포트는 발행하지 않는다.
+      나머지 콜은 실패해도 해당 블록만 폴백하고 리포트는 완성된다(<b>REPORT-10</b> 10b · <b>REPORT-11</b>).
+    </p>
+
+    <div class="frame">
+      <div class="chrome">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="url">kglow.app/app/report/r_8f31c0a2</span>
+      </div>
+      <div class="pad-lg">
+        <div class="stack-wide">
+          <a class="backlink" href="1-input.html">← 새 진단</a>
+
+          <div class="alert alert-error" style="margin-top:16px; padding:26px 22px" role="alert">
+            <p class="h-sec" style="color:var(--error-text)">진단 생성에 실패했습니다</p>
+            <p class="t-body" style="margin-top:8px; color:var(--ink-body)">
+              약기법 감사 응답을 해석하지 못했습니다. 입력 콘텐츠를 확인한 뒤 다시 시도해 주세요.
+            </p>
+            <a class="backlink" style="margin-top:14px; font-weight:600" href="1-input.html">입력을 수정해 다시 시도 →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">
+      실패 화면의 출구는 <b>입력 폼 재진입</b> 하나다(<b>INPUT-00</b>의 진입 경로 중 하나).
+      실패 사유를 그대로 노출해 무엇을 고쳐야 하는지 알린다.
+    </p>
+  </section>
+
+  <!-- ══ 기타 ════════════════════════════════════ -->
+  <section class="screen" id="f-etc">
+    <div class="screen-head">
+      <span class="screen-num">PROCESS-03</span>
+      <h2>기타</h2>
+    </div>
+
+    <div class="frame">
+      <div class="pad">
+        <div class="tablewrap">
+          <table class="t">
+            <thead><tr><th style="width:190px">정책</th><th>내용</th></tr></thead>
+            <tbody>
+              <tr><td>백그라운드 실행</td><td>응답 반환 후 실행된다. 화면을 닫아도 처리는 계속된다</td></tr>
+              <tr><td>소요</td><td>실 LLM 기준 약 2분</td></tr>
+              <tr><td>dev 배지</td><td>저장이 파일 폴백일 때 상단 우측에 &ldquo;로컬 저장(dev)&rdquo;</td></tr>
+              <tr><td>상시 출구</td><td>좌측 상단 &ldquo;← 새 진단&rdquo; 링크</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

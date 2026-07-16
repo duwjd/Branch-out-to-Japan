@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>① 진단 리포트 · 와이어프레임 — 플로우 맵</title>
+<!--
+  ════════════════════════════════════════════════════════════════════════════
+  비배포 · 기획 검토용 와이어프레임. 외부 CSS/JS/폰트/이미지 의존 없음.
+  정본: 01-report-ui-기획서.md (같은 폴더) — 화면 동작·상태·예외처리
+        ../01-report-spec.md — 9블록 내용·채점 공식
+        ../../08-data-flow.md §3.3 — 상태 머신
+        ../../../design/DESIGN.md — 코랄 토큰
+  ※ 화면 속 점수·문장·페르소나·일본어 카피는 UI 시연용 예시다.
+    출처는 ../01-report-sample-cica-ampoule.md(정본 샘플) — 새로 지어내지 않는다.
+  ════════════════════════════════════════════════════════════════════════════
+-->
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<header class="docnav">
+  <div class="docnav-inner">
+    <a class="logo" href="index.html">KGLOW<em>.</em> 와이어프레임</a>
+    <span class="tag">① 진단 리포트</span>
+    <nav class="links">
+      <a class="on" href="index.html">플로우 맵</a>
+      <a href="1-input.html">1 · 입력</a>
+      <a href="2-process.html">2 · 처리</a>
+      <a href="3-report.html">3 · 리포트</a>
+      <a href="01-report-ui-기획서.md">기획서 ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main class="doc">
+  <div class="doc-head">
+    <h1>① 진단 리포트 · 와이어프레임</h1>
+    <p class="sub">
+      <b>01-report-ui-기획서.md</b>의 4개 섹션·30행 정의표를 화면으로 옮긴 것이다.
+      모든 프레임에 기획서 번호(<code>INPUT-02</code> 등)를 달아 문서와 1:1로 대조된다.
+      기획서에 없는 화면·동작은 넣지 않았다.
+    </p>
+    <p class="meta">
+      <span>작성 2026.07.16</span>
+      <span>@Calia Kim</span>
+      <span>비배포 · 기획 검토용</span>
+      <span>단일 폴더 · 무의존</span>
+    </p>
+  </div>
+
+  <div class="docwarn">
+    <b>예시 데이터 고지.</b> 화면 속 종합점수(18/100)·감사 판정·K1~K11 문장·페르소나·일본어 카피는
+    정본 샘플(<code>../01-report-sample-cica-ampoule.md</code> · 가상 브랜드 HARUON CICA 앰플)에서 가져온
+    <b>UI 시연용 예시</b>다. 실제 진단 결과가 아니다. 코퍼스·규정 실측 밖의 가상 스탯은 넣지 않았다(증거 원칙).
+  </div>
+
+  <!-- ── 전체 플로우 ─────────────────────────────────── -->
+  <section class="screen" id="flow">
+    <div class="screen-head">
+      <span class="screen-num">FLOW</span>
+      <h2>전체 플로우</h2>
+      <span class="role">입력 → 처리 → 리포트 → 슬라이드</span>
+    </div>
+    <p class="screen-desc">
+      <b>파이프라인이 성공하면 곧바로 발행</b>되고, 고객은 리포트를 열람한 뒤 보고용 슬라이드를 내려받는다.
+      사람이 개입하는 단계는 없다(2026-07-16 검수 제거). 각 노드를 클릭하면 해당 화면으로 이동한다.
+    </p>
+
+    <div class="flowmap">
+      <div class="flow-row">
+        <a class="flow-node" href="1-input.html">
+          <span class="code">INPUT</span>
+          <h3>진단 입력</h3>
+          <p>브랜드 필수 · 제품 선택(콘텐츠 포함) · 두 진단 모드</p>
+        </a>
+        <span class="flow-arrow" aria-hidden="true">→</span>
+        <a class="flow-node" href="2-process.html">
+          <span class="code">PROCESS</span>
+          <h3>진단 처리</h3>
+          <p>2.5초 폴링 · 브랜드+제품 = LLM 4콜 / 브랜드 = 콜③ 1콜</p>
+        </a>
+        <span class="flow-arrow" aria-hidden="true">→</span>
+        <a class="flow-node" href="3-report.html">
+          <span class="code">REPORT</span>
+          <h3>리포트 열람</h3>
+          <p>블록 0~9 세로 스크롤 · 발행 배너 · 슬라이드 내보내기</p>
+        </a>
+      </div>
+    </div>
+
+    <p class="note">
+      <b>기획서 대조.</b> 노드 = 기획서 섹션. <code>INPUT</code> = <b># 1. 진단 입력</b> ·
+      <code>PROCESS</code> = <b># 2. 진단 처리</b> · <code>REPORT</code> = <b># 3. 리포트 열람</b>.
+      <br /><b>2026-07-16:</b> <s># 4. 검수 · 발행</s> 삭제 &mdash; 검수 단계가 제품에서 제거되어
+      <b>파이프라인 성공 = 발행</b>이 됐다. → <code>../01-report-spec.md</code> v3 배너
+    </p>
+  </section>
+
+  <!-- ── 상태 머신 ───────────────────────────────────── -->
+  <section class="screen" id="states">
+    <div class="screen-head">
+      <span class="screen-num">STATE</span>
+      <h2>상태 머신</h2>
+      <span class="role">08-data-flow §3.3</span>
+    </div>
+    <p class="screen-desc">
+      화면은 상태를 그리는 껍데기다. 아래 4개 상태가 화면 분기의 전부이며,
+      기획서의 각 상태 서술이 여기에 대응한다.
+    </p>
+
+    <div class="frame">
+      <div class="pad">
+        <div class="flowmap">
+          <div class="flow-row">
+            <span class="flow-node terminal" style="max-width:200px">
+              <span class="code">submitted</span>
+              <h3>제출됨</h3>
+              <p>요청 생성 직후. 처리 로딩 출력</p>
+            </span>
+            <span class="flow-arrow" aria-hidden="true">→</span>
+            <span class="flow-node terminal" style="max-width:200px">
+              <span class="code">processing</span>
+              <h3>처리 중</h3>
+              <p>7단계 진행. 2.5초 폴링</p>
+            </span>
+          </div>
+
+          <div class="flow-branch">
+            <div class="flow-row" style="margin-top:10px">
+              <span class="flow-node" style="max-width:240px">
+                <span class="code">published</span>
+                <h3>발행 완료</h3>
+                <p>파이프라인 성공 = 발행. 잡이 직접 세팅(사람 관여 0)</p>
+              </span>
+              <span class="flow-node terminal" style="max-width:240px">
+                <span class="code">failed</span>
+                <h3>처리 실패</h3>
+                <p>콜② 실패 = 잡 실패. 감사표 없는 리포트는 발행 X</p>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p class="note" style="margin-top:18px">
+          <b>터미널 상태</b>는 <code>published</code> · <code>failed</code> 2개다.
+          이 상태에 도달하면 폴링이 멈춘다(<b>PROCESS-01</b> 1a).
+          <br /><b>2026-07-16:</b> <s>needsReview</s> · <s>rejected</s> 삭제 &mdash; 검수 단계 제거.
+          기존엔 <code>signReport</code>만 <code>published</code>를 세팅했으나 이제 잡이 직접 세팅한다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 화면 인벤토리 ───────────────────────────────── -->
+  <section class="screen" id="inventory">
+    <div class="screen-head">
+      <span class="screen-num">MAP</span>
+      <h2>번호 ↔ 프레임 매핑</h2>
+    </div>
+    <p class="screen-desc">
+      기획서 정의표의 모든 번호가 어느 파일의 어느 프레임에 그려졌는지의 대조표다.
+      이미지 칸이 비어 있던 30행이 여기에 대응한다.
+    </p>
+
+    <div class="frame">
+      <div class="pad">
+        <div class="tablewrap">
+          <table class="t">
+            <thead>
+              <tr>
+                <th style="width:110px">번호</th>
+                <th style="width:180px">화면 · 상태</th>
+                <th>프레임</th>
+                <th style="width:96px">파일</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>INPUT-00</code></td><td>진입</td><td>플로우 맵으로 대체 (진입 경로 3종)</td><td><a class="backlink" href="index.html#flow">index</a></td></tr>
+              <tr><td><code>INPUT-01</code></td><td>화면 상단 안내</td><td>기본 상태 · dev 배지 상태</td><td><a class="backlink" href="1-input.html#f-default">1-input</a></td></tr>
+              <tr><td><code>INPUT-02</code></td><td>브랜드 (필수)</td><td>기본 상태 · 브랜드명 · 포지셔닝 칩(1~5) · 카테고리</td><td><a class="backlink" href="1-input.html#f-default">1-input</a></td></tr>
+              <tr><td><code>INPUT-03</code></td><td>제품 정보 (선택)</td><td>분류·제품명·성분·가격 · 콘텐츠 게이트(0자=브랜드 진단 / 50자 하드 / 200자 소프트) · URL 모드</td><td><a class="backlink" href="1-input.html#f-tier">1-input</a></td></tr>
+              <tr><td><code>INPUT-04</code></td><td>제출</td><td>비활성 · 활성 · 제출 중 · 실패</td><td><a class="backlink" href="1-input.html#f-submit">1-input</a></td></tr>
+              <tr><td><code>INPUT-05</code></td><td>기타</td><td>주석으로 기재</td><td><a class="backlink" href="1-input.html#f-etc">1-input</a></td></tr>
+
+              <tr><td><code>PROCESS-00</code></td><td>진입</td><td>플로우 맵으로 대체</td><td><a class="backlink" href="index.html#flow">index</a></td></tr>
+              <tr><td><code>PROCESS-01</code></td><td>처리 로딩</td><td>7단계 진행 · 최초 로딩 · 폴링 오류</td><td><a class="backlink" href="2-process.html#f-loading">2-process</a></td></tr>
+              <tr><td><code>PROCESS-02</code></td><td>처리 실패</td><td>실패 화면</td><td><a class="backlink" href="2-process.html#f-failed">2-process</a></td></tr>
+              <tr><td><code>PROCESS-03</code></td><td>기타</td><td>주석으로 기재</td><td><a class="backlink" href="2-process.html#f-etc">2-process</a></td></tr>
+
+              <tr><td><code>REPORT-00</code></td><td>진입</td><td>플로우 맵으로 대체</td><td><a class="backlink" href="index.html#flow">index</a></td></tr>
+              <tr><td><code>REPORT-01</code></td><td>상태 배너</td><td>발행 완료</td><td><a class="backlink" href="3-report.html#f-banner">3-report</a></td></tr>
+              <tr><td><code>REPORT-02</code></td><td>전역 배지</td><td>목 모드 · 정밀도 제한</td><td><a class="backlink" href="3-report.html#f-badge">3-report</a></td></tr>
+              <tr><td><code>REPORT-03~12</code></td><td>블록 0~9</td><td>9블록 전체 (세로 스크롤 1페이지 · 미터·스트립·매트릭스 시각화)</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
+              <tr><td><code>REPORT-02·04</code></td><td>브랜드 진단 잠금</td><td>블록 1·3·5·7·8 데이터 잠금 카드 · 대비표 "미확인" · 퍼널 3단</td><td><a class="backlink" href="3-report.html#f-brandmode">3-report</a></td></tr>
+              <tr><td><code>REPORT-13</code></td><td>기타</td><td>주석으로 기재</td><td><a class="backlink" href="3-report.html#f-etc">3-report</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">
+      <b>진입(-00) 행은 프레임을 따로 그리지 않았다.</b> 진입은 화면이 아니라 경로이므로
+      위 <a class="backlink" href="index.html#flow">전체 플로우</a>가 대신한다.
+      <br /><b>2026-07-16:</b> <code>REVIEW-00~06</code> 행 삭제(검수 제거). 슬라이드 내보내기는
+      기획서 개정 후 프레임을 추가한다.
+    </p>
+  </section>
+
+  <!-- ── 미결정 ──────────────────────────────────────── -->
+  <section class="screen" id="open">
+    <div class="screen-head">
+      <span class="screen-num">OPEN</span>
+      <h2>이 와이어프레임이 그리지 않은 것</h2>
+    </div>
+    <p class="screen-desc">
+      기획서에서 <b>(미정)·(추후 기획)·미구현</b>으로 표시한 항목은 화면을 그리지 않았다.
+      확정 전에 그리면 결정된 것처럼 읽히기 때문이다.
+      브랜드 진단의 데이터 잠금 상태는 <code>3-report.html#f-brandmode</code> 프레임으로 반영됐다(2026-07-16 시각화 개편과 함께).
+    </p>
+
+    <div class="frame">
+      <div class="pad">
+        <div class="tablewrap">
+          <table class="t">
+            <thead>
+              <tr>
+                <th style="width:150px">항목</th>
+                <th style="width:96px">상태</th>
+                <th>메모</th>
+                <th style="width:104px">근거 번호</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>PDF 내보내기</td>
+                <td><span class="badge badge-warn">미구현</span></td>
+                <td>블록 0 표지와 연동 전제. 형식·버튼 위치 미정</td>
+                <td><code>REPORT-13</code></td>
+              </tr>
+              <tr>
+                <td>웹 공유 링크</td>
+                <td><span class="badge badge-mute">미정</span></td>
+                <td>PDF 병행 여부 미확정</td>
+                <td><code>REPORT-13</code></td>
+              </tr>
+              <tr>
+                <td>🔴 면책의 대가물</td>
+                <td><span class="badge badge-error">별도 결정</span></td>
+                <td>검수 제거로 "법적 확정 판정 아님" 면책을 떠받치던 실명 서명이 사라짐. 무엇으로 대체할지 미정</td>
+                <td><code>../../decisions/DECISIONS.md</code></td>
+              </tr>
+              <tr>
+                <td>🔴 브랜드 진단 가격</td>
+                <td><span class="badge badge-error">미정</span></td>
+                <td>브랜드 진단도 유료 확정, 가격만 미정. 퍼널·표지는 "(가격 미정)"으로 단계만 서술</td>
+                <td><code>../../decisions/DECISIONS.md</code></td>
+              </tr>
+              <tr>
+                <td>결제 잠금(무료 샘플 경계)</td>
+                <td><span class="badge badge-warn">집행 미구현</span></td>
+                <td>샘플 = 표지 + 요약 일부(점수 가림) + 페르소나 맛보기. 자리(열람 직전)·경계는 확정, 집행은 가격·결제 수단 확정 후</td>
+                <td><code>REPORT-02</code></td>
+              </tr>
+              <tr>
+                <td>인증 · 온보딩 · 프리필</td>
+                <td><span class="badge badge-mute">범위 외</span></td>
+                <td>이번 범위에서 의도적 제외. 매번 직접 입력</td>
+                <td><code>INPUT-05</code></td>
+              </tr>
+              <tr>
+                <td>이미지 OCR 자동 추출</td>
+                <td><span class="badge badge-mute">추후 기획</span></td>
+                <td>텍스트 붙여넣기로 회피 중</td>
+                <td><code>INPUT-05</code></td>
+              </tr>
+              <tr>
+                <td>리뷰 URL 실측 분석</td>
+                <td><span class="badge badge-mute">추후 기획</span></td>
+                <td>폼에서 필드 제거(데드필드). 블록 6은 카테고리 일반형</td>
+                <td><code>REPORT-09</code></td>
+              </tr>
+              <tr>
+                <td>무료 약기법 체커 업셀</td>
+                <td><span class="badge badge-mute">범위 외</span></td>
+                <td>별도 모듈. 이 기획서 범위 아님</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

@@ -7,8 +7,8 @@ import { mkdirSync, existsSync } from 'node:fs';
 import { readFile, writeFile, appendFile } from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import type { DiagnosisRequestRecord, ReportRecord, ReviewQueueItem, Store } from './store';
-import type { ReportStatus, TierInput } from '../engine/types';
+import type { DiagnosisRequestRecord, ReportRecord, Store } from './store';
+import type { TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 
 const DATA_DIR = path.join(process.cwd(), '.data');
@@ -91,56 +91,6 @@ export function createFileStore(): Store {
       return serialized(async () => {
         const all = await readJson<ReportRecord[]>(REPORTS, []);
         return all.find((r) => r.requestId === requestId) ?? null;
-      });
-    },
-
-    listByStatus(status: ReportStatus) {
-      return serialized(async () => {
-        const requests = await readJson<DiagnosisRequestRecord[]>(REQUESTS, []);
-        const reports = await readJson<ReportRecord[]>(REPORTS, []);
-        const byId = new Map(reports.map((r) => [r.requestId, r]));
-        const items: ReviewQueueItem[] = [];
-        for (const request of requests.filter((r) => r.status === status)) {
-          const report = byId.get(request.id);
-          if (report) items.push({ request, report });
-        }
-        return items.sort((a, b) => a.request.createdAt.localeCompare(b.request.createdAt));
-      });
-    },
-
-    signReport(requestId, reviewerName) {
-      return serialized(async () => {
-        const now = new Date().toISOString();
-        const reports = await readJson<ReportRecord[]>(REPORTS, []);
-        const idx = reports.findIndex((r) => r.requestId === requestId);
-        if (idx >= 0) {
-          reports[idx] = { ...reports[idx], reviewerName, reviewerSignedAt: now, publishedAt: now, rejectedReason: null };
-          await writeJson(REPORTS, reports);
-        }
-        const requests = await readJson<DiagnosisRequestRecord[]>(REQUESTS, []);
-        const rIdx = requests.findIndex((r) => r.id === requestId);
-        if (rIdx >= 0) {
-          requests[rIdx] = { ...requests[rIdx], status: 'published', updatedAt: now };
-          await writeJson(REQUESTS, requests);
-        }
-      });
-    },
-
-    rejectReport(requestId, reason) {
-      return serialized(async () => {
-        const now = new Date().toISOString();
-        const reports = await readJson<ReportRecord[]>(REPORTS, []);
-        const idx = reports.findIndex((r) => r.requestId === requestId);
-        if (idx >= 0) {
-          reports[idx] = { ...reports[idx], rejectedReason: reason };
-          await writeJson(REPORTS, reports);
-        }
-        const requests = await readJson<DiagnosisRequestRecord[]>(REQUESTS, []);
-        const rIdx = requests.findIndex((r) => r.id === requestId);
-        if (rIdx >= 0) {
-          requests[rIdx] = { ...requests[rIdx], status: 'rejected', updatedAt: now };
-          await writeJson(REQUESTS, requests);
-        }
       });
     },
 
