@@ -31,13 +31,14 @@
 | `/login` | 로그인/가입(탭) | ① M3 | `public-onboarding` §5 |
 | `/onboarding` | 브랜드 프로필 4단계 | ① M3(최소형) | `public-onboarding` §6 |
 | `/app` | 대시보드 | ① M3(최소형) | `app-wireframe` |
-| `/app/report/new` | 티어 입력폼 | ① M3 | `report-wireframe` |
-| `/app/report/[id]` | 처리 로딩(폴링) + 9블록 뷰 | ① M3 | `report-wireframe` |
-| `/admin/review` | 검수 큐(서명·반려) — **와이어프레임 없음, 최소 1화면 신규** | ① M4 | 08 §7 공백 항목 |
+| `/app/report/new` | 진단 입력폼(브랜드 필수/제품 선택) | ① M3 | `specs/01-report/1-input.html` |
+| `/app/report/[id]` | 처리 로딩(폴링) + 9블록 뷰 + 슬라이드 내보내기 버튼 | ① M3 (슬라이드 버튼 M4) | `report-wireframe` |
 | `/app/studio/thumbnail` | 썸네일 변환기 | ② 주간 | `service-wireframe` |
 | `/app/library` | 자산 라이브러리 | ③ 주간 | `service-wireframe` |
 
-**서버 경계(①분):** 진단 제출 `POST /api/report` → 잡 실행 · 상태 폴링 `GET /api/report/[id]/status` · 검수 승인/반려 `POST /api/report/[id]/review` · PDF `GET /api/report/[id]/pdf` · 체커 `POST /api/checker`(stretch). Server Component 기본, 폼·폴링만 `"use client"`.
+> `/admin/review`(검수 큐)는 **삭제**됐다 — 2026-07-16 검수 단계 제거(`decisions/DECISIONS.md`). 화면·라우트 모두 없다.
+
+**서버 경계(①분):** 진단 제출 `POST /api/report` → **진단 모드 판정(제출 경계에서 서버가 1회: `source` 유무 → `tierInput.mode` — 08 §3.2)** → 잡 실행(성공 = 발행 · `brand` 모드는 stages `persona → benchmark → assemble`로 짧게 완주, **콜③ 실패 = 잡 실패**) · 상태 폴링 `GET /api/report/[id]/status` · PDF `GET /api/report/[id]/pdf` · **보고용 슬라이드 `GET /api/report/[id]/slides`**(동기 라우트 — 콜⑤ + 렌더 후 단일 HTML 응답, `published`만 허용·그 외 409. 08 §4.5 · 스펙 §10) · 체커 `POST /api/checker`(stretch). Server Component 기본, 폼·폴링만 `"use client"`.
 
 ## 3. 모듈 구조
 
@@ -47,11 +48,16 @@ lib/
   engine/               # ① 파이프라인 — Next 독립 순수 TS
     │                   #   이유: CLI 검증(M1~M2)·단위테스트·②의 콜② 재사용
     rules/              #   normalize · presignals · aggregate · benchmark · assemble
+    │                   #   + gates.ts — 입력 게이트 단일 정의(50자/200자/URL · 단위 테스트)
+    │                   #   + positioning.ts — 브랜드 포지셔닝 택소노미 16종(폼 칩 + 콜③ 공용)
+    │                   #   + slides.ts — 보고용 슬라이드 렌더러(순수 함수)
+    │                   #     모드별 골격(brandProduct 7장 / brand 4장)·모든 수치를 코드가 소유, blocksJson 주입 (스펙 §10.3)
     │                   #   → 결정적, 단위테스트 대상 (08 §3.2 회색 노드)
-    llm/                #   call1~call4 · checker — 08 §4 계약 구현
+    llm/                #   call1~call4 · runCall5(슬라이드 카피) · checker — 08 §4 계약 구현
     │                   #   + anthropic 클라이언트 · LlmCallLog 기록 · 폴백
-    grounding/          #   사전집계·규정요약·렉시콘 로더 (08 §2)
-    schemas/            #   콜별 출력 JSON 스키마 + TS 타입 (08 §4.1~4.5)
+    │                   #   ※ 콜⑤는 파이프라인 밖 — /api/report/[id]/slides가 직접 호출
+    grounding/          #   사전집계·규정요약·렉시콘 로더 (08 §2) — 콜⑤는 미주입
+    schemas/            #   콜별 출력 JSON 스키마 + TS 타입 (08 §4.1~4.6)
   db/                   # supabase 클라이언트 + 엔티티 접근 (08 §6)
   logger.ts             # console.log 금지 — scripts/crawl/lib/logger.mjs 패턴 이식
 scripts/
@@ -80,23 +86,25 @@ scripts/
 - **DoD:** 동일 입력 2회 → 종합점수 동일(테스트 5/5) ✅ · cica 실 LLM 17/100 = 정본 샘플 18/100과 1점 차 ✅
 
 ### M2 · 엔진 완성 (7/13~15)
-- [x] `llm/call2`(감사)·`llm/call3`(페르소나) — 콜①과 병렬 실행 (08 §4.7)
+- [x] `llm/call2`(감사)·`llm/call3`(페르소나) — 콜①과 병렬 실행 (08 §4.8)
 - [x] `rules/benchmark`(사전집계 대비) · `llm/call4`(재작성) · `rules/assemble`(9블록 조립)
 - [x] `LlmCallLog` 기록 · 폴백 규칙(콜② 실패 = 잡 실패 — 08 §3.2 표)
 - **DoD:** CLI로 blocksJson 완성 산출 ✅ · 증거원칙 육안 체크 ✅
 
 ### M3 · 화면 (7/14~16 — M2와 병행 가능)
 - [ ] Supabase Auth(`/login`) + 온보딩 최소형(`/onboarding`) *(기능 검증 빌드에서 **의도적 제외**(비로그인) — 도입 시점 팀 결정)*
-- [x] `/app/report/new` 티어 폼 (50자 하드게이트·200자 배지 — 프리필은 온보딩 도입 시)
+- [x] `/app/report/new` 티어 폼 (50자 하드게이트·200자 배지 — 프리필은 온보딩 도입 시) *("티어"는 v4 이전 어휘 — 이력 보존, 아래 v4 항목이 대체)*
+- [x] 입력 브랜드 우선 재구성(v4 · 2026-07-16) — 두 진단 모드(`brand`/`brandProduct`)·`positioning` 신설(택소노미 16종)·`gates.ts` 단일화 · 테스트 30/30 (스펙 §3 v4 · 08 §3.1~3.2)
 - [x] 제출 → `DiagnosisRequest` 저장 → 잡 실행 → `/app/report/[id]` 상태 폴링 로딩
 - [x] 9블록 뷰 렌더 (품의 표지·감사표·JP+KR 병기 카드 포함)
 - **DoD:** 웹에서 입력 → 리포트 열람 한 사이클 (AC-1.1) ✅
 
 ### M4 · 발행 체계 (7/16~17)
-- [x] `/admin/review` 검수 큐 — 목록·감사표 검토·실명 서명/반려 (08 §3.3 상태 머신) *(접근 제어는 인증 도입 시)*
+- [x] ~~`/admin/review` 검수 큐 — 목록·감사표 검토·실명 서명/반려 (08 §3.3 상태 머신)~~ → **폐기(2026-07-16)**: 검수 단계 제거로 화면·라우트·상태(`needsReview`·`rejected`)를 **삭제**했다. 당시 완료된 작업이나 제품에서 빠졌다 — 이력으로만 남긴다 (`decisions/DECISIONS.md` 2026-07-16 행)
+- [x] **보고용 슬라이드 내보내기** — `rules/slides.ts` 렌더러(7장 골격·수치는 코드) + `llm/runCall5`(카피만) + `GET /api/report/[id]/slides` + 리포트 화면 버튼 (스펙 §10 · 08 §4.5) · `slides.test.ts` 10건 통과
 - [ ] PDF 내보내기 (블록0 표지 연동 — 08 §8-D7)
 - [ ] *(stretch)* 무료 체커 `/checker`(+비로그인 3회 — 08 §8-D8) — 랜딩 `/`는 완료
-- **DoD:** needsReview → 서명 → published ✅ · **서명 없는 발행 불가** ✅ · PDF 잔여
+- **DoD(2026-07-16 개정):** ~~needsReview → 서명 → published · 서명 없는 발행 불가~~ **폐기** → **파이프라인 성공 = 발행**(`processing → published`, 사람 개입 0) ✅ · 슬라이드: `published`에서 버튼 → 외부 리소스 0건인 단일 HTML 다운로드(AC-10.1~10.3) · PDF 잔여
 
 ### ② 마케팅 스튜디오 (7/18~24) · ③ 운영 (7/25~31)
 > 각 스프린트 시작 시 이 형식으로 섹션 추가. ②는 `02-thumbnail-converter-spec` §5 실검증(API 키)부터, ③은 스펙 확정부터.
@@ -105,23 +113,26 @@ scripts/
 
 | 수단 | 대상 | 기준 |
 |---|---|---|
-| 단위테스트(node:test) | `rules/aggregate` 등 `rules/*` | 결정성: 같은 입력 → 같은 출력 (AC-2.2) |
+| 단위테스트(node:test) | `rules/aggregate` 등 `rules/*` | 결정성: 같은 입력 → 같은 출력 (AC-2.2) · `rules/slides`는 같은 입력 → 같은 HTML (AC-10.5) |
 | 골든 픽스처 | cica 샘플 카피 → CLI 실행 | [[specs/01-report-sample-cica-ampoule]]과 점수·판정 **방향** 대조 (완전 일치 요구 아님 — LLM 편차는 `LlmCallLog`로 관찰, 08 §8-D6) |
-| 수동 E2E 체크리스트 | 입력 → 열람 → 서명 → PDF | 로드맵 "한 사이클 작동" · UT(8/1~3) 시나리오와 동일 |
+| 수동 E2E 체크리스트 | 입력 → (자동 발행) → 열람 → 슬라이드·PDF | 로드맵 "한 사이클 작동" · UT(8/1~3) 시나리오와 동일. ~~서명~~ 단계 제거(2026-07-16) |
 | typecheck / CI | 전체 | PR 병합 전 (CONTRIBUTING) |
 
 ## 6. 참조 정본 (구현 시 무엇을 보는가)
 
 | 구현 대상 | 정본 |
 |---|---|
-| 입력 필드·검증·폴백 / 9블록 내용·AC | [[specs/01-report-spec]] §3·§4·§6 |
+| 입력 필드·검증·폴백 / 9블록 내용·AC | [[specs/01-report-spec]] §3(v4: 브랜드 필수/제품 선택 · 두 진단 모드)·§4·§6 |
+| 보고용 슬라이드(형식·7장 골격·산출 분담·AC) | [[specs/01-report-spec]] §10 |
 | LLM 콜 요청/응답 스키마·파라미터·폴백 | [[08-data-flow]] §4 |
 | 엔티티·저장 / 화면↔데이터 | [[08-data-flow]] §6·§7 |
 | 채점 항목·통과기준 (콜① grounding) | [[research/jp-detail-message-patterns]] §4 |
-| 화면 구성·상태·접근성 규약 | `design/wireframes/report-wireframe.html` · `public-onboarding-spec.md` §0 · `app-spec.md` |
+| 화면 구성·상태·접근성 규약 | 진단 입력폼 = `docs/specs/01-report/1-input.html` · `design/wireframes/report-wireframe.html`(9블록 뷰) · `public-onboarding-spec.md` §0 · `app-spec.md` |
 | 코딩 컨벤션 | `CLAUDE.md` (camelCase·JSDoc·로거·Server Component 기본) |
 
 ---
 
 ## 변경 이력
+- 2026-07-16 **입력 브랜드 우선 재구성(v4) · 두 진단 모드 반영**([[specs/01-report-spec]] v4 배너·§3 · [[08-data-flow]] §3.1~3.2 · [[decisions/DECISIONS]]). **[변경]** §2 라우트 맵 `/app/report/new` "티어 입력폼" → **진단 입력폼(브랜드 필수/제품 선택)** · 와이어프레임 정본 = `docs/specs/01-report/1-input.html` · 서버 경계에 모드 판정(제출 경계 1회: `source` 유무 → `tierInput.mode`)·`brand` 파이프라인(stages `persona → benchmark → assemble` · 콜③ 실패 = 잡 실패) 한 줄 · §3 `rules/` 주석에 `gates.ts`(게이트 단일 정의)·`positioning.ts`(택소노미 16종) 추가·슬라이드 골격 모드별(7장/4장) · §6 참조 정본 표 §3 서술·입력폼 화면 정본 갱신. **[추가]** M3 체크 항목: 입력 브랜드 우선 재구성(v4) — 테스트 30/30. 기존 M3 "티어 폼" 항목은 취소하지 않고 이력 주석만 부기.
+- 2026-07-16 **검수 제거 · 슬라이드 추가 반영**([[decisions/DECISIONS]] 2026-07-16 행). **[삭제]** §2 라우트 맵 `/admin/review` · 서버 경계 `POST /api/report/[id]/review`. **[폐기]** M4 검수 큐 태스크와 DoD("needsReview → 서명 → published"·"서명 없는 발행 불가") — 당시 충족했으나 제품에서 빠짐, 취소선으로 이력 보존. **[변경]** M4 DoD = **파이프라인 성공 = 발행**(사람 개입 0) · §5 E2E 체크리스트에서 서명 단계 제거. **[추가]** `GET /api/report/[id]/slides` 라우트 · `rules/slides.ts` 렌더러 · `llm/runCall5` · M4 슬라이드 태스크 · §6 참조 정본에 스펙 §10.
 - 2026-07-09 신규 작성: 공통 골격(스택·라우트·모듈) + ① 리포트 스프린트 마일스톤 M0~M4(엔진 우선). 원칙 = 정본 중복 없이 포인터, 태스크는 체크박스+DoD.

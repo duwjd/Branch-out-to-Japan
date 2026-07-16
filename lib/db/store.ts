@@ -21,19 +21,14 @@ export interface DiagnosisRequestRecord {
 export interface ReportRecord {
   requestId: string;
   blocksJson: BlocksJson;
-  overallScore: number;
-  groupScores: Record<RubricGroup, number>;
+  /** null = 브랜드 진단(점수 없음 — reports.overall_score nullable, 스펙 §3.3) */
+  overallScore: number | null;
+  /** 브랜드 진단은 {} — "채점 안 함"이지 0점이 아니다 */
+  groupScores: Partial<Record<RubricGroup, number>>;
   top3: { itemId: RubricItemId; title: string; score: number }[];
-  reviewerName: string | null;
-  reviewerSignedAt: string | null;
-  rejectedReason: string | null;
+  /** 파이프라인 완료 시각 — 잡이 직접 세팅한다(발행 = 파이프라인 성공) */
   publishedAt: string | null;
   createdAt: string;
-}
-
-export interface ReviewQueueItem {
-  request: DiagnosisRequestRecord;
-  report: ReportRecord;
 }
 
 export interface Store {
@@ -47,9 +42,6 @@ export interface Store {
   ): Promise<void>;
   saveReport(report: ReportRecord): Promise<void>;
   getReport(requestId: string): Promise<ReportRecord | null>;
-  listByStatus(status: ReportStatus): Promise<ReviewQueueItem[]>;
-  signReport(requestId: string, reviewerName: string): Promise<void>;
-  rejectReport(requestId: string, reason: string): Promise<void>;
   saveLlmLog(requestId: string | null, entry: LlmCallLogEntry): Promise<void>;
 }
 

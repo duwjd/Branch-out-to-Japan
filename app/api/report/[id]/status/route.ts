@@ -1,6 +1,6 @@
 /**
  * GET /api/report/[id]/status — 상태 폴링(08 §3.3).
- * 터미널 상태(needsReview·published·rejected·failed)에 도달하면 리포트 본문을 함께 반환한다.
+ * 터미널 상태(published·failed)에 도달하면 리포트 본문을 함께 반환한다.
  */
 
 import { NextResponse } from 'next/server';
@@ -15,8 +15,7 @@ export async function GET(
   const request = await store.getRequest(id);
   if (!request) return NextResponse.json({ error: '요청을 찾을 수 없습니다.' }, { status: 404 });
 
-  const terminal = ['needsReview', 'published', 'rejected', 'failed'].includes(request.status);
-  const report = terminal && request.status !== 'failed' ? await store.getReport(id) : null;
+  const report = request.status === 'published' ? await store.getReport(id) : null;
 
   return NextResponse.json({
     id: request.id,
@@ -29,9 +28,6 @@ export async function GET(
       ? {
           blocksJson: report.blocksJson,
           overallScore: report.overallScore,
-          reviewerName: report.reviewerName,
-          reviewerSignedAt: report.reviewerSignedAt,
-          rejectedReason: report.rejectedReason,
           publishedAt: report.publishedAt,
         }
       : null,

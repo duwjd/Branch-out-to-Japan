@@ -203,3 +203,47 @@ export const CHECKER_OUTPUT_SCHEMA = {
     okCount: { type: 'integer' },
   },
 } as const;
+
+/** 콜⑤ — 보고용 슬라이드 카피 (스펙 §10.5 · 08 §4.5) */
+const SLIDE_COPY_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['heading', 'lead', 'bullets'],
+  properties: {
+    heading: { type: 'string', description: '슬라이드 표제. 짧게(20자 내외)' },
+    lead: { type: 'string', description: '한 줄 요지. 결재자가 이 줄만 읽어도 뜻이 통해야 함' },
+    bullets: { type: 'array', items: { type: 'string' }, description: '결재 포인트 2~3개' },
+  },
+} as const;
+
+/**
+ * 콜⑤ — 모드별 고정 골격의 카피만(스펙 §10.4 v4). 숫자를 쓰지 말 것(렌더러가 blocksJson에서 인용).
+ * 키·순서는 lib/engine/types.ts의 SLIDE_KEYS_FULL / SLIDE_KEYS_BRAND가 정본.
+ */
+export const CALL5_OUTPUT_SCHEMA_FULL = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['cover', 'conclusion', 'score', 'risk', 'benchmark', 'beforeAfter', 'nextStep'],
+  properties: {
+    cover: SLIDE_COPY_SCHEMA,
+    conclusion: SLIDE_COPY_SCHEMA,
+    score: SLIDE_COPY_SCHEMA,
+    risk: SLIDE_COPY_SCHEMA,
+    benchmark: SLIDE_COPY_SCHEMA,
+    beforeAfter: SLIDE_COPY_SCHEMA,
+    nextStep: SLIDE_COPY_SCHEMA,
+  },
+} as const;
+
+/** 콜⑤ 브랜드 진단 덱(4장) — 결론·점수·리스크·비포애프터 장은 존재하지 않는다 */
+export const CALL5_OUTPUT_SCHEMA_BRAND = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['cover', 'positioning', 'benchmark', 'nextStep'],
+  properties: {
+    cover: SLIDE_COPY_SCHEMA,
+    positioning: SLIDE_COPY_SCHEMA,
+    benchmark: SLIDE_COPY_SCHEMA,
+    nextStep: SLIDE_COPY_SCHEMA,
+  },
+} as const;

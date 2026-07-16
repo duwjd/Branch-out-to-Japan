@@ -4,7 +4,7 @@
  */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { DiagnosisRequestRecord, ReportRecord, ReviewQueueItem, Store } from './store';
+import type { DiagnosisRequestRecord, ReportRecord, Store } from './store';
 import type { BlocksJson, ReportStatus, TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 
@@ -22,12 +22,9 @@ interface RequestRow {
 interface ReportRow {
   request_id: string;
   blocks_json: BlocksJson;
-  overall_score: number;
+  overall_score: number | null;
   group_scores: ReportRecord['groupScores'];
   top3: ReportRecord['top3'];
-  reviewer_name: string | null;
-  reviewer_signed_at: string | null;
-  rejected_reason: string | null;
   published_at: string | null;
   created_at: string;
 }
@@ -52,9 +49,6 @@ function toReportRecord(row: ReportRow): ReportRecord {
     overallScore: row.overall_score,
     groupScores: row.group_scores,
     top3: row.top3,
-    reviewerName: row.reviewer_name,
-    reviewerSignedAt: row.reviewer_signed_at,
-    rejectedReason: row.rejected_reason,
     publishedAt: row.published_at,
     createdAt: row.created_at,
   };
@@ -110,9 +104,6 @@ export function createSupabaseStore(): Store {
           overall_score: report.overallScore,
           group_scores: report.groupScores,
           top3: report.top3,
-          reviewer_name: report.reviewerName,
-          reviewer_signed_at: report.reviewerSignedAt,
-          rejected_reason: report.rejectedReason,
           published_at: report.publishedAt,
         },
         { onConflict: 'request_id' },
@@ -124,50 +115,6 @@ export function createSupabaseStore(): Store {
       const result = await client.from('reports').select().eq('request_id', requestId).maybeSingle<ReportRow>();
       if (result.error) throw new Error(`supabase getReport 실패: ${result.error.message}`);
       return result.data ? toReportRecord(result.data) : null;
-    },
-
-    async listByStatus(status: ReportStatus) {
-      const requests = must(
-        await client.from('diagnosis_requests').select().eq('status', status).order('created_at'),
-        'listByStatus.requests',
-      ) as RequestRow[];
-      if (requests.length === 0) return [];
-      const reports = must(
-        await client.from('reports').select().in('request_id', requests.map((r) => r.id)),
-        'listByStatus.reports',
-      ) as ReportRow[];
-      const byId = new Map(reports.map((r) => [r.request_id, r]));
-      const items: ReviewQueueItem[] = [];
-      for (const request of requests) {
-        const report = byId.get(request.id);
-        if (report) items.push({ request: toRequestRecord(request), report: toReportRecord(report) });
-      }
-      return items;
-    },
-
-    async signReport(requestId, reviewerName) {
-      const now = new Date().toISOString();
-      const reportResult = await client
-        .from('reports')
-        .update({ reviewer_name: reviewerName, reviewer_signed_at: now, published_at: now, rejected_reason: null })
-        .eq('request_id', requestId);
-      if (reportResult.error) throw new Error(`supabase signReport 실패: ${reportResult.error.message}`);
-      const requestResult = await client
-        .from('diagnosis_requests')
-        .update({ status: 'published', updated_at: now })
-        .eq('id', requestId);
-      if (requestResult.error) throw new Error(`supabase signReport(status) 실패: ${requestResult.error.message}`);
-    },
-
-    async rejectReport(requestId, reason) {
-      const now = new Date().toISOString();
-      const reportResult = await client.from('reports').update({ rejected_reason: reason }).eq('request_id', requestId);
-      if (reportResult.error) throw new Error(`supabase rejectReport 실패: ${reportResult.error.message}`);
-      const requestResult = await client
-        .from('diagnosis_requests')
-        .update({ status: 'rejected', updated_at: now })
-        .eq('id', requestId);
-      if (requestResult.error) throw new Error(`supabase rejectReport(status) 실패: ${requestResult.error.message}`);
     },
 
     async saveLlmLog(requestId, entry: LlmCallLogEntry) {

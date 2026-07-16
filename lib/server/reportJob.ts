@@ -3,7 +3,7 @@
  * MVP 실행 모델: Route Handler에서 after()로 킥오프(08 §6.2 — 지연 길어지면 큐 도입).
  */
 
-import { runReportPipeline, AuditFailedError } from '../engine/pipeline';
+import { runReportPipeline, AuditFailedError, PersonaFailedError } from '../engine/pipeline';
 import { SourceContentError } from '../engine/rules/normalize';
 import { getStore } from '../db/store';
 import { logger } from '../logger';
@@ -15,7 +15,7 @@ export async function createDiagnosisRequest(input: TierInput) {
   return store.createRequest(input);
 }
 
-/** 파이프라인 실행(processing → needsReview | failed) — 응답 후 백그라운드로 실행 */
+/** 파이프라인 실행(processing → published | failed) — 응답 후 백그라운드로 실행 */
 export async function runDiagnosisJob(requestId: string): Promise<void> {
   const store = await getStore();
   const request = await store.getRequest(requestId);
@@ -32,28 +32,26 @@ export async function runDiagnosisJob(requestId: string): Promise<void> {
       onLog: (entry) => store.saveLlmLog(requestId, entry),
     });
 
+    const now = new Date().toISOString();
     await store.saveReport({
       requestId,
       blocksJson: result.blocksJson,
       overallScore: result.overallScore,
       groupScores: result.groupScores,
       top3: result.top3,
-      reviewerName: null,
-      reviewerSignedAt: null,
-      rejectedReason: null,
-      publishedAt: null,
-      createdAt: new Date().toISOString(),
+      publishedAt: now,
+      createdAt: now,
     });
     await store.updateRequest(requestId, {
-      status: 'needsReview',
+      status: 'published',
       stage: null,
       precisionLimited: result.precisionLimited,
     });
-    logger.info('잡 완료 — 검수 대기', { requestId, overallScore: result.overallScore });
+    logger.info('잡 완료 — 발행', { requestId, mode: result.blocksJson.meta.mode, overallScore: result.overallScore });
   } catch (err) {
-    // 콜② 실패(감사 없는 발행 금지)·입력 오류 등 — 사유를 남기고 failed
+    // 치명 실패 3종(콜② 없는 풀 발행 금지 · 브랜드 진단 콜③ 실패 · 입력 오류) — 사유를 남기고 failed
     const reason =
-      err instanceof AuditFailedError || err instanceof SourceContentError
+      err instanceof AuditFailedError || err instanceof PersonaFailedError || err instanceof SourceContentError
         ? err.message
         : `파이프라인 오류: ${String((err as Error)?.message ?? err)}`;
     logger.error('잡 실패', { requestId, reason });

@@ -155,13 +155,38 @@ function lexiconSection(limit: number): string {
   return `[일본 뷰티 검색·고민 어휘(빈도 실측)] ${rows}`;
 }
 
-export type CallName = 'call1' | 'call2' | 'call3' | 'call4' | 'checker';
+/** 콜⑤ 슬라이드 골격 — 코드가 소유하는 모드별 고정 목록(스펙 §10.4 v4). LLM은 각 장의 카피만 쓴다 */
+const SLIDE_SKELETON_FULL = [
+  '- cover(표지): 무엇을 얼마에 진단했는가. 브랜드·제품은 렌더러가 넣으므로 카피는 한 줄 위치잡기만',
+  '- conclusion(결론 한 장): 결재자가 이 장만 봐도 판단 가능해야 함. 점수가 낮다면 왜 낮은지, 그래서 무엇이 위험한지',
+  '- score(점수·Top3): 어느 축이 왜 비었는지. "번역이 덜 된 게 아니라 신뢰 구조가 없다"는 요지',
+  '- risk(약기법 리스크): 광고 정지·수정 리스크를 상장 전에 제거한다는 관점',
+  '- benchmark(벤치마크 갭): 감이 아니라 일본 상위 제품 실측 대비 무엇이 빠졌는가',
+  '- beforeAfter(비포·애프터): 문장 하나가 어떻게 달라지는지 실감',
+  '- nextStep(다음 단계·비용): 그래서 무엇을 하나. 고정가라 견적 왕복이 없다는 점',
+].join('\n');
+
+/** 브랜드 진단 덱(4장) — 점수·감사가 없으므로 해당 장이 존재하지 않는다. 없는 결과를 언급·암시하지 말 것 */
+const SLIDE_SKELETON_BRAND = [
+  '- cover(표지): 무엇을 진단했는가(브랜드 진단 — 제품 콘텐츠 미제출). 브랜드명은 렌더러가 넣는다',
+  '- positioning(포지셔닝·USP 재정의): 일본 고객이 이 브랜드의 소구를 어떻게 읽는지, 구매 이유가 어떻게 재정의되는지',
+  '- benchmark(벤치마크): 일본 상위 제품이 신뢰를 어떻게 쌓는지(코퍼스 실측). 고객 콘텐츠 대비는 하지 않았음을 전제로',
+  '- nextStep(다음 단계·비용): 상세페이지 카피를 넣으면 약기법 감사·문법 점수·재작성이 열린다는 상향 동선',
+].join('\n');
+
+export type CallName = 'call1' | 'call2' | 'call3' | 'call4' | 'call5' | 'checker';
 
 /**
  * 콜별 안정 grounding(system 프리픽스) 조립 — 같은 카테고리·같은 콜이면 같은 문자열(캐시 히트 조건).
  * 가변 데이터(고객 문장 등)는 여기 넣지 말 것 — messages 페이로드로.
+ * deckMode는 콜⑤ 전용(모드별 골격 2종 — 각 모드 안에서는 여전히 캐시 안정, 스펙 §10.5).
  */
-export function buildStableGrounding(call: CallName, category: Category, productClass: ProductClass): string {
+export function buildStableGrounding(
+  call: CallName,
+  category: Category,
+  productClass: ProductClass,
+  deckMode: 'brand' | 'brandProduct' = 'brandProduct',
+): string {
   const parts: string[] = [];
   switch (call) {
     case 'call1':
@@ -192,6 +217,18 @@ export function buildStableGrounding(call: CallName, category: Category, product
         aggregateSection(category),
         lexiconSection(20),
         regulatorySection(productClass),
+      );
+      break;
+    case 'call5':
+      // 코퍼스·렉시콘·규정을 주입하지 않는다: 이 콜은 일본어 카피를 판정하지 않고,
+      // 근거는 이미 blocksJson에 구워져 페이로드로 온다. 캐시 프리픽스를 낭비하지 말 것(스펙 §10.5).
+      parts.push(
+        '너는 한국 뷰티 브랜드 담당자가 상사에게 올릴 품의 슬라이드의 카피를 쓴다. 독자는 일본 시장을 모르는 결재자다.',
+        '[품의 카피 원칙]\n- 결론부터. 표제는 사실을 말하고 형용사로 부풀리지 않는다.\n- 담당자가 "왜 이 돈을 썼는지"를 결재자에게 설명하는 자리다. 홍보가 아니라 보고다.\n- 존댓말 없이 단정형으로 짧게. 미사여구·완충어 금지.\n- 일본어를 모르는 결재자가 읽는다. 일본어 용어를 쓸 때는 한국어로 뜻을 밝힌다.',
+        deckMode === 'brand'
+          ? `[슬라이드 4장 골격 — 브랜드 진단. 고정. 장을 늘리거나 줄이지 말 것. 점수·감사 결과는 존재하지 않는다 — 언급 금지]\n${SLIDE_SKELETON_BRAND}`
+          : `[슬라이드 7장 골격 — 고정. 장을 늘리거나 줄이지 말 것]\n${SLIDE_SKELETON_FULL}`,
+        '[숫자 금지 — 가장 중요]\n점수·건수·표본 수·가격 등 어떤 수치도 쓰지 마라. 모든 수치는 코드가 리포트 원본에서 직접 인용해 넣는다. 페이로드의 수치는 카피의 논조를 잡기 위한 참고일 뿐이며, 카피에 옮겨 적으면 안 된다. 수치를 가리켜야 할 때는 "종합점수"·"불가 판정 문장"처럼 이름으로만 부르고 값은 비워 둔다.',
       );
       break;
     case 'checker':
