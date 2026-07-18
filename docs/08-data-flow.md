@@ -2,7 +2,7 @@
 
 > 3축 서비스에서 **사용자가 무엇을 입력하고, 시스템이 어떻게 가공해, 어떤 형태로 결과물을 제공하는가**를 한 장으로 잇는 개발 착수용 기준 문서.
 > 작성: 2026-07-09 · 상태: **개발 착수용 (7/11 ① 리포트 스프린트 기준)**
-> 관련: [[specs/01-report-spec]](스펙 정본 — 브랜드/제품 2단 입력·두 진단 모드·9블록·집계 공식) · [[specs/02-thumbnail-converter-spec]] · [[07-ia]](화면 위계) · [[research/jp-detail-message-patterns]](루브릭 정본) · [[09-dev-spec]](구현 순서·모듈 구조) · [../design/wireframes/public-onboarding-spec.md](../design/wireframes/public-onboarding-spec.md) · [../data/README.md](../data/README.md)
+> 관련: [[specs/01-report-spec]](스펙 정본 — 브랜드/제품 2단 입력·두 진단 모드·8블록·집계 공식) · [[specs/02-thumbnail-converter-spec]] · [[07-ia]](화면 위계) · [[research/jp-detail-message-patterns]](루브릭 정본) · [[09-dev-spec]](구현 순서·모듈 구조) · [../design/wireframes/public-onboarding-spec.md](../design/wireframes/public-onboarding-spec.md) · [../data/README.md](../data/README.md)
 >
 > **문서 역할 분담:** 필드 검증 규칙·집계 공식·블록별 산출 근거는 `01-report-spec.md`가 정본이다. 이 문서는 그것들을 **흐름(무엇이 어디로 흘러 무엇이 되는가)과 계약(LLM 요청/응답 스키마·저장 엔티티)** 관점으로 잇는다. 두 문서가 충돌하면 스펙을 고치든 이 문서를 고치든 **한쪽으로 정합화**한다.
 >
@@ -17,7 +17,7 @@
 | 액터 | 입력하는 것 | 받는 것 |
 |---|---|---|
 | **비로그인 방문자** | 카피 텍스트/URL + 제품분류 (무료 체커) | 위반 표현 후보 + 조항 근거 + 리포트 업셀 |
-| **로그인 브랜드** | 브랜드 프로필(온보딩) · 진단 입력(브랜드 섹션 필수 + 제품 섹션 선택 — 리포트) · 이미지+플랫폼(썸네일) | 리포트 9블록(`brand` 모드는 블록 1·3·5·7·8 데이터 잠금)·PDF·보고용 슬라이드(모드별 7장/4장) · 일본향 썸네일 · 자산 라이브러리 |
+| **로그인 브랜드** | 브랜드 프로필(온보딩) · 진단 입력(브랜드 섹션 필수 + 제품 섹션 선택 — 리포트) · 이미지+플랫폼(썸네일) | 리포트 8블록(`brand` 모드는 블록 1·3·5·7 데이터 잠금)·PDF·보고용 슬라이드(모드별 7장/4장) · 일본향 썸네일 · 자산 라이브러리 |
 | **시스템(배치)** | 코퍼스 원천(`data/raw`) | 사전집계·렉시콘 등 grounding 자산(§2) |
 
 ### 1.2 전체 흐름 한 장
@@ -38,9 +38,9 @@ flowchart TD
     subgraph APP["앱 영역 (로그인)"]
         BP -->|"브랜드 섹션 프리필"| FORM["① 진단 입력폼<br/>브랜드 필수 · 제품 선택"]
         FORM -->|"source 유무 → 모드 판정"| PIPE["리포트 생성 파이프라인 (§3·§4)<br/>brandProduct: 규칙 + LLM 4콜<br/>brand: 콜③ + 벤치마크(코퍼스 측)"]
-        PIPE -->|"성공 = 발행"| RPT["리포트 9블록 뷰 + PDF"]
+        PIPE -->|"성공 = 발행"| RPT["리포트 8블록 뷰 + PDF"]
         RPT -.->|"온디맨드 · 콜⑤ (§4.5)"| SLD["보고용 슬라이드<br/>단일 HTML"]
-        RPT -->|"블록9 고정가 퍼널"| ST["② 마케팅 스튜디오<br/>썸네일 변환 (§5)"]
+        RPT -->|"블록8 고정가 퍼널"| ST["② 마케팅 스튜디오<br/>썸네일 변환 (§5)"]
         ST --> LIB["③ 운영 · 자산 라이브러리"]
         RPT --> LIB
     end
@@ -75,7 +75,7 @@ flowchart TD
 | `data/processed/product-catalog.jsonl` | 제품 이미지 메타 1,261건 | OCR 파이프라인의 부모 카탈로그 (직접 주입 안 함) |
 | `data/processed/thumbnail-style-labels.jsonl` / `thumbnail-style-prompts.json` | 스타일 라벨 120건 · 프롬프트 팩 v1.1.0 | ② 썸네일 변환기(§5)가 직접 로드 |
 | **(신규 필요) `benchmark-aggregates.json`** | 카테고리별 사전집계 4종(상위 배지·성분·문법·리뷰 패턴 일반형) | 콜①·③·④ grounding — **원본 코퍼스를 통째로 넣지 않는다**(스펙 §5.2) |
-| **(신규 필요) `regulatory-summary.md`(가칭)** | 약기법 조항 프레임 요약(56항목·適正広告GL·景表法) + 각주 번호 체계 | 콜②·체커 grounding · 블록9 출처 |
+| **(신규 필요) `regulatory-summary.md`(가칭)** | 약기법 조항 프레임 요약(56항목·適正広告GL·景表法) + 각주 번호 체계 | 콜②·체커 grounding · 블록8 출처 |
 
 > ⚠️ **`detail-ocr.jsonl`이 현재 워킹 트리에서 삭제된 상태**(git status `D`, HEAD에는 보존). 리포트 스펙·샘플이 라인번호까지 인용하는 핵심 근거 파일이므로, 의도된 삭제가 아니면 `git restore data/processed/detail-ocr.jsonl`로 복구해야 한다.
 
@@ -164,14 +164,14 @@ flowchart TD
     N3["3 집계·가중·Top3 (규칙 · 결정적)<br/>그룹% → 카테고리 가중 → 종합 0~100<br/>단위 테스트 보증"] --> N4
 
     C2["콜② 약기법 전수 감사 (LLM)<br/>K1..Kn 문장별 불가/조건부/가능"] --> N4
-    C3["콜③ 페르소나·USP·리뷰 서사 (LLM)<br/>두 모드 공통 — brand 모드의 유일한 LLM 콜"] --> N4
+    C3["콜③ 페르소나·USP·이탈 경로 (LLM)<br/>두 모드 공통 — brand 모드의 유일한 LLM 콜"] --> N4
 
     N4["4 벤치마크 대비 (규칙 · MVP)<br/>사전집계 인용 + 정규식 대비표<br/>brand 모드: 코퍼스 측만 — 내 콘텐츠 칸 = 미확인"] --> C4
     C4["콜④ NG/OK 재작성 + KR병기 + 샘플 + 총평 (LLM)<br/>입력: 콜① 저점 + 콜② 불가/조건부 문장"] --> N5
     N4 -.->|"brand 모드: 콜④ 건너뛰고 바로 조립"| N5
 
-    N5["5 리포트 조립 (규칙)<br/>brandProduct: 9블록 전부<br/>brand: 블록 0·2·4(코퍼스 측)·6·9 완전 + 1·3·5·7·8 데이터 잠금<br/>Report 저장 · status=published"] --> OUT
-    OUT["출력: 9블록 웹 뷰 + PDF<br/>(+ 온디맨드 슬라이드 — §4.5)"]
+    N5["5 리포트 조립 (규칙)<br/>brandProduct: 8블록 전부<br/>brand: 블록 0·2·4(코퍼스 측)·6·8 완전 + 1·3·5·7 데이터 잠금<br/>Report 저장 · status=published"] --> OUT
+    OUT["출력: 8블록 웹 뷰 + PDF<br/>(+ 온디맨드 슬라이드 — §4.5)"]
 
     N2 -.-> C2
     N2 -.-> C3
@@ -193,10 +193,10 @@ flowchart TD
 | 콜① 채점 | 평문+사전신호+`category`/`productClass`+**적용 항목 목록**(E군은 코드가 카테고리로 선별) | 항목별 `{itemId, score, evidenceQuote, criterionRef, corpusRef}` | LLM | 루브릭 §4 전문 + 사전집계 | §4.0 공통 폴백 → 블록5 "정밀도 제한" | ❌ |
 | 3 집계 | 콜① 점수 | 그룹%·종합 0~100·저점 Top3 | 규칙(결정적) | 카테고리 가중치 표(스펙 블록5) | — (순수 함수, 단위 테스트) | ❌ (종합점수 없음 — 대체 수치 발명 금지, `block1`은 `scored: false` 판별 유니온) |
 | 콜② 감사 | K1..Kn + `productClass` | 문장별 판정+조항각주+합법 대체표현 | LLM | 규정 출처 요약 | 폴백 → 블록3 생략 불가이므로 **재시도 후에도 실패 시 잡 실패 처리**(불변식 v4 재서술: **제품 콘텐츠가 제출된 진단은 감사표 없이 발행하지 않는다**) | ❌ (감사 대상 문장 자체가 없다) |
-| 콜③ 페르소나 | (brandProduct만) 콘텐츠 요약 + **`brandName`·`positioning`(v4 신규·필수)** + `category`/`priceJPY`/`targetMemo` | 페르소나·여정·반대이유·USP표·리뷰 서사 | LLM | 사전집계(카테고리 관례·리뷰 일반형) | 폴백 → 블록2·6 카테고리 일반형 템플릿 | ✅ (유일한 LLM 콜) |
+| 콜③ 페르소나 | (brandProduct만) 콘텐츠 요약 + **`brandName`·`positioning`(v4 신규·필수)** + `category`/`priceJPY`/`targetMemo` | 페르소나·여정·반대이유·USP표·이탈 경로 | LLM | 사전집계(카테고리 관례·벤치마크 갭) | 폴백 → 블록2·6 카테고리 일반형 템플릿 | ✅ (유일한 LLM 콜) |
 | 4 벤치마크 | 사전집계 + 고객 문장 | 인용·대비표·검색표기 전환 데이터 | 규칙(MVP) | `benchmark-aggregates.json`+렉시콘 | 사전집계 결손 카테고리 → 블록4 축소 렌더 | ✅ 코퍼스 측만 — 대비표 "내 콘텐츠" 칸 = **"미확인"**("미관찰" 금지 — 찾아봤다는 주장이 된다) |
-| 콜④ 재작성 | 저점 항목(3단계)+불가/조건부 문장(콜②)+원문 | 총평+NG/OK 3~5쌍(JP+KR역문)+샘플 1종 | LLM | 코퍼스 실측 표현+렉시콘 | 폴백 → 블록7·8 축소 + "정밀도 제한" | ❌ |
-| 5 조립 | 전 단계 산출물 | `Report`(블록0~9 JSON) 저장 · `status=published` | 규칙 | 고정가 퍼널표 상수 | — (조립 실패 = 잡 실패) | ✅ (블록 0·2·4(코퍼스 측)·6·9 완전 + 1·3·5·7·8 데이터 잠금) |
+| 콜④ 재작성 | 저점 항목(3단계)+불가/조건부 문장(콜②)+원문 | 총평+NG/OK 3~5쌍(JP+KR역문)+샘플 1종 | LLM | 코퍼스 실측 표현+렉시콘 | 폴백 → 블록7 축소 + "정밀도 제한" | ❌ |
+| 5 조립 | 전 단계 산출물 | `Report`(블록0~8 JSON) 저장 · `status=published` | 규칙 | 고정가 퍼널표 상수 | — (조립 실패 = 잡 실패) | ✅ (블록 0·2·4(코퍼스 측)·6·8 완전 + 1·3·5·7 데이터 잠금) |
 
 **콜 간 의존과 병렬성:** `brandProduct` 모드에서 콜①·②·③은 서로 독립(①·②는 1·2단계 산출물, ③은 입력 스냅샷을 소비) → **병렬 실행**. 콜④만 콜①(저점)·콜②(위반 문장)에 의존 → 집계 후 실행. `brand` 모드는 콜③ 하나뿐이라 병렬 구간이 없다(stages = `persona → benchmark → assemble`). §4.8 시퀀스 다이어그램 참조.
 
@@ -220,13 +220,13 @@ stateDiagram-v2
 ```
 
 - **`needsReview`·`rejected`는 삭제됐다**(2026-07-16). 파이프라인 성공이 곧 `published`이고, 실패는 `failed` 하나로 수렴한다.
-- `precisionLimited`(200자 소프트선)·`isDemoSample`(블록8 데모 라벨)은 상태가 아니라 **플래그** — `Report`에 저장돼 렌더에만 영향.
+- `precisionLimited`(200자 소프트선)·`isDemoSample`(블록7 하이라이트 데모 라벨)은 상태가 아니라 **플래그** — `Report`에 저장돼 렌더에만 영향.
 
 ### 3.4 출력
 
 | 산출물 | 형태 | 생성 방식 |
 |---|---|---|
-| **리포트 9블록 웹 뷰** | 앱 내 1페이지 스크롤(블록0~9, [[07-ia]] §6 화면 인벤토리) | `Report.blocksJson`을 블록 컴포넌트로 렌더 |
+| **리포트 8블록 웹 뷰** | 앱 내 1페이지 스크롤(블록0~8, [[07-ia]] §6 화면 인벤토리) | `Report.blocksJson`을 블록 컴포넌트로 렌더 |
 | **PDF** | 품의용(블록0 표지 포함) | 웹 뷰와 동일 데이터의 서버 렌더(구현 방식은 스프린트 중 확정) |
 | **보고용 슬라이드** | 단일 self-contained HTML · **모드별 골격**(brandProduct 7장 / brand 4장, 16:9) | 리포트 화면 버튼 → **온디맨드** 생성(§4.5 콜⑤ + 코드 렌더러). 저장 안 함 — 매번 재생성. 정본 = 스펙 §10 |
 | 웹 공유링크 | — | **v2 보류**(스펙 §9-Q7) |
@@ -371,26 +371,26 @@ const scored = JSON.parse(
 
 검증(코드): `sentences`가 입력 K1..Kn과 1:1인지, `clauseRefs`가 규정 요약의 각주 키 집합에 속하는지 확인(밖이면 재시도). summary 수치는 코드가 재계산해 덮어씀(결정성).
 
-### 4.3 콜③ — 페르소나·USP·리뷰 서사 (블록2·6)
+### 4.3 콜③ — 페르소나·USP·이탈 경로 (블록2·6)
 
 | 구분 | 내용 |
 |---|---|
-| 목적 | 페르소나 카드 1인 + 구매여정·반대이유 + USP 재정의 표 + 리뷰(口コミ) 인과 서사(카테고리 일반형) |
+| 목적 | 페르소나 카드 1인 + 구매여정·반대이유 + USP 재정의 표 + 정보 공백→이탈 경로(벤치마크 갭·페르소나 기반 일반형) |
 | 입력 페이로드 | 콘텐츠 요약(1단계 산출 — **`brandProduct` 모드만**, brand 모드는 미포함) + **`brandName`·`positioning`(태그+서술 — v4 신규·필수)** + `category`/`priceJPY`/`targetMemo`. §3.1의 "포지셔닝 태그(보조)"가 v4에서 드디어 실제 수집·주입된다. `positioning`은 리포트마다 다른 가변 데이터이므로 **grounding 프리픽스가 아니라 user payload에 넣는다**(§4.0 캐싱 규약) |
-| grounding(system) | 카테고리 관례(사전집계) + 구매여정 원칙(인지 인스타/틱톡→탐색 口コミ·랭킹→구매 상세 확인) + 카테고리 리뷰 패턴 일반형 |
-| 의존 | 없음(brandProduct에선 병렬 그룹 · **brand 모드에선 유일한 LLM 콜 — 두 모드 공통 실행**). `reviewSourceUrl`은 v4에서 폼 제거(데드필드) — 리뷰 서사는 **카테고리 일반형만**(실측 v2) |
-| 가드레일 강조 | **가짜 리뷰·특정 리뷰 인용 창작 절대 금지** — 서사는 "이 카테고리에서 자주 관찰되는 우려 유형" 프레임만 |
+| grounding(system) | 카테고리 관례(사전집계) + 구매여정 원칙(인지 인스타/틱톡→탐색 口コミ·랭킹→구매 상세 확인) + 벤치마크 갭·페르소나 일반형(리뷰 데이터 없음) |
+| 의존 | 없음(brandProduct에선 병렬 그룹 · **brand 모드에선 유일한 LLM 콜 — 두 모드 공통 실행**). `reviewSourceUrl`은 v4에서 폼 제거(데드필드) — 블록6은 리뷰 무관, 벤치마크 갭·페르소나 기반 **이탈 경로**(실측 리뷰 분석은 v2 별도) |
+| 가드레일 강조 | **가짜 리뷰·특정 리뷰 인용 창작 절대 금지** — 이탈 경로는 "이 카테고리에서 자주 관찰되는 갭·이탈 유형" 프레임만(리뷰 데이터 없음) |
 
-출력 스키마(요지): `{ persona: {name, ageRange, skinConcerns[], buyingMotive, checkBehaviors[], priceSensitivity, trustTriggers[]}, journey: {stages[3], finalConfidencePoint}, objections: [{question, why}] (2~3개), uspTable: [{krAppeal, jpReading, redefinedUsp}] (3~5행), reviewNarrative: [{infoGap, distrustSignal, dropOff}] }` — 전 필드 required·additionalProperties:false로 고정.
+출력 스키마(요지): `{ persona: {name, ageRange, skinConcerns[], buyingMotive, checkBehaviors[], priceSensitivity, trustTriggers[]}, journey: {stages[3], finalConfidencePoint}, objections: [{question, why}] (2~3개), uspTable: [{krAppeal, jpReading, redefinedUsp}] (3~5행), dropOffPath: [{infoGap, customerDoubt, dropOff}] }` — 전 필드 required·additionalProperties:false로 고정. (구 `reviewNarrative`/`distrustSignal`을 v6에서 `dropOffPath`/`customerDoubt`로 개칭 — 리뷰 아님)
 
-### 4.4 콜④ — NG/OK 재작성 + KR 병기 + 샘플 + 총평 (블록1·7·8 + 블록4 문장화)
+### 4.4 콜④ — NG/OK 재작성 + KR 병기 + 샘플 + 총평 (블록1·7 + 블록4 문장화)
 
 | 구분 | 내용 |
 |---|---|
 | 목적 | 헤더 총평(3~4줄) + NG/OK 3~5쌍(6요소) + 비포&애프터 샘플 1종 + 벤치마크 문장화(MVP 흡수분) |
 | 입력 페이로드 | 저점 항목(3단계 집계 결과) + 콜② 불가/조건부 문장 + 해당 원문 + 콜③ USP 표(행 참조용) + 벤치마크 대비 데이터(4단계) |
 | grounding(system) | 코퍼스 실측 표현(効能評価試験済み·○○フリー·정량 표기·랭킹 표기) + 렉시콘 |
-| 의존 | **콜①(집계 경유)·콜②·콜③ 완료 후** 실행 · **`brandProduct` 모드 전용**(brand 모드에선 블록7·8이 데이터 잠금 — 헤더 총평도 없다, 블록1 `scored: false`) |
+| 의존 | **콜①(집계 경유)·콜②·콜③ 완료 후** 실행 · **`brandProduct` 모드 전용**(brand 모드에선 블록7이 데이터 잠금 — 헤더 총평도 없다, 블록1 `scored: false`) |
 | 가드레일 강조 | After는 코퍼스·렉시콘 근거 표현만. 가짜 수치·인증 삽입 금지. KR 역문은 직역이 아니라 "일본 고객에게 전하는 의미"(스펙 §9-Q10) |
 
 출력 스키마(요지): `{ headline: {summary}, rewrites: [{sourceRef(itemId|sentenceId), beforeKr, problem, afterJa, afterKr, reason, whatAdded[], uspRowIndex}], sample: {targetSection, afterJaBlock, afterKrBlock, isDemo}, benchmarkNarrative }`. 검증(코드): `rewrites`가 3쌍 이상인지(AC-3.1), 각 쌍에 KR 역문이 있는지(AC-3.2), `isDemo`면 "예시(데모)" 라벨 강제(AC-3.3).
@@ -464,7 +464,7 @@ sequenceDiagram
     Job->>Job: 4단계 벤치마크 대비 (규칙·MVP)
     Job->>C: 콜④ 재작성+총평 (콜①②③ 산출 주입)
     C-->>Job: rewrites JSON
-    Job->>Job: 5단계 9블록 조립 → Report(published)
+    Job->>Job: 5단계 8블록 조립 → Report(published)
 ```
 
 > 스펙 §5.1은 콜①→②→③을 논리 순서로 나열하지만 데이터 의존은 없으므로 구현은 병렬을 기본안으로 한다(잡 시간 단축). **위 시퀀스는 `brandProduct` 모드다** — `brand` 모드는 1~2단계·콜①②④·집계 없이 `콜③ → 4단계 벤치마크(코퍼스 측) → 조립`으로 끝난다(§3.2). **잡은 조립에서 끝난다** — 사람 개입 구간이 없다(2026-07-16 검수 제거). 콜⑤(슬라이드)는 이 시퀀스에 없다: 발행 후 사용자 요청 시 별도 라우트에서 실행된다(§4.5).
@@ -552,7 +552,7 @@ erDiagram
     REPORT {
         uuid id PK
         uuid requestId FK
-        jsonb blocksJson "블록0~9 렌더 데이터"
+        jsonb blocksJson "블록0~8 렌더 데이터"
         int overallScore "0~100 (결정적 집계) · nullable — brand 모드는 null(v4)"
         jsonb groupScores "A~E 그룹%"
         jsonb top3
@@ -628,14 +628,14 @@ erDiagram
 | 대시보드/마이페이지 (`app`) | `BrandProfile`·`Report`·`GeneratedAsset`·`DiagnosisRequest.status` | — | 브랜드 프로필 스위처 |
 | ① 진단 입력폼 — 브랜드 필수/제품 선택 (`report`) | `BrandProfile`(프리필) | `DiagnosisRequest` | 50자 게이트는 클라이언트(텍스트 제출 시에만 — `source` 미제출은 `brand` 모드 제출. 정의 = `lib/engine/rules/gates.ts`) |
 | ① 처리 로딩 (`report`) | `DiagnosisRequest.status` 폴링 | — | §3.3 상태 머신 |
-| ① 리포트 9블록 뷰 (`report`) | `Report`·`AuditSentence` | — | published만 사용자 노출 |
+| ① 리포트 8블록 뷰 (`report`) | `Report`·`AuditSentence` | — | published만 사용자 노출 |
 | ① PDF 내보내기 (`report`) | `Report.pdfPath` | `Report.pdfPath`(최초 생성 시) | |
 | ① 보고용 슬라이드 내보내기 (`report` 내 버튼) | `Report.blocksJson`·`DiagnosisRequest.tierInput` | `LlmCallLog`(콜⑤) | 화면 아님 — 다운로드 응답(단일 HTML). **저장 없음**(§4.5 · 스펙 §10.6) |
 | ① S2 재진단 뷰 (`report-postentry`) | `Report`(S2 블록 구성) | — | S2 스펙(`01-report-spec-postentry`)과 입력 차이는 해당 스펙에서 |
 | ② 썸네일 변환기 (`service`) | `BrandProfile`·프롬프트 팩 | `GeneratedAsset` + `LlmCallLog` | §5.1 |
 | ③ 자산 라이브러리 (`service`) | `Report`·`GeneratedAsset` | — | 재조회 전용 |
 | ~~검수자용 내부 화면 (공백)~~ | — | — | **폐기(2026-07-16)** — 검수 단계 제거로 화면 자체가 없어졌다. 공백은 **만들어서가 아니라 삭제로 닫혔다**(§8-D4) |
-| 산출물 프로토 (`deliverable-proto-cica`) | — (정적 목업) | — | 블록8·② 산출물의 시각 기준 |
+| 산출물 프로토 (`deliverable-proto-cica`) | — (정적 목업) | — | 블록7 하이라이트·② 산출물의 시각 기준 |
 
 ---
 
@@ -660,6 +660,7 @@ erDiagram
 ---
 
 ## 변경 이력
+- 2026-07-18 **v6 블록 6 재프레이밍 · 블록 7·8 통합 · 블록 9→8 재번호 정합**(사용자 요청 → [[specs/01-report-spec]] v6). **[개정]** §4.3 콜③ 출력 스키마 `reviewNarrative`→`dropOffPath`(`{infoGap, customerDoubt, dropOff}`) — 블록6은 리뷰가 아니라 벤치마크 갭·페르소나 기반 **이탈 경로**로 재정의(리뷰 데이터 없음, `reviewSourceUrl` 무관), 가짜 리뷰 금지 가드레일 존치 · §4.4 콜④ 산출 블록 `1·7·8`→`1·7`(구 블록 8 '비포&애프터 샘플'이 블록 7 하이라이트로 통합) · 블록 9(맺음)→블록 8 재번호 → 리포트 블록0~8, brand 모드 잠금 목록 1·3·5·7. **[불변]** 파이프라인·두 모드·집계·LLM 4콜 구조 그대로(렌더/스키마 라벨만). 코드(`lib/engine`·`ReportView`) 반영은 후속.
 - 2026-07-16 **v4 입력 브랜드 우선 재구성 · 두 진단 모드 반영**(제품 오너 결정 → [[specs/01-report-spec]] v4 배너·§2·§3 · [[decisions/DECISIONS]]). **[변경]** §3.1 입력 표를 "티어(Tier 0/1/2)" 체계 → **브랜드 섹션 필수(`brandName`·`positioning` 신규 `{tags[], note}`·`category`) / 제품 섹션 전부 선택**(`source` 포함)의 2단 구조로 재편 — 온보딩 프리필 관계는 유지·필수화 반영, 게이트 단일 정의 = `lib/engine/rules/gates.ts`, `source` 미제출 = `brand` 모드(URL fetch 실패는 조용히 강등하지 않음) · §4.3 콜③ 입력 페이로드에 `brandName`·`positioning` 필수 주입(콘텐츠 요약은 brandProduct만 · 가변 데이터라 grounding 아닌 user payload) · 콜② 잡 실패 불변식을 "**제품 콘텐츠가 제출된 진단은 감사표 없이 발행하지 않는다**"로 재서술(§3.2·§4.0) · §4.5 콜⑤ 골격 모드별 2종(brandProduct 7장 / brand 4장)·검증 = 모드의 키 전부 · §6 `tierInput` 주석(2단 스냅샷 + `mode` 판별자)·`Report.overallScore` **nullable**(`ReportRecord.overallScore: number | null` · brand 모드 점수 없음·`block1`은 `scored:false` 판별 유니온)·`positioningTags` = `positioning` 프리필 소스 · §7 "티어 입력폼" → "진단 입력폼(브랜드 필수/제품 선택)" · §8-D2 결제 게이트 ~~재선정 필요~~ → **자리 확정: 샘플 → 풀 열람 직전**(잔여 = 집행 미구현·브랜드 진단 가격 (미정)). **[추가]** §1.2·§3.2·§3.3·§4.8에 두 진단 모드 분기 — `brand` 모드는 normalize·presignals·콜①②④·집계 없이 stages `persona → benchmark → assemble`, 블록 1·3·5·7·8 데이터 잠금(대체 수치 발명 금지), 블록4 "내 콘텐츠" 칸 = "미확인" · §3.4 무료 = 샘플(두 모드 공통·두 모드 모두 유료) 경계. **[삭제]** §3.1 `reviewSourceUrl` 폼 행 — 소비처 0, 데드필드로 존치(스펙 §3.4).
 - 2026-07-16 **검수 제거 반영 + 콜⑤ 추가**(제품 오너 결정 → [[decisions/DECISIONS]] 2026-07-16 행). **[삭제]** §1.1 내부 검수자 액터 · §3.2 파이프라인의 검수 노드와 계약표 검수 행 · §3.3 `needsReview`·`rejected` 상태와 전이 · §4.8 시퀀스의 검수자 · §6 `Report.reviewerName`/`reviewerSignedAt` · §7 검수자 화면 행(공백은 삭제로 닫힘) · §8-D4(질문 소멸). **[변경]** §3.3 비동기 잡의 **근거를 사람 리드타임 → 파이프라인 소요(5단계·LLM 4콜·수 분)로 교체**(결론은 동일) · §4.2 콜② 위상을 "1차 스크리닝 + 면책·전문가 확인 권고"로 재서술(감사 자체는 존치) · §8-D2 결제 게이트 기본안 **무효**(근거 전이 소멸 → 재선정). **[추가]** §4.5 콜⑤ 보고용 슬라이드 카피 계약(파이프라인 밖·온디맨드·grounding 미주입·숫자는 코드 소유) — 이하 체커 §4.6·썸네일 §4.7·시퀀스 §4.8로 재번호. 정본 = [[specs/01-report-spec]] §10.
 - 2026-07-09 신규 작성: 3축 전체 조감 + ① 리포트 상세의 E2E 데이터 플로우를 개발 착수용으로 확정. Mermaid 7종(조감·리니지·파이프라인·상태머신·시퀀스·썸네일·ER) + LLM 6콜 요청/응답 계약(§4) + 엔티티/저장(§6) + 화면 매핑(§7) + 미결→기본안 11건(§8). 근거 = [[specs/01-report-spec]] §3·§5 · [[07-ia]] §4~§8 · [[research/jp-detail-message-patterns]] §4 · `public-onboarding-spec.md` §6 · `scripts/crawl/ocr-detail.mjs`(SDK 선례) · claude-api 스킬 검증(temperature 불가·output_config 정본·모델 요금).

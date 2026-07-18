@@ -484,7 +484,7 @@ table.t tbody tr:last-child { border-bottom: 0; }
 .freq-row .bar > i { border-radius: 0 4px 4px 0; }
 .freq-row .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-mute); }
 
-/* ── 블록 2·9 · 스텝 플로우(여정·퍼널 공용) ────────── */
+/* ── 블록 2·8 · 스텝 플로우(여정·퍼널 공용) ────────── */
 .flow-steps { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
 .flow-step {
   flex: 1; min-width: 150px; border: 1px solid var(--hairline);
@@ -524,7 +524,7 @@ table.t tbody tr:last-child { border-bottom: 0; }
 .speech .q { font-weight: 700; color: var(--ink); }
 .speech .a { color: var(--ink-mute); margin-top: 3px; font-size: 11.5px; }
 
-/* ── 블록 6 · 인과 플로우 ─────────────────────────── */
+/* ── 블록 6 · 정보 공백 → 이탈 플로우 ──────────────── */
 .causal-row {
   display: grid; grid-template-columns: 1fr 22px 1.2fr 22px 1.2fr;
   gap: 8px; align-items: center; font-size: 12px;
@@ -542,7 +542,7 @@ table.t tbody tr:last-child { border-bottom: 0; }
   .causal-head { display: none; }
 }
 
-/* ── 블록 7·8 · Before/After 비교 ─────────────────── */
+/* ── 블록 7 · Before/After 비교 ───────────────────── */
 .ba-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .ba-pair > div { border-radius: var(--radius); padding: 12px 14px; }
 .ba-before { background: var(--soft); }
@@ -556,7 +556,7 @@ table.t tbody tr:last-child { border-bottom: 0; }
 @media (max-width: 560px) { .ba-pair { grid-template-columns: 1fr; } }
 .added-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 
-/* ── 블록 9 · 위험순 액션 ─────────────────────────── */
+/* ── 블록 8 · 위험순 액션 ─────────────────────────── */
 .act-row {
   display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start;
   padding: 9px 0; border-top: 1px solid var(--hairline); font-size: 13px;

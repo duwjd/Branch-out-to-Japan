@@ -13,12 +13,12 @@
     정본 샘플(가상 브랜드 HARUON CICA 앰플)의 예시 데이터다. 실제 진단 결과가 아니다.
 
   2026-07-18 3장 서사 개편 (REPORT-14~16):
-    표시 순서 = 표지 → 1장 시장(브리핑) → 2장 진단(블록 1·4·2·3·5·6) → 3장 처방(블록 7·8) → 맺음(블록 9·닫는 밴드).
+    표시 순서 = 표지 → 1장 시장(브리핑) → 2장 진단(블록 1·4·2·3·5·6) → 3장 처방(블록 7) → 맺음(블록 8·닫는 밴드).
       ※ 2026-07-18 2차 정리: 블록 4 벤치마크·블록 2 페르소나를 점수(블록 1) 뒤 2장으로 이동. 화면 코드(A~E·K1~K11) 전면 평문화(약기법=①~⑪), 섹션 중복 축소.
     블록 번호(blocksJson ID)·채점 산식·LLM 콜 계약은 불변 — 표시 순서·라벨만 재배열(정본: 기획서 REPORT-14). A~E·K 코드는 blocksJson·스펙 내부 ID로만 존재, 리포트 화면 비노출.
     1장 브리핑은 사전집계·정적 자산만으로 렌더(LLM 무관) — 브랜드 진단에서도 전부 열린다.
     실물 시장 이미지(assets/market·detail 14장)는 1장에서만, 출처 캡션(.img-cite) 필수 — assets/README.md 인용 정책.
-    블록 7·8 해결 칩(.solves)은 콜④가 이미 내는 근거 ID의 렌더 승격 — 새 데이터 계약 없음.
+    블록 7 해결 칩(.solves)은 콜④가 이미 내는 근거 ID의 렌더 승격 — 새 데이터 계약 없음.
 
   2026-07-16 시각화 개편 — 형태는 데이터의 일이 정한다:
     단일 비율(18/100) = 히어로 수치 + 미터 · 판정 분포 = 스탯 타일 + ①~⑪ 문장 세그먼트 스트립
@@ -48,14 +48,14 @@
     <h1>3. 리포트 열람</h1>
     <p class="sub">
       <code>/app/report/:id</code> · 기획서 <b>REPORT-00 ~ REPORT-17</b>.
-      블록 0~9를 <b>단일 페이지 세로 스크롤 · 3장 서사</b>로 낸다 —
+      블록 0~8을 <b>단일 페이지 세로 스크롤 · 3장 서사</b>로 낸다 —
       <b>1장 시장</b>(일본은 이렇게 판다) → <b>2장 진단</b>(내 브랜드는 지금 여기) → <b>3장 처방</b>(이렇게 바꾸면 풀린다).
       숫자는 문장이 아니라 형태로 먼저 읽히고, 시장은 실물 이미지 인용으로 먼저 보여준다.
     </p>
     <p class="meta">
       <span>REPORT-01 상태 배너</span>
       <span>REPORT-02 전역 배지</span>
-      <span>REPORT-03~12 블록 0~9</span>
+      <span>REPORT-03~12 블록 0~8</span>
       <span>REPORT-14 장 구조</span>
       <span>REPORT-15 시장 브리핑</span>
       <span>REPORT-16 해결 칩</span>
@@ -79,7 +79,7 @@
       <span class="role">발행 완료</span>
     </div>
     <p class="screen-desc">
-      9블록 본문 위에 발행일을 배너로 얹는다. 리포트를 여는 시점엔 이미 발행된 상태라 배너는 한 종류뿐이다.
+      8블록 본문 위에 발행일을 배너로 얹는다. 리포트를 여는 시점엔 이미 발행된 상태라 배너는 한 종류뿐이다.
       <b>파이프라인 성공 = 발행</b>이라 대기·반려 상태가 없다(2026-07-16 검수 제거).
     </p>
 
@@ -126,11 +126,11 @@
     </p>
   </section>
 
-  <!-- ══ REPORT-03~12 · 9블록 본문 ═════════════════ -->
+  <!-- ══ REPORT-03~12 · 8블록 본문 ═════════════════ -->
   <section class="screen" id="f-blocks">
     <div class="screen-head">
       <span class="screen-num">REPORT-03~16</span>
-      <h2>블록 0~9 본문 &mdash; 3장 서사</h2>
+      <h2>블록 0~8 본문 &mdash; 3장 서사</h2>
       <span class="role">단일 페이지 세로 스크롤 · 브랜드+제품 진단</span>
     </div>
     <p class="screen-desc">
@@ -183,12 +183,12 @@
                     <span class="badge badge-outline">항목별 관례 충족도</span>
                     <span class="badge badge-outline">카테고리 벤치마크</span>
                     <span class="badge badge-outline">페르소나·USP 재정의</span>
-                    <span class="badge badge-outline">리뷰 인과 서사(일반형)</span>
+                    <span class="badge badge-outline">정보 공백 → 이탈 경로</span>
                     <span class="badge badge-outline">NG/OK 재작성(KR 병기)</span>
                   </div>
                   <p class="cover-foot">
                     한계: 薬機法 판정은 <b>1차 스크리닝</b>(법률 자문 아님) · 코퍼스는 楽天 skincare 90건 단일 채널 표본 ·
-                    리뷰 서사는 카테고리 일반형
+                    이탈 경로는 진단 기반 일반형
                   </p>
                 </div>
                 <p class="t-help">
@@ -948,41 +948,41 @@
               </div>
             </section>
 
-            <!-- ── 블록 6 · 인과 플로우 ── -->
+            <!-- ── 블록 6 · 정보 공백 → 이탈 플로우 ── -->
             <section class="block">
-              <h3><span class="no">블록 6</span>리뷰(口コミ) 인과 서사 &mdash; 카테고리 일반형</h3>
+              <h3><span class="no">블록 6</span>정보 공백이 이탈로 이어지는 길</h3>
               <div class="block-body">
                 <p class="t-body" style="margin-top:0">
-                  앞서 본 페르소나의 의문이 <b>어디서 이탈로 이어지는지</b>를 정보 공백 → 이탈 행동의 인과로 정리했다.
-                  개별 리뷰가 아니라 코퍼스에서 관찰되는 <b>일반형</b>이다.
+                  블록 4에서 드러난 정보 공백이 실제 구매에서 어떤 의문을 부르고, 그 의문이 어디서 이탈로 이어지는지를 한 줄로 이었다.
+                  개별 리뷰를 들여다본 게 아니라, 앞서 매긴 <b>벤치마크 갭과 페르소나</b>에서 짚어낸 경로다. 각 공백은 눌러서 채점 근거로 돌아갈 수 있다.
                 </p>
                 <div class="card">
                   <div class="causal-row causal-head" style="padding-top:0; border-top:0; font-size:10.5px; color:var(--ink-mute); font-weight:700">
-                    <span>정보 공백</span><span></span><span>불신 신호 (口コミ에서 관찰되는 우려)</span><span></span><span>이탈 행동</span>
+                    <span>진단된 정보 공백</span><span></span><span>고객이 떠올리는 의문</span><span></span><span>이탈 행동</span>
                   </div>
                   <div class="causal-row">
-                    <span class="c1">무첨가·자극 정보 부재</span>
+                    <span class="c1">무첨가·안전 정보 부재<a class="backlink" href="#rb-gB" style="display:block; font-weight:600; margin-top:3px">← 블록 5 · 무첨가·안전 0%</a></span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c2" lang="ja">敏感肌だけど大丈夫? 成分表どこ?</span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c3">탐색 단계에서 이탈해 경쟁 제품의 <span lang="ja">◯◯フリー</span> 표기로 이동</span>
                   </div>
                   <div class="causal-row">
-                    <span class="c1">효능 근거 라벨 부재</span>
+                    <span class="c1">효능 근거 라벨 부재<a class="backlink" href="#rb-gA" style="display:block; font-weight:600; margin-top:3px">← 블록 5 · 신뢰 구축 10%</a></span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c2" lang="ja">効果が出るって書いてあるけど、根拠は?</span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c3">과장 광고로 분류하고 카트에 담지 않음</span>
                   </div>
                   <div class="causal-row">
-                    <span class="c1">실적의 집계일·출처 부재</span>
+                    <span class="c1">실적의 집계일·출처 부재<a class="backlink" href="#k-k6" style="display:block; font-weight:600; margin-top:3px">← 블록 3 · 문장 ⑥【조건부】</a></span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c2" lang="ja">10万本って、いつの話? 口コミ本当?</span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c3">@cosme에서 제3자 리뷰를 재검색하고 돌아오지 않음</span>
                   </div>
                   <div class="causal-row">
-                    <span class="c1">침투 범위 미한정</span>
+                    <span class="c1">침투 범위 미한정<a class="backlink" href="#k-k2" style="display:block; font-weight:600; margin-top:3px">← 블록 3 · 문장 ②【조건부】</a></span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c2" lang="ja">深部までって、化粧品で言っていいの?</span>
                     <span class="arr" aria-hidden="true">→</span>
@@ -990,13 +990,13 @@
                   </div>
                 </div>
                 <p class="t-help">
-                  개별 리뷰를 크롤링하지 않으며 가짜 리뷰·가짜 평점·가짜 인용을 생성하지 않습니다.
-                  리뷰 페이지 URL을 넣으면 이 제품 실측 리뷰로 정밀화됩니다(v2).
+                  이 경로는 개별 리뷰를 인용하거나 지어낸 것이 아니라, 위 벤치마크 갭과 페르소나에서 추론한 일반형입니다.
+                  가짜 리뷰·평점·인용은 만들지 않습니다.
                 </p>
               </div>
             </section>
 
-            <!-- ══ 3장 · 처방 (블록 7 → 8) ══ -->
+            <!-- ══ 3장 · 처방 (블록 7) ══ -->
             <div class="chapter-head" id="ch3">
               <p class="kick">3장 · 처방</p>
               <h3>이렇게 바꾸면, 이 문제가 풀린다</h3>
@@ -1006,10 +1006,15 @@
               </p>
             </div>
 
-            <!-- ── 블록 7 · Before/After 비교 카드 (해결 칩 = REPORT-16) ── -->
+            <!-- ── 블록 7 · Before/After 재설계 (문장 → 블록 · 해결 칩 = REPORT-16) ── -->
             <section class="block">
-              <h3><span class="no">블록 7</span>NG/OK 재작성 (Before/After + 한국어 병기)</h3>
+              <h3><span class="no">블록 7</span>Before/After 재설계 &mdash; 문장에서 블록까지</h3>
               <div class="block-body">
+                <p class="t-body" style="margin-top:0">
+                  저점 항목과 薬機法【불가】·【조건부】 문장을 <b>문장 단위</b>로 먼저 고치고,
+                  그중 가장 점수가 낮은 섹션은 <b>한 블록 통째로</b> 다시 짜서 마무리한다. 같은 원칙을 배율만 달리해 적용한 것이다.
+                </p>
+                <p class="h-sub">문장 단위 재작성 &mdash; Before/After + 한국어 병기</p>
                 <article class="card">
                   <p class="t-help" style="font-weight:600">재작성 1 &mdash; 이 After가 푸는 문제</p>
                   <div class="solves" style="margin-top:6px">
@@ -1074,17 +1079,7 @@
 
                 <p class="t-help" style="text-align:center">⋯ 나머지 재작성 이어짐 (총 5쌍)</p>
 
-                <p class="alert alert-mute">
-                  After는 실측 코퍼스 표현·렉시콘 근거로만 작성한다. <b>가짜 수치·가짜 인증 삽입은 금지</b>다.
-                  번역 산출물이 아니라 정보 구조 재설계다.
-                </p>
-              </div>
-            </section>
-
-            <!-- ── 블록 8 · 비포&애프터 샘플 ── -->
-            <section class="block">
-              <h3><span class="no">블록 8</span>비포&amp;애프터 샘플 (한 블록 통째 재구성)</h3>
-              <div class="block-body">
+                <p class="h-sub" style="margin-top:16px">하이라이트 &mdash; 가장 저점 섹션을 한 블록 통째로 재구성</p>
                 <div class="card">
                   <p class="t-help" style="font-weight:600">대상 섹션: 헤드라인 블록 &mdash; 이 재구성이 푸는 문제</p>
                   <div class="solves" style="margin-top:6px">
@@ -1120,21 +1115,25 @@
                 </div>
 
                 <p class="t-help">
-                  고객 콘텐츠가 빈약해 데모로 대체한 경우 <span class="badge badge-warn">예시(데모)</span> 배지가 붙는다.
-                  실물 브랜드 사칭·익명 성공 사례는 생성하지 않는다.
+                  고객 콘텐츠가 빈약하면 데모로 대체하고 <span class="badge badge-warn">예시(데모)</span> 배지를 붙인다.
+                </p>
+
+                <p class="alert alert-mute">
+                  After는 실측 코퍼스 표현·렉시콘 근거로만 쓴다. <b>가짜 수치·가짜 인증·실물 브랜드 사칭은 넣지 않는다.</b>
+                  번역이 아니라 정보 구조를 다시 설계한 결과다.
                 </p>
               </div>
             </section>
 
-            <!-- ══ 맺음 (블록 9 → 닫는 실행 밴드) ══ -->
+            <!-- ══ 맺음 (블록 8 → 닫는 실행 밴드) ══ -->
             <div class="chapter-head" id="ch-end">
               <p class="kick">맺음</p>
               <h3>지금 할 일, 그리고 다음 단계</h3>
             </div>
 
-            <!-- ── 블록 9 · 위험순 액션 + 퍼널 스텝 ── -->
+            <!-- ── 블록 8 · 위험순 액션 + 퍼널 스텝 ── -->
             <section class="block">
-              <h3><span class="no">블록 9</span>맺음 · 규정 출처 · 한계 · 다음 단계</h3>
+              <h3><span class="no">블록 8</span>맺음 · 규정 출처 · 한계 · 다음 단계</h3>
               <div class="block-body">
                 <div>
                   <p class="h-sub">지금 할 일 (위험 순)</p>
@@ -1174,7 +1173,7 @@
                   <ul style="margin:6px 0 0 18px" class="t-help">
                     <li>薬機法 판정은 공개 규정 기반 1차 스크리닝이며 법률 자문이 아니다. 상장 전 전문가 확인 권고</li>
                     <li>코퍼스는 楽天 단일 채널 표본(skincare 90건)으로 채널 편중·OCR 노이즈가 있다</li>
-                    <li>리뷰 서사는 카테고리 일반형이며 개별 리뷰를 크롤링하지 않았다</li>
+                    <li>이탈 경로는 벤치마크 갭·페르소나에서 추론한 일반형이며 개별 리뷰를 분석하지 않는다</li>
                     <li>인용은 분석 목적의 소량 인용이며 재배포하지 않는다</li>
                   </ul>
                 </div>
@@ -1271,7 +1270,7 @@
     <p class="note">
       <b>3장 서사(2026-07-18 개편).</b> 표지(품의) → <b>1장 시장</b>(브리핑: 관례 실물 패턴·썸네일 8스타일 실물 인용) →
       <b>2장 진단</b>(블록 1 점수 → 4 벤치마크 → 2 페르소나·USP → 3 감사 → 5 루브릭 → 6 이탈 인과) →
-      <b>3장 처방</b>(블록 7·8 + 해결 칩) → 맺음(블록 9 → 닫는 밴드). &ldquo;시장이 이렇게 판다 → 나는 지금 여기다 →
+      <b>3장 처방</b>(블록 7 + 해결 칩) → 맺음(블록 8 → 닫는 밴드). &ldquo;시장이 이렇게 판다 → 나는 지금 여기다 →
       그래서 이렇게 바꾼다&rdquo;의 설득 순서다. 블록 <b>번호</b>는 데이터 계약(blocksJson) ID라 그대로 두고
       <b>표시 순서</b>만 재배열했다 &mdash; 순서 정본은 기획서 REPORT-14. 결론부터 봐야 하는 결재자는 표지 앵커·스티키 내비로 2장 직행.
       <br /><b>시각화 원칙(2026-07-16 개편 유지).</b> 형태는 데이터의 일이 정한다: 단일 비율=미터,
@@ -1286,7 +1285,7 @@
     <div class="screen-head">
       <span class="screen-num">REPORT-02·04</span>
       <h2>브랜드 진단 · 데이터 잠금 상태</h2>
-      <span class="role">블록 1·3·5·7·8 잠금 · 대비표 &ldquo;미확인&rdquo;</span>
+      <span class="role">블록 1·3·5·7 잠금 · 대비표 &ldquo;미확인&rdquo;</span>
     </div>
     <p class="screen-desc">
       제품 콘텐츠 없이 제출된 <b>브랜드 진단</b>의 리포트다. 산출하지 않은 블록은 빈 값·0건으로 위장하지 않고
@@ -1294,7 +1293,7 @@
       대비표의 &ldquo;내 콘텐츠&rdquo; 칸은 <b>미확인(─)</b>으로 둔다. 스캔한 적 없는 것을 &ldquo;미관찰(✕)&rdquo;로 단정하지 않는다.
       <b>1장 시장 브리핑은 사전집계·정적 자산만 쓰므로 브랜드 진단에서도 전부 열린다.</b>
       2장의 벤치마크(시장 표현 열)·페르소나·USP도 코퍼스·포지셔닝 기반이라 열린다 &mdash;
-      잠기는 건 &ldquo;내 문장&rdquo;에 기대는 블록(1·3·5·7·8)뿐이다.
+      잠기는 건 &ldquo;내 문장&rdquo;에 기대는 블록(1·3·5·7)뿐이다.
     </p>
 
     <div class="frame">
@@ -1316,7 +1315,7 @@
                 </ul>
                 <p class="t-body">
                   HARUON의 포지셔닝을 일본 고객 관점으로 진단했습니다. 페르소나·USP 재정의,
-                  카테고리 벤치마크, 리뷰 인과 서사를 확인하세요.
+                  카테고리 벤치마크, 정보 공백 → 이탈 경로를 확인하세요.
                 </p>
               </div>
             </section>
@@ -1373,7 +1372,7 @@
             </section>
 
             <section class="block">
-              <h3><span class="no">블록 9</span>다음 단계 &mdash; 브랜드 진단의 퍼널은 3단</h3>
+              <h3><span class="no">블록 8</span>다음 단계 &mdash; 브랜드 진단의 퍼널은 3단</h3>
               <div class="block-body">
                 <div class="flow-steps">
                   <div class="flow-step pin">
@@ -1398,7 +1397,7 @@
             </section>
 
             <p class="t-help" style="text-align:center; margin-top:14px">
-              ⋯ 블록 0(표지 &mdash; 제품 &ldquo;미입력&rdquo; 표기) · 2(페르소나) · 5·7·8(잠금 카드) · 6(리뷰 서사)은 위 문법과 동일
+              ⋯ 블록 0(표지 &mdash; 제품 &ldquo;미입력&rdquo; 표기) · 2(페르소나) · 5·7(잠금 카드) · 6(이탈 경로)은 위 문법과 동일
             </p>
           </article>
         </div>

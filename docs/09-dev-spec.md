@@ -32,7 +32,7 @@
 | `/onboarding` | 브랜드 프로필 4단계 | ① M3(최소형) | `public-onboarding` §6 |
 | `/app` | 대시보드 | ① M3(최소형) | `app-wireframe` |
 | `/app/report/new` | 진단 입력폼(브랜드 필수/제품 선택) | ① M3 | `specs/01-report/1-input.html` |
-| `/app/report/[id]` | 처리 로딩(폴링) + 9블록 뷰 + 슬라이드 내보내기 버튼 | ① M3 (슬라이드 버튼 M4) | `report-wireframe` |
+| `/app/report/[id]` | 처리 로딩(폴링) + 8블록 뷰 + 슬라이드 내보내기 버튼 | ① M3 (슬라이드 버튼 M4) | `report-wireframe` |
 | `/app/studio/thumbnail` | 썸네일 변환기 | ② 주간 | `service-wireframe` |
 | `/app/library` | 자산 라이브러리 | ③ 주간 | `service-wireframe` |
 
@@ -87,7 +87,7 @@ scripts/
 
 ### M2 · 엔진 완성 (7/13~15)
 - [x] `llm/call2`(감사)·`llm/call3`(페르소나) — 콜①과 병렬 실행 (08 §4.8)
-- [x] `rules/benchmark`(사전집계 대비) · `llm/call4`(재작성) · `rules/assemble`(9블록 조립)
+- [x] `rules/benchmark`(사전집계 대비) · `llm/call4`(재작성) · `rules/assemble`(블록 조립 — v6 스펙은 0~8, 코드 반영 후속)
 - [x] `LlmCallLog` 기록 · 폴백 규칙(콜② 실패 = 잡 실패 — 08 §3.2 표)
 - **DoD:** CLI로 blocksJson 완성 산출 ✅ · 증거원칙 육안 체크 ✅
 
@@ -96,7 +96,7 @@ scripts/
 - [x] `/app/report/new` 티어 폼 (50자 하드게이트·200자 배지 — 프리필은 온보딩 도입 시) *("티어"는 v4 이전 어휘 — 이력 보존, 아래 v4 항목이 대체)*
 - [x] 입력 브랜드 우선 재구성(v4 · 2026-07-16) — 두 진단 모드(`brand`/`brandProduct`)·`positioning` 신설(택소노미 16종)·`gates.ts` 단일화 · 테스트 30/30 (스펙 §3 v4 · 08 §3.1~3.2)
 - [x] 제출 → `DiagnosisRequest` 저장 → 잡 실행 → `/app/report/[id]` 상태 폴링 로딩
-- [x] 9블록 뷰 렌더 (품의 표지·감사표·JP+KR 병기 카드 포함)
+- [x] 블록 뷰 렌더 (품의 표지·감사표·JP+KR 병기 카드 포함 — 코드는 구 9블록, v6 스펙=0~8 반영 후속)
 - **DoD:** 웹에서 입력 → 리포트 열람 한 사이클 (AC-1.1) ✅
 
 ### M4 · 발행 체계 (7/16~17)
@@ -122,12 +122,12 @@ scripts/
 
 | 구현 대상 | 정본 |
 |---|---|
-| 입력 필드·검증·폴백 / 9블록 내용·AC | [[specs/01-report-spec]] §3(v4: 브랜드 필수/제품 선택 · 두 진단 모드)·§4·§6 |
+| 입력 필드·검증·폴백 / 8블록 내용·AC | [[specs/01-report-spec]] §3(v4: 브랜드 필수/제품 선택 · 두 진단 모드)·§4(v6: 블록 0~8)·§6 |
 | 보고용 슬라이드(형식·7장 골격·산출 분담·AC) | [[specs/01-report-spec]] §10 |
 | LLM 콜 요청/응답 스키마·파라미터·폴백 | [[08-data-flow]] §4 |
 | 엔티티·저장 / 화면↔데이터 | [[08-data-flow]] §6·§7 |
 | 채점 항목·통과기준 (콜① grounding) | [[research/jp-detail-message-patterns]] §4 |
-| 화면 구성·상태·접근성 규약 | 진단 입력폼 = `docs/specs/01-report/1-input.html` · `design/wireframes/report-wireframe.html`(9블록 뷰) · `public-onboarding-spec.md` §0 · `app-spec.md` |
+| 화면 구성·상태·접근성 규약 | 진단 입력폼 = `docs/specs/01-report/1-input.html` · `design/wireframes/report-wireframe.html`(8블록 뷰) · `public-onboarding-spec.md` §0 · `app-spec.md` |
 | 코딩 컨벤션 | `CLAUDE.md` (camelCase·JSDoc·로거·Server Component 기본) |
 
 ---
