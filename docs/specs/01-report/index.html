@@ -8,7 +8,7 @@
   ════════════════════════════════════════════════════════════════════════════
   비배포 · 기획 검토용 와이어프레임. 외부 CSS/JS/폰트/이미지 의존 없음.
   정본: 01-report-ui-기획서.md (같은 폴더) — 화면 동작·상태·예외처리
-        ../01-report-spec.md — 9블록 내용·채점 공식
+        ../01-report-spec.md — 8블록 내용·채점 공식
         ../../08-data-flow.md §3.3 — 상태 머신
         ../../../design/DESIGN.md — 코랄 토큰
   ※ 화면 속 점수·문장·페르소나·일본어 카피는 UI 시연용 예시다.
@@ -37,7 +37,7 @@
   <div class="doc-head">
     <h1>① 진단 리포트 · 와이어프레임</h1>
     <p class="sub">
-      <b>01-report-ui-기획서.md</b>의 4개 섹션·30행 정의표를 화면으로 옮긴 것이다.
+      <b>01-report-ui-기획서.md</b>의 4개 섹션·34행 정의표를 화면으로 옮긴 것이다.
       모든 프레임에 기획서 번호(<code>INPUT-02</code> 등)를 달아 문서와 1:1로 대조된다.
       기획서에 없는 화면·동작은 넣지 않았다.
     </p>
@@ -84,7 +84,7 @@
         <a class="flow-node" href="3-report.html">
           <span class="code">REPORT</span>
           <h3>리포트 열람</h3>
-          <p>블록 0~9 세로 스크롤 · 발행 배너 · 슬라이드 내보내기</p>
+          <p>블록 0~8 세로 스크롤 · 발행 배너 · 슬라이드 내보내기</p>
         </a>
       </div>
     </div>
@@ -105,8 +105,8 @@
       <span class="role">08-data-flow §3.3</span>
     </div>
     <p class="screen-desc">
-      화면은 상태를 그리는 껍데기다. 아래 4개 상태가 화면 분기의 전부이며,
-      기획서의 각 상태 서술이 여기에 대응한다.
+      화면은 상태를 그리는 껍데기다. 아래 4개 상태가 화면 분기의 전부다.
+      기획서의 각 상태 서술이 여기에 하나씩 맞물린다.
     </p>
 
     <div class="frame">
@@ -160,7 +160,7 @@
     </div>
     <p class="screen-desc">
       기획서 정의표의 모든 번호가 어느 파일의 어느 프레임에 그려졌는지의 대조표다.
-      이미지 칸이 비어 있던 30행이 여기에 대응한다.
+      이미지 칸이 비어 있던 34행이 여기에 대응한다.
     </p>
 
     <div class="frame">
@@ -191,9 +191,13 @@
               <tr><td><code>REPORT-00</code></td><td>진입</td><td>플로우 맵으로 대체</td><td><a class="backlink" href="index.html#flow">index</a></td></tr>
               <tr><td><code>REPORT-01</code></td><td>상태 배너</td><td>발행 완료</td><td><a class="backlink" href="3-report.html#f-banner">3-report</a></td></tr>
               <tr><td><code>REPORT-02</code></td><td>전역 배지</td><td>목 모드 · 정밀도 제한</td><td><a class="backlink" href="3-report.html#f-badge">3-report</a></td></tr>
-              <tr><td><code>REPORT-03~12</code></td><td>블록 0~9</td><td>9블록 전체 (세로 스크롤 1페이지 · 미터·스트립·매트릭스 시각화)</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
-              <tr><td><code>REPORT-02·04</code></td><td>브랜드 진단 잠금</td><td>블록 1·3·5·7·8 데이터 잠금 카드 · 대비표 "미확인" · 퍼널 3단</td><td><a class="backlink" href="3-report.html#f-brandmode">3-report</a></td></tr>
-              <tr><td><code>REPORT-13</code></td><td>기타</td><td>주석으로 기재</td><td><a class="backlink" href="3-report.html#f-etc">3-report</a></td></tr>
+              <tr><td><code>REPORT-03~12</code></td><td>블록 0~8</td><td>8블록 전체 (세로 스크롤 1페이지 · 3장 서사 배열 · 미터·스트립·매트릭스 시각화)</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
+              <tr><td><code>REPORT-13</code></td><td>닫는 실행 밴드</td><td>실물 KR→JP 재설계 예시 + 가입 CTA(크레딧=② 무료 체험)</td><td><a class="backlink" href="3-report.html#report-cta">3-report</a></td></tr>
+              <tr><td><code>REPORT-14</code></td><td>장 구조·표시 순서·라벨 정책</td><td>3장 서사 · 2장 진단=블록 1→4→2→3→5→6(벤치마크·페르소나는 점수 뒤) · 화면 라벨 전부 평문(A~E·K 코드 내부만) · 순서 정본</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
+              <tr><td><code>REPORT-15</code></td><td>1장 시장 브리핑</td><td>관례 실물 카드 5종 · 썸네일 8스타일 갤러리 · 유행어 칩 · 실이미지 인용(출처 캡션)</td><td><a class="backlink" href="3-report.html#brief">3-report</a></td></tr>
+              <tr><td><code>REPORT-16</code></td><td>문제 연결(해결 칩)</td><td>블록 7 → 블록 3·5 앵커 칩 · Top 3 앵커 · :target 하이라이트</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
+              <tr><td><code>REPORT-02·04</code></td><td>브랜드 진단 잠금</td><td>블록 1·3·5·7 데이터 잠금 카드 · 대비표 "미확인" · 퍼널 3단 · 1장은 전부 개방</td><td><a class="backlink" href="3-report.html#f-brandmode">3-report</a></td></tr>
+              <tr><td><code>REPORT-17</code></td><td>기타</td><td>주석으로 기재</td><td><a class="backlink" href="3-report.html#f-etc">3-report</a></td></tr>
             </tbody>
           </table>
         </div>
@@ -237,13 +241,31 @@
                 <td>PDF 내보내기</td>
                 <td><span class="badge badge-warn">미구현</span></td>
                 <td>블록 0 표지와 연동 전제. 형식·버튼 위치 미정</td>
-                <td><code>REPORT-13</code></td>
+                <td><code>REPORT-17</code></td>
               </tr>
               <tr>
                 <td>웹 공유 링크</td>
                 <td><span class="badge badge-mute">미정</span></td>
                 <td>PDF 병행 여부 미확정</td>
-                <td><code>REPORT-13</code></td>
+                <td><code>REPORT-17</code></td>
+              </tr>
+              <tr>
+                <td>시장 브리핑 사전 산출물</td>
+                <td><span class="badge badge-warn">코드 단계 TODO</span></td>
+                <td>스타일 분포 집계·큐레이션 이미지 매니페스트를 ReportView가 읽을 산출물로 뽑는 작업. 와이어프레임은 실측치를 직접 기입함</td>
+                <td><code>REPORT-15</code></td>
+              </tr>
+              <tr>
+                <td>🔴 실측 이미지의 제품 반영</td>
+                <td><span class="badge badge-error">법적 검토</span></td>
+                <td>타사 저작물 인용을 발행 리포트(ReportView)에 실을지는 별도 법무 검토. 와이어프레임·기획 검토용은 출처 병기 소량 인용으로 한정. 인물 포함 컷(모델+카피형)은 초상권 리스크 별도</td>
+                <td><code>assets/README.md</code></td>
+              </tr>
+              <tr>
+                <td>블록 1(점수) 위치 — 결론 지연</td>
+                <td><span class="badge badge-mute">파일럿 검증</span></td>
+                <td>점수는 2장 첫 블록이라 1장 브리핑 한 섹션 뒤로만 밀림(2차 정리로 블록 4·2가 점수 뒤로 이동해 이전보다 앞당겨짐). 표지 앵커+스티키 내비로 완화. 결재자 동선이 실제로 성립하는지 파일럿에서 확인</td>
+                <td><code>REPORT-14</code></td>
               </tr>
               <tr>
                 <td>🔴 면책의 대가물</td>
@@ -278,7 +300,7 @@
               <tr>
                 <td>리뷰 URL 실측 분석</td>
                 <td><span class="badge badge-mute">추후 기획</span></td>
-                <td>폼에서 필드 제거(데드필드). 블록 6은 카테고리 일반형</td>
+                <td>폼에서 필드 제거(데드필드). 블록 6 이탈 경로는 진단 기반이라 리뷰 URL과 무관</td>
                 <td><code>REPORT-09</code></td>
               </tr>
               <tr>

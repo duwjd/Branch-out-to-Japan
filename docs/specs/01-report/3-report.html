@@ -5,15 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>① 진단 리포트 · 와이어프레임 · 3. 리포트 열람</title>
 <!--
-  비배포 · 기획 검토용. 정본: 01-report-ui-기획서.md # 3. 리포트 열람 (REPORT-00~13)
-  블록 내용 정본: ../01-report-spec.md §4 · 깊이 기준선 ../01-report-sample-cica-ampoule.md
+  비배포 · 기획 검토용. 정본: 01-report-ui-기획서.md # 3. 리포트 열람 (REPORT-00~17)
+  블록 내용 정본: ../01-report-spec.md §4(v5) · 깊이 기준선 ../01-report-sample-cica-ampoule.md
   구현 대조: components/report/ReportView.tsx · app/app/report/[id]/page.tsx
 
-  ※ 아래 점수(18/100)·감사 판정·K1~K11·페르소나·일본어 카피는 전부
+  ※ 아래 점수(18/100)·감사 판정·11개 약기법 문장·페르소나·일본어 카피는 전부
     정본 샘플(가상 브랜드 HARUON CICA 앰플)의 예시 데이터다. 실제 진단 결과가 아니다.
 
+  2026-07-18 3장 서사 개편 (REPORT-14~16):
+    표시 순서 = 표지 → 1장 시장(브리핑) → 2장 진단(블록 1·4·2·3·5·6) → 3장 처방(블록 7) → 맺음(블록 8·닫는 밴드).
+      ※ 2026-07-18 2차 정리: 블록 4 벤치마크·블록 2 페르소나를 점수(블록 1) 뒤 2장으로 이동. 화면 코드(A~E·K1~K11) 전면 평문화(약기법=①~⑪), 섹션 중복 축소.
+    블록 번호(blocksJson ID)·채점 산식·LLM 콜 계약은 불변 — 표시 순서·라벨만 재배열(정본: 기획서 REPORT-14). A~E·K 코드는 blocksJson·스펙 내부 ID로만 존재, 리포트 화면 비노출.
+    1장 브리핑은 사전집계·정적 자산만으로 렌더(LLM 무관) — 브랜드 진단에서도 전부 열린다.
+    실물 시장 이미지(assets/market·detail 14장)는 1장에서만, 출처 캡션(.img-cite) 필수 — assets/README.md 인용 정책.
+    블록 7 해결 칩(.solves)은 콜④가 이미 내는 근거 ID의 렌더 승격 — 새 데이터 계약 없음.
+
   2026-07-16 시각화 개편 — 형태는 데이터의 일이 정한다:
-    단일 비율(18/100) = 히어로 수치 + 미터 · 판정 분포 = 스탯 타일 + K1~K11 세그먼트 스트립
+    단일 비율(18/100) = 히어로 수치 + 미터 · 판정 분포 = 스탯 타일 + ①~⑪ 문장 세그먼트 스트립
     벤치마크 대비 = ○△✕ 체크 매트릭스 · 어휘 빈도 = 가로 막대 · 여정·퍼널 = 스텝 플로우
     상태는 항상 색+글자+기호 3중 표기(CVD 검증 통과 ΔE 16.7). 차트 라이브러리 없음(무의존).
 -->
@@ -39,22 +47,28 @@
   <div class="doc-head">
     <h1>3. 리포트 열람</h1>
     <p class="sub">
-      <code>/app/report/:id</code> · 기획서 <b>REPORT-00 ~ REPORT-13</b>.
-      블록 0~9를 <b>단일 페이지 세로 스크롤</b>로 낸다. 탭·페이지 분할을 두지 않는다.
-      숫자는 문장이 아니라 형태로 먼저 읽힌다 — 미터·스트립·매트릭스가 심각도를 즉시 전달하고, 근거는 그 아래에 있다.
+      <code>/app/report/:id</code> · 기획서 <b>REPORT-00 ~ REPORT-17</b>.
+      블록 0~8을 <b>단일 페이지 세로 스크롤 · 3장 서사</b>로 낸다 —
+      <b>1장 시장</b>(일본은 이렇게 판다) → <b>2장 진단</b>(내 브랜드는 지금 여기) → <b>3장 처방</b>(이렇게 바꾸면 풀린다).
+      숫자는 문장이 아니라 형태로 먼저 읽히고, 시장은 실물 이미지 인용으로 먼저 보여준다.
     </p>
     <p class="meta">
       <span>REPORT-01 상태 배너</span>
       <span>REPORT-02 전역 배지</span>
-      <span>REPORT-03~12 블록 0~9</span>
+      <span>REPORT-03~12 블록 0~8</span>
+      <span>REPORT-14 장 구조</span>
+      <span>REPORT-15 시장 브리핑</span>
+      <span>REPORT-16 해결 칩</span>
       <span>브랜드 진단 잠금 상태</span>
     </p>
   </div>
 
   <div class="docwarn">
-    <b>예시 데이터.</b> 종합 18/100 · 감사 불가 6 / 조건부 5 · K1~K11 문장 · 페르소나 · 일본어 카피는
+    <b>예시 데이터.</b> 종합 18/100 · 감사 불가 6 / 조건부 5 · 11개 약기법 문장 · 페르소나 · 일본어 카피는
     정본 샘플(<code>../01-report-sample-cica-ampoule.md</code> · 가상 브랜드 HARUON)에서 가져왔다.
     코퍼스 인용은 <code>detail-ocr.jsonl</code> skincare 90건의 실측 표현이다.
+    1장의 실물 시장 이미지는 타사 저작물의 <b>분석 목적 소량 인용</b>이며 전부 출처를 병기한다 &mdash;
+    재배포 금지·제품 반영은 별도 법무 검토(<code>assets/README.md</code>).
   </div>
 
   <!-- ══ REPORT-01 상태 배너 ═══════════════════════ -->
@@ -65,7 +79,7 @@
       <span class="role">발행 완료</span>
     </div>
     <p class="screen-desc">
-      9블록 본문 위에 발행일을 배너로 얹는다. 리포트를 여는 시점엔 이미 발행 상태이므로 배너는 한 종류다 &mdash;
+      8블록 본문 위에 발행일을 배너로 얹는다. 리포트를 여는 시점엔 이미 발행된 상태라 배너는 한 종류뿐이다.
       <b>파이프라인 성공 = 발행</b>이라 대기·반려 상태가 없다(2026-07-16 검수 제거).
     </p>
 
@@ -112,16 +126,18 @@
     </p>
   </section>
 
-  <!-- ══ REPORT-03~12 · 9블록 본문 ═════════════════ -->
+  <!-- ══ REPORT-03~12 · 8블록 본문 ═════════════════ -->
   <section class="screen" id="f-blocks">
     <div class="screen-head">
-      <span class="screen-num">REPORT-03~12</span>
-      <h2>블록 0~9 본문</h2>
+      <span class="screen-num">REPORT-03~16</span>
+      <h2>블록 0~8 본문 &mdash; 3장 서사</h2>
       <span class="role">단일 페이지 세로 스크롤 · 브랜드+제품 진단</span>
     </div>
     <p class="screen-desc">
-      아래는 <b>발행 완료 상태</b>의 전체 리포트다. 각 블록은 &ldquo;블록 n&rdquo; 라벨과 구분선으로 나뉜다.
-      모든 블록이 <b>근거 노출</b>을 동반한다 &mdash; 점수·판정만 던지지 않는다.
+      아래는 <b>발행 완료 상태</b>의 전체 리포트다. 표지 뒤에 <b>1장 시장 → 2장 진단 → 3장 처방 → 맺음</b>의
+      장(章) 레이어가 얹힌다(REPORT-14). 1장 첫머리의 <b>시장 브리핑</b>(REPORT-15)이 실측 관례와 실물 이미지 인용으로
+      &ldquo;일본 마케팅은 이렇게&rdquo;라는 방향을 먼저 잡아 준다. 블록은 &ldquo;블록 n&rdquo; 라벨과 구분선으로 나뉜다.
+      어느 블록도 점수·판정만 던지지 않는다. 근거를 늘 함께 보여준다.
     </p>
 
     <div class="frame">
@@ -164,25 +180,294 @@
                   </dl>
                   <div class="cover-scope">
                     <span class="badge badge-outline">薬機法 전수 감사</span>
-                    <span class="badge badge-outline">A~E 관례 충족도</span>
+                    <span class="badge badge-outline">항목별 관례 충족도</span>
                     <span class="badge badge-outline">카테고리 벤치마크</span>
                     <span class="badge badge-outline">페르소나·USP 재정의</span>
-                    <span class="badge badge-outline">리뷰 인과 서사(일반형)</span>
+                    <span class="badge badge-outline">정보 공백 → 이탈 경로</span>
                     <span class="badge badge-outline">NG/OK 재작성(KR 병기)</span>
                   </div>
                   <p class="cover-foot">
                     한계: 薬機法 판정은 <b>1차 스크리닝</b>(법률 자문 아님) · 코퍼스는 楽天 skincare 90건 단일 채널 표본 ·
-                    리뷰 서사는 카테고리 일반형
+                    이탈 경로는 진단 기반 일반형
                   </p>
                 </div>
                 <p class="t-help">
                   이 한 장만 결재자에게 전달해도 &ldquo;무엇을·얼마에·어디까지&rdquo; 진단했는지 확인된다.
                   (2026-07-16: <s>검수자 행</s> 삭제 &mdash; 검수 단계 제거)
+                  결론(점수)부터 볼 분은 <a class="backlink" href="#ch2">2장 진단 요약으로 →</a>
                 </p>
               </div>
             </section>
 
-            <!-- ── 블록 1 · 히어로 수치 + 미터 ── -->
+            <!-- ── 장 내비게이션 (REPORT-14 · 스티키) ── -->
+            <nav class="chapter-nav" aria-label="리포트 장 이동">
+              <a href="#ch1"><b>1장</b>일본 시장</a>
+              <span class="sep" aria-hidden="true">·</span>
+              <a href="#ch2"><b>2장</b>내 브랜드 진단</a>
+              <span class="sep" aria-hidden="true">·</span>
+              <a href="#ch3"><b>3장</b>처방 Before/After</a>
+              <span class="sep" aria-hidden="true">·</span>
+              <a href="#ch-end">맺음</a>
+            </nav>
+
+            <!-- ══ 1장 · 시장 (REPORT-15 브리핑 · 브랜드 무관 · 사전집계만) ══ -->
+            <div class="chapter-head" id="ch1">
+              <p class="kick">1장 · 시장</p>
+              <h3>일본 시장은 이렇게 판다</h3>
+              <p class="lead">
+                진단에 앞서, 지금 일본 상위 제품들이 실제로 파는 방식을 실측 데이터와 실물 이미지로 본다.
+                여기서 본 관례(근거 라벨·조건 각주·무첨가 표기·집계일 있는 실적)가 곧 2장에서 내 브랜드를 채점하는 기준이 된다.
+              </p>
+            </div>
+
+            <!-- ── 브리핑 · 일본 시장 트렌드 (블록 번호 없음 · 사전집계·정적 자산만 · LLM 무관) ── -->
+            <section class="block" id="brief">
+              <h3><span class="no">브리핑</span>일본 시장 트렌드 &mdash; 실측이 말하는 팔림새의 문법</h3>
+              <div class="block-body">
+                <p class="t-body">
+                  근거는 두 실측 코퍼스다. <b>상세페이지</b>: 楽天 상세 이미지 304건 OCR &mdash; 소구문 1,409개(유니크 1,303) ·
+                  신뢰배지 380종 · 성분 267종. <b>썸네일</b>: 948장(楽天 604 · Amazon JP 328 · Qoo10 16) 중 층화 표본 120장 직접 라벨링.
+                  전부 2026-07 수집이며, 이 섹션은 고객 콘텐츠와 무관한 시장 관찰이라 <b>브랜드 진단에서도 전부 열린다</b>.
+                </p>
+
+                <div class="dir-grid">
+                  <div class="dir-card">
+                    <span class="no" aria-hidden="true">1</span>
+                    <p class="t">주장하지 말고, 근거로 팔 것</p>
+                    <p class="s">&ldquo;믿어달라&rdquo; 대신 <span lang="ja">効能評価試験済み</span>·배합률·集計日 있는 실적 &mdash;
+                    검증 장치가 소구를 대신한다.</p>
+                  </div>
+                  <div class="dir-card">
+                    <span class="no" aria-hidden="true">2</span>
+                    <p class="t">절제가 곧 신뢰다</p>
+                    <p class="s">※각주로 주장 범위를 스스로 좁힌다(<span lang="ja">※角層まで</span>).
+                    과장·즉효 단정은 신뢰를 깎고 薬機法 위반이 된다.</p>
+                  </div>
+                  <div class="dir-card">
+                    <span class="no" aria-hidden="true">3</span>
+                    <p class="t">플랫폼 문법을 지킬 것</p>
+                    <p class="s">아마존=클린 단독컷, 라쿠텐=신뢰 배지, Qoo10=프로모 문법.
+                    같은 제품도 채널마다 다른 썸네일로 판다.</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="h-sub">관례 실물 &mdash; 일본 상위 제품 상세페이지에서 그대로 가져왔다 (스크롤해서 전체 보기)</p>
+                  <div class="pattern-grid" style="margin-top:10px">
+                    <article class="pattern-card">
+                      <header class="pc-head">
+                        <span class="pc-no">근거</span>
+                        <span class="pc-title">효능은 근거 라벨 + 조건 각주로</span>
+                      </header>
+                      <div class="pc-imgwrap" tabindex="0" role="group" aria-label="아스타리프트 상세페이지 실물 컷 — 효능평가시험 라벨 사례. 스크롤 가능">
+                        <img src="assets/detail/pattern-trust_fujifilm_8.jpg" alt="아스타리프트 상세 컷 — 효능 문장 끝에 効能評価試験済み 라벨과 ＊朝と夜お使いの場合 조건 각주가 붙어 있다" loading="lazy" />
+                      </div>
+                      <p class="pc-quote" lang="ja">「乾燥による小じわを目立たなくします（<b>効能評価試験済み</b>）」「＊朝と夜お使いの場合」</p>
+                      <ul class="pc-notes">
+                        <li>효능 주장 자체에 검증 라벨을 병기한다</li>
+                        <li>＊각주로 조건을 스스로 한정한다</li>
+                      </ul>
+                      <span class="img-cite">출처: 楽天 · アスタリフト(FUJIFILM 공식) 化粧水 · 2026-07 수집 · 분석 목적 인용</span>
+                    </article>
+
+                    <article class="pattern-card">
+                      <header class="pc-head">
+                        <span class="pc-no">실적</span>
+                        <span class="pc-title">실적은 집계일 있는 제3자 지표로</span>
+                      </header>
+                      <div class="pc-imgwrap" tabindex="0" role="group" aria-label="트베르 상세페이지 실물 컷 — 랭킹 1위 4주 스택 사례. 스크롤 가능">
+                        <img src="assets/detail/pattern-thirdparty_tvert_1.jpg" alt="TOUT VERT 상세 컷 — 화장수 랭킹 1위 위젯 4주분을 集計日 명기와 함께 쌓아 보여준다" loading="lazy" />
+                      </div>
+                      <p class="pc-quote" lang="ja">「化粧水・ローションランキング 1位（<b>集計日：5月11日〜5月17日</b>）」「レビュー(2,375件)」</p>
+                      <ul class="pc-notes">
+                        <li>&ldquo;1위&rdquo;에는 반드시 기간·집계일이 붙는다</li>
+                        <li>리뷰는 건수로 말한다 &mdash; 형용사가 아니라</li>
+                      </ul>
+                      <span class="img-cite">출처: 楽天 · TOUT VERT バランシングGAローション · 2026-07 수집 · 분석 목적 인용</span>
+                    </article>
+
+                    <article class="pattern-card">
+                      <header class="pc-head">
+                        <span class="pc-no">무첨가</span>
+                        <span class="pc-title">무첨가는 라벨로 세어 보여준다</span>
+                      </header>
+                      <div class="pc-imgwrap" tabindex="0" role="group" aria-label="FANCL 상세페이지 실물 컷 — 프리 처방 5종 배지 사례. 스크롤 가능">
+                        <img src="assets/detail/pattern-free_fancl_4.jpg" alt="FANCL 상세 컷 — 방부제·합성향료·합성색소·석유계계면활성제·자외선흡수제 5종 프리 처방을 원형 배지로 나열" loading="lazy" />
+                      </div>
+                      <p class="pc-quote"><span lang="ja">防腐剤 / 合成香料 / 合成色素 / 石油系界面活性剤 / 紫外線吸収剤</span> &mdash;
+                      뺀 것을 5개 배지로 나열. <span lang="ja">「敏感肌と向き合って40年。」</span></p>
+                      <ul class="pc-notes">
+                        <li>敏感肌 소구의 관문 &mdash; 코퍼스 프리 표기 상위 배지군</li>
+                      </ul>
+                      <span class="img-cite">출처: 楽天 · ファンケル(FANCL 공식) エンリッチプラス · 2026-07 수집 · 분석 목적 인용</span>
+                    </article>
+
+                    <article class="pattern-card">
+                      <header class="pc-head">
+                        <span class="pc-no">서사</span>
+                        <span class="pc-title">서사: 문제 제기 → 원인 → 근거</span>
+                      </header>
+                      <div class="pc-imgwrap" tabindex="0" role="group" aria-label="마키아레이베르 상세페이지 실물 컷 — 문제 제기형 서사 사례. 스크롤 가능">
+                        <img src="assets/detail/pattern-story_macchialabel_8.jpg" alt="마키아레이베르 상세 컷 — こんな経験していませんか로 시작해 원인 도식과 기전 설명으로 이어지는 5단계 서사" loading="lazy" />
+                      </div>
+                      <p class="pc-quote" lang="ja">「<b>こんな経験していませんか？</b>」→「それ実は…原因かもしれません」→ 원인 도식 → 기전 →「※イラストはイメージです」</p>
+                      <ul class="pc-notes">
+                        <li>효능 단정이 아니라 원인 이해로 설득한다</li>
+                        <li>도식에도 ※한정을 붙인다 &mdash; 절제의 관례</li>
+                      </ul>
+                      <span class="img-cite">출처: 楽天 · マキアレイベル 薬用ローション · 2026-07 수집 · 분석 목적 인용</span>
+                    </article>
+
+                    <article class="pattern-card">
+                      <header class="pc-head">
+                        <span class="pc-no">수치</span>
+                        <span class="pc-title">효과는 수치 + 시험 조건으로</span>
+                      </header>
+                      <div class="pc-imgwrap" tabindex="0" role="group" aria-label="마녀공장 상세페이지 실물 컷 — 정량 그래프와 임상 각주 사례. 스크롤 가능">
+                        <img src="assets/detail/pattern-quant_manyo_4.jpg" alt="마녀공장 상세 컷 — 블랙헤드 58% 세정을 막대그래프로 보이고 임상기관·기간·인원·개인차 각주를 명기" loading="lazy" />
+                      </div>
+                      <p class="pc-quote" lang="ja">「ブラックヘッド<b>58%</b>洗浄」+ 각주「P&amp;K皮膚臨床研究センター / 2025.06 / 大人21名 / 個人差あり」</p>
+                      <ul class="pc-notes">
+                        <li>정량 그래프에는 기관·기간·n수가 따라온다</li>
+                        <li>K뷰티(마녀공장)의 모범 현지화 사례</li>
+                      </ul>
+                      <span class="img-cite">출처: 楽天 · 魔女工場(manyo 공식) ピュアクレンジングオイル · 2026-07 수집 · 분석 목적 인용</span>
+                    </article>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="h-sub">썸네일 스타일 8종 &mdash; 층화 표본 120장 라벨링 (948장 수집분)</p>
+                  <div class="style-gallery" style="margin-top:10px">
+                    <div class="style-tile">
+                      <img class="st-img" src="assets/market/thumb-A_amazon_B0BT99BF83.jpg" alt="큐렐 UV 에센스 — 순백 배경에 제품 단독컷" loading="lazy" />
+                      <div class="st-body">
+                        <p class="st-name">클린 스튜디오 단독컷</p>
+                        <p class="st-count">33 / 120건 · 최다</p>
+                        <p class="st-plat"><span class="badge badge-mute">Amazon 우세</span></p>
+                        <span class="img-cite">Amazon JP · キュレル(Curél)</span>
+                      </div>
+                    </div>
+                    <div class="style-tile">
+                      <img class="st-img" src="assets/market/thumb-B_amazon_B0BY8NVDX5.jpg" alt="라카 틴트 — 제품과 발색 스와치 병치" loading="lazy" />
+                      <div class="st-body">
+                        <p class="st-name">제품+텍스처 스와치</p>
+                        <p class="st-count">15 / 120건</p>
+                        <p class="st-plat"><span class="badge badge-mute">Amazon·라쿠텐</span></p>
+                        <span class="img-cite">Amazon JP · Laka (K뷰티)</span>
+                      </div>
+                    </div>
+                    <div class="style-tile">
+                      <img class="st-img" src="assets/market/thumb-C_rakuten_aestura-japan_atobarrier365cream.jpg" alt="에스트라 아토배리어 크림 — 공식샵 칩과 랭킹 1위 배지" loading="lazy" />
+                      <div class="st-body">
+                        <p class="st-name">공식샵 신뢰 배지형</p>
+                        <p class="st-count">12 / 120건</p>
+                        <p class="st-plat"><span class="badge badge-mute">라쿠텐 우세</span></p>
+                        <span class="img-cite">楽天 · AESTURA (K뷰티 모범 현지화)</span>
+                      </div>
+                    </div>
+                    <div class="style-tile">
+                      <img class="st-img" src="assets/market/thumb-D_rakuten_kiso_kiso-k47.jpg" alt="KISO 크림 — 성분 15% 배합 카피를 전면에" loading="lazy" />
+                      <div class="st-body">
+                        <p class="st-name">카피+성분 비주얼형</p>
+                        <p class="st-count">7 / 120건</p>
+                        <p class="st-plat"><span class="badge badge-mute">라쿠텐</span></p>
+                        <span class="img-cite">楽天 · KISO CARE 「15％配合」</span>
+                      </div>
+                    </div>
+                    <div class="style-tile">
+                      <img class="st-img" src="assets/market/thumb-E_rakuten_tvert_352.jpg" alt="트베르 로션 — 베스트코스메 수상 배지를 쌓은 컷" loading="lazy" />
+                      <div class="st-body">
+                        <p class="st-name">수상 실적 스택형</p>
+                        <p class="st-count">5 / 120건</p>
+                        <p class="st-plat"><span class="badge badge-mute">라쿠텐</span></p>
+                        <span class="img-cite">楽天 · TOUT VERT</span>
+                      </div>
+                    </div>
+                    <div class="style-tile">
+                      <img class="st-img" src="assets/market/thumb-F_rakuten_norm-plus_nm1007-f.jpg" alt="norm+ 선케어 — 모델과 3줄 카피, 랭킹 1위 배지와 누계 실적" loading="lazy" />
+                      <div class="st-body">
+                        <p class="st-name">모델+카피형</p>
+                        <p class="st-count">13 / 120건</p>
+                        <p class="st-plat"><span class="badge badge-mute">라쿠텐·Qoo10</span></p>
+                        <span class="img-cite">楽天 · norm+ (실적 각주 ※판매실적 병기)</span>
+                      </div>
+                    </div>
+                    <div class="style-tile">
+                      <img class="st-img" src="assets/market/thumb-G_qoo10_8365200734.jpg" alt="넘버즈인 세트 — 캐치카피와 할인율, 가격 밴드, 공식 뱃지" loading="lazy" />
+                      <div class="st-body">
+                        <p class="st-name">프로모션 강조형</p>
+                        <p class="st-count">15 / 120건</p>
+                        <p class="st-plat"><span class="badge badge-mute">Qoo10 우세</span></p>
+                        <span class="img-cite">Qoo10 · numbuzin (K뷰티 프로모 문법의 일본어판)</span>
+                      </div>
+                    </div>
+                    <div class="style-tile">
+                      <img class="st-img" src="assets/market/thumb-H_rakuten_attenir_132551.jpg" alt="아테니아 치크 — 여백과 무드 중심 프리미엄 컷" loading="lazy" />
+                      <div class="st-body">
+                        <p class="st-name">프리미엄 무드형</p>
+                        <p class="st-count">11 / 120건</p>
+                        <p class="st-plat"><span class="badge badge-mute">라쿠텐</span></p>
+                        <span class="img-cite">楽天 · アテニア(Attenir)</span>
+                      </div>
+                    </div>
+                    <div class="style-tile warn">
+                      <img class="st-img" src="assets/market/thumb-KR_amazon_B0BYHXVPW4.jpg" alt="Dr.G 크림 — 박스의 한국어 카피가 번역 없이 그대로 노출된 썸네일" loading="lazy" />
+                      <div class="st-body">
+                        <p class="st-name">✕ 반면교사 &mdash; 미변환 실물</p>
+                        <p class="st-count">한국어 박스 카피가 그대로</p>
+                        <p class="st-plat"><span class="badge badge-error">이 리포트가 막는 상태</span></p>
+                        <span class="img-cite">Amazon JP · Dr.G (K뷰티)</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tablewrap" style="margin-top:12px">
+                    <table class="t">
+                      <thead><tr><th style="width:110px">플랫폼</th><th>썸네일 하드 제약 (위반 시 노출 불이익·삭제)</th></tr></thead>
+                      <tbody>
+                        <tr><td><b>Amazon JP</b></td><td>순백 배경 + 상품 85% 이상. 텍스트·배지 오버레이 불가 &mdash; 클린 단독컷·텍스처 스와치형만 가능</td></tr>
+                        <tr><td><b>라쿠텐</b></td><td>텍스트 점유 20% 이하 권장 · 형광 테두리 지양 &mdash; 전 유형 분포</td></tr>
+                        <tr><td><b>Qoo10</b></td><td>캐치카피 + 가격 밴드 + <span lang="ja">公式</span> 푸터 문법 &mdash; 프로모션 강조·모델형 우세</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="h-sub">SNS·검색 유행어 &mdash; 렉시콘 100어휘 중 발췌 (썸네일 타이틀·@cosme 표본)</p>
+                  <div class="term-cloud" style="margin-top:10px" role="img" aria-label="유행어 빈도: 保湿 209회, 毛穴 186회가 최상위. 敏感肌 119, 乾燥 115, 韓国コスメ 90, 医薬部外品 71, 無添加 64, しっとり 50 순">
+                    <span class="term t-xl" lang="ja">保湿<span class="f">209</span></span>
+                    <span class="term t-xl" lang="ja">毛穴<span class="f">186</span></span>
+                    <span class="term t-l" lang="ja">敏感肌<span class="f">119</span></span>
+                    <span class="term t-l" lang="ja">乾燥<span class="f">115</span></span>
+                    <span class="term t-l" lang="ja">韓国コスメ<span class="f">90</span></span>
+                    <span class="term t-m" lang="ja">医薬部外品<span class="f">71</span></span>
+                    <span class="term t-m" lang="ja">無添加<span class="f">64</span></span>
+                    <span class="term t-s" lang="ja">しっとり<span class="f">50</span></span>
+                  </div>
+                  <p class="t-help" style="margin-top:8px">
+                    <span lang="ja">韓国コスメ</span>(90)가 자체 유행어일 만큼 K뷰티 관심은 실재한다 &mdash;
+                    문제는 관심이 아니라 <b>신뢰 문법의 부재</b>다. 출처: <code>sns-lexicon.csv</code> (썸네일 타이틀·@cosme 표본).
+                  </p>
+                </div>
+
+                <p class="sample-note">
+                  표본 한계: 상세 코퍼스는 楽天 단일 채널 304건 &mdash; 과잉일반화 금지. 스타일 분포는 층화 표본 120/948장의 추정치.
+                  OCR 노이즈 존재 · 2026-07 단면. 실물 이미지는 분석 목적 소량 인용이며 출처를 병기한다(<code>assets/README.md</code>).
+                </p>
+              </div>
+            </section>
+
+            <!-- ══ 2장 · 진단 (블록 1 → 4 → 2 → 3 → 5 → 6) ══ -->
+            <div class="chapter-head" id="ch2">
+              <p class="kick">2장 · 진단</p>
+              <h3>내 브랜드는 지금 여기</h3>
+              <p class="lead">
+                1장의 관례를 기준으로 내 콘텐츠를 채점한 결과다. 종합점수 &rarr; 시장 대비 &rarr; 고객·USP &rarr; 규정 위험 &rarr; 항목별 근거 &rarr; 이탈 인과 순으로 내려간다.
+              </p>
+            </div>
+
+            <!-- ── 블록 1 · 히어로 수치 + 미터 (2장 도입) ── -->
             <section class="block">
               <h3><span class="no">블록 1</span>진단 요약 &mdash; 일본 상세 관례 충족도</h3>
               <div class="block-body">
@@ -204,23 +489,23 @@
                 </div>
 
                 <div class="callout">
-                  이 카피는 한국 시장에선 잘 작동할 감성·즉효·완판 소구입니다. 그러나 11문장 중 8문장이
-                  일본 薬機法상 표현 불가 또는 조건부이고, 일본 고객이 신뢰의 근거로 삼는 정보 구조
-                  (効能評価試験·※조건 각주·集計日·無添加 라벨)가 사실상 전무합니다.
-                  &ldquo;번역이 덜 된&rdquo; 문제가 아니라 <b>신뢰 구조 자체가 없는</b> 상태이며,
-                  그대로 올리면 소구력을 잃기 전에 광고가 내려갈 위험이 큽니다.
+                  이 카피는 한국에선 잘 먹힐 감성·즉효·완판 소구입니다. 문제는 일본입니다.
+                  11문장 중 8문장이 薬機法상 표현 불가이거나 조건부이고, 1장에서 본 일본 고객의 신뢰 정보 구조
+                  (効能評価試験·※조건 각주·集計日·無添加 라벨)는 사실상 하나도 없습니다.
+                  &ldquo;번역이 덜 된&rdquo; 문제가 아닙니다. <b>신뢰 구조 자체가 비어 있는</b> 상태라,
+                  이대로 올리면 소구력을 따지기도 전에 광고부터 내려갈 수 있습니다.
                 </div>
 
                 <div>
-                  <p class="h-sub">최우선 재설계 Top 3</p>
+                  <p class="h-sub">최우선 재설계 Top 3 &mdash; 항목을 누르면 채점 근거로 이동</p>
                   <div style="margin-top:6px">
                     <div class="rank-row">
                       <span class="no">1</span>
                       <div>
-                        <p class="ttl">B 무첨가·안전 소구</p>
+                        <p class="ttl"><a class="backlink" href="#rb-gB">무첨가·안전 소구</a></p>
                         <p class="why">敏感肌 소구의 일본 핵심 문법이 하나도 없음 &mdash; 탐색 단계 이탈의 관문</p>
                         <div class="rank-mini">
-                          <span class="bar" role="img" aria-label="B군 충족도 0%"><i style="width:0%"></i></span>
+                          <span class="bar" role="img" aria-label="무첨가·안전 충족도 0%"><i style="width:0%"></i></span>
                           <span class="v">0% (0 / 4점)</span>
                         </div>
                       </div>
@@ -228,10 +513,10 @@
                     <div class="rank-row">
                       <span class="no">2</span>
                       <div>
-                        <p class="ttl">A 신뢰 구축</p>
+                        <p class="ttl"><a class="backlink" href="#rb-gA">신뢰 구축</a></p>
                         <p class="why">効能評価試験·※각주·集計日 전무 &mdash; 주장은 있는데 근거 장치가 없음</p>
                         <div class="rank-mini">
-                          <span class="bar" role="img" aria-label="A군 충족도 10%"><i style="width:10%"></i></span>
+                          <span class="bar" role="img" aria-label="신뢰 구축 충족도 10%"><i style="width:10%"></i></span>
                           <span class="v">10% (1 / 10점)</span>
                         </div>
                       </div>
@@ -239,16 +524,90 @@
                     <div class="rank-row">
                       <span class="no">3</span>
                       <div>
-                        <p class="ttl">E 카테고리 적합성</p>
+                        <p class="ttl"><a class="backlink" href="#rb-gE">카테고리 적합성</a></p>
                         <p class="why">등급 판단 없이 의약외품·의약품 영역 표현 다수</p>
                         <div class="rank-mini">
-                          <span class="bar" role="img" aria-label="E군 충족도 13%"><i style="width:13%"></i></span>
+                          <span class="bar" role="img" aria-label="카테고리 적합성 충족도 13%"><i style="width:13%"></i></span>
                           <span class="v">13% (1 / 8점)</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+            </section>
+
+            <!-- ── 블록 4 · 체크 매트릭스 (2장 · 점수 뒤 · 시장 대비 첫 대면) ── -->
+            <section class="block" id="rb-block4">
+              <h3><span class="no">블록 4</span>카테고리 경쟁 벤치마크 (코퍼스 90건 실측)</h3>
+              <div class="block-body">
+                <p class="t-body">
+                  1장에서 본 관례 대비, <b>내 콘텐츠의 첫 대면</b>이다. 표본은 <code>detail-ocr.jsonl</code> 중
+                  skincare 90건(楽天 상세 OCR)이고, 아래 인용은 전부 이 표본의 <b>실제 일본어 원문</b>이다.
+                  일반화가 아니라 &ldquo;이 표본에서 관찰된다&rdquo;는 사실이다.
+                </p>
+
+                <div class="tablewrap">
+                  <table class="t">
+                    <thead>
+                      <tr>
+                        <th style="width:118px">신뢰 장치</th>
+                        <th style="width:34%">일본 상위 제품 실제 표현</th>
+                        <th style="width:104px">내 콘텐츠</th>
+                        <th>갭</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><b>효능 근거 라벨</b></td>
+                        <td lang="ja">効能評価試験済み</td>
+                        <td class="mx mx-no"><i aria-hidden="true">✕</i>미관찰</td>
+                        <td class="t-mute">효능을 근거 없이 형용사로 단정 &mdash; 검증 라벨 없음</td>
+                      </tr>
+                      <tr>
+                        <td><b>조건 각주 ※</b></td>
+                        <td lang="ja">※角層まで / ＊朝と夜お使いの場合</td>
+                        <td class="mx mx-no"><i aria-hidden="true">✕</i>미관찰</td>
+                        <td class="t-mute">스스로 범위를 좁히는 ※조건 각주가 없음</td>
+                      </tr>
+                      <tr>
+                        <td><b>성분 배합률</b></td>
+                        <td lang="ja">グリシルグリシン 6%</td>
+                        <td class="mx mx-part"><i aria-hidden="true">△</i>부분</td>
+                        <td class="t-mute">誤認 리스크 &mdash; &ldquo;99%&rdquo;는 무엇의 비율인지 불명확</td>
+                      </tr>
+                      <tr>
+                        <td><b>제3자 지표+집계일</b></td>
+                        <td lang="ja">週間ランキング1位（集計日：5/11〜5/17）</td>
+                        <td class="mx mx-no"><i aria-hidden="true">✕</i>미관찰</td>
+                        <td class="t-mute">&ldquo;10만 병 완판&rdquo;은 집계일·출처 없음</td>
+                      </tr>
+                      <tr>
+                        <td><b>무첨가/프리 라벨</b></td>
+                        <td lang="ja">合成香料フリー / 無香料・無着色 (코퍼스 54건)</td>
+                        <td class="mx mx-no"><i aria-hidden="true">✕</i>미관찰</td>
+                        <td class="t-mute">敏感肌 소구의 핵심 문법(무첨가·프리 라벨) 완전 결여</td>
+                      </tr>
+                      <tr>
+                        <td><b>성분 검색표기</b></td>
+                        <td lang="ja">CICA（ツボクサエキス）</td>
+                        <td class="mx mx-part"><i aria-hidden="true">△</i>부분</td>
+                        <td class="t-mute">병기하면 검색 노출 강화 여지 (부분)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="legend" style="margin-top:0">
+                  <span><b class="mx mx-yes" style="font-size:11px"><i aria-hidden="true">○</i>관찰됨</b></span>
+                  <span><b class="mx mx-part" style="font-size:11px"><i aria-hidden="true">△</i>부분</b></span>
+                  <span><b class="mx mx-no" style="font-size:11px"><i aria-hidden="true">✕</i>미관찰</b></span>
+                  <span class="t-help">일본 상세 관례의 ○△✕ 표기를 그대로 쓴다</span>
+                </p>
+
+                <p class="t-help" style="margin-top:2px">
+                  <b>참고 &mdash; 진정(鎮静):</b> 한국에선 최강 소구어지만 일본에선 화장품 효능도, 강한 검색어도 아니다.
+                  같은 니즈를 <span lang="ja">肌荒れ·敏感肌·ゆらぎ肌·整える</span>로 검색한다 (<code>detail-ocr</code> skincare 90건 기준).
+                </p>
               </div>
             </section>
 
@@ -304,7 +663,7 @@
                     </div>
                     <div class="speech">
                       <p class="q" lang="ja">私の敏感肌に刺激ないの? 何が入ってて、何が入ってないの?</p>
-                      <p class="a">무첨가·자극 정보 요구 &mdash; B군 부재가 정확히 이 질문을 방치한다</p>
+                      <p class="a">무첨가·자극 정보 요구 &mdash; 무첨가·안전 소구 부재가 정확히 이 질문을 방치한다</p>
                     </div>
                     <div class="speech">
                       <p class="q" lang="ja">日本で売ってる韓国コスメ、口コミ本当?</p>
@@ -313,7 +672,7 @@
                   </div>
                 </div>
 
-                <div>
+                <div id="usp-table">
                   <p class="h-sub">USP 재정의 표</p>
                   <div class="tablewrap" style="margin-top:8px">
                     <table class="t">
@@ -327,28 +686,28 @@
                       </thead>
                       <tbody>
                         <tr>
-                          <td>즉각 진정 · 트러블 싹 (K3·K10)</td>
+                          <td>즉각 진정 · 트러블 싹</td>
                           <td class="t-mute" lang="ja">化粧品でそんな効果出るの? &mdash; 학습된 경계심 자극. 薬機法 표현 불가</td>
                           <td><b lang="ja">ゆらぎがちな肌を、うるおいで整える</b> &mdash; 억제가 아니라 정돈. 효능 56항목 안에서 진정 니즈를 흡수</td>
-                          <td class="t-mute">블록 7 K3·K10</td>
+                          <td class="t-mute"><a class="backlink" href="#ch3">3장 재작성</a></td>
                         </tr>
                         <tr>
-                          <td>99% 고농축 · 병원 처방급 (K7·K8)</td>
+                          <td>99% 고농축 · 병원 처방급</td>
                           <td class="t-mute" lang="ja">何の99%? 病院と比べて大丈夫? &mdash; 수치 근거 불명확 + 의료 비교</td>
                           <td><b>정확한 배합률 + 기전으로 말하는 성분 신뢰</b> &mdash; 작아도 정확한 수치가 큰 숫자보다 강하다</td>
-                          <td class="t-mute">블록 7 K7</td>
+                          <td class="t-mute"><a class="backlink" href="#ch3">3장 재작성</a></td>
                         </tr>
                         <tr>
-                          <td>10만 병 완판 · 리뷰 난리 (K6)</td>
+                          <td>10만 병 완판 · 리뷰 난리</td>
                           <td class="t-mute" lang="ja">集計日は? 口コミ本当? &mdash; 출처 없는 실적은 반대 이유를 키움</td>
                           <td><b>검증 가능한 지표로 쌓는 신뢰</b> &mdash; 累計出荷 + 集計時点 명기</td>
-                          <td class="t-mute">블록 7 K6</td>
+                          <td class="t-mute"><a class="backlink" href="#ch3">3장 재작성</a></td>
                         </tr>
                         <tr>
                           <td>(부재) 무첨가·안전 소구 없음</td>
                           <td class="t-mute">敏感肌 고객이 가장 먼저 찾는 정보에 답이 없음 = 탐색 단계 이탈</td>
-                          <td><b lang="ja">敏感肌の毎日に、無添加という安心</b> &mdash; B군 0점을 신뢰 자산으로 전환</td>
-                          <td class="t-mute">블록 8 신뢰 블록</td>
+                          <td><b lang="ja">敏感肌の毎日に、無添加という安心</b> &mdash; 무첨가·안전 0점을 신뢰 자산으로 전환</td>
+                          <td class="t-mute"><a class="backlink" href="#ch3">3장 재작성</a></td>
                         </tr>
                       </tbody>
                     </table>
@@ -358,7 +717,7 @@
             </section>
 
             <!-- ── 블록 3 · 스탯 타일 + 판정 분포 스트립 ── -->
-            <section class="block">
+            <section class="block" id="rb-block3">
               <h3><span class="no">블록 3</span>薬機法 표현 전수 감사 (1차 스크리닝)</h3>
               <div class="block-body">
                 <p class="alert alert-mute">
@@ -372,24 +731,24 @@
                     <div class="stat cd"><span class="n">5</span><span class="l">【조건부】</span></div>
                     <div class="stat ok"><span class="n">0</span><span class="l">【가능】</span></div>
                   </div>
-                  <div class="kstrip" role="img" aria-label="문장별 판정 분포: K1 불가, K2 조건부, K3 불가, K4 불가(최고위험), K5 조건부, K6 조건부, K7 조건부, K8 불가, K9 불가, K10 불가, K11 조건부">
-                    <span class="k k-ng">K1</span>
-                    <span class="k k-cd">K2</span>
-                    <span class="k k-ng">K3</span>
-                    <span class="k k-ng k-top">K4</span>
-                    <span class="k k-cd">K5</span>
-                    <span class="k k-cd">K6</span>
-                    <span class="k k-cd">K7</span>
-                    <span class="k k-ng">K8</span>
-                    <span class="k k-ng">K9</span>
-                    <span class="k k-ng">K10</span>
-                    <span class="k k-cd">K11</span>
+                  <div class="kstrip" role="img" aria-label="문장별 판정 분포: ①불가 ②조건부 ③불가 ④불가(최고위험) ⑤조건부 ⑥조건부 ⑦조건부 ⑧불가 ⑨불가 ⑩불가 ⑪조건부">
+                    <span class="k k-ng">①</span>
+                    <span class="k k-cd">②</span>
+                    <span class="k k-ng">③</span>
+                    <span class="k k-ng k-top">④</span>
+                    <span class="k k-cd">⑤</span>
+                    <span class="k k-cd">⑥</span>
+                    <span class="k k-cd">⑦</span>
+                    <span class="k k-ng">⑧</span>
+                    <span class="k k-ng">⑨</span>
+                    <span class="k k-ng">⑩</span>
+                    <span class="k k-cd">⑪</span>
                   </div>
                   <div class="legend">
                     <span><i style="background:var(--error-bg); outline:1px solid var(--error)"></i>불가 6</span>
                     <span><i style="background:var(--warn-bg); outline:1px solid var(--warn)"></i>조건부 5</span>
                     <span><i style="background:var(--safe-bg); outline:1px solid var(--safe)"></i>가능 0</span>
-                    <span>테두리 강조 = 최고위험 <b style="font-family:var(--font-mono)">K4</b></span>
+                    <span>테두리 강조 = 최고위험 <b style="font-family:var(--font-mono)">④</b>번 문장</span>
                   </div>
                 </div>
 
@@ -419,9 +778,9 @@
                 </div>
 
                 <div>
-                  <article class="audit-card">
+                  <article class="audit-card" id="k-k4">
                     <header class="audit-head ng">
-                      <span style="font-family:var(--font-mono); font-weight:700">K4</span>
+                      <span style="font-weight:700">문장 ④</span>
                       <span class="verdict v-ng">【불가】</span>
                       <span class="badge badge-error">최고위험</span>
                       <span class="t-help" style="margin-left:auto">근거 조항 [2][3][6]</span>
@@ -438,9 +797,9 @@
                     </div>
                   </article>
 
-                  <article class="audit-card">
+                  <article class="audit-card" id="k-k2">
                     <header class="audit-head cd">
-                      <span style="font-family:var(--font-mono); font-weight:700">K2</span>
+                      <span style="font-weight:700">문장 ②</span>
                       <span class="verdict v-cond">【조건부】</span>
                       <span class="t-help" style="margin-left:auto">근거 조항 [2][4]</span>
                     </header>
@@ -457,9 +816,9 @@
                     </div>
                   </article>
 
-                  <article class="audit-card">
+                  <article class="audit-card" id="k-k6">
                     <header class="audit-head cd">
-                      <span style="font-family:var(--font-mono); font-weight:700">K6</span>
+                      <span style="font-weight:700">문장 ⑥</span>
                       <span class="verdict v-cond">【조건부】</span>
                       <span class="t-help" style="margin-left:auto">근거 조항 [6][7]</span>
                     </header>
@@ -477,7 +836,7 @@
                   </article>
 
                   <p class="t-help" style="margin-top:10px; text-align:center">
-                    ⋯ K1 · K3 · K5 · K7 · K8 · K9 · K10 · K11 동일 형식으로 이어짐 (총 11장)
+                    ⋯ 나머지 8개 문장도 동일 형식으로 이어짐 (총 11장)
                   </p>
                 </div>
 
@@ -489,128 +848,34 @@
               </div>
             </section>
 
-            <!-- ── 블록 4 · 체크 매트릭스 + 빈도 막대 ── -->
-            <section class="block">
-              <h3><span class="no">블록 4</span>카테고리 경쟁 벤치마크 (코퍼스 90건 실측)</h3>
-              <div class="block-body">
-                <p class="t-body">
-                  표본은 <code>detail-ocr.jsonl</code> 중 skincare 90건(楽天 상세 OCR)이다.
-                  아래 인용은 전부 이 표본의 <b>실제 일본어 원문</b>이며, 과잉일반화가 아니라
-                  &ldquo;이 표본에서 관찰된다&rdquo;는 관찰이다.
-                </p>
-
-                <div class="tablewrap">
-                  <table class="t">
-                    <thead>
-                      <tr>
-                        <th style="width:118px">신뢰 장치</th>
-                        <th style="width:34%">일본 상위 제품 실제 표현</th>
-                        <th style="width:104px">내 콘텐츠</th>
-                        <th>갭</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><b>효능 근거 라벨</b></td>
-                        <td lang="ja">効能評価試験済み</td>
-                        <td class="mx mx-no"><i aria-hidden="true">✕</i>미관찰</td>
-                        <td class="t-mute">A1 미탑재. 효능을 근거 없이 형용사로 단정</td>
-                      </tr>
-                      <tr>
-                        <td><b>조건 각주 ※</b></td>
-                        <td lang="ja">※角層まで / ＊朝と夜お使いの場合</td>
-                        <td class="mx mx-no"><i aria-hidden="true">✕</i>미관찰</td>
-                        <td class="t-mute">A2 미탑재. 스스로 범위를 좁히는 절제 부재</td>
-                      </tr>
-                      <tr>
-                        <td><b>성분 배합률</b></td>
-                        <td lang="ja">グリシルグリシン 6%</td>
-                        <td class="mx mx-part"><i aria-hidden="true">△</i>부분</td>
-                        <td class="t-mute">D1 誤認 리스크. &ldquo;99%&rdquo;는 무엇의 비율인지 불명확</td>
-                      </tr>
-                      <tr>
-                        <td><b>제3자 지표+집계일</b></td>
-                        <td lang="ja">週間ランキング1位（集計日：5/11〜5/17）</td>
-                        <td class="mx mx-no"><i aria-hidden="true">✕</i>미관찰</td>
-                        <td class="t-mute">A4 미탑재. &ldquo;10만 병 완판&rdquo;은 집계일·출처 없음</td>
-                      </tr>
-                      <tr>
-                        <td><b>무첨가/프리 라벨</b></td>
-                        <td lang="ja">合成香料フリー / 無香料・無着色 (코퍼스 54건)</td>
-                        <td class="mx mx-no"><i aria-hidden="true">✕</i>미관찰</td>
-                        <td class="t-mute">B1·B2 완전 미탑재. 敏感肌 소구의 일본 핵심 문법 결여</td>
-                      </tr>
-                      <tr>
-                        <td><b>성분 검색표기</b></td>
-                        <td lang="ja">CICA（ツボクサエキス）</td>
-                        <td class="mx mx-part"><i aria-hidden="true">△</i>부분</td>
-                        <td class="t-mute">D4 부분. 병기로 검색 노출 강화 여지</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <p class="legend" style="margin-top:0">
-                  <span><b class="mx mx-yes" style="font-size:11px"><i aria-hidden="true">○</i>관찰됨</b></span>
-                  <span><b class="mx mx-part" style="font-size:11px"><i aria-hidden="true">△</i>부분</b></span>
-                  <span><b class="mx mx-no" style="font-size:11px"><i aria-hidden="true">✕</i>미관찰</b></span>
-                  <span class="t-help">일본 상세 관례의 ○△✕ 표기를 그대로 쓴다</span>
-                </p>
-
-                <ul style="margin-left:18px" class="t-body">
-                  <li><b>효능 근거 라벨:</b> <span lang="ja">「乾燥小じわ※ … ※乾燥による小じわを目立たなくする（効能評価試験済み）」</span></li>
-                  <li><b>조건 각주:</b> <span lang="ja">「＊2 角層まで／＊5 朝と夜お使いの場合」</span></li>
-                  <li><b>제3자 지표+집계일:</b> <span lang="ja">「週間ランキング1位（集計日：5月11日〜5月17日）」「レビュー(2,375件)」</span></li>
-                </ul>
-
-                <div>
-                  <p class="h-sub">일본 검색·고민 어휘 (빈도 실측 · 라쿠텐 skincare 표본)</p>
-                  <div class="freq" style="margin-top:10px" role="img" aria-label="검색 어휘 빈도: 保湿 258회로 최다, 敏感肌 172회, 無添加 80회 순. 진정에 해당하는 어휘는 상위에 없음">
-                    <div class="freq-row"><span class="term" lang="ja">保湿</span><span class="bar"><i style="width:100%"></i></span><span class="v">258</span></div>
-                    <div class="freq-row"><span class="term" lang="ja">敏感肌</span><span class="bar"><i style="width:67%"></i></span><span class="v">172</span></div>
-                    <div class="freq-row"><span class="term" lang="ja">無添加</span><span class="bar"><i style="width:31%"></i></span><span class="v">80</span></div>
-                    <div class="freq-row"><span class="term" lang="ja">潤い</span><span class="bar"><i style="width:21%"></i></span><span class="v">54</span></div>
-                    <div class="freq-row"><span class="term" lang="ja">低刺激</span><span class="bar"><i style="width:19%"></i></span><span class="v">50</span></div>
-                    <div class="freq-row"><span class="term" lang="ja">ナイアシンアミド</span><span class="bar"><i style="width:19%"></i></span><span class="v">50</span></div>
-                    <div class="freq-row"><span class="term" lang="ja">ヒアルロン酸</span><span class="bar"><i style="width:17%"></i></span><span class="v">45</span></div>
-                    <div class="freq-row"><span class="term" lang="ja">セラミド</span><span class="bar"><i style="width:17%"></i></span><span class="v">43</span></div>
-                    <div class="freq-row"><span class="term" lang="ja">CICA</span><span class="bar"><i style="width:16%"></i></span><span class="v">41</span></div>
-                  </div>
-                  <p class="t-help" style="margin-top:8px">
-                    &ldquo;진정(鎮静)&rdquo;은 한국에선 최강 소구어지만 일본에선 화장품 효능도 아니고 검색어로도 약하다.
-                    같은 니즈를 <span lang="ja">肌荒れ·敏感肌·ゆらぎ肌·整える</span>로 검색한다.
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <!-- ── 블록 5 · A~E 막대 + 아코디언 ── -->
-            <section class="block">
-              <h3><span class="no">블록 5</span>일본 문법 진단 점수 (A~E 루브릭)</h3>
+            <!-- ── 블록 5 · 항목별 막대 + 아코디언 ── -->
+            <section class="block" id="rb-block5">
+              <h3><span class="no">블록 5</span>일본 문법 진단 점수 (항목별 루브릭)</h3>
               <div class="block-body">
                 <div style="display:flex; flex-direction:column; gap:8px">
-                  <div class="bar-row">
-                    <span class="name">A 신뢰 구축</span>
-                    <span class="bar" role="img" aria-label="A 신뢰 구축 10%"><i style="width:10%"></i></span>
+                  <div class="bar-row" id="rb-gA">
+                    <span class="name">신뢰 구축</span>
+                    <span class="bar" role="img" aria-label="신뢰 구축 10%"><i style="width:10%"></i></span>
                     <span class="pct">10%</span><span class="wt">가중 0.30</span>
                   </div>
-                  <div class="bar-row">
-                    <span class="name">B 무첨가·안전</span>
-                    <span class="bar" role="img" aria-label="B 무첨가·안전 0%"><i style="width:0%"></i></span>
+                  <div class="bar-row" id="rb-gB">
+                    <span class="name">무첨가·안전</span>
+                    <span class="bar" role="img" aria-label="무첨가·안전 0%"><i style="width:0%"></i></span>
                     <span class="pct">0%</span><span class="wt">가중 0.15</span>
                   </div>
-                  <div class="bar-row">
-                    <span class="name">C 서사 구조</span>
-                    <span class="bar" role="img" aria-label="C 서사 구조 33%"><i style="width:33%"></i></span>
+                  <div class="bar-row" id="rb-gC">
+                    <span class="name">서사 구조</span>
+                    <span class="bar" role="img" aria-label="서사 구조 33%"><i style="width:33%"></i></span>
                     <span class="pct">33%</span><span class="wt">가중 0.25</span>
                   </div>
-                  <div class="bar-row">
-                    <span class="name">D 성분 프레이밍</span>
-                    <span class="bar" role="img" aria-label="D 성분 프레이밍 25%"><i style="width:25%"></i></span>
+                  <div class="bar-row" id="rb-gD">
+                    <span class="name">성분 프레이밍</span>
+                    <span class="bar" role="img" aria-label="성분 프레이밍 25%"><i style="width:25%"></i></span>
                     <span class="pct">25%</span><span class="wt">가중 0.20</span>
                   </div>
-                  <div class="bar-row">
-                    <span class="name">E 카테고리 적합성</span>
-                    <span class="bar" role="img" aria-label="E 카테고리 적합성 13%"><i style="width:13%"></i></span>
+                  <div class="bar-row" id="rb-gE">
+                    <span class="name">카테고리 적합성</span>
+                    <span class="bar" role="img" aria-label="카테고리 적합성 13%"><i style="width:13%"></i></span>
                     <span class="pct">13%</span><span class="wt">가중 0.10</span>
                   </div>
                 </div>
@@ -618,7 +883,6 @@
                 <div>
                   <details class="acc" open>
                     <summary>
-                      <span class="id">A1</span>
                       <span style="font-weight:600">효능 근거 라벨(効能評価試験済み 등) 탑재</span>
                       <span class="verdict v-ng" style="margin-left:auto">0점</span>
                     </summary>
@@ -627,14 +891,11 @@
                       <dd>효능 주장에 <span lang="ja">効能評価試験済み</span> 등 검증 라벨이 병기되어 있다</dd>
                       <dt>내 문장</dt>
                       <dd>(해당 표현 미관찰)</dd>
-                      <dt>코퍼스 근거</dt>
-                      <dd lang="ja">アスタリフト 化粧水 — 乾燥小じわ※（効能評価試験済み）</dd>
                     </dl>
                   </details>
 
                   <details class="acc">
                     <summary>
-                      <span class="id">A2</span>
                       <span style="font-weight:600">조건 각주(※/＊)로 주장 범위를 한정</span>
                       <span class="verdict v-ng" style="margin-left:auto">0점</span>
                     </summary>
@@ -643,14 +904,11 @@
                       <dd>침투·지속·효과 주장에 범위를 좁히는 각주가 붙어 있다</dd>
                       <dt>내 문장</dt>
                       <dd>피부 속 깊은 곳까지 파고드는 시카(CICA) 앰플</dd>
-                      <dt>코퍼스 근거</dt>
-                      <dd lang="ja">＊2 角層まで / ＊5 朝と夜お使いの場合</dd>
                     </dl>
                   </details>
 
                   <details class="acc">
                     <summary>
-                      <span class="id">C1</span>
                       <span style="font-weight:600">문제 제기·공감 도입부</span>
                       <span class="verdict v-cond" style="margin-left:auto">1점</span>
                     </summary>
@@ -659,14 +917,13 @@
                       <dd><span lang="ja">こんな経験していませんか？</span>형 문제 제기로 시작해 원인까지 잇는다</dd>
                       <dt>내 문장</dt>
                       <dd>예민해진 피부, 병원 안 가도 되는 진정의 답</dd>
-                      <dt>코퍼스 근거</dt>
+                      <dt>판정 근거</dt>
                       <dd class="t-mute">문제 제기는 있으나 원인·근거 축 없이 즉효 단정으로 직행 (부분 충족)</dd>
                     </dl>
                   </details>
 
                   <details class="acc">
                     <summary>
-                      <span class="id">E4</span>
                       <span style="font-weight:600">skincare &mdash; 등급 판단·効能評価 근거 축</span>
                       <span class="verdict v-ng" style="margin-left:auto">0점</span>
                     </summary>
@@ -675,55 +932,57 @@
                       <dd>화장품/의약외품 등급 내 표현만 사용하고 근거 축을 갖춘다</dd>
                       <dt>내 문장</dt>
                       <dd>손상된 피부 장벽을 재생시켜 근본부터 치료합니다</dd>
-                      <dt>코퍼스 근거</dt>
-                      <dd lang="ja">idio CICA 化粧水 — 肌が敏感な方でも肌荒れを防ぎながら</dd>
                     </dl>
                   </details>
 
                   <p class="t-help" style="margin-top:10px; text-align:center">
-                    ⋯ A3~A5 · B1~B2 · C2~C3 · D1~D4 동일 형식으로 이어짐
+                    ⋯ 나머지 항목도 동일 형식으로 이어짐
                   </p>
                 </div>
 
                 <p class="alert alert-mute">
-                  <b>E군은 제품 카테고리에 해당하는 항목만 채점한다.</b> skincare이므로 E4만 채점하고
-                  E1(suncare)·E2(makeup)·E3(cleansing)은 <b>분모에서도 제외</b>한다.
+                  <b>카테고리 적합성은 제품 카테고리에 해당하는 항목만 채점한다.</b> skincare이므로 스킨케어 항목만 채점하고
+                  선크림·메이크업·클렌징 항목은 <b>분모에서도 제외</b>한다.
                   집계·가중은 코드가 하므로 <b>같은 항목 점수 → 같은 종합 점수</b>다.
                 </p>
               </div>
             </section>
 
-            <!-- ── 블록 6 · 인과 플로우 ── -->
+            <!-- ── 블록 6 · 정보 공백 → 이탈 플로우 ── -->
             <section class="block">
-              <h3><span class="no">블록 6</span>리뷰(口コミ) 인과 서사 &mdash; 카테고리 일반형</h3>
+              <h3><span class="no">블록 6</span>정보 공백이 이탈로 이어지는 길</h3>
               <div class="block-body">
+                <p class="t-body" style="margin-top:0">
+                  블록 4에서 드러난 정보 공백이 실제 구매에서 어떤 의문을 부르고, 그 의문이 어디서 이탈로 이어지는지를 한 줄로 이었다.
+                  개별 리뷰를 들여다본 게 아니라, 앞서 매긴 <b>벤치마크 갭과 페르소나</b>에서 짚어낸 경로다. 각 공백은 눌러서 채점 근거로 돌아갈 수 있다.
+                </p>
                 <div class="card">
                   <div class="causal-row causal-head" style="padding-top:0; border-top:0; font-size:10.5px; color:var(--ink-mute); font-weight:700">
-                    <span>정보 공백</span><span></span><span>불신 신호 (口コミ에서 관찰되는 우려)</span><span></span><span>이탈 행동</span>
+                    <span>진단된 정보 공백</span><span></span><span>고객이 떠올리는 의문</span><span></span><span>이탈 행동</span>
                   </div>
                   <div class="causal-row">
-                    <span class="c1">무첨가·자극 정보 부재</span>
+                    <span class="c1">무첨가·안전 정보 부재<a class="backlink" href="#rb-gB" style="display:block; font-weight:600; margin-top:3px">← 블록 5 · 무첨가·안전 0%</a></span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c2" lang="ja">敏感肌だけど大丈夫? 成分表どこ?</span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c3">탐색 단계에서 이탈해 경쟁 제품의 <span lang="ja">◯◯フリー</span> 표기로 이동</span>
                   </div>
                   <div class="causal-row">
-                    <span class="c1">효능 근거 라벨 부재</span>
+                    <span class="c1">효능 근거 라벨 부재<a class="backlink" href="#rb-gA" style="display:block; font-weight:600; margin-top:3px">← 블록 5 · 신뢰 구축 10%</a></span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c2" lang="ja">効果が出るって書いてあるけど、根拠は?</span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c3">과장 광고로 분류하고 카트에 담지 않음</span>
                   </div>
                   <div class="causal-row">
-                    <span class="c1">실적의 집계일·출처 부재</span>
+                    <span class="c1">실적의 집계일·출처 부재<a class="backlink" href="#k-k6" style="display:block; font-weight:600; margin-top:3px">← 블록 3 · 문장 ⑥【조건부】</a></span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c2" lang="ja">10万本って、いつの話? 口コミ本当?</span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c3">@cosme에서 제3자 리뷰를 재검색하고 돌아오지 않음</span>
                   </div>
                   <div class="causal-row">
-                    <span class="c1">침투 범위 미한정</span>
+                    <span class="c1">침투 범위 미한정<a class="backlink" href="#k-k2" style="display:block; font-weight:600; margin-top:3px">← 블록 3 · 문장 ②【조건부】</a></span>
                     <span class="arr" aria-hidden="true">→</span>
                     <span class="c2" lang="ja">深部までって、化粧品で言っていいの?</span>
                     <span class="arr" aria-hidden="true">→</span>
@@ -731,19 +990,38 @@
                   </div>
                 </div>
                 <p class="t-help">
-                  이 서사는 <b>카테고리 일반형</b>입니다. 개별 리뷰를 크롤링하지 않으며, 가짜 리뷰·가짜 평점·가짜 인용을
-                  생성하지 않습니다. 위는 코퍼스의 skincare 리뷰 어휘에서 <b>자주 관찰되는 우려 유형</b>입니다.
-                  리뷰 페이지 URL을 넣으면 이 제품 실측 리뷰로 정밀화됩니다(v2).
+                  이 경로는 개별 리뷰를 인용하거나 지어낸 것이 아니라, 위 벤치마크 갭과 페르소나에서 추론한 일반형입니다.
+                  가짜 리뷰·평점·인용은 만들지 않습니다.
                 </p>
               </div>
             </section>
 
-            <!-- ── 블록 7 · Before/After 비교 카드 ── -->
+            <!-- ══ 3장 · 처방 (블록 7) ══ -->
+            <div class="chapter-head" id="ch3">
+              <p class="kick">3장 · 처방</p>
+              <h3>이렇게 바꾸면, 이 문제가 풀린다</h3>
+              <p class="lead">
+                재작성마다 <b>&ldquo;이 After가 푸는 문제&rdquo;</b> 칩이 붙는다 &mdash; 칩을 누르면 2장의 해당 진단
+                (薬機法 문장·루브릭 항목)으로 이동해 무엇이 왜 바뀌었는지 근거를 확인할 수 있다.
+              </p>
+            </div>
+
+            <!-- ── 블록 7 · Before/After 재설계 (문장 → 블록 · 해결 칩 = REPORT-16) ── -->
             <section class="block">
-              <h3><span class="no">블록 7</span>NG/OK 재작성 (Before/After + 한국어 병기)</h3>
+              <h3><span class="no">블록 7</span>Before/After 재설계 &mdash; 문장에서 블록까지</h3>
               <div class="block-body">
+                <p class="t-body" style="margin-top:0">
+                  저점 항목과 薬機法【불가】·【조건부】 문장을 <b>문장 단위</b>로 먼저 고치고,
+                  그중 가장 점수가 낮은 섹션은 <b>한 블록 통째로</b> 다시 짜서 마무리한다. 같은 원칙을 배율만 달리해 적용한 것이다.
+                </p>
+                <p class="h-sub">문장 단위 재작성 &mdash; Before/After + 한국어 병기</p>
                 <article class="card">
-                  <p class="t-help" style="font-weight:600">재작성 1 · 근거 K3 · 薬機法【불가】 · 루브릭 C3 · USP U1 실행</p>
+                  <p class="t-help" style="font-weight:600">재작성 1 &mdash; 이 After가 푸는 문제</p>
+                  <div class="solves" style="margin-top:6px">
+                    <a class="fix-chip" href="#rb-block3"><span class="from ng"><i aria-hidden="true">✕</i>「整える」밖 효능 단정【불가】</span><span class="arr" aria-hidden="true">→</span><span class="to"><i aria-hidden="true">○</i>효능 56항목 내 「整える」</span></a>
+                    <a class="fix-chip" href="#rb-gC"><span class="from cd"><i aria-hidden="true">△</i>즉효 단정 · 서사 구조 1점</span><span class="arr" aria-hidden="true">→</span><span class="to"><i aria-hidden="true">○</i>※角層 자기 한정 각주</span></a>
+                    <span class="badge badge-outline">USP 실행 · <a class="backlink" href="#usp-table">페르소나·USP 표</a></span>
+                  </div>
                   <div class="ba-pair" style="margin-top:10px">
                     <div class="ba-before">
                       <span class="k">BEFORE · KR 원문</span>
@@ -760,17 +1038,21 @@
                   </div>
                   <p class="t-mute" style="margin-top:10px">
                     <b>문제:</b> 「トラブルを消す」=효과 보증·의약품적, 「赤み를 없앤다」=염증 개선 암시, 「즉각」=근거 없는 즉효 단정.
-                    효과 보증을 삭제하고 「整える」(효능 56항목 내)로 치환 &mdash; 페르소나의 반대 이유 ①을 자극하지 않는다.
+                    효과 보증을 삭제하고 「整える」(효능 56항목 내)로 치환 &mdash; 페르소나의 첫 반대 이유(과장 의심)를 자극하지 않는다.
                   </p>
                   <div class="added-chips">
-                    <span class="badge badge-safe">+ ※角層 조건 각주 (A2)</span>
+                    <span class="badge badge-safe">+ ※角層 조건 각주</span>
                     <span class="badge badge-safe">+ <span lang="ja">肌あれ</span> 검색표기</span>
-                    <span class="badge badge-safe">+ <span lang="ja">整える</span> 등급 내 프레임 (E)</span>
+                    <span class="badge badge-safe">+ <span lang="ja">整える</span> 등급 내 프레임</span>
                   </div>
                 </article>
 
                 <article class="card">
-                  <p class="t-help" style="font-weight:600">재작성 2 · 근거 K4 · 薬機法【불가·최고위험】 · USP U1 실행</p>
+                  <p class="t-help" style="font-weight:600">재작성 2 &mdash; 이 After가 푸는 문제</p>
+                  <div class="solves" style="margin-top:6px">
+                    <a class="fix-chip" href="#k-k4"><span class="from ng"><i aria-hidden="true">✕</i>「再生·治療」【불가·최고위험】</span><span class="arr" aria-hidden="true">→</span><span class="to"><i aria-hidden="true">○</i>재생·치료 표현 제거</span></a>
+                    <a class="fix-chip" href="#rb-gA"><span class="from ng"><i aria-hidden="true">✕</i>신뢰 구축 10%</span><span class="arr" aria-hidden="true">→</span><span class="to"><i aria-hidden="true">○</i>결과 완화 「導く」</span></a>
+                  </div>
                   <div class="ba-pair" style="margin-top:10px">
                     <div class="ba-before">
                       <span class="k">BEFORE · KR 원문</span>
@@ -795,21 +1077,15 @@
                   </div>
                 </article>
 
-                <p class="t-help" style="text-align:center">⋯ K5 · K10 · K11 재작성 이어짐 (총 5쌍)</p>
+                <p class="t-help" style="text-align:center">⋯ 나머지 재작성 이어짐 (총 5쌍)</p>
 
-                <p class="alert alert-mute">
-                  After는 실측 코퍼스 표현·렉시콘 근거로만 작성한다. <b>가짜 수치·가짜 인증 삽입은 금지</b>다.
-                  번역 산출물이 아니라 정보 구조 재설계다.
-                </p>
-              </div>
-            </section>
-
-            <!-- ── 블록 8 · 비포&애프터 샘플 ── -->
-            <section class="block">
-              <h3><span class="no">블록 8</span>비포&amp;애프터 샘플 (한 블록 통째 재구성)</h3>
-              <div class="block-body">
+                <p class="h-sub" style="margin-top:16px">하이라이트 &mdash; 가장 저점 섹션을 한 블록 통째로 재구성</p>
                 <div class="card">
-                  <p class="t-help" style="font-weight:600">대상 섹션: 헤드라인 블록 (K1·K2 · 최저점 A·B군)</p>
+                  <p class="t-help" style="font-weight:600">대상 섹션: 헤드라인 블록 &mdash; 이 재구성이 푸는 문제</p>
+                  <div class="solves" style="margin-top:6px">
+                    <a class="fix-chip" href="#k-k2"><span class="from ng"><i aria-hidden="true">✕</i>병원 비교·심부 침투【불가】</span><span class="arr" aria-hidden="true">→</span><span class="to"><i aria-hidden="true">○</i>각층 한정 ※각주 재설계</span></a>
+                    <a class="fix-chip" href="#rb-gA"><span class="from ng"><i aria-hidden="true">✕</i>신뢰 10% · 무첨가 0% 최저점</span><span class="arr" aria-hidden="true">→</span><span class="to"><i aria-hidden="true">○</i>공감→약속 신뢰 구조</span></a>
+                  </div>
 
                   <div class="ba-pair" style="margin-top:10px">
                     <div class="ba-before">
@@ -832,41 +1108,51 @@
 
                   <p class="h-sub" style="margin-top:12px">왜 이렇게 바꿨나</p>
                   <ul style="margin:4px 0 0 18px" class="t-body">
-                    <li>「病院」비교(K1)·「深部浸透」(K2)를 삭제하고 각층 한정 ※각주로 재설계</li>
-                    <li>즉효 단정 대신 <b>공감(흔들리는 피부) → 약속(수분)</b> 구조 (루브릭 C1)</li>
-                    <li>성분명을 <span lang="ja">CICA(ツボクサエキス)</span>로 병기 (루브릭 D4 · 검색표기)</li>
+                    <li>「病院」비교·「深部浸透」를 삭제하고 각층 한정 ※각주로 재설계</li>
+                    <li>즉효 단정 대신 <b>공감(흔들리는 피부) → 약속(수분)</b> 구조 (서사 구조 루브릭)</li>
+                    <li>성분명을 <span lang="ja">CICA(ツボクサエキス)</span>로 병기 (성분 프레이밍 루브릭 · 검색표기)</li>
                   </ul>
                 </div>
 
                 <p class="t-help">
-                  고객 콘텐츠가 빈약해 데모로 대체한 경우 <span class="badge badge-warn">예시(데모)</span> 배지가 붙는다.
-                  실물 브랜드 사칭·익명 성공 사례는 생성하지 않는다.
+                  고객 콘텐츠가 빈약하면 데모로 대체하고 <span class="badge badge-warn">예시(데모)</span> 배지를 붙인다.
+                </p>
+
+                <p class="alert alert-mute">
+                  After는 실측 코퍼스 표현·렉시콘 근거로만 쓴다. <b>가짜 수치·가짜 인증·실물 브랜드 사칭은 넣지 않는다.</b>
+                  번역이 아니라 정보 구조를 다시 설계한 결과다.
                 </p>
               </div>
             </section>
 
-            <!-- ── 블록 9 · 위험순 액션 + 퍼널 스텝 ── -->
+            <!-- ══ 맺음 (블록 8 → 닫는 실행 밴드) ══ -->
+            <div class="chapter-head" id="ch-end">
+              <p class="kick">맺음</p>
+              <h3>지금 할 일, 그리고 다음 단계</h3>
+            </div>
+
+            <!-- ── 블록 8 · 위험순 액션 + 퍼널 스텝 ── -->
             <section class="block">
-              <h3><span class="no">블록 9</span>맺음 · 규정 출처 · 한계 · 다음 단계</h3>
+              <h3><span class="no">블록 8</span>맺음 · 규정 출처 · 한계 · 다음 단계</h3>
               <div class="block-body">
                 <div>
                   <p class="h-sub">지금 할 일 (위험 순)</p>
                   <div style="margin-top:4px">
                     <div class="act-row">
                       <span class="no sev-1">1</span>
-                      <p class="t"><b>K4·K9의 &ldquo;재생·치료&rdquo;를 오늘 내리세요.</b> 의약품적 효능 표현으로 최고위험입니다</p>
+                      <p class="t"><b>&ldquo;재생·치료&rdquo;(<span lang="ja">再生·治療</span>) 표현을 오늘 내리세요.</b> 의약품적 효능 표현으로 최고위험입니다</p>
                     </div>
                     <div class="act-row">
                       <span class="no sev-2">2</span>
-                      <p class="t">K2의 침투 표현을 <span lang="ja">角層</span> 한정 + ※각주로 좁히세요</p>
+                      <p class="t">&ldquo;깊은 곳까지&rdquo;(<span lang="ja">深部浸透</span>) 침투 표현을 <span lang="ja">角層</span> 한정 + ※각주로 좁히세요</p>
                     </div>
                     <div class="act-row">
                       <span class="no sev-2">3</span>
-                      <p class="t">K6의 실적에 집계 시점·출처를 붙이거나 내리세요</p>
+                      <p class="t">&ldquo;10만 병 완판&rdquo; 실적에 집계 시점·출처를 붙이거나 내리세요</p>
                     </div>
                     <div class="act-row">
                       <span class="no sev-3">4</span>
-                      <p class="t">없어서 손해 보는 것: 무첨가·프리 처방 라벨(B군 0점). 敏感肌 구매의 관문입니다</p>
+                      <p class="t">없어서 손해 보는 것: 무첨가·프리 처방 라벨(무첨가·안전 0점). 敏感肌 구매의 관문입니다</p>
                     </div>
                   </div>
                 </div>
@@ -887,7 +1173,7 @@
                   <ul style="margin:6px 0 0 18px" class="t-help">
                     <li>薬機法 판정은 공개 규정 기반 1차 스크리닝이며 법률 자문이 아니다. 상장 전 전문가 확인 권고</li>
                     <li>코퍼스는 楽天 단일 채널 표본(skincare 90건)으로 채널 편중·OCR 노이즈가 있다</li>
-                    <li>리뷰 서사는 카테고리 일반형이며 개별 리뷰를 크롤링하지 않았다</li>
+                    <li>이탈 경로는 벤치마크 갭·페르소나에서 추론한 일반형이며 개별 리뷰를 분석하지 않는다</li>
                     <li>인용은 분석 목적의 소량 인용이며 재배포하지 않는다</li>
                   </ul>
                 </div>
@@ -920,19 +1206,77 @@
               </div>
             </section>
 
+            <!-- ── 닫는 실행 밴드 (REPORT-13) · 실물 재설계 예시 + 가입 CTA ── -->
+            <section class="block" id="report-cta">
+              <h3>리포트는 여기까지. 다음은 직접 만들어 볼 차례입니다</h3>
+              <div class="block-body">
+
+                <div class="card">
+                  <p class="h-sub">② 마케팅 스튜디오가 하는 일 &mdash; 실물 재설계 예시</p>
+                  <p class="t-body" style="margin-top:6px">
+                    번역이 아니라 일본 고객 관점으로 다시 설계합니다.
+                    아래는 한 선케어 브랜드의 한국 판촉 이미지를 일본향으로 재구성한 예시입니다.
+                  </p>
+
+                  <div class="ba-pair" style="margin-top:12px">
+                    <div class="ba-before">
+                      <span class="k">BEFORE · 한국 원본</span>
+                      <img src="../../presentation/샘플원본.webp" alt="한국 원본 판촉 이미지 — 특가·밈 카피·형광 테두리" style="width:100%;height:auto;display:block;border-radius:var(--radius);margin-top:8px" />
+                      <p class="t-mute" style="margin-top:8px">특가·&lsquo;쿨톤 치트키&rsquo; 밈 카피·형광 테두리·효능 인접 배지 &mdash; 한국 판촉 문법.</p>
+                    </div>
+                    <div class="ba-after">
+                      <span class="k">AFTER · 일본향 재설계</span>
+                      <img src="../../presentation/샘플.png" alt="일본향으로 재설계한 이미지 — 스펙 중심·차분한 무드" style="width:100%;height:auto;display:block;border-radius:var(--radius);margin-top:8px" />
+                      <p lang="ja" style="margin-top:8px;font-weight:600">白浮きしない、透明感トーンアップUV</p>
+                      <p lang="ja" class="t-mute">SPF50+ ・ PA++++ ・ 顔・からだ用</p>
+                      <p class="kr">가격·밈·과장 배지를 걷어내고, 일본 소비자가 신뢰하는 스펙(SPF·PA·용도)과 &lsquo;백탁 없음&rsquo; 효용 중심으로 재설계.</p>
+                    </div>
+                  </div>
+
+                  <p class="h-sub" style="margin-top:12px">무엇을 바꿨나</p>
+                  <ul style="margin:4px 0 0 18px" class="t-body">
+                    <li>형광 그린 테두리 → 제거 (라쿠텐 테두리 관례 금지)</li>
+                    <li>&ldquo;7/8 오늘의 특가&rdquo; 가격 요소 → 제거</li>
+                    <li>&ldquo;쿨톤 치트키&rdquo;(밈) → 재설계: <span lang="ja">白浮きしない、透明感トーンアップUV</span></li>
+                    <li>&ldquo;얼굴부터 바디까지 OK&rdquo; → 관례 표기 <span lang="ja">顔・からだ用</span></li>
+                    <li>&ldquo;유분·땀 케어&rdquo; 배지 → 근거 검수 전 미표기(제거)</li>
+                    <li>하늘·구름 배경 → 유지·정제 (브랜드 자산 + 일본 선케어 무드)</li>
+                  </ul>
+
+                  <p class="t-help" style="margin-top:12px">
+                    <span class="badge badge-warn">예시</span>
+                    골든 픽스처(예시)입니다. 실물 브랜드 사칭이나 근거 없는 실적은 넣지 않습니다.
+                  </p>
+                </div>
+
+                <div class="card" style="background:var(--primary-tint);text-align:center">
+                  <p class="h-sec">지금 본 재설계를, 당신 브랜드로 직접.</p>
+                  <p class="t-body" style="margin-top:6px">
+                    가입하면 마케팅 스튜디오를 결제 전에 무료로 써볼 수 있는 크레딧을 드립니다.
+                    예시가 아니라 당신의 상세·썸네일·피드를 일본향으로 재설계해 보세요.
+                  </p>
+                  <a class="btn btn-primary btn-lg" href="#" style="max-width:360px;margin:14px auto 0">가입하고 크레딧 받기</a>
+                  <p class="btn-hint">고정가는 그대로입니다 &mdash; 크레딧은 스튜디오 무료 체험용이고, 구독·결제는 체험한 뒤 결정하세요.</p>
+                </div>
+
+              </div>
+            </section>
+
           </article>
         </div>
       </div>
     </div>
 
     <p class="note">
-      <b>블록 순서에는 논리가 있다.</b> 0 표지(품의) → 1 요약(한눈) → 2 페르소나(왜 안 사는가) →
-      3 감사(위험 제거) → 4 벤치마크(근거) → 5 점수(채점 공개) → 6 리뷰(이탈 인과) →
-      7·8 재작성(그래서 뭘 고치나) → 9 맺음(다음 행동). 위험한 것부터 앞에 둔다.
-      <br /><b>시각화 원칙(2026-07-16 개편).</b> 형태는 데이터의 일이 정한다: 단일 비율=미터,
+      <b>3장 서사(2026-07-18 개편).</b> 표지(품의) → <b>1장 시장</b>(브리핑: 관례 실물 패턴·썸네일 8스타일 실물 인용) →
+      <b>2장 진단</b>(블록 1 점수 → 4 벤치마크 → 2 페르소나·USP → 3 감사 → 5 루브릭 → 6 이탈 인과) →
+      <b>3장 처방</b>(블록 7 + 해결 칩) → 맺음(블록 8 → 닫는 밴드). &ldquo;시장이 이렇게 판다 → 나는 지금 여기다 →
+      그래서 이렇게 바꾼다&rdquo;의 설득 순서다. 블록 <b>번호</b>는 데이터 계약(blocksJson) ID라 그대로 두고
+      <b>표시 순서</b>만 재배열했다 &mdash; 순서 정본은 기획서 REPORT-14. 결론부터 봐야 하는 결재자는 표지 앵커·스티키 내비로 2장 직행.
+      <br /><b>시각화 원칙(2026-07-16 개편 유지).</b> 형태는 데이터의 일이 정한다: 단일 비율=미터,
       판정 분포=타일+스트립, 대비=○△✕ 매트릭스, 빈도=막대, 여정·퍼널=스텝 플로우.
       상태는 색+글자+기호 3중 표기(색맹 대비 검증), 표 데이터는 시각화 옆에 그대로 남긴다(접근성 쌍).
-      외부 라이브러리 없음 &mdash; 전부 CSS·인라인 구조라 ReportView·슬라이드 덱으로 그대로 이식 가능하다.
+      외부 라이브러리 없음. 실물 시장 이미지는 <b>1장에서만, 출처 캡션과 함께</b> 인용한다(<code>assets/README.md</code>).
     </p>
   </section>
 
@@ -941,12 +1285,15 @@
     <div class="screen-head">
       <span class="screen-num">REPORT-02·04</span>
       <h2>브랜드 진단 · 데이터 잠금 상태</h2>
-      <span class="role">블록 1·3·5·7·8 잠금 · 대비표 &ldquo;미확인&rdquo;</span>
+      <span class="role">블록 1·3·5·7 잠금 · 대비표 &ldquo;미확인&rdquo;</span>
     </div>
     <p class="screen-desc">
       제품 콘텐츠 없이 제출된 <b>브랜드 진단</b>의 리포트다. 산출하지 않은 블록은 빈 값·0건으로 위장하지 않고
-      <b>잠금 카드</b>로 낸다 &mdash; 잠긴 이유와 여는 방법(상세페이지 카피 제출)을 블록마다 명시한다.
-      대비표의 &ldquo;내 콘텐츠&rdquo; 칸은 <b>미확인(─)</b>이다 &mdash; 스캔한 적 없는 것을 &ldquo;미관찰(✕)&rdquo;로 주장하지 않는다.
+      <b>잠금 카드</b>로 낸다. 왜 잠겼는지, 어떻게 여는지(상세페이지 카피 제출)를 블록마다 적어 둔다.
+      대비표의 &ldquo;내 콘텐츠&rdquo; 칸은 <b>미확인(─)</b>으로 둔다. 스캔한 적 없는 것을 &ldquo;미관찰(✕)&rdquo;로 단정하지 않는다.
+      <b>1장 시장 브리핑은 사전집계·정적 자산만 쓰므로 브랜드 진단에서도 전부 열린다.</b>
+      2장의 벤치마크(시장 표현 열)·페르소나·USP도 코퍼스·포지셔닝 기반이라 열린다 &mdash;
+      잠기는 건 &ldquo;내 문장&rdquo;에 기대는 블록(1·3·5·7)뿐이다.
     </p>
 
     <div class="frame">
@@ -960,15 +1307,15 @@
               <div class="block-body">
                 <div class="locked">
                   <p><span class="tag">잠김</span><b>종합점수 없음</b> &mdash; 고객 문장이 없어 종합점수를 산출하지 않았습니다(브랜드 진단).</p>
-                  <p style="margin-top:6px">상세페이지 카피를 넣으면 薬機法 전수 감사·A~E 문법 점수·NG/OK 재작성이 열립니다.</p>
+                  <p style="margin-top:6px">상세페이지 카피를 넣으면 薬機法 전수 감사·항목별 문법 점수·NG/OK 재작성이 열립니다.</p>
                 </div>
                 <ul style="display:flex; gap:6px; flex-wrap:wrap; list-style:none">
                   <li><span class="badge badge-outline">楽天 skincare 90건 코퍼스 기준</span></li>
                   <li><span class="badge badge-outline">포지셔닝 기반 진단</span></li>
                 </ul>
                 <p class="t-body">
-                  HARUON의 포지셔닝을 일본 고객 관점으로 진단했습니다. 페르소나·USP 재정의(블록 2),
-                  카테고리 벤치마크(블록 4), 리뷰 인과 서사(블록 6)를 확인하세요.
+                  HARUON의 포지셔닝을 일본 고객 관점으로 진단했습니다. 페르소나·USP 재정의,
+                  카테고리 벤치마크, 정보 공백 → 이탈 경로를 확인하세요.
                 </p>
               </div>
             </section>
@@ -1025,7 +1372,7 @@
             </section>
 
             <section class="block">
-              <h3><span class="no">블록 9</span>다음 단계 &mdash; 브랜드 진단의 퍼널은 3단</h3>
+              <h3><span class="no">블록 8</span>다음 단계 &mdash; 브랜드 진단의 퍼널은 3단</h3>
               <div class="block-body">
                 <div class="flow-steps">
                   <div class="flow-step pin">
@@ -1050,7 +1397,7 @@
             </section>
 
             <p class="t-help" style="text-align:center; margin-top:14px">
-              ⋯ 블록 0(표지 &mdash; 제품 &ldquo;미입력&rdquo; 표기) · 2(페르소나) · 5·7·8(잠금 카드) · 6(리뷰 서사)은 위 문법과 동일
+              ⋯ 블록 0(표지 &mdash; 제품 &ldquo;미입력&rdquo; 표기) · 2(페르소나) · 5·7(잠금 카드) · 6(이탈 경로)은 위 문법과 동일
             </p>
           </article>
         </div>
@@ -1059,15 +1406,15 @@
 
     <p class="note">
       <b>잠금은 페이월이 아니라 데이터 부재다.</b> &ldquo;측정 못 했습니다&rdquo;를 0점·0건으로 그리면 증거 원칙 위반이다.
-      잠금 카드가 곧 브랜드+제품 진단으로의 상향 동선을 겸한다(기획서 <code>REPORT-02</code> 잠금 원칙).
-      무료 샘플 경계(결제 잠금)는 집행 미구현 &mdash; 이 프레임은 데이터 잠금만 그린다.
+      그래서 잠금 카드가 곧 브랜드+제품 진단으로 올라가는 길을 겸한다(기획서 <code>REPORT-02</code> 잠금 원칙).
+      무료 샘플 경계(결제 잠금)는 아직 집행 전이라, 이 프레임은 데이터 잠금만 그린다.
     </p>
   </section>
 
-  <!-- ══ REPORT-13 기타 ════════════════════════════ -->
+  <!-- ══ REPORT-17 기타 ════════════════════════════ -->
   <section class="screen" id="f-etc">
     <div class="screen-head">
-      <span class="screen-num">REPORT-13</span>
+      <span class="screen-num">REPORT-17</span>
       <h2>기타</h2>
     </div>
 
@@ -1077,7 +1424,7 @@
           <table class="t">
             <thead><tr><th style="width:190px">정책</th><th>내용</th></tr></thead>
             <tbody>
-              <tr><td>레이아웃</td><td>단일 페이지 세로 스크롤. 탭·페이지 분할 없음</td></tr>
+              <tr><td>레이아웃</td><td>단일 페이지 세로 스크롤. 탭·페이지 분할 없음. 장(章) 레이어는 표시 순서만 재배열 &mdash; 블록 번호(blocksJson ID)·산식·콜 계약 불변 (REPORT-14)</td></tr>
               <tr><td>표 넘침</td><td>최소 너비 미달 시 표만 가로 스크롤. 페이지 자체는 가로 스크롤 없음</td></tr>
               <tr><td>일본어</td><td><code>lang="ja"</code> 지정</td></tr>
               <tr>
@@ -1092,7 +1439,7 @@
                 <td>금지 포지션</td>
                 <td>&ldquo;번역해드립니다 / 운영 대행 / 광고 집행&rdquo; 류 표현을 넣지 않는다</td>
               </tr>
-              <tr><td>이미지 자산</td><td>페르소나 아바타만(Open Peeps · CC0 · <code>assets/README.md</code>). 감사·벤치마크·점수 영역은 데이터 시각화만</td></tr>
+              <tr><td>이미지 자산</td><td>데코는 페르소나 아바타만(Open Peeps · CC0). <b>1장 시장 브리핑에 한해 실측 시장 이미지를 인용 증거로 허용</b> &mdash; 출처·수집일 캡션 필수, 소량 인용, 재배포 금지, 제품(ReportView) 반영은 별도 법무 검토(<code>assets/README.md</code>). 감사·점수 영역은 데이터 시각화만</td></tr>
               <tr><td>PDF 내보내기</td><td><span class="badge badge-warn">미구현</span> 블록 0 표지와 연동 전제. 형식 미정</td></tr>
               <tr><td>웹 공유 링크</td><td><span class="badge badge-mute">미정</span> PDF 병행 여부 미확정</td></tr>
             </tbody>
