@@ -105,8 +105,8 @@
       <span class="role">08-data-flow §3.3</span>
     </div>
     <p class="screen-desc">
-      화면은 상태를 그리는 껍데기다. 아래 4개 상태가 화면 분기의 전부이며,
-      기획서의 각 상태 서술이 여기에 대응한다.
+      화면은 상태를 그리는 껍데기다. 아래 4개 상태가 화면 분기의 전부다.
+      기획서의 각 상태 서술이 여기에 하나씩 맞물린다.
     </p>
 
     <div class="frame">
@@ -193,7 +193,7 @@
               <tr><td><code>REPORT-02</code></td><td>전역 배지</td><td>목 모드 · 정밀도 제한</td><td><a class="backlink" href="3-report.html#f-badge">3-report</a></td></tr>
               <tr><td><code>REPORT-03~12</code></td><td>블록 0~9</td><td>9블록 전체 (세로 스크롤 1페이지 · 3장 서사 배열 · 미터·스트립·매트릭스 시각화)</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
               <tr><td><code>REPORT-13</code></td><td>닫는 실행 밴드</td><td>실물 KR→JP 재설계 예시 + 가입 CTA(크레딧=② 무료 체험)</td><td><a class="backlink" href="3-report.html#report-cta">3-report</a></td></tr>
-              <tr><td><code>REPORT-14</code></td><td>장 구조·표시 순서</td><td>3장 서사(시장→진단→처방→맺음) · 스티키 장 내비 · 표시 순서 정본</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
+              <tr><td><code>REPORT-14</code></td><td>장 구조·표시 순서·라벨 정책</td><td>3장 서사 · 2장 진단=블록 1→4→2→3→5→6(벤치마크·페르소나는 점수 뒤) · 화면 라벨 전부 평문(A~E·K 코드 내부만) · 순서 정본</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
               <tr><td><code>REPORT-15</code></td><td>1장 시장 브리핑</td><td>관례 실물 카드 5종 · 썸네일 8스타일 갤러리 · 유행어 칩 · 실이미지 인용(출처 캡션)</td><td><a class="backlink" href="3-report.html#brief">3-report</a></td></tr>
               <tr><td><code>REPORT-16</code></td><td>문제 연결(해결 칩)</td><td>블록 7·8 → 블록 3·5 앵커 칩 · Top 3 앵커 · :target 하이라이트</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
               <tr><td><code>REPORT-02·04</code></td><td>브랜드 진단 잠금</td><td>블록 1·3·5·7·8 데이터 잠금 카드 · 대비표 "미확인" · 퍼널 3단 · 1장은 전부 개방</td><td><a class="backlink" href="3-report.html#f-brandmode">3-report</a></td></tr>
@@ -258,13 +258,13 @@
               <tr>
                 <td>🔴 실측 이미지의 제품 반영</td>
                 <td><span class="badge badge-error">법적 검토</span></td>
-                <td>타사 저작물 인용을 발행 리포트(ReportView)에 실을지는 별도 법무 검토. 와이어프레임·기획 검토용은 출처 병기 소량 인용으로 한정. 인물 포함 컷(F형)은 초상권 리스크 별도</td>
+                <td>타사 저작물 인용을 발행 리포트(ReportView)에 실을지는 별도 법무 검토. 와이어프레임·기획 검토용은 출처 병기 소량 인용으로 한정. 인물 포함 컷(모델+카피형)은 초상권 리스크 별도</td>
                 <td><code>assets/README.md</code></td>
               </tr>
               <tr>
                 <td>블록 1(점수) 위치 — 결론 지연</td>
                 <td><span class="badge badge-mute">파일럿 검증</span></td>
-                <td>3장 서사로 점수가 1장 뒤로 밀림. 표지 앵커+스티키 내비로 완화 — 결재자 동선이 실제로 성립하는지 파일럿에서 확인</td>
+                <td>점수는 2장 첫 블록이라 1장 브리핑 한 섹션 뒤로만 밀림(2차 정리로 블록 4·2가 점수 뒤로 이동해 이전보다 앞당겨짐). 표지 앵커+스티키 내비로 완화. 결재자 동선이 실제로 성립하는지 파일럿에서 확인</td>
                 <td><code>REPORT-14</code></td>
               </tr>
               <tr>
