@@ -3,317 +3,148 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>① 진단 리포트 · 와이어프레임 — 플로우 맵</title>
+<title>① 진단 리포트 · 프로토타입 — 플로우 맵</title>
 <!--
   ════════════════════════════════════════════════════════════════════════════
-  비배포 · 기획 검토용 와이어프레임. 외부 CSS/JS/폰트/이미지 의존 없음.
+  비배포 · 기획 검토용 인터랙티브 프로토타입의 런처 / 플로우 맵.
   정본: 01-report-ui-기획서.md (같은 폴더) — 화면 동작·상태·예외처리
-        ../01-report-spec.md — 8블록 내용·채점 공식
+        ../01-report-spec.md §4 — 8블록 내용·채점 공식 (blocksJson ID 불변)
         ../../08-data-flow.md §3.3 — 상태 머신
-        ../../../design/DESIGN.md — 코랄 토큰
-  ※ 화면 속 점수·문장·페르소나·일본어 카피는 UI 시연용 예시다.
-    출처는 ../01-report-sample-cica-ampoule.md(정본 샘플) — 새로 지어내지 않는다.
+  Claude Design "KGLOW 진단 리포트 v2" 디자인을 바닐라로 이식(입력·처리·리포트 3화면).
+  ※ 화면 속 점수·문장·페르소나·일본어 카피는 UI 시연용 예시(가상 브랜드 HARUON).
+    출처는 ../01-report-sample-cica-ampoule.md — 새로 지어내지 않는다(증거 원칙).
   ════════════════════════════════════════════════════════════════════════════
 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <link rel="stylesheet" href="wireframe.css" />
 </head>
 <body>
 
-<header class="docnav">
-  <div class="docnav-inner">
-    <a class="logo" href="index.html">KGLOW<em>.</em> 와이어프레임</a>
-    <span class="tag">① 진단 리포트</span>
-    <nav class="links">
-      <a class="on" href="index.html">플로우 맵</a>
-      <a href="1-input.html">1 · 입력</a>
-      <a href="2-process.html">2 · 처리</a>
-      <a href="3-report.html">3 · 리포트</a>
-      <a href="01-report-ui-기획서.md">기획서 ↗</a>
-    </nav>
+<!-- 프로토타입 검토 스트립 -->
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">① 진단 리포트 · 프로토타입</span>
+    <a href="index.html" class="on">플로우</a>
+    <a href="1-input.html">입력</a>
+    <a href="2-process.html">처리</a>
+    <a href="3-report.html">리포트</a>
+    <a href="01-report-ui-기획서.md">기획서 ↗</a>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<!-- 앱 헤더 -->
+<header class="app-header">
+  <div class="app-header-in">
+    <span class="app-wordmark">KGLOW<span>.</span></span>
+    <span class="app-divider"></span>
+    <span class="app-crumb">진단 리포트</span>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <a href="1-input.html" class="hbtn h-primary" style="display:inline-flex;align-items:center;background:#FF6464;color:#fff;text-decoration:none;border:none">입력 시작 →</a>
+    </div>
   </div>
 </header>
 
 <main class="doc">
-  <div class="doc-head">
-    <h1>① 진단 리포트 · 와이어프레임</h1>
-    <p class="sub">
-      <b>01-report-ui-기획서.md</b>의 4개 섹션·34행 정의표를 화면으로 옮긴 것이다.
-      모든 프레임에 기획서 번호(<code>INPUT-02</code> 등)를 달아 문서와 1:1로 대조된다.
-      기획서에 없는 화면·동작은 넣지 않았다.
-    </p>
-    <p class="meta">
-      <span>작성 2026.07.16</span>
-      <span>@Calia Kim</span>
-      <span>비배포 · 기획 검토용</span>
-      <span>단일 폴더 · 무의존</span>
-    </p>
-  </div>
+  <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">① 진단 리포트 · 인터랙티브 프로토타입</p>
+  <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.25;letter-spacing:-0.02em;color:#202124">일본 시장 진입 진단 리포트 — 화면 흐름</h1>
+  <p style="margin:14px 0 0;max-width:760px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">
+    Claude Design v2 디자인을 <b>동작하는 프로토타입</b>으로 이식했습니다. 입력 → 처리 → 리포트(5탭) → 보고용 슬라이드까지 실제로 클릭됩니다.
+    각 노드를 눌러 화면으로 이동하거나, 상단 <b>입력 시작</b>에서 처음부터 체험하세요.
+  </p>
 
-  <div class="docwarn">
-    <b>예시 데이터 고지.</b> 화면 속 종합점수(18/100)·감사 판정·K1~K11 문장·페르소나·일본어 카피는
-    정본 샘플(<code>../01-report-sample-cica-ampoule.md</code> · 가상 브랜드 HARUON CICA 앰플)에서 가져온
-    <b>UI 시연용 예시</b>다. 실제 진단 결과가 아니다. 코퍼스·규정 실측 밖의 가상 스탯은 넣지 않았다(증거 원칙).
+  <div class="doc-warn">
+    <b>예시 데이터 고지.</b> 화면 속 종합점수(18/100)·약기법 판정·페르소나·일본어 카피는 정본 샘플(<code>../01-report-sample-cica-ampoule.md</code> · 가상 브랜드 HARUON CICA 앰플)의 <b>UI 시연용 예시</b>입니다. 실제 진단 결과가 아니며, 1장 시장 이미지는 타사 저작물의 분석 목적 소량 인용(출처 병기)입니다.
   </div>
 
   <!-- ── 전체 플로우 ─────────────────────────────────── -->
-  <section class="screen" id="flow">
-    <div class="screen-head">
-      <span class="screen-num">FLOW</span>
-      <h2>전체 플로우</h2>
-      <span class="role">입력 → 처리 → 리포트 → 슬라이드</span>
+  <section style="margin-top:44px">
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">전체 플로우</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">파이프라인이 성공하면 곧바로 발행되고, 고객은 리포트를 열람한 뒤 보고용 슬라이드를 내려받습니다. 사람이 개입하는 단계는 없습니다(2026-07-16 검수 제거).</p>
+    <div class="rwrap" style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center;gap:8px">
+      <a class="flow-node" href="1-input.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">1 · 입력</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">진단 입력</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">브랜드(필수)·제품(선택)·콘텐츠 게이팅. “예시 채우기”로 바로 체험.</p>
+      </a>
+      <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
+      <a class="flow-node" href="2-process.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">2 · 처리</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">진단 처리</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">7단계 파이프라인 애니메이션. 파이프라인 성공 = 발행.</p>
+      </a>
+      <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
+      <a class="flow-node" href="3-report.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">3 · 리포트</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">리포트 열람</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">5탭 · 점수 도넛 · 슬라이드 내보내기.</p>
+      </a>
     </div>
-    <p class="screen-desc">
-      <b>파이프라인이 성공하면 곧바로 발행</b>되고, 고객은 리포트를 열람한 뒤 보고용 슬라이드를 내려받는다.
-      사람이 개입하는 단계는 없다(2026-07-16 검수 제거). 각 노드를 클릭하면 해당 화면으로 이동한다.
-    </p>
-
-    <div class="flowmap">
-      <div class="flow-row">
-        <a class="flow-node" href="1-input.html">
-          <span class="code">INPUT</span>
-          <h3>진단 입력</h3>
-          <p>브랜드 필수 · 제품 선택(콘텐츠 포함) · 두 진단 모드</p>
-        </a>
-        <span class="flow-arrow" aria-hidden="true">→</span>
-        <a class="flow-node" href="2-process.html">
-          <span class="code">PROCESS</span>
-          <h3>진단 처리</h3>
-          <p>2.5초 폴링 · 브랜드+제품 = LLM 4콜 / 브랜드 = 콜③ 1콜</p>
-        </a>
-        <span class="flow-arrow" aria-hidden="true">→</span>
-        <a class="flow-node" href="3-report.html">
-          <span class="code">REPORT</span>
-          <h3>리포트 열람</h3>
-          <p>블록 0~8 세로 스크롤 · 발행 배너 · 슬라이드 내보내기</p>
-        </a>
-      </div>
-    </div>
-
-    <p class="note">
-      <b>기획서 대조.</b> 노드 = 기획서 섹션. <code>INPUT</code> = <b># 1. 진단 입력</b> ·
-      <code>PROCESS</code> = <b># 2. 진단 처리</b> · <code>REPORT</code> = <b># 3. 리포트 열람</b>.
-      <br /><b>2026-07-16:</b> <s># 4. 검수 · 발행</s> 삭제 &mdash; 검수 단계가 제품에서 제거되어
-      <b>파이프라인 성공 = 발행</b>이 됐다. → <code>../01-report-spec.md</code> v3 배너
-    </p>
   </section>
 
-  <!-- ── 상태 머신 ───────────────────────────────────── -->
-  <section class="screen" id="states">
-    <div class="screen-head">
-      <span class="screen-num">STATE</span>
-      <h2>상태 머신</h2>
-      <span class="role">08-data-flow §3.3</span>
-    </div>
-    <p class="screen-desc">
-      화면은 상태를 그리는 껍데기다. 아래 4개 상태가 화면 분기의 전부다.
-      기획서의 각 상태 서술이 여기에 하나씩 맞물린다.
-    </p>
-
-    <div class="frame">
-      <div class="pad">
-        <div class="flowmap">
-          <div class="flow-row">
-            <span class="flow-node terminal" style="max-width:200px">
-              <span class="code">submitted</span>
-              <h3>제출됨</h3>
-              <p>요청 생성 직후. 처리 로딩 출력</p>
-            </span>
-            <span class="flow-arrow" aria-hidden="true">→</span>
-            <span class="flow-node terminal" style="max-width:200px">
-              <span class="code">processing</span>
-              <h3>처리 중</h3>
-              <p>7단계 진행. 2.5초 폴링</p>
-            </span>
-          </div>
-
-          <div class="flow-branch">
-            <div class="flow-row" style="margin-top:10px">
-              <span class="flow-node" style="max-width:240px">
-                <span class="code">published</span>
-                <h3>발행 완료</h3>
-                <p>파이프라인 성공 = 발행. 잡이 직접 세팅(사람 관여 0)</p>
-              </span>
-              <span class="flow-node terminal" style="max-width:240px">
-                <span class="code">failed</span>
-                <h3>처리 실패</h3>
-                <p>콜② 실패 = 잡 실패. 감사표 없는 리포트는 발행 X</p>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <p class="note" style="margin-top:18px">
-          <b>터미널 상태</b>는 <code>published</code> · <code>failed</code> 2개다.
-          이 상태에 도달하면 폴링이 멈춘다(<b>PROCESS-01</b> 1a).
-          <br /><b>2026-07-16:</b> <s>needsReview</s> · <s>rejected</s> 삭제 &mdash; 검수 단계 제거.
-          기존엔 <code>signReport</code>만 <code>published</code>를 세팅했으나 이제 잡이 직접 세팅한다.
-        </p>
+  <!-- ── 리포트 5탭 ↔ 블록 매핑 ──────────────────────── -->
+  <section style="margin-top:44px">
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">리포트 5탭 ↔ 블록 매핑</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">v2는 8블록을 5탭으로 묶어 보여줍니다. <b>블록 번호(blocksJson ID)·채점 산식·LLM 콜 계약은 불변</b>이며 표시 순서·라벨만 재배열했습니다(REPORT-14). 화면 라벨은 전부 평문이며 A~E·K1~K11 내부 코드는 노출하지 않습니다.</p>
+    <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;box-shadow:0 1px 3px rgba(16,18,20,.04);overflow:hidden">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:620px;font-size:13px">
+          <thead>
+            <tr style="background:#FAFAFB;text-align:left;color:rgba(55,56,60,0.61)">
+              <th style="padding:12px 16px;font-weight:700;width:180px">탭</th>
+              <th style="padding:12px 16px;font-weight:700">구성 블록</th>
+            </tr>
+          </thead>
+          <tbody style="color:#414245">
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">1</span> · 진단 요약</td><td style="padding:12px 16px">블록 1(종합 점수 0~100): 점수 도넛·레이더·최우선 재설계 Top 3</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">2</span> · 일본 시장</td><td style="padding:12px 16px">시장 브리핑(블록 없음 · 정적 · LLM 무관): 관례 실물·썸네일 분포·유행어·반면교사</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">3</span> · 리스크 진단</td><td style="padding:12px 16px">블록 4(벤치마크) · 블록 3(<span lang="ja">薬機法</span> 전수 감사 ①~⑪) · 블록 5(루브릭 점수)</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">4</span> · 고객·전략</td><td style="padding:12px 16px">블록 2(페르소나·구매여정·USP) · 블록 6(정보 공백 → 이탈 경로)</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">5</span> · 처방·다음 단계</td><td style="padding:12px 16px">블록 7(Before/After 재설계) · 블록 8(맺음·고정가·규정 출처·한계)</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
 
-  <!-- ── 화면 인벤토리 ───────────────────────────────── -->
-  <section class="screen" id="inventory">
-    <div class="screen-head">
-      <span class="screen-num">MAP</span>
-      <h2>번호 ↔ 프레임 매핑</h2>
+  <!-- ── 상태 머신 ───────────────────────────────────── -->
+  <section style="margin-top:44px">
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">상태 머신</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)"><code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">08-data-flow §3.3</code>. 화면은 상태를 그리는 껍데기입니다. 터미널 상태는 <b>published · failed</b> 2개이며, 도달하면 폴링이 멈춥니다.</p>
+    <div class="rwrap" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">submitted</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">제출됨</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">요청 생성 직후. 처리 로딩으로.</p></div>
+      <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">processing</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">처리 중</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">7단계 진행. 2.5초 폴링.</p></div>
+      <div style="background:#fff;border:1px solid rgba(0,185,124,.35);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#00875A">published ○</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">발행 완료</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">파이프라인 성공 = 발행(사람 관여 0).</p></div>
+      <div style="background:#fff;border:1px solid rgba(240,72,60,.35);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#C6362C">failed ✕</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">처리 실패</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">콜② 감사 실패 = 잡 실패. 발행 안 함.</p></div>
     </div>
-    <p class="screen-desc">
-      기획서 정의표의 모든 번호가 어느 파일의 어느 프레임에 그려졌는지의 대조표다.
-      이미지 칸이 비어 있던 34행이 여기에 대응한다.
-    </p>
-
-    <div class="frame">
-      <div class="pad">
-        <div class="tablewrap">
-          <table class="t">
-            <thead>
-              <tr>
-                <th style="width:110px">번호</th>
-                <th style="width:180px">화면 · 상태</th>
-                <th>프레임</th>
-                <th style="width:96px">파일</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td><code>INPUT-00</code></td><td>진입</td><td>플로우 맵으로 대체 (진입 경로 3종)</td><td><a class="backlink" href="index.html#flow">index</a></td></tr>
-              <tr><td><code>INPUT-01</code></td><td>화면 상단 안내</td><td>기본 상태 · dev 배지 상태</td><td><a class="backlink" href="1-input.html#f-default">1-input</a></td></tr>
-              <tr><td><code>INPUT-02</code></td><td>브랜드 (필수)</td><td>기본 상태 · 브랜드명 · 포지셔닝 칩(1~5) · 카테고리</td><td><a class="backlink" href="1-input.html#f-default">1-input</a></td></tr>
-              <tr><td><code>INPUT-03</code></td><td>제품 정보 (선택)</td><td>분류·제품명·성분·가격 · 콘텐츠 게이트(0자=브랜드 진단 / 50자 하드 / 200자 소프트) · URL 모드</td><td><a class="backlink" href="1-input.html#f-tier">1-input</a></td></tr>
-              <tr><td><code>INPUT-04</code></td><td>제출</td><td>비활성 · 활성 · 제출 중 · 실패</td><td><a class="backlink" href="1-input.html#f-submit">1-input</a></td></tr>
-              <tr><td><code>INPUT-05</code></td><td>기타</td><td>주석으로 기재</td><td><a class="backlink" href="1-input.html#f-etc">1-input</a></td></tr>
-
-              <tr><td><code>PROCESS-00</code></td><td>진입</td><td>플로우 맵으로 대체</td><td><a class="backlink" href="index.html#flow">index</a></td></tr>
-              <tr><td><code>PROCESS-01</code></td><td>처리 로딩</td><td>7단계 진행 · 최초 로딩 · 폴링 오류</td><td><a class="backlink" href="2-process.html#f-loading">2-process</a></td></tr>
-              <tr><td><code>PROCESS-02</code></td><td>처리 실패</td><td>실패 화면</td><td><a class="backlink" href="2-process.html#f-failed">2-process</a></td></tr>
-              <tr><td><code>PROCESS-03</code></td><td>기타</td><td>주석으로 기재</td><td><a class="backlink" href="2-process.html#f-etc">2-process</a></td></tr>
-
-              <tr><td><code>REPORT-00</code></td><td>진입</td><td>플로우 맵으로 대체</td><td><a class="backlink" href="index.html#flow">index</a></td></tr>
-              <tr><td><code>REPORT-01</code></td><td>상태 배너</td><td>발행 완료</td><td><a class="backlink" href="3-report.html#f-banner">3-report</a></td></tr>
-              <tr><td><code>REPORT-02</code></td><td>전역 배지</td><td>목 모드 · 정밀도 제한</td><td><a class="backlink" href="3-report.html#f-badge">3-report</a></td></tr>
-              <tr><td><code>REPORT-03~12</code></td><td>블록 0~8</td><td>8블록 전체 (세로 스크롤 1페이지 · 3장 서사 배열 · 미터·스트립·매트릭스 시각화)</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
-              <tr><td><code>REPORT-13</code></td><td>닫는 실행 밴드</td><td>실물 KR→JP 재설계 예시 + 가입 CTA(크레딧=② 무료 체험)</td><td><a class="backlink" href="3-report.html#report-cta">3-report</a></td></tr>
-              <tr><td><code>REPORT-14</code></td><td>장 구조·표시 순서·라벨 정책</td><td>3장 서사 · 2장 진단=블록 1→4→2→3→5→6(벤치마크·페르소나는 점수 뒤) · 화면 라벨 전부 평문(A~E·K 코드 내부만) · 순서 정본</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
-              <tr><td><code>REPORT-15</code></td><td>1장 시장 브리핑</td><td>관례 실물 카드 5종 · 썸네일 8스타일 갤러리 · 유행어 칩 · 실이미지 인용(출처 캡션)</td><td><a class="backlink" href="3-report.html#brief">3-report</a></td></tr>
-              <tr><td><code>REPORT-16</code></td><td>문제 연결(해결 칩)</td><td>블록 7 → 블록 3·5 앵커 칩 · Top 3 앵커 · :target 하이라이트</td><td><a class="backlink" href="3-report.html#f-blocks">3-report</a></td></tr>
-              <tr><td><code>REPORT-02·04</code></td><td>브랜드 진단 잠금</td><td>블록 1·3·5·7 데이터 잠금 카드 · 대비표 "미확인" · 퍼널 3단 · 1장은 전부 개방</td><td><a class="backlink" href="3-report.html#f-brandmode">3-report</a></td></tr>
-              <tr><td><code>REPORT-17</code></td><td>기타</td><td>주석으로 기재</td><td><a class="backlink" href="3-report.html#f-etc">3-report</a></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <p class="note">
-      <b>진입(-00) 행은 프레임을 따로 그리지 않았다.</b> 진입은 화면이 아니라 경로이므로
-      위 <a class="backlink" href="index.html#flow">전체 플로우</a>가 대신한다.
-      <br /><b>2026-07-16:</b> <code>REVIEW-00~06</code> 행 삭제(검수 제거). 슬라이드 내보내기는
-      기획서 개정 후 프레임을 추가한다.
-    </p>
   </section>
 
-  <!-- ── 미결정 ──────────────────────────────────────── -->
-  <section class="screen" id="open">
-    <div class="screen-head">
-      <span class="screen-num">OPEN</span>
-      <h2>이 와이어프레임이 그리지 않은 것</h2>
-    </div>
-    <p class="screen-desc">
-      기획서에서 <b>(미정)·(추후 기획)·미구현</b>으로 표시한 항목은 화면을 그리지 않았다.
-      확정 전에 그리면 결정된 것처럼 읽히기 때문이다.
-      브랜드 진단의 데이터 잠금 상태는 <code>3-report.html#f-brandmode</code> 프레임으로 반영됐다(2026-07-16 시각화 개편과 함께).
-    </p>
-
-    <div class="frame">
-      <div class="pad">
-        <div class="tablewrap">
-          <table class="t">
-            <thead>
-              <tr>
-                <th style="width:150px">항목</th>
-                <th style="width:96px">상태</th>
-                <th>메모</th>
-                <th style="width:104px">근거 번호</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>PDF 내보내기</td>
-                <td><span class="badge badge-warn">미구현</span></td>
-                <td>블록 0 표지와 연동 전제. 형식·버튼 위치 미정</td>
-                <td><code>REPORT-17</code></td>
-              </tr>
-              <tr>
-                <td>웹 공유 링크</td>
-                <td><span class="badge badge-mute">미정</span></td>
-                <td>PDF 병행 여부 미확정</td>
-                <td><code>REPORT-17</code></td>
-              </tr>
-              <tr>
-                <td>시장 브리핑 사전 산출물</td>
-                <td><span class="badge badge-warn">코드 단계 TODO</span></td>
-                <td>스타일 분포 집계·큐레이션 이미지 매니페스트를 ReportView가 읽을 산출물로 뽑는 작업. 와이어프레임은 실측치를 직접 기입함</td>
-                <td><code>REPORT-15</code></td>
-              </tr>
-              <tr>
-                <td>🔴 실측 이미지의 제품 반영</td>
-                <td><span class="badge badge-error">법적 검토</span></td>
-                <td>타사 저작물 인용을 발행 리포트(ReportView)에 실을지는 별도 법무 검토. 와이어프레임·기획 검토용은 출처 병기 소량 인용으로 한정. 인물 포함 컷(모델+카피형)은 초상권 리스크 별도</td>
-                <td><code>assets/README.md</code></td>
-              </tr>
-              <tr>
-                <td>블록 1(점수) 위치 — 결론 지연</td>
-                <td><span class="badge badge-mute">파일럿 검증</span></td>
-                <td>점수는 2장 첫 블록이라 1장 브리핑 한 섹션 뒤로만 밀림(2차 정리로 블록 4·2가 점수 뒤로 이동해 이전보다 앞당겨짐). 표지 앵커+스티키 내비로 완화. 결재자 동선이 실제로 성립하는지 파일럿에서 확인</td>
-                <td><code>REPORT-14</code></td>
-              </tr>
-              <tr>
-                <td>🔴 면책의 대가물</td>
-                <td><span class="badge badge-error">별도 결정</span></td>
-                <td>검수 제거로 "법적 확정 판정 아님" 면책을 떠받치던 실명 서명이 사라짐. 무엇으로 대체할지 미정</td>
-                <td><code>../../decisions/DECISIONS.md</code></td>
-              </tr>
-              <tr>
-                <td>🔴 브랜드 진단 가격</td>
-                <td><span class="badge badge-error">미정</span></td>
-                <td>브랜드 진단도 유료 확정, 가격만 미정. 퍼널·표지는 "(가격 미정)"으로 단계만 서술</td>
-                <td><code>../../decisions/DECISIONS.md</code></td>
-              </tr>
-              <tr>
-                <td>결제 잠금(무료 샘플 경계)</td>
-                <td><span class="badge badge-warn">집행 미구현</span></td>
-                <td>샘플 = 표지 + 요약 일부(점수 가림) + 페르소나 맛보기. 자리(열람 직전)·경계는 확정, 집행은 가격·결제 수단 확정 후</td>
-                <td><code>REPORT-02</code></td>
-              </tr>
-              <tr>
-                <td>인증 · 온보딩 · 프리필</td>
-                <td><span class="badge badge-mute">범위 외</span></td>
-                <td>이번 범위에서 의도적 제외. 매번 직접 입력</td>
-                <td><code>INPUT-05</code></td>
-              </tr>
-              <tr>
-                <td>이미지 OCR 자동 추출</td>
-                <td><span class="badge badge-mute">추후 기획</span></td>
-                <td>텍스트 붙여넣기로 회피 중</td>
-                <td><code>INPUT-05</code></td>
-              </tr>
-              <tr>
-                <td>리뷰 URL 실측 분석</td>
-                <td><span class="badge badge-mute">추후 기획</span></td>
-                <td>폼에서 필드 제거(데드필드). 블록 6 이탈 경로는 진단 기반이라 리뷰 URL과 무관</td>
-                <td><code>REPORT-09</code></td>
-              </tr>
-              <tr>
-                <td>무료 약기법 체커 업셀</td>
-                <td><span class="badge badge-mute">범위 외</span></td>
-                <td>별도 모듈. 이 기획서 범위 아님</td>
-                <td>—</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+  <!-- ── 그리지 않은 것 · 미결정 ─────────────────────── -->
+  <section style="margin-top:44px">
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">이 프로토타입이 다루지 않은 것</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">확정 전 항목은 화면으로 그리지 않았습니다(결정된 것처럼 읽히지 않도록).</p>
+    <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;box-shadow:0 1px 3px rgba(16,18,20,.04);overflow:hidden">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:640px;font-size:13px">
+          <thead>
+            <tr style="background:#FAFAFB;text-align:left;color:rgba(55,56,60,0.61)">
+              <th style="padding:12px 16px;font-weight:700;width:200px">항목</th>
+              <th style="padding:12px 16px;font-weight:700;width:120px">상태</th>
+              <th style="padding:12px 16px;font-weight:700">메모</th>
+            </tr>
+          </thead>
+          <tbody style="color:#414245">
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">라이브 앱 v2 반영</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:11.5px;font-weight:700">후속 작업</span></td><td style="padding:12px 16px;line-height:1.55"><code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">components/report/ReportView.tsx</code>는 구버전 블록(0~9)이라 별도 정합·이식 필요</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">PDF 내보내기</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700">미구현</span></td><td style="padding:12px 16px;line-height:1.55">보고용은 현재 HTML 슬라이드 내보내기로 대체. PDF 형식·버튼 위치 미정</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">🔴 실측 이미지의 제품 반영</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">법적 검토</span></td><td style="padding:12px 16px;line-height:1.55">타사 저작물 인용을 발행 리포트에 실을지는 별도 법무 검토. 인물 포함 컷은 초상권 리스크 별도 (<code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">assets/README.md</code>)</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">🔴 브랜드 진단 가격 · 면책 대가물</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">미정</span></td><td style="padding:12px 16px;line-height:1.55">브랜드 진단도 유료 확정·가격만 미정. 검수 제거로 실명 서명이 사라진 자리를 무엇으로 대체할지 미정</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">결제 잠금(무료 샘플 경계)</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700">집행 미구현</span></td><td style="padding:12px 16px;line-height:1.55">샘플 경계(표지+요약 일부)는 확정, 집행은 가격·결제 수단 확정 후</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">인증 · 온보딩 · 프리필</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:11.5px;font-weight:700">범위 외</span></td><td style="padding:12px 16px;line-height:1.55">이번 범위에서 의도적 제외. 매번 직접 입력</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
+    <p style="margin:18px 0 0;font-size:12px;line-height:1.6;color:rgba(55,56,60,0.61)">정본 · 근거: <a href="01-report-ui-기획서.md">01-report-ui-기획서.md</a> · <code style="font-family:ui-monospace,monospace;font-size:11.5px;background:#F1F1F3;border-radius:4px;padding:1px 5px">../01-report-spec.md §4</code> · <code style="font-family:ui-monospace,monospace;font-size:11.5px;background:#F1F1F3;border-radius:4px;padding:1px 5px">../../08-data-flow.md</code></p>
   </section>
 </main>
 
