@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>② 마케팅 스튜디오 · 3. 생성 결과</title>
+<!--
+  비배포 · 기획 검토용 인터랙티브 프로토타입.
+  정본: 02-studio-ui-기획서.md # 3. 생성 결과 상세 (RESULT-00~07)
+  해설 예시는 ../02-thumbnail-converter-spec.md §3 골든 픽스처(C 유형)를
+  가상 브랜드 HARUON 톤업 선크림으로 치환한 것 — 새로 지어내지 않는다(증거 원칙).
+  큰 이미지·Before는 CSS 목업. 다운로드 버튼은 canvas로 목업을 그려 실제 PNG를 저장한다.
+  해설 3단의 데이터 출처는 explanationJson(styleReason·copySlots·krElementMap — 08-data-flow §6 신설 제안).
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<!-- 프로토타입 검토 스트립 -->
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">② 마케팅 스튜디오 · 프로토타입</span>
+    <a href="index.html">플로우</a>
+    <a href="1-home.html">홈</a>
+    <a href="2-create.html">생성</a>
+    <a href="3-result.html" class="on">결과</a>
+    <a href="02-studio-ui-기획서.md">기획서 ↗</a>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <!-- 앱 헤더 -->
+  <header class="app-header">
+    <div class="app-header-in">
+      <span class="app-wordmark">KGLOW<span>.</span></span>
+      <span class="app-divider"></span>
+      <span class="app-crumb">마케팅 스튜디오 › 생성 결과</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <a href="1-home.html" class="hbtn hbtn-ghost h-soft" style="display:inline-flex;align-items:center;text-decoration:none">← 스튜디오 홈</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. 생성 결과 상세 -->
+  <main style="flex:1;animation:fadeUp .45s ease both">
+    <div style="max-width:1120px;margin:0 auto;padding:44px 24px 96px">
+
+      <div class="rwrap" style="display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:36px;align-items:start">
+
+        <!-- RESULT-01 · 이미지 뷰 -->
+        <div>
+          <figure style="margin:0;position:relative;aspect-ratio:1/1;border-radius:18px;overflow:hidden;border:1px solid rgba(112,115,124,0.14);box-shadow:0 1px 3px rgba(16,18,20,.04)"
+                  role="img" aria-label="공식샵 신뢰 배지형으로 재설계된 HARUON 일본향 썸네일 (CSS 목업)">
+            <span aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(180deg,#BFD9F2,#EAF4FF)"></span>
+            <span lang="ja" aria-hidden="true" style="position:absolute;left:4.5%;top:4.5%;padding:6px 12px;border-radius:6px;background:#22304F;color:#fff;font-size:14px;font-weight:700;letter-spacing:.01em">HARUON <span style="font-size:11px;font-weight:600;opacity:.85">公式ショップ</span></span>
+            <span aria-hidden="true" style="position:absolute;left:6%;bottom:26%;width:34%;height:9%;border-radius:0 0 0 0;background:radial-gradient(50% 100% at 50% 0,rgba(255,255,255,.55),transparent)"></span>
+            <span aria-hidden="true" style="position:absolute;left:50%;top:22%;transform:translateX(-50%);width:22%;height:46%;border-radius:12px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE);box-shadow:0 14px 30px rgba(34,48,79,.18)"></span>
+            <span aria-hidden="true" style="position:absolute;left:50%;top:16%;transform:translateX(-50%);width:12%;height:7%;border-radius:5px;background:#E8A987"></span>
+            <span lang="ja" aria-hidden="true" style="position:absolute;left:24%;top:56%;display:flex;gap:6px">
+              <span style="padding:3px 9px;border-radius:6px;background:rgba(255,255,255,.88);color:#22304F;font-size:11.5px;font-weight:700">SPF50+</span>
+              <span style="padding:3px 9px;border-radius:6px;background:rgba(255,255,255,.88);color:#22304F;font-size:11.5px;font-weight:700">PA++++</span>
+              <span style="padding:3px 9px;border-radius:6px;background:rgba(255,255,255,.88);color:#22304F;font-size:11.5px;font-weight:700">顔・からだ用</span>
+            </span>
+            <span aria-hidden="true" style="position:absolute;left:0;right:0;bottom:0;height:15%;background:#22304F;display:flex;align-items:center;justify-content:center">
+              <span lang="ja" style="color:#fff;font-size:clamp(14px,2.4vw,21px);font-weight:700;letter-spacing:.02em">白浮きしない、透明感トーンアップUV</span>
+            </span>
+          </figure>
+
+          <!-- 검수 게이트 (gateResult 렌더) -->
+          <div style="margin-top:14px;background:#fff;border:1px solid rgba(0,185,124,.35);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <span style="display:inline-flex;height:26px;align-items:center;gap:5px;padding:0 11px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:12.5px;font-weight:800">○ 검수 게이트 통과</span>
+            <span style="font-size:12.5px;color:#414245">제품 라벨 보존 <b style="color:#00875A">○</b></span>
+            <span style="font-size:12.5px;color:#414245">오탈자 없음 <b style="color:#00875A">○</b></span>
+            <span style="font-size:12.5px;color:#414245">무단 배지 없음 <b style="color:#00875A">○</b></span>
+          </div>
+
+          <!-- RESULT-04 · 다운로드 -->
+          <div style="margin-top:14px">
+            <button type="button" id="dlBtn" class="h-primary" style="width:100%;height:54px;border:none;border-radius:12px;background:#FF6464;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer">이미지 다운로드 (PNG · 1024×1024)</button>
+            <p style="margin:10px 0 0;font-size:12px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">AI 생성 이미지는 제안·데모용입니다. 플랫폼 게시용 제품 본체 컷은 브랜드 실촬영을 권장합니다.</p>
+          </div>
+        </div>
+
+        <!-- RESULT-01 우측 메타 + RESULT-02·03 해설 -->
+        <div>
+          <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">생성 결과</p>
+          <h1 style="margin:8px 0 0;font-size:24px;font-weight:800;line-height:1.35;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">HARUON 톤업 선크림 — 일본향 썸네일</h1>
+          <div style="margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="display:inline-flex;height:24px;align-items:center;padding:0 10px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;font-size:12px;font-weight:700">공식샵 신뢰 배지형</span>
+            <span style="font-size:12.5px;color:rgba(55,56,60,0.61)">라쿠텐 공식샵 · 2026.07.19</span>
+          </div>
+
+          <!-- 원본(Before) -->
+          <div style="margin-top:18px;display:flex;align-items:center;gap:12px">
+            <span style="position:relative;width:72px;height:72px;flex:none;border-radius:10px;overflow:hidden;border:1px solid rgba(112,115,124,0.2)" role="img" aria-label="원본: 한국어 카피와 특가 뱃지가 있는 프로모 썸네일 (CSS 목업)">
+              <span aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(180deg,#A7CBEC,#DCEDFB);border:2.5px solid #8FE745;box-sizing:border-box"></span>
+              <span aria-hidden="true" style="position:absolute;left:4px;top:4px;padding:1px 4px;border-radius:2px;background:#E5372F;color:#fff;font-size:6.5px;font-weight:800">오늘의 특가</span>
+              <span aria-hidden="true" style="position:absolute;left:5px;top:16px;font-size:8px;font-weight:800;color:#153A66">쿨톤 치트키</span>
+              <span aria-hidden="true" style="position:absolute;left:50%;top:38%;transform:translateX(-50%);width:26%;height:44%;border-radius:3px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE)"></span>
+            </span>
+            <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)"><b style="color:#202124">원본 (Before)</b><br />한국어 카피·특가 뱃지·형광 테두리가 있는 프로모 썸네일</p>
+          </div>
+
+          <!-- RESULT-02a · 왜 이 문법인가 -->
+          <section style="margin-top:24px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:20px 22px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+            <h2 style="margin:0;font-size:15px;font-weight:800;color:#202124">왜 이 문법인가</h2>
+            <p style="margin:10px 0 0;font-size:13.5px;line-height:1.75;color:#414245;text-wrap:pretty">라쿠텐 공식샵 기준으로, 일본 구매자가 첫눈에 훑는 신뢰 마커(<span lang="ja">公式ショップ</span> 칩·기능 칩·하단 카피 밴드)를 갖춘 공식샵 문법을 적용했습니다. 표본 120장에서 라쿠텐 공식샵 썸네일의 전형으로 관찰된 구조입니다.</p>
+          </section>
+
+          <!-- RESULT-02b · 카피는 이렇게 재설계됐다 -->
+          <section style="margin-top:14px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:20px 22px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+            <h2 style="margin:0;font-size:15px;font-weight:800;color:#202124">카피는 이렇게 재설계됐다</h2>
+            <p style="margin:8px 0 0;font-size:12px;line-height:1.6;color:rgba(55,56,60,0.61)">자동 번역이 아니라 의도를 추출해 일본 고민 어휘·관례어로 다시 썼습니다. <span lang="ja">薬機法</span> 1차 스크리닝 통과분만 이미지에 들어갑니다.</p>
+
+            <div style="margin-top:16px;border:1px solid #EBEBEB;border-radius:10px;padding:14px 16px">
+              <p lang="ja" style="margin:0;font-size:15.5px;font-weight:800;color:#202124">「白浮きしない、透明感トーンアップUV」</p>
+              <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:#414245"><b>KR 원문</b> <span style="text-decoration:line-through;color:rgba(55,56,60,0.61)">쿨톤 치트키</span>. 밈 어휘라 일본 고객에게 의미가 전달되지 않음</p>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.65;color:#414245"><b>의도 추출</b> "하얗게 들뜨지 않는 톤업"</p>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.65;color:#414245"><b>재설계 근거</b> <span lang="ja">白浮き</span> = 코퍼스에서 확인된 일본 고민 어휘 · <span lang="ja">トーンアップUV</span> = 선케어 관례어</p>
+            </div>
+
+            <div style="margin-top:10px;border:1px solid #EBEBEB;border-radius:10px;padding:14px 16px">
+              <p lang="ja" style="margin:0;font-size:14px;font-weight:800;color:#202124">「SPF50+ / PA++++ / 顔・からだ用」</p>
+              <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:#414245"><b>KR 원문</b> <span style="text-decoration:line-through;color:rgba(55,56,60,0.61)">얼굴부터 바디까지 OK</span></p>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.65;color:#414245"><b>재설계 근거</b> 일본 선케어의 관례 표기 <span lang="ja">顔・からだ用</span>으로 교체. SPF·PA는 패키지 인쇄 사실만 칩으로 노출</p>
+            </div>
+
+            <p style="margin:14px 0 0;font-size:12px;line-height:1.6;color:#B96C00;background:#FFF6E5;border-radius:8px;padding:9px 12px">실적을 입력하지 않아 랭킹·수상 배지 없이 생성됐습니다. 배지 없음이 기본값이고, 근거를 입력하면 배지가 들어갑니다.</p>
+          </section>
+
+          <!-- RESULT-03 · 무엇을 바꿨나 -->
+          <section style="margin-top:14px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;box-shadow:0 1px 3px rgba(16,18,20,.04);overflow:hidden">
+            <details>
+              <summary class="h-summary" style="list-style:none;cursor:pointer;padding:18px 22px;display:flex;align-items:center;gap:10px">
+                <h2 style="margin:0;font-size:15px;font-weight:800;color:#202124">무엇을 바꿨나 — 원본 요소 처리</h2>
+                <span style="margin-left:auto;font-size:12px;color:#B6B8BF" aria-hidden="true">펼치기 ▾</span>
+              </summary>
+              <div style="padding:0 22px 20px;border-top:1px solid #EBEBEB;overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse;min-width:460px;font-size:12.5px;margin-top:14px">
+                  <thead>
+                    <tr style="text-align:left;color:rgba(55,56,60,0.61)">
+                      <th style="padding:8px 10px;font-weight:700">원본 요소</th>
+                      <th style="padding:8px 10px;font-weight:700;width:88px">처리</th>
+                      <th style="padding:8px 10px;font-weight:700">근거</th>
+                    </tr>
+                  </thead>
+                  <tbody style="color:#414245">
+                    <tr style="border-top:1px solid #ECECEF"><td style="padding:9px 10px">형광 그린 테두리</td><td style="padding:9px 10px"><span style="display:inline-flex;height:21px;align-items:center;padding:0 8px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11px;font-weight:700">✕ 제거</span></td><td style="padding:9px 10px;line-height:1.55">라쿠텐 가이드라인 — 테두리 금지</td></tr>
+                    <tr style="border-top:1px solid #ECECEF"><td style="padding:9px 10px">"오늘의 특가"</td><td style="padding:9px 10px"><span style="display:inline-flex;height:21px;align-items:center;padding:0 8px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11px;font-weight:700">✕ 제거</span></td><td style="padding:9px 10px;line-height:1.55">공식샵 문법은 가격 요소 금지. 특가 소구는 프로모션 강조형에서</td></tr>
+                    <tr style="border-top:1px solid #ECECEF"><td style="padding:9px 10px">"쿨톤 치트키"</td><td style="padding:9px 10px"><span style="display:inline-flex;height:21px;align-items:center;padding:0 8px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11px;font-weight:700">△ 재설계</span></td><td style="padding:9px 10px;line-height:1.55">밈 어휘 → <span lang="ja">白浮きしない、透明感トーンアップUV</span></td></tr>
+                    <tr style="border-top:1px solid #ECECEF"><td style="padding:9px 10px">"얼굴부터 바디까지 OK"</td><td style="padding:9px 10px"><span style="display:inline-flex;height:21px;align-items:center;padding:0 8px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11px;font-weight:700">△ 재설계</span></td><td style="padding:9px 10px;line-height:1.55">관례 표기 <span lang="ja">顔・からだ用</span></td></tr>
+                    <tr style="border-top:1px solid #ECECEF"><td style="padding:9px 10px">"유분·땀 케어" 뱃지</td><td style="padding:9px 10px"><span style="display:inline-flex;height:21px;align-items:center;padding:0 8px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11px;font-weight:700">✕ 제거</span></td><td style="padding:9px 10px;line-height:1.55">효능 인접 주장 — 근거 검수 전 미표기</td></tr>
+                    <tr style="border-top:1px solid #ECECEF"><td style="padding:9px 10px">하늘·구름 배경</td><td style="padding:9px 10px"><span style="display:inline-flex;height:21px;align-items:center;padding:0 8px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:11px;font-weight:700">○ 유지·정제</span></td><td style="padding:9px 10px;line-height:1.55">브랜드 자산 + 일본 선케어 무드와 호환</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </section>
+
+          <!-- RESULT-05 · 보조 액션 -->
+          <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+            <a href="2-create.html?prefill=example" class="hbtn hbtn-secondary h-soft" style="display:inline-flex;align-items:center;text-decoration:none;height:40px">같은 이미지로 다른 템플릿 생성</a>
+            <button type="button" class="hbtn hbtn-secondary h-soft" aria-describedby="regenNote" style="height:40px">다시 생성</button>
+          </div>
+          <p id="regenNote" style="margin:8px 0 0;font-size:11.5px;color:rgba(55,56,60,0.61)">재생성 비용·크레딧 정책은 미정이라 프로토타입에서는 동작하지 않습니다.</p>
+
+          <p style="margin:20px 0 0;font-size:11px;line-height:1.6;color:#B6B8BF">해설 데이터 출처: 파이프라인 ①~④단계 산출. <code style="font-family:ui-monospace,monospace;font-size:10.5px;background:#F1F1F3;border-radius:4px;padding:1px 4px">explanationJson</code>(styleReason·copySlots·krElementMap) 신설 제안 (08-data-flow §6 · 기획서 RESULT-02).</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/**
+ * 결과 상세 (RESULT-04) — 다운로드 버튼이 canvas 로 목업을 그려 실제 PNG 를 저장한다.
+ * 파일명 규칙: {브랜드명}-{스타일 평문}-{플랫폼}.png (기획서 RESULT-04)
+ */
+(function () {
+  document.getElementById('dlBtn').onclick = function () {
+    var cv = document.createElement('canvas');
+    cv.width = 1024; cv.height = 1024;
+    var x = cv.getContext('2d');
+    // 배경: 하늘 그라데이션
+    var g = x.createLinearGradient(0, 0, 0, 1024);
+    g.addColorStop(0, '#BFD9F2'); g.addColorStop(1, '#EAF4FF');
+    x.fillStyle = g; x.fillRect(0, 0, 1024, 1024);
+    // 좌상 공식 칩
+    x.fillStyle = '#22304F';
+    if (x.roundRect) { x.beginPath(); x.roundRect(46, 46, 380, 68, 10); x.fill(); } else { x.fillRect(46, 46, 380, 68); }
+    x.fillStyle = '#fff'; x.textAlign = 'left';
+    x.font = '700 34px "Pretendard Variable", "Hiragino Sans", sans-serif';
+    x.fillText('HARUON 公式ショップ', 66, 92);
+    // 제품 튜브
+    x.save();
+    x.shadowColor = 'rgba(34,48,79,.2)'; x.shadowBlur = 40; x.shadowOffsetY = 18;
+    var tg = x.createLinearGradient(0, 240, 0, 720); tg.addColorStop(0, '#FFF3EC'); tg.addColorStop(1, '#FFD4BE');
+    x.fillStyle = tg;
+    if (x.roundRect) { x.beginPath(); x.roundRect(400, 240, 224, 470, 26); x.fill(); } else { x.fillRect(400, 240, 224, 470); }
+    x.restore();
+    x.fillStyle = '#E8A987';
+    if (x.roundRect) { x.beginPath(); x.roundRect(452, 178, 120, 62, 10); x.fill(); } else { x.fillRect(452, 178, 120, 62); }
+    // 기능 칩 3개
+    var chips = ['SPF50+', 'PA++++', '顔・からだ用'];
+    x.font = '700 26px "Pretendard Variable", "Hiragino Sans", sans-serif';
+    var cx = 250;
+    chips.forEach(function (t) {
+      var w = x.measureText(t).width + 36;
+      x.fillStyle = 'rgba(255,255,255,.88)';
+      if (x.roundRect) { x.beginPath(); x.roundRect(cx, 588, w, 46, 9); x.fill(); } else { x.fillRect(cx, 588, w, 46); }
+      x.fillStyle = '#22304F';
+      x.fillText(t, cx + 18, 620);
+      cx += w + 14;
+    });
+    // 하단 카피 밴드
+    x.fillStyle = '#22304F'; x.fillRect(0, 868, 1024, 156);
+    x.fillStyle = '#fff'; x.textAlign = 'center';
+    x.font = '700 46px "Pretendard Variable", "Hiragino Sans", sans-serif';
+    x.fillText('白浮きしない、透明感トーンアップUV', 512, 962);
+    // 저장
+    var link = document.createElement('a');
+    link.download = 'HARUON-공식샵신뢰배지형-라쿠텐공식샵.png';
+    link.href = cv.toDataURL('image/png');
+    link.click();
+  };
+})();
+</script>
+</body>
+</html>
