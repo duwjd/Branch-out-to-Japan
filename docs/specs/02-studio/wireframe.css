@@ -1,0 +1,190 @@
+/* ════════════════════════════════════════════════════════════════════
+   ② 마케팅 스튜디오(썸네일) 프로토타입 · 공용 스타일
+   비배포 · 기획 검토용. ① 진단 리포트 프로토타입(../01-report/wireframe.css)의
+   공용 스타일을 그대로 계승하고, 맨 아래 "② 전용 확장"만 추가한 것.
+
+   방침: 화면 마크업은 인라인 스타일을 우선한다(① 관례 계승 — 픽셀 충실도).
+   이 파일은 인라인이 표현할 수 없는 부분만 담당한다 —
+   토큰(변수) · 키프레임 · :hover/:focus · 반응형 · 접근성.
+
+   폰트: Pretendard Variable 은 각 HTML <head> 의 CDN <link> 로 로드
+   (프로토타입 한정 외부 의존 허용). 로드 실패 시 시스템 폰트로 폴백.
+   토큰 정본: design/DESIGN.md (스티비 coral).
+     coral #ff6464 = 기본 CTA·강조 · coral-strong #d93636 = hover/링크/eyebrow
+     상태색은 색+글자+기호(✕/△/○) 3중 표기와 함께만 쓴다(CVD 검증).
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* 표면 · 잉크 */
+  --page: #f7f7f8;
+  --canvas: #ffffff;
+  --ink: #202124;             /* 제목·강조 숫자 */
+  --ink-body: #414245;        /* 본문 */
+  --ink-mute: rgba(55, 56, 60, 0.61); /* 캡션·보조 */
+  --ink-faint: #b6b8bf;       /* /100·각주·화살표 */
+
+  /* 브랜드 */
+  --navy: #22304f;            /* 워드마크 전용 */
+  --coral: #ff6464;           /* primary CTA·강조 */
+  --coral-strong: #d93636;    /* hover/pressed·링크·eyebrow */
+  --coral-tint: #fff8f8;      /* 칩-on·필수 배지·강조 배경 */
+  --coral-grad: linear-gradient(90deg, #ff6464, #d93636);
+  --bar-mid: #ff9c9c;
+  --bar-light: #ffc4c4;
+
+  /* 판정 상태색 (색+글자+기호와 함께만) */
+  --danger: #f0483c;          /* 실패 solid */
+  --danger-text: #c6362c;
+  --danger-bg: #fdf0ef;
+  --amber: #ffab00;           /* 경고 solid */
+  --amber-text: #b96c00;
+  --amber-bg: #fff6e5;
+  --green: #00b97c;           /* 통과 solid */
+  --green-text: #00875a;
+  --green-bg: #eaf9f3;
+
+  /* 선 · 중립 · 그림자 */
+  --card-border: rgba(112, 115, 124, 0.14);
+  --input-border: rgba(112, 115, 124, 0.28);
+  --hairline: #ebebeb;
+  --n-50: #fafafb;
+  --n-100: #f6f6f6;
+  --n-150: #f1f1f3;
+  --n-200: #ececef;
+  --card-shadow: 0 1px 3px rgba(16, 18, 20, .04);
+  --nav-shadow: 0 4px 14px rgba(16, 18, 20, .06);
+
+  --radius: 18px;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
+    "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--page);
+  color: var(--ink-body);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: var(--coral-strong); text-decoration: none; }
+a:hover { text-decoration: underline; }
+input::placeholder, textarea::placeholder { color: #a6a8b0; }
+img { max-width: 100%; }
+
+/* 숫자는 표 정렬 폭 */
+[data-num], .tnum { font-variant-numeric: tabular-nums; }
+
+/* ── 접근성: 키보드 포커스 링 (마우스 클릭엔 안 뜸) ───── */
+a:focus-visible, button:focus-visible, summary:focus-visible,
+input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── 키프레임 (① 계승) ─────────────────────────────── */
+@keyframes indet  { 0% { transform: translateX(-110%); } 100% { transform: translateX(480%); } }
+@keyframes fadeUp { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes pulse  { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* ── 인터랙션: 인라인이 못 하는 hover/focus ────────────── */
+.h-primary:hover { background: var(--coral-strong) !important; }
+.h-soft:hover    { background: var(--n-100) !important; }
+.h-top3:hover    { border-color: var(--coral) !important; }
+.h-summary:hover { background: var(--n-50) !important; }
+.h-ghost:hover   { background: rgba(255, 255, 255, .12) !important; }
+.h-link:hover    { text-decoration: underline; }
+.f-input:focus   { border: 1.5px solid #70737c !important; }
+
+/* 칩/탭은 transition 을 인라인으로 넣어 두었으나, 클래스로도 보강 */
+.chip, .seg, .tab { transition: background .15s, border-color .15s, color .15s; }
+
+/* ── 반응형: PC 우선, 좁은 화면에서만 다단 → 1단 ───────── */
+@media (max-width: 760px) {
+  .rwrap { grid-template-columns: 1fr !important; }
+  .rwrap .arrow-cell { transform: rotate(90deg); }
+  .rwrap-2 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 640px) {
+  .rhide-sm { display: none !important; }
+}
+
+/* ── 모션 최소화 선호 ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+}
+
+/* ── 프로토타입 검토 스트립 (비배포 고지 + 파일 이동) ── */
+.wf-strip { background: var(--canvas); border-bottom: 1px solid var(--hairline); font-size: 11.5px; color: var(--ink-mute); }
+.wf-strip-in { max-width: 1120px; margin: 0 auto; padding: 7px 24px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.wf-strip a { color: var(--ink-mute); padding: 2px 7px; border-radius: 5px; }
+.wf-strip a:hover { background: var(--n-100); color: var(--coral-strong); text-decoration: none; }
+.wf-strip a.on { color: var(--coral-strong); font-weight: 700; }
+.wf-strip .tag { border: 1px solid var(--hairline); border-radius: 999px; padding: 2px 8px; font-weight: 600; }
+.wf-strip .ex { margin-left: auto; color: var(--amber-text); }
+
+/* ── 앱 헤더 공통 ───────────────────────────────────── */
+.app-header {
+  position: sticky; top: 0; z-index: 60;
+  background: rgba(255, 255, 255, .94); backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(112, 115, 124, 0.12);
+}
+.app-header-in { max-width: 1120px; margin: 0 auto; height: 60px; padding: 0 24px; display: flex; align-items: center; gap: 14px; }
+.app-wordmark { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--navy); }
+.app-wordmark span { color: var(--coral); }
+.app-divider { width: 1px; height: 16px; background: var(--hairline); }
+.app-crumb { font-size: 13px; font-weight: 600; color: var(--ink-mute); }
+.hbtn { height: 34px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.hbtn-secondary { border: 1px solid var(--input-border); background: #fff; color: var(--ink-body); }
+.hbtn-ghost { border: none; background: transparent; color: var(--ink-body); }
+
+/* ── index.html 플로우 맵 전용(런처) ─────────────────── */
+.doc { max-width: 1120px; margin: 0 auto; padding: 40px 24px 96px; }
+.doc-warn {
+  margin: 20px 0 0; border: 1px solid var(--amber);
+  background: var(--amber-bg); color: var(--amber-text);
+  border-radius: 10px; padding: 12px 14px; font-size: 12.5px; line-height: 1.6;
+}
+.doc-warn b { font-weight: 700; }
+.flow-node {
+  display: block; text-decoration: none; background: var(--canvas);
+  border: 1px solid var(--card-border); border-radius: 14px; padding: 20px;
+  box-shadow: var(--card-shadow); transition: border-color .15s, transform .15s;
+}
+.flow-node:hover { border-color: var(--coral); transform: translateY(-2px); text-decoration: none; }
+
+/* ════════════════════════════════════════════════════════════════════
+   ② 전용 확장 — 갤러리·생성중 타일·토스트·템플릿 카드
+   (①에 없던 화면 요소만. 위 공용부는 ①과 diff 없이 유지한다)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 생성중 타일 shimmer — 블러 프리뷰 위를 훑는 하이라이트 */
+@keyframes shimmer {
+  0%   { background-position: -420px 0; }
+  100% { background-position: 420px 0; }
+}
+/* 완료 crossfade — 생성중 타일 → 완성 썸네일 전환 */
+@keyframes tileIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+/* 토스트 등장 */
+@keyframes toastIn { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
+
+/* 갤러리 완료 카드: hover/키보드 포커스 시 액션 오버레이 노출 */
+.h-tile { transition: border-color .15s, transform .15s, box-shadow .15s; }
+.h-tile:hover, .h-tile:focus-within {
+  border-color: var(--coral) !important;
+  box-shadow: var(--nav-shadow) !important;
+}
+.h-tile .tile-ov { opacity: 0; pointer-events: none; transition: opacity .15s; }
+.h-tile:hover .tile-ov, .h-tile:focus-within .tile-ov { opacity: 1; pointer-events: auto; }
+
+/* 템플릿 선택 카드 */
+.h-tcard { transition: border-color .15s, background .15s, opacity .15s; }
+.h-tcard:hover { border-color: var(--coral) !important; }
