@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>계정 · 로그인</title>
+<!--
+  비배포 · 기획 검토용 인터랙티브 프로토타입.
+  정본: 03-account-ui-기획서.md # 1. 로그인 (LOGIN-00~05)
+  인증 수단 = 소셜 3종(카카오·네이버·구글) 확정 — 이메일/비밀번호 없음.
+  셸 없는 단독 화면(센터 카드 1장). 소셜 버튼 색은 각 사 브랜드 고정색이며
+  우리 디자인 토큰이 아니다. 데모: 아무 버튼이나 누르면 로딩 후 ⓪ 메인으로
+  이동한다("실패" 상태에서는 실패 토스트). 화면 속 계정·수치는 전부 목업.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<!-- 프로토타입 검토 스트립 + 데모 상태 스위처 -->
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">계정 · 프로토타입</span>
+    <a href="index.html">플로우</a>
+    <a href="1-login.html" class="on">로그인</a>
+    <a href="2-mypage.html">마이페이지</a>
+    <a href="03-account-ui-기획서.md">기획서 ↗</a>
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
+      <span>상태(검토용):</span>
+      <button type="button" class="st-btn" data-st="default" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">기본</button>
+      <button type="button" class="st-btn" data-st="loading" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">로딩</button>
+      <button type="button" class="st-btn" data-st="fail" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">실패</button>
+      <button type="button" class="st-btn" data-st="expired" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">세션 만료</button>
+    </span>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<!-- LOGIN-01 · 셸 없는 단독 화면 — 센터 카드 -->
+<main style="min-height:calc(100vh - 35px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px 64px;background-image:radial-gradient(900px 380px at 50% -60px, rgba(255,100,100,.05), transparent);background-repeat:no-repeat">
+
+  <!-- LOGIN-00 · 세션 만료 안내 배너 -->
+  <div id="expiredBanner" role="status" style="display:none;width:100%;max-width:400px;margin-bottom:14px;border:1px solid #FFAB00;background:#FFF6E5;color:#B96C00;border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.55;animation:fadeUp .3s ease both">
+    세션이 만료되었습니다 △ — 다시 로그인해 주세요.
+  </div>
+
+  <section aria-label="로그인" style="width:100%;max-width:400px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px 32px 30px;box-shadow:0 1px 3px rgba(16,18,20,.04);animation:fadeUp .45s ease both">
+    <span class="app-wordmark" style="font-size:22px">KGLOW<span>.</span></span>
+    <h1 style="margin:18px 0 0;font-size:23px;font-weight:800;letter-spacing:-0.02em;line-height:1.3;color:#202124;text-wrap:balance">KGLOW 시작하기</h1>
+    <p style="margin:8px 0 0;font-size:13.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">일본 고객 관점의 진단과 콘텐츠 제작,<br>하나의 계정으로 시작합니다.</p>
+
+    <!-- LOGIN-02 · 소셜 로그인 버튼 3종 (각 사 브랜드 고정색) -->
+    <div style="margin-top:26px;display:flex;flex-direction:column;gap:10px">
+      <button type="button" class="social-btn h-kakao" data-provider="kakao"
+        style="position:relative;display:flex;width:100%;align-items:center;justify-content:center;gap:9px;height:48px;border:none;border-radius:11px;background:#FEE500;color:#191919;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer">
+        <span class="btn-spin" aria-hidden="true" style="display:none;position:absolute;left:16px;width:15px;height:15px;border:2px solid rgba(25,25,25,.3);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></span>
+        <svg class="btn-sym" aria-hidden="true" width="17" height="17" viewBox="0 0 24 24"><path fill="#191919" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.8 1.86 5.26 4.66 6.65-.15.52-.96 3.32-.99 3.54 0 0-.02.17.09.23.11.07.24.02.24.02.32-.04 3.63-2.37 4.2-2.77.58.08 1.18.13 1.8.13 5.52 0 10-3.54 10-7.9S17.52 3 12 3z"/></svg>
+        카카오로 계속하기
+        <span id="recentBadge" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.88);color:#191919;font-size:10px;font-weight:700;border-radius:9999px;padding:3px 8px">최근 로그인</span>
+      </button>
+      <button type="button" class="social-btn h-naver" data-provider="naver"
+        style="position:relative;display:flex;width:100%;align-items:center;justify-content:center;gap:9px;height:48px;border:none;border-radius:11px;background:#03C75A;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer">
+        <span class="btn-spin" aria-hidden="true" style="display:none;position:absolute;left:16px;width:15px;height:15px;border:2px solid rgba(255,255,255,.55);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></span>
+        <svg class="btn-sym" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24"><path fill="#fff" d="M14.62 12.35 8.98 4.2H4.2v15.6h5.18v-8.15l5.64 8.15h4.78V4.2h-5.18v8.15z"/></svg>
+        네이버로 계속하기
+      </button>
+      <button type="button" class="social-btn h-google" data-provider="google"
+        style="position:relative;display:flex;width:100%;align-items:center;justify-content:center;gap:9px;height:48px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;color:#3C4043;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer">
+        <span class="btn-spin" aria-hidden="true" style="display:none;position:absolute;left:16px;width:15px;height:15px;border:2px solid rgba(112,115,124,.4);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></span>
+        <svg class="btn-sym" aria-hidden="true" width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Google로 계속하기
+      </button>
+    </div>
+
+    <!-- LOGIN-03 · 약관 고지 (동의 체크박스 없음 — 고지 방식) -->
+    <p style="margin:18px 0 0;font-size:11.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-align:center;text-wrap:pretty">
+      계속 진행하면 KGLOW의
+      <a href="#" onclick="return false" title="문서 (미정) — 법무 검토 전" style="color:inherit;text-decoration:underline">이용약관</a> 및
+      <a href="#" onclick="return false" title="문서 (미정) — 법무 검토 전" style="color:inherit;text-decoration:underline">개인정보처리방침</a>에<br>동의하는 것으로 간주됩니다.
+    </p>
+  </section>
+
+  <!-- 랜딩 복귀 (랜딩 라우트 / 는 프로토타입 범위 외) -->
+  <p style="margin:18px 0 0;font-size:12.5px">
+    <a href="#" aria-disabled="true" onclick="return false" title="랜딩(/)은 이 프로토타입 범위 외" style="color:rgba(55,56,60,0.61)">← 소개 페이지로</a>
+  </p>
+</main>
+
+<!-- LOGIN-04 · 실패 토스트 -->
+<div id="toast" role="status" aria-live="polite" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:90;background:#202124;color:#fff;border-radius:12px;padding:12px 18px;box-shadow:0 8px 24px rgba(16,18,20,.24);animation:toastIn .3s ease both;max-width:360px">
+  <p style="margin:0;font-size:13px;font-weight:700">로그인에 실패했습니다 ✕</p>
+  <p style="margin:3px 0 0;font-size:11.5px;color:rgba(255,255,255,.72)">잠시 후 다시 시도해 주세요.</p>
+</div>
+
+<script>
+/**
+ * 로그인 로직 (LOGIN-02·04) — 소셜 버튼 클릭 → 로딩 → 성공(⓪ 메인 이동) /
+ * 실패(토스트 + 복귀). 상태 소스: 검토용 스위처(기본/로딩/실패/세션 만료).
+ * OAuth 리다이렉트는 데모에서 setTimeout 으로 대체한다.
+ */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { busy: false, failMode: false, timer: null };
+  var btns = Array.prototype.slice.call(document.querySelectorAll('.social-btn'));
+  var toastTimer = null;
+
+  function setBusy(busy, activeBtn) {
+    state.busy = busy;
+    btns.forEach(function (b) {
+      b.setAttribute('aria-disabled', String(busy));
+      var spin = b.querySelector('.btn-spin');
+      var sym = b.querySelector('.btn-sym');
+      var on = busy && b === activeBtn;
+      if (spin) spin.style.display = on ? 'inline-block' : 'none';
+      if (sym) sym.style.visibility = on ? 'hidden' : 'visible';
+    });
+    var badge = $('recentBadge');
+    if (badge) badge.style.visibility = busy ? 'hidden' : 'visible';
+  }
+
+  function toast() {
+    $('toast').style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('toast').style.display = 'none'; }, 4000);
+  }
+
+  btns.forEach(function (b) {
+    b.onclick = function () {
+      if (state.busy) return;
+      setBusy(true, b);
+      clearTimeout(state.timer);
+      state.timer = setTimeout(function () {
+        if (state.failMode) { setBusy(false, null); toast(); return; }
+        // 성공: 기존 회원 → ⓪ 메인. (신규 회원 → 온보딩 분기는 범위 외)
+        window.location.href = '../00-main/1-home.html';
+      }, 1400);
+    };
+  });
+
+  // 검토용 상태 스위처 (제품 UI 아님)
+  document.querySelectorAll('.st-btn').forEach(function (b) {
+    b.onclick = function () {
+      var st = b.getAttribute('data-st');
+      clearTimeout(state.timer);
+      $('toast').style.display = 'none';
+      $('expiredBanner').style.display = 'none';
+      state.failMode = st === 'fail';
+      if (st === 'loading') { setBusy(true, btns[0]); return; }
+      setBusy(false, null);
+      if (st === 'expired') $('expiredBanner').style.display = 'block';
+    };
+  });
+})();
+</script>
+</body>
+</html>
