@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════════════════════════════
-   ② 마케팅 스튜디오(썸네일) 프로토타입 · 공용 스타일
-   비배포 · 기획 검토용. ① 진단 리포트 프로토타입(../01-report/wireframe.css)의
-   공용 스타일을 그대로 계승하고, 맨 아래 "② 전용 확장"만 추가한 것.
+   계정(로그인·마이페이지) 프로토타입 · 공용 스타일
+   비배포 · 기획 검토용. ⓪·①·② 프로토타입(../00-main/wireframe.css)의
+   공용 스타일을 그대로 계승하고, 맨 아래 "03 전용 확장"만 추가한 것.
 
    방침: 화면 마크업은 인라인 스타일을 우선한다(① 관례 계승 — 픽셀 충실도).
    이 파일은 인라인이 표현할 수 없는 부분만 담당한다 —
@@ -12,6 +12,8 @@
    토큰 정본: design/DESIGN.md (스티비 coral).
      coral #ff6464 = 기본 CTA·강조 · coral-strong #d93636 = hover/링크/eyebrow
      상태색은 색+글자+기호(✕/△/○) 3중 표기와 함께만 쓴다(CVD 검증).
+   소셜 버튼 색(카카오 #FEE500·네이버 #03C75A)은 각 사 브랜드 고정색 —
+   우리 토큰으로 승격하지 않는다(로고 전용색 원칙과 동일).
    ════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -89,7 +91,7 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
-/* ── 키프레임 (① 계승) ─────────────────────────────── */
+/* ── 키프레임 (①·② 계승) ───────────────────────────── */
 @keyframes indet  { 0% { transform: translateX(-110%); } 100% { transform: translateX(480%); } }
 @keyframes fadeUp { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes pulse  { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
@@ -162,37 +164,9 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 .flow-node:hover { border-color: var(--coral); transform: translateY(-2px); text-decoration: none; }
 
 /* ════════════════════════════════════════════════════════════════════
-   ② 전용 확장 — 갤러리·생성중 타일·토스트·템플릿 카드
-   (①에 없던 화면 요소만. 위 공용부는 ①과 diff 없이 유지한다)
-   ════════════════════════════════════════════════════════════════════ */
-
-/* 생성중 타일 shimmer — 블러 프리뷰 위를 훑는 하이라이트 */
-@keyframes shimmer {
-  0%   { background-position: -420px 0; }
-  100% { background-position: 420px 0; }
-}
-/* 완료 crossfade — 생성중 타일 → 완성 썸네일 전환 */
-@keyframes tileIn { 0% { opacity: 0; } 100% { opacity: 1; } }
-/* 토스트 등장 */
-@keyframes toastIn { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
-
-/* 갤러리 완료 카드: hover/키보드 포커스 시 액션 오버레이 노출 */
-.h-tile { transition: border-color .15s, transform .15s, box-shadow .15s; }
-.h-tile:hover, .h-tile:focus-within {
-  border-color: var(--coral) !important;
-  box-shadow: var(--nav-shadow) !important;
-}
-.h-tile .tile-ov { opacity: 0; pointer-events: none; transition: opacity .15s; }
-.h-tile:hover .tile-ov, .h-tile:focus-within .tile-ov { opacity: 1; pointer-events: auto; }
-
-/* 템플릿 선택 카드 */
-.h-tcard { transition: border-color .15s, background .15s, opacity .15s; }
-.h-tcard:hover { border-color: var(--coral) !important; }
-
-/* ════════════════════════════════════════════════════════════════════
    앱 셸 확장(공용) — 사이드바·브랜드 스위처·성숙도 배지·KPI 위젯
-   ⓪·①·②의 "앱 화면"이 공유하는 셸이다. 이 블록은 01-report/02-studio
-   wireframe.css 맨 아래에도 동일하게 복제한다(폴더 자족 관례).
+   ⓪·①·②의 "앱 화면"이 공유하는 셸이다. 이 블록은 각 폴더 wireframe.css
+   맨 아래에 동일하게 복제한다(폴더 자족 관례).
    ※ index.html(플로우 맵)은 문서 페이지라 기존 .app-header를 계속 쓴다.
    ════════════════════════════════════════════════════════════════════ */
 
@@ -265,4 +239,45 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   .app-shell { flex-direction: column; }
   .app-side { width: auto; flex: none; position: static; height: auto; border-right: none; border-bottom: 1px solid var(--hairline); }
   .side-gap { display: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   03 전용 확장 — 소셜 로그인 버튼·플랜 카드·모달·토스트
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 토스트는 left:50% + translateX(-50%) 로 중앙 정렬하므로 키프레임도 X 이동을 유지해야 한다
+   (transform 은 하나뿐이라 애니메이션이 인라인 translateX 를 덮어쓴다) */
+@keyframes toastIn { 0% { opacity: 0; transform: translateX(-50%) translateY(14px); } 100% { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes spin    { to { transform: rotate(360deg); } }
+@keyframes modalIn { 0% { opacity: 0; transform: translateY(10px) scale(.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes fadeIn  { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+/* 소셜 로그인 버튼 hover — 각 사 브랜드색의 한 단계 어두운 톤 (토큰 승격 X) */
+.h-kakao:hover  { background: #f2da00 !important; }
+.h-naver:hover  { background: #02b350 !important; }
+.h-google:hover { background: var(--n-50) !important; }
+.social-btn { transition: background .15s, border-color .15s; }
+.social-btn[aria-disabled="true"] { opacity: .55; cursor: default; }
+
+/* 플랜 비교 카드 — 현재 플랜은 코랄 보더 고정, 나머지는 hover 리프트.
+   카드 보더는 인라인 스타일이라 !important 로만 덮인다(① hover 클래스 관례 동일). */
+.plan-card { transition: border-color .15s, transform .15s, box-shadow .15s; }
+.plan-card:hover, .plan-card:focus-within { border-color: var(--coral) !important; transform: translateY(-2px); box-shadow: var(--shadow-2); }
+.plan-card.on, .plan-card.on:hover { border-color: var(--coral) !important; background: var(--coral-tint) !important; transform: none; box-shadow: var(--card-shadow); }
+
+/* 위험 액션 */
+.h-danger:hover      { background: var(--danger-text) !important; }
+.h-danger-link:hover { color: var(--danger-text) !important; text-decoration: underline; }
+
+/* 모달 — 배경 스크림 45% + 카드. 스크림 클릭·Esc 닫힘은 JS */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(16, 18, 20, .45);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  animation: fadeIn .15s ease both;
+}
+.modal {
+  width: 100%; max-width: 420px;
+  background: var(--canvas); border-radius: 16px; box-shadow: var(--shadow-2);
+  padding: 24px; animation: modalIn .2s cubic-bezier(0.4, 0, 0.2, 1) both;
 }

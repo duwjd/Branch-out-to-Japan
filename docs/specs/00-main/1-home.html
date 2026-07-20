@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>⓪ 메인(앱 홈) · 대시보드</title>
+<!--
+  비배포 · 기획 검토용 인터랙티브 프로토타입 (하이파이 v2 — 사이드바 셸).
+  정본: 00-main-ui-기획서.md # 1. 메인(앱 홈) (MAIN-00~09)
+  셸 = 좌측 사이드바(브랜드 스위처·3축 내비·KPI 위젯·품의 PDF·계정) + 본문(다음 단계
+  히어로 + 최근 자산 그리드) + 우하단 플로팅 진행 패널. 알림 벨은 "추후 기획"이라 비노출.
+  데모 서사: 가상 브랜드 하루온(HARUON) — 리포트 2건, 썸네일 0건.
+    → 히어로가 ② 스튜디오 퍼널을 가리키고, 생성중 상태를 지나면 첫 썸네일이
+      최근 자산 그리드 맨 앞에 crossfade로 나타난다(고정가 퍼널 서사).
+  브랜드 스위처의 "글로우리프"는 자산 0 브랜드 — 전환하면 첫 방문 상태가 된다.
+  검토 스트립의 상태 스위처는 프로토타입 검토 전용. 화면 속 수치·리포트·썸네일은
+  전부 목업이며 실제 데이터가 아니다. 시장 성과 수치·리뷰는 그리지 않는다(증거 원칙).
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<!-- 프로토타입 검토 스트립 + 데모 상태 스위처 -->
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">⓪ 메인(앱 홈) · 프로토타입</span>
+    <a href="index.html">플로우</a>
+    <a href="1-home.html" class="on">홈</a>
+    <a href="00-main-ui-기획서.md">기획서 ↗</a>
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
+      <span>상태(검토용):</span>
+      <button type="button" class="st-btn" data-st="first" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">첫 방문</button>
+      <button type="button" class="st-btn" data-st="default" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">기본</button>
+      <button type="button" class="st-btn" data-st="generating" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">생성중</button>
+      <button type="button" class="st-btn" data-st="loading" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">로딩</button>
+      <button type="button" class="st-btn" data-st="error" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">오류</button>
+    </span>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- MAIN-01 · 전역 내비(사이드바) -->
+  <aside class="app-side" aria-label="전역 내비게이션">
+    <div id="swWrap">
+      <!-- 1a · 워드마크 -->
+      <a href="1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+
+      <!-- 1b · 브랜드 프로필 스위처 -->
+      <div style="position:relative">
+        <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
+          <span aria-hidden="true" id="swInitial" style="flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#B96C00">하</span>
+          <span style="flex:1;min-width:0">
+            <span id="swName" style="display:block;font-size:13px;font-weight:700;color:#202124;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">하루온 HARUON</span>
+            <span id="swCat" style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">스킨케어 / <span lang="ja">スキンケア</span></span>
+          </span>
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="swMenu" role="listbox" aria-label="브랜드 프로필 전환" class="sw-menu"
+          style="display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+          <button type="button" class="sw-item" role="option" aria-selected="true" data-brand="haruon"
+            style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer">
+            <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#B96C00">하</span>
+            <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#202124">하루온 HARUON</span><span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61)">리포트 2 · 썸네일 0</span></span>
+            <span class="sw-check" data-brand-check="haruon" style="color:#00875A;font-size:13px;font-weight:800">✓</span>
+          </button>
+          <button type="button" class="sw-item" role="option" aria-selected="false" data-brand="glowleaf"
+            style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer">
+            <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#E2F3E9,#BFE3CE);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#00875A">글</span>
+            <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#202124">글로우리프</span><span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61)">아직 자산 없음</span></span>
+            <span class="sw-check" data-brand-check="glowleaf" style="display:none;color:#00875A;font-size:13px;font-weight:800">✓</span>
+          </button>
+          <div style="height:1px;background:#EBEBEB;margin:6px 4px"></div>
+          <button type="button" class="sw-item" aria-disabled="true" title="다중 브랜드 지원 범위 (미정)"
+            style="display:flex;width:100%;align-items:center;gap:8px;padding:8px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default;color:#B6B8BF;font-size:12px;font-weight:600">＋ 브랜드 추가 <span style="margin-left:auto;font-size:9.5px;font-weight:700;background:#F1F1F3;color:#9CA0A8;border-radius:9999px;padding:2px 7px">미정</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1c · 3축 내비 + 성숙도 배지 -->
+    <nav class="side-nav" aria-label="주요 메뉴">
+      <a href="1-home.html" class="on" aria-current="page">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        대시보드</a>
+      <a href="../01-report/1-input.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        진단 리포트 <span class="side-badge b-ok">이용 가능 ○</span></a>
+      <a href="../02-studio/1-home.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+        마케팅 스튜디오 <span class="side-badge b-warn">썸네일 우선 △</span></a>
+      <a href="#" aria-disabled="true" onclick="return false">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        운영 <span class="side-badge b-off">준비 중</span></a>
+    </nav>
+
+    <span class="side-gap"></span>
+
+    <!-- MAIN-02 · 브랜드 자산 요약 (KPI 위젯) -->
+    <div id="kpiWidget" class="side-kpi">
+      <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:.01em;color:rgba(55,56,60,0.61)">브랜드 자산</p>
+      <div class="k-row"><span style="color:#414245">진단 리포트</span><b><span class="tnum" data-count="2" id="kpiReport">0</span>건</b></div>
+      <div class="k-row"><span style="color:#414245">생성 썸네일</span><b><span class="tnum" data-count="0" id="kpiAsset">0</span>건</b></div>
+      <div class="k-row"><span style="color:#414245">최근 진단 점수</span><b><span class="tnum" data-count="18" id="kpiScore">0</span><span style="font-weight:600;color:#B6B8BF">/100</span></b></div>
+      <div class="k-row"><span style="color:#414245">다음 메가와리</span><b>D-<span class="tnum" data-count="43" id="kpiSeason">0</span><span style="font-weight:600;color:#B6B8BF"> · 9월</span></b></div>
+    </div>
+    <div id="kpiEmpty" class="side-kpi" style="display:none">
+      <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:rgba(55,56,60,0.61)">브랜드 자산</p>
+      <p style="margin:0;font-size:12px;line-height:1.6;color:#B6B8BF">아직 자산이 없습니다.<br>첫 진단에서 시작됩니다.</p>
+    </div>
+
+    <!-- MAIN-01d·1e · 품의 PDF + 계정 -->
+    <div class="side-foot">
+      <a id="pdfBtn" href="../01-report/3-report.html" class="hbtn hbtn-secondary" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;text-decoration:none;margin-bottom:10px">
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 12v6"/><path d="M9 15l3 3 3-3"/></svg>
+        품의용 PDF</a>
+      <div style="position:relative">
+        <button type="button" id="avBtn" aria-haspopup="menu" aria-expanded="false" aria-label="계정 메뉴"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:7px 8px;border:none;border-radius:10px;background:transparent;font-family:inherit;cursor:pointer;text-align:left" class="sw-item">
+          <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:12.5px;font-weight:700;color:#202124;line-height:1.25">박민정</span>
+            <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">minjeong@haruon.kr</span>
+          </span>
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+        </button>
+        <div id="avMenu" role="menu" class="sw-menu" style="display:none;position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+          <a href="../03-account/2-mypage.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">마이페이지</a>
+          <a href="../03-account/1-login.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">로그아웃</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 본문 -->
+  <div class="app-main">
+    <main style="animation:fadeUp .45s ease both">
+      <div style="max-width:960px;margin:0 auto;padding:0 32px 96px">
+
+        <!-- MAIN-07 · 로딩 스켈레톤 -->
+        <div id="skelView" style="display:none;padding-top:72px" aria-hidden="true">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+            <span class="skel" style="width:180px;height:28px;border-radius:9999px"></span>
+            <span class="skel" style="width:520px;max-width:100%;height:40px"></span>
+            <span class="skel" style="width:360px;max-width:80%;height:16px"></span>
+            <span class="skel" style="width:190px;height:48px;border-radius:12px;margin-top:8px"></span>
+          </div>
+          <div style="margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px" class="rwrap">
+            <span class="skel" style="height:180px;border-radius:16px"></span><span class="skel" style="height:180px;border-radius:16px"></span><span class="skel" style="height:180px;border-radius:16px"></span>
+          </div>
+        </div>
+
+        <!-- MAIN-08 · 로드 오류 -->
+        <div id="errView" style="display:none;margin-top:88px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:64px 32px;text-align:center;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <span aria-hidden="true" style="display:inline-flex;width:34px;height:34px;border-radius:50%;background:#FDF0EF;color:#C6362C;align-items:center;justify-content:center;font-size:16px;font-weight:800">✕</span>
+          <h2 style="margin:14px 0 0;font-size:18px;font-weight:800;color:#202124">대시보드를 불러오지 못했습니다</h2>
+          <p style="margin:8px 0 0;font-size:13px;color:rgba(55,56,60,0.61)">네트워크 상태를 확인한 뒤 다시 시도해 주세요.</p>
+          <button type="button" id="retryBtn" class="h-primary" style="display:inline-flex;margin-top:20px;height:40px;align-items:center;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer">다시 시도</button>
+        </div>
+
+        <!-- MAIN-06 · 첫 방문: 셋업 가이드 (중앙) -->
+        <div id="setupGuide" style="display:none;padding-top:64px">
+          <div style="max-width:640px;margin:0 auto">
+            <div style="text-align:center">
+              <span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 13px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.3);color:#D93636;font-size:12px;font-weight:700">시작하기</span>
+              <h1 class="hero-head" style="margin:16px 0 0">일본 진출, <b>3단계</b>로 시작하세요</h1>
+              <p style="margin:12px 0 0;font-size:14px;color:rgba(55,56,60,0.61)"><span id="guideCount" class="tnum" style="font-weight:700;color:#00875A">1/3 단계 완료</span> · 브랜드 프로필은 온보딩에서 등록을 마쳤습니다</p>
+            </div>
+            <div style="margin-top:28px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;padding:10px 24px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+              <ol style="margin:0;list-style:none">
+                <li style="display:flex;gap:14px;align-items:flex-start;padding:16px 0">
+                  <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:50%;background:#EAF9F3;color:#00875A;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">✓</span>
+                  <span style="flex:1;min-width:0"><span style="display:block;font-size:14.5px;font-weight:700;color:#202124;text-decoration:line-through;text-decoration-color:rgba(32,33,36,.35)">브랜드 프로필 등록</span><span style="display:block;margin-top:3px;font-size:12.5px;color:rgba(55,56,60,0.61)">브랜드·카테고리·채널 상정이 3축 전체에서 재사용됩니다.</span></span>
+                  <span style="flex:none;font-size:12px;font-weight:700;color:#00875A">완료 ○</span>
+                </li>
+                <li style="display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-top:1px solid #F1F1F3">
+                  <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:50%;background:#FFF8F8;border:1.5px solid #FF6464;color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800">2</span>
+                  <span style="flex:1;min-width:0"><span style="display:block;font-size:14.5px;font-weight:700;color:#202124">첫 진단 리포트 받기</span><span style="display:block;margin-top:3px;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">상세페이지·SNS 문구를 일본 고객 관점으로 진단합니다. 다음 단계가 여기서 열립니다.</span></span>
+                  <a href="../01-report/1-input.html" class="h-primary" style="flex:none;display:inline-flex;height:36px;align-items:center;padding:0 16px;border-radius:9px;background:#FF6464;color:#fff;font-size:13px;font-weight:700;text-decoration:none">진단 시작 →</a>
+                </li>
+                <li style="display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-top:1px solid #F1F1F3">
+                  <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:50%;background:#F1F1F3;color:#9CA0A8;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800">3</span>
+                  <span style="flex:1;min-width:0"><span style="display:block;font-size:14.5px;font-weight:700;color:#B6B8BF">첫 일본향 썸네일 만들기</span><span style="display:block;margin-top:3px;font-size:12.5px;color:#B6B8BF">진단 후 열립니다. 재설계된 문구가 썸네일 카피의 재료가 됩니다.</span></span>
+                </li>
+              </ol>
+            </div>
+            <p style="margin:16px 0 0;text-align:center;font-size:12.5px;color:rgba(55,56,60,0.61)">먼저 결과물을 보고 싶다면: <a href="../01-report/3-report.html">샘플 리포트 먼저 보기</a> <span style="color:#B6B8BF">(무료 범위 문안 미정 · v4)</span></p>
+          </div>
+        </div>
+
+        <!-- MAIN-03 · 다음 단계 히어로 (기본 상태) -->
+        <div id="heroDefault" style="display:none;padding-top:72px;text-align:center">
+          <span id="heroBadge" style="display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 13px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.3);color:#D93636;font-size:12px;font-weight:700">
+            <span aria-hidden="true" style="width:6px;height:6px;border-radius:50%;background:#FF6464"></span>하루온 · 다음 단계</span>
+          <h1 class="hero-head" style="margin:18px auto 0;max-width:640px">진단에서 재설계한 문구를<br><b>썸네일</b>로 만들 차례예요</h1>
+          <p style="margin:14px auto 0;max-width:520px;font-size:14.5px;line-height:1.7;color:#414245;text-wrap:pretty">CICA 진정 앰플 리포트의 Before/After 문구가 준비되어 있습니다. 일본 고객이 신뢰하는 썸네일 문법 8종 중 하나로 재설계됩니다.</p>
+          <div style="margin-top:26px;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap">
+            <a href="../02-studio/2-create.html" class="h-primary" style="display:inline-flex;height:48px;align-items:center;padding:0 26px;border-radius:12px;background:#FF6464;color:#fff;font-size:15px;font-weight:700;text-decoration:none">썸네일 만들기 →</a>
+            <a href="../01-report/3-report.html" class="hbtn hbtn-secondary" style="display:inline-flex;height:48px;align-items:center;padding:0 20px;border-radius:12px;font-size:14px;text-decoration:none">리포트 다시 보기</a>
+          </div>
+        </div>
+
+        <!-- MAIN-05b · 최근 자산 그리드 -->
+        <section id="recentSec" style="display:none;margin-top:64px">
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <h2 style="margin:0;font-size:16px;font-weight:800;letter-spacing:-0.01em;color:#202124">최근 자산</h2>
+            <span id="recentCount" class="tnum" style="font-size:12px;font-weight:600;color:rgba(55,56,60,0.61)"></span>
+            <span style="margin-left:auto;font-size:11.5px;color:#B6B8BF">전체 보기는 ③ 운영 자산 라이브러리 (추후 기획)</span>
+          </div>
+          <div id="recentGrid" style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px" class="rwrap"></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- MAIN-05a · 플로팅 진행 패널 -->
+<div id="jobPanel" class="job-panel" role="status" aria-live="polite" style="display:none">
+  <div style="display:flex;align-items:center;gap:9px;padding:12px 14px;border-bottom:1px solid #F1F1F3">
+    <span id="jobHeadIcon" aria-hidden="true" style="width:16px;height:16px;border-radius:50%;border:2px solid #FF6464;border-top-color:transparent;animation:spin 1s linear infinite;display:inline-block"></span>
+    <span id="jobHeadText" style="flex:1;font-size:13px;font-weight:700;color:#202124">생성 중 1건</span>
+    <button type="button" id="jobCollapse" aria-expanded="true" aria-label="진행 패널 접기"
+      style="width:26px;height:26px;border:none;border-radius:7px;background:transparent;color:#70737C;font-family:inherit;cursor:pointer" class="sw-item">
+      <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+  </div>
+  <div class="jp-body">
+    <div id="jobRow" style="display:flex;gap:11px;padding:13px 14px;align-items:center">
+      <span aria-hidden="true" style="flex:none;position:relative;width:40px;height:40px;border-radius:9px;overflow:hidden;background:linear-gradient(180deg,#ECEDF0,#E2E4E9)">
+        <span style="position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.75) 50%,transparent 80%);background-size:300px 100%;background-repeat:no-repeat;animation:shimmer 1.6s ease-in-out infinite"></span>
+      </span>
+      <span style="flex:1;min-width:0">
+        <span style="display:block;font-size:12.5px;font-weight:700;color:#202124;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">공식샵 신뢰 배지형 · 라쿠텐 공식샵</span>
+        <span id="jobStage" style="display:block;margin:3px 0 6px;font-size:11.5px;color:rgba(55,56,60,0.61)">대기 중</span>
+        <span class="jp-bar" style="display:block"><span id="jobFill" class="jp-fill" style="display:block"></span></span>
+      </span>
+    </div>
+    <div id="jobDone" style="display:none;padding:13px 14px">
+      <div style="display:flex;gap:11px;align-items:center">
+        <span aria-hidden="true" style="flex:none;width:40px;height:40px;border-radius:9px;background:#EAF9F3;color:#00875A;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:800">○</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:block;font-size:12.5px;font-weight:700;color:#202124">썸네일이 완성되었습니다</span>
+          <span style="display:block;margin-top:3px;font-size:11.5px;color:rgba(55,56,60,0.61)">검수 게이트 3항목 통과 · 최근 자산에 추가됨</span>
+        </span>
+        <a href="../02-studio/3-result.html" style="flex:none;display:inline-flex;height:30px;align-items:center;padding:0 11px;border-radius:8px;background:#FF6464;color:#fff;font-size:12px;font-weight:700;text-decoration:none">보러 가기 →</a>
+      </div>
+    </div>
+    <p style="margin:0;padding:0 14px 12px;font-size:11px;line-height:1.5;color:#B6B8BF">완료되면 여기와 스튜디오 홈에 표시됩니다. 다른 작업을 하셔도 됩니다.</p>
+  </div>
+</div>
+
+<!-- 토스트 (브랜드 전환 전용) -->
+<div id="toast" role="status" aria-live="polite" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:90;background:#202124;color:#fff;border-radius:12px;padding:12px 18px;box-shadow:0 8px 24px rgba(16,18,20,.24);animation:toastIn .3s ease both;max-width:360px">
+  <p id="toastTitle" style="margin:0;font-size:13px;font-weight:700"></p>
+  <p id="toastDesc" style="margin:3px 0 0;font-size:11.5px;color:rgba(255,255,255,.72)"></p>
+</div>
+
+<script>
+/**
+ * 메인(앱 홈) 로직 (MAIN-01~08) — 상태 전환 · 브랜드 스위처 · KPI 카운트업 ·
+ * 플로팅 진행 패널 시뮬레이션 · 토스트. 상태 소스: 검토용 스위처(강제) > 브랜드 컨텍스트.
+ */
+(function () {
+  var STAGES = ['원본 분석 중', '일본 고객 관점으로 카피 재설계 중', '프롬프트 조립 중', '썸네일 생성 중', '검수 게이트 확인 중'];
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var BRANDS = {
+    haruon:   { name: '하루온 HARUON', initial: '하', cat: '스킨케어 / <span lang="ja">スキンケア</span>', empty: false },
+    glowleaf: { name: '글로우리프',    initial: '글', cat: '스킨케어 / <span lang="ja">スキンケア</span>', empty: true }
+  };
+  var RECENTS = [
+    { kind: 'report',      name: 'CICA 진정 앰플 진단 리포트', axis: '① 리포트', date: '2026.07.16', href: '../01-report/3-report.html' },
+    { kind: 'reportBrand', name: '하루온 브랜드 진단 리포트',    axis: '① 리포트', date: '2026.07.11', href: '../01-report/3-report.html' }
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { view: 'default', brand: 'haruon', timer: null, counted: false, thumbDone: false, hideTimer: null };
+
+  // ── 프리뷰 CSS 목업 (전부 목업 — 실제 산출물 아님) ────
+  function previewHtml(kind) {
+    if (kind === 'thumb') {
+      // ② mockHtml('official') 이식 — 공식샵 신뢰 배지형
+      return '<span style="position:absolute;inset:0;background:linear-gradient(180deg,#BFD9F2,#EAF4FF)"></span>' +
+        '<span lang="ja" style="position:absolute;left:5%;top:7%;padding:2px 7px;border-radius:4px;background:#22304F;color:#fff;font-size:9.5px;font-weight:700">HARUON 公式ショップ</span>' +
+        '<span style="position:absolute;left:50%;top:26%;transform:translateX(-50%);width:13%;height:46%;border-radius:5px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE)"></span>' +
+        '<span style="position:absolute;left:50%;top:20%;transform:translateX(-50%);width:7%;height:7%;border-radius:3px;background:#E8A987"></span>' +
+        '<span style="position:absolute;left:0;right:0;bottom:0;height:20%;background:#22304F;display:flex;align-items:center;justify-content:center"><span lang="ja" style="color:#fff;font-size:10px;font-weight:700;letter-spacing:.02em">白浮きしない、透明感トーンアップUV</span></span>';
+    }
+    var score = kind === 'report';
+    // 리포트 표지 목업 — 코랄 eyebrow + 점수(브랜드 진단은 점수 없음) + 문서 라인
+    return '<span style="position:absolute;inset:0;background:#fff"></span>' +
+      '<span style="position:absolute;left:8%;top:12%;font-size:9px;font-weight:800;letter-spacing:.04em;color:#D93636">KGLOW 진단 리포트</span>' +
+      (score
+        ? '<span class="tnum" style="position:absolute;left:8%;top:26%;font-size:30px;font-weight:800;letter-spacing:-0.02em;color:#202124">18<span style="font-size:13px;font-weight:600;color:#B6B8BF">/100</span></span>'
+        : '<span style="position:absolute;left:8%;top:28%;font-size:13px;font-weight:800;color:#202124">브랜드 진단<span style="display:block;margin-top:3px;font-size:9.5px;font-weight:600;color:#B6B8BF">종합점수 없음 · brand 모드</span></span>') +
+      '<span style="position:absolute;left:8%;right:40%;top:62%;height:5px;border-radius:3px;background:#F1F1F3"></span>' +
+      '<span style="position:absolute;left:8%;right:26%;top:73%;height:5px;border-radius:3px;background:#F1F1F3"></span>' +
+      '<span style="position:absolute;left:8%;right:52%;top:84%;height:5px;border-radius:3px;background:#F1F1F3"></span>' +
+      '<span aria-hidden="true" style="position:absolute;right:8%;top:12%;width:22%;aspect-ratio:1/1;border-radius:50%;border:3px solid #FFE2E2;border-top-color:#FF6464;transform:rotate(45deg)"></span>';
+  }
+
+  // ── 최근 자산 그리드 (MAIN-05b) ───────────────────────
+  function renderRecents(animateFirst) {
+    var grid = $('recentGrid');
+    grid.innerHTML = '';
+    RECENTS.forEach(function (r, i) {
+      var a = document.createElement('a');
+      a.className = 'asset-card';
+      a.href = r.href;
+      if (animateFirst && i === 0) a.style.animation = 'tileIn .5s ease both';
+      a.setAttribute('aria-label', r.name + ' 열기');
+      a.innerHTML =
+        '<span style="display:block;position:relative;aspect-ratio:16/10;overflow:hidden;border-bottom:1px solid #F1F1F3">' + previewHtml(r.kind) + '</span>' +
+        '<span style="display:block;padding:11px 14px 13px">' +
+          '<span style="display:flex;align-items:center;gap:7px">' +
+            '<span style="display:inline-flex;height:19px;align-items:center;padding:0 7px;border-radius:9999px;background:' + (r.kind === 'thumb' ? '#FFF6E5;color:#B96C00' : '#FFF8F8;color:#D93636') + ';font-size:10px;font-weight:700">' + r.axis + '</span>' +
+            '<span class="tnum" style="margin-left:auto;font-size:11px;color:#B6B8BF">' + r.date + '</span>' +
+          '</span>' +
+          '<span style="display:block;margin-top:7px;font-size:13px;font-weight:700;color:#202124;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + r.name + '</span>' +
+        '</span>';
+      grid.appendChild(a);
+    });
+    $('recentCount').textContent = RECENTS.length + '건 · 최신순';
+  }
+
+  // ── KPI 카운트업 (MAIN-02) — reduced-motion 시 즉시 표시 ──
+  function countUp() {
+    ['kpiReport', 'kpiAsset', 'kpiScore', 'kpiSeason'].forEach(function (id) {
+      var el = $(id), target = parseInt(el.getAttribute('data-count'), 10);
+      if (REDUCED) { el.textContent = String(target); return; }
+      var t0 = null;
+      function tick(t) {
+        if (!t0) t0 = t;
+        var p = Math.min((t - t0) / 400, 1);
+        el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // ── 상태 렌더 ─────────────────────────────────────────
+  function show(id, on, disp) { $(id).style.display = on ? (disp || 'block') : 'none'; }
+  function render() {
+    var v = state.view;
+    var hasAssets = v === 'default' || v === 'generating';
+    show('skelView', v === 'loading');
+    show('errView', v === 'error');
+    show('setupGuide', v === 'first');
+    show('heroDefault', hasAssets);
+    show('recentSec', hasAssets && RECENTS.length > 0);
+    show('kpiWidget', v !== 'first');
+    show('kpiEmpty', v === 'first');
+    $('pdfBtn').style.display = hasAssets ? 'flex' : 'none';
+    if (v !== 'generating') hideJobPanel();
+    if (hasAssets && !state.counted) { state.counted = true; countUp(); }
+  }
+
+  // ── 플로팅 진행 패널 (MAIN-05a) ───────────────────────
+  function hideJobPanel() { clearTimeout(state.hideTimer); $('jobPanel').style.display = 'none'; }
+  function runJob() {
+    clearInterval(state.timer);
+    clearTimeout(state.hideTimer);
+    state.view = 'generating';
+    render();
+    var panel = $('jobPanel');
+    panel.style.display = 'block';
+    panel.setAttribute('data-collapsed', 'false');
+    $('jobCollapse').setAttribute('aria-expanded', 'true');
+    show('jobRow', true, 'flex');
+    show('jobDone', false);
+    $('jobHeadIcon').style.display = 'inline-block';
+    $('jobHeadText').textContent = '생성 중 1건';
+    var i = 0;
+    $('jobStage').textContent = STAGES[0];
+    $('jobFill').style.transform = 'scaleX(' + (1 / STAGES.length) + ')';
+    state.timer = setInterval(function () {
+      i += 1;
+      if (i >= STAGES.length) {
+        clearInterval(state.timer);
+        state.view = 'default';
+        if (!state.thumbDone) {
+          state.thumbDone = true;
+          RECENTS.unshift({ kind: 'thumb', name: '공식샵 신뢰 배지형 썸네일', axis: '② 스튜디오', date: '방금 전', href: '../02-studio/3-result.html' });
+          $('kpiAsset').setAttribute('data-count', '1');
+        }
+        state.counted = false;
+        render();
+        renderRecents(true);
+        // 완료는 패널에 통합 — 진행 행이 완료 행으로 바뀌고 잠시 뒤 자동 소멸
+        $('jobPanel').style.display = 'block';
+        show('jobRow', false);
+        show('jobDone', true);
+        $('jobHeadIcon').style.display = 'none';
+        $('jobHeadText').textContent = '완료 1건';
+        state.hideTimer = setTimeout(hideJobPanel, 8000);
+      } else {
+        $('jobStage').textContent = STAGES[i];
+        $('jobFill').style.transform = 'scaleX(' + ((i + 1) / STAGES.length) + ')';
+      }
+    }, 1400);
+  }
+  $('jobCollapse').onclick = function () {
+    var panel = $('jobPanel');
+    var collapsed = panel.getAttribute('data-collapsed') === 'true';
+    panel.setAttribute('data-collapsed', String(!collapsed));
+    this.setAttribute('aria-expanded', String(collapsed));
+    this.setAttribute('aria-label', collapsed ? '진행 패널 접기' : '진행 패널 펼치기');
+  };
+
+  // ── 토스트 (브랜드 전환 전용) ─────────────────────────
+  var toastTimer = null;
+  function toast(title, desc) {
+    $('toastTitle').textContent = title;
+    $('toastDesc').textContent = desc;
+    $('toast').style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('toast').style.display = 'none'; }, 4000);
+  }
+
+  // ── 브랜드 스위처 (MAIN-01b) ──────────────────────────
+  function setMenu(open) {
+    $('swBtn').setAttribute('aria-expanded', String(open));
+    $('swMenu').style.display = open ? 'block' : 'none';
+  }
+  function closeMenus() {
+    setMenu(false);
+    $('avBtn').setAttribute('aria-expanded', 'false');
+    $('avMenu').style.display = 'none';
+  }
+  $('swBtn').onclick = function (e) { e.stopPropagation(); setMenu($('swBtn').getAttribute('aria-expanded') !== 'true'); };
+  document.querySelectorAll('.sw-item[data-brand]').forEach(function (b) {
+    b.onclick = function (e) {
+      e.stopPropagation();
+      var key = b.getAttribute('data-brand');
+      setMenu(false);
+      if (key === state.brand) return;
+      state.brand = key;
+      var br = BRANDS[key];
+      $('swName').textContent = br.name;
+      $('swInitial').textContent = br.initial;
+      $('heroBadge').childNodes[1].textContent = br.name.split(' ')[0] + ' · 다음 단계';
+      document.querySelectorAll('.sw-item[data-brand]').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+      document.querySelectorAll('.sw-check').forEach(function (c) { c.style.display = c.getAttribute('data-brand-check') === key ? 'inline' : 'none'; });
+      clearInterval(state.timer);
+      state.view = br.empty ? 'first' : 'default';
+      state.counted = false;
+      render();
+      toast(br.name + '(으)로 전환했습니다', '브랜드 컨텍스트가 3축 전체에 적용됩니다.');
+    };
+  });
+  // 계정 메뉴 (MAIN-01e)
+  $('avBtn').onclick = function (e) {
+    e.stopPropagation();
+    var open = $('avBtn').getAttribute('aria-expanded') !== 'true';
+    $('avBtn').setAttribute('aria-expanded', String(open));
+    $('avMenu').style.display = open ? 'block' : 'none';
+  };
+  document.addEventListener('click', closeMenus);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenus(); });
+
+  // ── 검토용 상태 스위처 (MAIN-09 — 제품 UI 아님) ───────
+  document.querySelectorAll('.st-btn').forEach(function (b) {
+    b.onclick = function () {
+      var st = b.getAttribute('data-st');
+      clearInterval(state.timer);
+      if (st === 'generating') { runJob(); return; }
+      state.view = st;
+      if (st === 'default') state.counted = false;
+      render();
+    };
+  });
+
+  // ── 오류 → 다시 시도 (MAIN-08) ────────────────────────
+  $('retryBtn').onclick = function () {
+    state.view = 'loading';
+    render();
+    setTimeout(function () { state.view = 'default'; state.counted = false; render(); }, 900);
+  };
+
+  renderRecents(false);
+  render();
+})();
+</script>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+</body>
+</html>

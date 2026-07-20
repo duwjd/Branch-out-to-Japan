@@ -165,3 +165,81 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   box-shadow: var(--card-shadow); transition: border-color .15s, transform .15s;
 }
 .flow-node:hover { border-color: var(--coral); transform: translateY(-2px); text-decoration: none; }
+
+/* ════════════════════════════════════════════════════════════════════
+   앱 셸 확장(공용) — 사이드바·브랜드 스위처·성숙도 배지·KPI 위젯
+   ⓪·①·②의 "앱 화면"이 공유하는 셸이다. 이 블록은 01-report/02-studio
+   wireframe.css 맨 아래에도 동일하게 복제한다(폴더 자족 관례).
+   ※ index.html(플로우 맵)은 문서 페이지라 기존 .app-header를 계속 쓴다.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root { --shadow-2: 0 12px 32px rgba(16, 18, 20, .10); }
+
+/* 드롭다운 열림 — motion-fast(150ms) · ease-standard */
+@keyframes dropIn { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: translateY(0); } }
+
+/* 셸: 좌측 고정 사이드바 + 본문(상단 중앙 코랄 글로우 1개) */
+.app-shell { display: flex; min-height: 100vh; align-items: stretch; }
+.app-side {
+  width: 248px; flex: 0 0 248px;
+  background: var(--canvas); border-right: 1px solid var(--hairline);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+  padding: 18px 14px 14px;
+}
+.app-main {
+  flex: 1; min-width: 0;
+  background-color: var(--page);
+  background-image: radial-gradient(1100px 420px at 50% -80px, rgba(255, 100, 100, .05), transparent);
+  background-repeat: no-repeat;
+}
+.side-gap { flex: 1; }
+
+/* 사이드바 내비 — 현재 축만 코랄 틴트, 비활성(준비 중)은 잉크 최저 */
+.side-nav { display: flex; flex-direction: column; gap: 2px; margin-top: 16px; }
+.side-nav a {
+  display: flex; align-items: center; gap: 10px;
+  height: 42px; padding: 0 12px; border-radius: 10px;
+  color: var(--ink-body); font-size: 13.5px; font-weight: 600; text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.side-nav a svg { flex: none; color: var(--ink-mute); transition: color .15s; }
+.side-nav a:hover { background: var(--n-100); color: var(--ink); text-decoration: none; }
+.side-nav a:hover svg { color: var(--ink); }
+.side-nav a.on { background: var(--coral-tint); color: var(--coral-strong); font-weight: 700; }
+.side-nav a.on svg { color: var(--coral-strong); }
+.side-nav a[aria-disabled="true"], .side-nav a[aria-disabled="true"]:hover { background: transparent; color: var(--ink-faint); cursor: default; }
+.side-nav a[aria-disabled="true"] svg { color: var(--ink-faint); }
+
+/* 성숙도 배지 (색+글자+기호 3중 표기와 함께만) */
+.side-badge { margin-left: auto; display: inline-flex; align-items: center; height: 19px; padding: 0 7px; border-radius: 9999px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.side-badge.b-ok { background: var(--green-bg); color: var(--green-text); }
+.side-badge.b-warn { background: var(--amber-bg); color: var(--amber-text); }
+.side-badge.b-off { background: var(--n-150); color: #9ca0a8; }
+
+/* 브랜드 프로필 스위처 — 사이드바 전폭 버튼 + listbox 드롭다운 */
+.sw-btn { transition: border-color .15s, background .15s; }
+.sw-btn:hover { border-color: var(--coral) !important; }
+.sw-btn[aria-expanded="true"] { border-color: var(--coral) !important; background: var(--coral-tint) !important; }
+.sw-menu { animation: dropIn .15s cubic-bezier(0.4, 0, 0.2, 1) both; box-shadow: var(--shadow-2); }
+.sw-item { transition: background .15s; }
+.sw-item:hover { background: var(--n-50) !important; }
+.sw-item[aria-disabled="true"]:hover { background: transparent !important; }
+
+/* KPI 위젯 (사이드바 하단) */
+.side-kpi { background: var(--n-50); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px 14px; }
+.side-kpi .k-row { display: flex; align-items: baseline; justify-content: space-between; padding: 4px 0; font-size: 12px; }
+.side-kpi .k-row b { font-size: 13px; font-weight: 700; color: var(--ink); }
+
+/* 사이드바 하단 고정(품의 PDF·계정) */
+.side-foot { border-top: 1px solid var(--hairline); margin-top: 12px; padding-top: 12px; }
+
+/* 로딩 스켈레톤 — 치수를 유지한 채 pulse */
+.skel { background: var(--n-150); border-radius: 8px; animation: pulse 1.6s ease-in-out infinite; }
+
+/* 반응형: 좁은 화면에서 사이드바 → 상단 블록 */
+@media (max-width: 980px) {
+  .app-shell { flex-direction: column; }
+  .app-side { width: auto; flex: none; position: static; height: auto; border-right: none; border-bottom: 1px solid var(--hairline); }
+  .side-gap { display: none; }
+}

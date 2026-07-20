@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>계정 · 마이페이지</title>
+<!--
+  비배포 · 기획 검토용 인터랙티브 프로토타입 (⓪ 사이드바 셸 재사용).
+  정본: 03-account-ui-기획서.md # 2. 마이페이지 (MYPAGE-00~09)
+  구독 플랜 정본: ../03-구독플랜-재구성-제안.md (FREE / Report 30만·1회 /
+  Growth 월 20만 / Scale 월 80만). 결제 연동·구독 엔티티는 미구현 —
+  결제 수단·결제 내역·플랜 변경은 전부 목업이며 실데이터·실결제가 아니다.
+  데모 서사: 하루온(박민정) — 07.10 Report 30만 결제 → 07.16 Growth 구독 시작.
+  검토 스트립의 상태 스위처(기본/무료/결제 실패/로딩)는 프로토타입 검토 전용.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<!-- 프로토타입 검토 스트립 + 데모 상태 스위처 -->
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">계정 · 프로토타입</span>
+    <a href="index.html">플로우</a>
+    <a href="1-login.html">로그인</a>
+    <a href="2-mypage.html" class="on">마이페이지</a>
+    <a href="03-account-ui-기획서.md">기획서 ↗</a>
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
+      <span>상태(검토용):</span>
+      <button type="button" class="st-btn" data-st="default" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">기본</button>
+      <button type="button" class="st-btn" data-st="free" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">무료</button>
+      <button type="button" class="st-btn" data-st="failed" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">결제 실패</button>
+      <button type="button" class="st-btn" data-st="loading" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">로딩</button>
+    </span>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- ⓪ MAIN-01 · 전역 내비(사이드바) — 마이페이지는 3축 내비 하이라이트 없음 -->
+  <aside class="app-side" aria-label="전역 내비게이션">
+    <div id="swWrap">
+      <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+
+      <div style="position:relative">
+        <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
+          <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#B96C00">하</span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:13px;font-weight:700;color:#202124;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">하루온 HARUON</span>
+            <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">스킨케어 / <span lang="ja">スキンケア</span></span>
+          </span>
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="swMenu" role="listbox" aria-label="브랜드 프로필 전환" class="sw-menu"
+          style="display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+          <button type="button" class="sw-item" role="option" aria-selected="true"
+            style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer">
+            <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#B96C00">하</span>
+            <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#202124">하루온 HARUON</span><span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61)">리포트 2 · 썸네일 0</span></span>
+            <span style="color:#00875A;font-size:13px;font-weight:800">✓</span>
+          </button>
+          <button type="button" class="sw-item" role="option" aria-selected="false"
+            style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer">
+            <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#E2F3E9,#BFE3CE);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#00875A">글</span>
+            <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#202124">글로우리프</span><span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61)">아직 자산 없음</span></span>
+          </button>
+          <div style="height:1px;background:#EBEBEB;margin:6px 4px"></div>
+          <button type="button" class="sw-item" aria-disabled="true" title="다중 브랜드 지원 범위 (미정)"
+            style="display:flex;width:100%;align-items:center;gap:8px;padding:8px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default;color:#B6B8BF;font-size:12px;font-weight:600">＋ 브랜드 추가 <span style="margin-left:auto;font-size:9.5px;font-weight:700;background:#F1F1F3;color:#9CA0A8;border-radius:9999px;padding:2px 7px">미정</span></button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="side-nav" aria-label="주요 메뉴">
+      <a href="../00-main/1-home.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        대시보드</a>
+      <a href="../01-report/1-input.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        진단 리포트 <span class="side-badge b-ok">이용 가능 ○</span></a>
+      <a href="../02-studio/1-home.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+        마케팅 스튜디오 <span class="side-badge b-warn">썸네일 우선 △</span></a>
+      <a href="#" aria-disabled="true" onclick="return false">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        운영 <span class="side-badge b-off">준비 중</span></a>
+    </nav>
+
+    <span class="side-gap"></span>
+
+    <div class="side-kpi">
+      <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:.01em;color:rgba(55,56,60,0.61)">브랜드 자산</p>
+      <div class="k-row"><span style="color:#414245">진단 리포트</span><b><span class="tnum">2</span>건</b></div>
+      <div class="k-row"><span style="color:#414245">생성 썸네일</span><b><span class="tnum">0</span>건</b></div>
+      <div class="k-row"><span style="color:#414245">최근 진단 점수</span><b><span class="tnum">18</span><span style="font-weight:600;color:#B6B8BF">/100</span></b></div>
+      <div class="k-row"><span style="color:#414245">다음 메가와리</span><b>D-<span class="tnum">43</span><span style="font-weight:600;color:#B6B8BF"> · 9월</span></b></div>
+    </div>
+
+    <div class="side-foot">
+      <a href="../01-report/3-report.html" class="hbtn hbtn-secondary" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;text-decoration:none;margin-bottom:10px">
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 12v6"/><path d="M9 15l3 3 3-3"/></svg>
+        품의용 PDF</a>
+      <div style="position:relative">
+        <button type="button" id="avBtn" aria-haspopup="menu" aria-expanded="false" aria-label="계정 메뉴"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:7px 8px;border:none;border-radius:10px;background:#FFF8F8;font-family:inherit;cursor:pointer;text-align:left" class="sw-item">
+          <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:12.5px;font-weight:700;color:#202124;line-height:1.25">박민정</span>
+            <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">minjeong@haruon.kr</span>
+          </span>
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+        </button>
+        <div id="avMenu" role="menu" class="sw-menu" style="display:none;position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+          <a href="2-mypage.html" class="sw-item" role="menuitem" aria-current="page" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;background:#FFF8F8;color:#D93636;font-size:12.5px;font-weight:700;text-decoration:none">마이페이지</a>
+          <a href="1-login.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">로그아웃</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 본문 -->
+  <div class="app-main">
+    <main style="animation:fadeUp .45s ease both">
+      <div style="max-width:720px;margin:0 auto;padding:40px 32px 96px">
+
+        <!-- MYPAGE-01 · 페이지 헤더 -->
+        <h1 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#202124">마이페이지</h1>
+        <p style="margin:6px 0 0;font-size:13px;color:rgba(55,56,60,0.61)">계정과 구독 플랜, 결제 정보를 확인합니다.</p>
+
+        <!-- MYPAGE-08 · 로딩 스켈레톤 (섹션 치수 유지) -->
+        <div id="skelView" style="display:none;margin-top:24px" aria-hidden="true">
+          <span class="skel" style="display:block;height:96px;border-radius:16px"></span>
+          <span class="skel" style="display:block;height:120px;border-radius:16px;margin-top:16px"></span>
+          <span class="skel" style="display:block;height:280px;border-radius:16px;margin-top:32px"></span>
+          <span class="skel" style="display:block;height:200px;border-radius:16px;margin-top:32px"></span>
+        </div>
+
+        <div id="contentView">
+
+          <!-- MYPAGE-02 · 계정 정보 -->
+          <section aria-labelledby="accTitle" style="margin-top:24px">
+            <h2 id="accTitle" class="visually-hidden">계정 정보</h2>
+            <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+              <span aria-hidden="true" style="flex:none;width:48px;height:48px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:18px;font-weight:800">박</span>
+              <span style="flex:1;min-width:180px">
+                <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                  <span style="font-size:16px;font-weight:800;color:#202124">박민정</span>
+                  <span style="display:inline-flex;align-items:center;gap:5px;height:21px;padding:0 8px;border-radius:9999px;background:#FEE500;color:#191919;font-size:10.5px;font-weight:700">
+                    <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24"><path fill="#191919" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.8 1.86 5.26 4.66 6.65-.15.52-.96 3.32-.99 3.54 0 0-.02.17.09.23.11.07.24.02.24.02.32-.04 3.63-2.37 4.2-2.77.58.08 1.18.13 1.8.13 5.52 0 10-3.54 10-7.9S17.52 3 12 3z"/></svg>
+                    카카오 연결됨</span>
+                </span>
+                <span style="display:block;margin-top:3px;font-size:12.5px;color:rgba(55,56,60,0.61)">minjeong@haruon.kr</span>
+              </span>
+              <span class="tnum" style="flex:none;font-size:12px;color:#B6B8BF">2026.07.10 가입</span>
+            </div>
+            <p style="margin:8px 0 0;font-size:11.5px;color:#B6B8BF">이름·이메일은 연결된 소셜 계정에서 가져옵니다. 별명 편집은 추후 기획.</p>
+          </section>
+
+          <!-- MYPAGE-03 · 구독 플랜 카드 -->
+          <section aria-labelledby="planTitle" style="margin-top:28px">
+            <h2 id="planTitle" style="margin:0 0 10px;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">구독 플랜</h2>
+
+            <!-- 3a · 유료 구독 중 (기본) -->
+            <div id="planDefault" style="display:none;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;box-shadow:0 1px 3px rgba(16,18,20,.04);overflow:hidden">
+              <!-- 3c · 결제 실패 배너 (결제 실패 상태에서만) -->
+              <div id="payFailBanner" role="status" style="display:none;background:#FFF6E5;border-bottom:1px solid rgba(255,171,0,.4);color:#B96C00;padding:11px 20px;font-size:12.5px;line-height:1.55">
+                <b>결제에 실패했습니다 △</b> — 결제 수단을 확인해 주세요.
+                <button type="button" aria-disabled="true" title="결제 연동 미구현 (미정)" style="margin-left:8px;height:24px;padding:0 10px;border:1px solid rgba(185,108,0,.4);border-radius:7px;background:transparent;color:#B96C00;font-size:11.5px;font-weight:700;font-family:inherit;cursor:default;opacity:.7">결제 수단 변경</button>
+              </div>
+              <div style="padding:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                <span style="flex:1;min-width:200px">
+                  <span style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap">
+                    <span style="font-size:20px;font-weight:800;letter-spacing:-0.01em;color:#202124">Growth</span>
+                    <span class="tnum" style="font-size:13.5px;font-weight:700;color:#414245">월 ₩200,000</span>
+                    <span id="planStatusOk" style="display:inline-flex;align-items:center;height:21px;padding:0 8px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:11px;font-weight:700">이용 중 ○</span>
+                    <span id="planStatusWarn" style="display:none;align-items:center;height:21px;padding:0 8px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11px;font-weight:700">이용 중 · 결제 확인 필요 △</span>
+                  </span>
+                  <span class="tnum" style="display:block;margin-top:6px;font-size:12.5px;color:rgba(55,56,60,0.61)">다음 결제일 2026.08.16 · 월간 결제 · 2026.07.16 시작</span>
+                </span>
+                <button type="button" id="planMoveBtn" class="hbtn hbtn-secondary" style="flex:none">플랜 변경</button>
+              </div>
+            </div>
+
+            <!-- 3b · 무료 (FREE) -->
+            <div id="planFree" style="display:none;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                <span style="flex:1;min-width:200px">
+                  <span style="display:flex;align-items:baseline;gap:9px">
+                    <span style="font-size:20px;font-weight:800;letter-spacing:-0.01em;color:#202124">FREE</span>
+                    <span style="font-size:13.5px;font-weight:700;color:#414245">무료</span>
+                  </span>
+                  <span style="display:block;margin-top:6px;font-size:12.5px;color:rgba(55,56,60,0.61)">약기법 간이 체커만 이용 중입니다.</span>
+                </span>
+                <button type="button" id="planExploreBtn" class="h-primary" style="flex:none;display:inline-flex;height:36px;align-items:center;padding:0 16px;border:none;border-radius:9px;background:#FF6464;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">플랜 살펴보기</button>
+              </div>
+            </div>
+            <p style="margin:8px 0 0;font-size:11.5px;color:#B6B8BF">해지·환불 동선은 커머셜 정책 확정 후 기획 (미정). 1회 상품(Report) 구매 이력은 결제 내역에 표시됩니다.</p>
+          </section>
+
+          <!-- MYPAGE-04 · 플랜 비교·변경 -->
+          <section aria-labelledby="plansTitle" style="margin-top:32px">
+            <div style="display:flex;align-items:baseline;gap:10px">
+              <h2 id="plansTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">플랜 비교</h2>
+              <span style="font-size:11.5px;color:#B6B8BF">정본: 03-구독플랜-재구성-제안</span>
+            </div>
+            <div id="planGrid" class="rwrap" style="margin-top:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+
+              <!-- FREE -->
+              <div class="plan-card" id="cardFree" style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;flex-direction:column;gap:10px">
+                <span style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:15px;font-weight:800;color:#202124">FREE</span>
+                  <span id="fCurrent" style="display:none;align-items:center;height:20px;padding:0 8px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.3);color:#D93636;font-size:10.5px;font-weight:700">현재 플랜</span>
+                </span>
+                <span style="font-size:16px;font-weight:800;color:#202124">무료</span>
+                <ul style="margin:0;padding:0;list-style:none;font-size:12px;line-height:1.7;color:#414245">
+                  <li>· 약기법 간이 체커</li>
+                  <li>· 샘플 리포트 열람</li>
+                </ul>
+                <span style="margin-top:auto;font-size:11.5px;color:#B6B8BF">기본 제공</span>
+              </div>
+
+              <!-- Report (1회 상품) -->
+              <div class="plan-card" style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;flex-direction:column;gap:10px">
+                <span style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:15px;font-weight:800;color:#202124">Report</span>
+                  <span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:10.5px;font-weight:700">1회 상품</span>
+                </span>
+                <span class="tnum" style="font-size:16px;font-weight:800;color:#202124">₩300,000 <span style="font-size:11.5px;font-weight:600;color:#B6B8BF">/ 1회</span></span>
+                <ul style="margin:0;padding:0;list-style:none;font-size:12px;line-height:1.7;color:#414245">
+                  <li>· 진단 리포트 전체 (페르소나·USP)</li>
+                  <li>· 리뷰 축적 병목 진단·설계</li>
+                  <li>· 약기법 실명 감사</li>
+                  <li>· Before&amp;After 실물 (썸네일 1·상세 1)</li>
+                </ul>
+                <a href="../01-report/1-input.html" class="hbtn hbtn-secondary" style="margin-top:auto;display:inline-flex;align-items:center;justify-content:center;text-decoration:none">진단 신청 →</a>
+              </div>
+
+              <!-- Growth -->
+              <div class="plan-card" id="cardGrowth" style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;flex-direction:column;gap:10px">
+                <span style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:15px;font-weight:800;color:#202124">Growth</span>
+                  <span id="gCurrent" style="display:none;align-items:center;height:20px;padding:0 8px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.3);color:#D93636;font-size:10.5px;font-weight:700">현재 플랜</span>
+                </span>
+                <span class="tnum" style="font-size:16px;font-weight:800;color:#202124">월 ₩200,000</span>
+                <ul style="margin:0;padding:0;list-style:none;font-size:12px;line-height:1.7;color:#414245">
+                  <li>· Report 전체 포함</li>
+                  <li>· 썸네일·피드 월 15~30건 + 상세 재설계 분기 1건</li>
+                  <li>· 리뷰 축적 운영 키트 <span style="color:#B6B8BF">(실비 별도)</span></li>
+                  <li>· 첫 4주 성과 확인 리포트</li>
+                </ul>
+                <button type="button" id="gCta" class="js-plan-cta h-primary" data-to="Growth" style="display:none;margin-top:auto;height:34px;border:none;border-radius:8px;background:#FF6464;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">이 플랜으로 변경</button>
+              </div>
+
+              <!-- Scale -->
+              <div class="plan-card" style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;flex-direction:column;gap:10px">
+                <span style="font-size:15px;font-weight:800;color:#202124">Scale</span>
+                <span class="tnum" style="font-size:16px;font-weight:800;color:#202124">월 ₩800,000</span>
+                <ul style="margin:0;padding:0;list-style:none;font-size:12px;line-height:1.7;color:#414245">
+                  <li>· Growth 전체 포함</li>
+                  <li>· 약기법 상시 모니터링</li>
+                  <li>· 일본 기업 매칭 · 복수 채널·대량 볼륨 <span style="color:#B6B8BF">(실비 별도)</span></li>
+                  <li>· 전담 검수자 · 월 리뷰 미팅</li>
+                </ul>
+                <button type="button" class="js-plan-cta hbtn hbtn-secondary" data-to="Scale" style="margin-top:auto">이 플랜으로 변경</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- MYPAGE-05 · 결제 수단·결제 내역 -->
+          <section aria-labelledby="payTitle" style="margin-top:32px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <h2 id="payTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">결제</h2>
+              <span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:10.5px;font-weight:700">목업 — 커머셜 연동 (미정)</span>
+            </div>
+
+            <div style="margin-top:12px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;box-shadow:0 1px 3px rgba(16,18,20,.04);overflow:hidden">
+              <!-- 5a · 결제 수단 -->
+              <div style="padding:16px 20px;border-bottom:1px solid #F1F1F3;display:flex;align-items:center;gap:12px">
+                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                <span id="payMethod" class="tnum" style="flex:1;font-size:13px;font-weight:600;color:#202124">신한카드 •••• 4821</span>
+                <span id="payMethodEmpty" style="display:none;flex:1;font-size:13px;color:rgba(55,56,60,0.61)">등록된 결제 수단이 없습니다.</span>
+                <button type="button" aria-disabled="true" title="PG 연동 미구현 (미정)" class="hbtn hbtn-secondary" style="opacity:.55;cursor:default">변경</button>
+              </div>
+              <!-- 5b · 결제 내역 -->
+              <div id="payTableWrap" style="overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse;min-width:560px;font-size:12.5px">
+                  <thead>
+                    <tr style="background:#FAFAFB;text-align:left;color:rgba(55,56,60,0.61)">
+                      <th scope="col" style="padding:10px 20px;font-weight:700">결제일</th>
+                      <th scope="col" style="padding:10px 12px;font-weight:700">항목</th>
+                      <th scope="col" style="padding:10px 12px;font-weight:700;text-align:right">금액</th>
+                      <th scope="col" style="padding:10px 12px;font-weight:700">상태</th>
+                      <th scope="col" style="padding:10px 20px 10px 12px;font-weight:700">영수증</th>
+                    </tr>
+                  </thead>
+                  <tbody style="color:#414245">
+                    <tr id="payRowFail" style="display:none;border-top:1px solid #ECECEF">
+                      <td class="tnum" style="padding:11px 20px">2026.08.16</td>
+                      <td style="padding:11px 12px">Growth 구독 (월)</td>
+                      <td class="tnum" style="padding:11px 12px;text-align:right">₩200,000</td>
+                      <td style="padding:11px 12px"><span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:10.5px;font-weight:700">실패 ✕</span></td>
+                      <td style="padding:11px 20px 11px 12px;color:#B6B8BF">—</td>
+                    </tr>
+                    <tr style="border-top:1px solid #ECECEF">
+                      <td class="tnum" style="padding:11px 20px">2026.07.16</td>
+                      <td style="padding:11px 12px">Growth 구독 (월)</td>
+                      <td class="tnum" style="padding:11px 12px;text-align:right">₩200,000</td>
+                      <td style="padding:11px 12px"><span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:10.5px;font-weight:700">완료 ○</span></td>
+                      <td style="padding:11px 20px 11px 12px"><a href="#" aria-disabled="true" onclick="return false" title="영수증 (미정)" style="color:#B6B8BF">보기</a></td>
+                    </tr>
+                    <tr style="border-top:1px solid #ECECEF">
+                      <td class="tnum" style="padding:11px 20px">2026.07.10</td>
+                      <td style="padding:11px 12px">진단 리포트 (1회)</td>
+                      <td class="tnum" style="padding:11px 12px;text-align:right">₩300,000</td>
+                      <td style="padding:11px 12px"><span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:10.5px;font-weight:700">완료 ○</span></td>
+                      <td style="padding:11px 20px 11px 12px"><a href="#" aria-disabled="true" onclick="return false" title="영수증 (미정)" style="color:#B6B8BF">보기</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p id="payEmpty" style="display:none;margin:0;padding:18px 20px;font-size:12.5px;color:rgba(55,56,60,0.61)">결제 내역이 없습니다.</p>
+            </div>
+          </section>
+
+          <!-- MYPAGE-06 · 브랜드 프로필 -->
+          <section aria-labelledby="brandTitle" style="margin-top:32px">
+            <div style="display:flex;align-items:baseline;gap:10px">
+              <h2 id="brandTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">브랜드 프로필</h2>
+              <span style="font-size:11.5px;color:#B6B8BF">온보딩에서 등록 · 여기서는 조회만</span>
+            </div>
+            <div style="margin-top:12px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;box-shadow:0 1px 3px rgba(16,18,20,.04);overflow:hidden">
+              <div style="padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #F1F1F3">
+                <span aria-hidden="true" style="flex:none;width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#B96C00">하</span>
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font-size:13px;font-weight:700;color:#202124">하루온 HARUON</span>
+                  <span style="display:block;font-size:11.5px;color:rgba(55,56,60,0.61)">스킨케어 / <span lang="ja">スキンケア</span> · 리포트 2 · 썸네일 0</span>
+                </span>
+                <button type="button" aria-disabled="true" title="프로필 편집 화면 미설계 (추후 기획)" class="hbtn hbtn-secondary" style="opacity:.55;cursor:default">수정</button>
+              </div>
+              <div style="padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #F1F1F3">
+                <span aria-hidden="true" style="flex:none;width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#E2F3E9,#BFE3CE);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#00875A">글</span>
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font-size:13px;font-weight:700;color:#202124">글로우리프</span>
+                  <span style="display:block;font-size:11.5px;color:rgba(55,56,60,0.61)">스킨케어 / <span lang="ja">スキンケア</span> · 아직 자산 없음</span>
+                </span>
+                <button type="button" aria-disabled="true" title="프로필 편집 화면 미설계 (추후 기획)" class="hbtn hbtn-secondary" style="opacity:.55;cursor:default">수정</button>
+              </div>
+              <div style="padding:12px 20px">
+                <button type="button" aria-disabled="true" title="다중 브랜드 지원 범위 (미정)" style="border:none;background:transparent;color:#B6B8BF;font-size:12.5px;font-weight:600;font-family:inherit;cursor:default;padding:0">＋ 브랜드 추가 <span style="font-size:9.5px;font-weight:700;background:#F1F1F3;color:#9CA0A8;border-radius:9999px;padding:2px 7px;margin-left:4px">미정</span></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- MYPAGE-07 · 계정 관리 (위험 액션 — 분리 배치) -->
+          <section aria-labelledby="dangerTitle" style="margin-top:44px;border-top:1px solid #EBEBEB;padding-top:20px">
+            <h2 id="dangerTitle" style="margin:0;font-size:13px;font-weight:700;color:rgba(55,56,60,0.61)">계정 관리</h2>
+            <div style="margin-top:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <a href="1-login.html" class="hbtn hbtn-secondary" style="display:inline-flex;align-items:center;text-decoration:none">로그아웃</a>
+              <button type="button" id="withdrawBtn" class="h-danger-link" style="border:none;background:transparent;color:#C6362C;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;padding:0">회원 탈퇴</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- MYPAGE-04a · 플랜 변경 확인 모달 -->
+<div id="planModal" class="modal-backdrop" style="display:none">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="planModalTitle">
+    <div id="planModalConfirm">
+      <h3 id="planModalTitle" style="margin:0;font-size:16px;font-weight:800;color:#202124"><span id="planFrom">Growth</span> → <span id="planTo">Scale</span> 플랜으로 변경합니다</h3>
+      <p style="margin:10px 0 0;font-size:13px;line-height:1.65;color:#414245">다음 결제일부터 변경된 금액이 청구됩니다. 실비(기프팅·인플루언서 사례비)는 플랜과 별개로 브랜드 부담입니다.</p>
+      <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:8px">
+        <button type="button" class="js-modal-close hbtn hbtn-secondary">취소</button>
+        <button type="button" id="planConfirmBtn" class="h-primary" style="height:34px;padding:0 16px;border:none;border-radius:8px;background:#FF6464;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">변경하기</button>
+      </div>
+    </div>
+    <div id="planModalPending" style="display:none">
+      <h3 style="margin:0;font-size:16px;font-weight:800;color:#202124">플랜 변경은 준비 중입니다</h3>
+      <p style="margin:10px 0 0;font-size:13px;line-height:1.65;color:#414245">결제 연동이 아직 연결되지 않았습니다. 플랜 변경은 담당자에게 문의해 주세요.</p>
+      <div style="margin-top:20px;display:flex;justify-content:flex-end">
+        <button type="button" class="js-modal-close hbtn hbtn-secondary">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MYPAGE-07b · 회원 탈퇴 확인 모달 -->
+<div id="withdrawModal" class="modal-backdrop" style="display:none">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="withdrawTitle">
+    <h3 id="withdrawTitle" style="margin:0;font-size:16px;font-weight:800;color:#202124">정말 탈퇴하시겠어요?</h3>
+    <p style="margin:10px 0 0;font-size:13px;line-height:1.65;color:#414245">탈퇴하면 아래 데이터가 삭제되며 되돌릴 수 없습니다.</p>
+    <ul style="margin:10px 0 0;padding:0 0 0 4px;list-style:none;font-size:12.5px;line-height:1.8;color:#414245">
+      <li>· 진단 리포트 2건 · 생성 썸네일 0건</li>
+      <li>· 브랜드 프로필 2개 (하루온·글로우리프)</li>
+      <li id="withdrawSubNote">· 이용 중인 Growth 구독이 함께 해지됩니다</li>
+    </ul>
+    <p style="margin:10px 0 0;font-size:11.5px;color:#B6B8BF">데이터 보존·삭제 기한 등 백엔드 정책 (미정)</p>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:8px">
+      <button type="button" class="js-modal-close hbtn hbtn-secondary">취소</button>
+      <button type="button" id="withdrawConfirmBtn" class="h-danger" style="height:34px;padding:0 16px;border:none;border-radius:8px;background:#F0483C;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">탈퇴하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * 마이페이지 로직 (MYPAGE-02~08) — 상태 전환(기본/무료/결제 실패/로딩) ·
+ * 플랜 변경/탈퇴 모달 · 계정 메뉴. 결제·플랜 변경은 전부 목업 동작이다.
+ */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { view: 'default', openModal: null, opener: null };
+
+  function show(id, on, disp) { $(id).style.display = on ? (disp || 'block') : 'none'; }
+
+  // ── 상태 렌더 ─────────────────────────────────────────
+  function render() {
+    var v = state.view;
+    var paid = v === 'default' || v === 'failed';
+    show('skelView', v === 'loading');
+    show('contentView', v !== 'loading');
+    if (v === 'loading') return;
+
+    show('planDefault', paid);
+    show('planFree', v === 'free');
+    show('payFailBanner', v === 'failed');
+    $('planStatusOk').style.display = v === 'default' ? 'inline-flex' : 'none';
+    $('planStatusWarn').style.display = v === 'failed' ? 'inline-flex' : 'none';
+
+    // 플랜 그리드: 현재 플랜 배지·CTA
+    $('gCurrent').style.display = paid ? 'inline-flex' : 'none';
+    $('fCurrent').style.display = v === 'free' ? 'inline-flex' : 'none';
+    $('cardGrowth').classList.toggle('on', paid);
+    $('cardFree').classList.toggle('on', v === 'free');
+    $('gCta').style.display = v === 'free' ? 'block' : 'none';
+
+    // 결제: FREE 는 수단·내역 없음
+    show('payMethod', paid, 'inline');
+    show('payMethodEmpty', v === 'free', 'inline');
+    show('payTableWrap', paid);
+    show('payEmpty', v === 'free');
+    $('payRowFail').style.display = v === 'failed' ? 'table-row' : 'none';
+    show('withdrawSubNote', paid, 'list-item');
+  }
+
+  // ── 모달 열기/닫기 (Esc·바깥 클릭·포커스 복귀) ────────
+  function openModal(id, opener) {
+    state.openModal = id; state.opener = opener || null;
+    $(id).style.display = 'flex';
+    var first = $(id).querySelector('button');
+    if (first) first.focus();
+  }
+  function closeModal() {
+    if (!state.openModal) return;
+    $(state.openModal).style.display = 'none';
+    if (state.opener) state.opener.focus();
+    state.openModal = null; state.opener = null;
+  }
+  document.querySelectorAll('.js-modal-close').forEach(function (b) { b.onclick = closeModal; });
+  document.querySelectorAll('.modal-backdrop').forEach(function (bd) {
+    bd.addEventListener('click', function (e) { if (e.target === bd) closeModal(); });
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeModal(); closeAvMenu(); } });
+
+  // ── 플랜 변경 (MYPAGE-04) ─────────────────────────────
+  document.querySelectorAll('.js-plan-cta').forEach(function (b) {
+    b.onclick = function () {
+      $('planFrom').textContent = state.view === 'free' ? 'FREE' : 'Growth';
+      $('planTo').textContent = b.getAttribute('data-to');
+      show('planModalConfirm', true);
+      show('planModalPending', false);
+      openModal('planModal', b);
+    };
+  });
+  $('planConfirmBtn').onclick = function () {
+    // 결제 연동 미구현 — 실변경 대신 준비 중 안내 (기획서 MYPAGE-04a)
+    show('planModalConfirm', false);
+    show('planModalPending', true);
+    var btn = $('planModal').querySelector('.js-modal-close');
+    if (btn) btn.focus();
+  };
+  $('planMoveBtn').onclick = function () { $('planGrid').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  $('planExploreBtn').onclick = function () { $('planGrid').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+
+  // ── 회원 탈퇴 (MYPAGE-07b) ────────────────────────────
+  $('withdrawBtn').onclick = function () { openModal('withdrawModal', this); };
+  $('withdrawConfirmBtn').onclick = function () { window.location.href = '1-login.html'; };
+
+  // ── 사이드바: 브랜드 스위처·계정 메뉴 (조회만 — ⓪ 정본) ──
+  function closeAvMenu() {
+    $('avBtn').setAttribute('aria-expanded', 'false');
+    $('avMenu').style.display = 'none';
+    $('swBtn').setAttribute('aria-expanded', 'false');
+    $('swMenu').style.display = 'none';
+  }
+  $('swBtn').onclick = function (e) {
+    e.stopPropagation();
+    var open = $('swBtn').getAttribute('aria-expanded') !== 'true';
+    closeAvMenu();
+    $('swBtn').setAttribute('aria-expanded', String(open));
+    $('swMenu').style.display = open ? 'block' : 'none';
+  };
+  $('avBtn').onclick = function (e) {
+    e.stopPropagation();
+    var open = $('avBtn').getAttribute('aria-expanded') !== 'true';
+    closeAvMenu();
+    $('avBtn').setAttribute('aria-expanded', String(open));
+    $('avMenu').style.display = open ? 'block' : 'none';
+  };
+  document.addEventListener('click', closeAvMenu);
+
+  // ── 검토용 상태 스위처 (제품 UI 아님) ─────────────────
+  document.querySelectorAll('.st-btn').forEach(function (b) {
+    b.onclick = function () { state.view = b.getAttribute('data-st'); closeModal(); render(); };
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
