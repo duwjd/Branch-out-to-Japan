@@ -10,6 +10,6 @@
     "moduleResolution": "node",
     "isolatedModules": false
   },
-  "include": ["lib/**/*.ts", "scripts/run-report.ts"],
+  "include": ["lib/**/*.ts", "scripts/run-report.ts", "scripts/run-thumbnail.ts"],
   "exclude": ["node_modules", "app", "components"]
 }

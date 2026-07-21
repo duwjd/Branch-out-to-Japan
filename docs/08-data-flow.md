@@ -440,7 +440,15 @@ const result = await openai.images.edit({
 
 - **법적 게이트가 프롬프트 이전에 작동**: 카피는 jp-localizer 재설계 → **콜② 엔진 통과분만** 슬롯 진입, proof 없는 배지 슬롯은 빈 문자열 제거(requiresProof).
 - 생성 후 검수 게이트(라벨 보존·오탈자·무단 배지) 통과분만 `GeneratedAsset` 저장.
-- 자격증명: `.env`의 `OPENAI_API_KEY`(신규, 서버 전용).
+- 자격증명: `.env`의 `OPENAI_API_KEY`(신규, 서버 전용). 모델 ID·품질은 env 주입(`OPENAI_IMAGE_MODEL`·`OPENAI_IMAGE_QUALITY`) — `gpt-image-2.0`은 팩의 가정값이라 실검증 시 무배포 교체 가능하게 한다. 키 없거나 `IMAGE_MODE=mock`이면 **이미지 목 모드**(픽스처 PNG — `LLM_MODE=mock` 패턴 미러).
+
+**콜⑥ studioCopy — 스튜디오 카피 재설계 (Claude 비전 1콜 · 스프린트 2 확정 2026-07-21):**
+
+썸네일 파이프라인 6단계 중 **①입력분석+③카피재설계+④슬롯채움을 Claude 비전 1콜로 통합**한다(⑤조립은 결정적 코드, ⑥생성은 위 OpenAI 콜). §4.0 공통 규약(구조화 출력·캐싱·목 폴백)을 그대로 따르고, 원본 이미지를 user content의 image 블록으로 첨부한다.
+
+- **콜②(문장 감사)를 콜로 재사용하지 않는다** — 콜②는 상세페이지 문장(K1..Kn) 계약이라 슬롯 카피와 형태가 불일치하고 콜 수·지연이 배가된다. 대신 **grounding(약기법 판정 프레임 + 렉시콘)을 studioCopy 시스템 프롬프트에 재주입**해 §5.1 "③단계 약기법 검수 = 콜② 엔진 재사용"의 취지를 충족하고, 코드 게이트(proof·가격 슬롯)가 최종 방어선이다.
+- 출력(= `GeneratedAsset.explanationJson`의 원천): `{ isPromoInput, styleReason, slotValues[]{key,value}, copySlots[]{slotKey,ja,krIntent,rationale,footnote}, krElementMap[]{element,action(유지·정제|재설계|제거),reason} }` — ② RESULT-02·03·③ DETAIL-02 해설 렌더와 1:1.
+- 결정적 코드가 LLM 출력 이후 강제하는 것: requiresProof 배지 문단(proof 3필드 전부 있을 때만 채움), **가격·특가 슬롯(G.priceBlock·giftInsetParagraph) v1 항상 공란**(입력 UI 없음 — 有利誤認 차단), 프롬프트 조립(buildPrompt).
 
 ### 4.8 호출 순서 — 병렬 구간
 
@@ -603,12 +611,19 @@ erDiagram
 - **`BrandProfile.brandKitJson`(스키마 예약 · 2026-07-21)** — ③ 브랜드 관리(브랜드 킷)가 제안한 확장 필드(jsonb: `productNamesJa[]{kr,ja}` · `forbiddenTerms[]{term,reason}` · `toneGuide` — `specs/04-operations/04-operations-ui-기획서.md` BRAND-09). 생성 파이프라인 자동 참조 계약은 (추후 기획). 킷 수정은 `tierInput` 스냅샷 원칙에 따라 발행된 리포트에 소급되지 않는다.
 - `LlmCallLog.requestBody`는 원문 저장이 원칙(재현성). 저장량 우려 시 system 프리픽스는 해시로 대체 가능.
 
+**스프린트 2 구현 확정 델타 (2026-07-21 — ② 실생성·③ 운영·목 세션):**
+- **`User` 엔티티는 이번 스프린트에 만들지 않는다** — 인증은 목 세션(httpOnly 쿠키 1개, 값 = provider 이름, 데모 유저 1명 하드코딩). 어떤 엔티티에도 `userId`를 두지 않는다 — Supabase Auth 도입 시 일괄 마이그레이션이 더 싸다.
+- **`BrandProfile`은 싱글턴(id='default')** — 다중 브랜드 (미정)이므로 1브랜드 전제. `brandKitJson` 예약 필드를 실구현하고(`brandKit`), `productClass`에 `건강식품` 포함(§6.1 ER 그대로), `detailDocPath`+`detailDocName`(업로드 파일 fileId·원본 파일명).
+- **`GeneratedAsset` 확장 확정**(② 기획서 델타 2건 채택): `status`(generating|done|failed) · `stage`(진행 단계) · `error` · `explanationJson`(콜⑥ 산출 — §4.7) · `originalImagePath`(원본 fileId) · `proof`(실적 3필드 스냅샷) · `brandNameSnapshot`(제출 시점 브랜드명 물질화 — `tierInput` 스냅샷 원칙과 동일). 실패물은 `status=failed`로 남되 라이브러리는 `done`만 조회(“검수 게이트 통과분만 자산” 원칙의 status 필터 구현).
+- **`MatchRequest` 신설 확정**(§5.2 TBD 해소 — 컨시어지형 최소 계약): `partnerTypes[]` · `channels[]` · `timing` · `memo` · `status`(submitted|reviewing|proposed|cancelled — 갱신은 운영팀 수동) · `snapshot{reportCount, thumbnailCount, latestScore}`(신청 시점 자산 요약 물질화).
+- **파일 저장 = 로컬 우선**: 업로드·생성 이미지는 `.data/files/{prefix}-{uuid}.{ext}`에 저장하고 DB(스토어)에는 **fileId만** 기록, `GET /api/files/[id]`가 서빙한다. Supabase Storage 전환 시 `lib/files/storage.ts` 내부만 교체(fileId 체계·URL·스키마 무변경 — §6.2 개정).
+
 ### 6.2 저장 기본안
 
 | 항목 | 기본안 | 근거 | 대안 |
 |---|---|---|---|
 | DB·인증·파일 | **Supabase**(Postgres + Auth + Storage) 무료 티어 | UT(8/1~3)까지 배포 필요 · 소수 인원 개발 · 이메일/비번 인증과 파일 업로드(온보딩 문서·썸네일)까지 한 번에 | SQLite + Prisma(로컬 단순) — 단 배포·인증·스토리지를 따로 해결해야 함 |
-| 파일(업로드·생성 이미지·PDF) | Supabase Storage, DB에는 경로만 | | 로컬 파일시스템(개발 중) |
+| 파일(업로드·생성 이미지·PDF) | **로컬 `.data/files/` 우선 + `GET /api/files/[id]` 서빙, DB에는 fileId만**(2026-07-21 스프린트 2 개정 — 설정 0으로 즉시 동작) | 스토어 이중 패턴과 동일한 폴백 철학. fileId 체계 덕에 Supabase Storage 전환 시 `lib/files/storage.ts` 내부만 교체 | Supabase Storage(배포 시점 전환) |
 | 익명 무료횟수(체커 3회) | **localStorage 카운트 + 쿠키 uuid(`anonKey`)를 `CheckerRun`에 기록** — 서버는 anonKey 기준 횟수 검증 | 완전한 어뷰징 방지보다 마찰 최소 우선(리드 획득 퍼널). IP 결합은 v2 | IP 기반(오탐 위험) |
 | 비동기 잡 실행 | MVP: Next.js Route Handler에서 순차 실행 + `status` 폴링(수 분 내 완료 가정) | 별도 큐 인프라 없이 시작 | 지연 길어지면 Supabase Edge Function/큐 도입 |
 
@@ -664,6 +679,7 @@ erDiagram
 ---
 
 ## 변경 이력
+- 2026-07-21 **스프린트 2 구현 확정 델타**(사용자 결정 → [[decisions/DECISIONS]] · [[09-dev-spec]] §4b). **[추가]** §4.7 콜⑥ studioCopy 계약(Claude 비전 1콜 — ①분석+③카피+④슬롯 통합 · 콜② 재사용 대신 grounding 재주입 · 가격 슬롯 v1 강제 공란 · 이미지 목 모드) · §6.1 스프린트 2 델타(User 없음 = 목 세션 · `BrandProfile` 싱글턴+`brandKit` 실구현 · `GeneratedAsset` status/stage/explanationJson/proof/원본 fileId/brandNameSnapshot 확정 · `MatchRequest` 신설 확정). **[변경]** §6.2 파일 = 로컬 `.data/files/` 우선 + fileId 서빙(Supabase Storage는 전환 대안).
 - 2026-07-18 **v6 블록 6 재프레이밍 · 블록 7·8 통합 · 블록 9→8 재번호 정합**(사용자 요청 → [[specs/01-report-spec]] v6). **[개정]** §4.3 콜③ 출력 스키마 `reviewNarrative`→`dropOffPath`(`{infoGap, customerDoubt, dropOff}`) — 블록6은 리뷰가 아니라 벤치마크 갭·페르소나 기반 **이탈 경로**로 재정의(리뷰 데이터 없음, `reviewSourceUrl` 무관), 가짜 리뷰 금지 가드레일 존치 · §4.4 콜④ 산출 블록 `1·7·8`→`1·7`(구 블록 8 '비포&애프터 샘플'이 블록 7 하이라이트로 통합) · 블록 9(맺음)→블록 8 재번호 → 리포트 블록0~8, brand 모드 잠금 목록 1·3·5·7. **[불변]** 파이프라인·두 모드·집계·LLM 4콜 구조 그대로(렌더/스키마 라벨만). 코드(`lib/engine`·`ReportView`) 반영은 후속.
 - 2026-07-16 **v4 입력 브랜드 우선 재구성 · 두 진단 모드 반영**(제품 오너 결정 → [[specs/01-report-spec]] v4 배너·§2·§3 · [[decisions/DECISIONS]]). **[변경]** §3.1 입력 표를 "티어(Tier 0/1/2)" 체계 → **브랜드 섹션 필수(`brandName`·`positioning` 신규 `{tags[], note}`·`category`) / 제품 섹션 전부 선택**(`source` 포함)의 2단 구조로 재편 — 온보딩 프리필 관계는 유지·필수화 반영, 게이트 단일 정의 = `lib/engine/rules/gates.ts`, `source` 미제출 = `brand` 모드(URL fetch 실패는 조용히 강등하지 않음) · §4.3 콜③ 입력 페이로드에 `brandName`·`positioning` 필수 주입(콘텐츠 요약은 brandProduct만 · 가변 데이터라 grounding 아닌 user payload) · 콜② 잡 실패 불변식을 "**제품 콘텐츠가 제출된 진단은 감사표 없이 발행하지 않는다**"로 재서술(§3.2·§4.0) · §4.5 콜⑤ 골격 모드별 2종(brandProduct 7장 / brand 4장)·검증 = 모드의 키 전부 · §6 `tierInput` 주석(2단 스냅샷 + `mode` 판별자)·`Report.overallScore` **nullable**(`ReportRecord.overallScore: number | null` · brand 모드 점수 없음·`block1`은 `scored:false` 판별 유니온)·`positioningTags` = `positioning` 프리필 소스 · §7 "티어 입력폼" → "진단 입력폼(브랜드 필수/제품 선택)" · §8-D2 결제 게이트 ~~재선정 필요~~ → **자리 확정: 샘플 → 풀 열람 직전**(잔여 = 집행 미구현·브랜드 진단 가격 (미정)). **[추가]** §1.2·§3.2·§3.3·§4.8에 두 진단 모드 분기 — `brand` 모드는 normalize·presignals·콜①②④·집계 없이 stages `persona → benchmark → assemble`, 블록 1·3·5·7·8 데이터 잠금(대체 수치 발명 금지), 블록4 "내 콘텐츠" 칸 = "미확인" · §3.4 무료 = 샘플(두 모드 공통·두 모드 모두 유료) 경계. **[삭제]** §3.1 `reviewSourceUrl` 폼 행 — 소비처 0, 데드필드로 존치(스펙 §3.4).
 - 2026-07-16 **검수 제거 반영 + 콜⑤ 추가**(제품 오너 결정 → [[decisions/DECISIONS]] 2026-07-16 행). **[삭제]** §1.1 내부 검수자 액터 · §3.2 파이프라인의 검수 노드와 계약표 검수 행 · §3.3 `needsReview`·`rejected` 상태와 전이 · §4.8 시퀀스의 검수자 · §6 `Report.reviewerName`/`reviewerSignedAt` · §7 검수자 화면 행(공백은 삭제로 닫힘) · §8-D4(질문 소멸). **[변경]** §3.3 비동기 잡의 **근거를 사람 리드타임 → 파이프라인 소요(5단계·LLM 4콜·수 분)로 교체**(결론은 동일) · §4.2 콜② 위상을 "1차 스크리닝 + 면책·전문가 확인 권고"로 재서술(감사 자체는 존치) · §8-D2 결제 게이트 기본안 **무효**(근거 전이 소멸 → 재선정). **[추가]** §4.5 콜⑤ 보고용 슬라이드 카피 계약(파이프라인 밖·온디맨드·grounding 미주입·숫자는 코드 소유) — 이하 체커 §4.6·썸네일 §4.7·시퀀스 §4.8로 재번호. 정본 = [[specs/01-report-spec]] §10.
