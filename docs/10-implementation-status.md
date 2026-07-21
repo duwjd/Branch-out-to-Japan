@@ -32,8 +32,8 @@
 | 계정: 목 로그인 | ✅ `/login` 소셜 3종 버튼(카카오·네이버·구글) — **실 OAuth 미연동, 클릭 = 세션 쿠키 발급**(httpOnly 1개 · 데모 유저 1명 하드코딩) · `/app/*` 가드는 `app/app/layout.tsx` 1곳(비로그인 → `/login`, middleware 없음) |
 | 앱 셸 | ✅ `components/app/AppShell.tsx` 사이드바(3축 내비 + 운영 하위 아코디언 + 계정 행 + 매칭 상태 배지) · `/app` → `/app/library` 리다이렉트 · 기존 리포트 2화면 셸 안에서 리그레션 없음(E2E 확인) |
 | 파일 저장 | ✅ 로컬 `.data/files/{prefix}-{uuid}.{ext}` + `GET /api/files/[id]` 서빙 — 스토어에는 fileId만. Supabase Storage 전환 시 `lib/files/storage.ts` 내부만 교체 |
-| ② 썸네일 생성 | ✅ 생성 퍼널(`/app/studio/thumbnail` — 드롭존·플랫폼 칩·템플릿 8종 실측 그리드·실적 아코디언·sticky 제출) → **콜⑥ studioCopy**(Claude 비전 1콜: 분석+카피 재설계+슬롯) → 결정적 조립(`buildPrompt` + proof 게이트 + 가격 슬롯 강제 공란, 단위테스트 7건) → **OpenAI `images.edit`**(모델·품질 env 주입, `input_fidelity:'high'`) → `.data/files/` 저장 → 결과 상세(`[assetId]` 2.5초 폴링: 생성중→done 게이트 배지·재설계 해설·다운로드→failed 프리필 재시도) |
-| ② 목 모드 | ✅ `OPENAI_API_KEY` 없거나 `IMAGE_MODE=mock` → 실측 샘플 PNG 픽스처(콜⑥은 `LLM_MODE` 목 규칙 그대로) — 키 전무 상태로 전체 플로우 확인 가능. **실호출 스모크는 키 확보 후 잔여**(모델 ID `gpt-image-1` 기본, `OPENAI_IMAGE_MODEL`로 교체 — 스펙 §6-Q1) |
+| ② 썸네일 생성 | ✅ 생성 퍼널(`/app/studio/thumbnail` — 드롭존·플랫폼 칩·템플릿 8종 실측 그리드·실적 아코디언·sticky 제출) → **콜⑥ studioCopy**(Claude 비전 1콜: 분석+카피 재설계+슬롯) → 결정적 조립(`buildPrompt` + proof 게이트 + 가격 슬롯 강제 공란, 단위테스트 7건) → **OpenAI `images.edit`**(모델·품질 env 주입 — `input_fidelity`는 지원 모델에만 조건부, gpt-image-2는 항상 고정밀 처리라 미지원·불필요) → `.data/files/` 저장 → 결과 상세(`[assetId]` 2.5초 폴링: 생성중→done 게이트 배지·재설계 해설·다운로드→failed 프리필 재시도) |
+| ② 목 모드 | ✅ `OPENAI_API_KEY` 없거나 `IMAGE_MODE=mock` → 실측 샘플 PNG 픽스처(콜⑥은 `LLM_MODE` 목 규칙 그대로) — 키 전무 상태로 전체 플로우 확인 가능. 모델 ID는 실검증으로 `gpt-image-2` 확정(2026-07-21, 스펙 §6-Q1 해소 — `OPENAI_IMAGE_MODEL`로 오버라이드 가능), **팩 §5 골든 픽스처 실검증은 잔여** |
 | ③ 자산 라이브러리 | ✅ `/app/library` 타입 탭 [진단 리포트\|썸네일] + 시즌 제안 카드(정적 상수) + 생성중 타일 + 빈 상태 — 재조회 전용(실시간 폴링 없음, 새로고침 반영) · `/app/library/[assetId]` 썸네일/리포트 요약 2모드(생성중은 폴링 화면으로 리다이렉트) |
 | ③ 브랜드 관리 | ✅ `/app/brand` 4섹션(프로필·제품·채널·브랜드 킷) `GET·PUT /api/brand` + 상세페이지 문서 업로드(`POST /api/brand/doc`) · 킷 수정 불소급 캡션 · 생성 시 `brandNameSnapshot` 물질화 확인 |
 | ③ 기업 매칭 | ✅ `/app/matching` 신청 폼(자동 첨부 요약 스냅샷) → 상태 스테퍼 → 취소 모달, `GET·POST·DELETE /api/matching` — 상태 갱신은 운영팀 수동(reviewing·proposed는 DB에서 직접) |
@@ -41,7 +41,7 @@
 | 저장 확장 | ✅ `Store`에 `BrandProfile`(싱글턴)·`GeneratedAsset`·`MatchRequest` + list 조회 — fileStore·supabaseStore 동시 구현, `supabase/schema.sql` 3테이블 멱등 추가 |
 | 검증 | ✅ typecheck 0오류 · 테스트 37/37 · `next build` 전 라우트 통과 · **목 HTTP E2E 통과**(로그인→브랜드 저장→썸네일 생성 done·이미지 서빙→라이브러리 탭·상세→매칭 신청·취소→마이페이지→리포트 발행 리그레션→로그아웃 가드) |
 
-**스프린트 2 잔여:** OpenAI 실호출 스모크(키 확보 후 — 모델 ID 확정·팩 §5 실검증) · `.env.example` 키 4종 추가(로컬 권한 설정으로 편집 차단 — 키 이름은 [[09-dev-spec]] §1) · 매칭 상태 갱신 운영 도구 · 실 OAuth 전환.
+**스프린트 2 잔여:** OpenAI 팩 §5 골든 픽스처 실검증(모델 ID는 `gpt-image-2` 확정 — 2026-07-21) · `.env.example` 키 4종 추가(로컬 권한 설정으로 편집 차단 — 키 이름은 [[09-dev-spec]] §1) · 매칭 상태 갱신 운영 도구 · 실 OAuth 전환.
 
 ## 2. 실행 방법
 
@@ -61,7 +61,7 @@ npm run thumbnail:cli # 화면 없이 ② 썸네일 파이프라인만 (--style 
 npm run aggregate     # 코퍼스 갱신 시 사전집계 재생성
 ```
 
-환경 변수(`.env`, [.env.example](../.env.example) 참조): `ANTHROPIC_API_KEY`(없으면 목 모드) · Supabase 3종(없으면 파일 폴백 — 셋업은 [setup-supabase.md](setup-supabase.md) 3단계) · **스프린트 2 추가**: `OPENAI_API_KEY`(없으면 이미지 목 모드) · `IMAGE_MODE=mock`(강제 목) · `OPENAI_IMAGE_MODEL`(기본 gpt-image-1) · `OPENAI_IMAGE_QUALITY`(기본 medium).
+환경 변수(`.env`, [.env.example](../.env.example) 참조): `ANTHROPIC_API_KEY`(없으면 목 모드) · Supabase 3종(없으면 파일 폴백 — 셋업은 [setup-supabase.md](setup-supabase.md) 3단계) · **스프린트 2 추가**: `OPENAI_API_KEY`(없으면 이미지 목 모드) · `IMAGE_MODE=mock`(강제 목) · `OPENAI_IMAGE_MODEL`(기본 gpt-image-2) · `OPENAI_IMAGE_QUALITY`(기본 medium).
 
 **클릭 동선(E2E와 동일):** `/` 랜딩 → `무료 진단 시작` → 폼 입력·제출 → 진행 화면(자동 폴링) → **발행 완료 배너 + 리포트 열람** → `보고용 슬라이드 만들기` → HTML 다운로드. (2026-07-16: ~~검수 전 배너 → `/admin/review` 실명 서명~~ 경로 제거)
 **브랜드 진단 동선(v4 신규):** 같은 폼에서 **브랜드 섹션만**(브랜드명·포지셔닝·카테고리) 입력·제출(제품 섹션 비움 = 에러 아님) → 동일 진행 화면 → 발행(`mode: brand` — 블록 1·3·5·7·8 데이터 잠금·종합점수 없음) → 슬라이드 **4장** 다운로드.

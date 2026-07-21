@@ -429,18 +429,18 @@ const scored = JSON.parse(
 
 ```typescript
 const result = await openai.images.edit({
-  model: "gpt-image-2.0",                 // 실제 모델 ID는 스튜디오 주간(7/18~)에 실검증 — 스펙 §6-Q1
+  model: "gpt-image-2",                   // 실검증으로 확정(2026-07-21) — 스펙 §6-Q1 해소
   image: fs.createReadStream(inputPath),  // F 유형은 [제품컷, 모델컷] 배열
   prompt: buildPrompt(categoryId, slots, isPromoInput),
   size: "1024x1024",
   quality: "high",                        // 개발 반복 중 "medium"
-  input_fidelity: "high",                 // 제품 라벨·로고 보존 핵심 파라미터
+  input_fidelity: "high",                 // 제품 라벨·로고 보존 — 지원 모델에만 조건부(gpt-image-2는 항상 고정밀 처리라 파라미터 거부, 2026-07-22 실검증)
 });
 ```
 
 - **법적 게이트가 프롬프트 이전에 작동**: 카피는 jp-localizer 재설계 → **콜② 엔진 통과분만** 슬롯 진입, proof 없는 배지 슬롯은 빈 문자열 제거(requiresProof).
 - 생성 후 검수 게이트(라벨 보존·오탈자·무단 배지) 통과분만 `GeneratedAsset` 저장.
-- 자격증명: `.env`의 `OPENAI_API_KEY`(신규, 서버 전용). 모델 ID·품질은 env 주입(`OPENAI_IMAGE_MODEL`·`OPENAI_IMAGE_QUALITY`) — `gpt-image-2.0`은 팩의 가정값이라 실검증 시 무배포 교체 가능하게 한다. 키 없거나 `IMAGE_MODE=mock`이면 **이미지 목 모드**(픽스처 PNG — `LLM_MODE=mock` 패턴 미러).
+- 자격증명: `.env`의 `OPENAI_API_KEY`(신규, 서버 전용). 모델 ID·품질은 env 주입(`OPENAI_IMAGE_MODEL`·`OPENAI_IMAGE_QUALITY`) — 기본값은 실검증으로 확정된 `gpt-image-2`(2026-07-21)이고, 교체 필요 시 무배포 오버라이드한다. 키 없거나 `IMAGE_MODE=mock`이면 **이미지 목 모드**(픽스처 PNG — `LLM_MODE=mock` 패턴 미러).
 
 **콜⑥ studioCopy — 스튜디오 카피 재설계 (Claude 비전 1콜 · 스프린트 2 확정 2026-07-21):**
 

@@ -61,7 +61,8 @@ export function AppShell({ userName, providerLabel, matchBadge, children }: Shel
         마케팅 스튜디오
       </Link>
       <div>
-        <span className={`${navClass(opsActive)} cursor-default`}>운영</span>
+        {/* LIB-00: 클릭 시 첫 항목 자산 라이브러리로 진입 → opsActive로 하위 아코디언 펼침 */}
+        <Link href="/app/library" className={navClass(opsActive)}>운영</Link>
         {/* 운영 활성 시에만 하위 아코디언 펼침(LIB-00) */}
         {opsActive && (
           <div className="mt-1 flex flex-col gap-0.5 pl-3">
