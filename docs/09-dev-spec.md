@@ -33,8 +33,12 @@
 | `/app` | 대시보드 | ① M3(최소형) | `app-wireframe` |
 | `/app/report/new` | 진단 입력폼(브랜드 필수/제품 선택) | ① M3 | `specs/01-report/1-input.html` |
 | `/app/report/[id]` | 처리 로딩(폴링) + 8블록 뷰 + 슬라이드 내보내기 버튼 | ① M3 (슬라이드 버튼 M4) | `report-wireframe` |
-| `/app/studio/thumbnail` | 썸네일 변환기 | ② 주간 | `service-wireframe` |
-| `/app/library` | 자산 라이브러리 | ③ 주간 | `service-wireframe` |
+| `/app/studio/thumbnail` | 스튜디오 홈 = 썸네일 생성(홈=생성 · 갤러리 없음) | ② 주간 | `specs/02-studio/1-home.html` |
+| `/app/studio/thumbnail/[assetId]` | 생성 결과 상세(생성중 상태로 시작 → 결과) | ② 주간 | `specs/02-studio/2-result.html` |
+| `/app/library` | 자산 라이브러리(보관·재열람 정본 · 타입 탭 · 조회 전용) | ③ 주간 | `specs/04-operations/1-home.html` |
+| `/app/library/[assetId]` | 자산 상세(썸네일 열람·다운로드·해설 / 리포트 요약) | ③ 주간 | `specs/04-operations/2-detail.html` |
+| `/app/brand` | 브랜드 관리(브랜드 킷 — `BrandProfile` 편집 정본 · 일본향 용어집·톤) | ③ 주간 | `specs/04-operations/3-brand.html` |
+| `/app/matching` | 일본 기업 매칭(신청 폼·상태 추적·제안 — 컨시어지형) | ③ 주간 | `specs/04-operations/4-matching.html` |
 
 > `/admin/review`(검수 큐)는 **삭제**됐다 — 2026-07-16 검수 단계 제거(`decisions/DECISIONS.md`). 화면·라우트 모두 없다.
 
@@ -133,6 +137,7 @@ scripts/
 ---
 
 ## 변경 이력
+- 2026-07-21 **②·③ IA 개편 반영**([[07-ia]] §5 · `specs/02-studio`·`specs/04-operations` UI 기획서). **[변경]** §2 라우트 맵 `/app/studio/thumbnail` = 스튜디오 홈(홈=생성 · 기존 "썸네일 변환기" 갤러리 허브 폐지) · 와이어프레임 정본을 specs 프로토타입으로 갱신. **[추가]** `/app/studio/thumbnail/[assetId]` 생성 결과 상세(생성중 상태로 시작) · `/app/library/[assetId]` 자산 상세(카드 클릭 시 축 이동 제거 — 재열람 정본).
 - 2026-07-16 **입력 브랜드 우선 재구성(v4) · 두 진단 모드 반영**([[specs/01-report-spec]] v4 배너·§3 · [[08-data-flow]] §3.1~3.2 · [[decisions/DECISIONS]]). **[변경]** §2 라우트 맵 `/app/report/new` "티어 입력폼" → **진단 입력폼(브랜드 필수/제품 선택)** · 와이어프레임 정본 = `docs/specs/01-report/1-input.html` · 서버 경계에 모드 판정(제출 경계 1회: `source` 유무 → `tierInput.mode`)·`brand` 파이프라인(stages `persona → benchmark → assemble` · 콜③ 실패 = 잡 실패) 한 줄 · §3 `rules/` 주석에 `gates.ts`(게이트 단일 정의)·`positioning.ts`(택소노미 16종) 추가·슬라이드 골격 모드별(7장/4장) · §6 참조 정본 표 §3 서술·입력폼 화면 정본 갱신. **[추가]** M3 체크 항목: 입력 브랜드 우선 재구성(v4) — 테스트 30/30. 기존 M3 "티어 폼" 항목은 취소하지 않고 이력 주석만 부기.
 - 2026-07-16 **검수 제거 · 슬라이드 추가 반영**([[decisions/DECISIONS]] 2026-07-16 행). **[삭제]** §2 라우트 맵 `/admin/review` · 서버 경계 `POST /api/report/[id]/review`. **[폐기]** M4 검수 큐 태스크와 DoD("needsReview → 서명 → published"·"서명 없는 발행 불가") — 당시 충족했으나 제품에서 빠짐, 취소선으로 이력 보존. **[변경]** M4 DoD = **파이프라인 성공 = 발행**(사람 개입 0) · §5 E2E 체크리스트에서 서명 단계 제거. **[추가]** `GET /api/report/[id]/slides` 라우트 · `rules/slides.ts` 렌더러 · `llm/runCall5` · M4 슬라이드 태스크 · §6 참조 정본에 스펙 §10.
 - 2026-07-09 신규 작성: 공통 골격(스택·라우트·모듈) + ① 리포트 스프린트 마일스톤 M0~M4(엔진 우선). 원칙 = 정본 중복 없이 포인터, 태스크는 체크박스+DoD.

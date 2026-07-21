@@ -183,7 +183,8 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
   <div class="chips">
     <div class="chip"><i>⓪</i>홈이 다음 단계를 제안</div>
     <div class="chip"><i>①</i>입력 → 처리 → 리포트</div>
-    <div class="chip"><i>②</i>홈(갤러리)을 허브로</div>
+    <div class="chip"><i>②</i>홈이 곧 생성 · 보관은 ③</div>
+    <div class="chip"><i>③</i>자산 라이브러리 · 탭 이탈 없는 상세</div>
     <div class="chip"><i>공통</i>화면 문법·라벨 정책 공유</div>
   </div>
   <div class="meta">2026.07 · 모든 화면은 실제 프로토타입 캡처 · 데이터는 가상 브랜드 HARUON 샘플</div>
@@ -208,22 +209,22 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
       </div>
     </div>
     <div style="flex:none">
-      <div class="collab" style="margin-bottom:11px"><span class="dot" style="background:var(--navy)"></span>② 마케팅 스튜디오 · 허브 구조</div>
+      <div class="collab" style="margin-bottom:11px"><span class="dot" style="background:var(--navy)"></span>② 마케팅 스튜디오 · 반복 생성 구조</div>
       <div class="flow hub">
-        <div class="node is-hub"><div class="lb">HUB</div><div class="nm">스튜디오 홈 (갤러리)</div><div class="ds">생성 요청도, 완료 확인도, 결과 진입도 모두 여기서</div></div>
-        <div class="ar">⇄</div>
-        <div class="node"><div class="lb">폼</div><div class="nm">썸네일 생성</div><div class="ds">제출하면 <b>홈으로 돌아온다</b></div></div>
+        <div class="node is-hub"><div class="lb">HOME</div><div class="nm">스튜디오 홈 (생성 폼)</div><div class="ds">들어오면 곧장 폼. 갤러리 아니다</div></div>
         <div class="ar">→</div>
-        <div class="node"><div class="lb">상세</div><div class="nm">생성 결과</div><div class="ds">결과물 + 재설계 근거</div></div>
+        <div class="node"><div class="lb">RESULT</div><div class="nm">생성 결과</div><div class="ds">생성중으로 열려 완성으로 crossfade</div></div>
+        <div class="ar">⇢</div>
+        <div class="node"><div class="lb">③</div><div class="nm">자산 라이브러리</div><div class="ds">보관·재열람은 여기서, 다시 만들 땐 홈으로</div></div>
       </div>
     </div>
     <div class="card why" style="flex:none;padding:26px 28px">
       <h3>왜 다르게 잡았나</h3>
       <p class="quote">①은 결과를 <span class="mark">한 번 받아 결재선에 올리는</span> 문서다. 되돌아올 일이 없으므로 직렬이 맞다. 반면 ②는 <span class="mark">여러 장을 만들고 비교하고 다시 만드는</span> 작업이다. 매번 처음으로 돌아가면 흐름이 끊긴다.
-        그래서 ②에는 <span class="mark">별도의 로딩 화면이 없다.</span> 생성 중 상태는 홈 피드의 타일이 된다.</p>
+        그래서 ②에는 <span class="mark">별도의 로딩 화면이 없다.</span> 제출하면 결과 화면이 곧장 생성중 상태로 열린다. 완성된 결과가 쌓이는 곳은 <span class="mark">③ 운영</span>이다 — 만드는 화면과 보관하는 화면을 나눴다.</p>
     </div>
   </div>
-  <div class="foot"><span>KGLOW UI 설계</span><span class="src">01-report/index.html · 02-studio/index.html</span></div>
+  <div class="foot"><span>KGLOW UI 설계</span><span class="src">01-report/index.html · 02-studio/index.html · 04-operations/index.html</span></div>
 </section>
 
 <!-- ══ 02 공통 화면 문법 ═══════════════════════════════ -->
@@ -693,150 +694,147 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
 <section class="slide divider">
   <div class="num">②</div>
   <h2>마케팅 스튜디오</h2>
-  <p>진단에서 “무엇을 고쳐야 한다”를 받았다면, 여기서는 그 콘텐츠를 실제로 만든다. 첫 모듈은 일본향 썸네일이다.</p>
-  <div class="rail"><span>스튜디오 홈 (허브)</span><i>⇄</i><span>썸네일 생성</span><i>→</i><span>생성 결과 상세</span></div>
+  <p>진단에서 “무엇을 고쳐야 한다”를 받았다면, 여기서는 그 콘텐츠를 실제로 만든다. 첫 모듈은 일본향 썸네일이다. 홈에 들어오면 곧장 생성 폼이다.</p>
+  <div class="rail"><span>스튜디오 홈 (생성)</span><i>→</i><span>생성 결과 (생성중 → 완성)</span><i>⇢</i><span>보관·재열람은 ③ 운영</span></div>
 </section>
 
 <!-- ══ 15 홈 ═══════════════════════════════════════════ -->
 <section class="slide">
   <div class="head">
     <div class="eyebrow">② 화면 1 · 스튜디오 홈</div>
-    <h1 class="t">홈이 갤러리이자 작업대다
-      <span class="sub">만든 결과가 쌓이는 자리를 흐름의 중심에 뒀다. 생성도 확인도 여기서 시작하고 여기로 돌아온다.</span></h1>
+    <h1 class="t">홈이 곧 생성이다
+      <span class="sub">사이드바에서 들어오면 바로 생성 폼이다. 결과가 쌓이던 갤러리는 없앴다 — 만드는 화면과 보관하는 화면을 나눴기 때문이다.</span></h1>
   </div>
   <div class="body">
-    <div class="shot cut"><span class="tag">1-home.html · 기본 상태</span><img src="shots/s-home-default.png" alt="스튜디오 홈 갤러리 기본 상태"><span class="scrollnote">↓ 그리드 이어짐</span></div>
+    <div class="shot cut"><span class="tag">1-home.html · 기본 상태</span><img src="shots/s-home-default.png" alt="스튜디오 홈, 진입 즉시 4스텝 생성 폼과 하단 최근 생성 스트립"><span class="scrollnote">↓ 템플릿 · 최근 생성 스트립 이어짐</span></div>
     <div class="side">
       <div class="card">
         <h3>구성</h3>
         <div class="steps" style="margin-top:4px">
           <div class="step"><span class="n">1</span><span><b>모듈 탭 3개</b> · 썸네일만 활성, 나머지는 “준비 중”</span></div>
-          <div class="step"><span class="n">2</span><span><b>템플릿 필터 칩</b> · 8종 문법으로 걸러 본다</span></div>
-          <div class="step"><span class="n">3</span><span><b>4열 자산 그리드</b> · 최신순, 카드에 스타일·플랫폼·날짜</span></div>
-          <div class="step"><span class="n">4</span><span><b>호버 액션</b> · 크게 보기 / 다운로드</span></div>
+          <div class="step"><span class="n">2</span><span><b>4스텝 생성 폼</b> · 원본 업로드 → 플랫폼(선택) → 템플릿 8종 → 실적 배지(선택)</span></div>
+          <div class="step"><span class="n">3</span><span><b>하단 최근 생성 스트립</b> · 최근 3~4건만, 0건이면 미출력</span></div>
         </div>
       </div>
       <div class="card">
-        <h3>비활성 탭을 미리 그려둔 이유</h3>
-        <p>상세페이지 전환·인스타 피드는 아직 스펙이 없다. 다만 스튜디오가 <b>여러 모듈을 담는 그릇</b>이라는 구조를 지금 화면에서 읽히게 하려고 자리만 예약했다.</p>
+        <h3>스트립은 갤러리가 아니다</h3>
+        <p>카드를 눌러도 재열람 화면(② 생성 결과)으로만 간다. 필터·정렬·삭제 같은 관리 기능은 없다. 전체 자산은 “③ 운영 자산 라이브러리에 모입니다” 문구와 함께 링크로만 안내한다.</p>
       </div>
       <div class="card why">
         <h3>설계 판단</h3>
-        <p class="quote">①과 달리 ②는 <span class="mark">한 번 쓰고 끝나지 않는다.</span>
-          여러 장을 만들고 비교하는 도구라서, 결과가 쌓이는 갤러리를 시작점으로 뒀다.</p>
+        <p class="quote">예전엔 홈이 갤러리였고, ③ 운영에도 같은 자산이 통합 그리드로 또 있었다. <span class="mark">같은 자산을 두 곳에서 관리하는 화면</span>이 된 것이다.
+          거기다 운영에서 카드를 누르면 ②로 탭이 튀는 문제까지 겹쳤다.</p>
+        <p class="quote">그래서 역할을 나눴다. <span class="mark">만드는 곳은 ②, 보관하는 곳은 ③.</span> ②는 생성 퍼널만 남기고, 재열람·필터·다운로드는 ③으로 옮겼다.</p>
       </div>
     </div>
   </div>
-  <div class="foot"><span>② 스튜디오 홈</span><span class="src">02-studio-ui-기획서.md · HOME-00~03</span></div>
+  <div class="foot"><span>② 스튜디오 홈</span><span class="src">02-studio-ui-기획서.md · HOME-00~08</span></div>
 </section>
 
 <!-- ══ 16 빈 상태 ══════════════════════════════════════ -->
 <section class="slide">
   <div class="head">
-    <div class="eyebrow">② 스튜디오 홈 · 빈 상태</div>
-    <h1 class="t">아무것도 없을 때가 가장 많이 설명해야 할 때
-      <span class="sub">처음 들어온 사람에게 빈 그리드를 보여주는 대신, 고를 수 있는 문법 8종을 미리 훑게 한다.</span></h1>
+    <div class="eyebrow">② 스튜디오 홈 · 첫 사용</div>
+    <h1 class="t">빈 상태 화면을 없앴다
+      <span class="sub">처음 들어와도 폼은 똑같다. 템플릿 8종 그리드가 그 자리에서 온보딩을 겸하기 때문에, 따로 그릴 빈 상태가 없어졌다.</span></h1>
   </div>
   <div class="body">
-    <div class="shot fit"><span class="tag">빈 상태</span><img src="shots/s-home-empty.png" alt="스튜디오 홈 빈 상태, 8종 미니 스트립"></div>
+    <div class="shot fit"><span class="tag">1-home.html · 첫 사용(자산 0건)</span><img src="shots/s-home-empty.png" alt="스튜디오 홈 첫 사용 상태, 생성 폼은 동일하고 하단 최근 생성 스트립만 없다"></div>
     <div class="side">
       <div class="card">
-        <h3>빈 상태에 넣은 것</h3>
+        <h3>없앤 것 · 남은 것</h3>
         <ul class="k">
-          <li>아직 만든 썸네일이 없다는 사실</li>
-          <li>이 도구가 무엇에서 나왔는지. <b>라쿠텐·아마존JP·Qoo10 실측 120장에서 역설계한 8가지 문법</b></li>
-          <li><b>8종 미니 스트립</b> · 각 문법의 구도를 작은 도식으로</li>
-          <li>다음 행동 하나. “첫 썸네일 만들기”</li>
+          <li>없앤 것: 별도로 그리던 <b>빈 상태 화면</b>과, 첫 방문자에게만 보여주던 미니 스트립 온보딩</li>
+          <li>남은 것: <b>템플릿 8종 그리드</b>(라쿠텐·아마존JP·Qoo10 실측 참고 컷) — 몇 번째 방문이든 항상 이 자리</li>
+          <li>첫 사용의 유일한 차이: 하단 <b>“최근 생성” 스트립이 나오지 않는다</b>는 것뿐(자산 0건이라 자연히 미출력)</li>
         </ul>
       </div>
       <div class="card why">
         <h3>설계 판단</h3>
-        <p class="quote">미니 스트립은 <span class="mark">장식이 아니라 온보딩</span>이다. 어떤 문법이 있는지 훑고 진입하게 만드는 것이 목적이다.</p>
-        <p class="quote">별도의 온보딩 화면을 만들면 다음부터는 아무도 안 본다.
-          <span class="mark">빈 상태는 처음 한 번만 보이는 화면</span>이므로, 설명을 여기 실었다.</p>
+        <p class="quote">전에는 온보딩 설명을 <span class="mark">처음 한 번만 뜨는 별도 화면</span>에 실었다. 두 번째 방문부터는 아무도 안 보는 화면이 된다.</p>
+        <p class="quote">이제는 템플릿 그리드가 <span class="mark">생성 폼의 고정된 3번째 섹션</span>이다. 첫 사용이든 백 번째 생성이든 같은 자리에서 8종 문법을 훑고 고른다 — 온보딩이 일회성 화면이 아니라 화면 구조 자체가 됐다.</p>
       </div>
     </div>
   </div>
-  <div class="foot"><span>② 빈 상태</span><span class="src">02-studio-ui-기획서.md · HOME-03</span></div>
+  <div class="foot"><span>② 첫 사용</span><span class="src">02-studio-ui-기획서.md · HOME-04 · HOME-07</span></div>
 </section>
 
-<!-- ══ 17 생성 중 ══════════════════════════════════════ -->
+<!-- ══ 17 결과 생성중 상태 ══════════════════════════════ -->
 <section class="slide">
   <div class="head">
-    <div class="eyebrow">② 스튜디오 홈 · 생성 상태</div>
-    <h1 class="t">로딩 화면을 만들지 않았다
-      <span class="sub">생성 중 상태는 별도 화면이 아니라 홈 피드 맨 앞의 타일이다. 그 자리가 그대로 결과물로 바뀐다.</span></h1>
+    <div class="eyebrow">② 생성 결과 · 시작 상태</div>
+    <h1 class="t">로딩을 결과 화면의 시작 상태로 만들었다
+      <span class="sub">제출하면 결과 화면이 곧장 열린다. 그 화면이 생성중 상태로 시작해서, 완성되면 같은 자리가 결과물로 crossfade 된다. 별도의 로딩 화면은 여전히 없다.</span></h1>
   </div>
   <div class="body" style="flex-direction:column;gap:20px">
-    <div class="pair">
+    <div class="shot cut" style="flex:1.5"><span class="tag">2-result.html · 시작 상태(state=generating)</span><img src="shots/s-result-generating.png" alt="결과 화면이 생성중 상태로 열린 모습, 5단계 파이프라인 진행 표시"><span class="scrollnote">↓ 완료되면 결과 뷰로 crossfade</span></div>
+    <div class="pair" style="flex:1">
       <div class="col">
-        <div class="collab"><span class="dot" style="background:var(--amber)"></span>생성 중 — 타일 자리에서 단계 표시</div>
-        <div class="shot cut"><img src="shots/s-home-generating.png" alt="생성 중 타일, 프롬프트 조립 중 단계 표시"></div>
+        <div class="collab"><span class="dot" style="background:var(--amber)"></span>홈 스트립 · 생성중 타일(보조 표면)</div>
+        <div class="shot fit"><img src="shots/s-home-generating.png" alt="스튜디오 홈 최근 생성 스트립의 생성중 타일"></div>
       </div>
       <div class="arrow">→</div>
       <div class="col">
-        <div class="collab"><span class="dot" style="background:var(--green)"></span>완료 — 같은 자리가 결과물로 전환 + 토스트</div>
-        <div class="shot cut"><img src="shots/s-home-toast.png" alt="생성 완료 후 토스트 알림"></div>
+        <div class="collab"><span class="dot" style="background:var(--green)"></span>완료 · 스트립 카드 + 토스트</div>
+        <div class="shot fit"><img src="shots/s-home-toast.png" alt="스튜디오 홈 최근 생성 스트립 완료 토스트"></div>
       </div>
     </div>
     <div style="flex:none;display:flex;gap:16px">
       <div class="card" style="flex:1">
-        <h3>타일이 보여주는 것</h3>
+        <h3>결과 화면이 보여주는 것</h3>
         <p>5단계를 이름으로 표시한다. 원본 분석 → <b>일본 고객 관점으로 카피 재설계</b> → 프롬프트 조립 → 썸네일 생성 → 검수 게이트 확인.
           여기서도 진행률 %와 잔여 시간은 쓰지 않는다.</p>
       </div>
       <div class="card why" style="flex:1.35">
         <h3>설계 판단</h3>
-        <p class="quote">로딩을 화면으로 만들면 <span class="mark">기다리는 동안 아무것도 못 한다.</span>
-          타일 상태로 두면 다른 썸네일을 더 걸거나 이전 결과를 보면서 기다릴 수 있다.
-          화면 문구도 그렇게 적었다. “완료되면 여기에 표시됩니다. <span class="mark">다른 작업을 하셔도 됩니다.</span>”</p>
-        <p class="quote">완료 알림은 토스트로 5초간만 띄우고, 이미 그리드에 결과가 보이면 <span class="mark">다시 띄우지 않는다.</span></p>
+        <p class="quote">홈에 생성중 타일을 두고 결과는 따로 여는 구조라면, 완료 확인이 홈과 결과 두 곳으로 흩어진다.
+          <span class="mark">제출 즉시 결과 화면으로 보내고 그 화면을 생성중 상태로 열면</span>, 시작부터 완성까지 한 화면에서 끊기지 않는다.</p>
+        <p class="quote">홈 스트립의 생성중 타일·완료 토스트는 없어지지 않았다. 다른 화면에 가 있는 동안 상태를 알려주는 <span class="mark">보조 표면</span>으로 남는다.</p>
       </div>
     </div>
   </div>
-  <div class="foot"><span>② 생성 중 · 완료</span><span class="src">02-studio-ui-기획서.md · §0 · HOME-04~05</span></div>
+  <div class="foot"><span>② 결과 생성중 · 완료</span><span class="src">02-studio-ui-기획서.md · RESULT-06 · HOME-07</span></div>
 </section>
 
-<!-- ══ 18 실패 ═════════════════════════════════════════ -->
+<!-- ══ 18 결과 실패 상태 ════════════════════════════════ -->
 <section class="slide">
   <div class="head">
-    <div class="eyebrow">② 스튜디오 홈 · 실패 상태</div>
-    <h1 class="t">실패도 자리에 남고, 이유를 말한다
-      <span class="sub">조용히 사라지면 사용자는 자기가 뭘 잘못했는지 모른다. 사유와 다음 행동을 타일에 붙였다.</span></h1>
+    <div class="eyebrow">② 생성 결과 · 실패 상태</div>
+    <h1 class="t">실패도 결과 화면의 상태다
+      <span class="sub">조용히 사라지지 않는다. 생성이 실패해도 결과 화면이 열리고, 사유와 다음 행동이 그 자리에 남는다.</span></h1>
   </div>
   <div class="body">
-    <div class="shot cut"><span class="tag">실패 타일</span><img src="shots/s-home-failed.png" alt="생성 실패 타일, 사유와 다시 시도 버튼"><span class="scrollnote">↓ 그리드 이어짐</span></div>
+    <div class="shot cut"><span class="tag">2-result.html · state=failed</span><img src="shots/s-result-failed.png" alt="결과 화면 실패 상태, 사유와 다시 시도·스튜디오 홈으로 버튼"></div>
     <div class="side">
       <div class="card">
-        <h3>실패 타일에 담은 것</h3>
+        <h3>실패 뷰에 담은 것</h3>
         <ul class="k">
           <li><b>실패했다는 사실</b> · 적색 테두리 + ✕ 기호</li>
           <li><b>왜 실패했는지</b> · “검수 게이트 불통과 — 제품 라벨 열화”</li>
-          <li><b>다시 시도</b> · 직전 입력을 채운 채로 생성 폼 복귀</li>
-          <li><b>닫기</b> · 그리드에서 치운다</li>
+          <li><b>다시 시도</b> · 원본·템플릿을 프리필한 채로 스튜디오 홈 복귀</li>
+          <li><b>스튜디오 홈으로</b> · 입력을 두고 그냥 나가기</li>
         </ul>
       </div>
       <div class="card why">
         <h3>설계 판단</h3>
         <p class="quote">실패물은 <span class="mark">자산으로 저장하지 않는다.</span>
-          검수 게이트를 통과한 것만 갤러리에 남는다. 갤러리에 있는 것은 전부 쓸 수 있다는 뜻이 되어야 하기 때문이다.</p>
-        <p class="quote">다시 시도할 때 <span class="mark">입력을 다시 채우게 하지 않는다.</span>
-          실패의 책임을 사용자에게 넘기지 않는 것이 목적이다.</p>
+          검수 게이트를 통과한 것만 남는다. 라이브러리에 있는 것은 전부 쓸 수 있다는 뜻이 되어야 하기 때문이다.</p>
+        <p class="quote">전에는 실패가 홈 그리드 한 칸(타일)이었다. 지금은 <span class="mark">결과 화면 자체가 실패 상태로 열린다</span> — 생성중·완성과 같은 자리에서 실패도 다룬다.</p>
       </div>
     </div>
   </div>
-  <div class="foot"><span>② 실패 상태</span><span class="src">02-studio-ui-기획서.md · HOME-06</span></div>
+  <div class="foot"><span>② 결과 실패 상태</span><span class="src">02-studio-ui-기획서.md · RESULT-06b</span></div>
 </section>
 
 <!-- ══ 19 생성 폼 ══════════════════════════════════════ -->
 <section class="slide">
   <div class="head">
-    <div class="eyebrow">② 화면 2 · 썸네일 생성</div>
+    <div class="eyebrow">② 스튜디오 홈 · 생성 폼</div>
     <h1 class="t">필수 두 개, 선택 두 개
       <span class="sub">네 개 섹션을 위에서 아래로 쌓고, 각 머리에 필수·선택 배지를 붙여 무엇을 꼭 채워야 하는지 먼저 보이게 했다.</span></h1>
   </div>
   <div class="body">
-    <div class="shot cut"><span class="tag">2-create.html · 예시 데이터</span><img src="shots/s-create.png" alt="썸네일 생성 폼"><span class="scrollnote">↓ 템플릿 · 실적 배지 · 제출 이어짐</span></div>
+    <div class="shot cut"><span class="tag">1-home.html · 예시 데이터</span><img src="shots/s-create.png" alt="스튜디오 홈 생성 폼, 예시 데이터로 채운 상태"><span class="scrollnote">↓ 템플릿 · 실적 배지 · 제출 이어짐</span></div>
     <div class="side">
       <div class="card">
         <h3>섹션 순서</h3>
@@ -854,7 +852,7 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
       </div>
     </div>
   </div>
-  <div class="foot"><span>② 썸네일 생성</span><span class="src">02-studio-ui-기획서.md · CREATE-02~06</span></div>
+  <div class="foot"><span>② 썸네일 생성</span><span class="src">02-studio-ui-기획서.md · HOME-02~06</span></div>
 </section>
 
 <!-- ══ 20 템플릿 선택 ══════════════════════════════════ -->
@@ -885,7 +883,7 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
       </div>
     </div>
   </div>
-  <div class="foot"><span>② 템플릿 선택</span><span class="src">02-studio-ui-기획서.md · CREATE-03 · CREATE-04a</span></div>
+  <div class="foot"><span>② 템플릿 선택</span><span class="src">02-studio-ui-기획서.md · HOME-03 · HOME-04a</span></div>
 </section>
 
 <!-- ══ 21 실적 배지 ════════════════════════════════════ -->
@@ -920,18 +918,18 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
       </div>
     </div>
   </div>
-  <div class="foot"><span>② 실적 배지</span><span class="src">02-studio-ui-기획서.md · CREATE-05 · CREATE-07</span></div>
+  <div class="foot"><span>② 실적 배지</span><span class="src">02-studio-ui-기획서.md · HOME-05 · HOME-08</span></div>
 </section>
 
 <!-- ══ 22 결과 ═════════════════════════════════════════ -->
 <section class="slide">
   <div class="head">
-    <div class="eyebrow">② 화면 3 · 생성 결과 상세</div>
+    <div class="eyebrow">② 화면 2 · 생성 결과 상세</div>
     <h1 class="t">결과물보다 근거가 넓은 화면
       <span class="sub">왼쪽은 만들어진 썸네일과 검수 결과, 오른쪽은 왜 이렇게 만들었는지의 해설이다.</span></h1>
   </div>
   <div class="body">
-    <div class="shot cut"><span class="tag">3-result.html</span><img src="shots/s-result.png" alt="생성 결과 상세 화면"><span class="scrollnote">↓ 무엇을 바꿨나 표 이어짐</span></div>
+    <div class="shot cut"><span class="tag">2-result.html</span><img src="shots/s-result.png" alt="생성 결과 상세 화면"><span class="scrollnote">↓ 무엇을 바꿨나 표 이어짐</span></div>
     <div class="side">
       <div class="card">
         <h3>2단 구성</h3>
@@ -986,10 +984,143 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
       </div>
     </div>
   </div>
-  <div class="foot"><span>② 카피 재설계</span><span class="src">02-studio-ui-기획서.md · RESULT-02b · CREATE-06a</span></div>
+  <div class="foot"><span>② 카피 재설계</span><span class="src">02-studio-ui-기획서.md · RESULT-02b · HOME-06a</span></div>
 </section>
 
-<!-- ══ 24 종합 흐름 ════════════════════════════════════ -->
+<!-- ══ 24 ③ 섹션 표지 ═════════════════════════════════ -->
+<section class="slide divider">
+  <div class="num">③</div>
+  <h2>운영</h2>
+  <p>①에서 진단받고 ②에서 만든 것이 여기 모인다. 여기서는 만들지 않는다 — 다시 꺼내 보고, 다음 시즌을 준비하는 화면이다.</p>
+  <div class="rail"><span>자산 라이브러리</span><i>→</i><span>자산 상세 (탭 이탈 없음)</span><i>→</i><span>브랜드 관리</span><i>→</i><span>기업 매칭</span></div>
+</section>
+
+<!-- ══ 25 운영 홈 ══════════════════════════════════════ -->
+<section class="slide">
+  <div class="head">
+    <div class="eyebrow">③ 화면 1 · 운영 홈</div>
+    <h1 class="t">여기서는 만들지 않는다
+      <span class="sub">진단 리포트와 생성 썸네일이 브랜드 단위로 모이는 자리. 시즌 타임라인이 지금 뭘 준비할 때인지 말해주고, 타입 탭 그리드가 지금까지 쌓인 자산을 보여준다.</span></h1>
+  </div>
+  <div class="body">
+    <div class="shot cut"><span class="tag">1-home.html · 기본 상태</span><img src="shots/o-home-default.png" alt="운영 홈, 사이드바 운영 하위 메뉴와 시즌 타임라인, 타입 탭 자산 그리드"><span class="scrollnote">↓ 준비 중인 기능 이어짐</span></div>
+    <div class="side">
+      <div class="card">
+        <h3>구성</h3>
+        <div class="steps" style="margin-top:4px">
+          <div class="step"><span class="n">1</span><span><b>시즌 타임라인 스트립</b> · 향후 6개월 롤링, 조회 전용</span></div>
+          <div class="step"><span class="n">2</span><span><b>이번 시즌 준비 제안 카드</b> · 규칙 기반 1개만</span></div>
+          <div class="step"><span class="n">3</span><span><b>자산 그리드 · 타입 탭</b> · [진단 리포트|썸네일] 4열, 최신순</span></div>
+          <div class="step"><span class="n">4</span><span><b>사이드바 하위 메뉴</b> · 자산 라이브러리 / 브랜드 관리 / 기업 매칭</span></div>
+        </div>
+      </div>
+      <div class="card why">
+        <h3>설계 판단</h3>
+        <p class="quote">② 스튜디오 홈이 생성 퍼널로 개편되며 갤러리가 사라졌다. <span class="mark">재열람·필터·다운로드 같은 관리 기능의 정본을 여기 하나로</span> 모았다 — 같은 자산이 두 곳에서 다르게 보이던 상태를 없앴다.</p>
+        <p class="quote">전체/리포트/썸네일 필터 칩을 버리고 <span class="mark">타입 탭 + 사이드바 하위 메뉴</span>로 격상했다 — Canva류 콘텐츠 허브 관례대로 타입 구분은 1차 내비가, 칩·셀렉트는 기간 같은 2차 정제만 맡는다. 매칭 엔트리 카드도 하위 메뉴로 올려 홈은 라이브러리에 집중한다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>③ 운영 홈</span><span class="src">04-operations-ui-기획서.md · LIB-00~10</span></div>
+</section>
+
+<!-- ══ 26 자산 상세 ════════════════════════════════════ -->
+<section class="slide">
+  <div class="head">
+    <div class="eyebrow">③ 화면 2 · 자산 상세</div>
+    <h1 class="t">카드를 눌러도 탭이 안 바뀐다
+      <span class="sub">운영 라이브러리에서 카드를 클릭하면 예전엔 ② 스튜디오 결과 화면으로 탭이 튀었다. 이제는 운영 안에서 상세가 열린다.</span></h1>
+  </div>
+  <div class="body" style="flex-direction:column;gap:20px">
+    <div class="pair" style="flex:1.3">
+      <div class="col">
+        <div class="collab"><span class="dot" style="background:var(--coral)"></span>썸네일 모드</div>
+        <div class="shot cut"><img src="shots/o-detail-thumb.png" alt="자산 상세 썸네일 모드, 사이드바의 운영 탭이 계속 활성 상태"></div>
+      </div>
+      <div class="arrow">/</div>
+      <div class="col">
+        <div class="collab"><span class="dot" style="background:var(--navy)"></span>리포트 요약 모드</div>
+        <div class="shot cut"><img src="shots/o-detail-report.png" alt="자산 상세 리포트 요약 모드, 표지와 종합 점수"></div>
+      </div>
+    </div>
+    <div style="flex:none;display:flex;gap:16px">
+      <div class="card" style="flex:1">
+        <h3>축 이동은 버튼 2개로만</h3>
+        <p>썸네일 모드 “같은 이미지로 다른 템플릿 생성” → ② 스튜디오 홈. 리포트 모드 “리포트 전체 보기” → ① 리포트. 두 버튼 모두 “이 화면에서 다른 축으로 이동하는 유일한 버튼입니다”라고 미리 예고한다.</p>
+      </div>
+      <div class="card why" style="flex:1.35">
+        <h3>설계 판단</h3>
+        <p class="quote">개편 전에는 라이브러리 카드를 누르면 <span class="mark">② 스튜디오 결과 화면으로 탭이 이탈</span>했다 — 기획서에 의도된 동작으로 적혀 있었지만, 실제로는 방금 있던 자리가 사라지는 혼란으로 이어졌다.</p>
+        <p class="quote">지금은 카드를 눌러도 사이드바의 <span class="mark">“운영” 탭이 계속 켜져 있다.</span> 보관·재열람은 축을 넘지 않고, 다른 축으로 가는 길은 상세 화면 안의 명시적 버튼뿐이다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>③ 자산 상세</span><span class="src">04-operations-ui-기획서.md · DETAIL-00~07</span></div>
+</section>
+
+<!-- ══ 27 브랜드 관리 ══════════════════════════════════ -->
+<section class="slide">
+  <div class="head">
+    <div class="eyebrow">③ 화면 3 · 브랜드 관리</div>
+    <h1 class="t">한 번 정리하면 다시 입력하지 않는다
+      <span class="sub">브랜드 킷(프로필·제품·채널·일본향 용어집)을 한곳에서 편집한다. 마이페이지의 조회 전용 요약에 없던 편집 정본이 생겼다.</span></h1>
+  </div>
+  <div class="body" style="flex-direction:column;gap:20px">
+    <div class="pair" style="flex:1.3">
+      <div class="col">
+        <div class="collab"><span class="dot" style="background:var(--coral)"></span>작성 완료</div>
+        <div class="shot cut"><img src="shots/o-brand-default.png" alt="브랜드 관리, 프로필·포지셔닝 태그·제품·채널·일본향 용어집 카드"></div>
+      </div>
+      <div class="arrow">/</div>
+      <div class="col">
+        <div class="collab"><span class="dot" style="background:var(--navy)"></span>미작성 (빈 상태)</div>
+        <div class="shot cut"><img src="shots/o-brand-empty.png" alt="브랜드 관리 미작성 상태, 섹션별 빈 상태 안내"></div>
+      </div>
+    </div>
+    <div style="flex:none;display:flex;gap:16px">
+      <div class="card" style="flex:1">
+        <h3>일본향 용어집이 킷의 심장</h3>
+        <p>제품명 일본어 표기(KR→JA) · 금지 표현(약기법 사유 병기 — 美白은 의약외품 승인 효능) · 톤 가이드. 번역 사전이 아니라 일본 고객 관점 메시지 재설계의 입력이다.</p>
+      </div>
+      <div class="card why" style="flex:1.35">
+        <h3>설계 판단</h3>
+        <p class="quote">Canva Brand Kit의 Brand Voice처럼 <span class="mark">저장된 킷이 진단 프리필·생성 참조의 소스</span>가 된다 — 단, 자동 참조 계약은 제안 상태라 화면도 “전달할 준비를 하고 있습니다”까지만 말한다(증거 원칙).</p>
+        <p class="quote">킷을 수정해도 <span class="mark">이미 발행된 리포트는 바뀌지 않는다</span> — 진단 원본은 제출 시점 스냅샷이라는 데이터 원칙을 화면 캡션이 그대로 말한다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>③ 브랜드 관리</span><span class="src">04-operations-ui-기획서.md · BRAND-00~09</span></div>
+</section>
+
+<!-- ══ 28 기업 매칭 ════════════════════════════════════ -->
+<section class="slide">
+  <div class="head">
+    <div class="eyebrow">③ 화면 4 · 기업 매칭</div>
+    <h1 class="t">컨시어지형 라이트 — 목록도, 검색도 없다
+      <span class="sub">홈 하단 카드에서 운영 하위 페이지로 격상 — 사이드바 하위 메뉴로 진입하고 상태는 메뉴 배지로 요약된다. 매칭 DB 열람·조건 검색 없이 신청 폼과 상태 추적만. 검토는 운영팀이 수동으로 한다.</span></h1>
+  </div>
+  <div class="body" style="flex-direction:column;gap:18px">
+    <div class="strip" style="grid-template-columns:repeat(3,1fr);flex:1.2">
+      <figure><div class="fr"><img src="shots/o-match-form.png" alt="기업 매칭 신청 폼, 파트너 유형·채널·시기·메모"></div><figcaption>신청 폼 · 미신청<i>파트너 유형 1개 이상 필수</i></figcaption></figure>
+      <figure><div class="fr"><img src="shots/o-match-review.png" alt="기업 매칭 상태 추적, 3단 스테퍼 검토 중 단계"></div><figcaption>상태 추적 · 검토 중<i>3단 스테퍼, 운영팀 수동 갱신</i></figcaption></figure>
+      <figure><div class="fr"><img src="shots/o-match-proposal.png" alt="기업 매칭 제안 도착, 파트너 카드와 제안 사유"></div><figcaption>제안 도착<i>사유는 문장으로만</i></figcaption></figure>
+    </div>
+    <div style="flex:none;display:flex;gap:16px">
+      <div class="card" style="flex:1">
+        <h3>신청서는 다시 쓰지 않는다</h3>
+        <p>브랜드 프로필·리포트 건수·썸네일 건수·최근 진단 점수가 자동으로 첨부된다. “신청서에 함께 전달됩니다. 다시 입력할 필요 없습니다”라고 화면이 직접 말한다.</p>
+      </div>
+      <div class="card why" style="flex:1.3">
+        <h3>설계 판단</h3>
+        <p class="quote">적합도 점수·순위·등급은 <span class="mark">보여주지 않는다.</span> 왜 이 파트너를 제안했는지는 문장으로만 설명한다. 근거 없는 판정 수치를 만들지 않는다는 증거 원칙을 여기도 그대로 적용했다.</p>
+        <p class="quote">상태는 <span class="mark">운영팀이 수동으로 갱신</span>한다. 자동 진행률·예상 소요일은 적지 않는다 — 지키지 못할 약속이기 때문이다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>③ 기업 매칭</span><span class="src">04-operations-ui-기획서.md · MATCH-00~08</span></div>
+</section>
+
+<!-- ══ 29 종합 흐름 ════════════════════════════════════ -->
 <section class="slide">
   <div class="head">
     <div class="eyebrow">종합</div>
@@ -1004,27 +1135,28 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
       <figure><div class="fr wide"><img src="shots/r-slides.png" alt="보고용 슬라이드"></div><figcaption>① 보고용 7장<i>결재 문서로 재배열</i></figcaption></figure>
       <figure><div class="fr wide"><img src="shots/s-home-default.png" alt="스튜디오 홈"></div><figcaption>② 스튜디오 홈<i>크레딧으로 진입</i></figcaption></figure>
     </div>
-    <div class="strip" style="flex:0.86">
+    <div class="strip" style="flex:0.86;grid-template-columns:repeat(6,1fr)">
       <figure><div class="fr"><img src="shots/s-create.png" alt="썸네일 생성"></div><figcaption>② 썸네일 생성<i>원본 · 플랫폼 · 템플릿</i></figcaption></figure>
-      <figure><div class="fr wide"><img src="shots/s-home-generating.png" alt="생성 중"></div><figcaption>② 생성 중<i>홈 타일 상태</i></figcaption></figure>
+      <figure><div class="fr wide"><img src="shots/s-result-generating.png" alt="결과 화면 생성중 시작 상태"></div><figcaption>② 결과 생성중<i>결과 화면 시작 상태</i></figcaption></figure>
       <figure><div class="fr wide"><img src="shots/s-result.png" alt="생성 결과"></div><figcaption>② 생성 결과<i>결과물 + 재설계 근거</i></figcaption></figure>
+      <figure><div class="fr wide"><img src="shots/o-home-thumb.png" alt="운영 홈 썸네일 탭, 생성 썸네일이 모인 자산 라이브러리"></div><figcaption>③ 운영 홈<i>자산 라이브러리로 모인다</i></figcaption></figure>
       <figure style="grid-column:span 2"><div class="fr" style="display:flex;align-items:center;padding:22px 26px;background:var(--coral-tint);border-color:rgba(255,100,100,.25)">
         <div>
-          <div style="font-size:15px;font-weight:800;color:var(--coral-strong);margin-bottom:9px">①과 ②를 잇는 지점</div>
+          <div style="font-size:15px;font-weight:800;color:var(--coral-strong);margin-bottom:9px">①→②→③를 잇는 지점</div>
           <ul class="k" style="gap:7px">
             <li>리포트 <b>닫는 실행 밴드</b>에 썸네일 KR→JP 맛보기를 싣는다</li>
             <li>가입하면 스튜디오를 결제 전에 써보는 <b>크레딧</b>을 준다</li>
             <li>리포트 탭 2에서 <b>예습한 8종 문법</b>을 스튜디오에서 고른다</li>
-            <li>Before/After 예시는 <b>같은 정본</b>을 쓴다 — ①은 티저, ②는 풀버전</li>
+            <li>완성된 자산은 <b>③ 자산 라이브러리</b>에 쌓여 축 이탈 없이 다시 열어볼 수 있다</li>
           </ul>
         </div>
       </div><figcaption style="visibility:hidden">-</figcaption></figure>
     </div>
   </div>
-  <div class="foot"><span>종합 흐름</span><span class="src">01-report · REPORT-13a~13b / 02-studio · HOME-00</span></div>
+  <div class="foot"><span>종합 흐름</span><span class="src">01-report · REPORT-13a~13b / 02-studio · HOME-00 / 04-operations · LIB-00</span></div>
 </section>
 
-<!-- ══ 25 UX 판단 요약 ═════════════════════════════════ -->
+<!-- ══ 30 UX 판단 요약 ═════════════════════════════════ -->
 <section class="slide">
   <div class="head">
     <div class="eyebrow">종합</div>
@@ -1037,10 +1169,10 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
         <thead><tr><th style="width:190px">판단</th><th style="width:330px">어느 화면에서</th><th>왜</th></tr></thead>
         <tbody>
           <tr><td class="h">막기 전에 예고한다</td><td>① 입력 게이트 · ② 템플릿 딤</td><td>글자 수에 따라 산출이 달라진다는 걸 제출 전에 알린다. 부적합 템플릿도 사유만 붙이고 선택은 열어 둔다</td></tr>
-          <tr><td class="h">진행률을 약속하지 않는다</td><td>① 처리 화면 · ② 생성 중 타일</td><td>LLM·이미지 생성 소요를 예측할 수 없다. % 대신 <b>단계 이름</b>을 쓴다</td></tr>
-          <tr><td class="h">기다림에 묶어두지 않는다</td><td>① “닫아도 계속” · ② 로딩 화면 없음</td><td>①은 오래 걸리므로 이탈을 허용하고, ②는 반복 작업이라 아예 화면을 만들지 않았다</td></tr>
-          <tr><td class="h">빈 상태에 설명을 싣는다</td><td>② 스튜디오 홈 빈 상태</td><td>별도 온보딩은 두 번째부터 안 보인다. 처음 한 번만 뜨는 자리에 8종 문법을 훑게 했다</td></tr>
-          <tr><td class="h">실패를 감추지 않는다</td><td>① 잡 전체 실패 · ② 실패 타일</td><td>일반 템플릿으로 대체 발행하지 않고, 사유와 다시 시도를 함께 준다</td></tr>
+          <tr><td class="h">진행률을 약속하지 않는다</td><td>① 처리 화면 · ② 결과 생성중 상태</td><td>LLM·이미지 생성 소요를 예측할 수 없다. % 대신 <b>단계 이름</b>을 쓴다</td></tr>
+          <tr><td class="h">기다림에 묶어두지 않는다</td><td>① “닫아도 계속” · ② 로딩 화면 없음</td><td>①은 오래 걸리므로 이탈을 허용하고, ②는 로딩을 결과 화면의 시작 상태로 흡수해 별도 화면을 만들지 않았다</td></tr>
+          <tr><td class="h">온보딩을 별도 화면에 두지 않는다</td><td>② 템플릿 그리드</td><td>빈 상태 화면을 없앴다. 템플릿 8종 그리드가 생성 폼의 고정 섹션이라, 처음이든 백 번째든 같은 자리에서 문법을 훑는다</td></tr>
+          <tr><td class="h">실패를 감추지 않는다</td><td>① 잡 전체 실패 · ② 결과 실패 상태</td><td>일반 템플릿으로 대체 발행하지 않고, 사유와 다시 시도를 함께 준다</td></tr>
           <tr><td class="h">없는 것은 그리지 않는다</td><td>① 잠긴 장 미생성 · ② 해설 없으면 영역 미출력</td><td>“측정 못 했습니다”로 채운 표를 결재선에 올리게 하지 않는다. 빈 표도 출력하지 않는다</td></tr>
           <tr><td class="h">내부 코드를 노출하지 않는다</td><td>① 루브릭·약기법 ID · ② 스타일 A~H</td><td>화면 라벨은 전부 평문. 내부 ID는 데이터 계약 안에만 둔다</td></tr>
           <tr><td class="h">색만으로 판정하지 않는다</td><td>양쪽 모든 상태 표기</td><td>색 + 글자 + 기호(○△✕) 3중 표기</td></tr>
@@ -1048,17 +1180,17 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
       </table>
     </div>
   </div>
-  <div class="foot"><span>UX 판단 요약</span><span class="src">01-report-ui-기획서.md · 02-studio-ui-기획서.md</span></div>
+  <div class="foot"><span>UX 판단 요약</span><span class="src">01-report-ui-기획서.md · 02-studio-ui-기획서.md · 04-operations-ui-기획서.md</span></div>
 </section>
 
-<!-- ══ 26 다루지 않은 것 ═══════════════════════════════ -->
+<!-- ══ 31 다루지 않은 것 ═══════════════════════════════ -->
 <section class="slide">
   <div class="head">
     <div class="eyebrow">경계</div>
     <h1 class="t">이 프로토타입이 다루지 않은 것
       <span class="sub">확정 전 항목은 화면으로 그리지 않았다. 결정된 것처럼 읽히지 않도록.</span></h1>
   </div>
-  <div class="body" style="gap:24px">
+  <div class="body" style="gap:20px">
     <div class="card spread" style="flex:1;overflow:hidden">
       <h3 style="margin-bottom:14px"><span style="color:var(--coral-strong)">①</span> 진단 리포트</h3>
       <table class="k">
@@ -1085,8 +1217,20 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
         </tbody>
       </table>
     </div>
+    <div class="card spread" style="flex:1;overflow:hidden">
+      <h3 style="margin-bottom:14px"><span style="color:var(--coral-strong)">③</span> 운영</h3>
+      <table class="k">
+        <thead><tr><th style="width:120px">항목</th><th style="width:84px">상태</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td class="h">성과 판별</td><td><span class="pill p-warn">검토 대상</span></td><td>실현 가능성·우선순위 미정. 지표·차트 UI로 그리지 않는다(증거 원칙)</td></tr>
+          <tr><td class="h">브랜드 킷 계약</td><td><span class="pill p-no">계약 제안</span></td><td>용어집·톤 확장(BRAND-09)과 생성 자동 참조는 제안 상태. 화면 카피도 “전달 준비 중”까지만</td></tr>
+          <tr><td class="h">매칭 상태 갱신</td><td><span class="pill p-opt">운영팀 수동</span></td><td>자동 진행률·예상 소요일 표기 없음. 상태는 사람이 바꾼다</td></tr>
+          <tr><td class="h">자산 삭제</td><td><span class="pill p-no">미정</span></td><td>② HOME-08과 동일 — 운영·스튜디오 공통 미정</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-  <div class="foot"><span>다루지 않은 것</span><span class="src">01-report/index.html · 02-studio/index.html</span></div>
+  <div class="foot"><span>다루지 않은 것</span><span class="src">01-report/index.html · 02-studio/index.html · 04-operations/index.html</span></div>
 </section>
 
 </div>

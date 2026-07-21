@@ -600,6 +600,7 @@ erDiagram
 - **`Report`에 `reviewerName`·`reviewerSignedAt`·`rejectedReason`은 없다**(2026-07-16 검수 제거). `publishedAt`은 파이프라인 성공 시각이다.
 - **`AuditSentence`를 `blocksJson`과 별도 정규화**하는 이유: ② 썸네일 검수 게이트·무료 체커 업셀이 문장 단위 판정을 재조회하기 때문(블록3 렌더는 blocksJson으로도 가능하지만 조회 축이 다름).
 - IA §7의 `상품`·`시즌 캘린더` 엔티티는 **MVP에서 생략** — 상품 정보는 `tierInput` 스냅샷과 `BrandProfile.productInfoMemo`로 흡수, 다상품·시즌은 ②·③ 스펙 확정 시 추가(스키마 예약만).
+- **`BrandProfile.brandKitJson`(스키마 예약 · 2026-07-21)** — ③ 브랜드 관리(브랜드 킷)가 제안한 확장 필드(jsonb: `productNamesJa[]{kr,ja}` · `forbiddenTerms[]{term,reason}` · `toneGuide` — `specs/04-operations/04-operations-ui-기획서.md` BRAND-09). 생성 파이프라인 자동 참조 계약은 (추후 기획). 킷 수정은 `tierInput` 스냅샷 원칙에 따라 발행된 리포트에 소급되지 않는다.
 - `LlmCallLog.requestBody`는 원문 저장이 원칙(재현성). 저장량 우려 시 system 프리픽스는 해시로 대체 가능.
 
 ### 6.2 저장 기본안
@@ -625,7 +626,7 @@ erDiagram
 | 요금 (`public-onboarding`) | — (정적) | — | |
 | 로그인/회원가입 (`public-onboarding`) | `User` | `User` | Supabase Auth |
 | 브랜드 프로필 등록 4단계 (`public-onboarding`) | `User` | `BrandProfile` | 완료 시 리포트 폼으로 프리필(§3.1) |
-| 대시보드/마이페이지 (`app`) | `BrandProfile`·`Report`·`GeneratedAsset`·`DiagnosisRequest.status` | — | 브랜드 프로필 스위처 |
+| 대시보드/마이페이지 (`app`) | `BrandProfile`·`Report`·`GeneratedAsset`·`DiagnosisRequest.status` | — | 브랜드 프로필 스위처. 브랜드 편집 정본은 ③ 브랜드 관리(2026-07-21) — 여기서는 조회만 |
 | ① 진단 입력폼 — 브랜드 필수/제품 선택 (`report`) | `BrandProfile`(프리필) | `DiagnosisRequest` | 50자 게이트는 클라이언트(텍스트 제출 시에만 — `source` 미제출은 `brand` 모드 제출. 정의 = `lib/engine/rules/gates.ts`) |
 | ① 처리 로딩 (`report`) | `DiagnosisRequest.status` 폴링 | — | §3.3 상태 머신 |
 | ① 리포트 8블록 뷰 (`report`) | `Report`·`AuditSentence` | — | published만 사용자 노출 |
@@ -633,7 +634,10 @@ erDiagram
 | ① 보고용 슬라이드 내보내기 (`report` 내 버튼) | `Report.blocksJson`·`DiagnosisRequest.tierInput` | `LlmCallLog`(콜⑤) | 화면 아님 — 다운로드 응답(단일 HTML). **저장 없음**(§4.5 · 스펙 §10.6) |
 | ① S2 재진단 뷰 (`report-postentry`) | `Report`(S2 블록 구성) | — | S2 스펙(`01-report-spec-postentry`)과 입력 차이는 해당 스펙에서 |
 | ② 썸네일 변환기 (`service`) | `BrandProfile`·프롬프트 팩 | `GeneratedAsset` + `LlmCallLog` | §5.1 |
-| ③ 자산 라이브러리 (`service`) | `Report`·`GeneratedAsset` | — | 재조회 전용 |
+| ③ 자산 라이브러리 (`04-operations/1-home`) | `Report`·`GeneratedAsset` | — | 재조회 전용 · 타입 탭 [진단 리포트\|썸네일] (2026-07-21 IA 개편) |
+| ③ 자산 상세 (`04-operations/2-detail`) | `Report`·`GeneratedAsset`(`explanationJson` 재조회) | — | 재조회 전용 · 썸네일/리포트 요약 2모드 |
+| ③ 브랜드 관리 (`04-operations/3-brand`) | `BrandProfile` | `BrandProfile`(+`brandKitJson` — §6.1 설계 노트 스키마 예약·계약 제안) | 편집 정본(2026-07-21 신설). 킷 수정은 발행 리포트에 불소급(`tierInput` 스냅샷) |
+| ③ 기업 매칭 (`04-operations/4-matching`) | `BrandProfile`·자산 카운트 | `MatchRequest`(계약 제안 — §5.2 TBD) | 컨시어지형 · 상태 갱신은 운영팀 수동 |
 | ~~검수자용 내부 화면 (공백)~~ | — | — | **폐기(2026-07-16)** — 검수 단계 제거로 화면 자체가 없어졌다. 공백은 **만들어서가 아니라 삭제로 닫혔다**(§8-D4) |
 | 산출물 프로토 (`deliverable-proto-cica`) | — (정적 목업) | — | 블록7 하이라이트·② 산출물의 시각 기준 |
 

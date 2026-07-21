@@ -182,12 +182,129 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   border-color: var(--coral) !important;
   box-shadow: var(--nav-shadow) !important;
 }
-.h-tile .tile-ov { opacity: 0; pointer-events: none; transition: opacity .15s; }
+/* 사진 위에 얹히므로 불투명 색면이 아니라 하단 스크림 — 썸네일이 가려지지 않는다.
+   앵커 중첩을 피하려고 카드 링크 바깥에 두므로 썸네일 영역(1:1) 위에 직접 앉힌다. */
+.h-tile .tile-ov {
+  position: absolute; left: 0; right: 0; top: 0; aspect-ratio: 1 / 1;
+  display: flex; align-items: flex-end; justify-content: center; gap: 8px; padding-bottom: 14px;
+  background: linear-gradient(180deg, rgba(16, 18, 20, 0) 38%, rgba(16, 18, 20, .28) 60%, rgba(16, 18, 20, .74));
+  opacity: 0; pointer-events: none; transition: opacity .15s;
+}
 .h-tile:hover .tile-ov, .h-tile:focus-within .tile-ov { opacity: 1; pointer-events: auto; }
 
 /* 템플릿 선택 카드 */
-.h-tcard { transition: border-color .15s, background .15s, opacity .15s; }
+.h-tcard { transition: border-color .15s, background .15s, opacity .15s, filter .15s; }
 .h-tcard:hover { border-color: var(--coral) !important; }
+/* 부적합(딤): 투명도만 낮추면 본문 대비가 무너져 채도를 함께 뺀다. 사유는 그리드 하단에 1회만 쓴다 */
+.h-tcard.is-dim { opacity: .62; filter: grayscale(.4); }
+.h-tcard.is-dim:hover, .h-tcard.is-dim:focus-visible { opacity: 1; filter: none; }
+
+/* ── 이미지 ──────────────────────────────────────────── */
+/* 썸네일은 전부 1:1. 로드 전에도 자리를 잡도록 배경을 깔아 레이아웃 점프를 막는다 */
+.thumb {
+  display: block; width: 100%; aspect-ratio: 1 / 1;
+  object-fit: cover; background: var(--n-150);
+}
+.thumb-frame { display: block; position: relative; aspect-ratio: 1 / 1; overflow: hidden; }
+/* "실측 참고" 마이크로 라벨 — 생성 결과와 구분하는 표식이라 장식이 아니다 */
+.cite-tag {
+  position: absolute; left: 6px; bottom: 6px; z-index: 1;
+  display: inline-flex; align-items: center; height: 19px; padding: 0 7px;
+  border-radius: 5px; background: rgba(16, 18, 20, .62); backdrop-filter: blur(3px);
+  color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .01em;
+}
+
+/* 템플릿 카드 배지 — 선택 ✓ 은 카드 우상단, 추천/부적합 플래그는 이미지 좌상단으로 자리를 나눈다 */
+.tpl-flag {
+  position: absolute; left: 6px; top: 6px; z-index: 1;
+  display: none; align-items: center; height: 20px; padding: 0 8px;
+  border-radius: 9999px; font-size: 10.5px; font-weight: 700; white-space: nowrap;
+}
+.tpl-flag.is-rec { display: inline-flex; background: var(--green-bg); color: var(--green-text); }
+.tpl-flag.is-warn { display: inline-flex; background: var(--amber-bg); color: var(--amber-text); }
+
+/* 카드 하단부. display:contents 로 래퍼를 걷어 두 줄을 카드(flex column)의 직계 자식으로 만든다 —
+   적합 플랫폼 줄은 설명 바로 아래에 고정되고(8장 가로 정렬), 조건 배지만 카드 바닥으로 밀린다. */
+.tpl-foot { display: contents; }
+.tpl-fit { display: block; margin: 6px 0; font-size: 10.5px; font-weight: 600; color: var(--ink-mute); }
+.tpl-cond {
+  display: inline-flex; margin-top: auto; align-self: flex-start;
+  height: 19px; align-items: center; padding: 0 7px;
+  border-radius: 9999px; background: var(--amber-bg); color: var(--amber-text);
+  font-size: 10px; font-weight: 700;
+}
+
+/* 빈 상태 템플릿 스트립 — 프리뷰 + 평문 이름 (HOME-03) */
+.tpl-strip {
+  list-style: none; margin: 26px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 14px;
+}
+.tpl-strip li { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.tpl-strip img { border-radius: 9px; border: 1px solid var(--hairline); }
+.tpl-strip span {
+  font-size: 11px; line-height: 1.45; font-weight: 600;
+  color: var(--ink-mute); text-align: center; word-break: keep-all;
+}
+@media (max-width: 900px) { .tpl-strip { grid-template-columns: repeat(4, 1fr); } }
+
+/* 폼 섹션 스텝 번호 — 4개 섹션의 진행 순서를 눈에 보이게 */
+.step-no {
+  display: inline-flex; flex: none; width: 22px; height: 22px;
+  align-items: center; justify-content: center; border-radius: 50%;
+  background: var(--coral-tint); border: 1px solid rgba(255, 100, 100, .35);
+  color: var(--coral-strong); font-size: 11.5px; font-weight: 800;
+}
+
+/* 설명문 2줄 고정 — 카드 높이를 맞춰 그리드 바텀 라인을 정렬한다 */
+.clamp-2 {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; min-height: 2lh;
+}
+
+/* ── 필터 칩 가로 스크롤 (칩 9개가 툴바를 다 먹는 문제) ── */
+.chip-scroll {
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  padding-bottom: 2px; min-width: 0;
+  mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 20px), transparent 100%);
+}
+.chip-scroll::-webkit-scrollbar { display: none; }
+.chip-scroll > button { flex: none; }
+
+/* ── 하단 sticky 액션 바 (생성 화면 — 폼이 길어 버튼이 화면 밖) ── */
+.sticky-submit {
+  position: sticky; bottom: 0; z-index: 40;
+  margin: 24px -24px -96px; padding: 30px 24px 20px;
+  /* 위 26px 안에서 완전 불투명이 된다 — 버튼이 시작되는 지점에서 본문이 비쳐 보이면 안 된다 */
+  background: linear-gradient(180deg, rgba(247, 247, 248, 0) 0, var(--page) 26px, var(--page) 100%);
+}
+
+/* ── 결과 화면 좌측 컬럼 고정 (우측 해설이 2배 길다) ── */
+@media (min-width: 981px) {
+  .result-sticky { position: sticky; top: 24px; }
+}
+
+/* ── 카피 재설계 슬롯 카드 (RESULT-02b) ────────────────
+   KR 원문 → JP 재설계가 카드에서 바로 읽히도록 위계를 준다.
+   ::before 화살표가 "번역이 아니라 다시 썼다"는 이 화면의 논지를 시각화한다. */
+.slot-card {
+  margin-top: 12px; border: 1px solid var(--hairline); border-radius: 10px;
+  padding: 14px 16px;
+}
+.slot-kr {
+  margin: 0; font-size: 12.5px; font-weight: 600;
+  color: var(--ink-mute); text-decoration: line-through;
+}
+.slot-jp {
+  position: relative; margin: 8px 0 0; padding-left: 20px;
+  font-size: 15px; font-weight: 800; line-height: 1.5; color: var(--ink);
+}
+.slot-jp::before {
+  content: "→"; position: absolute; left: 0; top: 0;
+  color: var(--coral-strong); font-weight: 700;
+}
+.slot-why { margin: 12px 0 0; padding-top: 11px; border-top: 1px solid var(--hairline); font-size: 12.5px; line-height: 1.65; }
+.slot-why dt { float: left; clear: left; width: 68px; font-weight: 700; color: var(--ink); }
+.slot-why dd { margin: 0 0 4px 78px; color: var(--ink-body); }
 
 /* ════════════════════════════════════════════════════════════════════
    앱 셸 확장(공용) — 사이드바·브랜드 스위처·성숙도 배지·KPI 위젯

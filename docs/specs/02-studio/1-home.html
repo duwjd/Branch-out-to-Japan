@@ -3,14 +3,21 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>② 마케팅 스튜디오 · 1. 스튜디오 홈</title>
+<title>② 마케팅 스튜디오 · 1. 스튜디오 홈(생성)</title>
 <!--
   비배포 · 기획 검토용 인터랙티브 프로토타입.
-  정본: 02-studio-ui-기획서.md # 1. 스튜디오 홈 (HOME-00~08)
-  생성 로딩은 별도 화면이 아니라 이 홈 피드의 타일 상태다(설계 원칙).
-  2-create.html 제출 → sessionStorage(kglow_studio_job) → 생성중 타일 → 완료 crossfade + 토스트.
-  검토 스트립의 상태 스위처(빈/기본/생성중/실패)는 프로토타입 검토 전용 — 제품 UI 아님.
-  화면 속 썸네일은 전부 CSS 목업(가상 브랜드 HARUON) — 실제 생성물이 아니다.
+  정본: 02-studio-ui-기획서.md # 1. 스튜디오 홈(생성) (HOME-00~08, 구 CREATE-02~06 승계)
+  IA 개편(D1~D4): 이 화면 = 생성 퍼널 그 자체. 구 2-create.html의 업로드·플랫폼·템플릿·
+  실적 폼 전체를 이 홈에 흡수했다(별도 "생성" 화면 폐기). 템플릿 8종 그리드가 곧 온보딩이라
+  별도 빈 상태 화면도 두지 않는다. 제출 → 2-result.html?state=generating 로 바로 이동해
+  그 화면이 생성중 상태로 시작한다. 갤러리·필터는 ③ 운영 자산 라이브러리로 이관됐고,
+  이 화면 하단에는 데모용 "최근 생성" 미니 스트립만 남는다.
+  요소 id·class(#dropzone·#fileInput·#pfChips·#tplGrid·#proofBox·#fillExample 등)는
+  캡처 스크립트가 의존하므로 구 2-create.html의 것을 그대로 유지한다.
+  템플릿 카드 이미지는 assets/templates/ 의 실측 참고 컷(타사 저작물 · 분석 인용),
+  업로드 예시·갤러리 썸네일은 assets/samples/ 의 자체 생성 샘플(데모 브랜드 HARUON)이다.
+  출처·조건은 assets/README.md.
+  검토 스트립의 상태 스위처(빈 상태/기본/생성중)는 프로토타입 검토 전용 — 제품 UI 아님.
 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <link rel="stylesheet" href="wireframe.css" />
@@ -21,17 +28,15 @@
 <div class="wf-strip">
   <div class="wf-strip-in">
     <span class="tag">② 마케팅 스튜디오 · 프로토타입</span>
-    <a href="index.html">플로우</a>
-    <a href="1-home.html" class="on">홈</a>
-    <a href="2-create.html">생성</a>
-    <a href="3-result.html">결과</a>
+    <a href="index.html">플로우(index)</a>
+    <a href="1-home.html" class="on">1 홈(생성)</a>
+    <a href="2-result.html">2 결과</a>
     <a href="02-studio-ui-기획서.md">기획서 ↗</a>
     <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
       <span>상태(검토용):</span>
       <button type="button" class="st-btn" data-st="empty" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">빈 상태</button>
       <button type="button" class="st-btn" data-st="default" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">기본</button>
       <button type="button" class="st-btn" data-st="generating" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">생성중</button>
-      <button type="button" class="st-btn" data-st="failed" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">실패</button>
     </span>
     <span class="ex">비배포 · 기획 검토용</span>
   </div>
@@ -115,16 +120,15 @@
 
   <div class="app-main">
 
-  <!-- 1. 스튜디오 홈 -->
+  <!-- 1. 스튜디오 홈(생성) -->
   <main style="flex:1;animation:fadeUp .45s ease both">
     <div style="max-width:1120px;margin:0 auto;padding:44px 24px 96px">
-      <div style="display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap">
-        <div style="flex:1;min-width:320px">
-          <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 마케팅 스튜디오</p>
-          <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">일본향 썸네일 스튜디오</h1>
-          <p style="margin:14px 0 0;max-width:640px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">한국 썸네일을 그대로 옮기지 않습니다. 일본 고객이 신뢰하는 썸네일 문법 8종으로, 카피의 의도부터 재설계합니다.</p>
-        </div>
-        <a href="2-create.html" class="h-primary" style="display:inline-flex;height:44px;align-items:center;padding:0 20px;border-radius:11px;background:#FF6464;color:#fff;font-size:14px;font-weight:700;text-decoration:none;margin-bottom:4px">새 썸네일 만들기 →</a>
+
+      <!-- HOME-01a · 헤더 (CTA 버튼 없음 — 화면 자체가 생성 퍼널) -->
+      <div style="max-width:640px">
+        <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 마케팅 스튜디오</p>
+        <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">일본향 썸네일 스튜디오</h1>
+        <p style="margin:14px 0 0;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty;word-break:keep-all">한국 썸네일을 그대로 옮기지 않습니다. 일본 고객이 신뢰하는 썸네일 문법 8종으로, 카피의 의도부터 재설계합니다.</p>
       </div>
 
       <!-- HOME-01b · 모듈 탭 -->
@@ -134,110 +138,562 @@
         <button type="button" role="tab" aria-selected="false" aria-disabled="true" class="tab" style="border:none;background:transparent;font-family:inherit;font-size:14px;font-weight:500;color:#B6B8BF;padding:10px 14px;cursor:default">인스타 피드 <span style="display:inline-flex;height:17px;align-items:center;padding:0 6px;border-radius:9999px;background:#F1F1F3;color:#9CA0A8;font-size:10px;font-weight:700;vertical-align:1px">준비 중</span></button>
       </div>
 
-      <!-- HOME-07 · 툴바 (필터 + 카운트) -->
-      <div id="toolbar" style="margin-top:20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div id="filterChips" role="radiogroup" aria-label="템플릿 필터" style="display:flex;flex-wrap:wrap;gap:6px"></div>
-        <span id="countLabel" style="margin-left:auto;font-size:12.5px;font-weight:600;color:rgba(55,56,60,0.61);white-space:nowrap">총 0건 · 최신순</span>
-      </div>
+      <!-- HOME-02~06 · 생성 폼 (구 CREATE-02~06 승계) -->
+      <div style="max-width:768px;margin:32px auto 0">
 
-      <!-- HOME-02~06 · 갤러리 그리드 -->
-      <div id="grid" class="rwrap-2" style="margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px"></div>
-      <p id="filterEmpty" style="display:none;margin:28px 0 0;font-size:13.5px;color:rgba(55,56,60,0.61)">이 템플릿으로 생성한 썸네일이 없습니다.</p>
-
-      <!-- HOME-03 · 빈 상태 -->
-      <div id="emptyState" style="display:none;margin-top:16px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:56px 32px;text-align:center;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
-        <h2 style="margin:14px 0 0;font-size:19px;font-weight:800;color:#202124">아직 생성한 썸네일이 없습니다</h2>
-        <p style="margin:10px 0 0;font-size:13.5px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty">라쿠텐·아마존JP·Qoo10 실측 120장에서 역설계한 8가지 문법으로 시작하세요.</p>
-        <div style="margin-top:24px;display:flex;justify-content:center;gap:14px;flex-wrap:wrap" aria-hidden="true">
-          <span style="width:44px;height:44px;border-radius:8px;background:#fff;border:1px solid #EBEBEB;position:relative;overflow:hidden" title="클린 스튜디오 단독컷"><span style="position:absolute;left:50%;top:24%;transform:translateX(-50%);width:28%;height:52%;border-radius:3px;background:linear-gradient(180deg,#FFE9DF,#FFCFB8)"></span></span>
-          <span style="width:44px;height:44px;border-radius:8px;background:#fff;border:1px solid #EBEBEB;position:relative;overflow:hidden" title="제품+텍스처 스와치"><span style="position:absolute;left:32%;top:24%;transform:translateX(-50%);width:28%;height:52%;border-radius:3px;background:linear-gradient(180deg,#FFE9DF,#FFCFB8)"></span><span style="position:absolute;right:12%;top:38%;width:28%;height:34%;border-radius:50%;background:#FFD3DC;transform:rotate(18deg)"></span></span>
-          <span style="width:44px;height:44px;border-radius:8px;background:linear-gradient(180deg,#BFD9F2,#EAF4FF);position:relative;overflow:hidden" title="공식샵 신뢰 배지형"><span style="position:absolute;left:8%;top:8%;width:26%;height:16%;border-radius:2px;background:#22304F"></span><span style="position:absolute;left:0;right:0;bottom:0;height:20%;background:#22304F"></span><span style="position:absolute;left:50%;top:26%;transform:translateX(-50%);width:26%;height:44%;border-radius:3px;background:#FFEDE2"></span></span>
-          <span style="width:44px;height:44px;border-radius:8px;background:#FDF6E7;position:relative;overflow:hidden" title="캐치카피+성분 비주얼형"><span style="position:absolute;left:10%;top:10%;width:64%;height:12%;border-radius:2px;background:#3A3C40"></span><span style="position:absolute;left:52%;top:34%;transform:translateX(-50%);width:26%;height:46%;border-radius:3px;background:#FFEDE2"></span><span style="position:absolute;left:16%;top:48%;width:16%;aspect-ratio:1/1;border-radius:50%;background:#A9D4F5"></span></span>
-          <span style="width:44px;height:44px;border-radius:8px;background:#fff;border:1px solid #EBEBEB;position:relative;overflow:hidden" title="수상 실적 스택형"><span style="position:absolute;left:12%;top:16%;width:22%;aspect-ratio:1/1;border-radius:50%;background:#26272B;border:1.5px solid #D9A441;box-sizing:border-box"></span><span style="position:absolute;left:12%;top:52%;width:22%;aspect-ratio:1/1;border-radius:50%;background:#26272B;border:1.5px solid #D9A441;box-sizing:border-box"></span><span style="position:absolute;left:62%;top:26%;transform:translateX(-50%);width:26%;height:48%;border-radius:3px;background:#FFEDE2"></span></span>
-          <span style="width:44px;height:44px;border-radius:8px;background:#FFF6EF;position:relative;overflow:hidden" title="모델+카피형"><span style="position:absolute;left:-20%;top:18%;width:64%;height:76%;border-radius:50%;background:#F0C7A8"></span><span style="position:absolute;left:16%;top:10%;width:56%;height:12%;border-radius:2px;background:#D95A7E"></span><span style="position:absolute;right:10%;bottom:12%;width:22%;height:36%;border-radius:3px;background:#FFEDE2"></span></span>
-          <span style="width:44px;height:44px;border-radius:8px;background:#FFF0F3;position:relative;overflow:hidden" title="프로모션 강조형"><span style="position:absolute;left:0;right:0;top:0;height:18%;background:#E7638C"></span><span style="position:absolute;left:40%;top:28%;width:22%;height:36%;border-radius:3px;background:#FFEDE2"></span><span style="position:absolute;left:0;right:0;bottom:0;height:26%;background:#fff"></span><span style="position:absolute;left:10%;bottom:8%;width:34%;height:10%;border-radius:2px;background:#C6362C"></span></span>
-          <span style="width:44px;height:44px;border-radius:8px;background:radial-gradient(circle at 50% 30%,#4A3550,#241827 72%);position:relative;overflow:hidden" title="프리미엄 무드형"><span style="position:absolute;left:44%;top:30%;transform:translateX(-50%);width:24%;height:44%;border-radius:3px;background:#E9D5C2"></span><span style="position:absolute;right:14%;top:18%;width:7%;height:52%;border-radius:2px;background:rgba(255,255,255,.3)"></span></span>
+        <div style="display:flex;justify-content:flex-end;margin:0 0 18px">
+          <button type="button" id="fillExample" class="hbtn hbtn-secondary h-soft">예시 이미지 — HARUON 톤업 선크림</button>
         </div>
-        <p class="visually-hidden">템플릿 8종: 클린 스튜디오 단독컷, 제품+텍스처 스와치, 공식샵 신뢰 배지형, 캐치카피+성분 비주얼형, 수상 실적 스택형, 모델+카피형, 프로모션 강조형, 프리미엄 무드형</p>
-        <a href="2-create.html" class="h-primary" style="display:inline-flex;margin-top:26px;align-items:center;justify-content:center;height:48px;padding:0 26px;border-radius:12px;background:#FF6464;color:#fff;font-size:15px;font-weight:700;text-decoration:none">첫 썸네일 만들기 →</a>
+
+        <!-- HOME-02 · 원본 이미지 -->
+        <section style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span aria-hidden="true" class="step-no">1</span>
+            <h2 style="margin:0;font-size:18px;font-weight:700;color:#202124">원본 이미지</h2>
+            <span style="display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.4);color:#D93636;font-size:11.5px;font-weight:700">필수 · 1장</span>
+          </div>
+          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61);text-wrap:pretty">한국 썸네일 또는 제품 단독컷 1장을 올려 주세요. 제품이 선명하고 가려지지 않아야 하며, 카피·뱃지가 있는 프로모 썸네일이어도 됩니다.</p>
+
+          <!-- 드롭존 (업로드 전) -->
+          <div id="dropzone" tabindex="0" role="button" aria-label="이미지 업로드 — 클릭하거나 파일을 끌어다 놓기"
+               style="margin-top:20px;min-height:240px;border:1.5px dashed rgba(112,115,124,0.38);border-radius:14px;background:#FAFAFB;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;text-align:center;padding:28px;transition:border-color .15s,background .15s">
+            <svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+            <p style="margin:0;font-size:14.5px;font-weight:600;color:#414245">이미지를 끌어다 놓거나 <span style="color:#D93636">클릭해서 선택</span></p>
+            <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">JPG · PNG · WebP / 10MB 이하 / 권장 1024px 이상 정방형</p>
+          </div>
+          <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" class="visually-hidden" aria-hidden="true" tabindex="-1" />
+          <p id="upErr" role="alert" style="display:none;margin:10px 0 0;font-size:12.5px;font-weight:600;color:#F0483C"></p>
+          <p id="upWarn" style="display:none;margin:10px 0 0;font-size:12.5px;line-height:1.6;color:#B96C00;background:#FFF6E5;border-radius:8px;padding:10px 12px">해상도가 낮아 결과 품질이 떨어질 수 있습니다 — 1024px 이상 이미지를 권장합니다.</p>
+
+          <!-- 업로드 후 미리보기 (치환) -->
+          <div id="previewWrap" style="display:none;margin-top:20px">
+            <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+              <div id="previewBox" style="width:200px;height:200px;flex:none;border:1px solid rgba(112,115,124,0.14);border-radius:12px;overflow:hidden;background:#fff;position:relative"></div>
+              <div style="flex:1;min-width:220px">
+                <p style="margin:0;font-size:13.5px;font-weight:700;color:#202124;word-break:break-all"><span id="pvName"></span> <span id="pvSize" style="font-weight:500;color:rgba(55,56,60,0.61)"></span></p>
+                <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">프로모 썸네일이면 기존 한국어 오버레이(카피·뱃지·테두리)는 걷어내고, 일본 문법으로 재설계합니다.</p>
+                <button type="button" id="replaceBtn" class="hbtn hbtn-secondary h-soft" style="margin-top:12px">이미지 교체</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- HOME-03 · 타깃 플랫폼 -->
+        <section style="margin-top:20px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span aria-hidden="true" class="step-no">2</span>
+            <h2 id="pf-l" style="margin:0;font-size:18px;font-weight:700;color:#202124">타깃 플랫폼</h2>
+            <span style="display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:9999px;background:#F6F6F6;color:#414245;font-size:11.5px;font-weight:700">선택</span>
+          </div>
+          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">올릴 플랫폼을 고르면 그 플랫폼 문법에 맞는 템플릿을 추천해 드립니다. 규정에 어긋나는 조합은 표시만 하고 선택은 막지 않습니다.</p>
+          <div id="pfChips" role="radiogroup" aria-labelledby="pf-l" style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px"></div>
+        </section>
+
+        <!-- HOME-04 · 템플릿 8종 -->
+        <section style="margin-top:20px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span aria-hidden="true" class="step-no">3</span>
+            <h2 id="tpl-l" style="margin:0;font-size:18px;font-weight:700;color:#202124">템플릿</h2>
+            <span style="display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.4);color:#D93636;font-size:11.5px;font-weight:700">필수 · 1개</span>
+          </div>
+          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61);text-wrap:pretty">라쿠텐·아마존JP·Qoo10 실측 썸네일 120장에서 역설계한 일본 썸네일 문법 8종입니다. 카드 이미지는 각 문법의 <b style="font-weight:700;color:#414245">실측 참고 컷</b>이며, 여러분의 생성 결과가 아닙니다.</p>
+
+          <!--
+            카드 프리뷰는 assets/templates/ 의 실측 참고 컷(타사 저작물 · 분석 인용).
+            출처·사용 조건은 assets/README.md. 카드 안 "실측 · {플랫폼}" 라벨이 생성 결과와 구분하는 표식이다.
+          -->
+          <div id="tplGrid" class="rwrap-2" role="radiogroup" aria-labelledby="tpl-l" style="margin-top:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+
+            <!-- 카드 1 · 클린 스튜디오 단독컷 -->
+            <button type="button" class="h-tcard tpl-card" data-tpl="clean" role="radio" aria-checked="false"
+                    style="position:relative;display:flex;flex-direction:column;text-align:left;border:1.5px solid rgba(112,115,124,0.2);border-radius:12px;background:#fff;padding:10px;cursor:pointer;font-family:inherit">
+              <span class="tpl-badge" aria-hidden="true"></span>
+              <span class="thumb-frame" style="border-radius:8px;border:1px solid #EBEBEB">
+                <img class="thumb" src="assets/templates/01-clean.jpg" alt="" loading="lazy" />
+                <span class="tpl-flag"></span>
+                <span class="cite-tag">실측 · 아마존JP</span>
+              </span>
+              <span style="display:block;margin-top:9px;font-size:13px;font-weight:700;color:#202124">클린 스튜디오 단독컷</span>
+              <span class="clamp-2" style="margin-top:3px;font-size:11.5px;line-height:1.5;color:rgba(55,56,60,0.61)">흰 배경 + 제품만. 패키지가 말하는 카탈로그 컷</span>
+              <span class="tpl-foot"><span class="tpl-fit">아마존JP · 라쿠텐</span></span>
+            </button>
+
+            <!-- 카드 2 · 제품+텍스처 스와치 -->
+            <button type="button" class="h-tcard tpl-card" data-tpl="texture" role="radio" aria-checked="false"
+                    style="position:relative;display:flex;flex-direction:column;text-align:left;border:1.5px solid rgba(112,115,124,0.2);border-radius:12px;background:#fff;padding:10px;cursor:pointer;font-family:inherit">
+              <span class="tpl-badge" aria-hidden="true"></span>
+              <span class="thumb-frame" style="border-radius:8px;border:1px solid #EBEBEB">
+                <img class="thumb" src="assets/templates/02-texture.jpg" alt="" loading="lazy" />
+                <span class="tpl-flag"></span>
+                <span class="cite-tag">실측 · 아마존JP</span>
+              </span>
+              <span style="display:block;margin-top:9px;font-size:13px;font-weight:700;color:#202124">제품+텍스처 스와치</span>
+              <span class="clamp-2" style="margin-top:3px;font-size:11.5px;line-height:1.5;color:rgba(55,56,60,0.61)">제형 스와치를 곁들인 무텍스트 컷. K뷰티 표준</span>
+              <span class="tpl-foot"><span class="tpl-fit">아마존JP · 라쿠텐 · Qoo10</span></span>
+            </button>
+
+            <!-- 카드 3 · 공식샵 신뢰 배지형 -->
+            <button type="button" class="h-tcard tpl-card" data-tpl="official" role="radio" aria-checked="false"
+                    style="position:relative;display:flex;flex-direction:column;text-align:left;border:1.5px solid rgba(112,115,124,0.2);border-radius:12px;background:#fff;padding:10px;cursor:pointer;font-family:inherit">
+              <span class="tpl-badge" aria-hidden="true"></span>
+              <span class="thumb-frame" style="border-radius:8px;border:1px solid #EBEBEB">
+                <img class="thumb" src="assets/templates/03-official.jpg" alt="" loading="lazy" />
+                <span class="tpl-flag"></span>
+                <span class="cite-tag">실측 · 라쿠텐</span>
+              </span>
+              <span style="display:block;margin-top:9px;font-size:13px;font-weight:700;color:#202124">공식샵 신뢰 배지형</span>
+              <span class="clamp-2" style="margin-top:3px;font-size:11.5px;line-height:1.5;color:rgba(55,56,60,0.61)"><span lang="ja">公式</span> 칩 + 신뢰 배지 + 카피 밴드. 라쿠텐 공식샵 문법</span>
+              <span class="tpl-foot"><span class="tpl-fit">라쿠텐 공식샵</span></span>
+            </button>
+
+            <!-- 카드 4 · 캐치카피+성분 비주얼형 -->
+            <button type="button" class="h-tcard tpl-card" data-tpl="copyIngredient" role="radio" aria-checked="false"
+                    style="position:relative;display:flex;flex-direction:column;text-align:left;border:1.5px solid rgba(112,115,124,0.2);border-radius:12px;background:#fff;padding:10px;cursor:pointer;font-family:inherit">
+              <span class="tpl-badge" aria-hidden="true"></span>
+              <span class="thumb-frame" style="border-radius:8px;border:1px solid #EBEBEB">
+                <img class="thumb" src="assets/templates/04-copy-ingredient.jpg" alt="" loading="lazy" />
+                <span class="tpl-flag"></span>
+                <span class="cite-tag">실측 · 라쿠텐</span>
+              </span>
+              <span style="display:block;margin-top:9px;font-size:13px;font-weight:700;color:#202124">캐치카피+성분 비주얼형</span>
+              <span class="clamp-2" style="margin-top:3px;font-size:11.5px;line-height:1.5;color:rgba(55,56,60,0.61)">대형 일본어 카피 + 성분 비주얼. 주장이 아니라 근거</span>
+              <span class="tpl-foot"><span class="tpl-fit">라쿠텐 · Qoo10</span></span>
+            </button>
+
+            <!-- 카드 5 · 수상 실적 스택형 (실적 필요) -->
+            <button type="button" class="h-tcard tpl-card" data-tpl="award" role="radio" aria-checked="false"
+                    style="position:relative;display:flex;flex-direction:column;text-align:left;border:1.5px solid rgba(112,115,124,0.2);border-radius:12px;background:#fff;padding:10px;cursor:pointer;font-family:inherit">
+              <span class="tpl-badge" aria-hidden="true"></span>
+              <span class="thumb-frame" style="border-radius:8px;border:1px solid #EBEBEB">
+                <img class="thumb" src="assets/templates/05-award.jpg" alt="" loading="lazy" />
+                <span class="tpl-flag"></span>
+                <span class="cite-tag">실측 · 라쿠텐</span>
+              </span>
+              <span style="display:block;margin-top:9px;font-size:13px;font-weight:700;color:#202124">수상 실적 스택형</span>
+              <span class="clamp-2" style="margin-top:3px;font-size:11.5px;line-height:1.5;color:rgba(55,56,60,0.61)">수상 리본 메달이 본체. 실제 수상 이력 전용</span>
+              <span class="tpl-foot">
+                <span class="tpl-fit">라쿠텐 · 아마존JP</span>
+                <span class="tpl-cond">실적 입력 필요</span>
+              </span>
+            </button>
+
+            <!-- 카드 6 · 모델+카피형 (모델컷 필요) -->
+            <button type="button" class="h-tcard tpl-card" data-tpl="model" role="radio" aria-checked="false"
+                    style="position:relative;display:flex;flex-direction:column;text-align:left;border:1.5px solid rgba(112,115,124,0.2);border-radius:12px;background:#fff;padding:10px;cursor:pointer;font-family:inherit">
+              <span class="tpl-badge" aria-hidden="true"></span>
+              <span class="thumb-frame" style="border-radius:8px;border:1px solid #EBEBEB">
+                <img class="thumb" src="assets/templates/06-model.jpg" alt="" loading="lazy" />
+                <span class="tpl-flag"></span>
+                <span class="cite-tag">실측 · 라쿠텐</span>
+              </span>
+              <span style="display:block;margin-top:9px;font-size:13px;font-weight:700;color:#202124">모델+카피형</span>
+              <span class="clamp-2" style="margin-top:3px;font-size:11.5px;line-height:1.5;color:rgba(55,56,60,0.61)">모델 클로즈업 + 감각 카피. Qoo10 K뷰티 표준</span>
+              <span class="tpl-foot">
+                <span class="tpl-fit">Qoo10 · 라쿠텐</span>
+                <span class="tpl-cond">모델컷 필요</span>
+              </span>
+            </button>
+
+            <!-- 카드 7 · 프로모션 강조형 -->
+            <button type="button" class="h-tcard tpl-card" data-tpl="promo" role="radio" aria-checked="false"
+                    style="position:relative;display:flex;flex-direction:column;text-align:left;border:1.5px solid rgba(112,115,124,0.2);border-radius:12px;background:#fff;padding:10px;cursor:pointer;font-family:inherit">
+              <span class="tpl-badge" aria-hidden="true"></span>
+              <span class="thumb-frame" style="border-radius:8px;border:1px solid #EBEBEB">
+                <img class="thumb" src="assets/templates/07-promo.jpg" alt="" loading="lazy" />
+                <span class="tpl-flag"></span>
+                <span class="cite-tag">실측 · Qoo10</span>
+              </span>
+              <span style="display:block;margin-top:9px;font-size:13px;font-weight:700;color:#202124">프로모션 강조형</span>
+              <span class="clamp-2" style="margin-top:3px;font-size:11.5px;line-height:1.5;color:rgba(55,56,60,0.61)">가격·세트·GIFT 소구. Qoo10 메가와리 표준</span>
+              <span class="tpl-foot"><span class="tpl-fit">Qoo10 · 라쿠텐</span></span>
+            </button>
+
+            <!-- 카드 8 · 프리미엄 무드형 -->
+            <button type="button" class="h-tcard tpl-card" data-tpl="premium" role="radio" aria-checked="false"
+                    style="position:relative;display:flex;flex-direction:column;text-align:left;border:1.5px solid rgba(112,115,124,0.2);border-radius:12px;background:#fff;padding:10px;cursor:pointer;font-family:inherit">
+              <span class="tpl-badge" aria-hidden="true"></span>
+              <span class="thumb-frame" style="border-radius:8px;border:1px solid #EBEBEB">
+                <img class="thumb" src="assets/templates/08-premium.jpg" alt="" loading="lazy" />
+                <span class="tpl-flag"></span>
+                <span class="cite-tag">실측 · 라쿠텐</span>
+              </span>
+              <span style="display:block;margin-top:9px;font-size:13px;font-weight:700;color:#202124">프리미엄 무드형</span>
+              <span class="clamp-2" style="margin-top:3px;font-size:11.5px;line-height:1.5;color:rgba(55,56,60,0.61)">시네마틱 연출 + 세로쓰기 카피. 중고가 무드</span>
+              <span class="tpl-foot"><span class="tpl-fit">라쿠텐 공식샵</span></span>
+            </button>
+          </div>
+
+          <!-- 부적합 사유 — 카드마다 같은 문장을 반복하지 않고 그리드 아래에 1회만 쓴다 -->
+          <p id="tplDimNote" style="display:none;margin:14px 0 0;font-size:12.5px;line-height:1.6;color:#B96C00;background:#FFF6E5;border-radius:8px;padding:10px 12px"></p>
+
+          <!-- 조건 게이트 안내 (E/F 선택 시) -->
+          <p id="tplGateNote" style="display:none;margin:10px 0 0;font-size:12.5px;line-height:1.65;color:#B96C00;background:#FFF6E5;border-radius:8px;padding:10px 12px"></p>
+        </section>
+
+        <!-- HOME-05 · 실적 배지 (접이식) -->
+        <section style="margin-top:20px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;box-shadow:0 1px 3px rgba(16,18,20,.04);overflow:hidden">
+          <details id="proofBox">
+            <summary class="h-summary" style="list-style:none;cursor:pointer;padding:24px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span aria-hidden="true" class="step-no">4</span>
+              <h2 style="margin:0;font-size:16px;font-weight:700;color:#202124">랭킹·수상 실적이 있다면 추가하세요</h2>
+              <span id="proofReq" style="display:none;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.4);color:#D93636;font-size:11.5px;font-weight:700">필수 — 수상 실적 스택형</span>
+              <span style="margin-left:auto;font-size:12px;color:#B6B8BF" aria-hidden="true">펼치기 ▾</span>
+              <span style="flex-basis:100%;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">근거가 없으면 배지는 생성되지 않습니다. 이것이 기본값입니다.</span>
+            </summary>
+            <div style="padding:0 32px 28px;border-top:1px solid #EBEBEB">
+              <div class="rwrap" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:20px">
+                <div>
+                  <label for="pr-title" style="display:block;font-size:13px;font-weight:600;color:#202124;margin-bottom:7px">실적명</label>
+                  <input id="pr-title" lang="ja" placeholder="예: 楽天ランキング1位" class="f-input" style="width:100%;height:44px;padding:0 12px;border:1px solid rgba(112,115,124,0.28);border-radius:10px;font-size:13.5px;color:#202124;background:#fff;outline:none;box-sizing:border-box;font-family:inherit" />
+                </div>
+                <div>
+                  <label for="pr-genre" style="display:block;font-size:13px;font-weight:600;color:#202124;margin-bottom:7px">부문·장르</label>
+                  <input id="pr-genre" lang="ja" placeholder="예: 日焼け止め" class="f-input" style="width:100%;height:44px;padding:0 12px;border:1px solid rgba(112,115,124,0.28);border-radius:10px;font-size:13.5px;color:#202124;background:#fff;outline:none;box-sizing:border-box;font-family:inherit" />
+                </div>
+                <div>
+                  <label for="pr-date" style="display:block;font-size:13px;font-weight:600;color:#202124;margin-bottom:7px">집계일·기간</label>
+                  <input id="pr-date" lang="ja" placeholder="예: 2026/6/14更新" class="f-input" style="width:100%;height:44px;padding:0 12px;border:1px solid rgba(112,115,124,0.28);border-radius:10px;font-size:13.5px;color:#202124;background:#fff;outline:none;box-sizing:border-box;font-family:inherit" />
+                </div>
+              </div>
+              <p id="proofPartial" style="display:none;margin:12px 0 0;font-size:12.5px;font-weight:600;color:#B96C00">실적명·부문·집계일이 모두 있어야 배지가 들어갑니다.</p>
+              <p style="margin:12px 0 0;font-size:12px;line-height:1.6;color:rgba(55,56,60,0.61)">입력한 사실 그대로만 렌더됩니다. 근거 없는 랭킹·수상 배지는 경품표시법 리스크가 있어 생성 자체가 되지 않습니다.</p>
+            </div>
+          </details>
+        </section>
+
+        <!-- HOME-06 · 재설계 고지 + 제출 -->
+        <div style="margin-top:24px;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);border-radius:14px;padding:18px 20px">
+          <p style="margin:0;font-size:13px;line-height:1.7;color:#414245;text-wrap:pretty"><b style="color:#D93636">일본어 카피는 자동 번역이 아닙니다.</b> 한국 카피의 의도를 추출해 일본 고민 어휘·관례어로 재설계하고, <span lang="ja">薬機法</span> 1차 스크리닝을 통과한 문구만 이미지에 들어갑니다.</p>
+          <p style="margin:8px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">「쿨톤 치트키」 → <span lang="ja" style="font-weight:700;color:#202124">「白浮きしない、透け感トーンアップUV」</span> <span style="display:inline-flex;height:18px;align-items:center;padding:0 7px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:10.5px;font-weight:700;vertical-align:1px">예시</span></p>
+        </div>
+
+        <!-- 폼이 길어 제출 버튼이 화면 밖으로 밀린다 — 하단에 고정해 어느 단계에서도 상태가 보이게 한다 -->
+        <div class="sticky-submit">
+          <button type="button" id="submitBtn" aria-disabled="true" style="width:100%;height:54px;border:none;border-radius:12px;font-size:16px;font-weight:700;font-family:inherit;color:#fff;transition:background .15s,opacity .15s;background:#FF6464;opacity:.4;cursor:default">일본향 썸네일 생성</button>
+          <p id="hint" style="margin:10px 0 0;text-align:center;font-size:13px;line-height:1.6;color:rgba(55,56,60,0.61);text-wrap:pretty">제품 이미지를 올리면 시작할 수 있어요.</p>
+        </div>
       </div>
+
+      <!-- HOME-07 · 최근 생성 미니 스트립 (0건이면 영역 자체 미출력) -->
+      <section id="recentStrip" style="margin-top:56px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <h2 style="margin:0;font-size:17px;font-weight:800;color:#202124">최근 생성</h2>
+          <p style="margin:0;font-size:12.5px;color:rgba(55,56,60,0.61)">전체 자산은 <a href="../04-operations/1-home.html" style="font-weight:700">③ 운영 자산 라이브러리</a>에 모입니다</p>
+        </div>
+        <div id="recentGrid" class="rwrap-2" style="margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px"></div>
+      </section>
+
     </div>
   </main>
   </div>
 </div>
 
-<!-- HOME-05 · 완료 토스트 -->
+<!-- HOME-07a · 완료 토스트 (생성중 보조 표면) -->
 <div id="toast" role="status" aria-live="polite" style="display:none;position:fixed;right:24px;bottom:24px;z-index:80;background:#202124;color:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 8px 24px rgba(16,18,20,.24);animation:toastIn .3s ease both;max-width:320px">
   <p style="margin:0;font-size:13.5px;font-weight:700">썸네일이 완성되었습니다</p>
   <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,.72)">검수 게이트 3항목을 통과했습니다.</p>
-  <a href="3-result.html" style="display:inline-flex;margin-top:10px;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#FF6464;color:#fff;font-size:12.5px;font-weight:700;text-decoration:none">보러 가기 →</a>
+  <a href="2-result.html" style="display:inline-flex;margin-top:10px;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#FF6464;color:#fff;font-size:12.5px;font-weight:700;text-decoration:none">보러 가기 →</a>
 </div>
 
 <script>
 /**
- * 스튜디오 홈 로직 (HOME-02~07) — 갤러리 렌더 · 생성중 타일 시뮬레이션 · 필터 · 토스트.
- * 상태 소스: 검토용 스위처(강제) > sessionStorage 잡(2-create 제출) > 기본.
+ * 썸네일 생성 폼 로직 (HOME-02~06 · 구 CREATE-02~06 그대로 승계) — 업로드 · 플랫폼 추천 · 템플릿 게이트 · 제출.
+ * 제출 시 잡을 sessionStorage(kglow_studio_job)에 저장하고 2-result.html?state=generating 으로 이동한다
+ * (기존: 홈 복귀 → 생성중 타일. 개편 후: 결과 화면이 생성중 상태로 시작).
+ */
+(function () {
+  var TPL = {
+    clean:          { name: '클린 스튜디오 단독컷',    fit: ['amazon', 'rakuten-official', 'rakuten-reseller'] },
+    texture:        { name: '제품+텍스처 스와치',      fit: ['amazon', 'rakuten-official', 'rakuten-reseller', 'qoo10'] },
+    official:       { name: '공식샵 신뢰 배지형',      fit: ['rakuten-official'] },
+    copyIngredient: { name: '캐치카피+성분 비주얼형',  fit: ['rakuten-official', 'rakuten-reseller', 'qoo10'] },
+    award:          { name: '수상 실적 스택형',        fit: ['rakuten-official', 'amazon'] },
+    model:          { name: '모델+카피형',             fit: ['qoo10', 'rakuten-official'] },
+    promo:          { name: '프로모션 강조형',         fit: ['qoo10', 'rakuten-reseller'] },
+    premium:        { name: '프리미엄 무드형',         fit: ['rakuten-official'] }
+  };
+  /** 플랫폼별 추천(프롬프트 팩 selectionGuide.byPlatform)·부적합 사유(taxonomy §2) */
+  var PLATFORMS = [
+    { key: '',                 label: '미정' },
+    { key: 'amazon',           label: '아마존JP',      rec: ['clean', 'texture'],
+      dimNote: '아마존 메인 이미지는 오버레이 금지. 클린 컷·텍스처 스와치 권장' },
+    { key: 'rakuten-official', label: '라쿠텐 공식샵', rec: ['official', 'premium', 'copyIngredient', 'award'],
+      dimNote: '라쿠텐 공식샵 표본에서 관찰되지 않는 문법' },
+    { key: 'rakuten-reseller', label: '라쿠텐 리셀러', rec: ['clean', 'promo'],
+      dimNote: '리셀러는 공식샵 배지·무드 문법을 쓰지 않음' },
+    { key: 'qoo10',            label: 'Qoo10',         rec: ['promo', 'model', 'copyIngredient'],
+      dimNote: 'Qoo10 표본에서 관찰되지 않는 문법. 프로모·모델·성분 비주얼 권장' }
+  ];
+
+  var chipBase = 'height:36px;padding:0 14px;border-radius:9999px;font-size:13.5px;white-space:nowrap;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s;';
+  var chipOff = chipBase + 'background:#fff;border:1px solid rgba(112,115,124,0.28);color:#414245;font-weight:500';
+  var chipOn = chipBase + 'background:#FFF8F8;border:1.5px solid #FF6464;color:#D93636;font-weight:700';
+
+  var state = { hasImage: false, isExample: false, fileName: '', fileSize: '', platform: '', tpl: '' };
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ── 업로드 (HOME-02) ──────────────────────────────────
+  var dz = $('dropzone'), fi = $('fileInput');
+  function showErr(msg) { $('upErr').textContent = msg; $('upErr').style.display = msg ? 'block' : 'none'; }
+
+  /** 업로드/예시 반영 — 드롭존을 미리보기로 치환한다 */
+  function setImage(opts) {
+    state.hasImage = true;
+    state.isExample = !!opts.isExample;
+    state.fileName = opts.name;
+    state.fileSize = opts.size || '';
+    dz.style.display = 'none';
+    $('previewWrap').style.display = 'block';
+    $('pvName').textContent = opts.name;
+    $('pvSize').textContent = opts.size ? '· ' + opts.size : '';
+    var box = $('previewBox');
+    if (opts.objectUrl) {
+      box.innerHTML = '';
+      var img = document.createElement('img');
+      img.src = opts.objectUrl;
+      img.alt = '업로드한 원본 이미지 미리보기';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+      box.appendChild(img);
+    } else {
+      // 예시: 한국 프로모 썸네일 실물 — 특가 뱃지·밈 카피·형광 테두리가 그대로 있는 상태
+      box.innerHTML =
+        '<img class="thumb" src="assets/samples/haruon-before.jpg" style="height:100%" ' +
+        'alt="예시 원본 — 한국어 밈 카피와 특가 뱃지, 형광 테두리가 있는 프로모 썸네일" />';
+    }
+    showErr('');
+    update();
+  }
+  function handleFile(f) {
+    if (!f) return;
+    if (['image/jpeg', 'image/png', 'image/webp'].indexOf(f.type) < 0) { showErr('JPG·PNG·WebP만 업로드할 수 있습니다'); return; }
+    if (f.size > 10 * 1024 * 1024) { showErr('10MB 이하 이미지만 업로드할 수 있습니다'); return; }
+    var url = URL.createObjectURL(f);
+    var probe = new Image();
+    probe.onload = function () {
+      $('upWarn').style.display = (probe.naturalWidth < 512 || probe.naturalHeight < 512) ? 'block' : 'none';
+    };
+    probe.src = url;
+    setImage({ name: f.name, size: (f.size / 1024 / 1024).toFixed(1) + 'MB', objectUrl: url });
+  }
+  dz.addEventListener('click', function () { fi.click(); });
+  dz.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
+  dz.addEventListener('dragover', function (e) { e.preventDefault(); dz.style.borderColor = '#FF6464'; dz.style.background = '#FFF8F8'; });
+  dz.addEventListener('dragleave', function () { dz.style.borderColor = 'rgba(112,115,124,0.38)'; dz.style.background = '#FAFAFB'; });
+  dz.addEventListener('drop', function (e) { e.preventDefault(); dz.style.borderColor = 'rgba(112,115,124,0.38)'; dz.style.background = '#FAFAFB'; handleFile(e.dataTransfer.files[0]); });
+  fi.addEventListener('change', function () { handleFile(fi.files[0]); });
+  $('replaceBtn').onclick = function () {
+    state.hasImage = false; state.isExample = false;
+    $('previewWrap').style.display = 'none';
+    $('upWarn').style.display = 'none';
+    dz.style.display = 'flex';
+    fi.value = '';
+    update();
+    dz.focus();
+  };
+  $('fillExample').onclick = function () {
+    setImage({ isExample: true, name: 'HARUON 톤업 선크림 (예시)', size: '' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // ── 타깃 플랫폼 (HOME-03) ─────────────────────────────
+  function renderPlatform() {
+    var box = $('pfChips');
+    box.innerHTML = '';
+    PLATFORMS.forEach(function (p) {
+      var on = state.platform === p.key;
+      var b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', String(on));
+      b.setAttribute('style', on ? chipOn : chipOff);
+      b.textContent = p.label;
+      b.onclick = function () { state.platform = p.key; renderPlatform(); paintCards(); update(); };
+      box.appendChild(b);
+    });
+  }
+
+  // ── 템플릿 카드 (HOME-04) ─────────────────────────────
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.tpl-card'));
+  var pf = function () { return PLATFORMS.filter(function (p) { return p.key === state.platform; })[0]; };
+
+  /** 선택·추천·딤 상태를 8카드에 다시 칠한다 */
+  function paintCards() {
+    var p = pf();
+    var dimNames = [];
+    cards.forEach(function (c) {
+      var key = c.getAttribute('data-tpl');
+      var on = state.tpl === key;
+      var isRec = !!(p && p.key && p.rec.indexOf(key) >= 0);
+      var isDim = !!(p && p.key && TPL[key].fit.indexOf(p.key) < 0);
+      if (isDim) dimNames.push(TPL[key].name);
+      c.setAttribute('aria-checked', String(on));
+      c.style.borderColor = on ? '#FF6464' : 'rgba(112,115,124,0.2)';
+      c.style.background = on ? '#FFF8F8' : '#fff';
+      c.classList.toggle('is-dim', isDim && !on);
+
+      // 선택 ✓ (우상단) — 체크 상태는 aria-checked 가 전달하므로 시각 표식만
+      var badge = c.querySelector('.tpl-badge');
+      if (on) {
+        badge.setAttribute('style', 'position:absolute;top:8px;right:8px;z-index:2;width:22px;height:22px;border-radius:50%;background:#FF6464;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800');
+        badge.textContent = '✓';
+      } else {
+        badge.setAttribute('style', 'display:none');
+        badge.textContent = '';
+      }
+      // 추천/부적합 플래그 (이미지 좌상단) — 둘은 배타적이다
+      var flag = c.querySelector('.tpl-flag');
+      flag.className = 'tpl-flag' + (isRec ? ' is-rec' : isDim ? ' is-warn' : '');
+      flag.textContent = isRec ? '추천' : isDim ? '△ 부적합' : '';
+    });
+
+    // 부적합 사유는 카드마다 반복하지 않고 그리드 아래에 한 번만 — 같은 문장 6개가 그리드를 덮던 문제
+    var dn = $('tplDimNote');
+    if (p && p.key && dimNames.length) {
+      dn.innerHTML = '<b>' + p.label + '에 부적합 ' + dimNames.length + '종</b> — ' + p.dimNote
+        + '. <span style="color:rgba(55,56,60,0.61)">경고만 표시하며 선택은 막지 않습니다.</span>';
+      dn.style.display = 'block';
+    } else {
+      dn.style.display = 'none';
+    }
+    // 조건 게이트 안내 (E/F)
+    var gate = $('tplGateNote');
+    if (state.tpl === 'model') {
+      gate.innerHTML = '<b>모델+카피형은 브랜드 보유 모델컷이 있을 때만 쓸 수 있습니다.</b> 임의 인물은 생성하지 않습니다. 모델컷 업로드는 추후 지원 예정이라 이 프로토타입에서는 생성이 잠깁니다. 텍스처 스와치·캐치카피+성분 비주얼형을 권장합니다.';
+      gate.style.display = 'block';
+    } else if (state.tpl === 'award' && !proofComplete()) {
+      gate.innerHTML = '<b>수상 실적 스택형은 배지가 본체인 유형입니다.</b> 아래 실적 배지 3필드(실적명·부문·집계일)를 채워야 생성할 수 있습니다.';
+      gate.style.display = 'block';
+    } else {
+      gate.style.display = 'none';
+    }
+    // 실적 영역 필수 전환
+    $('proofReq').style.display = state.tpl === 'award' ? 'inline-flex' : 'none';
+    if (state.tpl === 'award') $('proofBox').setAttribute('open', '');
+  }
+  cards.forEach(function (c) {
+    c.onclick = function () { state.tpl = c.getAttribute('data-tpl'); paintCards(); update(); };
+  });
+
+  // ── 실적 배지 (HOME-05) ───────────────────────────────
+  function proofFields() { return [$('pr-title').value.trim(), $('pr-genre').value.trim(), $('pr-date').value.trim()]; }
+  function proofComplete() { return proofFields().every(function (v) { return v.length > 0; }); }
+  function proofPartial() { var f = proofFields(); return f.some(function (v) { return v.length > 0; }) && !proofComplete(); }
+  ['pr-title', 'pr-genre', 'pr-date'].forEach(function (id) { $(id).addEventListener('input', function () { paintCards(); update(); }); });
+
+  // ── 제출 (HOME-06) ────────────────────────────────────
+  function canSubmit() {
+    if (!state.hasImage || !state.tpl) return false;
+    if (state.tpl === 'model') return false;                    // 모델컷 업로드 미지원 → 잠금
+    if (state.tpl === 'award' && !proofComplete()) return false; // 프루프 게이트
+    return true;
+  }
+  function update() {
+    $('proofPartial').style.display = proofPartial() ? 'block' : 'none';
+    var ok = canSubmit();
+    var sb = $('submitBtn');
+    sb.setAttribute('aria-disabled', String(!ok));
+    sb.style.opacity = ok ? '1' : '.4';
+    sb.style.cursor = ok ? 'pointer' : 'default';
+    var hint;
+    if (!state.hasImage) hint = '제품 이미지를 올리면 시작할 수 있어요.';
+    else if (!state.tpl) hint = '템플릿을 1개 선택해 주세요.';
+    else if (state.tpl === 'award' && !proofComplete()) hint = '수상 실적을 입력해야 이 템플릿을 생성할 수 있어요.';
+    else if (state.tpl === 'model') hint = '모델컷 업로드는 준비 중입니다 — 다른 템플릿을 선택해 주세요.';
+    else hint = '약 1~2분 걸립니다. 완료되면 결과 화면에 진행 상황이 표시됩니다.';
+    $('hint').textContent = hint;
+  }
+  $('submitBtn').onclick = function () {
+    if (!canSubmit()) return;
+    var sb = $('submitBtn');
+    sb.textContent = '생성 시작 중…';
+    sb.style.cursor = 'default';
+    var p = pf();
+    try {
+      sessionStorage.setItem('kglow_studio_job', JSON.stringify({
+        tpl: state.tpl,
+        tplName: TPL[state.tpl].name,
+        platform: state.platform,
+        platformName: p && p.key ? p.label : '미정',
+        source: state.isExample ? 'example' : 'upload',
+        fileName: state.fileName
+      }));
+    } catch (e) { /* sessionStorage 불가 환경 무시 */ }
+    setTimeout(function () { location.href = '2-result.html?state=generating'; }, 500);
+  };
+
+  // ── 프리필 (RESULT-05 · 실패 재시도 재진입) ───────────
+  // ?prefill=example      : 원본만 프리필 (다른 템플릿 생성)
+  // &tpl={key}            : 템플릿까지 프리필 (실패 재시도)
+  var q = new URLSearchParams(location.search);
+  if (q.get('prefill') === 'example') {
+    setImage({ isExample: true, name: 'HARUON 톤업 선크림 (예시)', size: '' });
+    var t = q.get('tpl');
+    if (t && TPL[t]) state.tpl = t;
+    var pfKey = q.get('platform');
+    if (pfKey !== null) state.platform = PLATFORMS.some(function (p) { return p.key === pfKey; }) ? pfKey : '';
+  }
+
+  // 초기 렌더
+  renderPlatform(); paintCards(); update();
+})();
+</script>
+<script>
+/**
+ * 최근 생성 미니 스트립 로직 (HOME-07) — 데모 자산 렌더 · 생성중 타일 시뮬레이션 · 완료 토스트.
+ * 상태 소스: 검토용 스위처(강제) > sessionStorage 잡(이 페이지 자체 제출 또는 재방문) > 기본.
+ * 갤러리·필터는 ③ 운영 자산 라이브러리로 이관됐다 — 여기 남는 것은 최근 4건 미리보기뿐이다.
  */
 (function () {
   var STAGES = ['원본 분석 중', '일본 고객 관점으로 카피 재설계 중', '프롬프트 조립 중', '썸네일 생성 중', '검수 게이트 확인 중'];
-  var STYLE_NAMES = ['클린 스튜디오 단독컷', '제품+텍스처 스와치', '공식샵 신뢰 배지형', '캐치카피+성분 비주얼형', '수상 실적 스택형', '모델+카피형', '프로모션 강조형', '프리미엄 무드형'];
 
-  /** 데모 자산 4건 — 가상 브랜드 HARUON. 썸네일은 전부 CSS 목업 */
+  /** 데모 자산 4건 — 가상 브랜드 HARUON. 카드는 전부 2-result.html 로 연결한다(재열람 정본은 ③ 자산 상세) */
   var ASSETS = [
-    { id: 'a1', tpl: 'official',       tplName: '공식샵 신뢰 배지형',     platformName: '라쿠텐 공식샵', date: '2026.07.19', href: '3-result.html' },
-    { id: 'a2', tpl: 'clean',          tplName: '클린 스튜디오 단독컷',   platformName: '아마존JP',      date: '2026.07.18', href: '3-result.html' },
-    { id: 'a3', tpl: 'copyIngredient', tplName: '캐치카피+성분 비주얼형', platformName: '라쿠텐 공식샵', date: '2026.07.18', href: '3-result.html' },
-    { id: 'a4', tpl: 'promo',          tplName: '프로모션 강조형',        platformName: 'Qoo10',         date: '2026.07.17', href: '3-result.html' }
+    { tplName: '공식샵 신뢰 배지형',     platformName: '라쿠텐 공식샵', date: '2026.07.19', img: 'assets/samples/haruon-official.png' },
+    { tplName: '클린 스튜디오 단독컷',   platformName: '아마존JP',      date: '2026.07.18', img: 'assets/samples/haruon-clean.png' },
+    { tplName: '캐치카피+성분 비주얼형', platformName: '라쿠텐 공식샵', date: '2026.07.18', img: 'assets/samples/haruon-copy-ingredient.png' },
+    { tplName: '프로모션 강조형',        platformName: 'Qoo10',         date: '2026.07.17', img: 'assets/samples/haruon-promo.png' }
   ];
 
-  var $ = function (id) { return document.getElementById(id); };
-  var state = { view: null, filter: '', job: null, doneAsset: null };
+  /** 원본(Before) — 생성중 타일의 블러 프리뷰에 쓰는 업로드 이미지 */
+  var SRC_IMG = 'assets/samples/haruon-before.jpg';
 
-  // ── CSS 목업 (썸네일 프리뷰) ──────────────────────────
-  var TUBE = '<span style="position:absolute;left:50%;top:26%;transform:translateX(-50%);width:24%;height:46%;border-radius:6px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE)"></span>' +
-             '<span style="position:absolute;left:50%;top:20%;transform:translateX(-50%);width:13%;height:7%;border-radius:3px;background:#E8A987"></span>';
-  function mockHtml(tpl) {
-    if (tpl === 'official') return '<span style="position:absolute;inset:0;background:linear-gradient(180deg,#BFD9F2,#EAF4FF)"></span>' +
-      '<span lang="ja" style="position:absolute;left:5%;top:5%;padding:2px 7px;border-radius:4px;background:#22304F;color:#fff;font-size:10px;font-weight:700">HARUON 公式ショップ</span>' + TUBE +
-      '<span lang="ja" style="position:absolute;left:26%;top:52%;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.85);color:#22304F;font-size:9px;font-weight:700">SPF50+</span>' +
-      '<span style="position:absolute;left:0;right:0;bottom:0;height:17%;background:#22304F;display:flex;align-items:center;justify-content:center"><span lang="ja" style="color:#fff;font-size:11px;font-weight:700;letter-spacing:.02em">白浮きしない、透明感トーンアップUV</span></span>';
-    if (tpl === 'clean') return '<span style="position:absolute;inset:0;background:#fff"></span>' +
-      '<span style="position:absolute;left:50%;top:22%;transform:translateX(-50%);width:26%;height:52%;border-radius:6px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE)"></span>' +
-      '<span style="position:absolute;left:50%;top:16%;transform:translateX(-50%);width:14%;height:7%;border-radius:3px;background:#E8A987"></span>' +
-      '<span style="position:absolute;left:50%;top:77%;transform:translateX(-50%);width:38%;height:5%;border-radius:50%;background:rgba(32,33,36,.08)"></span>';
-    if (tpl === 'copyIngredient') return '<span style="position:absolute;inset:0;background:linear-gradient(180deg,#FDF6E7,#FFFDF8)"></span>' +
-      '<span lang="ja" style="position:absolute;left:8%;top:8%;font-size:13px;font-weight:800;color:#3A3C40;letter-spacing:.01em">白浮きしない、透け感UV</span>' + TUBE +
-      '<span style="position:absolute;left:16%;top:46%;width:12%;aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#DFF1FF,#A9D4F5)"></span>' +
-      '<span style="position:absolute;right:16%;top:38%;width:9%;aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#DFF1FF,#A9D4F5)"></span>' +
-      '<span lang="ja" style="position:absolute;left:8%;bottom:6%;font-size:8px;color:#9CA0A8">※メーキャップ効果による</span>';
-    if (tpl === 'promo') return '<span style="position:absolute;inset:0;background:linear-gradient(180deg,#FFF0F3,#FFE4EA)"></span>' +
-      '<span lang="ja" style="position:absolute;left:0;right:0;top:0;height:16%;background:#E7638C;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:800">選べる2個セット</span>' +
-      '<span style="position:absolute;left:38%;top:26%;width:22%;height:38%;border-radius:6px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE)"></span>' +
-      '<span lang="ja" style="position:absolute;right:6%;top:24%;width:24%;height:22%;border-radius:6px;background:#fff;border:1.5px dashed #E7638C;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#C6362C">限定GIFT</span>' +
-      '<span style="position:absolute;left:0;right:0;bottom:0;height:24%;background:#fff;border-top:1px solid #F3C2CF"></span>' +
-      '<span lang="ja" style="position:absolute;left:7%;bottom:7%;font-size:13px;font-weight:800;color:#C6362C">¥1,999<span style="font-size:8.5px;font-weight:600;color:#9CA0A8">（税込）</span></span>';
-    return '<span style="position:absolute;inset:0;background:#F1F1F3"></span>';
+  /** 생성 완료 자산의 썸네일 — 모델+카피형은 모델컷 업로드 미지원으로 생성 자체가 잠기므로 샘플이 없다 */
+  var SAMPLE_BY_TPL = {
+    clean: 'assets/samples/haruon-clean.png',
+    texture: 'assets/samples/haruon-texture.png',
+    official: 'assets/samples/haruon-official.png',
+    copyIngredient: 'assets/samples/haruon-copy-ingredient.png',
+    award: 'assets/samples/haruon-award.png',
+    promo: 'assets/samples/haruon-promo.png',
+    premium: 'assets/samples/haruon-premium.png'
+  };
+
+  /** 다운로드 파일명 — RESULT-04와 동일 규칙 */
+  function fileName(a) {
+    return 'HARUON-' + a.tplName.replace(/[\s·+]/g, '') + '-' + a.platformName.replace(/\s/g, '') + '.png';
   }
 
-  // ── 갤러리 렌더 ───────────────────────────────────────
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { mode: 'default', generating: false, doneAsset: null };
+
+  /** 완료 카드 — 카드 전체가 결과 화면 링크이고, hover·포커스 때 액션 오버레이가 뜬다 */
   function assetCard(a, animate) {
     var el = document.createElement('div');
     el.className = 'h-tile';
     el.setAttribute('style', 'position:relative;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(16,18,20,.04)' + (animate ? ';animation:tileIn .5s ease both' : ''));
     el.innerHTML =
-      '<a href="' + a.href + '" style="display:block;text-decoration:none" aria-label="' + a.tplName + '으로 재설계된 HARUON 일본향 썸네일 — 상세 보기">' +
-        '<span style="display:block;position:relative;aspect-ratio:1/1;overflow:hidden">' + mockHtml(a.tpl) +
-          '<span class="tile-ov" style="position:absolute;inset:0;background:rgba(32,33,36,.44);display:flex;align-items:center;justify-content:center;gap:8px">' +
-            '<span style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#fff;color:#202124;font-size:12.5px;font-weight:700">크게 보기</span>' +
-            '<button type="button" data-dl="' + a.id + '" style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#FF6464;border:none;color:#fff;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer">다운로드</button>' +
-          '</span>' +
+      '<a href="2-result.html" style="display:block;text-decoration:none" aria-label="' + a.tplName + '으로 재설계된 HARUON 일본향 썸네일 — 결과 보기">' +
+        '<span class="thumb-frame">' +
+          '<img class="thumb" src="' + a.img + '" alt="" loading="lazy" />' +
         '</span>' +
         '<span style="display:block;padding:10px 12px 12px">' +
           '<span style="display:inline-flex;height:21px;align-items:center;padding:0 8px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;font-size:10.5px;font-weight:700">' + a.tplName + '</span>' +
           '<span style="display:block;margin-top:7px;font-size:11.5px;color:rgba(55,56,60,0.61)">' + a.platformName + ' · ' + a.date + '</span>' +
         '</span>' +
-      '</a>';
+      '</a>' +
+      '<span class="tile-ov">' +
+        '<a href="2-result.html" tabindex="-1" style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#fff;color:#202124;font-size:12.5px;font-weight:700;text-decoration:none">크게 보기</a>' +
+        '<a href="' + a.img + '" download="' + fileName(a) + '" style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#FF6464;color:#fff;font-size:12.5px;font-weight:700;text-decoration:none">다운로드</a>' +
+      '</span>';
     return el;
   }
 
@@ -248,149 +704,61 @@
     el.setAttribute('aria-live', 'polite');
     el.setAttribute('style', 'position:relative;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(16,18,20,.04)');
     el.innerHTML =
-      '<span style="display:block;position:relative;aspect-ratio:1/1;overflow:hidden;background:linear-gradient(180deg,#ECEDF0,#E2E4E9)">' +
-        '<span aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.75) 50%,transparent 80%);background-size:840px 100%;background-repeat:no-repeat;animation:shimmer 1.6s ease-in-out infinite"></span>' +
-        '<span style="position:absolute;left:0;right:0;bottom:0;top:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center">' +
+      // 업로드한 원본을 블러로 깔아 "이 이미지가 처리되는 중"임을 보이게 한다
+      '<span class="thumb-frame" style="background:#E2E4E9">' +
+        '<img class="thumb" src="' + SRC_IMG + '" alt="" aria-hidden="true" style="filter:blur(11px);transform:scale(1.1)" />' +
+        '<span aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.62) 50%,transparent 80%);background-size:840px 100%;background-repeat:no-repeat;animation:shimmer 1.6s ease-in-out infinite"></span>' +
+        '<span style="position:absolute;left:0;right:0;bottom:0;top:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center;background:rgba(255,255,255,.42)">' +
           '<span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;border:2.5px solid #FF6464;border-top-color:transparent;animation:spin 1s linear infinite;display:inline-block"></span>' +
           '<span id="genStage" style="font-size:12.5px;font-weight:700;color:#414245">대기 중</span>' +
         '</span>' +
       '</span>' +
       '<span style="display:block;padding:10px 12px 12px">' +
         '<span id="genMeta" style="display:block;font-size:11.5px;font-weight:600;color:#202124"></span>' +
-        '<span style="display:block;margin-top:5px;font-size:11px;line-height:1.5;color:rgba(55,56,60,0.61)">완료되면 여기에 표시됩니다. 다른 작업을 하셔도 됩니다.</span>' +
+        '<span style="display:block;margin-top:5px;font-size:11px;line-height:1.5;color:rgba(55,56,60,0.61)">완료되면 여기에 표시됩니다. 결과는 2 결과 화면에서도 볼 수 있습니다.</span>' +
       '</span>';
     return el;
-  }
-
-  function failedTile() {
-    var el = document.createElement('div');
-    el.setAttribute('style', 'position:relative;background:#fff;border:1.5px solid rgba(240,72,60,.5);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(16,18,20,.04)');
-    el.innerHTML =
-      '<span style="display:block;position:relative;aspect-ratio:1/1;overflow:hidden;background:#FDF0EF">' +
-        '<span style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center">' +
-          '<span aria-hidden="true" style="width:30px;height:30px;border-radius:50%;background:#F0483C;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">✕</span>' +
-          '<span style="font-size:13px;font-weight:800;color:#C6362C">생성 실패</span>' +
-          '<span style="font-size:11.5px;line-height:1.55;color:#414245">검수 게이트 불통과 — 제품 라벨 열화</span>' +
-        '</span>' +
-      '</span>' +
-      '<span style="display:flex;gap:8px;padding:10px 12px 12px">' +
-        '<a href="2-create.html?prefill=example&tpl=official&platform=rakuten-official" style="display:inline-flex;flex:1;height:32px;align-items:center;justify-content:center;border-radius:8px;background:#FF6464;color:#fff;font-size:12px;font-weight:700;text-decoration:none">다시 시도</a>' +
-        '<button type="button" id="failClose" style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#fff;border:1px solid rgba(112,115,124,0.28);color:#414245;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer">닫기</button>' +
-      '</span>';
-    return el;
-  }
-
-  // ── 다운로드 (HOME-02a — RESULT-04와 동일 파일명 규칙) ──
-  function downloadAsset(a) {
-    var cv = document.createElement('canvas');
-    cv.width = 1024; cv.height = 1024;
-    var x = cv.getContext('2d');
-    if (a.tpl === 'official') {
-      var g = x.createLinearGradient(0, 0, 0, 1024); g.addColorStop(0, '#BFD9F2'); g.addColorStop(1, '#EAF4FF');
-      x.fillStyle = g; x.fillRect(0, 0, 1024, 1024);
-      x.fillStyle = '#22304F'; x.fillRect(0, 850, 1024, 174);
-      x.fillStyle = '#fff'; x.font = '700 52px sans-serif'; x.textAlign = 'center';
-      x.fillText('白浮きしない、透明感トーンアップUV', 512, 950);
-      x.fillStyle = '#22304F'; x.fillRect(48, 48, 340, 64);
-      x.fillStyle = '#fff'; x.font = '700 34px sans-serif'; x.textAlign = 'left';
-      x.fillText('HARUON 公式ショップ', 64, 92);
-    } else if (a.tpl === 'promo') {
-      x.fillStyle = '#FFE4EA'; x.fillRect(0, 0, 1024, 1024);
-      x.fillStyle = '#E7638C'; x.fillRect(0, 0, 1024, 150);
-      x.fillStyle = '#fff'; x.fillRect(0, 790, 1024, 234);
-      x.fillStyle = '#C6362C'; x.font = '800 88px sans-serif'; x.textAlign = 'left';
-      x.fillText('¥1,999（税込）', 70, 940);
-    } else if (a.tpl === 'copyIngredient') {
-      x.fillStyle = '#FDF6E7'; x.fillRect(0, 0, 1024, 1024);
-      x.fillStyle = '#3A3C40'; x.font = '800 64px sans-serif'; x.textAlign = 'left';
-      x.fillText('白浮きしない、透け感UV', 70, 130);
-      x.fillStyle = '#9CA0A8'; x.font = '400 28px sans-serif';
-      x.fillText('※メーキャップ効果による', 70, 980);
-    } else {
-      x.fillStyle = '#ffffff'; x.fillRect(0, 0, 1024, 1024);
-      x.fillStyle = 'rgba(32,33,36,.08)';
-      x.beginPath(); x.ellipse(512, 800, 190, 28, 0, 0, Math.PI * 2); x.fill();
-    }
-    // 제품 튜브 (공통)
-    var tg = x.createLinearGradient(0, 280, 0, 760); tg.addColorStop(0, '#FFF3EC'); tg.addColorStop(1, '#FFD4BE');
-    x.fillStyle = tg;
-    if (x.roundRect) { x.beginPath(); x.roundRect(392, 280, 240, 480, 22); x.fill(); } else { x.fillRect(392, 280, 240, 480); }
-    x.fillStyle = '#E8A987'; x.fillRect(448, 220, 128, 60);
-    var link = document.createElement('a');
-    link.download = 'HARUON-' + a.tplName.replace(/[\s·+]/g, '') + '-' + a.platformName.replace(/\s/g, '') + '.png';
-    link.href = cv.toDataURL('image/png');
-    link.click();
   }
 
   // ── 렌더 ─────────────────────────────────────────────
-  function visibleAssets() {
+  function renderStrip(animateFirst) {
+    var box = $('recentStrip'), grid = $('recentGrid');
+    if (state.mode === 'empty') { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    grid.innerHTML = '';
+    if (state.generating) grid.appendChild(generatingTile());
     var list = ASSETS.slice();
     if (state.doneAsset) list.unshift(state.doneAsset);
-    if (state.filter) list = list.filter(function (a) { return a.tplName === state.filter; });
-    return list;
-  }
-  function render(animateFirst) {
-    var grid = $('grid');
-    grid.innerHTML = '';
-    var view = state.view;
-    $('emptyState').style.display = view === 'empty' ? 'block' : 'none';
-    $('toolbar').style.display = view === 'empty' ? 'none' : 'flex';
-    grid.style.display = view === 'empty' ? 'none' : 'grid';
-    $('filterEmpty').style.display = 'none';
-    if (view === 'empty') { $('countLabel').textContent = '총 0건 · 최신순'; return; }
-    if (view === 'generating') grid.appendChild(generatingTile());
-    if (view === 'failed') {
-      var f = failedTile();
-      grid.appendChild(f);
-      f.querySelector('#failClose').onclick = function () { state.view = 'default'; render(); };
-    }
-    var list = visibleAssets();
-    list.forEach(function (a, i) { grid.appendChild(assetCard(a, animateFirst && i === 0)); });
-    if (!list.length && state.filter) $('filterEmpty').style.display = 'block';
-    $('countLabel').textContent = '총 ' + list.length + '건 · 최신순';
-    grid.querySelectorAll('[data-dl]').forEach(function (b) {
-      b.onclick = function (e) {
-        e.preventDefault(); e.stopPropagation();
-        var a = visibleAssets().filter(function (x) { return x.id === b.getAttribute('data-dl'); })[0];
-        if (a) downloadAsset(a);
-      };
-    });
+    list.slice(0, 4).forEach(function (a, i) { grid.appendChild(assetCard(a, animateFirst && i === 0)); });
   }
 
-  // ── 필터 (HOME-07) ───────────────────────────────────
-  var chipBase = 'height:30px;padding:0 12px;border-radius:9999px;font-size:12px;white-space:nowrap;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s;';
-  function renderFilter() {
-    var box = $('filterChips');
-    box.innerHTML = '';
-    [''].concat(STYLE_NAMES).forEach(function (name) {
-      var on = state.filter === name;
-      var b = document.createElement('button');
-      b.type = 'button'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(on));
-      b.setAttribute('style', chipBase + (on ? 'background:#FFF8F8;border:1.5px solid #FF6464;color:#D93636;font-weight:700' : 'background:#fff;border:1px solid rgba(112,115,124,0.28);color:#414245;font-weight:500'));
-      b.textContent = name === '' ? '전체' : name;
-      b.onclick = function () { state.filter = name; renderFilter(); render(); };
-      box.appendChild(b);
-    });
-  }
-
-  // ── 생성중 시뮬레이션 (HOME-04→05) ───────────────────
+  // ── 생성중 시뮬레이션 (보조 표면) ─────────────────────
   function runJob(job) {
-    state.view = 'generating';
-    render();
-    $('genMeta').textContent = (job.tplName || '템플릿') + ' · ' + (job.platformName || '미정');
+    state.mode = 'default';
+    state.generating = true;
+    state.doneAsset = null;
+    renderStrip();
+    var meta = $('genMeta');
+    if (meta) meta.textContent = (job.tplName || '템플릿') + ' · ' + (job.platformName || '미정');
     var i = 0;
-    $('genStage').textContent = STAGES[0];
+    var stageEl = $('genStage');
+    if (stageEl) stageEl.textContent = STAGES[0];
     var timer = setInterval(function () {
       i += 1;
       if (i >= STAGES.length) {
         clearInterval(timer);
         try { sessionStorage.removeItem('kglow_studio_job'); } catch (e) {}
-        state.doneAsset = { id: 'new', tpl: job.tpl || 'official', tplName: job.tplName || '공식샵 신뢰 배지형', platformName: job.platformName || '라쿠텐 공식샵', date: '방금 전', href: '3-result.html' };
-        state.view = 'default';
-        render(true);
+        state.generating = false;
+        state.doneAsset = {
+          tplName: job.tplName || '공식샵 신뢰 배지형',
+          platformName: job.platformName || '라쿠텐 공식샵', date: '방금 전',
+          img: SAMPLE_BY_TPL[job.tpl] || SAMPLE_BY_TPL.official
+        };
+        renderStrip(true);
         showToast();
       } else {
-        $('genStage').textContent = STAGES[i];
+        var el = $('genStage');
+        if (el) el.textContent = STAGES[i];
       }
     }, 1400);
   }
@@ -404,16 +772,15 @@
   document.querySelectorAll('.st-btn').forEach(function (b) {
     b.onclick = function () {
       var st = b.getAttribute('data-st');
-      state.doneAsset = null;
+      state.doneAsset = null; state.generating = false;
       if (st === 'generating') { runJob({ tpl: 'official', tplName: '공식샵 신뢰 배지형', platformName: '라쿠텐 공식샵' }); return; }
-      state.view = st;
-      render();
+      state.mode = st;
+      renderStrip();
     };
   });
   var job = null;
   try { job = JSON.parse(sessionStorage.getItem('kglow_studio_job') || 'null'); } catch (e) {}
-  renderFilter();
-  if (job) { runJob(job); } else { state.view = 'default'; render(); }
+  if (job) { runJob(job); } else { state.mode = 'default'; renderStrip(); }
 })();
 </script>
 <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
