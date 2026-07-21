@@ -80,12 +80,12 @@ function buildPrompt(categoryId: string, slots: Record<string, string>, isPromoI
 ### ⑥ 생성 호출 · 후처리
 ```typescript
 const result = await openai.images.edit({
-  model: "gpt-image-2.0",                    // 실제 모델 ID는 구현 시점에 OpenAI 문서로 확인
+  model: "gpt-image-2",                      // 실검증으로 확정(2026-07-21, §6-Q1)
   image: fs.createReadStream(inputPath),     // F 유형: [제품컷, 모델컷] 배열
   prompt: buildPrompt(categoryId, slots, isPromoInput),
   size: "1024x1024",
   quality: "high",                           // 개발 반복 중엔 "medium"으로 비용 절약
-  input_fidelity: "high",                    // ★ 제품 라벨·로고 보존의 핵심 파라미터
+  input_fidelity: "high",                    // ★ 제품 라벨·로고 보존 — 지원 모델에만 조건부(gpt-image-2는 항상 고정밀이라 파라미터 거부)
 });
 ```
 - **하이브리드 오버레이(권장)**: 가격·할인율 등 법적 구속력 있는 텍스트와 오탈자가 치명적인 소형 일본어는 모델이 그리게 하지 말고, 생성 결과 위에 코드(sharp/canvas)로 오버레이한다. 이때 해당 텍스트 슬롯은 프롬프트에서 "빈 밴드/빈 칩만 그리도록" 조정한다. 실검증(§5) 결과에 따라 텍스트 슬롯별로 모델 렌더 vs 오버레이를 확정한다.
@@ -182,6 +182,6 @@ Strict requirements:
 
 ## 6. 열린 질문
 
-- **Q1. 모델 ID·파라미터**: `gpt-image-2.0`의 실제 모델 ID·`input_fidelity` 지원 여부를 구현 시점에 확인. 미지원 시 폴백(누끼 합성 방식) 우선.
+- **Q1. 모델 ID·파라미터**: 모델 ID는 실 API 검증으로 **`gpt-image-2` 확정**(2026-07-21). `input_fidelity`는 **gpt-image-2 미지원 확인**(2026-07-22 실검증 400 — 입력을 항상 고정밀 처리해 파라미터 자체가 불필요·거부). 코드가 지원 모델에만 조건부 부여 + 미지 모델 거부 시 제거 재시도. 라벨 보존력 자체는 골든 픽스처 스모크(§5)에서 확인 — 미달 시 폴백(누끼 합성 방식) 우선.
 - **Q2. 스타일 자동 추천**: 입력 분석(①)에서 스타일을 자동 추천할지, 고객이 8종 갤러리에서 고르게 할지 — UT(8/1~3)에서 확인. labels.jsonl이 자동판별 학습·평가셋.
 - **Q3. 비용 모델**: high 품질 장당 비용 × 고객당 생성 횟수 → 스튜디오 요금제에 반영 (02-product-spec 커머셜 모델과 연결).

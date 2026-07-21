@@ -1,8 +1,8 @@
 {
   "version": "1.1.0",
   "createdAt": "2026-07-08",
-  "updatedAt": "2026-07-08",
-  "targetModel": "gpt-image-2.0",
+  "updatedAt": "2026-07-22",
+  "targetModel": "gpt-image-2",
   "purpose": "한국 썸네일/제품 이미지(input image)를 일본향 제품 썸네일로 변환하는 카테고리별 프롬프트 팩. 근거: docs/research/jp-thumbnail-style-taxonomy.md, 라벨: data/processed/thumbnail-style-labels.jsonl, 파이프라인 스펙: docs/specs/02-thumbnail-converter-spec.md",
   "usageNotes": [
     "input image = 한국 썸네일 또는 제품 단독컷. 제품이 선명하고 가려지지 않아야 한다.",
