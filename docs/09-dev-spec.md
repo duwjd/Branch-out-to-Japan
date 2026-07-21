@@ -13,8 +13,8 @@
 |---|---|
 | 프레임워크 | Next.js(App Router) · TypeScript · Tailwind · npm — 저장소 루트 = 앱 루트 (CLAUDE.md 확정) |
 | 스캐폴딩 | `create-next-app` 후 **기존 자산 병합 유지**: `package.json`의 `crawl:*`·`build:lexicon` 스크립트, `@anthropic-ai/sdk`·`playwright` devDeps, `scripts/`·`data/` 그대로 |
-| 저장·인증·파일 | Supabase (Postgres + Auth + Storage) — 엔티티는 [[08-data-flow]] §6 |
-| 시크릿 | `.env`(비커밋) + `.env.example`에 키 이름 문서화: `ANTHROPIC_API_KEY` · `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` · (② 주간) `OPENAI_API_KEY` |
+| 저장·인증·파일 | Supabase (Postgres + Auth + Storage) — 엔티티는 [[08-data-flow]] §6. **스프린트 2 잠정(2026-07-21):** 인증 = **목 세션**(실 OAuth 미연동 — §4b M5), 파일 = **로컬 `.data/files/` 우선**(`/api/files/[id]` 서빙, DB에는 fileId만 — Supabase Storage 전환 경계 유지, 08 §6.2) |
+| 시크릿 | `.env`(비커밋) + `.env.example`에 키 이름 문서화: `ANTHROPIC_API_KEY` · `LLM_MODE`(mock 강제) · `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` · (② 스프린트 2) `OPENAI_API_KEY`(없으면 이미지 목 모드) · `IMAGE_MODE`(mock 강제) · `OPENAI_IMAGE_MODEL`(기본값 코드 상수 — 무배포 교체용) · `OPENAI_IMAGE_QUALITY`(기본 medium — 개발 비용 절약) |
 | 로컬 검증 | `npm run typecheck` 기본. ⚠ 한글 경로 머신은 대용량 JS 실행이 차단됨 — **영문 경로 미러(`C:\dev\jgs-run`)에서 실행** ([CONTRIBUTING 트러블슈팅](../CONTRIBUTING.md)) |
 | 테스트 | **node 내장 러너**(`npm run test` = tsc 컴파일 → `node --test`) — vitest/tsx는 esbuild 네이티브가 한글 경로에서 차단되어 제외(2026-07-09 규명). typescript는 5.x 고정(7은 네이티브) |
 
@@ -28,9 +28,10 @@
 | `/checker` | 무료 약기법 체커 | ① stretch | `public-onboarding` §2 |
 | `/sample-report` | 샘플 리포트(정적) | ① stretch | `public-onboarding` §3 |
 | `/pricing` | 요금(정적) | ① stretch | `public-onboarding` §4 |
-| `/login` | 로그인/가입(탭) | ① M3 | `public-onboarding` §5 |
-| `/onboarding` | 브랜드 프로필 4단계 | ① M3(최소형) | `public-onboarding` §6 |
-| `/app` | 대시보드 | ① M3(최소형) | `app-wireframe` |
+| `/login` | 로그인 — 소셜 3종(카카오·네이버·구글) **목 세션**(실 OAuth 미연동 — 스프린트 2 결정) | 스프린트 2 M5 | `specs/03-account/1-login.html` |
+| `/onboarding` | 브랜드 프로필 4단계 | 보류 — 브랜드 편집은 `/app/brand`가 정본 | `public-onboarding` §6 |
+| `/app` | `/app/library`로 리다이렉트 1줄 (⓪ 대시보드는 이번 범위 제외) | 스프린트 2 M5 | — |
+| `/app/account` | 마이페이지(계정 정보·플랜 목업·브랜드 요약·로그아웃) | 스프린트 2 M8 | `specs/03-account/2-mypage.html` |
 | `/app/report/new` | 진단 입력폼(브랜드 필수/제품 선택) | ① M3 | `specs/01-report/1-input.html` |
 | `/app/report/[id]` | 처리 로딩(폴링) + 8블록 뷰 + 슬라이드 내보내기 버튼 | ① M3 (슬라이드 버튼 M4) | `report-wireframe` |
 | `/app/studio/thumbnail` | 스튜디오 홈 = 썸네일 생성(홈=생성 · 갤러리 없음) | ② 주간 | `specs/02-studio/1-home.html` |
@@ -43,6 +44,8 @@
 > `/admin/review`(검수 큐)는 **삭제**됐다 — 2026-07-16 검수 단계 제거(`decisions/DECISIONS.md`). 화면·라우트 모두 없다.
 
 **서버 경계(①분):** 진단 제출 `POST /api/report` → **진단 모드 판정(제출 경계에서 서버가 1회: `source` 유무 → `tierInput.mode` — 08 §3.2)** → 잡 실행(성공 = 발행 · `brand` 모드는 stages `persona → benchmark → assemble`로 짧게 완주, **콜③ 실패 = 잡 실패**) · 상태 폴링 `GET /api/report/[id]/status` · PDF `GET /api/report/[id]/pdf` · **보고용 슬라이드 `GET /api/report/[id]/slides`**(동기 라우트 — 콜⑤ + 렌더 후 단일 HTML 응답, `published`만 허용·그 외 409. 08 §4.5 · 스펙 §10) · 체커 `POST /api/checker`(stretch). Server Component 기본, 폼·폴링만 `"use client"`.
+
+**서버 경계(스프린트 2분 · 2026-07-21):** 목 세션 `POST /api/auth/login`(provider → httpOnly 쿠키 1개) · `POST /api/auth/logout` — 인증 가드는 `app/app/layout.tsx` 서버 레이아웃 1곳(middleware 없음). 파일 `POST 업로드는 각 기능 라우트의 FormData` · `GET /api/files/[id]`(로컬 `.data/files/` 서빙 — fileId만 노출, 경로 탈출 검증). ② 썸네일 `POST /api/studio/thumbnail`(FormData: 원본 이미지·플랫폼·템플릿·실적 3필드 → 잡 킥오프, `after()`) · `GET /api/studio/thumbnail`(모드 메타 + 최근 자산 — dev 배지·홈 스트립) · `GET /api/studio/thumbnail/[id]`(폴링 겸 결과 — status 전용 라우트 분리하지 않음). ③ 브랜드 `GET·PUT /api/brand` + `POST /api/brand/doc`(상세페이지 문서 업로드) · 매칭 `GET·POST·DELETE /api/matching`.
 
 ## 3. 모듈 구조
 
@@ -62,11 +65,23 @@ lib/
     │                   #   ※ 콜⑤는 파이프라인 밖 — /api/report/[id]/slides가 직접 호출
     grounding/          #   사전집계·규정요약·렉시콘 로더 (08 §2) — 콜⑤는 미주입
     schemas/            #   콜별 출력 JSON 스키마 + TS 타입 (08 §4.1~4.6)
+  studio/               # ② 썸네일 엔진 (스프린트 2 · Next 독립 순수 TS — CLI 검증 가능)
+    │                   #   promptPack.ts — 팩 v1.1.0 로드·buildPrompt(결정적 조립)·proof 게이트·가격 슬롯 강제 공란(단위 테스트)
+    │                   #   copyCall.ts — 콜⑥ studioCopy(Claude 비전 1콜: 입력분석+카피 재설계+슬롯 채움 — 08 §4.7)
+    │                   #   imageGen.ts — OpenAI images.edit 래퍼 + IMAGE_MODE=mock 폴백(픽스처 PNG)
+    │                   #   fixtures.ts — 목 모드 결정적 슬롯·이미지 매핑
+  files/                # 파일 저장 (스프린트 2) — storage.ts 함수 2개(saveFile·readStoredFile)
+    │                   #   로컬 .data/files/ 저장·fileId 반환. Supabase Storage 전환 시 이 파일 내부만 교체
+  server/               # session.ts(목 세션 — 데모 유저 1명 하드코딩) · reportJob.ts · studioJob.ts(reportJob 미러)
   db/                   # supabase 클라이언트 + 엔티티 접근 (08 §6)
+    │                   #   스프린트 2 확장: BrandProfile(싱글턴)·GeneratedAsset·MatchRequest + listReports/listRequests/listAssets
   logger.ts             # console.log 금지 — scripts/crawl/lib/logger.mjs 패턴 이식
+components/
+  app/AppShell.tsx      # 사이드바 앱 셸 (스프린트 2) — 3축 내비 + 운영 하위 아코디언 + 계정 행 (⓪ MAIN-01 축약)
 scripts/
   aggregate/            # 사전집계 스크립트 (08 §8-D3, 신규)
   run-report.mjs        # 엔진 CLI 러너 — 화면 없이 입력 텍스트 → blocksJson 산출
+  run-thumbnail.ts      # ② 엔진 CLI 러너 (스프린트 2) — 화면 없이 목/실 파이프라인 검증
 ```
 
 ## 4. ① 리포트 스프린트 마일스톤 (7/11~17 · 엔진 우선)
@@ -110,8 +125,45 @@ scripts/
 - [ ] *(stretch)* 무료 체커 `/checker`(+비로그인 3회 — 08 §8-D8) — 랜딩 `/`는 완료
 - **DoD(2026-07-16 개정):** ~~needsReview → 서명 → published · 서명 없는 발행 불가~~ **폐기** → **파이프라인 성공 = 발행**(`processing → published`, 사람 개입 0) ✅ · 슬라이드: `published`에서 버튼 → 외부 리소스 0건인 단일 HTML 다운로드(AC-10.1~10.3) · PDF 잔여
 
-### ② 마케팅 스튜디오 (7/18~24) · ③ 운영 (7/25~31)
-> 각 스프린트 시작 시 이 형식으로 섹션 추가. ②는 `02-thumbnail-converter-spec` §5 실검증(API 키)부터, ③은 스펙 확정부터.
+## 4b. 스프린트 2 마일스톤 (2026-07-21 확정 — ② 실생성 + ③ 운영 + 계정)
+
+> 목표: **실제 API 호출로 리포트와 이미지가 생성되는 동작 서비스.** 확정 결정 4건 — (1) 이미지 생성 = OpenAI gpt-image 실호출(키 없으면 목 모드), (2) 파일 = 로컬 `.data/files/` 우선, (3) 소셜 로그인 = **목 세션**(실 OAuth 금지 — 버튼 클릭 = 로그인 가정), (4) 최대한 간단하게 — **기존 패턴 복제가 곧 설계다**(studioJob = reportJob 미러, 이미지 목 모드 = `LLM_MODE=mock` 미러, 폴링 화면 = `/app/report/[id]` 미러).
+> 엔진 우선 관례는 **스튜디오(M6)에만** 적용 — 리스크(OpenAI 연동·프롬프트 품질)가 거기에만 있다. 운영·계정은 CRUD 화면이라 화면 우선.
+
+### M5 · 기반 — 세션·셸·파일 저장·스토어 확장
+- [ ] 목 로그인: `lib/server/session.ts`(데모 유저 1명 하드코딩 + `getSession()`) · `POST /api/auth/login|logout` · `/login` 화면(소셜 3종 버튼 — 클릭 = 쿠키 발급) · `app/app/layout.tsx` 가드(비로그인 → `/login`). **middleware·User 엔티티·Supabase Auth 만들지 않는다**
+- [ ] `components/app/AppShell.tsx` 사이드바 셸(3축 내비·운영 아코디언·계정 행) + `/app` → `/app/library` 리다이렉트
+- [ ] `lib/files/storage.ts`(saveFile·readStoredFile 2함수) + `GET /api/files/[id]`
+- [ ] `lib/db/store.ts` 인터페이스 확장(BrandProfile 싱글턴·GeneratedAsset·MatchRequest + list 조회) + fileStore·supabaseStore 구현
+- [ ] `npm i openai` + `.env.example` 키 4종 추가
+- **DoD:** 비로그인 `/app/*` → `/login` 리다이렉트, 로그인 → `/app/library` 진입. **기존 리포트 2화면이 셸 안에서 리그레션 없이 동작**(제출→발행 E2E). `npm run typecheck` 0오류
+
+### M6 · 스튜디오 엔진 (CLI 검증 — 화면 없음)
+- [ ] `lib/studio/promptPack.ts` — buildPrompt(스펙 §2-⑤ 그대로) + proof 게이트(3필드 전부 없으면 배지 문단 제거) + **가격 슬롯(G.priceBlock·giftInsetParagraph) v1 강제 공란**(입력 UI 없음 — 유리오인 차단) + `promptPack.test.ts`(node --test)
+- [ ] `lib/studio/copyCall.ts` — 콜⑥ studioCopy: `runStructuredCall` 재사용(+`image?` 옵션 하위 호환 추가), grounding에 `'studioCopy'` 케이스(약기법+렉시콘 주입). **콜② 자체는 재사용하지 않는다** — 문장 감사 계약(K1..Kn)이 슬롯 카피와 불일치, grounding 재사용으로 §2-③ "판정 로직 재사용"을 충족
+- [ ] `lib/studio/imageGen.ts` — `currentImageMode()`(키 없거나 `IMAGE_MODE=mock` → mock) · real = `openai.images.edit`(`input_fidelity:'high'`·1024×1024·모델 ID는 env 주입) · mock = `docs/specs/02-studio/assets/samples/haruon-{slug}.png` 반환
+- [ ] `lib/server/studioJob.ts` — reportJob 미러: `generating → done|failed`, stage 4종(analyze→assemble→generate→gate), `after()` 킥오프. 검수 게이트 v1 = 구조적 보증 기록(`gateResult` 3체크 — 비전 자동검수 없음, 라이브러리는 `done`만 조회)
+- [ ] `POST·GET /api/studio/thumbnail` + `GET /api/studio/thumbnail/[id]` + `scripts/run-thumbnail.ts`(`npm run thumbnail:cli`)
+- **DoD:** 키 없이 CLI 목 E2E(레코드 `generating→done` + `.data/files/` 픽스처 PNG + promptUsed + explanationJson). 테스트 통과. **키 있으면 실호출 1장 스모크 — 모델 ID 확정(§6-Q1)이 첫 태스크**
+
+### M7 · 스튜디오 화면
+- [ ] `/app/studio/thumbnail` 생성 퍼널(드롭존→플랫폼 칩→템플릿 8종 그리드(E 실적 잠금·F 모델컷 잠금)→실적 아코디언→sticky 제출 바) — `specs/02-studio` HOME-01~08
+- [ ] `/app/studio/thumbnail/[assetId]` 결과 상세(2.5초 폴링: 생성중 shimmer+고객어 → done 이미지·게이트 배지·재설계 해설·다운로드 → failed 재시도) — RESULT-01~06
+- **DoD:** 브라우저 목 E2E(업로드→선택→제출→폴링→결과→다운로드 파일명 규칙). 실 API 켜고 동일 동선 1회
+
+### M8 · 운영 3화면 + 계정
+- [ ] `/app/library` 타입 탭 [진단 리포트|썸네일] + 그리드 + 빈 상태(서버 컴포넌트 — 실시간 폴링 없음, 새로고침 반영) · `/app/library/[assetId]` 자산 상세(썸네일/리포트 요약 2모드 — 생성중 자산은 ② 결과로 리다이렉트)
+- [ ] `/app/brand` 4섹션 폼(프로필·제품·채널·브랜드 킷) + `GET·PUT /api/brand` + 상세페이지 문서 업로드(`POST /api/brand/doc`) + 불소급 캡션(BRAND-02)
+- [ ] `/app/matching` 신청 폼 → 상태 스테퍼(컨시어지형 — 상태 갱신 수동) + `GET·POST·DELETE /api/matching` + 사이드바 배지
+- [ ] `/app/account` 마이페이지(계정 정보·provider 배지·플랜 목업·브랜드 요약·로그아웃)
+- **DoD:** M7 생성 자산·기존 리포트가 탭별 조회→상세→다운로드. 브랜드 저장 후 재진입 유지 + 기존 자산 불변(스냅샷 원칙). 매칭 신청→상태→취소 왕복. 마이페이지 provider 배지·자산 카운트
+
+### M9 · Supabase 정합 (선택·후순위)
+- [ ] `supabase/schema.sql` 3테이블(brand_profiles·generated_assets·match_requests) 멱등 추가 + supabaseStore 실구현 검증
+- **DoD:** Supabase 키 켠 상태에서 M7·M8 동선 재통과 (파일은 여전히 로컬)
+
+### 하지 말 것 (과설계 차단 — 스프린트 2)
+middleware.ts / User 엔티티·실 OAuth / ⓪ 대시보드(KPI·히어로·브랜드 스위처) / 하이브리드 오버레이(sharp·canvas) / 비전 자동검수 / FileStorage 추상 인터페이스 / 잡 큐 / status 전용 라우트 분리 / 결제·탈퇴 백엔드·자산 삭제·다중 브랜드·페이지네이션 / 라이브러리 실시간 폴링·시즌 타임라인 실데이터 / 기존 리포트 v6 개정 착수 / `wireframe.css` 클래스 이식(Tailwind로 재구성)
 
 ## 5. 검증 전략
 
@@ -137,6 +189,7 @@ scripts/
 ---
 
 ## 변경 이력
+- 2026-07-21 **스프린트 2 개발 스펙 확정**(사용자 결정 → [[decisions/DECISIONS]] 2026-07-21 스프린트 2 행). **[추가]** §4b 마일스톤 M5~M9(② 실생성 + ③ 운영 + 계정) · §2 라우트 `/app/account`·`/app`(리다이렉트)·스프린트 2 서버 경계(목 세션·파일 서빙·스튜디오·브랜드·매칭 API) · §3 `lib/studio`·`lib/files`·`lib/server/session`·`AppShell`·`run-thumbnail.ts`. **[변경]** §1 인증 = 목 세션 잠정·파일 = 로컬 우선(Supabase Storage 전환 경계 유지) · 시크릿 키 4종 추가(`IMAGE_MODE`·`OPENAI_IMAGE_MODEL`·`OPENAI_IMAGE_QUALITY`) · `/login` 정본 = `specs/03-account`.
 - 2026-07-21 **②·③ IA 개편 반영**([[07-ia]] §5 · `specs/02-studio`·`specs/04-operations` UI 기획서). **[변경]** §2 라우트 맵 `/app/studio/thumbnail` = 스튜디오 홈(홈=생성 · 기존 "썸네일 변환기" 갤러리 허브 폐지) · 와이어프레임 정본을 specs 프로토타입으로 갱신. **[추가]** `/app/studio/thumbnail/[assetId]` 생성 결과 상세(생성중 상태로 시작) · `/app/library/[assetId]` 자산 상세(카드 클릭 시 축 이동 제거 — 재열람 정본).
 - 2026-07-16 **입력 브랜드 우선 재구성(v4) · 두 진단 모드 반영**([[specs/01-report-spec]] v4 배너·§3 · [[08-data-flow]] §3.1~3.2 · [[decisions/DECISIONS]]). **[변경]** §2 라우트 맵 `/app/report/new` "티어 입력폼" → **진단 입력폼(브랜드 필수/제품 선택)** · 와이어프레임 정본 = `docs/specs/01-report/1-input.html` · 서버 경계에 모드 판정(제출 경계 1회: `source` 유무 → `tierInput.mode`)·`brand` 파이프라인(stages `persona → benchmark → assemble` · 콜③ 실패 = 잡 실패) 한 줄 · §3 `rules/` 주석에 `gates.ts`(게이트 단일 정의)·`positioning.ts`(택소노미 16종) 추가·슬라이드 골격 모드별(7장/4장) · §6 참조 정본 표 §3 서술·입력폼 화면 정본 갱신. **[추가]** M3 체크 항목: 입력 브랜드 우선 재구성(v4) — 테스트 30/30. 기존 M3 "티어 폼" 항목은 취소하지 않고 이력 주석만 부기.
 - 2026-07-16 **검수 제거 · 슬라이드 추가 반영**([[decisions/DECISIONS]] 2026-07-16 행). **[삭제]** §2 라우트 맵 `/admin/review` · 서버 경계 `POST /api/report/[id]/review`. **[폐기]** M4 검수 큐 태스크와 DoD("needsReview → 서명 → published"·"서명 없는 발행 불가") — 당시 충족했으나 제품에서 빠짐, 취소선으로 이력 보존. **[변경]** M4 DoD = **파이프라인 성공 = 발행**(사람 개입 0) · §5 E2E 체크리스트에서 서명 단계 제거. **[추가]** `GET /api/report/[id]/slides` 라우트 · `rules/slides.ts` 렌더러 · `llm/runCall5` · M4 슬라이드 태스크 · §6 참조 정본에 스펙 §10.

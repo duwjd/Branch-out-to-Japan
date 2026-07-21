@@ -82,3 +82,67 @@ alter table reports drop column if exists rejected_reason;
 -- ───────────────────────────────────────────────────────────────────────────
 
 alter table reports alter column overall_score drop not null;
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 스프린트 2 · 2026-07-21 — ② 실생성 + ③ 운영 엔티티 (08 §6.1 스프린트 2 델타)
+-- 멱등 create. user_id 없음 — 인증은 목 세션(데모 유저 1명), Auth 도입 시 일괄 마이그레이션.
+-- 파일은 로컬 .data/files/ (image_path 등은 fileId 문자열 — Supabase Storage 전환 시에도 값 불변).
+-- ───────────────────────────────────────────────────────────────────────────
+
+-- 브랜드 프로필 — 싱글턴(id='default' 텍스트 PK, 다중 브랜드 미정)
+create table if not exists brand_profiles (
+  id text primary key, -- 'default'
+  brand_name text not null,
+  category text not null, -- skincare|makeup|suncare|cleansing
+  product_class text not null default '미상', -- 화장품|의약외품|건강식품|미상
+  positioning_tags jsonb not null default '[]',
+  target_memo text not null default '',
+  product_info_memo text not null default '',
+  detail_doc_path text,
+  detail_doc_name text,
+  channels jsonb not null default '{}', -- { krUrl, jp: [{channel, url}] }
+  brand_kit jsonb not null default '{}', -- { productNamesJa[], forbiddenTerms[], toneGuide }
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- 생성 자산(② 썸네일) — 실패물도 status=failed로 남고 라이브러리는 done만 조회
+create table if not exists generated_assets (
+  id uuid primary key default gen_random_uuid(),
+  kind text not null default 'thumbnail',
+  style_category text not null, -- 내부 스타일 ID A~H (화면 비노출)
+  style_name text not null,
+  platform text not null default 'unset',
+  status text not null default 'generating', -- generating|done|failed
+  stage text,
+  error text,
+  original_image_path text not null, -- fileId
+  image_path text, -- fileId (완료 시)
+  prompt_used text,
+  gate_result jsonb,
+  explanation_json jsonb, -- 콜⑥ studioCopy 산출 (08 §4.7)
+  proof jsonb, -- 실적 3필드 스냅샷
+  brand_name_snapshot text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- 기업 매칭 신청 — 컨시어지형. 상태 갱신은 운영팀 수동(대시보드에서 직접 update)
+create table if not exists match_requests (
+  id uuid primary key default gen_random_uuid(),
+  partner_types jsonb not null default '[]',
+  channels jsonb not null default '[]',
+  timing text not null default '',
+  memo text not null default '',
+  status text not null default 'submitted', -- submitted|reviewing|proposed|cancelled
+  snapshot jsonb not null default '{}', -- { reportCount, thumbnailCount, latestScore }
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_assets_status on generated_assets(status);
+create index if not exists idx_match_status on match_requests(status);
+
+alter table brand_profiles enable row level security;
+alter table generated_assets enable row level security;
+alter table match_requests enable row level security;
