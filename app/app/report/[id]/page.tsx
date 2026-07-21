@@ -3,11 +3,15 @@
 /**
  * ① 처리 로딩(상태 폴링) + 리포트 뷰 — 08 §3.3 상태 머신의 화면.
  * processing 동안 2.5초 폴링, 터미널 상태(published/failed)에서 정지.
+ * 디자인 정본: docs/specs/01-report/2-process.html(처리) · 3-report.html(열람 히어로).
  */
 
 import { use, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ReportView } from '@/components/report/ReportView';
+import { StatusBadge, buttonClass } from '@/components/ui/primitives';
+import { IndetBar, StageList } from '@/components/ui/progress';
+import { REPORT_STAGE_LABELS, REPORT_STAGE_STEPS, reportStageIndex } from '@/lib/stageLabels';
 import type { BlocksJson, ReportStatus } from '@/lib/engine/types';
 
 interface StatusPayload {
@@ -25,25 +29,13 @@ interface StatusPayload {
   } | null;
 }
 
-const STAGE_LABELS: Record<string, string> = {
-  normalize: '콘텐츠 정규화 · 문장 분해',
-  presignals: '신뢰 장치 신호 추출',
-  llmCalls: '루브릭 채점 · 약기법 감사 · 페르소나 (병렬 진단 중)',
-  persona: '페르소나 · USP 재정의 (브랜드 진단)', // 브랜드 진단 stages: persona → benchmark → assemble
-  aggregate: '점수 집계(결정적)',
-  benchmark: '코퍼스 벤치마크 대비',
-  call4: 'NG/OK 재작성 · 총평 생성',
-  assemble: '9블록 조립',
-};
-
 const TERMINAL: ReportStatus[] = ['published', 'failed'];
 
 /**
- * 보고용 슬라이드 내보내기 (스펙 §10 · SLIDE-01).
- * 콜⑤가 도는 동안 ~20초 걸리므로 대기 상태를 반드시 보여준다.
+ * 보고용 슬라이드 내보내기(SLIDE-01) — 콜⑤가 도는 동안 ~20초 걸리므로 대기 상태를 반드시 보여준다.
  * <a download> 대신 fetch를 쓰는 이유: 실패를 브라우저 기본 오류 페이지가 아니라 앱 UI로 보여주려고.
  */
-function SlideExport({ id }: { id: string }) {
+function SlideExport({ id, size = 'md' }: { id: string; size?: 'md' | 'lg' }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,31 +63,21 @@ function SlideExport({ id }: { id: string }) {
   }
 
   return (
-    <section className="mb-6 rounded-xl border border-neutral-200 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold">상사에게 보고해야 하나요?</p>
-          <p className="mt-0.5 text-xs text-neutral-600">
-            이 리포트를 품의용 슬라이드 7장(HTML 1개 파일)으로 내보냅니다. 브라우저로 열어 발표하거나 PDF로 저장하세요.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={busy}
-          className={`shrink-0 rounded-lg px-4 py-2 text-sm font-bold text-white ${
-            busy ? 'cursor-not-allowed bg-neutral-300' : 'bg-[#FF6464] hover:bg-[#D93636]'
-          }`}
-        >
-          {busy ? '만드는 중… (20초쯤 걸려요)' : '보고용 슬라이드 만들기'}
-        </button>
-      </div>
+    <div>
+      <button
+        type="button"
+        onClick={() => void handleExport()}
+        disabled={busy}
+        className={buttonClass('primary', size)}
+      >
+        {busy ? '만드는 중… (20초쯤 걸려요)' : '보고용 슬라이드 만들기'}
+      </button>
       {error && (
-        <p role="alert" className="mt-3 rounded-lg border border-[#F0483C] bg-red-50 p-2.5 text-xs text-[#B3271D]">
+        <p role="alert" className="mt-2 max-w-xs rounded-[8px] border border-danger bg-danger-bg p-2 text-xs text-danger-text">
           {error}
         </p>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -129,53 +111,106 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
     };
   }, [poll]);
 
-  return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <nav className="mb-6 flex flex-wrap items-center justify-between gap-2 text-sm">
-        <Link href="/app/report/new" className="text-[#D93636] underline">← 새 진단</Link>
-        {payload?.storeKind === 'file' && (
-          <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-900">로컬 저장(dev)</span>
-        )}
-      </nav>
+  // ── 처리 중(submitted/processing) — 중앙 정렬 카드 ──────────────────────
+  if (payload && (payload.status === 'submitted' || payload.status === 'processing')) {
+    const stageIdx = reportStageIndex(payload.stage);
+    return (
+      <main className="animate-fade-up flex min-h-[70vh] items-center justify-center px-6 py-12">
+        <div className="w-full max-w-[560px]">
+          <p className="mb-3.5">
+            <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">← 새 진단</Link>
+          </p>
+          <div role="status" aria-live="polite" className="rounded-card border border-card-border bg-canvas p-11 text-center shadow-card">
+            <h1 className="text-xl font-extrabold tracking-[-0.01em] text-ink">진단 리포트를 생성하고 있습니다…</h1>
+            <p className="mt-2.5 text-[14.5px] font-semibold text-coral-strong">
+              {payload.stage ? (REPORT_STAGE_LABELS[payload.stage] ?? payload.stage) : '대기 중'}
+            </p>
+            <IndetBar className="mt-6" />
+            <StageList
+              stages={REPORT_STAGE_STEPS.map((s) => s.label)}
+              activeIdx={stageIdx}
+              className="mt-7 border-t border-hairline pt-4.5 text-left"
+            />
+            <p className="mt-5.5 text-[12.5px] leading-relaxed text-ink-mute">
+              몇 분 걸릴 수 있습니다. 화면을 떠나도 진행됩니다.
+            </p>
+            {fetchError && (
+              <p role="alert" className="mt-4 rounded-[8px] border border-danger bg-danger-bg p-2.5 text-xs text-danger-text">
+                {fetchError}
+              </p>
+            )}
+          </div>
+          {payload.storeKind === 'file' && (
+            <p className="mt-3 text-center"><StatusBadge tone="off">로컬 저장(dev)</StatusBadge></p>
+          )}
+        </div>
+      </main>
+    );
+  }
 
-      {!payload && !fetchError && <p role="status">불러오는 중…</p>}
+  // ── 실패 ─────────────────────────────────────────────────────────────
+  if (payload?.status === 'failed') {
+    return (
+      <main className="animate-fade-up flex min-h-[70vh] items-center justify-center px-6 py-12">
+        <div className="w-full max-w-[560px]">
+          <p className="mb-3.5">
+            <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">← 새 진단</Link>
+          </p>
+          <section role="alert" className="rounded-card border border-danger bg-danger-bg p-8">
+            <h1 className="text-lg font-extrabold text-danger-text">✕ 진단 생성에 실패했습니다</h1>
+            <p className="mt-2 text-sm text-ink-body">{payload.error}</p>
+            <Link href="/app/report/new" className={`${buttonClass('primary', 'md')} mt-5 no-underline`}>
+              다시 진단하기 →
+            </Link>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
+  // ── 발행 완료 ────────────────────────────────────────────────────────
+  if (payload?.status === 'published' && payload.report) {
+    const b = payload.report.blocksJson;
+    return (
+      <main className="animate-fade-up">
+        <div className="mx-auto max-w-[960px] px-6 pt-9 pb-24">
+          <p className="mb-4">
+            <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">← 새 진단</Link>
+          </p>
+
+          {/* 히어로 */}
+          <div className="flex flex-wrap items-end justify-between gap-5">
+            <div>
+              <p className="flex items-center gap-2 text-[12.5px] font-bold tracking-[.03em] text-coral-strong">
+                <span aria-hidden className="inline-block h-0.5 w-[18px] bg-coral" />
+                일본 시장 진입 진단 리포트
+              </p>
+              <h1 className="mt-3 text-[36px] leading-[1.15] font-extrabold tracking-[-0.02em] text-ink">{b.block0.brandName}</h1>
+              <p className="mt-2 text-[14.5px] text-ink-mute">
+                {b.block0.productName} · {b.block0.categoryLabel} · 발행 {payload.report.publishedAt?.slice(0, 10)}
+              </p>
+            </div>
+            <SlideExport id={id} size="md" />
+          </div>
+
+          {payload.storeKind === 'file' && (
+            <p className="mt-3"><StatusBadge tone="off">로컬 저장(dev)</StatusBadge></p>
+          )}
+
+          <ReportView blocks={b} slideExportSlot={<SlideExport id={id} size="lg" />} />
+        </div>
+      </main>
+    );
+  }
+
+  // ── 로딩 전/오류 ─────────────────────────────────────────────────────
+  return (
+    <main className="animate-fade-up flex min-h-[50vh] items-center justify-center px-6 py-12">
+      {!payload && !fetchError && <p role="status" className="text-sm text-ink-mute">불러오는 중…</p>}
       {fetchError && (
-        <p role="alert" className="rounded-lg border border-[#F0483C] bg-red-50 p-3 text-sm text-[#B3271D]">
+        <p role="alert" className="rounded-[10px] border border-danger bg-danger-bg p-3 text-[13px] text-danger-text">
           {fetchError}
         </p>
-      )}
-
-      {payload && (payload.status === 'submitted' || payload.status === 'processing') && (
-        <section role="status" aria-live="polite" className="rounded-2xl border border-neutral-200 p-8 text-center">
-          <p className="text-lg font-semibold">진단 리포트를 생성하고 있습니다…</p>
-          <p className="mt-2 text-sm text-neutral-600">
-            {payload.stage ? STAGE_LABELS[payload.stage] ?? payload.stage : '대기 중'}
-          </p>
-          <div className="mx-auto mt-6 h-2 w-64 overflow-hidden rounded bg-neutral-100">
-            <div className="h-full w-1/2 animate-pulse bg-[#FF6464]" />
-          </div>
-          <p className="mt-4 text-xs text-neutral-500">규칙 엔진 + LLM 4콜 파이프라인 — 수 분이 걸릴 수 있습니다.</p>
-        </section>
-      )}
-
-      {payload?.status === 'failed' && (
-        <section role="alert" className="rounded-2xl border border-[#F0483C] bg-red-50 p-8">
-          <h1 className="text-lg font-bold text-[#B3271D]">진단 생성에 실패했습니다</h1>
-          <p className="mt-2 text-sm text-neutral-800">{payload.error}</p>
-          <Link href="/app/report/new" className="mt-4 inline-block text-sm font-semibold text-[#D93636] underline">
-            입력을 수정해 다시 시도 →
-          </Link>
-        </section>
-      )}
-
-      {payload?.status === 'published' && payload.report && (
-        <>
-          <section className="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm">
-            <strong>발행 완료</strong> — {payload.report.publishedAt?.slice(0, 10)}
-          </section>
-          <SlideExport id={id} />
-          <ReportView blocks={payload.report.blocksJson} />
-        </>
       )}
     </main>
   );

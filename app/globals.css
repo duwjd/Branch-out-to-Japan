@@ -1,13 +1,159 @@
 @import "tailwindcss";
 
-/* 기능 검증 빌드 최소 스타일 — 디자인 확정(design/) 후 교체 전제.
-   접근성 기본(포커스 링)만 전역으로 잡는다. */
+/* ════════════════════════════════════════════════════════════════════
+   KGLOW 디자인 토큰 — docs/specs 각 섹션의 wireframe.css 정본을 Tailwind v4 @theme으로 이식.
+   토큰 정본: design/DESIGN.md (스티비 coral).
+   coral #ff6464 = 기본 CTA·강조(large/bold 전용) · coral-strong #d93636 = hover/링크/소형 텍스트.
+   상태색은 색+글자+기호(✕/△/○) 3중 표기와 함께만 쓴다(CVD 검증).
+   ════════════════════════════════════════════════════════════════════ */
 
-:focus-visible {
-  outline: 2px solid #ff6464; /* design 시스템 primary — public-onboarding-spec §0 */
-  outline-offset: 2px;
+@theme {
+  /* 전역 서체 — Pretendard Variable(next/font가 --font-pretendard 주입) */
+  --font-sans: var(--font-pretendard), "Pretendard Variable", Pretendard,
+    -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo",
+    "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", "Malgun Gothic",
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+
+  /* 표면 · 잉크 */
+  --color-page: #f7f7f8;
+  --color-canvas: #ffffff;
+  --color-ink: #202124;                 /* 제목·강조 숫자 */
+  --color-ink-body: #414245;            /* 본문 */
+  --color-ink-mute: rgba(55, 56, 60, 0.61); /* 캡션·보조 */
+  --color-ink-faint: #b6b8bf;           /* /100·각주·화살표 */
+
+  /* 브랜드 */
+  --color-navy: #22304f;                /* 워드마크 전용 — UI 토큰으로 승격 금지 */
+  --color-coral: #ff6464;               /* primary CTA·강조 */
+  --color-coral-strong: #d93636;        /* hover/pressed·링크·eyebrow */
+  --color-coral-tint: #fff8f8;          /* 칩-on·필수 배지·강조 배경 */
+  --color-bar-mid: #ff9c9c;
+  --color-bar-light: #ffc4c4;
+
+  /* 판정 상태색 (색+글자+기호와 함께만) */
+  --color-danger: #f0483c;
+  --color-danger-text: #c6362c;
+  --color-danger-bg: #fdf0ef;
+  --color-amber: #ffab00;
+  --color-amber-text: #b96c00;
+  --color-amber-bg: #fff6e5;
+  --color-green: #00b97c;
+  --color-green-text: #00875a;
+  --color-green-bg: #eaf9f3;
+
+  /* 선 · 중립 */
+  --color-card-border: rgba(112, 115, 124, 0.14);
+  --color-input-border: rgba(112, 115, 124, 0.28);
+  --color-hairline: #ebebeb;
+  --color-n-50: #fafafb;
+  --color-n-100: #f6f6f6;
+  --color-n-150: #f1f1f3;
+  --color-n-200: #ececef;
+
+  /* 그림자 */
+  --shadow-card: 0 1px 3px rgba(16, 18, 20, 0.04);
+  --shadow-nav: 0 4px 14px rgba(16, 18, 20, 0.06);
+  --shadow-2: 0 12px 32px rgba(16, 18, 20, 0.1);
+
+  /* 반경 · 치수 */
+  --radius-card: 18px;
+  --spacing-sidebar: 248px;
+
+  /* 모션 — motion-fast 150ms · ease-standard */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-fade-up: fadeUp 0.3s var(--ease-standard) both;
+  --animate-fade-in: fadeIn 0.15s ease both;
+  --animate-drop-in: dropIn 0.15s var(--ease-standard) both;
+  --animate-modal-in: modalIn 0.2s var(--ease-standard) both;
+  --animate-toast-in: toastIn 0.3s ease both;
+  --animate-tile-in: tileIn 0.3s ease both;
+  --animate-soft-pulse: softPulse 1.6s ease-in-out infinite;
+  --animate-indet: indet 1.4s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
 }
 
+/* ── 키프레임 (wireframe.css 계승) ─────────────────────── */
+@keyframes indet  { 0% { transform: translateX(-110%); } 100% { transform: translateX(480%); } }
+@keyframes fadeUp { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes shimmer { 0% { background-position: -420px 0; } 100% { background-position: 420px 0; } }
+@keyframes tileIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes toastIn { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes dropIn { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes modalIn { 0% { opacity: 0; transform: translateY(10px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* ── 전역 기본 ─────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
 body {
-  @apply bg-white text-neutral-900 antialiased;
+  background: var(--color-page);
+  color: var(--color-ink-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+input::placeholder,
+textarea::placeholder { color: #a6a8b0; }
+
+/* 접근성: 키보드 포커스 링 (마우스 클릭엔 안 뜸) */
+:focus-visible {
+  outline: 2px solid var(--color-coral);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* 균형 잡힌 제목 줄바꿈 */
+h1, h2, h3 { text-wrap: balance; }
+
+/* ── 커스텀 유틸리티 ───────────────────────────────────── */
+
+/* 숫자는 표 정렬 폭 */
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 본문 상단 중앙 코랄 글로우 — .app-main 전용 */
+@utility main-glow {
+  background-color: var(--color-page);
+  background-image: radial-gradient(1100px 420px at 50% -80px, rgba(255, 100, 100, 0.05), transparent);
+  background-repeat: no-repeat;
+}
+
+/* 로딩 스켈레톤 — 치수를 유지한 채 pulse */
+@utility skel {
+  background: var(--color-n-150);
+  border-radius: 8px;
+  animation: softPulse 1.6s ease-in-out infinite;
+}
+
+/* 칩 가로 스크롤 — 스크롤바 숨김 + 가장자리 페이드 */
+@utility chip-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+  min-width: 0;
+  mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 20px), transparent 100%);
+  &::-webkit-scrollbar { display: none; }
+}
+
+/* 설명문 2줄 고정 — 그리드 바텀 라인 정렬 */
+@utility clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2lh;
+}
+
+/* ── 모션 최소화 선호 ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

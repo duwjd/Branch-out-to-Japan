@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { buttonClass } from '@/components/ui/primitives';
 
 export function LogoutButton() {
   const router = useRouter();
@@ -17,12 +18,7 @@ export function LogoutButton() {
   }
 
   return (
-    <button
-      type="button"
-      disabled={busy}
-      onClick={() => void handleLogout()}
-      className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium hover:border-[#D93636] hover:text-[#D93636]"
-    >
+    <button type="button" disabled={busy} onClick={() => void handleLogout()} className={buttonClass('secondary', 'sm')}>
       {busy ? '로그아웃 중…' : '로그아웃'}
     </button>
   );

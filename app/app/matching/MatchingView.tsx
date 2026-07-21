@@ -3,6 +3,7 @@
 /**
  * 기업 매칭 뷰(MATCH-02~07) — 미신청=신청 폼 / 신청 후=상태 스테퍼.
  * 상태 갱신은 운영팀 수동 — 자동 진행·예상 소요일을 표기하지 않는다.
+ * 디자인 정본: docs/specs/04-operations/4-matching.html
  */
 
 import { useState } from 'react';
@@ -10,6 +11,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MATCH_CHANNELS, MATCH_TIMINGS, PARTNER_TYPES } from '@/lib/matching';
 import type { MatchRequestRecord } from '@/lib/db/store';
+import { Modal } from '@/components/ui/Modal';
+import { Stepper } from '@/components/ui/progress';
+import { StatusBadge, buttonClass, cardClass, chipClass, selectClass, textareaClass } from '@/components/ui/primitives';
 
 interface Summary {
   reportCount: number;
@@ -95,224 +99,215 @@ export function MatchingView({
   }
 
   const currentStepIdx = active ? STEPS.findIndex((s) => s.key === active.status) : -1;
+  const stepperSteps = STEPS.map((s, i) => ({
+    label: s.label,
+    date: active ? (i === 0 ? active.createdAt.slice(0, 10) : i === currentStepIdx ? active.updatedAt.slice(0, 10) : undefined) : undefined,
+  }));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <header>
+    <main className="animate-fade-up">
+      <div className="mx-auto max-w-[760px] px-6 pt-9 pb-24 max-sm:px-5">
+        {/* 상단 안내(MATCH-01) */}
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs font-semibold tracking-wide text-[#D93636]">KGLOW 운영</p>
-          {storeKind === 'file' && (
-            <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-900">로컬 저장(dev)</span>
-          )}
+          <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">KGLOW 운영</p>
+          {storeKind === 'file' && <StatusBadge tone="off">로컬 저장(dev)</StatusBadge>}
         </div>
-        <h1 className="mt-1 text-2xl font-bold">일본 기업 매칭</h1>
-        <p className="mt-2 text-sm text-neutral-600">
-          진단·제작을 거친 브랜드를 일본 현지 기업과 연결합니다. 신청 내용을 검토해 적합한 파트너의 제안을 보내드립니다.
+        <h1 className="mt-2.5 text-[28px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink">일본 기업 매칭</h1>
+        <p className="mt-3 text-[14.5px] leading-[1.7] text-ink-body [text-wrap:pretty]">
+          진단·제작을 거친 브랜드를 일본 현지 기업과 연결합니다. 신청 내용을 검토해 적합한 파트너의 제안을
+          보내드립니다.
         </p>
-      </header>
-
-      {statusMsg && (
-        <p role="status" className="mt-4 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-900">
-          {statusMsg}
+        <p className="mt-2 text-xs leading-relaxed text-ink-faint">
+          기업 목록을 열람하거나 검색하는 방식이 아닙니다. 운영팀이 브랜드 자산을 보고 직접 검토합니다.
         </p>
-      )}
 
-      {!active ? (
-        <>
-          {/* 리포트 0건 안내(MATCH-07) — 신청은 차단하지 않는다 */}
-          {summary.reportCount === 0 && (
-            <p className="mt-6 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-600">
-              진단 리포트가 있으면 매칭 검토가 빨라집니다{' '}
-              <Link href="/app/report/new" className="text-[#D93636] underline">진단 시작</Link>
-            </p>
-          )}
+        {statusMsg && (
+          <p role="status" className="mt-4 rounded-[10px] border border-green/35 bg-green-bg p-3 text-sm font-semibold text-green-text">
+            {statusMsg}
+          </p>
+        )}
 
-          {/* 자동 첨부 요약(MATCH-02a) */}
-          <section className="mt-4 rounded-2xl border border-neutral-200 p-4 text-sm">
-            <p className="font-semibold">{brandName ?? '브랜드 프로필 미작성'}</p>
-            <p className="mt-1 text-xs text-neutral-600">
-              진단 리포트 {summary.reportCount}건 · 생성 썸네일 {summary.thumbnailCount}건 · 최근 진단 점수{' '}
-              {summary.latestScore ?? '—'}
-              {summary.latestScore !== null ? '/100' : ''}
-            </p>
-            <p className="mt-2 text-xs text-neutral-500">
-              신청서에 함께 전달됩니다. 다시 입력할 필요 없습니다 ·{' '}
-              <Link href="/app/brand" className="text-[#D93636] underline">브랜드 관리에서 수정</Link>
-            </p>
-          </section>
-
-          {/* 입력(MATCH-02b) */}
-          <section className="mt-5 space-y-5 rounded-2xl border border-neutral-200 p-5">
-            <div>
-              <p className="text-xs font-medium text-neutral-700">
-                파트너 유형 <span className="text-[#D93636]">*</span> (복수 선택)
+        {!active ? (
+          <>
+            {/* 리포트 0건 안내(MATCH-07) — 신청은 차단하지 않는다 */}
+            {summary.reportCount === 0 && (
+              <p className="mt-4.5 rounded-[10px] border border-amber/45 bg-amber-bg p-3.5 text-[12.5px] leading-relaxed text-amber-text">
+                진단 리포트가 있으면 매칭 검토가 빨라집니다.{' '}
+                <Link href="/app/report/new" className="font-bold underline">
+                  진단 시작
+                </Link>
               </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {PARTNER_TYPES.map((t) => {
-                  const on = partnerTypes.includes(t);
-                  return (
-                    <button
-                      key={t}
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => toggle(partnerTypes, setPartnerTypes, t)}
-                      className={`rounded-full border px-3 py-1.5 text-xs ${
-                        on ? 'border-[#D93636] bg-[#FFF8F8] font-semibold text-[#D93636]' : 'border-neutral-300'
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  );
-                })}
+            )}
+
+            {/* 자동 첨부 요약(MATCH-02a) */}
+            <section className="mt-5 rounded-card border border-coral/30 bg-coral-tint p-4.5">
+              <p className="text-[13.5px] font-bold text-ink">{brandName ?? '브랜드 프로필 미작성'}</p>
+              <p className="tnum mt-1.5 text-xs text-ink-mute">
+                진단 리포트 {summary.reportCount}건 · 생성 썸네일 {summary.thumbnailCount}건 · 최근 진단 점수{' '}
+                {summary.latestScore ?? '—'}
+                {summary.latestScore !== null ? '/100' : ''}
+              </p>
+              <p className="mt-2.5 border-t border-coral/20 pt-2.5 text-[11.5px] text-ink-mute">
+                신청서에 함께 전달됩니다. 다시 입력할 필요 없습니다 ·{' '}
+                <Link href="/app/brand" className="font-bold text-coral-strong hover:underline">
+                  브랜드 관리에서 수정
+                </Link>
+              </p>
+            </section>
+
+            {/* 파트너 유형(MATCH-02b — 필수) */}
+            <fieldset className="mt-7 border-0 p-0">
+              <legend className="flex flex-wrap items-center gap-2 text-sm font-extrabold text-ink">
+                어떤 파트너를 찾고 있나요?
+                <span className="inline-flex h-[18px] items-center rounded-full bg-coral-tint px-[7px] text-[10px] font-bold text-coral-strong">
+                  필수 · 1개 이상
+                </span>
+              </legend>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {PARTNER_TYPES.map((t) => (
+                  <button key={t} type="button" aria-pressed={partnerTypes.includes(t)} onClick={() => toggle(partnerTypes, setPartnerTypes, t)} className={chipClass(partnerTypes.includes(t))}>
+                    {t}
+                  </button>
+                ))}
               </div>
-              {partnerTypes.length === 0 && (
-                <p className="mt-1.5 text-xs text-neutral-500">파트너 유형을 1개 이상 선택해 주세요</p>
-              )}
-            </div>
-            <div>
-              <p className="text-xs font-medium text-neutral-700">진출 채널·희망 시기 (선택)</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {MATCH_CHANNELS.map((c) => {
-                  const on = channels.includes(c.value);
-                  return (
-                    <button
-                      key={c.value}
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => toggle(channels, setChannels, c.value)}
-                      className={`rounded-full border px-3 py-1.5 text-xs ${
-                        on ? 'border-[#D93636] bg-[#FFF8F8] font-semibold text-[#D93636]' : 'border-neutral-300'
-                      }`}
-                    >
-                      {c.label}
-                    </button>
-                  );
-                })}
-                <select
-                  value={timing}
-                  onChange={(e) => setTiming(e.target.value)}
-                  className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs"
-                  aria-label="희망 시기"
-                >
+              {partnerTypes.length === 0 && <p className="mt-2 text-[12.5px] text-ink-mute">파트너 유형을 1개 이상 선택해 주세요</p>}
+            </fieldset>
+
+            {/* 진출 채널·희망 시기(MATCH-02b — 선택) */}
+            <fieldset className="mt-6 border-0 p-0">
+              <legend className="text-sm font-extrabold text-ink">
+                진출 채널·희망 시기 <span className="text-xs font-semibold text-ink-faint">선택</span>
+              </legend>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {MATCH_CHANNELS.map((c) => (
+                  <button key={c.value} type="button" aria-pressed={channels.includes(c.value)} onClick={() => toggle(channels, setChannels, c.value)} className={chipClass(channels.includes(c.value))}>
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3">
+                <label htmlFor="timing" className="mb-1.5 block text-xs font-semibold text-ink-mute">
+                  희망 시기
+                </label>
+                <select id="timing" value={timing} onChange={(e) => setTiming(e.target.value)} className={`${selectClass} w-[220px]`}>
                   {MATCH_TIMINGS.map((t) => (
-                    <option key={t} value={t}>희망 시기: {t}</option>
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
                   ))}
                 </select>
               </div>
-            </div>
-            <label className="block text-xs font-medium text-neutral-700">
-              요청 메모 (선택) <span className="font-normal text-neutral-500">{memo.length}/500</span>
+            </fieldset>
+
+            {/* 요청 메모(MATCH-02b — 선택) */}
+            <div className="mt-6">
+              <label htmlFor="memo" className="text-sm font-extrabold text-ink">
+                요청 메모 <span className="text-xs font-semibold text-ink-faint">선택</span>
+              </label>
               <textarea
+                id="memo"
                 value={memo}
                 onChange={(e) => setMemo(e.target.value.slice(0, 500))}
-                rows={3}
-                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                rows={4}
+                placeholder="예: 도쿄 오프라인 팝업을 함께할 파트너를 찾고 있어요."
+                className={`mt-3 ${textareaClass}`}
               />
-            </label>
-            <div>
-              <button
-                type="button"
-                disabled={partnerTypes.length === 0 || busy}
-                onClick={() => void handleSubmit()}
-                className={`w-full rounded-lg px-6 py-3 text-sm font-bold text-white ${
-                  partnerTypes.length > 0 && !busy ? 'bg-[#FF6464] hover:bg-[#D93636]' : 'cursor-not-allowed bg-neutral-300'
-                }`}
-              >
+              <p className="tnum mt-1.5 text-right text-[11px] text-ink-faint">{memo.length}/500</p>
+            </div>
+
+            {/* 제출(MATCH-02c·03) — 화면 유일 primary */}
+            <div className="mt-7">
+              <button type="button" disabled={partnerTypes.length === 0 || busy} onClick={() => void handleSubmit()} className={buttonClass('primary', 'lg', 'w-full')}>
                 {busy ? '신청 중…' : '매칭 신청'}
               </button>
-              <p className="mt-2 text-center text-xs text-neutral-500">검토 후 연락드립니다. 처리 기한 (미정)</p>
-              {error && <p role="alert" className="mt-2 text-xs text-[#B3271D]">{error}</p>}
+              <p className="mt-2.5 text-center text-[12.5px] text-ink-mute">검토 후 연락드립니다. 처리 기한 (미정)</p>
+              {error && (
+                <p role="alert" className="mt-2 text-center text-[12.5px] font-semibold text-danger-text">
+                  {error}
+                </p>
+              )}
             </div>
-          </section>
-        </>
-      ) : (
-        <>
-          {/* 상태 스테퍼(MATCH-04) — 색+글자+기호 3중 표기 */}
-          <section className="mt-6 rounded-2xl border border-neutral-200 p-5">
-            <ol className="flex items-center gap-2 text-xs">
-              {STEPS.map((step, i) => {
-                const done = i < currentStepIdx;
-                const current = i === currentStepIdx;
-                return (
-                  <li key={step.key} aria-current={current ? 'step' : undefined} className="flex flex-1 flex-col items-center gap-1">
-                    <span
-                      aria-hidden
-                      className={`flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold ${
-                        done
-                          ? 'bg-emerald-100 text-emerald-900'
-                          : current
-                            ? 'bg-[#FF6464] text-white'
-                            : 'bg-neutral-100 text-neutral-400'
-                      }`}
-                    >
-                      {done ? '○' : i + 1}
-                    </span>
-                    <span className={current ? 'font-semibold text-[#D93636]' : done ? 'text-emerald-900' : 'text-neutral-400'}>
-                      {step.label}
-                    </span>
-                    <span className="text-neutral-400">
-                      {step.key === 'submitted' ? active.createdAt.slice(0, 10) : current ? active.updatedAt.slice(0, 10) : '—'}
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-            <p className="mt-4 text-center text-xs text-neutral-500">검토가 끝나면 이메일과 이 화면으로 알려드립니다</p>
-          </section>
+          </>
+        ) : (
+          <>
+            {/* 상태 스테퍼(MATCH-04) — 색+글자+기호 3중 표기 */}
+            <section className={cardClass('mt-6 p-6 sm:p-7')}>
+              <Stepper steps={stepperSteps} currentIdx={currentStepIdx} />
+              <p role="status" aria-live="polite" className="mt-5 text-center text-[13px] text-ink-mute">
+                검토가 끝나면 이메일과 이 화면으로 알려드립니다
+              </p>
+            </section>
 
-          {/* 신청 스냅샷 요약(MATCH-04) */}
-          <section className="mt-4 rounded-2xl border border-neutral-200 p-4 text-sm">
-            <p className="text-xs font-medium text-neutral-500">신청 내용</p>
-            <dl className="mt-2 space-y-1.5 text-xs">
-              <div className="flex gap-2"><dt className="w-20 shrink-0 text-neutral-500">파트너 유형</dt><dd>{active.partnerTypes.join(' · ')}</dd></div>
-              <div className="flex gap-2">
-                <dt className="w-20 shrink-0 text-neutral-500">채널·시기</dt>
-                <dd>
-                  {active.channels.length
-                    ? active.channels.map((c) => MATCH_CHANNELS.find((x) => x.value === c)?.label ?? c).join(' · ')
-                    : '미정'}{' '}
-                  · {active.timing || '미정'}
-                </dd>
-              </div>
-              {active.memo && <div className="flex gap-2"><dt className="w-20 shrink-0 text-neutral-500">메모</dt><dd>{active.memo}</dd></div>}
-              <div className="flex gap-2">
-                <dt className="w-20 shrink-0 text-neutral-500">첨부 자산</dt>
-                <dd>
-                  진단 리포트 {active.snapshot.reportCount}건 · 썸네일 {active.snapshot.thumbnailCount}건 · 최근 점수{' '}
-                  {active.snapshot.latestScore ?? '—'}
-                </dd>
-              </div>
-            </dl>
-          </section>
+            {active.status === 'proposed' && (
+              <section role="status" className="mt-4 rounded-card border border-green/35 bg-green-bg p-4 text-center text-[13px] font-bold text-green-text">
+                제안이 도착했습니다 ○ — 운영팀이 이메일로 상세를 안내합니다
+              </section>
+            )}
 
-          <button type="button" onClick={() => setCancelOpen(true)} className="mt-4 text-xs text-neutral-500 underline hover:text-[#B3271D]">
-            신청 취소
-          </button>
-          {error && <p role="alert" className="mt-2 text-xs text-[#B3271D]">{error}</p>}
-
-          {/* 취소 확인 모달(MATCH-06) */}
-          {cancelOpen && (
-            <div role="dialog" aria-modal="true" aria-label="매칭 신청 취소 확인" className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
-              <div className="w-full max-w-sm rounded-2xl bg-white p-6">
-                <p className="text-sm font-bold">매칭 신청을 취소할까요?</p>
-                <div className="mt-5 flex justify-end gap-2">
-                  <button type="button" onClick={() => setCancelOpen(false)} className="rounded-lg border border-neutral-300 px-4 py-2 text-sm">
-                    돌아가기
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void handleCancel()}
-                    className="rounded-lg bg-[#B3271D] px-4 py-2 text-sm font-bold text-white hover:bg-[#8f1f17]"
-                  >
-                    {busy ? '취소 중…' : '취소하기'}
-                  </button>
+            {/* 신청 스냅샷 요약(MATCH-04) */}
+            <section className={cardClass('mt-4 p-5')}>
+              <h2 className="text-[13.5px] font-extrabold text-ink">신청 내용</h2>
+              <dl className="mt-3 space-y-2 text-[12.5px]">
+                <div className="flex gap-2">
+                  <dt className="w-20 flex-none text-ink-mute">파트너 유형</dt>
+                  <dd className="text-ink">{active.partnerTypes.join(' · ')}</dd>
                 </div>
+                <div className="flex gap-2">
+                  <dt className="w-20 flex-none text-ink-mute">채널·시기</dt>
+                  <dd className="text-ink">
+                    {active.channels.length ? active.channels.map((c) => MATCH_CHANNELS.find((x) => x.value === c)?.label ?? c).join(' · ') : '미정'} ·{' '}
+                    {active.timing || '미정'}
+                  </dd>
+                </div>
+                {active.memo && (
+                  <div className="flex gap-2">
+                    <dt className="w-20 flex-none text-ink-mute">메모</dt>
+                    <dd className="text-ink-body">{active.memo}</dd>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <dt className="w-20 flex-none text-ink-mute">첨부 자산</dt>
+                  <dd className="tnum text-ink-body">
+                    진단 리포트 {active.snapshot.reportCount}건 · 썸네일 {active.snapshot.thumbnailCount}건 · 최근 점수{' '}
+                    {active.snapshot.latestScore ?? '—'}
+                  </dd>
+                </div>
+              </dl>
+            </section>
+
+            <p className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => setCancelOpen(true)}
+                className="text-[12.5px] font-bold text-danger-text underline underline-offset-2 hover:no-underline"
+              >
+                신청 취소
+              </button>
+            </p>
+            {error && (
+              <p role="alert" className="mt-2 text-center text-[12.5px] font-semibold text-danger-text">
+                {error}
+              </p>
+            )}
+
+            {/* 취소 확인 모달(MATCH-06) */}
+            <Modal open={cancelOpen} onClose={() => setCancelOpen(false)} labelledBy="cancelMatchTitle">
+              <h2 id="cancelMatchTitle" className="text-base font-extrabold text-ink">
+                매칭 신청을 취소할까요?
+              </h2>
+              <p className="mt-2.5 text-[13px] leading-relaxed text-ink-mute">취소하면 검토가 중단됩니다. 입력한 내용은 복원되지 않습니다.</p>
+              <div className="mt-5 flex justify-end gap-2">
+                <button type="button" onClick={() => setCancelOpen(false)} className={buttonClass('secondary', 'md')}>
+                  돌아가기
+                </button>
+                <button type="button" disabled={busy} onClick={() => void handleCancel()} className={buttonClass('danger', 'md')}>
+                  {busy ? '취소 중…' : '신청 취소'}
+                </button>
               </div>
-            </div>
-          )}
-        </>
-      )}
+            </Modal>
+          </>
+        )}
+      </div>
     </main>
   );
 }
