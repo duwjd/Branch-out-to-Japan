@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getSession, PROVIDER_LABELS } from '@/lib/server/session';
 import { getStore } from '@/lib/db/store';
+import { CATEGORY_LABELS } from '@/lib/engine/types';
 import { buttonClass, cardClass, StatusBadge } from '@/components/ui/primitives';
 import { IconCard } from '@/components/ui/icons';
 import { LogoutButton } from './LogoutButton';
@@ -199,7 +200,8 @@ export default async function AccountPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[13px] font-bold text-ink">{profile.brandName}</p>
                   <p className="mt-0.5 truncate text-[11.5px] text-ink-mute">
-                    {profile.category} · 리포트 {reportCount} · 썸네일 {thumbnailCount}
+                    {CATEGORY_LABELS[profile.category] ?? profile.category} · 리포트 {reportCount} · 썸네일{' '}
+                    {thumbnailCount}
                   </p>
                 </div>
                 <Link href="/app/brand" className={buttonClass('secondary', 'sm', 'flex-none no-underline')}>

@@ -51,12 +51,12 @@ const MATCH_TONE: Record<'amber' | 'green' | 'neutral', BadgeTone> = {
   neutral: 'off',
 };
 
-/** 카테고리 한/일 병기 라벨 (디자인: "스킨케어 / スキンケア") */
-const CATEGORY_JA: Record<string, string> = {
-  스킨케어: 'スキンケア',
-  메이크업: 'メイク',
-  선케어: '日焼け止め',
-  클렌징: 'クレンジング',
+/** 카테고리 값 → 한/일 병기 라벨 (디자인: "스킨케어 / スキンケア"). 저장값은 Category 키다 */
+const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
+  skincare: { kr: '스킨케어', ja: 'スキンケア' },
+  makeup: { kr: '메이크업', ja: 'メイク' },
+  suncare: { kr: '선케어', ja: '日焼け止め' },
+  cleansing: { kr: '클렌징', ja: 'クレンジング' },
 };
 
 /** 3축 내비 항목 클래스 */
@@ -126,7 +126,7 @@ export function AppShell({ userName, userEmail, providerLabel, brand, kpi, lates
   }
 
   const brandName = brand?.name ?? '브랜드 미설정';
-  const brandCatJa = brand ? CATEGORY_JA[brand.category] : undefined;
+  const brandCat = brand ? CATEGORY_LABELS[brand.category] : undefined;
   const brandInitial = brandName.slice(0, 1);
 
   /* ── 1b · 브랜드 프로필 스위처 ─────────────────────────── */
@@ -152,11 +152,11 @@ export function AppShell({ userName, userEmail, providerLabel, brand, kpi, lates
           <span className="block truncate text-[10.5px] leading-tight text-ink-mute">
             {brand ? (
               <>
-                {brand.category}
-                {brandCatJa && (
+                {brandCat?.kr ?? brand.category}
+                {brandCat && (
                   <>
                     {' / '}
-                    <span lang="ja">{brandCatJa}</span>
+                    <span lang="ja">{brandCat.ja}</span>
                   </>
                 )}
               </>
