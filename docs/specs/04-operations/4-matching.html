@@ -6,7 +6,7 @@
 <title>③ 운영 · 2. 기업 매칭</title>
 <!--
   비배포 · 기획 검토용 인터랙티브 프로토타입.
-  정본: 04-operations-ui-기획서.md # 2. 기업 매칭 (MATCH-00~08)
+  정본: 04-operations-ui-기획서.md # 4. 기업 매칭 (MATCH-00~08 · 07.21 하위 페이지 격상)
   컨시어지형 — 기업 목록 열람·조건 검색 없음. 운영팀이 수동 검토·수동 상태 갱신.
   같은 라우트에서 신청 상태에 따라 뷰가 갈린다: 폼(미신청) → 상태(검토 중) → 제안 도착.
   제출 → sessionStorage(kglow_ops_match) 저장 → 운영 홈(1-home) 엔트리 카드가 상태를 읽는다.
@@ -24,8 +24,10 @@
   <div class="wf-strip-in">
     <span class="tag">③ 운영 · 프로토타입</span>
     <a href="index.html">플로우</a>
-    <a href="1-home.html">운영 홈</a>
-    <a href="2-matching.html" class="on">기업 매칭</a>
+    <a href="1-home.html">1 운영 홈</a>
+    <a href="2-detail.html">2 자산 상세</a>
+    <a href="3-brand.html">3 브랜드 관리</a>
+    <a href="4-matching.html" class="on">4 기업 매칭</a>
     <a href="04-operations-ui-기획서.md">기획서 ↗</a>
     <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
       <span>상태(검토용):</span>
@@ -80,9 +82,16 @@
       <a href="../02-studio/1-home.html">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
         마케팅 스튜디오 <span class="side-badge b-warn">썸네일 우선 △</span></a>
-      <a href="1-home.html" class="on" aria-current="page">
+      <a href="1-home.html" class="on">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
         운영 <span class="side-badge b-warn">라이브러리 우선 △</span></a>
+      <!-- 운영 하위 메뉴 (LIB-00) — 아코디언: 운영 활성 화면에만 존재.
+           수정 시 1-home·2-detail·3-brand·4-matching 4파일 동시 반영 -->
+      <ul class="side-sub" aria-label="운영 하위 메뉴">
+        <li><a href="1-home.html">자산 라이브러리</a></li>
+        <li><a href="3-brand.html">브랜드 관리</a></li>
+        <li><a href="4-matching.html" class="on" aria-current="page">기업 매칭 <span id="matchBadge" class="side-badge" style="display:none"></span></a></li>
+      </ul>
     </nav>
     <span class="side-gap"></span>
     <div class="side-kpi">
@@ -121,8 +130,8 @@
     <div style="max-width:760px;margin:0 auto;padding:36px 24px 96px">
 
       <!-- MATCH-01 · 상단 안내 -->
-      <a href="1-home.html" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:rgba(55,56,60,0.61)">← 운영 홈</a>
-      <h1 style="margin:14px 0 0;font-size:28px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124">일본 기업 매칭</h1>
+      <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 운영</p>
+      <h1 style="margin:10px 0 0;font-size:28px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124">일본 기업 매칭</h1>
       <p style="margin:12px 0 0;font-size:14.5px;line-height:1.7;color:#414245;text-wrap:pretty">진단·제작을 거친 브랜드를 일본 현지 기업과 연결합니다. 신청 내용을 검토해 적합한 파트너의 제안을 보내드립니다.</p>
       <p style="margin:8px 0 0;font-size:12px;line-height:1.6;color:#B6B8BF">기업 목록을 열람하거나 검색하는 방식이 아닙니다. 운영팀이 브랜드 자산을 보고 직접 검토합니다.</p>
 
@@ -306,6 +315,11 @@
     $('attachSummary').textContent = noreport
       ? '진단 리포트 0건 · 생성 썸네일 0건 · 최근 진단 점수 —'
       : '진단 리포트 2건 · 생성 썸네일 4건 · 최근 진단 점수 18/100';
+    // 하위 메뉴 매칭 배지 (LIB-07) — 이 화면 상태와 동기
+    var badge = $('matchBadge');
+    if (view === 'review') { badge.className = 'side-badge b-warn'; badge.textContent = '검토 중 △'; badge.style.display = 'inline-flex'; }
+    else if (view === 'proposal') { badge.className = 'side-badge b-ok'; badge.textContent = '제안 2 ○'; badge.style.display = 'inline-flex'; }
+    else { badge.style.display = 'none'; }
   }
 
   // ── 제출 활성 조건 (MATCH-02c) ───────────────────────

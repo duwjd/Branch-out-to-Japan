@@ -11,7 +11,12 @@
         ../02-thumbnail-converter-spec.md — 파이프라인 6단계·골든 픽스처·검수 게이트
         ../../research/jp-thumbnail-style-taxonomy.md — 8종 정의·플랫폼 제약·법적 가드
         data/processed/thumbnail-style-prompts.json v1.1.0 — 프롬프트·슬롯·프루프 게이트
-  ※ 화면 속 썸네일은 전부 CSS 목업(가상 브랜드 HARUON)이며 실제 생성물이 아니다.
+  IA 개편: 화면 3개(홈·생성·결과) → 2개(홈=생성 퍼널·결과)로 통합했다.
+  "홈이 곧 생성이다" — 업로드부터 템플릿 선택까지 전부 홈 화면 하나에서 끝나고,
+  제출은 결과 화면으로 직행한다(결과 화면이 생성중 상태로 시작). 보관·재열람은
+  이 프로토타입이 아니라 ③ 운영 자산 라이브러리가 정본이다.
+  ※ 화면 속 이미지는 assets/README.md 참조 — templates/ 는 실측 참고 컷(타사 저작물 인용),
+    samples/ 는 docs/presentation/샘플.png 파생 자체 생성 샘플(데모 브랜드 HARUON)이다.
     해설·카피 예시는 스펙 §3 골든 픽스처에서 치환 — 새로 지어내지 않는다(증거 원칙).
   ════════════════════════════════════════════════════════════════════════════
 -->
@@ -24,10 +29,9 @@
 <div class="wf-strip">
   <div class="wf-strip-in">
     <span class="tag">② 마케팅 스튜디오 · 프로토타입</span>
-    <a href="index.html" class="on">플로우</a>
-    <a href="1-home.html">홈</a>
-    <a href="2-create.html">생성</a>
-    <a href="3-result.html">결과</a>
+    <a href="index.html" class="on">플로우(index)</a>
+    <a href="1-home.html">1 홈(생성)</a>
+    <a href="2-result.html">2 결과</a>
     <a href="02-studio-ui-기획서.md">기획서 ↗</a>
     <span class="ex">비배포 · 기획 검토용</span>
   </div>
@@ -49,44 +53,56 @@
   <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">② 마케팅 스튜디오 · 인터랙티브 프로토타입</p>
   <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.25;letter-spacing:-0.02em;color:#202124">일본향 썸네일 스튜디오 — 화면 흐름</h1>
   <p style="margin:14px 0 0;max-width:760px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">
-    한국 썸네일 1장 업로드 → 템플릿 8종 중 1개 선택 → 생성. <b>생성 로딩은 별도 화면이 아니라 스튜디오 홈 피드의 타일 상태</b>입니다.
-    제출하면 홈으로 돌아오고, 그리드 맨 앞의 생성중 타일이 완성 썸네일로 바뀝니다. 홈에서 시작해 전체 플로우를 클릭으로 체험하세요.
+    한국 썸네일 1장 업로드 → 템플릿 8종 중 1개 선택 → 생성. <b>홈이 곧 생성 퍼널</b>입니다.
+    제출하면 결과 화면으로 바로 이동하고, 그 화면이 생성중 상태(5단계 진행)로 시작해 완료되면 결과 뷰로 바뀝니다.
+    홈에서 시작해 전체 플로우를 클릭으로 체험하세요.
   </p>
 
   <div class="doc-warn">
-    <b>CSS 목업 고지.</b> 화면 속 썸네일(갤러리·템플릿 프리뷰·결과 이미지)은 전부 <b>CSS로 그린 목업</b>이며 실제 생성물·실측 이미지가 아닙니다. 예시 브랜드는 가상 브랜드 HARUON이고, 카피·해설 예시는 정본 스펙(<code>../02-thumbnail-converter-spec.md</code> §3 골든 픽스처)에서 치환했습니다. gpt-image-2.0 실 API 검증은 미실시(스튜디오 주간 7/18~24 예정)입니다.
+    <b>이미지 출처 고지.</b> 화면 속 이미지는 성격이 둘로 나뉩니다.
+    <b>템플릿 프리뷰</b>는 라쿠텐·아마존JP·Qoo10에서 수집한 <b>실측 참고 컷</b>(타사 저작물 · 분석 목적 인용 · 비배포 한정)이고, 화면에 "실측 참고" 라벨로 구분해 둡니다.
+    <b>업로드 예시·최근 생성 스트립·결과 이미지</b>는 <code>docs/presentation/샘플.png</code>에서 파생한 <b>자체 생성 샘플</b>입니다. 제품컷 자체는 실물 예시이고, 데모 브랜드 HARUON은 오버레이 표기에만 씁니다.
+    출처·사용 조건은 <code>assets/README.md</code>. 카피·해설 예시는 정본 스펙(<code>../02-thumbnail-converter-spec.md</code> §3 골든 픽스처)에서 치환했고, gpt-image-2.0 실 API 검증은 미실시(스튜디오 주간 7/18~24 예정)입니다.
   </div>
 
-  <!-- ── 전체 플로우 (허브형) ─────────────────────────── -->
+  <!-- ── 전체 플로우 (직렬형) ─────────────────────────── -->
   <section style="margin-top:44px">
-    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">전체 플로우 — 홈이 허브다</h2>
-    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">①리포트의 "입력→처리→결과" 직렬 구조와 달리, 스튜디오는 홈(갤러리)을 허브로 돕니다. 생성 제출은 홈으로 <b>돌아오고</b>, 완료 확인과 결과 진입이 모두 홈에서 일어납니다.</p>
-    <div class="rwrap" style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr 40px 1fr;align-items:center;gap:8px">
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">전체 플로우 — 홈이 곧 생성이다</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">이전 개편에서는 홈(갤러리)이 허브였지만, 지금은 ①리포트처럼 "입력→처리→결과"의 직렬 구조입니다. 업로드·템플릿 선택은 홈 화면 하나에서 끝나고, 제출은 결과 화면으로 <b>직행</b>합니다. 보관·재열람은 이 플로우가 아니라 별도 노드(③ 운영)가 맡습니다.</p>
+    <div class="rwrap" style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center;gap:8px">
       <a class="flow-node" href="1-home.html">
-        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">1 · 홈</span>
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">1 · 홈(생성)</span>
         <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">스튜디오 홈</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">갤러리 · 빈 상태 온보딩. "새 썸네일 만들기"로 진입.</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">업로드 1장 + 템플릿 8종 + 플랫폼 추천 + 프루프 게이트. 하단에 최근 생성 4건.</p>
       </a>
       <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
-      <a class="flow-node" href="2-create.html">
-        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">2 · 생성</span>
-        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">썸네일 생성</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">업로드 1장 + 템플릿 8종 + 플랫폼 추천 + 프루프 게이트.</p>
+      <a class="flow-node" href="2-result.html?state=generating">
+        <span style="font-size:11.5px;font-weight:800;color:#B96C00;letter-spacing:.04em">2 · 결과(생성중)</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">생성중 → 완료</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">제출 즉시 이 화면으로 직행. 5단계 진행 후 결과 뷰로 crossfade.</p>
       </a>
       <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
-      <a class="flow-node" href="1-home.html">
-        <span style="font-size:11.5px;font-weight:800;color:#B96C00;letter-spacing:.04em">↩ 다시 홈</span>
-        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">생성중 타일 → 완료</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">제출 즉시 홈 회귀. 타일이 5단계 진행 후 완성본으로 전환 + 토스트.</p>
-      </a>
-      <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
-      <a class="flow-node" href="3-result.html">
-        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">3 · 결과</span>
+      <a class="flow-node" href="2-result.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">2 · 결과</span>
         <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">생성 결과 상세</h3>
         <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">큰 이미지 + 재설계 해설 3단 + PNG 다운로드(실동작).</p>
       </a>
     </div>
-    <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">생성중에도 다른 화면으로 이동할 수 있습니다(처리는 계속됨). 홈의 검토용 상태 스위처로 빈/기본/생성중/실패 4상태를 바로 볼 수 있습니다.</p>
+    <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">생성중에도 다른 화면으로 이동할 수 있습니다(처리는 계속됨 — 홈으로 돌아가면 최근 생성 스트립에 생성중 타일이 보조로 뜹니다). 각 화면의 검토용 상태 스위처로 빈/기본/생성중(홈) · 결과/생성중/실패(결과)를 바로 볼 수 있습니다.</p>
+  </section>
+
+  <!-- ── 보관·재열람은 별도 노드 ──────────────────────── -->
+  <section style="margin-top:32px">
+    <a class="flow-node" href="../04-operations/1-home.html" style="display:flex;align-items:center;gap:16px;max-width:640px">
+      <span aria-hidden="true" style="flex:none;width:40px;height:40px;border-radius:10px;background:#FFF6E5;display:inline-flex;align-items:center;justify-content:center">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B96C00" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+      </span>
+      <span>
+        <span style="display:block;font-size:11.5px;font-weight:800;color:#B96C00;letter-spacing:.04em">보관 · 재열람</span>
+        <span style="display:block;margin:4px 0 4px;font-size:16px;font-weight:700;color:#202124">③ 운영 자산 라이브러리</span>
+        <span style="display:block;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">생성한 썸네일 전체를 모아보고 필터링하는 정본 화면입니다. 이 프로토타입 범위 밖입니다.</span>
+      </span>
+    </a>
   </section>
 
   <!-- ── 템플릿 8종 ↔ 플랫폼 매핑 ────────────────────── -->
@@ -121,15 +137,14 @@
     <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">근거 없는 랭킹·수상·가격·효능은 프롬프트 진입 자체가 불가합니다(requiresProof 게이트, 배지 없음이 기본값). 일본어 카피는 jp-localizer 산출(<span lang="ja">薬機法</span> 검수 통과분)만 슬롯에 들어갑니다.</p>
   </section>
 
-  <!-- ── 자산 상태 4종 ────────────────────────────────── -->
+  <!-- ── 결과 화면 상태 3종 ───────────────────────────── -->
   <section style="margin-top:44px">
-    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">자산 상태 4종 — 홈 타일이 그리는 것</h2>
-    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">현 데이터 계약(<code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">08-data-flow §6</code>)의 <code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">GeneratedAsset</code>에는 <code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">status</code>가 없습니다. 생성중 타일이 성립하려면 <b>status 필드(또는 잡 조회) 신설이 필요</b>합니다(기획서 #0 계약 델타).</p>
-    <div class="rwrap" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-      <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">(자산 없음)</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">빈 상태</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">온보딩형: 8문법 미니 스트립 + 첫 생성 CTA.</p></div>
-      <div style="background:#fff;border:1px solid rgba(255,171,0,.4);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#B96C00">generating △</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">생성중 타일</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">블러+shimmer, 단계 텍스트 5종. 2.5초 폴링. 이탈 허용.</p></div>
-      <div style="background:#fff;border:1px solid rgba(0,185,124,.35);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#00875A">done ○</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">완료 카드</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">crossfade 전환 + 토스트. 검수 게이트 통과분만 자산이 됨.</p></div>
-      <div style="background:#fff;border:1px solid rgba(240,72,60,.35);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#C6362C">failed ✕</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">실패 타일</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">게이트 불통과 사유 + 다시 시도. 자산으로 저장하지 않음.</p></div>
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">결과 화면 상태 3종 — 2-result.html?state=</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">현 데이터 계약(<code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">08-data-flow §6</code>)의 <code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">GeneratedAsset</code>에는 <code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">status</code>가 없습니다. 생성중 상태가 성립하려면 <b>status 필드(또는 잡 조회) 신설이 필요</b>합니다(기획서 #0 계약 델타).</p>
+    <div class="rwrap" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="background:#fff;border:1px solid rgba(255,171,0,.4);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#B96C00">?state=generating</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">생성중</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">제출 직후 착지 상태. 블러+shimmer 이미지 + 5단계 진행 리스트 + 우측 스켈레톤. 완료 시 결과 뷰로 crossfade.</p></div>
+      <div style="background:#fff;border:1px solid rgba(0,185,124,.35);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#00875A">(쿼리 없음)</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">결과</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">큰 이미지 + 검수 게이트 + 다운로드 + 재설계 해설 3단. 검수 게이트 통과분만 자산이 됨.</p></div>
+      <div style="background:#fff;border:1px solid rgba(240,72,60,.35);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#C6362C">?state=failed</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">실패</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">게이트 불통과 사유 + 다시 시도(홈으로 프리필 재진입). 자산으로 저장하지 않음.</p></div>
     </div>
   </section>
 
@@ -154,6 +169,7 @@
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">동시 생성 개수 · 재생성 크레딧</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">미정</span></td><td style="padding:12px 16px;line-height:1.55">데모는 동시 1건 고정, "다시 생성"은 버튼+각주만. 비용 모델(스펙 §6-Q3)·구독 플랜과 연동해 결정</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">모델컷 업로드 (모델+카피형)</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:11.5px;font-weight:700">추후 기획</span></td><td style="padding:12px 16px;line-height:1.55">브랜드 보유 모델컷 업로더 미구현. 해당 템플릿은 선택만 가능, 생성 잠금(임의 인물 생성 금지)</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">상세페이지 전환 · 인스타 피드</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:11.5px;font-weight:700">스펙 미착수</span></td><td style="padding:12px 16px;line-height:1.55">홈에 비활성 탭("준비 중")으로만 자리 예약. 스튜디오 주간 내 별도 스펙</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">자산 갤러리·필터·재열람</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:11.5px;font-weight:700">③ 이관</span></td><td style="padding:12px 16px;line-height:1.55">템플릿 필터·전체 갤러리는 이 프로토타입 범위 밖. 정본은 <a href="../04-operations/1-home.html">③ 운영 자산 라이브러리</a></td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">인증 · 자산 삭제</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:11.5px;font-weight:700">범위 외</span></td><td style="padding:12px 16px;line-height:1.55">앱 홈은 <a href="../00-main/index.html">⓪ 메인 프로토타입</a>으로 설계 완료(진입 동선 확정). 인증·자산 삭제 정책은 미정</td></tr>
           </tbody>
         </table>

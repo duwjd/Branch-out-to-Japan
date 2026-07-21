@@ -6,14 +6,18 @@
 <title>③ 운영 · 1. 운영 홈(자산 라이브러리)</title>
 <!--
   비배포 · 기획 검토용 인터랙티브 프로토타입.
-  정본: 04-operations-ui-기획서.md # 1. 운영 홈(자산 라이브러리) (LIB-00~10)
+  정본: 04-operations-ui-기획서.md # 1. 운영 홈(자산 라이브러리) (LIB-00~10 · 07.21 하위 메뉴 IA 개편)
   운영 홈이 곧 자산 라이브러리다 — 여기서 만들지 않는다. ①·② 자산의 재조회 전용(08-data-flow §5.2).
+  타입 탭 [진단 리포트|썸네일]이 1차 내비(필터 칩 폐지 — LIB-04). 기본 탭 = 진단 리포트.
+  사이드바 "운영" 하위 메뉴(자산 라이브러리·브랜드 관리·기업 매칭)는 아코디언 —
+    운영 4개 화면에서 동일 마크업. 수정 시 1-home·2-detail·3-brand·4-matching 동시 반영(LIB-00).
   시즌 스트립은 조회 전용 — 예약·발행 기능 없음(예약 발행툴 = 금지 포지션).
-  ② 2-create 제출 → sessionStorage(kglow_studio_job) → 그리드 맨 앞 생성중 타일.
+  ② 2-create 제출 → sessionStorage(kglow_studio_job) → 썸네일 탭 맨 앞 생성중 타일.
     ※ kglow_studio_job 은 읽기만 한다. removeItem 하지 X — 소비 주체는 ② 스튜디오 홈이며,
       여기서 지우면 ② 데모가 깨진다.
-  2-matching 제출 → sessionStorage(kglow_ops_match) → 매칭 엔트리 카드 상태 전환.
-  검토 스트립의 상태 스위처(빈/기본/생성중/검토중/제안)는 프로토타입 검토 전용 — 제품 UI 아님.
+  4-matching 제출 → sessionStorage(kglow_ops_match) → 하위 메뉴 "기업 매칭" 상태 배지(LIB-07 개편).
+  검토 스트립의 상태 스위처(빈/기본/생성중)는 프로토타입 검토 전용 — 제품 UI 아님.
+    매칭 검토중/제안 토글은 4-matching 스위처로 이동(LIB-10).
   화면 속 썸네일·리포트 표지는 전부 CSS 목업(가상 브랜드 HARUON) — 실제 산출물이 아니다.
 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
@@ -26,16 +30,16 @@
   <div class="wf-strip-in">
     <span class="tag">③ 운영 · 프로토타입</span>
     <a href="index.html">플로우</a>
-    <a href="1-home.html" class="on">운영 홈</a>
-    <a href="2-matching.html">기업 매칭</a>
+    <a href="1-home.html" class="on">1 운영 홈</a>
+    <a href="2-detail.html">2 자산 상세</a>
+    <a href="3-brand.html">3 브랜드 관리</a>
+    <a href="4-matching.html">4 기업 매칭</a>
     <a href="04-operations-ui-기획서.md">기획서 ↗</a>
     <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
       <span>상태(검토용):</span>
       <button type="button" class="st-btn" data-st="empty" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">빈 상태</button>
       <button type="button" class="st-btn" data-st="default" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">기본</button>
       <button type="button" class="st-btn" data-st="generating" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">생성중</button>
-      <button type="button" class="st-btn" data-st="review" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">매칭 검토중</button>
-      <button type="button" class="st-btn" data-st="proposal" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">제안 도착</button>
     </span>
     <span class="ex">비배포 · 기획 검토용</span>
   </div>
@@ -83,9 +87,16 @@
       <a href="../02-studio/1-home.html">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
         마케팅 스튜디오 <span class="side-badge b-warn">썸네일 우선 △</span></a>
-      <a href="1-home.html" class="on" aria-current="page">
+      <a href="1-home.html" class="on">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
         운영 <span class="side-badge b-warn">라이브러리 우선 △</span></a>
+      <!-- 운영 하위 메뉴 (LIB-00) — 아코디언: 운영 활성 화면에만 존재.
+           수정 시 1-home·2-detail·3-brand·4-matching 4파일 동시 반영 -->
+      <ul class="side-sub" aria-label="운영 하위 메뉴">
+        <li><a href="1-home.html" class="on" aria-current="page">자산 라이브러리</a></li>
+        <li><a href="3-brand.html">브랜드 관리</a></li>
+        <li><a href="4-matching.html">기업 매칭 <span id="matchBadge" class="side-badge" style="display:none"></span></a></li>
+      </ul>
     </nav>
     <span class="side-gap"></span>
     <div class="side-kpi">
@@ -165,12 +176,20 @@
           <h2 id="proposeTitle" style="margin:10px 0 0;font-size:17px;font-weight:800;letter-spacing:-0.01em;color:#202124">프로모션 강조형 썸네일을 준비할 때입니다</h2>
           <p id="proposeDesc" style="margin:7px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">무엇을: 메가와리용 프로모션 썸네일 · 어떤 말로: 세트·특전 소구를 일본 구매 관례어로 재설계</p>
         </div>
-        <a id="proposeCta" href="../02-studio/2-create.html" class="h-primary" style="display:inline-flex;height:44px;align-items:center;padding:0 20px;border-radius:11px;background:#FF6464;color:#fff;font-size:14px;font-weight:700;text-decoration:none">스튜디오에서 준비하기 →</a>
+        <a id="proposeCta" href="../02-studio/1-home.html" class="h-primary" style="display:inline-flex;height:44px;align-items:center;padding:0 20px;border-radius:11px;background:#FF6464;color:#fff;font-size:14px;font-weight:700;text-decoration:none">스튜디오에서 준비하기 →</a>
       </section>
 
-      <!-- LIB-04 · 툴바 (축 필터 + 카운트) -->
-      <div id="toolbar" style="margin-top:28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div id="filterChips" role="radiogroup" aria-label="자산 종류 필터" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      <!-- LIB-04 · 타입 탭 (1차 내비 — 필터 칩 폐지 07.21) + 툴바 (2차 정제: 기간·카운트) -->
+      <div id="tabsWrap" style="margin-top:32px">
+        <div id="libTabs" class="lib-tabs" role="tablist" aria-label="자산 종류"></div>
+      </div>
+      <div id="toolbar" style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <label for="periodSel" class="visually-hidden">기간</label>
+        <select id="periodSel" class="f-input" style="height:32px;border:1px solid rgba(112,115,124,0.28);border-radius:8px;background:#fff;font-family:inherit;font-size:12px;font-weight:600;color:#414245;padding:0 8px">
+          <option value="all">전체 기간</option>
+          <option value="p30">최근 30일</option>
+          <option value="p90">최근 90일</option>
+        </select>
         <span id="countLabel" style="margin-left:auto;font-size:12.5px;font-weight:600;color:rgba(55,56,60,0.61);white-space:nowrap">총 0건 · 최신순</span>
       </div>
 
@@ -186,13 +205,10 @@
         <a href="../01-report/1-input.html" class="hbtn hbtn-secondary" style="display:inline-flex;margin-top:22px;height:42px;align-items:center;padding:0 20px;border-radius:11px;font-size:13.5px;text-decoration:none">진단 시작</a>
       </div>
 
-      <!-- LIB-07·08 · 운영 기능 (매칭 엔트리 + 성과 판별 자리 예약) -->
+      <!-- LIB-08 · 준비 중인 기능 (성과 판별 자리 예약 — 매칭 엔트리 카드는 07.21 폐지, 하위 메뉴로 격상) -->
       <section style="margin-top:44px">
-        <h2 style="margin:0;font-size:16px;font-weight:800;letter-spacing:-0.01em;color:#202124">운영 기능</h2>
+        <h2 style="margin:0;font-size:16px;font-weight:800;letter-spacing:-0.01em;color:#202124">준비 중인 기능</h2>
         <div class="rwrap" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
-
-          <!-- LIB-07 · 기업 매칭 엔트리 카드 (상태별 전환) -->
-          <div id="matchCard" style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:22px;box-shadow:0 1px 3px rgba(16,18,20,.04)"></div>
 
           <!-- LIB-08 · 성과 판별 (자리 예약 — 클릭 동작 X) -->
           <div class="ops-card" aria-disabled="true" style="border-radius:18px;padding:22px">
@@ -220,18 +236,19 @@
 (function () {
   var STAGES = ['원본 분석 중', '일본 고객 관점으로 카피 재설계 중', '프롬프트 조립 중', '썸네일 생성 중', '검수 게이트 확인 중'];
 
-  /** 데모 자산 6건 = 사이드바 KPI(리포트 2 · 썸네일 4)와 일치 — 전부 CSS 목업 */
+  /** 데모 자산 6건 = 사이드바 KPI(리포트 2 · 썸네일 4)와 일치 — 전부 CSS 목업. days = 오늘(07.21) 기준 경과일(기간 셀렉트용) */
   var ASSETS = [
-    { id: 'a1', kind: 'thumb',  tpl: 'official',       name: '공식샵 신뢰 배지형',     meta: '라쿠텐 공식샵 · 2026.07.19', href: '../02-studio/3-result.html' },
-    { id: 'a2', kind: 'thumb',  tpl: 'clean',          name: '클린 스튜디오 단독컷',   meta: '아마존JP · 2026.07.18',      href: '../02-studio/3-result.html' },
-    { id: 'a3', kind: 'thumb',  tpl: 'copyIngredient', name: '캐치카피+성분 비주얼형', meta: '라쿠텐 공식샵 · 2026.07.18', href: '../02-studio/3-result.html' },
-    { id: 'a4', kind: 'thumb',  tpl: 'promo',          name: '프로모션 강조형',        meta: 'Qoo10 · 2026.07.17',         href: '../02-studio/3-result.html' },
-    { id: 'r1', kind: 'report', tpl: 'score',          name: 'CICA 진정 앰플 진단 리포트', meta: '발행 2026.07.16',        href: '../01-report/3-report.html' },
-    { id: 'r2', kind: 'report', tpl: 'brand',          name: '하루온 브랜드 진단 리포트',  meta: '발행 2026.07.11',        href: '../01-report/3-report.html' }
+    { id: 'a1', kind: 'thumb',  tpl: 'official',       name: '공식샵 신뢰 배지형',     meta: '라쿠텐 공식샵 · 2026.07.19', days: 2,  href: '2-detail.html?asset=a1' },
+    { id: 'a2', kind: 'thumb',  tpl: 'clean',          name: '클린 스튜디오 단독컷',   meta: '아마존JP · 2026.07.18',      days: 3,  href: '2-detail.html?asset=a2' },
+    { id: 'a3', kind: 'thumb',  tpl: 'copyIngredient', name: '캐치카피+성분 비주얼형', meta: '라쿠텐 공식샵 · 2026.07.18', days: 3,  href: '2-detail.html?asset=a3' },
+    { id: 'a4', kind: 'thumb',  tpl: 'promo',          name: '프로모션 강조형',        meta: 'Qoo10 · 2026.07.17',         days: 4,  href: '2-detail.html?asset=a4' },
+    { id: 'r1', kind: 'report', tpl: 'score',          name: 'CICA 진정 앰플 진단 리포트', meta: '발행 2026.07.16',        days: 5,  href: '2-detail.html?asset=r1' },
+    { id: 'r2', kind: 'report', tpl: 'brand',          name: '하루온 브랜드 진단 리포트',  meta: '발행 2026.07.11',        days: 10, href: '2-detail.html?asset=r2' }
   ];
 
   var $ = function (id) { return document.getElementById(id); };
-  var state = { view: null, filter: '', doneAsset: null, match: null };
+  /** tab = 타입 탭(LIB-04 · 기본 = 진단 리포트) · period = 기간 셀렉트(2차 정제) */
+  var state = { view: null, tab: 'report', period: 'all', doneAsset: null, match: null };
 
   // ── CSS 목업: 썸네일 (② mockHtml 이식 — 가상 브랜드 HARUON) ──
   var TUBE = '<span style="position:absolute;left:50%;top:26%;transform:translateX(-50%);width:24%;height:46%;border-radius:6px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE)"></span>' +
@@ -286,7 +303,7 @@
             (isThumb
               ? '<span style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#fff;color:#202124;font-size:12.5px;font-weight:700">크게 보기</span>' +
                 '<button type="button" data-dl="' + a.id + '" style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#FF6464;border:none;color:#fff;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer">다운로드</button>'
-              : '<span style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#fff;color:#202124;font-size:12.5px;font-weight:700">리포트 보기</span>') +
+              : '<span style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#fff;color:#202124;font-size:12.5px;font-weight:700">요약 보기</span>') +
           '</span>' +
         '</span>' +
         '<span style="display:block;padding:10px 12px 12px">' +
@@ -365,7 +382,11 @@
   function visibleAssets() {
     var list = ASSETS.slice();
     if (state.doneAsset) list.unshift(state.doneAsset);
-    if (state.filter) list = list.filter(function (a) { return a.kind === state.filter; });
+    list = list.filter(function (a) { return a.kind === state.tab; });
+    if (state.period !== 'all') {
+      var max = state.period === 'p30' ? 30 : 90;
+      list = list.filter(function (a) { return (a.days || 0) <= max; });
+    }
     return list;
   }
   function render(animateFirst) {
@@ -374,17 +395,20 @@
     var view = state.view;
     var empty = view === 'empty';
     $('emptyState').style.display = empty ? 'block' : 'none';
+    $('tabsWrap').style.display = empty ? 'none' : 'block';
     $('toolbar').style.display = empty ? 'none' : 'flex';
     grid.style.display = empty ? 'none' : 'grid';
     $('filterEmpty').style.display = 'none';
     renderPropose(empty);
-    renderMatch();
-    if (empty) { $('countLabel').textContent = '총 0건 · 최신순'; return; }
-    if (view === 'generating') grid.appendChild(generatingTile());
+    renderMatchBadge();
+    if (empty) { return; }
+    renderTabs();
+    var generatingHere = view === 'generating' && state.tab === 'thumb';
+    if (generatingHere) grid.appendChild(generatingTile());
     var list = visibleAssets();
     list.forEach(function (a, i) { grid.appendChild(assetCard(a, animateFirst && i === 0)); });
-    if (!list.length && state.filter) {
-      $('filterEmpty').textContent = state.filter === 'thumb'
+    if (!list.length && !generatingHere) {
+      $('filterEmpty').textContent = state.tab === 'thumb'
         ? '생성한 썸네일이 없습니다. 스튜디오에서 첫 썸네일을 만들 수 있습니다.'
         : '발행한 진단 리포트가 없습니다. 진단 입력에서 시작할 수 있습니다.';
       $('filterEmpty').style.display = 'block';
@@ -412,83 +436,87 @@
       $('proposeTitle').textContent = '프로모션 강조형 썸네일을 준비할 때입니다';
       $('proposeDesc').textContent = '무엇을: 메가와리용 프로모션 썸네일 · 어떤 말로: 세트·특전 소구를 일본 구매 관례어로 재설계';
       $('proposeCta').textContent = '스튜디오에서 준비하기 →';
-      $('proposeCta').setAttribute('href', '../02-studio/2-create.html');
+      $('proposeCta').setAttribute('href', '../02-studio/1-home.html');
     }
   }
 
-  // ── 매칭 엔트리 카드 (LIB-07a·7b·7c) ──────────────────
-  function renderMatch() {
-    var box = $('matchCard');
+  // ── 매칭 상태 배지 (LIB-07 개편 — 엔트리 카드 폐지, 하위 메뉴 배지로) ──
+  function renderMatchBadge() {
+    var badge = $('matchBadge');
     var m = state.match;
-    var head = '<div style="display:flex;align-items:center;gap:8px"><h3 style="margin:0;font-size:15px;font-weight:800;color:#202124">일본 기업 매칭</h3>';
-    if (!m) {
-      box.innerHTML = head + '</div>' +
-        '<p style="margin:9px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61)">진단·제작을 거친 브랜드를 일본 현지 기업과 연결합니다.</p>' +
-        '<a href="2-matching.html" class="hbtn hbtn-secondary" style="display:inline-flex;margin-top:14px;align-items:center;text-decoration:none">매칭 신청</a>';
-      return;
-    }
-    if (m.status === 'proposal') {
-      box.innerHTML = head + '<span style="display:inline-flex;height:19px;align-items:center;padding:0 7px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:10px;font-weight:700">제안 2건 도착 ○</span></div>' +
-        '<p style="margin:9px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61)">검토가 끝났습니다. 파트너 제안을 확인해 주세요.</p>' +
-        '<a href="2-matching.html" class="hbtn hbtn-secondary" style="display:inline-flex;margin-top:14px;align-items:center;text-decoration:none">제안 확인</a>';
-      return;
-    }
-    box.innerHTML = head + '<span style="display:inline-flex;height:19px;align-items:center;padding:0 7px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:10px;font-weight:700">검토 중 △</span></div>' +
-      '<ol class="match-steps" style="margin-top:16px;font-size:11px">' +
-        '<li class="match-step done"><span class="ms-dot" aria-hidden="true">○</span>신청 완료</li>' +
-        '<li class="match-step cur"><span class="ms-dot" aria-hidden="true">2</span>검토 중</li>' +
-        '<li class="match-step"><span class="ms-dot" aria-hidden="true">3</span>제안 도착</li>' +
-      '</ol>' +
-      '<a href="2-matching.html" class="hbtn hbtn-secondary" style="display:inline-flex;margin-top:16px;align-items:center;text-decoration:none">상태 보기</a>';
+    if (!m) { badge.style.display = 'none'; badge.textContent = ''; badge.className = 'side-badge'; return; }
+    if (m.status === 'proposal') { badge.className = 'side-badge b-ok'; badge.textContent = '제안 2 ○'; }
+    else { badge.className = 'side-badge b-warn'; badge.textContent = '검토 중 △'; }
+    badge.style.display = 'inline-flex';
   }
 
-  // ── 필터 (LIB-04 — 축 필터만. 스타일 필터는 ② 홈 몫) ──
-  var FILTERS = [{ key: '', label: '전체' }, { key: 'report', label: '진단 리포트' }, { key: 'thumb', label: '썸네일' }];
-  var chipBase = 'height:30px;padding:0 12px;border-radius:9999px;font-size:12px;white-space:nowrap;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s;';
-  function renderFilter() {
-    var box = $('filterChips');
+  // ── 타입 탭 (LIB-04 — 1차 내비. "전체" 없음 · 통합 조망은 ⓪ 대시보드 몫) ──
+  var TABS = [{ key: 'report', id: 'tabReport', label: '진단 리포트' }, { key: 'thumb', id: 'tabThumb', label: '썸네일' }];
+  function tabCount(k) {
+    var n = ASSETS.filter(function (a) { return a.kind === k; }).length;
+    if (k === 'thumb' && state.doneAsset) n += 1;
+    return n;
+  }
+  function renderTabs() {
+    var box = $('libTabs');
     box.innerHTML = '';
-    FILTERS.forEach(function (f) {
-      var on = state.filter === f.key;
+    TABS.forEach(function (t) {
+      var on = state.tab === t.key;
+      var genDot = t.key === 'thumb' && state.view === 'generating' && !on;
       var b = document.createElement('button');
-      b.type = 'button'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(on));
-      b.setAttribute('style', chipBase + (on ? 'background:#FFF8F8;border:1.5px solid #FF6464;color:#D93636;font-weight:700' : 'background:#fff;border:1px solid rgba(112,115,124,0.28);color:#414245;font-weight:500'));
-      b.textContent = f.label;
-      b.onclick = function () { state.filter = f.key; renderFilter(); render(); };
+      b.type = 'button'; b.id = t.id; b.className = 'lib-tab';
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(on));
+      b.setAttribute('tabindex', on ? '0' : '-1');
+      b.innerHTML = t.label + ' <span class="tab-n tnum">' + tabCount(t.key) + '</span>' +
+        (genDot ? ' <span class="tab-dot" aria-hidden="true"></span>' : '');
+      if (genDot) b.setAttribute('aria-label', t.label + ' ' + tabCount(t.key) + '건 — 생성 진행 중');
+      b.onclick = function () { state.tab = t.key; render(); };
       box.appendChild(b);
     });
+    box.onkeydown = function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      state.tab = state.tab === 'report' ? 'thumb' : 'report';
+      render();
+      var sel = box.querySelector('[aria-selected="true"]');
+      if (sel) sel.focus();
+    };
   }
 
-  // ── 생성중 시뮬레이션 (LIB-05 — ② 잡을 읽기만 함) ──────
+  // ── 생성중 시뮬레이션 (LIB-05 — ② 잡을 읽기만 함. 타일은 썸네일 탭에 출력) ──
   function runJob(job) {
     state.view = 'generating';
+    state.tab = 'thumb'; // 생성중 타일이 있는 탭으로 진입 — 리포트 탭에서는 탭 라벨 도트만
     render();
-    $('genMeta').textContent = (job.tplName || '템플릿') + ' · ' + (job.platformName || '미정');
+    var gm = $('genMeta');
+    if (gm) gm.textContent = (job.tplName || '템플릿') + ' · ' + (job.platformName || '미정');
     var i = 0;
-    $('genStage').textContent = STAGES[0];
+    var gs = $('genStage');
+    if (gs) gs.textContent = STAGES[0];
     var timer = setInterval(function () {
       i += 1;
       if (i >= STAGES.length) {
         clearInterval(timer);
         // kglow_studio_job 은 지우지 않는다 — 소비 주체는 ② 스튜디오 홈 (head 주석 참조)
-        state.doneAsset = { id: 'new', kind: 'thumb', tpl: job.tpl || 'official', name: job.tplName || '공식샵 신뢰 배지형', meta: (job.platformName || '라쿠텐 공식샵') + ' · 방금 전', href: '../02-studio/3-result.html' };
+        state.doneAsset = { id: 'new', kind: 'thumb', tpl: job.tpl || 'official', name: job.tplName || '공식샵 신뢰 배지형', meta: (job.platformName || '라쿠텐 공식샵') + ' · 방금 전', days: 0, href: '2-detail.html?asset=a1' };
         state.view = 'default';
-        render(true); // 완료 토스트 출력 X — 완료 확인 동선은 각 축 홈 몫 (LIB-05)
+        render(state.tab === 'thumb'); // 완료 토스트 출력 X — 완료 확인 동선은 각 축 홈 몫 (LIB-05)
       } else {
-        $('genStage').textContent = STAGES[i];
+        var el = $('genStage');
+        if (el) el.textContent = STAGES[i];
       }
     }, 1400);
   }
 
   // ── 상태 결정: 스위처(강제) > sessionStorage > 기본 ────
+  // 매칭 검토중/제안 토글은 4-matching 스위처로 이동 (LIB-10) — 배지는 sessionStorage 연동
   document.querySelectorAll('.st-btn').forEach(function (b) {
     b.onclick = function () {
       var st = b.getAttribute('data-st');
       state.doneAsset = null;
       if (st === 'generating') { state.match = readMatch(); runJob({ tpl: 'official', tplName: '공식샵 신뢰 배지형', platformName: '라쿠텐 공식샵' }); return; }
-      if (st === 'review')   { state.view = 'default'; state.match = { status: 'review' };   render(); return; }
-      if (st === 'proposal') { state.view = 'default'; state.match = { status: 'proposal' }; render(); return; }
       state.view = st;
+      state.tab = 'report';
       state.match = st === 'empty' ? null : readMatch();
       render();
     };
@@ -496,10 +524,10 @@
   function readMatch() {
     try { return JSON.parse(sessionStorage.getItem('kglow_ops_match') || 'null'); } catch (e) { return null; }
   }
+  $('periodSel').onchange = function () { state.period = this.value; render(); };
   var job = null;
   try { job = JSON.parse(sessionStorage.getItem('kglow_studio_job') || 'null'); } catch (e) {}
   state.match = readMatch();
-  renderFilter();
   if (job) { runJob(job); } else { state.view = 'default'; render(); }
 })();
 </script>

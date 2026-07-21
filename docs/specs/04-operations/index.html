@@ -26,8 +26,10 @@
   <div class="wf-strip-in">
     <span class="tag">③ 운영 · 프로토타입</span>
     <a href="index.html" class="on">플로우</a>
-    <a href="1-home.html">운영 홈</a>
-    <a href="2-matching.html">기업 매칭</a>
+    <a href="1-home.html">1 운영 홈</a>
+    <a href="2-detail.html">2 자산 상세</a>
+    <a href="3-brand.html">3 브랜드 관리</a>
+    <a href="4-matching.html">4 기업 매칭</a>
     <a href="04-operations-ui-기획서.md">기획서 ↗</a>
     <span class="ex">비배포 · 기획 검토용</span>
   </div>
@@ -47,10 +49,12 @@
 
 <main class="doc">
   <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">③ 운영 · 인터랙티브 프로토타입</p>
-  <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.25;letter-spacing:-0.02em;color:#202124">자산 라이브러리·기업 매칭 — 화면 흐름</h1>
+  <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.25;letter-spacing:-0.02em;color:#202124">자산 라이브러리·브랜드 관리·기업 매칭 — 화면 흐름</h1>
   <p style="margin:14px 0 0;max-width:760px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">
     ③ 운영은 무언가를 새로 만드는 축이 아닙니다. <b>①·②에서 만든 자산이 모이는 화면(운영 홈=자산 라이브러리)</b>과,
-    그 자산을 들고 일본 현지 기업과 연결되는 <b>기업 매칭</b> 2개 화면으로 시작합니다.
+    카드를 클릭하면 탭을 떠나지 않고 열리는 <b>자산 상세</b>, 생성의 입력이 되는 브랜드 킷을 한곳에서 정리하는 <b>브랜드 관리</b>,
+    그 자산을 들고 일본 현지 기업과 연결되는 <b>기업 매칭</b>까지 4개 화면으로 구성합니다(07.21 하위 메뉴 IA 개편).
+    사이드바 "운영"의 하위 메뉴 [자산 라이브러리 / 브랜드 관리 / 기업 매칭]로 오갑니다 — 라이브러리 안에서 리포트/썸네일은 타입 탭으로 나뉩니다.
     시즌 캘린더는 별도 화면 없이 운영 홈 상단 스트립으로 내장했습니다.
   </p>
 
@@ -61,8 +65,8 @@
 
   <!-- ── 전체 플로우 ─────────────────────────────────── -->
   <section style="margin-top:44px">
-    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">전체 플로우 — 모이는 화면 하나, 연결 화면 하나</h2>
-    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">②의 "홈=갤러리 허브" 문법을 계승합니다. 운영 홈이 라이브러리를 겸하므로 중간 인덱스 화면이 없습니다. 매칭만 신청→검토→제안의 독립 상태 흐름을 가져 별도 화면입니다.</p>
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">전체 플로우 — 모이는 화면 하나, 상세 화면 하나, 연결 화면 하나</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">②의 "홈=갤러리 허브" 문법을 계승합니다. 운영 홈이 라이브러리를 겸하므로 중간 인덱스 화면이 없습니다. 개편 포인트: 그리드 카드를 클릭해도 더는 ①·② 탭으로 이탈하지 않고, 운영 안의 자산 상세가 열립니다 — 다른 축으로 가는 동선은 상세 화면의 버튼 2개(② 다른 템플릿·① 리포트 전체 보기)뿐입니다. 브랜드 관리·기업 매칭은 사이드바 하위 메뉴에서 병렬로 진입하는 독립 화면입니다 — 운영 홈 하단 엔트리 카드는 폐지했습니다(LIB-07 개편).</p>
     <div class="rwrap" style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center;gap:8px">
       <div class="flow-node" style="cursor:default">
         <span style="font-size:11.5px;font-weight:800;color:#B96C00;letter-spacing:.04em">↩ 유입</span>
@@ -73,16 +77,29 @@
       <a class="flow-node" href="1-home.html">
         <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">1 · 운영 홈</span>
         <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">자산 라이브러리</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">시즌 스트립 + 준비 제안 + 리포트·썸네일 통합 그리드 + 매칭 엔트리 + 성과 판별 자리 예약.</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">시즌 스트립 + 준비 제안 + 타입 탭 [진단 리포트|썸네일] 그리드 + 성과 판별 자리 예약.</p>
       </a>
       <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
-      <a class="flow-node" href="2-matching.html">
-        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">2 · 기업 매칭</span>
-        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">신청 → 검토 → 제안</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">컨시어지형: 신청 폼 + 상태 스테퍼. DB 열람·조건 검색 없음, 운영팀 수동 검토.</p>
+      <a class="flow-node" href="2-detail.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">2 · 자산 상세</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">탭 이탈 없이 열람</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">썸네일: 검수 배지·재설계 해설 축약·다운로드·"다른 템플릿"(② 이동). 리포트: 표지 요약·"전체 보기"(① 이동).</p>
       </a>
     </div>
-    <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">운영 홈의 검토용 상태 스위처로 빈/기본/생성중/매칭 검토중/제안 도착 5상태를, 매칭 화면에서 폼/검토 중/제안 도착/리포트 없음 4상태를 바로 볼 수 있습니다. ② 생성 화면에서 제출하면 운영 홈 그리드 맨 앞에도 생성중 타일이 나타납니다(축 횡단).</p>
+    <p style="margin:22px 0 10px;font-size:12px;font-weight:700;color:#B96C00">사이드바 하위 메뉴에서 병렬 진입 — 운영 홈을 거치지 않아도 됩니다</p>
+    <div class="rwrap" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <a class="flow-node" href="3-brand.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">3 · 브랜드 관리</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">브랜드 킷 = 생성 입력 허브</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">프로필·제품·채널 + 일본향 용어집·금지 표현·톤 가이드. 킷 수정은 발행 리포트에 소급되지 않음(스냅샷 원칙).</p>
+      </a>
+      <a class="flow-node" href="4-matching.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">4 · 기업 매칭</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">신청 → 검토 → 제안</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">컨시어지형: 신청 폼 + 상태 스테퍼. DB 열람·조건 검색 없음, 운영팀 수동 검토. 상태는 하위 메뉴 배지로 요약.</p>
+      </a>
+    </div>
+    <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">운영 홈의 검토용 상태 스위처로 빈/기본/생성중 3상태를, 브랜드 관리에서 기본/미작성 2상태를, 매칭 화면에서 폼/검토 중/제안 도착/리포트 없음 4상태를, 자산 상세 화면에서 a1~a4·r1·r2 자산 전환 데모를 바로 볼 수 있습니다. 매칭 상태는 하위 메뉴 "기업 매칭" 배지에도 반영됩니다. ② 생성 화면에서 제출하면 운영 홈 그리드 맨 앞에도 생성중 타일이 나타납니다(축 횡단).</p>
   </section>
 
   <!-- ── A계열 · B계열 경계 ──────────────────────────── -->
@@ -102,6 +119,7 @@
           <tbody style="color:#414245">
             <tr style="border-top:1px solid #ECECEF"><td style="padding:11px 16px;font-weight:700;color:#202124">브랜드 자산 라이브러리</td><td style="padding:11px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:11.5px;font-weight:700">실화면 ○</span></td><td style="padding:11px 16px;line-height:1.55">운영 홈이 겸함. `Report`·`GeneratedAsset` 재조회 전용. 운영 축에서 유일하게 데이터 계약이 정의된 기능</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:11px 16px;font-weight:700;color:#202124">시즌 캘린더</td><td style="padding:11px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:11.5px;font-weight:700">홈 내장 ○</span></td><td style="padding:11px 16px;line-height:1.55">별도 화면 없음. 조회 전용 스트립(예약 발행 스케줄러 아님)</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:11px 16px;font-weight:700;color:#202124">브랜드 관리 (브랜드 킷)</td><td style="padding:11px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:11.5px;font-weight:700">실화면 ○</span></td><td style="padding:11px 16px;line-height:1.55">`BrandProfile` 편집 정본 + 일본향 용어집·톤(07.21 신설). 마이페이지는 조회 요약만. 생성 자동 참조 계약은 제안 상태(BRAND-09)</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:11px 16px;font-weight:700;color:#202124">일본 기업 매칭</td><td style="padding:11px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700">라이트 △</span></td><td style="padding:11px 16px;line-height:1.55">신청+상태 추적의 컨시어지형만. 매칭 DB·조건 검색은 넣지 않음(확정 범위)</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:11px 16px;font-weight:700;color:#202124">성과 판별</td><td style="padding:11px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:11.5px;font-weight:700">자리 예약</span></td><td style="padding:11px 16px;line-height:1.55">실현가능성·우선순위 미정(2026-07-04 결정). 지표 UI로 그리지 않음</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:11px 16px;font-weight:700;color:#202124">리뷰 축적 운영 키트 · 첫 4주 성과 리포트</td><td style="padding:11px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">범위 외 ✕</span></td><td style="padding:11px 16px;line-height:1.55">B계열(구독 서비스 실체). 정본 = <code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">../03-구독플랜-재구성-제안.md</code> (Growth 월 20만 편입 확정)</td></tr>
@@ -132,11 +150,12 @@
           <tbody style="color:#414245">
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">🔴 MatchRequest 엔티티 (매칭 입출력)</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">계약 제안</span></td><td style="padding:12px 16px;line-height:1.55">08-data-flow §5.2는 매칭 입출력 미정의(TBD). 신청 스냅샷·status(submitted/reviewing/proposed) 신설 필요. §5.2·§6 개정은 백엔드 스펙 몫 (기획서 MATCH-08)</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">GeneratedAsset.status 델타</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">계약 제안</span></td><td style="padding:12px 16px;line-height:1.55">그리드 생성중 타일의 전제. ② 기획서 # 0 제안을 계승(동일 델타, 중복 제안 아님)</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">BrandProfile.brandKitJson (용어집·톤 계약)</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">계약 제안</span></td><td style="padding:12px 16px;line-height:1.55">productNamesJa·forbiddenTerms·toneGuide jsonb 확장 제안(기획서 BRAND-09). 08 §6은 스키마 예약만 — 생성 파이프라인 자동 참조는 (추후 기획)</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">시즌 캘린더 엔티티</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700">스키마 예약</span></td><td style="padding:12px 16px;line-height:1.55">MVP는 정적 상수(메가와리 3·6·9·11월 + 리서치 §11 시즌). 08 §6 설계 노트 유지</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">성과 판별</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">미정</span></td><td style="padding:12px 16px;line-height:1.55">실현가능성·우선순위 검토 대상(2026-07-04). 운영 홈에 자리 예약 카드만</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">매칭 자격·검토 기한·취소/재신청 정책</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">미정</span></td><td style="padding:12px 16px;line-height:1.55">리포트 필수화 여부는 UT 검증 항목. 데모는 리포트 0건도 신청 허용 + 안내 배너</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">제안 도착 알림 (이메일·벨)</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:11.5px;font-weight:700">추후 기획</span></td><td style="padding:12px 16px;line-height:1.55">벨 UI는 그리지 않음(⓪ MAIN-01e 계승: 결정된 것처럼 그리지 않는다)</td></tr>
-            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">라우트 /app/matching</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700">확장 제안</span></td><td style="padding:12px 16px;line-height:1.55">09-dev-spec §2에 없는 신규 라우트. 운영 홈은 기존 정의 <code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">/app/library</code> 그대로</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">라우트 /app/brand · /app/matching</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700">확장 제안</span></td><td style="padding:12px 16px;line-height:1.55">09-dev-spec §2에 신설 제안으로 반영(07.21). 운영 홈은 기존 정의 <code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">/app/library</code> 그대로</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">자산 삭제 · 페이지네이션 · 다중 브랜드</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:11.5px;font-weight:700">미정·추후</span></td><td style="padding:12px 16px;line-height:1.55">② HOME-08·⓪ MAIN-01b와 동일 상태 유지</td></tr>
           </tbody>
         </table>

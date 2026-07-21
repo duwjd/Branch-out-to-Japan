@@ -315,3 +315,67 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 /* 매칭 제안 카드 (MATCH-05) — hover 리프트 */
 .h-prop { transition: border-color .15s, transform .15s, box-shadow .15s; }
 .h-prop:hover, .h-prop:focus-within { border-color: var(--coral); transform: translateY(-2px); box-shadow: var(--shadow-2); }
+
+/* ════════════════════════════════════════════════════════════════════
+   ③ 운영(04) 확장 v2 — 사이드바 하위 메뉴 · 라이브러리 타입 탭 · 브랜드 킷
+   2026-07-21 하위 메뉴 IA 개편(기획서 LIB-00·LIB-04·BRAND-00~09).
+   .side-sub 마크업은 운영 4개 화면(1-home·2-detail·3-brand·4-matching)에서
+   동일하다 — 수정 시 4파일 동시 반영. 타 축 화면은 접힘 상태 = 기존 마크업.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 사이드바 하위 메뉴 (LIB-00) — 운영 활성 시에만 펼치는 아코디언 */
+.side-sub { list-style: none; margin: 2px 0 6px 21px; padding: 0 0 0 12px; position: relative; }
+.side-sub::before { content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 2px; background: var(--n-150); border-radius: 9999px; }
+.side-sub a {
+  display: flex; align-items: center; gap: 8px;
+  height: 36px; padding: 0 10px; border-radius: 8px;
+  color: var(--ink-mute); font-size: 12.5px; font-weight: 600; text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.side-sub a:hover { background: var(--n-100); color: var(--ink); text-decoration: none; }
+.side-sub a.on { background: var(--coral-tint); color: var(--coral-strong); font-weight: 700; }
+.side-sub .side-badge { font-size: 9.5px; height: 18px; }
+
+/* 라이브러리 타입 탭 (LIB-04) — 타입 구분의 1차 내비. 칩은 2차 정제만 */
+.lib-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--hairline); }
+.lib-tab {
+  appearance: none; border: none; background: transparent; font-family: inherit; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 46px; padding: 0 16px; margin-bottom: -1px;
+  font-size: 14px; font-weight: 600; color: var(--ink-mute);
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.lib-tab:hover { color: var(--ink); }
+.lib-tab[aria-selected="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--coral); }
+.lib-tab .tab-n { font-size: 11.5px; font-weight: 700; color: #9ca0a8; background: var(--n-150); border-radius: 9999px; padding: 1px 8px; }
+.lib-tab[aria-selected="true"] .tab-n { background: var(--coral-tint); color: var(--coral-strong); }
+/* 비활성 탭 진행 도트 (LIB-05) — 수치 없이 진행 중만 알림 */
+.tab-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); animation: pulse 1.6s ease-in-out infinite; }
+
+/* 브랜드 킷 섹션 카드 (BRAND-02~05) */
+.kit-card { background: var(--canvas); border: 1px solid var(--card-border); border-radius: var(--radius); box-shadow: var(--card-shadow); padding: 22px 24px; }
+.kit-label { display: block; font-size: 12.5px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.kit-input {
+  width: 100%; height: 40px; border: 1px solid var(--input-border); border-radius: 10px;
+  padding: 0 12px; font-size: 13.5px; font-family: inherit; color: var(--ink); background: #fff;
+}
+.kit-area { width: 100%; min-height: 84px; border: 1px solid var(--input-border); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; font-family: inherit; color: var(--ink); background: #fff; resize: vertical; line-height: 1.6; }
+
+/* 제품명 일본어 표기 행 (BRAND-05a) — KR → JA 쌍 */
+.term-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--n-150); font-size: 13px; color: var(--ink); }
+.term-row:last-child { border-bottom: none; }
+.term-row .term-arrow { flex: none; color: var(--ink-faint); font-size: 12px; }
+.term-row [lang="ja"] { font-weight: 600; }
+.term-del { flex: none; margin-left: auto; border: none; background: transparent; color: var(--ink-faint); font-size: 12px; font-family: inherit; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.term-del:hover { background: var(--n-100); color: var(--danger-text); }
+
+/* 금지 표현 칩 (BRAND-05b) — danger 색+글자+✕ 기호 3중 표기 */
+.ban-chip { display: inline-flex; align-items: center; gap: 6px; height: 27px; padding: 0 11px; border-radius: 9999px; background: var(--danger-bg); color: var(--danger-text); font-size: 12px; font-weight: 700; }
+
+/* 저장 바 (BRAND-06) — 본문 하단 sticky */
+.save-bar {
+  position: sticky; bottom: 0; z-index: 40;
+  background: rgba(255, 255, 255, .94); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--hairline);
+}
