@@ -8,6 +8,8 @@ import type { BlocksJson } from '@/lib/engine/types';
 
 interface ReportViewProps {
   blocks: BlocksJson;
+  /** 리포트 끝(블록 9 뒤)에 놓는 내보내기 CTA — 페이지가 SlideExport 등을 주입한다 */
+  slideExportSlot?: React.ReactNode;
 }
 
 const GROUP_LABELS: Record<string, string> = {
@@ -58,7 +60,7 @@ function LockedBlock({ no, title, unlocks }: { no: number; title: string; unlock
   );
 }
 
-export function ReportView({ blocks }: ReportViewProps) {
+export function ReportView({ blocks, slideExportSlot }: ReportViewProps) {
   const b = blocks;
   return (
     <article className="space-y-2">
@@ -467,6 +469,10 @@ export function ReportView({ blocks }: ReportViewProps) {
           </table>
         </div>
       </Block>
+
+      {slideExportSlot && (
+        <div className="flex justify-center border-t border-neutral-200 pt-8">{slideExportSlot}</div>
+      )}
     </article>
   );
 }
