@@ -147,7 +147,7 @@ scripts/
 - **DoD:** 키 없이 CLI 목 E2E(레코드 `generating→done` + `.data/files/` 픽스처 PNG + promptUsed + explanationJson). 테스트 통과. **키 있으면 실호출 1장 스모크 — 모델 ID 확정(§6-Q1)이 첫 태스크**
 
 ### M7 · 스튜디오 화면
-- [ ] `/app/studio/thumbnail` 생성 퍼널(드롭존→플랫폼 칩→템플릿 8종 그리드(E 실적 잠금·F 모델컷 잠금)→실적 아코디언→sticky 제출 바) — `specs/02-studio` HOME-01~08
+- [ ] `/app/studio/thumbnail` 생성 퍼널(드롭존→플랫폼 칩→템플릿 8종 그리드(E 실적 게이트·F 모델컷 잠금)→실적 아코디언→sticky 제출 바) — `specs/02-studio` HOME-01~08 ※ F 모델컷 잠금·최근 생성 스트립은 M10에서 해소·삭제
 - [ ] `/app/studio/thumbnail/[assetId]` 결과 상세(2.5초 폴링: 생성중 shimmer+고객어 → done 이미지·게이트 배지·재설계 해설·다운로드 → failed 재시도) — RESULT-01~06
 - **DoD:** 브라우저 목 E2E(업로드→선택→제출→폴링→결과→다운로드 파일명 규칙). 실 API 켜고 동일 동선 1회
 
@@ -162,8 +162,25 @@ scripts/
 - [ ] `supabase/schema.sql` 3테이블(brand_profiles·generated_assets·match_requests) 멱등 추가 + supabaseStore 실구현 검증
 - **DoD:** Supabase 키 켠 상태에서 M7·M8 동선 재통과 (파일은 여전히 로컬)
 
+## 4c. 2차 개발 마일스톤 (2026-07-22 확정 — 기획서·와이어프레임 선반영 완료분의 코드화)
+
+정본: `specs/02-studio/02-studio-ui-기획서.md`(2026-07-22 개정 · HOME-02b·05b·07) · `specs/02-thumbnail-converter-spec.md` §1 입력 계약·§2-④·§2-⑥·§4 · `08-data-flow.md` §4.7·§6.1.
+
+### M10 · 템플릿 8종 전부 생성 가능 + 홈 정리
+1. **저장 계층** — `lib/db/store.ts` `GeneratedAssetRecord`에 `modelImagePath`·`modelConsent`·`promoInput` 추가 → `supabase/schema.sql` 3열 추가 → `supabaseStore` 매핑(`toAssetRecord`·`createAsset`)
+2. **API** — `POST /api/studio/thumbnail`의 **`styleId === 'F'` 400 차단 삭제**, `modelImage`·`modelConsent`·프로모 필드 검증 추가(E의 proof 게이트와 같은 패턴). 클라이언트와 동일 규칙 이중 적용
+3. **프롬프트 조립** — `lib/studio/promptPack.ts` `PRICE_LOCKED_SLOTS` 폐기 → `badgeParagraphs`와 같은 모양의 가격 조립 함수 신설. 취소선 통상가는 `normalPriceVerified === true`일 때만
+4. **비전 콜** — `lib/engine/llm/client.ts` 이미지 첨부를 배열로 확장(기존 단일 콜 사이트 호환 유지) → `lib/studio/copyCall.ts`에 모델컷 2번째 이미지 + 프로모 입력 컨텍스트 전달
+5. **이미지 생성** — `lib/studio/imageGen.ts` 입력을 이미지 배열로 확장, F만 `[제품컷, 모델컷]`으로 `images.edit` 호출
+6. **잡** — `lib/server/studioJob.ts` 모델컷 로드·전달, `structuralGateResult`에 F·G 체크 항목 추가(스펙 §4 신규 2항)
+7. **픽스처** — `lib/studio/fixtures.ts` F·G 목 슬롯 보강(현재 F는 clean 이미지로 폴백, G는 가격 없음), F 목 샘플 PNG 추가
+8. **화면** — `StudioForm.tsx`에 모델컷 업로더·동의 체크·프로모 입력 추가 + **최근 생성 스트립 제거**(섹션·2.5초 폴링·`GET /api/studio/thumbnail`의 `recent` 필드까지. dev 배지 메타는 유지 — 유일한 소비자가 이 폼이다) · 결과 상세에 모델컷 병기
+- **DoD:** 목 모드로 **8종 전부** 제출→`done` 도달. 실 API로 F(얼굴이 업로드 원본 그대로인지)·G(입력 가격 문자열 자단위 일치 · 미체크 시 취소선 없음) 각 1장 스모크. 홈에 자산 표면 0개. `npm run typecheck && npm test`
+
 ### 하지 말 것 (과설계 차단 — 스프린트 2)
 middleware.ts / User 엔티티·실 OAuth / ⓪ 대시보드(KPI·히어로·브랜드 스위처) / 하이브리드 오버레이(sharp·canvas) / 비전 자동검수 / FileStorage 추상 인터페이스 / 잡 큐 / status 전용 라우트 분리 / 결제·탈퇴 백엔드·자산 삭제·다중 브랜드·페이지네이션 / 라이브러리 실시간 폴링·시즌 타임라인 실데이터 / 기존 리포트 v6 개정 착수 / `wireframe.css` 클래스 이식(Tailwind로 재구성)
+
+**M10 추가분** — 모델컷 계약서 업로드·사용 기간 관리(동의는 체크박스 자기 신고까지) / 모델컷 다건·배리에이션 그리드 / 쿠폰 조건부 가격 계산·검증(각주 문자열까지) / 가격 텍스트의 코드 오버레이(하이브리드) — 전부 (추후 기획)
 
 ## 5. 검증 전략
 

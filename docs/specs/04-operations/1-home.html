@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>③ 운영 · 1. 운영 홈(자산 라이브러리)</title>
+<title>③ 운영 · 1. 자산 라이브러리</title>
 <!--
   비배포 · 기획 검토용 인터랙티브 프로토타입.
-  정본: 04-operations-ui-기획서.md # 1. 운영 홈(자산 라이브러리) (LIB-00~10 · 07.21 하위 메뉴 IA 개편)
-  운영 홈이 곧 자산 라이브러리다 — 여기서 만들지 않는다. ①·② 자산의 재조회 전용(08-data-flow §5.2).
+  정본: 04-operations-ui-기획서.md # 1. 자산 라이브러리 (LIB-00~10 · 07.21 하위 메뉴 IA 개편)
+  운영에 홈 화면은 없다(3화면 메뉴 그룹) — 라이브러리에서 만들지 않는다. ①·② 자산의 재조회 전용(08-data-flow §5.2).
   타입 탭 [진단 리포트|썸네일]이 1차 내비(필터 칩 폐지 — LIB-04). 기본 탭 = 진단 리포트.
   사이드바 "운영" 하위 메뉴(자산 라이브러리·브랜드 관리·기업 매칭)는 아코디언 —
     운영 4개 화면에서 동일 마크업. 수정 시 1-home·2-detail·3-brand·4-matching 동시 반영(LIB-00).
@@ -30,7 +30,7 @@
   <div class="wf-strip-in">
     <span class="tag">③ 운영 · 프로토타입</span>
     <a href="index.html">플로우</a>
-    <a href="1-home.html" class="on">1 운영 홈</a>
+    <a href="1-home.html" class="on">1 자산 라이브러리</a>
     <a href="2-detail.html">2 자산 상세</a>
     <a href="3-brand.html">3 브랜드 관리</a>
     <a href="4-matching.html">4 기업 매칭</a>
@@ -73,14 +73,17 @@
           <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#9CA0A8">글로우리프</span><span style="display:block;font-size:10.5px;color:#B6B8BF">전환 데모는 홈에서</span></span>
         </button>
         <div style="height:1px;background:#EBEBEB;margin:6px 4px"></div>
-        <button type="button" class="sw-item" aria-disabled="true" title="다중 브랜드 지원 범위 (미정)"
-          style="display:flex;width:100%;align-items:center;gap:8px;padding:8px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default;color:#B6B8BF;font-size:12px;font-weight:600">＋ 브랜드 추가 <span style="margin-left:auto;font-size:9.5px;font-weight:700;background:#F1F1F3;color:#9CA0A8;border-radius:9999px;padding:2px 7px">미정</span></button>
+          <!-- MAIN-01b′ · 브랜드 추가 (2026-07-22 (미정) 해제 · 전 화면 동일 동작) -->
+          <button type="button" class="sw-item ab-open"
+            style="display:flex;width:100%;align-items:center;gap:8px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer;color:#D93636;font-size:12.5px;font-weight:700">
+            <span aria-hidden="true" style="flex:none;display:inline-flex;width:22px;height:22px;border-radius:7px;border:1px dashed rgba(255,100,100,.55);align-items:center;justify-content:center;font-size:13px;line-height:1">＋</span>
+            브랜드 추가</button>
       </div>
     </div>
     <nav class="side-nav" aria-label="주요 메뉴">
       <a href="../00-main/1-home.html">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-        대시보드</a>
+        홈</a>
       <a href="../01-report/1-input.html">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
         진단 리포트 <span class="side-badge b-ok">이용 가능 ○</span></a>
@@ -90,11 +93,12 @@
       <a href="1-home.html" class="on">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
         운영 <span class="side-badge b-warn">라이브러리 우선 △</span></a>
-      <!-- 운영 하위 메뉴 (LIB-00) — 아코디언: 운영 활성 화면에만 존재.
+      <!-- 운영 하위 메뉴 (LIB-00) — 순서 [브랜드 관리 / 자산 라이브러리 / 기업 매칭] (2026-07-22).
+           설정 → 보관 → 확장 순. "운영" 클릭 착지는 첫 항목인 브랜드 관리다. 아코디언: 운영 활성 화면에만 존재.
            수정 시 1-home·2-detail·3-brand·4-matching 4파일 동시 반영 -->
       <ul class="side-sub" aria-label="운영 하위 메뉴">
-        <li><a href="1-home.html" class="on" aria-current="page">자산 라이브러리</a></li>
         <li><a href="3-brand.html">브랜드 관리</a></li>
+        <li><a href="1-home.html" class="on" aria-current="page">자산 라이브러리</a></li>
         <li><a href="4-matching.html">기업 매칭 <span id="matchBadge" class="side-badge" style="display:none"></span></a></li>
       </ul>
     </nav>
@@ -130,7 +134,7 @@
 
   <div class="app-main">
 
-  <!-- 1. 운영 홈(자산 라이브러리) -->
+  <!-- 1. 자산 라이브러리 -->
   <main style="flex:1;animation:fadeUp .45s ease both">
     <div style="max-width:1120px;margin:0 auto;padding:44px 24px 96px">
 
@@ -229,7 +233,7 @@
 
 <script>
 /**
- * 운영 홈 로직 (LIB-02~08) — 자산 통합 그리드 렌더 · 축 필터 · 생성중 타일 ·
+ * 자산 라이브러리 로직 (LIB-02~08) — 자산 통합 그리드 렌더 · 축 필터 · 생성중 타일 ·
  * 시즌 제안 카드 전환 · 매칭 엔트리 카드 상태.
  * 상태 소스: 검토용 스위처(강제) > sessionStorage(kglow_studio_job·kglow_ops_match) > 기본.
  */
@@ -450,7 +454,7 @@
     badge.style.display = 'inline-flex';
   }
 
-  // ── 타입 탭 (LIB-04 — 1차 내비. "전체" 없음 · 통합 조망은 ⓪ 대시보드 몫) ──
+  // ── 타입 탭 (LIB-04 — 1차 내비. "전체" 없음 · 통합 조망은 ⓪ 홈 몫) ──
   var TABS = [{ key: 'report', id: 'tabReport', label: '진단 리포트' }, { key: 'thumb', id: 'tabThumb', label: '썸네일' }];
   function tabCount(k) {
     var n = ASSETS.filter(function (a) { return a.kind === k; }).length;
@@ -542,6 +546,145 @@
   ab.onclick = function (e) { e.stopPropagation(); var open = ab.getAttribute('aria-expanded') !== 'true'; closeAll(); if (open) { ab.setAttribute('aria-expanded', 'true'); am.style.display = 'block'; } };
   document.addEventListener('click', closeAll);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+})();
+</script>
+
+<!-- MAIN-01b′ · 브랜드 추가 모달 (전 앱 화면 공통 — 사이드바 셸의 일부) -->
+<div id="abModal" class="ab-scrim" style="display:none">
+  <div class="ab-card" role="dialog" aria-modal="true" aria-labelledby="abTitle" aria-describedby="abDesc">
+    <h2 id="abTitle" class="ab-title">새 브랜드 추가</h2>
+    <p id="abDesc" style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">필수 정보만 먼저 등록합니다. 제품·채널·용어집은 브랜드 관리에서 이어서 채웁니다.</p>
+
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label class="ab-label" for="abName">브랜드명 <span style="color:#D93636">*</span></label>
+        <input id="abName" class="ab-input" type="text" maxlength="40" placeholder="예: 하루온 HARUON" autocomplete="off" />
+        <p id="abNameErr" class="ab-err" role="alert" style="display:none"></p>
+      </div>
+      <div>
+        <label class="ab-label" for="abCat">카테고리 <span style="color:#D93636">*</span></label>
+        <select id="abCat" class="ab-input">
+          <option value="">선택해 주세요</option>
+          <option>스킨케어</option><option>메이크업</option><option>선케어</option><option>클렌징</option>
+        </select>
+      </div>
+      <div>
+        <label class="ab-label" for="abClass">제품분류 <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
+        <select id="abClass" class="ab-input">
+          <option selected>화장품</option><option>의약외품</option><option>건강식품</option><option>미상</option>
+        </select>
+      </div>
+    </div>
+
+    <p style="margin:16px 0 0;font-size:11.5px;line-height:1.6;color:#B6B8BF">추가하면 브랜드 관리 화면으로 이동합니다 — 거기서 제품과 채널을 이어서 채웁니다.</p>
+
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="abCancel" class="hbtn hbtn-secondary" style="height:42px;padding:0 16px;border-radius:10px">취소</button>
+      <button type="button" id="abSubmit" class="h-primary" disabled
+        style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:default;opacity:.5">브랜드 추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- 브랜드 추가 취소 확인 (입력값이 있을 때만) -->
+<div id="abDiscard" class="ab-scrim" style="display:none;z-index:120">
+  <div class="ab-card" role="dialog" aria-modal="true" aria-labelledby="abDcTitle" style="max-width:360px">
+    <h2 id="abDcTitle" class="ab-title" style="font-size:16px">입력한 내용이 사라집니다</h2>
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">브랜드 추가를 닫을까요?</p>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="abKeep" class="hbtn hbtn-secondary" style="height:40px;padding:0 15px;border-radius:10px">계속 입력</button>
+      <button type="button" id="abDrop" class="hbtn" style="height:40px;padding:0 15px;border:1px solid rgba(240,72,60,.4);border-radius:10px;background:#fff;color:#C6362C;font-weight:700">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * 브랜드 추가 모달 (⓪ MAIN-01b′) — 앱 전 화면 공통 동작.
+ * 진입점(사이드바 스위처·마이페이지)이 어디든 같은 모달·같은 검증·같은 착지를 쓴다.
+ * 성공 시 착지는 항상 ③ 브랜드 관리 — 새 브랜드는 채울 것밖에 없으므로 편집 정본으로 보낸다.
+ * 데모라 실제 저장은 없고, 착지 화면에 보여 줄 토스트만 sessionStorage 로 넘긴다.
+ */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var BRAND_PAGE = '3-brand.html';
+  var last = null;
+
+  /** 필수 2필드(브랜드명·카테고리) 충족 시에만 제출 활성 */
+  function sync() {
+    var ok = $('abName').value.trim().length > 0 && $('abCat').value !== '';
+    var b = $('abSubmit');
+    b.disabled = !ok;
+    b.style.opacity = ok ? '1' : '.5';
+    b.style.cursor = ok ? 'pointer' : 'default';
+  }
+  function open(trigger) {
+    last = trigger || document.activeElement;
+    $('abName').value = ''; $('abCat').value = ''; $('abClass').selectedIndex = 0;
+    $('abNameErr').style.display = 'none';
+    $('abSubmit').textContent = '브랜드 추가';
+    sync();
+    $('abModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    $('abName').focus();
+  }
+  function close() {
+    $('abModal').style.display = 'none';
+    $('abDiscard').style.display = 'none';
+    document.body.style.overflow = '';
+    if (last && last.focus) last.focus();
+  }
+  /** 입력값이 있으면 확인부터 */
+  function requestClose() {
+    if ($('abName').value.trim() || $('abCat').value) { $('abDiscard').style.display = 'flex'; return; }
+    close();
+  }
+
+  document.querySelectorAll('.ab-open').forEach(function (b) {
+    b.addEventListener('click', function (e) { e.stopPropagation(); open(b); });
+  });
+  $('abName').addEventListener('input', function () { $('abNameErr').style.display = 'none'; sync(); });
+  $('abCat').addEventListener('change', sync);
+  $('abCancel').onclick = requestClose;
+  $('abModal').addEventListener('click', function (e) { if (e.target === $('abModal')) requestClose(); });
+  $('abKeep').onclick = function () { $('abDiscard').style.display = 'none'; $('abName').focus(); };
+  $('abDrop').onclick = close;
+
+  // 포커스 트랩
+  $('abModal').addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab') return;
+    var f = $('abModal').querySelectorAll('input, select, button');
+    if (!f.length) return;
+    var first = f[0], lastEl = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); lastEl.focus(); }
+    else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if ($('abDiscard').style.display === 'flex') { $('abDiscard').style.display = 'none'; $('abName').focus(); return; }
+    if ($('abModal').style.display === 'flex') requestClose();
+  }, true);
+
+  $('abSubmit').onclick = function () {
+    var b = $('abSubmit');
+    if (b.disabled) return;
+    var name = $('abName').value.trim();
+    // 중복 브랜드명 차단 — 데모는 스위처 목록의 이름으로 검사
+    var dup = Array.prototype.some.call(document.querySelectorAll('#swMenu .sw-item[data-brand] span span'),
+      function (s) { return s.textContent.trim() === name; });
+    if (dup) {
+      $('abNameErr').textContent = '이미 등록한 브랜드명입니다';
+      $('abNameErr').style.display = 'block';
+      $('abName').focus();
+      return;
+    }
+    b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
+    // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
+    try {
+      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+    } catch (err) {}
+    setTimeout(function () { location.href = BRAND_PAGE; }, 500);
+  };
 })();
 </script>
 </body>

@@ -240,7 +240,7 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   ⓪ 전용 확장 — 히어로·최근 자산 카드·플로팅 진행 패널
+   ⓪ 전용 확장 — 다음 단계 밴드·위젯 그리드·최근 자산 카드·플로팅 진행 패널
    ════════════════════════════════════════════════════════════════════ */
 
 /* 생성중 shimmer (② 계승) · 완료 crossfade · 토스트 등장 */
@@ -251,9 +251,77 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 @keyframes tileIn  { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes toastIn { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
 
-/* 히어로 — 화면당 800 디스플레이 1개 */
+/* 히어로 — 첫 방문 셋업 가이드 전용(화면당 디스플레이 1개) */
 .hero-head { font-size: clamp(30px, 3.4vw, 38px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.25; color: var(--ink); text-wrap: balance; }
 .hero-head b { color: var(--coral-strong); font-weight: 800; }
+
+/* ── MAIN-03 · 다음 단계 밴드 (구 중앙 히어로) ──────────
+   위젯이 아래 붙으므로 중앙 대형 → 좌측 정렬 전폭 밴드로 낮춤.
+   화면 유일 primary CTA 가 여기 산다. */
+.next-band {
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  background: var(--canvas); border: 1px solid var(--card-border); border-radius: var(--radius);
+  padding: 24px 26px; box-shadow: var(--card-shadow);
+}
+.band-head { margin: 12px 0 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.35; color: var(--ink); text-wrap: balance; }
+.band-head b { color: var(--coral-strong); font-weight: 800; }
+
+/* ── MAIN-10~12 · 위젯 카드 공통 ────────────────────── */
+.w-card { background: var(--canvas); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--card-shadow); }
+.w-title { margin: 0; font-size: 14px; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); }
+
+/* MAIN-10 · A~E 그룹 미니 막대 (색 하나 + 숫자 병기) */
+.grp-row { display: flex; align-items: center; gap: 10px; font-size: 11.5px; }
+.grp-row dt { flex: 0 0 82px; color: var(--ink-body); }
+.grp-row dd { margin: 0; flex: 1; display: flex; align-items: center; gap: 9px; }
+.grp-track { flex: 1; height: 6px; border-radius: 9999px; background: var(--n-150); overflow: hidden; }
+.grp-fill { display: block; height: 100%; border-radius: 9999px; background: var(--coral); }
+.grp-row b { flex: none; width: 30px; text-align: right; font-size: 11px; font-weight: 700; color: var(--ink); }
+
+/* MAIN-10 · Top3 — 순번은 장식이 아니라 우선순위 데이터(ol) */
+.top3-row { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; line-height: 1.55; color: var(--ink-body); }
+.top3-no { flex: none; width: 17px; height: 17px; margin-top: 1px; border-radius: 5px; background: var(--coral-tint); color: var(--coral-strong); font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+
+/* MAIN-11 · 브랜드 정보 */
+.w-chip { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; background: var(--n-100); color: var(--ink-body); font-size: 11.5px; font-weight: 600; }
+.w-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 7px 0; font-size: 12.5px; border-bottom: 1px solid var(--n-150); }
+.w-row:last-child { border-bottom: none; }
+.w-row dt { color: var(--ink-body); }
+.w-row dd { margin: 0; font-weight: 600; color: var(--ink); }
+.w-row dd b { font-weight: 700; }
+/* 미작성은 오류가 아니라 진행 상태 — danger 색 쓰지 않는다 */
+.w-empty { color: var(--ink-faint) !important; font-weight: 500 !important; }
+
+/* MAIN-12 · 다가오는 이벤트 (조회 전용 — 클릭 동작 없음) */
+.ev-item { display: flex; flex-direction: column; gap: 4px; padding: 13px 14px; border: 1px solid var(--card-border); border-radius: 12px; background: var(--n-50); }
+.ev-item.ev-near { border-color: rgba(255, 100, 100, .4); background: var(--coral-tint); }
+.ev-badge { align-self: flex-start; display: inline-flex; align-items: center; height: 21px; padding: 0 9px; border-radius: 9999px; background: var(--n-150); color: #70737c; font-size: 11px; font-weight: 700; }
+.ev-badge-now { background: var(--coral); color: #fff; }
+.ev-badge-run { background: var(--amber-bg); color: var(--amber-text); }
+.ev-name { margin-top: 3px; font-size: 13px; font-weight: 700; color: var(--ink); }
+.ev-when { font-size: 11px; color: var(--ink-mute); }
+.ev-do { margin-top: 3px; font-size: 11.5px; line-height: 1.55; color: var(--ink-body); text-wrap: pretty; }
+
+/* ── MAIN-01b′ · 브랜드 추가 모달 ─────────────────────
+   스크림은 배경 해제를 뜻하는 표시 — 장식 블러 아님. */
+@keyframes modalIn { 0% { opacity: 0; transform: translateY(10px) scale(.985); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-scrim { position: fixed; inset: 0; z-index: 100; background: rgba(16, 18, 20, .48); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.modal-card { width: 100%; max-width: 440px; background: var(--canvas); border-radius: 18px; box-shadow: 0 24px 60px rgba(16, 18, 20, .28); padding: 26px; animation: modalIn .2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.modal-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.m-label { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--ink-body); }
+.m-input {
+  width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--input-border); border-radius: 10px;
+  background: #fff; color: var(--ink); font-size: 13.5px; font-family: inherit;
+}
+.m-input:focus { outline: none; border: 1.5px solid #70737c; }
+select.m-input { cursor: pointer; }
+.m-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }
+
+/* 좁은 화면: 위젯 그리드·이벤트 3열 → 1열 (rwrap 이 처리하지 못하는 이벤트 그리드 보강) */
+@media (max-width: 900px) {
+  .next-band { padding: 20px; }
+  .band-head { font-size: 19px; }
+}
 
 /* 최근 자산 프리뷰 카드 — hover 리프트 + shadow-2 */
 .asset-card { display: block; background: var(--canvas); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; box-shadow: var(--card-shadow); text-decoration: none; transition: border-color .15s, transform .15s, box-shadow .15s; }
@@ -265,3 +333,18 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 .jp-bar { height: 4px; background: var(--n-150); border-radius: 9999px; overflow: hidden; }
 /* 진행률은 width가 아니라 scaleX로 — 레이아웃 애니메이션 회피. JS가 scaleX(진행률)를 지정한다 */
 .jp-fill { width: 100%; height: 100%; background: var(--coral); border-radius: 9999px; transform: scaleX(0); transform-origin: left; transition: transform .4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* ════════════════════════════════════════════════════════════════════
+   ⓪ MAIN-01b′ · 브랜드 추가 모달 (2026-07-22 — 앱 전 화면 공통)
+   사이드바 셸이 전역이므로 그 안의 모달도 모든 폴더에 동일하게 둔다
+   (기존 "폴더 자족" 관례). ab- 접두어는 각 화면의 기존 모달과 충돌 회피용.
+   ════════════════════════════════════════════════════════════════════ */
+@keyframes abIn { 0% { opacity: 0; transform: translateY(10px) scale(.985); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.ab-scrim { position: fixed; inset: 0; z-index: 110; background: rgba(16, 18, 20, .48); display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+.ab-card { width: 100%; max-width: 440px; background: var(--canvas); border-radius: 18px; box-shadow: 0 24px 60px rgba(16, 18, 20, .28); padding: 26px; animation: abIn .2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.ab-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.ab-label { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--ink-body); }
+.ab-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--input-border); border-radius: 10px; background: #fff; color: var(--ink); font-size: 13.5px; font-family: inherit; }
+.ab-input:focus { outline: none; border: 1.5px solid #70737c; }
+select.ab-input { cursor: pointer; }
+.ab-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }

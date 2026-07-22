@@ -25,7 +25,7 @@
   <div class="wf-strip-in">
     <span class="tag">③ 운영 · 프로토타입</span>
     <a href="index.html">플로우</a>
-    <a href="1-home.html">1 운영 홈</a>
+    <a href="1-home.html">1 자산 라이브러리</a>
     <a href="2-detail.html">2 자산 상세</a>
     <a href="3-brand.html" class="on">3 브랜드 관리</a>
     <a href="4-matching.html">4 기업 매칭</a>
@@ -67,14 +67,17 @@
           <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#9CA0A8">글로우리프</span><span style="display:block;font-size:10.5px;color:#B6B8BF">전환 데모는 홈에서</span></span>
         </button>
         <div style="height:1px;background:#EBEBEB;margin:6px 4px"></div>
-        <button type="button" class="sw-item" aria-disabled="true" title="다중 브랜드 지원 범위 (미정)"
-          style="display:flex;width:100%;align-items:center;gap:8px;padding:8px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default;color:#B6B8BF;font-size:12px;font-weight:600">＋ 브랜드 추가 <span style="margin-left:auto;font-size:9.5px;font-weight:700;background:#F1F1F3;color:#9CA0A8;border-radius:9999px;padding:2px 7px">미정</span></button>
+          <!-- MAIN-01b′ · 브랜드 추가 (2026-07-22 (미정) 해제 · 전 화면 동일 동작) -->
+          <button type="button" class="sw-item ab-open"
+            style="display:flex;width:100%;align-items:center;gap:8px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer;color:#D93636;font-size:12.5px;font-weight:700">
+            <span aria-hidden="true" style="flex:none;display:inline-flex;width:22px;height:22px;border-radius:7px;border:1px dashed rgba(255,100,100,.55);align-items:center;justify-content:center;font-size:13px;line-height:1">＋</span>
+            브랜드 추가</button>
       </div>
     </div>
     <nav class="side-nav" aria-label="주요 메뉴">
       <a href="../00-main/1-home.html">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-        대시보드</a>
+        홈</a>
       <a href="../01-report/1-input.html">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
         진단 리포트 <span class="side-badge b-ok">이용 가능 ○</span></a>
@@ -84,11 +87,12 @@
       <a href="1-home.html" class="on">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
         운영 <span class="side-badge b-warn">라이브러리 우선 △</span></a>
-      <!-- 운영 하위 메뉴 (LIB-00) — 아코디언: 운영 활성 화면에만 존재.
+      <!-- 운영 하위 메뉴 (LIB-00) — 순서 [브랜드 관리 / 자산 라이브러리 / 기업 매칭] (2026-07-22).
+           설정 → 보관 → 확장 순. "운영" 클릭 착지는 첫 항목인 브랜드 관리다. 아코디언: 운영 활성 화면에만 존재.
            수정 시 1-home·2-detail·3-brand·4-matching 4파일 동시 반영 -->
       <ul class="side-sub" aria-label="운영 하위 메뉴">
-        <li><a href="1-home.html">자산 라이브러리</a></li>
         <li><a href="3-brand.html" class="on" aria-current="page">브랜드 관리</a></li>
+        <li><a href="1-home.html">자산 라이브러리</a></li>
         <li><a href="4-matching.html">기업 매칭 <span id="matchBadge" class="side-badge" style="display:none"></span></a></li>
       </ul>
     </nav>
@@ -170,20 +174,34 @@
           </div>
         </section>
 
-        <!-- BRAND-03 · 제품 정보 -->
+        <!-- BRAND-03 · 제품 자산 (제품 단위 CRUD · 2026-07-22 전면 개정) -->
         <section class="kit-card" aria-labelledby="productTitle">
-          <h2 id="productTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">제품 정보</h2>
-          <p id="productHint" style="display:none;margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">채우면 진단·생성 정확도가 올라갑니다.</p>
-          <div style="margin-top:14px">
-            <label class="kit-label" for="fProduct">제품 정보 메모</label>
-            <textarea id="fProduct" class="kit-area f-input" rows="3" placeholder="주력 제품·성분·특징을 적어 주세요"></textarea>
+          <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+            <h2 id="productTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">제품</h2>
+            <span id="prodCount" class="tnum" style="font-size:12px;font-weight:600;color:rgba(55,56,60,0.61)">0개</span>
+            <button type="button" id="prodAdd" class="hbtn hbtn-secondary h-soft" style="margin-left:auto">＋ 제품 추가</button>
           </div>
-          <div id="docRow" style="margin-top:12px;display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;background:#FAFAFB">
-            <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-            <span id="docName" style="flex:1;font-size:12.5px;font-weight:600;color:#202124">하루온-상세페이지.pdf</span>
-            <span style="font-size:11px;color:#B6B8BF">재업로드 (추후 기획)</span>
+          <p style="margin:6px 0 0;font-size:12px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">여기 등록한 제품컷을 스튜디오에서 바로 골라 쓸 수 있습니다. 생성할 때마다 다시 올리지 않습니다.</p>
+
+          <!-- 3a · 제품 카드 그리드 / 3b · 빈 상태 -->
+          <div id="prodGrid" class="rwrap-2" style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px"></div>
+          <div id="prodEmpty" style="display:none;margin-top:16px;border:1px dashed rgba(112,115,124,0.3);border-radius:12px;background:#FAFAFB;padding:28px 20px;text-align:center">
+            <p style="margin:0;font-size:13.5px;font-weight:700;color:#202124">아직 등록한 제품이 없습니다</p>
+            <p style="margin:6px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">제품을 등록하면 스튜디오에서 제품컷을 바로 골라 쓸 수 있습니다.</p>
+            <button type="button" id="prodAddEmpty" class="hbtn hbtn-secondary h-soft" style="margin-top:14px">＋ 제품 추가</button>
           </div>
-          <p style="margin:10px 0 0;font-size:11.5px;color:#B6B8BF">다상품 등록 (미정) — 지금은 브랜드 단위 메모 하나로 관리합니다.</p>
+
+          <!-- 3c · 브랜드 공통 메모·문서 (구 BRAND-03 존치분) -->
+          <div style="margin-top:22px;padding-top:20px;border-top:1px solid #F1F1F3">
+            <label class="kit-label" for="fProduct">브랜드 공통 메모 <span style="font-weight:600;color:#B6B8BF">(제품별로 나누기 어려운 내용)</span></label>
+            <textarea id="fProduct" class="kit-area f-input" rows="2" placeholder="브랜드 전체에 해당하는 특징·처방 방향을 적어 주세요"></textarea>
+            <p id="productHint" style="display:none;margin:8px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">채우면 진단·생성 정확도가 올라갑니다.</p>
+            <div id="docRow" style="margin-top:12px;display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;background:#FAFAFB">
+              <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              <span id="docName" style="flex:1;font-size:12.5px;font-weight:600;color:#202124">하루온-상세페이지.pdf</span>
+              <span style="font-size:11px;color:#B6B8BF">재업로드 (추후 기획)</span>
+            </div>
+          </div>
         </section>
 
         <!-- BRAND-04 · 채널 -->
@@ -209,15 +227,21 @@
           <h2 id="kitTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">일본향 용어집·톤 가이드</h2>
           <p style="margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">다음 생성부터 입력으로 전달할 준비를 하고 있습니다.</p>
 
-          <!-- 5a · 제품명 일본어 표기 -->
+          <!-- 5a · 제품명 일본어 표기 (인라인 CRUD) -->
           <h3 style="margin:18px 0 0;font-size:13px;font-weight:700;color:#202124">제품명 일본어 표기</h3>
+          <div id="termSuggest" style="display:none;margin-top:8px;align-items:center;gap:9px;flex-wrap:wrap;padding:9px 12px;border:1px solid rgba(255,100,100,.3);border-radius:9px;background:#FFF8F8">
+            <span id="termSuggestText" style="flex:1;min-width:180px;font-size:12px;color:#414245"></span>
+            <button type="button" id="termSuggestAdd" class="inline-ok" style="height:30px">추가</button>
+            <button type="button" id="termSuggestNo" class="inline-cancel" style="height:30px">아니요</button>
+          </div>
           <div id="termRows" style="margin-top:6px"></div>
           <button type="button" id="termAdd" class="hbtn hbtn-ghost" style="margin-top:6px;padding:0 8px;font-size:12.5px;color:#D93636">＋ 표기 추가</button>
 
-          <!-- 5b · 금지 표현 -->
+          <!-- 5b · 금지 표현 (인라인 CRUD — 표현+사유 둘 다 필수) -->
           <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">금지 표현</h3>
-          <p style="margin:5px 0 0;font-size:11.5px;color:#B6B8BF">근거 없이 등록하지 않습니다 — 약기법·플랫폼 규정 사유를 함께 적어 주세요.</p>
+          <p style="margin:5px 0 0;font-size:11.5px;color:#B6B8BF">근거 없이 등록하지 않습니다 — 진단 리포트 약기법 감사표에서 걸린 표현을 사유와 함께 옮겨 적어 주세요.</p>
           <div id="banList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+          <button type="button" id="banAdd" class="hbtn hbtn-ghost" style="margin-top:8px;padding:0 8px;font-size:12.5px;color:#D93636">＋ 금지 표현 추가</button>
 
           <!-- 5c · 톤 가이드 -->
           <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">톤 가이드</h3>
@@ -225,6 +249,16 @@
             <label class="visually-hidden" for="fTone">톤 가이드</label>
             <textarea id="fTone" class="kit-area f-input" rows="3" maxlength="300" placeholder="일본 고객에게 말을 걸 때의 톤을 1~3문장으로 적어 주세요"></textarea>
             <p style="margin:5px 0 0;text-align:right;font-size:11px;color:#B6B8BF"><span id="toneCount" class="tnum">0</span>/300</p>
+          </div>
+        </section>
+
+        <!-- BRAND-10 · 브랜드 삭제 (위험 액션 — 저장 바와 시각적으로 분리) -->
+        <section aria-labelledby="dangerTitle" style="margin-top:20px;padding-top:22px;border-top:1px solid #EBEBEB">
+          <h2 id="dangerTitle" style="margin:0;font-size:14px;font-weight:800;letter-spacing:-0.01em;color:#202124">브랜드 삭제</h2>
+          <p style="margin:6px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">이 브랜드와 브랜드에 속한 자산이 모두 사라집니다. 되돌릴 수 없습니다.</p>
+          <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <button type="button" id="delBrandBtn" class="hbtn" style="height:38px;padding:0 14px;border:1px solid rgba(240,72,60,.4);border-radius:9px;background:#fff;color:#C6362C;font-weight:700">이 브랜드 삭제</button>
+            <p id="delBrandNote" style="margin:0;font-size:11.5px;line-height:1.6;color:#B6B8BF"></p>
           </div>
         </section>
 
@@ -244,6 +278,106 @@
   </div>
 </div>
 
+<!-- 브랜드 추가 착지 토스트 (⓪ MAIN-01b′-3) — 어느 화면에서 추가했든 여기로 온다 -->
+<div id="landToast" role="status" aria-live="polite" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:88px;z-index:95;background:#202124;color:#fff;border-radius:12px;padding:13px 18px;box-shadow:0 8px 24px rgba(16,18,20,.24);animation:toastIn .3s ease both;max-width:400px">
+  <p id="landToastTitle" style="margin:0;font-size:13px;font-weight:700"></p>
+  <p style="margin:3px 0 0;font-size:11.5px;color:rgba(255,255,255,.72)">제품과 채널을 채워 주세요. <a href="../00-main/1-home.html" style="color:#fff;text-decoration:underline">나중에 하기</a></p>
+</div>
+
+<!-- BRAND-03b · 제품 추가·편집 모달 (C·U — 추가/수정이 같은 폼) -->
+<div id="prodModal" class="modal-scrim" style="display:none">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+    <h2 id="pmTitle" class="modal-title">제품 추가</h2>
+    <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">제품을 수정해도 이미 발행된 리포트와 생성된 썸네일은 바뀌지 않습니다.</p>
+
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label class="m-label" for="pmName">제품명 <span style="color:#D93636">*</span></label>
+        <input id="pmName" class="m-input" type="text" maxlength="40" placeholder="예: 하루온 톤업 선크림" autocomplete="off" />
+        <p id="pmNameErr" class="m-err" role="alert" style="display:none"></p>
+      </div>
+      <div class="rwrap" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label class="m-label" for="pmNameJa">제품명 일본어 표기 <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
+          <input id="pmNameJa" class="m-input" type="text" lang="ja" placeholder="HARUON トーンアップUV" autocomplete="off" />
+        </div>
+        <div>
+          <label class="m-label" for="pmCat">카테고리</label>
+          <select id="pmCat" class="m-input">
+            <option>스킨케어</option><option>메이크업</option><option>선케어</option><option>클렌징</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="m-label" for="pmMemo">제품 메모 <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
+        <textarea id="pmMemo" class="m-input" rows="2" style="height:auto;padding:10px 12px;line-height:1.6;resize:vertical" placeholder="성분·특징·용량 등"></textarea>
+      </div>
+
+      <!-- 3b-2 · 제품컷 이미지 (여러 장 · 대표 1장) -->
+      <div>
+        <span class="m-label">제품컷 <span style="font-weight:600;color:#B6B8BF">(여러 장 · 첫 장이 대표컷)</span></span>
+        <div id="pmDrop" tabindex="0" role="button" aria-label="제품컷 업로드 — 클릭하거나 파일을 끌어다 놓기"
+             style="margin-top:2px;padding:16px;border:1.5px dashed rgba(112,115,124,0.34);border-radius:11px;background:#FAFAFB;text-align:center;cursor:pointer;transition:border-color .15s,background .15s">
+          <p style="margin:0;font-size:12.5px;font-weight:600;color:#414245">이미지를 끌어다 놓거나 <span style="color:#D93636">클릭해서 선택</span></p>
+          <p style="margin:4px 0 0;font-size:11px;color:rgba(55,56,60,0.61)">JPG · PNG · WebP / 10MB 이하 / 권장 1024px 이상</p>
+        </div>
+        <input type="file" id="pmFile" accept="image/jpeg,image/png,image/webp" multiple class="visually-hidden" aria-hidden="true" tabindex="-1" />
+        <p id="pmImgErr" class="m-err" role="alert" style="display:none"></p>
+        <div id="pmShots" style="margin-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;display:flex;align-items:center;gap:9px">
+      <button type="button" id="pmDelete" class="hbtn" style="display:none;height:42px;padding:0 14px;border:1px solid rgba(240,72,60,.4);border-radius:10px;background:#fff;color:#C6362C;font-weight:700">삭제</button>
+      <button type="button" id="pmCancel" class="hbtn hbtn-secondary" style="margin-left:auto;height:42px;padding:0 16px;border-radius:10px">취소</button>
+      <button type="button" id="pmSave" class="h-primary" disabled
+        style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:default;opacity:.5">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAND-03c · 제품 삭제 확인 (파괴적 동작 — danger 버튼은 primary 자리에 두지 않음) -->
+<div id="delModal" class="modal-scrim" style="display:none;z-index:110">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="dmTitle" style="max-width:380px">
+    <h2 id="dmTitle" class="modal-title" style="font-size:16px">제품을 삭제할까요?</h2>
+    <p id="dmBody" style="margin:10px 0 0;font-size:13px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty"></p>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="dmCancel" class="hbtn hbtn-secondary" style="height:40px;padding:0 15px;border-radius:10px">취소</button>
+      <button type="button" id="dmConfirm" class="hbtn" style="height:40px;padding:0 15px;border:1px solid rgba(240,72,60,.4);border-radius:10px;background:#fff;color:#C6362C;font-weight:700">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAND-10b · 브랜드 삭제 확인 (브랜드명 재입력 — 오삭제 방지) -->
+<div id="delBrandModal" class="modal-scrim" style="display:none;z-index:115">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="dbTitle" style="max-width:420px">
+    <h2 id="dbTitle" class="modal-title" style="font-size:17px">브랜드를 삭제할까요?</h2>
+    <p style="margin:10px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">아래 항목이 함께 삭제됩니다.</p>
+    <ul id="dbList" style="margin:12px 0 0;padding:12px 14px;list-style:none;background:#FDF0EF;border-radius:10px;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:#C6362C"></ul>
+    <p style="margin:14px 0 0;font-size:12.5px;font-weight:700;color:#202124">되돌릴 수 없습니다.</p>
+    <div style="margin-top:14px">
+      <label class="m-label" for="dbConfirmName">확인을 위해 <b id="dbNameEcho" style="color:#C6362C"></b> 을(를) 입력해 주세요</label>
+      <input id="dbConfirmName" class="m-input" type="text" autocomplete="off" placeholder="브랜드명" />
+    </div>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="dbCancel" class="hbtn hbtn-secondary" style="height:40px;padding:0 15px;border-radius:10px">취소</button>
+      <button type="button" id="dbConfirm" class="hbtn" disabled style="height:40px;padding:0 15px;border:1px solid rgba(240,72,60,.4);border-radius:10px;background:#fff;color:#C6362C;font-weight:700;opacity:.5;cursor:default">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- 편집 취소 확인 (입력값 변경이 있을 때만) -->
+<div id="discardModal" class="modal-scrim" style="display:none;z-index:110">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="dcTitle" style="max-width:360px">
+    <h2 id="dcTitle" class="modal-title" style="font-size:16px">입력한 내용이 사라집니다</h2>
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">닫을까요?</p>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="dcKeep" class="hbtn hbtn-secondary" style="height:40px;padding:0 15px;border-radius:10px">계속 입력</button>
+      <button type="button" id="dcDiscard" class="hbtn" style="height:40px;padding:0 15px;border:1px solid rgba(240,72,60,.4);border-radius:10px;background:#fff;color:#C6362C;font-weight:700">닫기</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /**
  * 브랜드 관리 로직 (BRAND-02~07) — 포지셔닝 칩 1~5 선택 · 용어집 행 · 금지 표현 ·
@@ -257,10 +391,21 @@
   var POS_TAGS = ['민감 피부·저자극', '무첨가·프리 처방', '성분 집중', '더마·피부과학', '클린·비건', '보습·장벽', '진정 케어', '모공·피지 케어', '톤·브라이트닝', '탄력·안티에이징', '효능 근거·기능성', '남성 특화', 'K뷰티 트렌드', '가성비', '향·질감 감성', '미니멀 처방'];
   var JP_CHANNELS = ['Qoo10', '라쿠텐', '아마존JP', '미정'];
 
+  /** 데모 제품 2종 — 이미지는 ② 스튜디오 샘플 자산 재사용(새 자산 만들지 않음) */
+  var SHOT = '../02-studio/assets/samples/';
+  var DEMO_PRODUCTS = [
+    { id: 'p1', kr: '하루온 톤업 선크림', ja: 'HARUON トーンアップUV', cat: '선케어',
+      memo: 'SPF50+ PA++++ · 백탁 없는 톤업 처방',
+      shots: [SHOT + 'haruon-before.jpg', SHOT + 'haruon-clean.png', SHOT + 'haruon-official.png'] },
+    { id: 'p2', kr: 'CICA 진정 앰플', ja: 'CICAアンプル', cat: '스킨케어',
+      memo: '병풀 추출물 · 자극 받은 날 쓰는 진정 앰플',
+      shots: [SHOT + 'haruon-texture.png'] }
+  ];
+
   /** 데모 데이터(작성 완료 상태) — 기존 자산 유래 값만 사용 */
   var FILLED = {
     target: '진정·저자극을 찾는 20~30대. 荒れてる時に使える?가 첫 질문인 고객.',
-    product: '톤업 선크림(SPF50+ PA++++) · CICA 진정 앰플. 상세페이지 진단 리포트 발행 완료.',
+    product: '전 제품 저자극 처방 기준을 공유함. 상세페이지 진단 리포트 발행 완료.',
     pos: ['진정 케어', '민감 피부·저자극', '톤·브라이트닝'],
     jp: ['Qoo10', '라쿠텐'],
     terms: [
@@ -274,7 +419,8 @@
     tone: '근거 있는 문장으로 차분하게. 효능은 시험·성분 근거와 함께, 과장 형용사 대신 사용 장면을 적는다.'
   };
 
-  var state = { pos: [], jp: [], terms: [], bans: [], dirty: false, blank: false };
+  var state = { pos: [], jp: [], terms: [], bans: [], products: [], dirty: false, blank: false };
+  var modal = { editingId: null, shots: [], primary: 0, lastFocus: null, dirty: false, pendingDeleteId: null };
 
   // ── 포지셔닝 칩 (BRAND-02 — 1~5개, ① 폼 칩 문법) ──
   function renderPos() {
@@ -321,6 +467,229 @@
     });
   }
 
+  // ── 제품 자산 CRUD (BRAND-03 · 03b · 03c) ─────────────
+
+  /** 제품 카드 그리드 렌더 — 0건이면 빈 상태로 교체 (빈 카드 자리표시자 출력 X) */
+  function renderProducts() {
+    var grid = $('prodGrid'), empty = $('prodEmpty');
+    $('prodCount').textContent = state.products.length + '개';
+    grid.innerHTML = '';
+    if (!state.products.length) {
+      grid.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    grid.style.display = 'grid';
+    empty.style.display = 'none';
+    state.products.forEach(function (p) {
+      var card = document.createElement('div');
+      card.className = 'prod-card';
+      card.innerHTML =
+        '<button type="button" class="prod-del" data-del="' + p.id + '" aria-label="' + p.kr + ' 삭제">' +
+          '<svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
+        '</button>' +
+        '<button type="button" class="prod-open" data-open="' + p.id + '" aria-label="' + p.kr + ' 수정" style="all:unset;display:block;cursor:pointer">' +
+          '<span class="prod-thumb">' +
+            (p.shots.length
+              ? '<img src="' + p.shots[0] + '" alt="' + p.kr + ' 대표컷" />'
+              : '<span class="prod-thumb-empty">대표컷 없음</span>') +
+          '</span>' +
+          '<span class="prod-body">' +
+            '<span class="prod-name">' + p.kr + '</span>' +
+            (p.ja ? '<span class="prod-name-ja" lang="ja">' + p.ja + '</span>' : '') +
+            '<span class="prod-meta"><span class="prod-cat">' + p.cat + '</span>' +
+              '<span class="prod-shots tnum">이미지 ' + p.shots.length + '장</span></span>' +
+          '</span>' +
+        '</button>';
+      grid.appendChild(card);
+    });
+    grid.querySelectorAll('[data-open]').forEach(function (b) {
+      b.onclick = function () { openProduct(b.getAttribute('data-open')); };
+    });
+    grid.querySelectorAll('[data-del]').forEach(function (b) {
+      b.onclick = function (e) { e.stopPropagation(); askDelete(b.getAttribute('data-del')); };
+    });
+  }
+
+  /** 모달 안 제품컷 타일 — 대표 지정·삭제. 대표 삭제 시 첫 장이 승계된다 */
+  function renderShots() {
+    var box = $('pmShots');
+    box.innerHTML = '';
+    modal.shots.forEach(function (src, i) {
+      var t = document.createElement('div');
+      t.className = 'shot-tile' + (i === modal.primary ? ' is-primary' : '');
+      t.innerHTML = '<img src="' + src + '" alt="제품컷 ' + (i + 1) + '" />' +
+        (i === modal.primary ? '<span class="shot-badge">대표</span>' : '') +
+        '<span class="shot-acts">' +
+          (i === modal.primary ? '' : '<button type="button" data-pri="' + i + '">대표로</button>') +
+          '<button type="button" data-rm="' + i + '">삭제</button>' +
+        '</span>';
+      box.appendChild(t);
+    });
+    box.querySelectorAll('[data-pri]').forEach(function (b) {
+      b.onclick = function () { modal.primary = Number(b.getAttribute('data-pri')); modal.dirty = true; renderShots(); };
+    });
+    box.querySelectorAll('[data-rm]').forEach(function (b) {
+      b.onclick = function () {
+        var i = Number(b.getAttribute('data-rm'));
+        modal.shots.splice(i, 1);
+        if (modal.primary >= modal.shots.length) modal.primary = 0;
+        else if (i < modal.primary) modal.primary -= 1;
+        modal.dirty = true;
+        renderShots();
+      };
+    });
+  }
+
+  function syncSave() {
+    var ok = $('pmName').value.trim().length > 0;
+    var btn = $('pmSave');
+    btn.disabled = !ok;
+    btn.style.opacity = ok ? '1' : '.5';
+    btn.style.cursor = ok ? 'pointer' : 'default';
+  }
+
+  /** @param {string|null} id 수정 대상 제품 id. null 이면 추가 모드 */
+  function openProduct(id) {
+    var p = id ? state.products.filter(function (x) { return x.id === id; })[0] : null;
+    modal.editingId = id;
+    modal.shots = p ? p.shots.slice() : [];
+    modal.primary = 0;
+    modal.dirty = false;
+    modal.lastFocus = document.activeElement;
+    $('pmTitle').textContent = p ? '제품 수정' : '제품 추가';
+    $('pmName').value = p ? p.kr : '';
+    $('pmNameJa').value = p ? p.ja : '';
+    $('pmCat').value = p ? p.cat : '스킨케어';
+    $('pmMemo').value = p ? p.memo : '';
+    $('pmNameErr').style.display = 'none';
+    $('pmImgErr').style.display = 'none';
+    $('pmDelete').style.display = p ? 'inline-flex' : 'none';
+    renderShots();
+    syncSave();
+    $('prodModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    $('pmName').focus();
+  }
+  function closeProduct() {
+    $('prodModal').style.display = 'none';
+    $('discardModal').style.display = 'none';
+    document.body.style.overflow = '';
+    if (modal.lastFocus && modal.lastFocus.focus) modal.lastFocus.focus();
+  }
+  function requestCloseProduct() {
+    if (modal.dirty) { $('discardModal').style.display = 'flex'; return; }
+    closeProduct();
+  }
+
+  $('prodAdd').onclick = function () { openProduct(null); };
+  $('prodAddEmpty').onclick = function () { openProduct(null); };
+  ['pmName', 'pmNameJa', 'pmCat', 'pmMemo'].forEach(function (id) {
+    $(id).addEventListener('input', function () { modal.dirty = true; $('pmNameErr').style.display = 'none'; syncSave(); });
+  });
+  $('pmCancel').onclick = requestCloseProduct;
+  $('prodModal').addEventListener('click', function (e) { if (e.target === $('prodModal')) requestCloseProduct(); });
+  $('dcKeep').onclick = function () { $('discardModal').style.display = 'none'; $('pmName').focus(); };
+  $('dcDiscard').onclick = closeProduct;
+
+  // 제품컷 업로드 — ② HOME-02 와 동일 규격 (JPG·PNG·WebP / 10MB / 512px 경고)
+  $('pmDrop').onclick = function () { $('pmFile').click(); };
+  $('pmDrop').onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('pmFile').click(); } };
+  $('pmDrop').addEventListener('dragover', function (e) { e.preventDefault(); this.style.borderColor = '#FF6464'; this.style.background = '#FFF8F8'; });
+  $('pmDrop').addEventListener('dragleave', function () { this.style.borderColor = 'rgba(112,115,124,0.34)'; this.style.background = '#FAFAFB'; });
+  $('pmDrop').addEventListener('drop', function (e) {
+    e.preventDefault();
+    this.style.borderColor = 'rgba(112,115,124,0.34)'; this.style.background = '#FAFAFB';
+    addShots(e.dataTransfer.files);
+  });
+  $('pmFile').addEventListener('change', function () { addShots(this.files); this.value = ''; });
+
+  /** @param {FileList} files 업로드 파일 목록 */
+  function addShots(files) {
+    var err = '';
+    Array.prototype.forEach.call(files, function (f) {
+      if (['image/jpeg', 'image/png', 'image/webp'].indexOf(f.type) < 0) { err = 'JPG·PNG·WebP만 업로드할 수 있습니다'; return; }
+      if (f.size > 10 * 1024 * 1024) { err = '10MB 이하 이미지만 업로드할 수 있습니다'; return; }
+      modal.shots.push(URL.createObjectURL(f));
+      modal.dirty = true;
+    });
+    $('pmImgErr').textContent = err;
+    $('pmImgErr').style.display = err ? 'block' : 'none';
+    renderShots();
+  }
+
+  $('pmSave').onclick = function () {
+    if ($('pmSave').disabled) return;
+    var kr = $('pmName').value.trim();
+    // 같은 브랜드 안 제품명 중복 차단 (3b-3)
+    var dup = state.products.some(function (p) { return p.kr === kr && p.id !== modal.editingId; });
+    if (dup) {
+      $('pmNameErr').textContent = '이미 등록한 제품명입니다';
+      $('pmNameErr').style.display = 'block';
+      $('pmName').focus();
+      return;
+    }
+    // 대표컷을 배열 첫 장으로 물질화 — 렌더는 항상 shots[0]을 대표로 읽는다
+    var shots = modal.shots.slice();
+    if (modal.primary > 0) shots.unshift(shots.splice(modal.primary, 1)[0]);
+    var next = { id: modal.editingId || ('p' + state.products.length + '-' + kr.length),
+                 kr: kr, ja: $('pmNameJa').value.trim(), cat: $('pmCat').value,
+                 memo: $('pmMemo').value.trim(), shots: shots };
+    if (modal.editingId) {
+      state.products = state.products.map(function (p) { return p.id === modal.editingId ? next : p; });
+    } else {
+      state.products.push(next);
+    }
+    closeProduct();
+    renderProducts();
+    markDirty();   // 저장은 화면 하단 저장 바 1개로 모은다 (제품만 따로 저장하지 X)
+    maybeSuggestTerm(next);
+  };
+
+  /** 제품 일본어 표기가 용어집(5a)에 없으면 추가를 제안한다 — 자동 동기화 X */
+  function maybeSuggestTerm(p) {
+    if (!p.ja) return;
+    if (state.terms.some(function (t) { return t.kr === p.kr; })) return;
+    $('termSuggest').style.display = 'flex';
+    $('termSuggestText').innerHTML = '「' + p.kr + '」의 일본어 표기를 용어집에도 추가할까요?';
+    $('termSuggestAdd').onclick = function () {
+      state.terms.push({ kr: p.kr, ja: p.ja });
+      $('termSuggest').style.display = 'none';
+      markDirty(); renderTerms();
+    };
+    $('termSuggestNo').onclick = function () { $('termSuggest').style.display = 'none'; };
+  }
+
+  // 삭제 (BRAND-03c) — 확인 모달 경유
+  function askDelete(id) {
+    var p = state.products.filter(function (x) { return x.id === id; })[0];
+    if (!p) return;
+    modal.pendingDeleteId = id;
+    modal.lastFocus = document.activeElement;
+    $('dmTitle').textContent = p.kr + '을(를) 삭제할까요?';
+    $('dmBody').innerHTML = '등록한 제품컷 <b class="tnum">' + p.shots.length + '</b>장이 함께 삭제됩니다.<br>이미 생성된 썸네일과 발행된 리포트는 그대로 남습니다.';
+    $('delModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    $('dmCancel').focus();
+  }
+  function closeDelete() {
+    $('delModal').style.display = 'none';
+    document.body.style.overflow = '';
+    modal.pendingDeleteId = null;
+    if (modal.lastFocus && modal.lastFocus.focus) modal.lastFocus.focus();
+  }
+  $('dmCancel').onclick = closeDelete;
+  $('delModal').addEventListener('click', function (e) { if (e.target === $('delModal')) closeDelete(); });
+  $('dmConfirm').onclick = function () {
+    var p = state.products.filter(function (x) { return x.id === modal.pendingDeleteId; })[0];
+    state.products = state.products.filter(function (x) { return x.id !== modal.pendingDeleteId; });
+    closeDelete();
+    renderProducts();
+    markDirty();
+    $('saveMsg').textContent = (p ? p.kr : '제품') + '을(를) 삭제했습니다 — 저장하지 않은 변경이 있습니다';
+  };
+  $('pmDelete').onclick = function () { var id = modal.editingId; closeProduct(); askDelete(id); };
+
   // ── 제품명 표기 행 (BRAND-05a — KR → JA) ──
   function renderTerms() {
     var box = $('termRows');
@@ -335,11 +704,28 @@
       row.innerHTML = '<span style="flex:1;min-width:0">' + t.kr + '</span>' +
         '<span class="term-arrow" aria-hidden="true">→</span>' +
         '<span lang="ja" style="flex:1;min-width:0">' + t.ja + '</span>' +
-        '<button type="button" class="term-del" data-i="' + i + '" aria-label="' + t.kr + ' 표기 삭제">삭제</button>';
+        '<button type="button" class="row-del" data-edit="' + i + '" aria-label="' + t.kr + ' 표기 수정">수정</button>' +
+        '<button type="button" class="row-del" data-i="' + i + '" aria-label="' + t.kr + ' 표기 삭제">삭제</button>';
       box.appendChild(row);
     });
-    box.querySelectorAll('.term-del').forEach(function (b) {
+    box.querySelectorAll('[data-i]').forEach(function (b) {
       b.onclick = function () { state.terms.splice(Number(b.getAttribute('data-i')), 1); markDirty(); renderTerms(); };
+    });
+    // 행 클릭 시 그 자리가 인라인 입력으로 전환됨 (수정)
+    box.querySelectorAll('[data-edit]').forEach(function (b) {
+      b.onclick = function () {
+        var i = Number(b.getAttribute('data-edit')), t = state.terms[i], row = b.parentNode;
+        row.innerHTML = '';
+        row.className = 'inline-row';
+        inlineRow(row, { a: 'KR 제품명', b: 'JA 표기', bothRequired: true, bLang: 'ja',
+          hint: 'KR·JA 둘 다 입력해야 저장됩니다.' },
+          function (kr, ja) { state.terms[i] = { kr: kr, ja: ja }; markDirty(); renderTerms(); });
+        row.querySelector('.ir-a').value = t.kr;
+        row.querySelector('.ir-b').value = t.ja;
+        row.querySelector('.inline-ok').disabled = false;
+        row.querySelector('.ir-hint').textContent = '';
+        row.querySelector('.inline-cancel').onclick = renderTerms;
+      };
     });
   }
 
@@ -351,14 +737,55 @@
       box.innerHTML = '<p style="margin:0;font-size:12.5px;color:rgba(55,56,60,0.61)">아직 등록한 금지 표현이 없습니다. 진단 리포트의 약기법 판정에서 걸린 표현을 옮겨 두면 좋습니다.</p>';
       return;
     }
-    state.bans.forEach(function (bn) {
+    state.bans.forEach(function (bn, i) {
       var row = document.createElement('div');
       row.setAttribute('style', 'display:flex;align-items:center;gap:10px;flex-wrap:wrap');
       row.innerHTML = '<span class="ban-chip"><span aria-hidden="true">✕</span><span lang="ja">' + bn.term + '</span></span>' +
-        '<span style="flex:1;min-width:200px;font-size:12px;color:rgba(55,56,60,0.61)">' + bn.reason + '</span>';
+        '<span style="flex:1;min-width:200px;font-size:12px;color:rgba(55,56,60,0.61)">' + bn.reason + '</span>' +
+        '<button type="button" class="row-del" data-ban="' + i + '" aria-label="' + bn.term + ' 금지 표현 삭제">삭제</button>';
       box.appendChild(row);
     });
+    box.querySelectorAll('[data-ban]').forEach(function (b) {
+      b.onclick = function () { state.bans.splice(Number(b.getAttribute('data-ban')), 1); markDirty(); renderBans(); };
+    });
   }
+
+  /**
+   * 인라인 입력 행 생성 (BRAND-05 — 한 줄짜리 입력이라 모달 쓰지 않음).
+   * @param {HTMLElement} host 행을 붙일 컨테이너
+   * @param {{a:string, b:string, bothRequired:boolean, aLang?:string, bLang?:string}} opt 필드 설정
+   * @param {function(string,string):void} onOk 확인 콜백
+   */
+  function inlineRow(host, opt, onOk) {
+    var row = document.createElement('div');
+    row.className = 'inline-row';
+    row.innerHTML =
+      '<input class="inline-input ir-a" type="text" placeholder="' + opt.a + '"' + (opt.aLang ? ' lang="' + opt.aLang + '"' : '') + ' />' +
+      '<input class="inline-input ir-b" type="text" placeholder="' + opt.b + '"' + (opt.bLang ? ' lang="' + opt.bLang + '"' : '') + ' />' +
+      '<button type="button" class="inline-ok" disabled>확인</button>' +
+      '<button type="button" class="inline-cancel">취소</button>' +
+      '<p class="ir-hint" style="flex-basis:100%;margin:2px 0 0;font-size:11px;color:#B6B8BF"></p>';
+    host.appendChild(row);
+    var a = row.querySelector('.ir-a'), b = row.querySelector('.ir-b');
+    var ok = row.querySelector('.inline-ok'), hint = row.querySelector('.ir-hint');
+    function sync() {
+      var full = a.value.trim() && b.value.trim();
+      ok.disabled = !full;
+      hint.textContent = full ? '' : opt.hint;
+    }
+    hint.textContent = opt.hint;
+    a.addEventListener('input', sync);
+    b.addEventListener('input', sync);
+    ok.onclick = function () { if (!ok.disabled) onOk(a.value.trim(), b.value.trim()); };
+    row.querySelector('.inline-cancel').onclick = function () { row.remove(); };
+    a.focus();
+  }
+
+  $('banAdd').onclick = function () {
+    inlineRow($('banList'), { a: '금지 표현 (예: 美白)', b: '왜 금지인지 근거', bothRequired: true, aLang: 'ja',
+      hint: '왜 금지인지 근거를 함께 적어 주세요 — 사유 없이는 등록되지 않습니다.' },
+      function (term, reason) { state.bans.push({ term: term, reason: reason }); markDirty(); renderBans(); });
+  };
 
   // ── 변경 감지 → 저장 활성 (BRAND-06) ──
   function markDirty() {
@@ -383,9 +810,11 @@
     });
   });
   $('termAdd').onclick = function () {
-    // 데모: 입력 모달 대신 자리 행 추가 — 실입력 UI는 개발 시 인라인 폼
-    state.terms.push({ kr: '(제품명)', ja: '(表記)' });
-    markDirty(); renderTerms();
+    if ($('termRows').querySelector('.inline-row')) return;   // 입력 행 중복 생성 방지
+    if (!state.terms.length) $('termRows').innerHTML = '';    // 빈 상태 문구 치움
+    inlineRow($('termRows'), { a: 'KR 제품명', b: 'JA 표기', bothRequired: true, bLang: 'ja',
+      hint: 'KR·JA 둘 다 입력해야 저장됩니다.' },
+      function (kr, ja) { state.terms.push({ kr: kr, ja: ja }); markDirty(); renderTerms(); });
   };
   $('saveBtn').onclick = function () {
     var btn = $('saveBtn');
@@ -411,6 +840,8 @@
     state.jp = blank ? [] : FILLED.jp.slice();
     state.terms = blank ? [] : FILLED.terms.slice();
     state.bans = blank ? [] : FILLED.bans.slice();
+    state.products = blank ? [] : DEMO_PRODUCTS.map(function (p) { return JSON.parse(JSON.stringify(p)); });
+    $('termSuggest').style.display = 'none';
     $('fTarget').value = blank ? '' : FILLED.target;
     $('fProduct').value = blank ? '' : FILLED.product;
     $('fKrUrl').value = blank ? '' : 'https://smartstore.naver.com/haruon';
@@ -419,9 +850,30 @@
     $('toneCount').textContent = $('fTone').value.length;
     $('productHint').style.display = blank ? 'block' : 'none';
     $('docRow').style.display = blank ? 'none' : 'flex';
-    renderPos(); renderJp(); renderTerms(); renderBans();
+    renderPos(); renderJp(); renderTerms(); renderBans(); renderProducts();
     markSaved('');
   }
+
+  // Esc — 위 레이어부터 닫는다 (확인 → 삭제 → 제품 모달)
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if ($('discardModal').style.display === 'flex') { $('discardModal').style.display = 'none'; $('pmName').focus(); return; }
+    if ($('delBrandModal').style.display === 'flex') { closeDelBrand(); return; }
+    if ($('delModal').style.display === 'flex') { closeDelete(); return; }
+    if ($('prodModal').style.display === 'flex') requestCloseProduct();
+  });
+
+  // 포커스 트랩 — 모달 안에서만 Tab 순환
+  ['prodModal', 'delModal', 'discardModal', 'delBrandModal'].forEach(function (id) {
+    $(id).addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab') return;
+      var f = $(id).querySelectorAll('input, select, textarea, button');
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+  });
   document.querySelectorAll('.st-btn').forEach(function (b) {
     b.onclick = function () { apply(b.getAttribute('data-st') === 'blank'); };
   });
@@ -437,7 +889,83 @@
     badge.style.display = 'inline-flex';
   })();
 
+  // ── 브랜드 삭제 (BRAND-10) — 마지막 브랜드는 삭제 불가 ──
+  /** 데모: 보유 브랜드 2개(하루온·글로우리프) 전제. 1개면 삭제 버튼이 잠긴다 */
+  var BRAND_COUNT = 2;
+  function syncDelBrand() {
+    var btn = $('delBrandBtn'), note = $('delBrandNote');
+    if (BRAND_COUNT <= 1) {
+      btn.disabled = true;
+      btn.style.opacity = '.45';
+      btn.style.cursor = 'default';
+      note.innerHTML = '브랜드가 하나뿐이라 삭제할 수 없습니다. 계정을 정리하려면 <a href="../03-account/2-mypage.html">마이페이지에서 회원 탈퇴</a>를 진행해 주세요.';
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      note.textContent = '';
+    }
+  }
+  $('delBrandBtn').onclick = function () {
+    if ($('delBrandBtn').disabled) return;
+    var name = $('fBrand').value.trim() || '이 브랜드';
+    var shots = state.products.reduce(function (n, p) { return n + p.shots.length; }, 0);
+    $('dbNameEcho').textContent = name;
+    $('dbList').innerHTML =
+      '<li>제품 <b class="tnum">' + state.products.length + '</b>건 · 제품컷 <b class="tnum">' + shots + '</b>장</li>' +
+      '<li>진단 리포트 <b class="tnum">2</b>건 · 생성 썸네일 <b class="tnum">4</b>건</li>' +
+      '<li>일본향 용어집 <b class="tnum">' + state.terms.length + '</b>건 · 금지 표현 <b class="tnum">' + state.bans.length + '</b>건</li>' +
+      '<li>매칭 신청 내역</li>';
+    $('dbConfirmName').value = '';
+    syncDbConfirm();
+    $('delBrandModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    $('dbConfirmName').focus();
+  };
+  /** 브랜드명을 정확히 입력해야 삭제 활성 (BRAND-10b) */
+  function syncDbConfirm() {
+    var ok = $('dbConfirmName').value.trim() === ($('fBrand').value.trim() || '이 브랜드');
+    var b = $('dbConfirm');
+    b.disabled = !ok;
+    b.style.opacity = ok ? '1' : '.5';
+    b.style.cursor = ok ? 'pointer' : 'default';
+  }
+  function closeDelBrand() {
+    $('delBrandModal').style.display = 'none';
+    document.body.style.overflow = '';
+    $('delBrandBtn').focus();
+  }
+  $('dbConfirmName').addEventListener('input', syncDbConfirm);
+  $('dbCancel').onclick = closeDelBrand;
+  $('delBrandModal').addEventListener('click', function (e) { if (e.target === $('delBrandModal')) closeDelBrand(); });
+  $('dbConfirm').onclick = function () {
+    if ($('dbConfirm').disabled) return;
+    // 데모: 삭제 후 남은 브랜드로 전환 + 홈 이동 (BRAND-10d)
+    $('dbConfirm').disabled = true;
+    $('dbConfirm').textContent = '삭제 중…';
+    setTimeout(function () { location.href = '../00-main/1-home.html'; }, 600);
+  };
+
   apply(false);
+  syncDelBrand();
+
+  // ── 브랜드 추가 착지 (⓪ MAIN-01b′-3) — 새 브랜드는 빈 킷 상태로 도착한다 ──
+  (function () {
+    var added = null;
+    try { added = JSON.parse(sessionStorage.getItem('kglow_brand_added') || 'null'); } catch (e) {}
+    if (!added) return;
+    sessionStorage.removeItem('kglow_brand_added');
+    apply(true);                                   // BRAND-07 빈 상태로 시작
+    $('fBrand').value = added.name;
+    $('fCategory').value = added.cat || '스킨케어';
+    document.querySelectorAll('.sw-btn span span').forEach(function (s, i) {
+      if (i === 0) s.textContent = added.name;
+    });
+    markSaved('');
+    $('landToastTitle').textContent = added.name + '을(를) 추가했습니다';
+    $('landToast').style.display = 'block';
+    setTimeout(function () { $('landToast').style.display = 'none'; }, 7000);
+  })();
 })();
 </script>
 <script>
@@ -450,6 +978,145 @@
   ab.onclick = function (e) { e.stopPropagation(); var open = ab.getAttribute('aria-expanded') !== 'true'; closeAll(); if (open) { ab.setAttribute('aria-expanded', 'true'); am.style.display = 'block'; } };
   document.addEventListener('click', closeAll);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+})();
+</script>
+
+<!-- MAIN-01b′ · 브랜드 추가 모달 (전 앱 화면 공통 — 사이드바 셸의 일부) -->
+<div id="abModal" class="ab-scrim" style="display:none">
+  <div class="ab-card" role="dialog" aria-modal="true" aria-labelledby="abTitle" aria-describedby="abDesc">
+    <h2 id="abTitle" class="ab-title">새 브랜드 추가</h2>
+    <p id="abDesc" style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">필수 정보만 먼저 등록합니다. 제품·채널·용어집은 브랜드 관리에서 이어서 채웁니다.</p>
+
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label class="ab-label" for="abName">브랜드명 <span style="color:#D93636">*</span></label>
+        <input id="abName" class="ab-input" type="text" maxlength="40" placeholder="예: 하루온 HARUON" autocomplete="off" />
+        <p id="abNameErr" class="ab-err" role="alert" style="display:none"></p>
+      </div>
+      <div>
+        <label class="ab-label" for="abCat">카테고리 <span style="color:#D93636">*</span></label>
+        <select id="abCat" class="ab-input">
+          <option value="">선택해 주세요</option>
+          <option>스킨케어</option><option>메이크업</option><option>선케어</option><option>클렌징</option>
+        </select>
+      </div>
+      <div>
+        <label class="ab-label" for="abClass">제품분류 <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
+        <select id="abClass" class="ab-input">
+          <option selected>화장품</option><option>의약외품</option><option>건강식품</option><option>미상</option>
+        </select>
+      </div>
+    </div>
+
+    <p style="margin:16px 0 0;font-size:11.5px;line-height:1.6;color:#B6B8BF">추가하면 브랜드 관리 화면으로 이동합니다 — 거기서 제품과 채널을 이어서 채웁니다.</p>
+
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="abCancel" class="hbtn hbtn-secondary" style="height:42px;padding:0 16px;border-radius:10px">취소</button>
+      <button type="button" id="abSubmit" class="h-primary" disabled
+        style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:default;opacity:.5">브랜드 추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- 브랜드 추가 취소 확인 (입력값이 있을 때만) -->
+<div id="abDiscard" class="ab-scrim" style="display:none;z-index:120">
+  <div class="ab-card" role="dialog" aria-modal="true" aria-labelledby="abDcTitle" style="max-width:360px">
+    <h2 id="abDcTitle" class="ab-title" style="font-size:16px">입력한 내용이 사라집니다</h2>
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">브랜드 추가를 닫을까요?</p>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="abKeep" class="hbtn hbtn-secondary" style="height:40px;padding:0 15px;border-radius:10px">계속 입력</button>
+      <button type="button" id="abDrop" class="hbtn" style="height:40px;padding:0 15px;border:1px solid rgba(240,72,60,.4);border-radius:10px;background:#fff;color:#C6362C;font-weight:700">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * 브랜드 추가 모달 (⓪ MAIN-01b′) — 앱 전 화면 공통 동작.
+ * 진입점(사이드바 스위처·마이페이지)이 어디든 같은 모달·같은 검증·같은 착지를 쓴다.
+ * 성공 시 착지는 항상 ③ 브랜드 관리 — 새 브랜드는 채울 것밖에 없으므로 편집 정본으로 보낸다.
+ * 데모라 실제 저장은 없고, 착지 화면에 보여 줄 토스트만 sessionStorage 로 넘긴다.
+ */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var BRAND_PAGE = '3-brand.html';
+  var last = null;
+
+  /** 필수 2필드(브랜드명·카테고리) 충족 시에만 제출 활성 */
+  function sync() {
+    var ok = $('abName').value.trim().length > 0 && $('abCat').value !== '';
+    var b = $('abSubmit');
+    b.disabled = !ok;
+    b.style.opacity = ok ? '1' : '.5';
+    b.style.cursor = ok ? 'pointer' : 'default';
+  }
+  function open(trigger) {
+    last = trigger || document.activeElement;
+    $('abName').value = ''; $('abCat').value = ''; $('abClass').selectedIndex = 0;
+    $('abNameErr').style.display = 'none';
+    $('abSubmit').textContent = '브랜드 추가';
+    sync();
+    $('abModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    $('abName').focus();
+  }
+  function close() {
+    $('abModal').style.display = 'none';
+    $('abDiscard').style.display = 'none';
+    document.body.style.overflow = '';
+    if (last && last.focus) last.focus();
+  }
+  /** 입력값이 있으면 확인부터 */
+  function requestClose() {
+    if ($('abName').value.trim() || $('abCat').value) { $('abDiscard').style.display = 'flex'; return; }
+    close();
+  }
+
+  document.querySelectorAll('.ab-open').forEach(function (b) {
+    b.addEventListener('click', function (e) { e.stopPropagation(); open(b); });
+  });
+  $('abName').addEventListener('input', function () { $('abNameErr').style.display = 'none'; sync(); });
+  $('abCat').addEventListener('change', sync);
+  $('abCancel').onclick = requestClose;
+  $('abModal').addEventListener('click', function (e) { if (e.target === $('abModal')) requestClose(); });
+  $('abKeep').onclick = function () { $('abDiscard').style.display = 'none'; $('abName').focus(); };
+  $('abDrop').onclick = close;
+
+  // 포커스 트랩
+  $('abModal').addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab') return;
+    var f = $('abModal').querySelectorAll('input, select, button');
+    if (!f.length) return;
+    var first = f[0], lastEl = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); lastEl.focus(); }
+    else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if ($('abDiscard').style.display === 'flex') { $('abDiscard').style.display = 'none'; $('abName').focus(); return; }
+    if ($('abModal').style.display === 'flex') requestClose();
+  }, true);
+
+  $('abSubmit').onclick = function () {
+    var b = $('abSubmit');
+    if (b.disabled) return;
+    var name = $('abName').value.trim();
+    // 중복 브랜드명 차단 — 데모는 스위처 목록의 이름으로 검사
+    var dup = Array.prototype.some.call(document.querySelectorAll('#swMenu .sw-item[data-brand] span span'),
+      function (s) { return s.textContent.trim() === name; });
+    if (dup) {
+      $('abNameErr').textContent = '이미 등록한 브랜드명입니다';
+      $('abNameErr').style.display = 'block';
+      $('abName').focus();
+      return;
+    }
+    b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
+    // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
+    try {
+      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+    } catch (err) {}
+    setTimeout(function () { location.href = BRAND_PAGE; }, 500);
+  };
 })();
 </script>
 </body>

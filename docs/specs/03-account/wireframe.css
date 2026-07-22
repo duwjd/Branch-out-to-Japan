@@ -281,3 +281,18 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   background: var(--canvas); border-radius: 16px; box-shadow: var(--shadow-2);
   padding: 24px; animation: modalIn .2s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   ⓪ MAIN-01b′ · 브랜드 추가 모달 (2026-07-22 — 앱 전 화면 공통)
+   사이드바 셸이 전역이므로 그 안의 모달도 모든 폴더에 동일하게 둔다
+   (기존 "폴더 자족" 관례). ab- 접두어는 각 화면의 기존 모달과 충돌 회피용.
+   ════════════════════════════════════════════════════════════════════ */
+@keyframes abIn { 0% { opacity: 0; transform: translateY(10px) scale(.985); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.ab-scrim { position: fixed; inset: 0; z-index: 110; background: rgba(16, 18, 20, .48); display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+.ab-card { width: 100%; max-width: 440px; background: var(--canvas); border-radius: 18px; box-shadow: 0 24px 60px rgba(16, 18, 20, .28); padding: 26px; animation: abIn .2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.ab-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.ab-label { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--ink-body); }
+.ab-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--input-border); border-radius: 10px; background: #fff; color: var(--ink); font-size: 13.5px; font-family: inherit; }
+.ab-input:focus { outline: none; border: 1.5px solid #70737c; }
+select.ab-input { cursor: pointer; }
+.ab-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }

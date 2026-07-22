@@ -379,3 +379,88 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   background: rgba(255, 255, 255, .94); backdrop-filter: blur(10px);
   border-top: 1px solid var(--hairline);
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   BRAND-03 · 제품 자산 CRUD (2026-07-22 신설) + 모달 공통
+   모달 문법은 ⓪ MAIN-01b′ 와 동일 — 스크림은 배경 해제 표시이지
+   장식 블러가 아니다.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 제품 카드 — ⓪ MAIN-05b 자산 카드의 리프트 문법 계승 */
+.prod-card {
+  position: relative; display: flex; flex-direction: column; text-align: left;
+  border: 1px solid var(--card-border); border-radius: 13px; background: var(--canvas);
+  padding: 0; overflow: hidden; cursor: pointer; font-family: inherit;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.prod-card:hover, .prod-card:focus-visible { border-color: var(--coral); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(16, 18, 20, .10); }
+.prod-thumb { position: relative; aspect-ratio: 1 / 1; background: var(--n-100); border-bottom: 1px solid var(--n-150); overflow: hidden; }
+.prod-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* 대표컷 없음 — 깨진 이미지 대신 상태를 말한다 */
+.prod-thumb-empty { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 11px; font-weight: 600; color: var(--ink-faint); }
+.prod-body { padding: 10px 12px 12px; }
+.prod-name { display: block; font-size: 12.5px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-name-ja { display: block; margin-top: 2px; font-size: 11px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-meta { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.prod-cat { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 9999px; background: var(--n-100); color: var(--ink-body); font-size: 10.5px; font-weight: 600; }
+.prod-shots { margin-left: auto; font-size: 10.5px; color: var(--ink-faint); }
+/* 삭제는 카드 클릭과 분리된 별도 타깃 */
+.prod-del {
+  position: absolute; top: 7px; right: 7px; z-index: 2;
+  width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 8px; background: rgba(255, 255, 255, .92); color: #70737c;
+  cursor: pointer; font-family: inherit; opacity: 0; transition: opacity .15s, background .15s, color .15s;
+}
+.prod-card:hover .prod-del, .prod-card:focus-within .prod-del, .prod-del:focus-visible { opacity: 1; }
+.prod-del:hover { background: var(--danger-bg); color: var(--danger-text); }
+
+/* 모달 안 제품컷 타일 — 대표 지정·삭제 */
+.shot-tile { position: relative; aspect-ratio: 1 / 1; border: 1px solid var(--card-border); border-radius: 9px; overflow: hidden; background: var(--n-100); }
+.shot-tile.is-primary { border: 1.5px solid var(--coral); }
+.shot-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.shot-badge { position: absolute; left: 4px; top: 4px; padding: 1px 6px; border-radius: 5px; background: var(--coral); color: #fff; font-size: 9.5px; font-weight: 700; }
+.shot-acts { position: absolute; inset: auto 0 0 0; display: flex; opacity: 0; transition: opacity .15s; }
+.shot-tile:hover .shot-acts, .shot-tile:focus-within .shot-acts { opacity: 1; }
+.shot-acts button { flex: 1; border: none; background: rgba(16, 18, 20, .74); color: #fff; font-size: 10px; font-weight: 600; font-family: inherit; padding: 5px 0; cursor: pointer; }
+.shot-acts button:hover { background: rgba(16, 18, 20, .9); }
+
+/* 용어집·금지 표현 인라인 입력 행 (BRAND-05 CRUD) */
+.inline-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--n-150); flex-wrap: wrap; }
+.inline-row:last-child { border-bottom: none; }
+.inline-input { flex: 1; min-width: 120px; height: 34px; padding: 0 10px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 12.5px; font-family: inherit; color: var(--ink); background: #fff; }
+.inline-input:focus { outline: none; border: 1.5px solid #70737c; }
+.inline-ok { height: 34px; padding: 0 12px; border: none; border-radius: 8px; background: var(--coral); color: #fff; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.inline-ok:disabled { opacity: .5; cursor: default; }
+.inline-cancel { height: 34px; padding: 0 10px; border: 1px solid var(--input-border); border-radius: 8px; background: #fff; color: var(--ink-body); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.row-del { border: none; background: transparent; color: var(--ink-faint); font-size: 11.5px; font-weight: 600; font-family: inherit; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.row-del:hover { background: var(--danger-bg); color: var(--danger-text); }
+
+/* 모달 (⓪ MAIN-01b′ 와 동일 문법) */
+@keyframes modalIn { 0% { opacity: 0; transform: translateY(10px) scale(.985); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-scrim { position: fixed; inset: 0; z-index: 100; background: rgba(16, 18, 20, .48); display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+.modal-card { width: 100%; max-width: 560px; background: var(--canvas); border-radius: 18px; box-shadow: 0 24px 60px rgba(16, 18, 20, .28); padding: 26px; animation: modalIn .2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.modal-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.m-label { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--ink-body); }
+.m-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--input-border); border-radius: 10px; background: #fff; color: var(--ink); font-size: 13.5px; font-family: inherit; }
+.m-input:focus { outline: none; border: 1.5px solid #70737c; }
+select.m-input { cursor: pointer; }
+.m-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }
+
+@media (max-width: 760px) {
+  #pmShots { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ⓪ MAIN-01b′ · 브랜드 추가 모달 (2026-07-22 — 앱 전 화면 공통)
+   사이드바 셸이 전역이므로 그 안의 모달도 모든 폴더에 동일하게 둔다
+   (기존 "폴더 자족" 관례). ab- 접두어는 각 화면의 기존 모달과 충돌 회피용.
+   ════════════════════════════════════════════════════════════════════ */
+@keyframes abIn { 0% { opacity: 0; transform: translateY(10px) scale(.985); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.ab-scrim { position: fixed; inset: 0; z-index: 110; background: rgba(16, 18, 20, .48); display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+.ab-card { width: 100%; max-width: 440px; background: var(--canvas); border-radius: 18px; box-shadow: 0 24px 60px rgba(16, 18, 20, .28); padding: 26px; animation: abIn .2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.ab-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.ab-label { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--ink-body); }
+.ab-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--input-border); border-radius: 10px; background: #fff; color: var(--ink); font-size: 13.5px; font-family: inherit; }
+.ab-input:focus { outline: none; border: 1.5px solid #70737c; }
+select.ab-input { cursor: pointer; }
+.ab-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }
