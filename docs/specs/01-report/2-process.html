@@ -6,9 +6,11 @@
 <title>① 진단 리포트 · 2. 진단 처리</title>
 <!--
   비배포 · 기획 검토용 인터랙티브 프로토타입.
-  정본: 01-report-ui-기획서.md # 2. 진단 처리 (PROCESS-00~03)
+  정본: 01-report-ui-기획서.md # 2. 진단 처리 (PROCESS-00~03, 2026-07-22 개정)
   Claude Design "KGLOW 진단 리포트 v2" 의 처리 화면을 바닐라로 이식.
-  콜② 감사 실패 = 전체 실패(PROCESS-02) — 여기선 성공 플로우만 시연.
+  단계 라벨은 고객 언어로 표기(내부 단계 키는 코드 계약 — 화면 비노출).
+  extract(이미지에서 문구 읽기)는 이미지 업로드 시에만 도는 첫 단계 — 이 데모는 항상 표시.
+  콜② 감사 실패 · 콜⓪ 이미지 추출 실패는 전체 실패(PROCESS-02) — 여기선 성공 플로우만 시연.
 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <link rel="stylesheet" href="wireframe.css" />
@@ -114,13 +116,13 @@
     <div style="width:100%;max-width:560px">
       <p style="margin:0 0 14px"><a href="1-input.html" style="font-size:12.5px;font-weight:700">← 새 진단</a></p>
       <div role="status" aria-live="polite" style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:44px 40px;text-align:center;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-        <h2 style="margin:0;font-size:20px;font-weight:800;color:#202124;letter-spacing:-0.01em">진단 리포트를 생성하고 있습니다…</h2>
-        <p id="curStage" style="margin:10px 0 0;font-size:14.5px;font-weight:600;color:#D93636">콘텐츠 정규화 · 문장 분해</p>
+        <h2 style="margin:0;font-size:20px;font-weight:800;color:#202124;letter-spacing:-0.01em">진단 리포트를 만들고 있습니다…</h2>
+        <p id="curStage" style="margin:10px 0 0;font-size:14.5px;font-weight:600;color:#D93636">상세페이지 이미지에서 문구를 읽는 중</p>
         <div style="margin-top:24px;height:6px;border-radius:9999px;background:#F6F6F6;overflow:hidden;position:relative">
           <span style="position:absolute;top:0;left:0;height:100%;width:34%;border-radius:9999px;background:linear-gradient(90deg,#FF6464,#D93636);animation:indet 1.5s cubic-bezier(0.4,0,0.2,1) infinite"></span>
         </div>
         <div id="stageList" style="margin-top:28px;text-align:left;border-top:1px solid #EBEBEB;padding-top:18px"></div>
-        <p style="margin:22px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">실제 서비스는 수 분이 걸릴 수 있습니다. 화면을 닫아도 처리는 계속됩니다.</p>
+        <p style="margin:22px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">진단에는 몇 분이 걸립니다. 화면을 닫아도 진행돼요.</p>
         <div id="doneRow" style="margin-top:20px;display:none">
           <a href="3-report.html" class="hbtn h-primary" style="display:inline-flex;align-items:center;justify-content:center;width:100%;height:48px;border:none;border-radius:12px;background:#FF6464;color:#fff;font-size:15px;font-weight:700;text-decoration:none">리포트 열기 →</a>
         </div>
@@ -133,18 +135,21 @@
 <script>
 /**
  * 진단 처리 스텝 애니메이션 (v2 startProcessing 로직 이식).
- * 7단계를 processSeconds(기본 5초)에 걸쳐 진행하고, 입력 플로우에서
+ * 8단계를 processSeconds(기본 5초)에 걸쳐 진행하고, 입력 플로우에서
  * 넘어왔으면 리포트로 자동 이동, 직접 열었으면 "리포트 열기" 버튼 노출.
+ * 단계 라벨은 고객 언어(PROCESS-01 2026-07-22 개정) — 내부 단계 키(코드 계약)는 화면 비노출.
+ * extract(이미지에서 문구 읽기)는 이미지 업로드 시에만 도는 첫 단계지만, 이 데모는 항상 표시한다.
  */
 (function () {
   var STAGES = [
-    '콘텐츠 정규화 · 문장 분해',
-    '신뢰 장치 신호 추출',
-    '루브릭 채점 · 薬機法 감사 · 페르소나 (병렬 진단 중)',
-    '점수 집계 (결정적)',
-    '코퍼스 벤치마크 대비',
-    'NG/OK 재작성 · 총평 생성',
-    '리포트 조립'
+    '상세페이지 이미지에서 문구를 읽는 중',
+    '콘텐츠를 정리하는 중',
+    '신뢰 요소를 확인하는 중',
+    '일본 기준 채점 · 薬機法 감사 · 페르소나 진단 중',
+    '점수를 계산하는 중',
+    '일본 상위 제품과 비교하는 중',
+    '일본향 문안을 다시 쓰는 중',
+    '리포트를 구성하는 중'
   ];
   var PROCESS_SECONDS = 5;
   var listEl = document.getElementById('stageList');

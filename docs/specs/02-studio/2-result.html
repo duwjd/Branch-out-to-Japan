@@ -6,15 +6,23 @@
 <title>② 마케팅 스튜디오 · 2. 생성 결과</title>
 <!--
   비배포 · 기획 검토용 인터랙티브 프로토타입.
-  정본: 02-studio-ui-기획서.md # 2. 결과 (RESULT-00~07, RESULT-06 정규 상태 격상)
+  정본: 02-studio-ui-기획서.md # 2. 결과 (RESULT-00~07, RESULT-06 정규 상태 격상 · RESULT-01 Before/After 병기·목 모드 2026-07-22 갱신)
   IA 개편(D2): 이 화면이 생성 파이프라인의 착지점이다. 1-home.html 제출 →
   location.href='2-result.html?state=generating' 로 바로 들어와 생성중 상태로 시작하고,
   5단계 진행 후 결과 뷰로 crossfade 한다. ?state=failed 는 실패 뷰. 쿼리가 없으면 기존 결과 뷰.
   해설 예시는 ../02-thumbnail-converter-spec.md §3 골든 픽스처(C 유형)를
   가상 브랜드 HARUON 톤업 선크림으로 치환한 것 — 새로 지어내지 않는다(증거 원칙).
+  RESULT-01 이미지 뷰는 입력 원본(Before)·생성 결과(After)를 대등 2단으로 병기한다(.ba-grid) —
+  결과 이미지 단독 출력 X, 구 "우측 메타의 원본 미니 썸네일"은 이 병기로 승격·폐기했다
+  (입력 원본 기반 원칙, ../02-thumbnail-converter-spec.md §0). 좁은 화면은 세로 stack(Before 위).
   큰 이미지·Before는 assets/samples/ 의 자체 생성 샘플이고, 다운로드는 그 PNG 파일 직접 링크다.
   해설 3단의 데이터 출처는 explanationJson(styleReason·copySlots·krElementMap — 08-data-flow §6 신설 제안).
-  검토 스트립의 상태 스위처(결과/생성중/실패)는 프로토타입 검토 전용 — 제품 UI 아님.
+  검토 스트립의 상태 스위처(결과/생성중/실패/목 모드)는 프로토타입 검토 전용 — 제품 UI 아님.
+  "목 모드" 스위처는 ../02-thumbnail-converter-spec.md §4 목(mock) 모드 계약(1~4항)의 데모다 —
+  고지 배너 · Before placeholder("내가 올린 원본") · 재설계 해설 데모 배지 · 다운로드 파일명 -demo 접미사를
+  #viewResult.is-mock 클래스 하나로 토글한다(스크립트 setMock()).
+  모델+카피형의 제품컷·모델컷 2장 Before 병기(기획서 RESULT-01 1a)는 이 프로토타입에 해당 데모 상태가
+  없어 미적용 — 모델+카피형 목 샘플(haruon-model.png)은 2차 개발 예정(assets/README.md).
 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <link rel="stylesheet" href="wireframe.css" />
@@ -34,6 +42,7 @@
       <button type="button" class="st-btn" data-st="result" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">결과</button>
       <button type="button" class="st-btn" data-st="generating" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">생성중</button>
       <button type="button" class="st-btn" data-st="failed" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">실패</button>
+      <button type="button" class="st-btn" data-st="mock" title="입력 원본 기반 원칙 §4 목(mock) 모드 계약 데모" style="border:1px solid rgba(185,108,0,.4);background:#FFF6E5;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#B96C00;font-weight:700">목 모드</button>
     </span>
     <span class="ex">비배포 · 기획 검토용</span>
   </div>
@@ -198,10 +207,39 @@
 
         <!-- RESULT-01 · 이미지 뷰 -->
         <div class="result-sticky">
-          <figure style="margin:0;border-radius:18px;overflow:hidden;border:1px solid rgba(112,115,124,0.14);box-shadow:0 1px 3px rgba(16,18,20,.04)">
-            <img class="thumb" src="assets/samples/haruon-official.png"
-                 alt="공식샵 신뢰 배지형으로 재설계된 HARUON 일본향 썸네일 — 公式ショップ 칩, SPF50+·PA++++·顔・からだ用 기능 칩, 하단 카피 밴드 白浮きしない、透明感トーンアップUV" />
-          </figure>
+
+          <!-- RESULT-01 1d · 목(mock) 모드 고지 배너 — 작은 배지가 아니라 눈에 띄는 배너로 노출한다
+               (스펙 §4 목 모드 계약 1항). 결과 상태에서는 숨김, is-mock 에서만 보인다 -->
+          <div id="mockBanner" role="status" aria-live="polite" style="display:none;align-items:center;gap:12px;margin-bottom:14px;padding:14px 18px;border-radius:12px;background:#FFF6E5;border:1.5px solid rgba(185,108,0,.4)">
+            <span aria-hidden="true" style="flex:none;width:30px;height:30px;border-radius:50%;background:#B96C00;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">!</span>
+            <p style="margin:0;font-size:13.5px;line-height:1.55;font-weight:700;color:#8A5200">데모 이미지입니다. 업로드한 제품컷이 반영되지 않은 샘플입니다</p>
+          </div>
+
+          <!-- RESULT-01 1a · 입력 원본(Before) ↔ 생성 결과(After) 대등 병기 (2026-07-22 승격)
+               구 "결과 이미지 단독 + 우측 메타 원본 미니 썸네일" 구조를 이 2단 병기로 대체한다.
+               모델+카피형의 제품컷·모델컷 2장 Before 병기는 해당 데모 상태가 없어 이 프로토타입엔 미적용 -->
+          <div class="ba-grid">
+            <figure class="ba-figure">
+              <div class="ba-imgbox">
+                <img id="beforeImg" class="thumb" src="assets/samples/haruon-before.jpg"
+                     alt="입력 원본 — 한국어 밈 카피와 특가 뱃지, 형광 테두리가 있는 프로모 썸네일" />
+                <!-- 목 모드 placeholder — 실제 업로드 파일이 없는 정적 프로토타입이라 "내가 올린 원본" 자리를 대신 보인다 -->
+                <div id="beforeMockPlaceholder" class="ba-mock-placeholder">
+                  <span class="ba-mock-icon" aria-hidden="true">🖼</span>
+                  <span class="ba-mock-label">내가 올린 원본</span>
+                  <span class="ba-mock-sub">업로드한 이미지가 여기 그대로 표시됩니다</span>
+                </div>
+              </div>
+              <figcaption class="ba-cap">입력 원본</figcaption>
+            </figure>
+            <figure class="ba-figure">
+              <div class="ba-imgbox">
+                <img class="thumb" src="assets/samples/haruon-official.png"
+                     alt="공식샵 신뢰 배지형으로 재설계된 HARUON 일본향 썸네일 — 公式ショップ 칩, SPF50+·PA++++·顔・からだ用 기능 칩, 하단 카피 밴드 白浮きしない、透明感トーンアップUV" />
+              </div>
+              <figcaption class="ba-cap">생성 결과</figcaption>
+            </figure>
+          </div>
 
           <!-- 검수 게이트 (gateResult 렌더) -->
           <div style="margin-top:14px;background:#fff;border:1px solid rgba(0,185,124,.35);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
@@ -215,7 +253,9 @@
           <div style="margin-top:14px">
             <a id="dlBtn" class="h-primary" href="assets/samples/haruon-official.png" download="HARUON-공식샵신뢰배지형-라쿠텐공식샵.png"
                style="display:flex;width:100%;height:54px;align-items:center;justify-content:center;border-radius:12px;background:#FF6464;color:#fff;font-size:16px;font-weight:700;text-decoration:none">이미지 다운로드 (PNG · 1024×1024)</a>
-            <p style="margin:10px 0 0;font-size:12px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">AI 생성 이미지는 제안·데모용입니다. 플랫폼 게시용 제품 본체 컷은 브랜드 실촬영을 권장합니다. <span style="color:#B6B8BF">프로토타입의 제품컷은 실물 예시이며, HARUON은 데모용 가상 브랜드입니다.</span></p>
+            <p style="margin:10px 0 0;font-size:12px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">AI 생성 이미지는 제안·데모용입니다. 플랫폼에 올릴 제품 본체 컷은 브랜드가 직접 촬영하시길 권합니다. <span style="color:#B6B8BF">프로토타입의 제품컷은 실물 예시이며, HARUON은 데모용 가상 브랜드입니다.</span></p>
+            <!-- 목 모드 파일명 표기(스펙 §4 목 모드 계약 4항) — 실제 다운로드 없이도 전환 효과를 확인하도록 파일명을 화면에도 병기 -->
+            <p style="margin:6px 0 0;font-size:11px;color:#B6B8BF">저장 파일명 <code id="dlFileCode" style="font-family:ui-monospace,monospace;background:#F1F1F3;border-radius:4px;padding:1px 5px;color:#70737C">HARUON-공식샵신뢰배지형-라쿠텐공식샵.png</code></p>
           </div>
 
           <!-- RESULT-05 · 보조 액션 — 이미지에 거는 동작이라 이미지 쪽에 둔다 -->
@@ -237,23 +277,15 @@
             <span style="font-size:12.5px;color:rgba(55,56,60,0.61)">라쿠텐 공식샵 · 2026.07.19</span>
           </div>
 
-          <!-- 원본(Before) -->
-          <div style="margin-top:18px;display:flex;align-items:center;gap:14px">
-            <img src="assets/samples/haruon-before.jpg" width="84" height="84" loading="lazy"
-                 alt="원본 — 한국어 밈 카피와 특가 뱃지, 형광 테두리가 있는 프로모 썸네일"
-                 style="width:84px;height:84px;flex:none;border-radius:10px;object-fit:cover;border:1px solid rgba(112,115,124,0.2)" />
-            <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61);word-break:keep-all"><b style="color:#202124">원본 (Before)</b><br />한국어 카피·특가 뱃지·형광 테두리가 있는 프로모 썸네일</p>
-          </div>
-
           <!-- RESULT-02a · 왜 이 문법인가 -->
           <section style="margin-top:24px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:20px 22px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-            <h2 style="margin:0;font-size:15px;font-weight:800;color:#202124">왜 이 문법인가</h2>
+            <h2 style="margin:0;font-size:15px;font-weight:800;color:#202124;display:flex;align-items:center;gap:8px">왜 이 문법인가<span class="mock-badge">데모 해설 — 실제 진단이 아닙니다</span></h2>
             <p style="margin:10px 0 0;font-size:13.5px;line-height:1.75;color:#414245;text-wrap:pretty">라쿠텐 공식샵 기준으로, 일본 구매자가 첫눈에 훑는 신뢰 마커(<span lang="ja">公式ショップ</span> 칩·기능 칩·하단 카피 밴드)를 갖춘 공식샵 문법을 적용했습니다. 표본 120장에서 라쿠텐 공식샵 썸네일의 전형으로 관찰된 구조입니다.</p>
           </section>
 
           <!-- RESULT-02b · 카피는 이렇게 재설계됐다 -->
           <section style="margin-top:14px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:20px 22px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-            <h2 style="margin:0;font-size:15px;font-weight:800;color:#202124">카피는 이렇게 재설계됐다</h2>
+            <h2 style="margin:0;font-size:15px;font-weight:800;color:#202124;display:flex;align-items:center;gap:8px">카피는 이렇게 재설계됐다<span class="mock-badge">데모 해설 — 실제 진단이 아닙니다</span></h2>
             <p style="margin:8px 0 0;font-size:12px;line-height:1.6;color:rgba(55,56,60,0.61)">자동 번역이 아니라 의도를 추출해 일본 고민 어휘·관례어로 다시 썼습니다. <span lang="ja">薬機法</span> 1차 스크리닝 통과분만 이미지에 들어갑니다.</p>
 
             <!-- 슬롯 카드: KR 원문 → 의도 → JP 재설계가 한눈에 읽히도록 위계를 준다 -->
@@ -307,7 +339,9 @@
             </details>
           </section>
 
-          <p style="margin:20px 0 0;font-size:11px;line-height:1.6;color:#B6B8BF">해설 데이터 출처: 파이프라인 ①~④단계 산출. <code style="font-family:ui-monospace,monospace;font-size:10.5px;background:#F1F1F3;border-radius:4px;padding:1px 4px">explanationJson</code>(styleReason·copySlots·krElementMap) 신설 제안 (08-data-flow §6 · 기획서 RESULT-02).</p>
+          <p style="margin:20px 0 0;font-size:11px;line-height:1.6;color:#B6B8BF">이 해설은 썸네일을 만드는 과정에서 자동으로 기록됩니다.</p>
+          <!-- 해설 데이터 출처(개발 참고): 파이프라인 ①~④단계 산출 → explanationJson(styleReason·copySlots·krElementMap) 신설 제안. 계약 정본 08-data-flow §6 · 기획서 RESULT-02 -->
+
         </div>
       </div>
       </div>
@@ -318,7 +352,38 @@
   </div>
 </div>
 
-<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* RESULT-01 1a · 입력 원본(Before) ↔ 생성 결과(After) 대등 병기 */
+.ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px) { .ba-grid { grid-template-columns: 1fr; } }
+.ba-figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ba-imgbox {
+  position: relative; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden;
+  border: 1px solid rgba(112,115,124,0.14); box-shadow: 0 1px 3px rgba(16,18,20,.04);
+  background: #F1F1F3;
+}
+.ba-cap { margin: 0; font-size: 12px; font-weight: 700; color: #70737C; text-align: center; }
+
+/* 목(mock) 모드 — Before는 "내가 올린 원본" placeholder, 해설엔 데모 배지 (스펙 §4 목 모드 계약) */
+.ba-mock-placeholder {
+  display: none; position: absolute; inset: 0; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 16px; text-align: center; background: #F1F1F3;
+  border: 1.5px dashed rgba(112,115,124,0.4); box-sizing: border-box;
+}
+.ba-mock-icon { font-size: 26px; }
+.ba-mock-label { font-size: 13px; font-weight: 800; color: #414245; }
+.ba-mock-sub { font-size: 11px; color: rgba(55,56,60,0.61); }
+.mock-badge {
+  display: none; align-items: center; height: 20px; padding: 0 9px; border-radius: 9999px;
+  background: #FFF6E5; color: #B96C00; font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+#viewResult.is-mock #mockBanner { display: flex; }
+#viewResult.is-mock #beforeImg { display: none; }
+#viewResult.is-mock .ba-mock-placeholder { display: flex; }
+#viewResult.is-mock .mock-badge { display: inline-flex; }
+</style>
 <script>
 /**
  * 결과 화면 상태 로직 (RESULT-00·06) — ?state=generating/failed 파싱,
@@ -414,13 +479,26 @@
     $('retryBtn').setAttribute('href', '1-home.html?prefill=example&tpl=' + encodeURIComponent(tpl) + '&platform=' + encodeURIComponent(pf));
   }
 
+  // ── 목(mock) 모드 토글 — 스펙 §4 목 모드 계약 1·2·3·4항을 #viewResult.is-mock 클래스 하나로 집행 ──
+  var DL_NAME_REAL = 'HARUON-공식샵신뢰배지형-라쿠텐공식샵.png';
+  var DL_NAME_MOCK = 'HARUON-공식샵신뢰배지형-라쿠텐공식샵-demo.png';
+  /** 결과 뷰를 실생성/목 모드로 전환한다 — 배너·Before placeholder·해설 배지·다운로드 파일명을 함께 바꾼다 */
+  function setMock(isMock) {
+    $('viewResult').classList.toggle('is-mock', isMock);
+    var name = isMock ? DL_NAME_MOCK : DL_NAME_REAL;
+    $('dlBtn').setAttribute('download', name);
+    $('dlFileCode').textContent = name;
+  }
+
   // ── 상태 결정: 스위처(강제·검토용) > 쿼리 ?state= > 기본 결과 뷰 ──
   document.querySelectorAll('.st-btn').forEach(function (b) {
     b.onclick = function () {
       var st = b.getAttribute('data-st');
       if (genTimer) { clearInterval(genTimer); genTimer = null; }
-      if (st === 'generating') { runGenerating(readJob() || { tpl: 'official', tplName: '공식샵 신뢰 배지형', platformName: '라쿠텐 공식샵' }); return; }
-      if (st === 'failed') { showFailed(readJob()); return; }
+      if (st === 'generating') { setMock(false); runGenerating(readJob() || { tpl: 'official', tplName: '공식샵 신뢰 배지형', platformName: '라쿠텐 공식샵' }); return; }
+      if (st === 'failed') { setMock(false); showFailed(readJob()); return; }
+      if (st === 'mock') { showOnly('viewResult'); setMock(true); return; }
+      setMock(false);
       showOnly('viewResult');
     };
   });

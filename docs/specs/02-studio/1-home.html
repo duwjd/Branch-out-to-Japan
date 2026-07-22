@@ -362,7 +362,7 @@
             <h2 style="margin:0;font-size:18px;font-weight:700;color:#202124">모델컷</h2>
             <span style="display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.4);color:#D93636;font-size:11.5px;font-weight:700">필수 — 모델+카피형</span>
           </div>
-          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61);text-wrap:pretty">브랜드가 보유한 모델 사진 1장을 올려 주세요. 얼굴이 가려지지 않고 조명이 고른 컷이 좋습니다.</p>
+          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61);text-wrap:pretty">브랜드가 가진 모델 사진 1장을 올려 주세요. 얼굴이 가려지지 않고 조명이 고른 컷이 좋습니다.</p>
 
           <!-- 드롭존 (업로드 전) -->
           <div id="mDropzone" tabindex="0" role="button" aria-label="모델컷 업로드 — 클릭하거나 파일을 끌어다 놓기"
@@ -393,8 +393,8 @@
 
           <!-- 처리 방식 고지 — 팩 F constraints 의 UI 표면화 -->
           <p style="margin:14px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty">
-            업로드한 모델컷을 <b style="font-weight:700;color:#414245">그대로</b> 씁니다. 얼굴을 새로 만들거나 이목구비를 바꾸지 않고, 조명·색만 조화시킵니다.
-            근거가 없으면 그 요소는 생성되지 않는다는 실적 배지와 같은 규칙입니다.
+            업로드한 모델컷을 <b style="font-weight:700;color:#414245">그대로</b> 씁니다. 얼굴을 새로 만들거나 이목구비를 바꾸지 않고, 조명·색만 자연스럽게 맞춥니다.
+            근거가 없으면 그 요소는 넣지 않는다는 실적 배지와 같은 규칙입니다.
           </p>
           <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty">
             모델컷이 없다면 <b style="font-weight:700;color:#414245">텍스처 스와치·캐치카피+성분 비주얼형</b>을 권합니다. 인물 없이도 색조·제형을 보여 줄 수 있습니다.
@@ -409,7 +409,7 @@
               <h2 style="margin:0;font-size:16px;font-weight:700;color:#202124">랭킹·수상 실적이 있다면 추가하세요</h2>
               <span id="proofReq" style="display:none;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.4);color:#D93636;font-size:11.5px;font-weight:700">필수 — 수상 실적 스택형</span>
               <span style="margin-left:auto;font-size:12px;color:#B6B8BF" aria-hidden="true">펼치기 ▾</span>
-              <span style="flex-basis:100%;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">근거가 없으면 배지는 생성되지 않습니다. 이것이 기본값입니다.</span>
+              <span style="flex-basis:100%;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">근거가 없으면 배지를 넣지 않습니다. 이게 기본값입니다.</span>
             </summary>
             <div style="padding:0 32px 28px;border-top:1px solid #EBEBEB">
               <div class="rwrap" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:20px">
@@ -444,7 +444,7 @@
               <h2 style="margin:0;font-size:16px;font-weight:700;color:#202124">이번 프로모션 내용을 입력하세요</h2>
               <span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.4);color:#D93636;font-size:11.5px;font-weight:700">필수 — 프로모션 강조형</span>
               <span style="margin-left:auto;font-size:12px;color:#B6B8BF" aria-hidden="true">접기 ▴</span>
-              <span style="flex-basis:100%;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">입력한 가격·특전만 그대로 들어갑니다. 입력하지 않은 문구는 생성되지 않습니다.</span>
+              <span style="flex-basis:100%;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">입력한 가격·특전만 그대로 들어갑니다. 입력하지 않은 문구는 만들지 않습니다.</span>
             </summary>
             <div style="padding:0 32px 28px;border-top:1px solid #EBEBEB">
               <div class="rwrap" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px">
@@ -474,7 +474,7 @@
                     <input id="pm-discount" lang="ja" placeholder="예: 最大59%オフ" class="f-input" style="width:100%;height:44px;padding:0 12px;border:1px solid rgba(112,115,124,0.28);border-radius:10px;font-size:13.5px;color:#202124;background:#fff;outline:none;box-sizing:border-box;font-family:inherit" />
                   </div>
                 </div>
-                <p style="margin:12px 0 0;font-size:12px;line-height:1.6;color:#B96C00">통상가를 함께 보여 주려면 그 가격에 실제 판매한 기간이 있어야 합니다. 확인 없이 붙이는 취소선 가격은 <span lang="ja">有利誤認</span> 리스크가 있습니다.</p>
+                <p style="margin:12px 0 0;font-size:12px;line-height:1.6;color:#B96C00">통상가를 함께 보여 주려면 그 가격으로 실제 판매한 기간이 있어야 합니다. 확인 없이 붙이는 취소선 가격은 <span lang="ja">有利誤認</span> 리스크가 있습니다.</p>
               </div>
 
               <div class="rwrap" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px">
@@ -494,14 +494,14 @@
 
               <p id="promoPartial" style="display:none;margin:14px 0 0;font-size:12.5px;font-weight:600;color:#B96C00">세트명과 판매가가 모두 있어야 생성할 수 있습니다.</p>
               <p id="promoNormalWarn" style="display:none;margin:10px 0 0;font-size:12.5px;font-weight:600;color:#B96C00">실제 판매 실적 확인에 체크해야 통상가가 들어갑니다.</p>
-              <p style="margin:14px 0 0;font-size:12px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty">입력한 가격·특전만 그대로 들어갑니다. <span lang="ja">「今だけ」「残りわずか」</span> 같은 긴박 문구는 입력하지 않으면 생성되지 않습니다. 가격·할인율·증정은 법적 구속력이 있는 오퍼 조건이라 자단위로 렌더됩니다.</p>
+              <p style="margin:14px 0 0;font-size:12px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty">입력한 가격·특전만 그대로 들어갑니다. <span lang="ja">「今だけ」「残りわずか」</span> 같은 긴박 문구는 입력하지 않으면 넣지 않습니다. 가격·할인율·증정은 법적 구속력이 있는 오퍼 조건이라 자단위로 렌더됩니다.</p>
             </div>
           </details>
         </section>
 
         <!-- HOME-06 · 재설계 고지 + 제출 -->
         <div style="margin-top:24px;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);border-radius:14px;padding:18px 20px">
-          <p style="margin:0;font-size:13px;line-height:1.7;color:#414245;text-wrap:pretty"><b style="color:#D93636">일본어 카피는 자동 번역이 아닙니다.</b> 한국 카피의 의도를 추출해 일본 고민 어휘·관례어로 재설계하고, <span lang="ja">薬機法</span> 1차 스크리닝을 통과한 문구만 이미지에 들어갑니다.</p>
+          <p style="margin:0;font-size:13px;line-height:1.7;color:#414245;text-wrap:pretty"><b style="color:#D93636">일본어 카피는 자동 번역이 아닙니다.</b> 한국 카피의 의도를 읽어 일본 고민 어휘·관례어로 다시 설계하고, <span lang="ja">薬機法</span> 1차 스크리닝을 통과한 문구만 이미지에 들어갑니다.</p>
           <p style="margin:8px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">「쿨톤 치트키」 → <span lang="ja" style="font-weight:700;color:#202124">「白浮きしない、透け感トーンアップUV」</span> <span style="display:inline-flex;height:18px;align-items:center;padding:0 7px;border-radius:9999px;background:#F1F1F3;color:#70737C;font-size:10.5px;font-weight:700;vertical-align:1px">예시</span></p>
         </div>
 

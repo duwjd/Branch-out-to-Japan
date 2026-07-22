@@ -49,7 +49,7 @@
   <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">① 진단 리포트 · 인터랙티브 프로토타입</p>
   <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.25;letter-spacing:-0.02em;color:#202124">일본 시장 진입 진단 리포트 — 화면 흐름</h1>
   <p style="margin:14px 0 0;max-width:760px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">
-    Claude Design v2 디자인을 <b>동작하는 프로토타입</b>으로 이식했습니다. 입력 → 처리 → 리포트(5탭) → 보고용 슬라이드까지 실제로 클릭됩니다.
+    Claude Design v2 디자인을 <b>동작하는 프로토타입</b>으로 이식했습니다. 입력 → 처리 → 리포트(상단 고정 요약 + 3탭) → 보고용 슬라이드까지 실제로 클릭됩니다.
     각 노드를 눌러 화면으로 이동하거나, 상단 <b>입력 시작</b>에서 처음부터 체험하세요.
   </p>
 
@@ -65,42 +65,41 @@
       <a class="flow-node" href="1-input.html">
         <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">1 · 입력</span>
         <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">진단 입력</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">브랜드(필수)·제품(선택)·콘텐츠 게이팅. “예시 채우기”로 바로 체험.</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">브랜드(필수)·제품(선택)·이미지 업로드(권장)/텍스트 게이팅. “예시 채우기”로 바로 체험.</p>
       </a>
       <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
       <a class="flow-node" href="2-process.html">
         <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">2 · 처리</span>
         <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">진단 처리</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">7단계 파이프라인 애니메이션. 파이프라인 성공 = 발행.</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">8단계 파이프라인 애니메이션(이미지 추출 포함). 파이프라인 성공 = 발행.</p>
       </a>
       <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
       <a class="flow-node" href="3-report.html">
         <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">3 · 리포트</span>
         <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">리포트 열람</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">5탭 · 점수 도넛 · 슬라이드 내보내기.</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">상단 고정 요약(표지+진단 요약) · 3탭 · 슬라이드 내보내기.</p>
       </a>
     </div>
   </section>
 
-  <!-- ── 리포트 5탭 ↔ 블록 매핑 ──────────────────────── -->
+  <!-- ── 리포트 구조: 상단 고정 + 3탭 하이브리드 ─────── -->
   <section style="margin-top:44px">
-    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">리포트 5탭 ↔ 블록 매핑</h2>
-    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">v2는 8블록을 5탭으로 묶어 보여줍니다. <b>블록 번호(blocksJson ID)·채점 산식·LLM 콜 계약은 불변</b>이며 표시 순서·라벨만 재배열했습니다(REPORT-14). 화면 라벨은 전부 평문이며 A~E·K1~K11 내부 코드는 노출하지 않습니다.</p>
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">리포트 구조 — 상단 고정 + 3탭 하이브리드</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">표지(블록 0)와 진단 요약 헤더(블록 1: 종합점수·신뢰 배지·총평·최우선 재설계 Top 3)는 탭과 무관하게 항상 상단에 고정되고, 본문은 <b>시장 → 진단 → 처방</b> 3탭으로 나뉩니다(2026-07-22, 구 5탭 단일 스크롤 대체 — 결론이 항상 첫 화면에 있어 결재자 동선이 짧아짐). <b>블록 번호(blocksJson ID)·채점 산식·LLM 콜 계약은 불변</b>이며 표시 구조·라벨만 재편했습니다(REPORT-14). 화면 라벨은 전부 평문이며 A~E·K1~K11 내부 코드는 노출하지 않습니다.</p>
     <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;box-shadow:0 1px 3px rgba(16,18,20,.04);overflow:hidden">
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;min-width:620px;font-size:13px">
           <thead>
             <tr style="background:#FAFAFB;text-align:left;color:rgba(55,56,60,0.61)">
-              <th style="padding:12px 16px;font-weight:700;width:180px">탭</th>
-              <th style="padding:12px 16px;font-weight:700">구성 블록</th>
+              <th style="padding:12px 16px;font-weight:700;width:180px">위치</th>
+              <th style="padding:12px 16px;font-weight:700">구성 블록 (표시 순서)</th>
             </tr>
           </thead>
           <tbody style="color:#414245">
-            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">1</span> · 진단 요약</td><td style="padding:12px 16px">블록 1(종합 점수 0~100): 점수 도넛·레이더·최우선 재설계 Top 3</td></tr>
-            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">2</span> · 일본 시장</td><td style="padding:12px 16px">시장 브리핑(블록 없음 · 정적 · LLM 무관): 관례 실물·썸네일 분포·유행어·반면교사</td></tr>
-            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">3</span> · 리스크 진단</td><td style="padding:12px 16px">블록 4(벤치마크) · 블록 3(<span lang="ja">薬機法</span> 전수 감사 ①~⑪) · 블록 5(루브릭 점수)</td></tr>
-            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">4</span> · 고객·전략</td><td style="padding:12px 16px">블록 2(페르소나·구매여정·USP) · 블록 6(정보 공백 → 이탈 경로)</td></tr>
-            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">5</span> · 처방·다음 단계</td><td style="padding:12px 16px">블록 7(Before/After 재설계) · 블록 8(맺음·고정가·규정 출처·한계)</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124">상단 고정<br /><span style="font-weight:400;color:rgba(55,56,60,0.61);font-size:11.5px">탭 무관 상시 노출</span></td><td style="padding:12px 16px">블록 0(품의용 요약 표지) → 블록 1(진단 요약 헤더: 종합점수·신뢰 배지·총평·최우선 재설계 Top 3)</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">탭</span> · 시장</td><td style="padding:12px 16px">시장 브리핑(블록 번호 없음 · 사전집계·정적 자산 · LLM 무관): 관례 실물 카드·썸네일 스타일 갤러리·SNS·검색 유행어</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">탭</span> · 진단</td><td style="padding:12px 16px">블록 4(카테고리 경쟁 벤치마크) → 블록 2(페르소나·구매여정·USP 재정의) → 블록 3(<span lang="ja">薬機法</span> 전수 감사 ①~⑪) → 블록 5(루브릭 점수) → 블록 6(정보 공백 → 이탈 경로)</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px;font-weight:700;color:#202124"><span style="color:#D93636">탭</span> · 처방</td><td style="padding:12px 16px">블록 7(Before/After 재설계) → 블록 8(맺음·고정가·규정 출처·한계) → 닫는 실행 밴드(가입 CTA·실물 재설계 예시)</td></tr>
           </tbody>
         </table>
       </div>
@@ -113,7 +112,7 @@
     <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)"><code style="font-family:ui-monospace,monospace;font-size:12px;background:#F1F1F3;border-radius:4px;padding:1px 5px">08-data-flow §3.3</code>. 화면은 상태를 그리는 껍데기입니다. 터미널 상태는 <b>published · failed</b> 2개이며, 도달하면 폴링이 멈춥니다.</p>
     <div class="rwrap" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
       <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">submitted</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">제출됨</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">요청 생성 직후. 처리 로딩으로.</p></div>
-      <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">processing</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">처리 중</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">7단계 진행. 2.5초 폴링.</p></div>
+      <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">processing</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">처리 중</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">8단계 진행(이미지 추출 포함). 2.5초 폴링.</p></div>
       <div style="background:#fff;border:1px solid rgba(0,185,124,.35);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#00875A">published ○</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">발행 완료</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">파이프라인 성공 = 발행(사람 관여 0).</p></div>
       <div style="background:#fff;border:1px solid rgba(240,72,60,.35);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#C6362C">failed ✕</span><h3 style="margin:8px 0 4px;font-size:14.5px;font-weight:700;color:#202124">처리 실패</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">콜② 감사 실패 = 잡 실패. 발행 안 함.</p></div>
     </div>
