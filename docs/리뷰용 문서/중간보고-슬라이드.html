@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japan Growth Studio — 중간보고 (2026-07-11)</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* ============================================================
+   Japan Growth Studio 중간보고 덱
+   디자인 시스템: design/references/stibee-design.md 토큰 그대로 적용
+   (코랄 #ff6464 단일 액션 · Pretendard 단일 서체 · 무그림자 · 헤어라인 분리)
+   ============================================================ */
+:root{
+  --coral:#ff6464; --coral-strong:#d93636; --coral-tint:#fff8f8;
+  --ink:#202124; --body:#414245; --muted:#606165; --muted-alt:#747579;
+  --canvas:#ffffff; --surface:#f6f6f6; --surface-alt:#ebebeb; --hairline:#d9d9d9;
+  --ng:#d93636; --cond:#c77700; --ok:#1e6b43;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--surface); color:var(--ink);
+  font-family:"Pretendard Variable",Pretendard,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif;
+  font-size:16px; line-height:1.5; overflow:hidden;
+}
+/* ---- 덱 프레임 (16:9 레터박스) ---- */
+.deck{position:absolute;inset:0;margin:auto;width:100vw;height:100vh;
+  max-width:calc(100vh*16/9);max-height:calc(100vw*9/16);background:var(--canvas);overflow:hidden}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;
+  padding:clamp(24px,4.5vh,48px) clamp(28px,5vw,64px);background:var(--canvas)}
+.slide.active{display:flex}
+/* 세로 균형: 남는 높이를 위 1 : 아래 2로 배분. 넘치면 0으로 줄어 스크롤 안전 */
+.slide-body{flex:1;min-height:0;overflow-y:auto;padding-right:4px;display:flex;flex-direction:column}
+.slide-body>*{flex:0 0 auto}
+.slide-body::before{content:"";flex:1 1 0;max-height:11vh}
+.slide-body::after{content:"";flex:1.3 1.3 0}
+/* ---- 타이포 ---- */
+.kicker{color:var(--coral-strong);font-size:clamp(12px,1.6vh,14px);font-weight:600;letter-spacing:.06em;margin-bottom:6px}
+h1{font-size:clamp(30px,6.2vh,52px);font-weight:600;line-height:1.3;letter-spacing:-0.4px}
+h2{font-size:clamp(21px,3.6vh,30px);font-weight:600;line-height:1.35;letter-spacing:-0.2px;margin-bottom:clamp(10px,2vh,18px)}
+h3{font-size:clamp(14px,2vh,17px);font-weight:600;line-height:1.4}
+p,li,td,th{font-size:clamp(12.5px,1.85vh,15.5px);color:var(--body)}
+small,.fine{font-size:clamp(10.5px,1.5vh,12.5px);color:var(--muted-alt)}
+strong{color:var(--ink)}
+.lead{font-size:clamp(14px,2.2vh,18px);color:var(--muted)}
+/* ---- 공용 컴포넌트 (스티비: 무그림자·헤어라인·4/10px 라디우스) ---- */
+.card{background:var(--canvas);border:1px solid var(--surface-alt);border-radius:10px;padding:clamp(10px,1.8vh,18px)}
+.card-tint{background:var(--coral-tint);border-color:#ffd6d6}
+.card-grey{background:var(--surface);border-color:var(--surface)}
+.grid{display:grid;gap:clamp(8px,1.4vh,14px)}
+.cols2{grid-template-columns:1fr 1fr}.cols3{grid-template-columns:repeat(3,1fr)}.cols4{grid-template-columns:repeat(4,1fr)}
+table{width:100%;border-collapse:collapse}
+th{color:var(--ink);text-align:left;font-weight:600;border-bottom:1px solid var(--hairline);padding:6px 8px}
+td{border-bottom:1px solid var(--surface-alt);padding:6px 8px;vertical-align:top}
+tr:last-child td{border-bottom:none}
+.chip{display:inline-block;border:1px solid var(--surface-alt);border-radius:9999px;padding:1px 9px;
+  font-size:clamp(10px,1.45vh,12px);color:var(--muted);background:var(--canvas);white-space:nowrap}
+.chip-coral{color:var(--coral-strong);border-color:#ffd6d6;background:var(--coral-tint);font-weight:600}
+.stat-num{font-size:clamp(24px,4.6vh,40px);font-weight:600;color:var(--ink);letter-spacing:-0.4px;line-height:1.15;font-variant-numeric:tabular-nums}
+.stat-label{font-size:clamp(11px,1.6vh,13px);color:var(--muted);margin-top:2px}
+/* ---- 가로 막대 (얇은 마크 · 값 직접 표기) ---- */
+.bar-row{display:flex;align-items:center;gap:10px;margin:5px 0}
+.bar-row .bl{width:170px;flex:none;font-size:clamp(11px,1.7vh,13.5px);color:var(--body)}
+.bar-row .bt{flex:1;background:var(--surface);border-radius:4px;height:14px;overflow:hidden}
+.bar-row .bf{height:100%;background:var(--coral);border-radius:4px}
+.bar-row .bf.dim{background:#c9cacd}
+.bar-row .bf.grey{background:var(--muted-alt)}
+.bar-row .bv{width:70px;flex:none;text-align:right;font-variant-numeric:tabular-nums;font-size:clamp(11px,1.7vh,13.5px);color:var(--ink);font-weight:600}
+.axis-note{font-size:clamp(10px,1.45vh,12px);color:var(--muted-alt);margin-top:4px}
+/* ---- 100% 누적 막대 + 범례 ---- */
+.share-bar{display:flex;height:30px;gap:2px;border-radius:4px;overflow:hidden}
+.share-bar .seg{height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+.legend .key{display:inline-flex;align-items:center;gap:6px;font-size:clamp(11px,1.6vh,13px);color:var(--body)}
+.legend .dot{width:10px;height:10px;border-radius:2px;flex:none;border:1px solid rgba(0,0,0,.08)}
+/* ---- 플로우 ---- */
+.flow{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap}
+.flow .step{flex:1;min-width:90px;background:var(--surface);border-radius:10px;padding:8px 10px;text-align:center}
+.flow .step b{display:block;font-size:clamp(11px,1.7vh,13.5px);color:var(--ink)}
+.flow .step span{font-size:clamp(10px,1.45vh,12px);color:var(--muted)}
+.flow .step.llm{background:var(--coral-tint)}
+.flow .arr{align-self:center;color:var(--muted-alt);font-weight:600}
+/* ---- 9블록 스트립 (리포트 목차 = 실제 순서가 있는 시퀀스) ---- */
+.blocks{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.blocks .blk{background:var(--surface);border-radius:10px;padding:7px 10px}
+.blocks .blk .no{color:var(--coral-strong);font-weight:600;font-variant-numeric:tabular-nums;font-size:clamp(10px,1.5vh,12px)}
+.blocks .blk b{display:block;font-size:clamp(11px,1.65vh,13px);color:var(--ink);line-height:1.35}
+/* ---- 수집 이미지 스트립 ---- */
+.thumb-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.thumb-strip img{width:100%;aspect-ratio:1;object-fit:cover;border:1px solid var(--surface-alt);border-radius:10px;display:block}
+.thumb-strip figcaption{font-size:clamp(10px,1.45vh,12px);color:var(--muted);margin-top:4px;line-height:1.4}
+.footnote{border-top:1px solid var(--surface-alt);margin-top:clamp(8px,1.6vh,14px);padding-top:6px;padding-right:150px}
+.src{color:var(--muted-alt)}
+ul.tight{padding-left:1.15em}ul.tight li{margin:3px 0}
+.swatch{display:flex;align-items:center;gap:8px}
+.swatch .sq{width:26px;height:26px;border-radius:4px;border:1px solid var(--surface-alt);flex:none}
+.tagv{font-weight:600;color:var(--ink)}.tagv.p{color:var(--coral-strong)}
+.verd-ng{background:#fdecea;color:#a31f14;border-radius:4px;padding:0 6px;font-weight:600;font-size:.9em}
+.verd-ok{background:#e8f6ee;color:#1e6b43;border-radius:4px;padding:0 6px;font-weight:600;font-size:.9em}
+/* 가설 상태 표기 (색+텍스트 병기, 색 단독 전달 금지) */
+.st{border-radius:9999px;padding:1px 8px;font-size:clamp(10px,1.45vh,12px);font-weight:600;white-space:nowrap}
+.st-v{background:#e8f6ee;color:#1e6b43}.st-p{background:#fdf3e0;color:#8a5a00}.st-x{background:var(--surface);color:var(--muted)}
+/* ---- 내비 (우하단 · 출처 각주와 겹치지 않게) ---- */
+.navbar{position:fixed;bottom:14px;right:16px;display:flex;align-items:center;gap:12px;z-index:100;
+  background:rgba(255,255,255,.92);border:1px solid var(--surface-alt);border-radius:9999px;padding:6px 14px}
+.nav-btn{background:var(--coral);color:#fff;border:none;width:34px;height:34px;border-radius:4px;cursor:pointer;font-size:16px;font-weight:600}
+.nav-btn:hover{background:var(--coral-strong)}
+.nav-btn:focus-visible{outline:2px solid var(--coral-strong);outline-offset:2px}
+.counter{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:64px;text-align:center}
+.progress{position:fixed;top:0;left:0;height:3px;width:100%;background:var(--coral);z-index:100;
+  transform-origin:left;transform:scaleX(0);transition:transform .2s}
+@media (prefers-reduced-motion: reduce){.progress{transition:none}}
+/* ---- 인쇄: 전 슬라이드 세로 나열 ---- */
+@media print{
+  body{overflow:visible;background:#fff}
+  .deck{position:static;max-width:none;max-height:none;width:auto;height:auto}
+  .slide{display:flex !important;position:relative;inset:auto;page-break-after:always;height:100vh}
+  .slide-body{overflow:visible}
+  .navbar,.progress{display:none}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+<!-- ═══════════ 1. 표지 ═══════════ -->
+<section class="slide active" aria-label="표지">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+    <p class="kicker">중간보고 · 2026-07-11</p>
+    <h1>Japan Growth Studio</h1>
+    <p class="lead" style="margin-top:14px;max-width:34em">
+      번역이 아니라, <strong style="color:var(--coral-strong)">일본 고객 관점에서 메시지를 다시 설계</strong>합니다.<br>
+      일본 진출을 준비하는 뷰티 중소기업을 위한 진단 · 콘텐츠 제작 · 운영 도구입니다.
+    </p>
+    <div style="margin-top:26px;display:flex;gap:8px;flex-wrap:wrap">
+      <span class="chip">① 진단 리포트</span><span class="chip">② 마케팅 스튜디오</span><span class="chip">③ 운영</span>
+      <span class="chip chip-coral">프로토타입 실동 검증 완료</span>
+    </div>
+  </div>
+  <p class="fine">이너서클 · 일본확장 MVP (팀 내부 리뷰용)</p>
+</section>
+
+<!-- ═══════════ 2. 목차 ═══════════ -->
+<section class="slide" aria-label="목차">
+  <p class="kicker">Agenda</p>
+  <h2>오늘 보고 드릴 내용</h2>
+  <div class="slide-body">
+    <div class="grid cols3">
+      <div class="card"><h3>1 · 주제 선정</h3><p>어떤 문제를, 누구를 위해, 무엇으로</p></div>
+      <div class="card"><h3>2 · 시장 조사</h3><p>수치로 본 기회와 경쟁 지형, 수익 구조</p></div>
+      <div class="card"><h3>3 · 리서치</h3><p>웹 검증 2건과 실측 수집 2건</p></div>
+      <div class="card"><h3>4 · 페르소나 시뮬레이션</h3><p>가설 검증 계획, 20인 설계, 146회 반응</p></div>
+      <div class="card"><h3>5 · 서비스 개요</h3><p>MVP 3축: 진단 · 스튜디오 · 운영</p></div>
+      <div class="card"><h3>6 · 서비스 IA</h3><p>화면 위계와 순환 구조</p></div>
+      <div class="card"><h3>7 · 디자인 시스템</h3><p>스티비 레퍼런스 기반 토큰</p></div>
+      <div class="card"><h3>8 · 생성 테스트</h3><p>데이터 수집과 실물, 리포트 실동, 썸네일 변환</p></div>
+      <div class="card"><h3>9 · 앞으로의 계획</h3><p>스프린트 일정과 남은 과제</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 3. 주제 선정 ═══════════ -->
+<section class="slide" aria-label="주제 선정">
+  <p class="kicker">1 · 주제 선정</p>
+  <h2>번역만으로는 일본에서 팔리지 않는다</h2>
+  <div class="slide-body">
+    <div class="grid cols2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:8px">타깃이 겪는 문제 <span class="chip">외부 리서치로 확인</span></h3>
+        <div class="grid" style="grid-template-columns:1fr">
+          <div class="card"><strong>P1.</strong> 번역만으로는 통하지 않는다. 한국과 일본은 신뢰를 쌓는 장치와 소구 구조 자체가 다르다</div>
+          <div class="card"><strong>P2.</strong> 薬機法 표현 위반의 책임을 <strong>브랜드가 진다</strong>. 위반하면 해당 기간 매출의 4.5%가 과징금이다</div>
+          <div class="card"><strong>P3.</strong> 아마존 · 라쿠텐 · Qoo10마다 통하는 썸네일과 상세의 문법이 제각각이라, 채널마다 콘텐츠를 새로 만들어야 한다</div>
+          <div class="card"><strong>P4.</strong> 일본향 콘텐츠를 만들 손도, 감도 부족하다</div>
+        </div>
+      </div>
+      <div>
+        <div class="card card-tint" style="margin-bottom:10px">
+          <h3>우리의 답: 한 줄 정의</h3>
+          <p style="margin-top:6px">한국 뷰티 브랜드의 상세페이지 · SNS · 광고 문구를 <strong>일본 고객 관점으로 진단</strong>하고,
+          일본향 카피 · 콘텐츠 · 운영을 한곳에서 다루는 내부 운영 툴을 만든다.</p>
+        </div>
+        <div class="card card-grey">
+          <h3>일부러 하지 않는 것</h3>
+          <p style="margin-top:6px">AI 광고영상 생성, 쇼츠 자동변환, 채널 분석기, 예약 발행툴, 단순 번역, 종합 대행.
+          여섯 영역 모두 강한 경쟁사가 있는 범용 시장이다. 우리는 <strong>일본 고객 관점의 재설계가 들어간 지점</strong>만 가져간다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="fine footnote src">근거: docs/06-유저니즈-비즈니스-가설 §4(린 캔버스 문제 정의) · docs/00-positioning</p>
+</section>
+
+<!-- ═══════════ 4. 타겟 고객 ═══════════ -->
+<section class="slide" aria-label="타겟 고객">
+  <p class="kicker">1 · 주제 선정 — 타겟 고객</p>
+  <h2>일본 시장에 진출하고 싶은 <span style="color:var(--coral-strong)">뷰티 중소기업</span></h2>
+  <div class="slide-body">
+    <p class="lead" style="margin-bottom:12px">핵심 타깃은 <strong>3~15인 규모 인디 코스메틱 브랜드의 마케터 겸 대표</strong>.
+    일본어 번역은 할 수 있지만, 일본 고객에게 먹히는 표현은 모르는 사람들이다.</p>
+    <table>
+      <thead><tr><th style="width:19%">세그먼트</th><th>상황과 핵심 페인</th><th style="width:23%">우선순위</th></tr></thead>
+      <tbody>
+        <tr><td><strong>S1</strong> 입점 준비/직전</td><td>"대행사에 큰돈 쓰기 전에, 내 콘텐츠가 통할지 확인하고 뭘 고칠지 알고 싶다"</td><td><span class="chip chip-coral">1차 타깃</span></td></tr>
+        <tr><td><strong>S2</strong> 운영중 · 정체</td><td>"입점은 했는데 매출이 제자리다. 무엇부터 고쳐야 할지 모르겠다"</td><td><span class="chip">지불 여력 최대</span></td></tr>
+        <tr><td><strong>S3</strong> 리소스 부재 · 위임형</td><td>"내가 배우거나 조작하지 않아도, 쓸 수 있는 결과물이 도착하면 좋겠다"</td><td><span class="chip">배달형 경로 제공</span></td></tr>
+        <tr><td><strong>S4</strong> 규제 민감</td><td>"효능 문구가 위반인지 문구가 생길 때마다 바로 확인하고, 안전한 대체 표현을 받고 싶다"</td><td><span class="chip">약기법 진입점</span></td></tr>
+      </tbody>
+    </table>
+    <div class="card card-grey" style="margin-top:10px">
+      <p><strong>품의형 구매자가 많다.</strong> 결정권자가 아니라 상사에게 결재를 올리는 담당자가 다수라서,
+      상사에게 그대로 낼 수 있는 품의용 표지와 고정가, PDF가 전환 장치가 된다.</p>
+    </div>
+  </div>
+  <p class="fine footnote src">근거: docs/07-ia §3(세그먼트 표) · docs/06-유저니즈 §2(JTBD). 세그먼트 정의는 정성 기준이며, 타깃 모수 정량화는 후속 리서치 과제</p>
+</section>
+
+<!-- ═══════════ 5. 문제 → 해결 매핑 ═══════════ -->
+<section class="slide" aria-label="문제 해결 매핑">
+  <p class="kicker">1 · 주제 선정 — 문제와 해결</p>
+  <h2>어떤 문제를, 무엇으로, 왜 해결되는가</h2>
+  <div class="slide-body">
+    <table>
+      <thead><tr><th style="width:26%">타깃의 문제</th><th style="width:30%">우리가 해결하는 것</th><th>왜 도움이 되는가</th></tr></thead>
+      <tbody>
+        <tr><td>"통할지 모르겠다" (S1)</td><td><strong>① 진단 리포트</strong>: 일본 문법 진단 점수 + Before/After 재작성</td><td>재설계를 측정 가능한 점수와 문장으로 보여준다. 대행 견적보다 싸고 빠른 사전 판단</td></tr>
+        <tr><td>"위반인지 즉시 알고 싶다" (S4)</td><td><strong>① 약기법 전수 감사</strong>: 문장별 판정 + 조항 각주 + 합법 대체표현</td><td>과징금(매출 4.5%)은 브랜드 책임이라 보험 가치가 있다. 판정 근거가 법 조항이라 신뢰를 얻기 쉽다</td></tr>
+        <tr><td>"만들 손이 없다" (S1·S3)</td><td><strong>② 마케팅 스튜디오</strong>: 일본 문법 템플릿을 내장한 생성, 초안이 도착하는 배달형</td><td>일본 콘텐츠 문법은 정형화되어 있어 템플릿으로 만들 수 있다. 에이전시 업무 중 규칙 기반 부분만 SW로 옮긴다</td></tr>
+        <tr><td>"입점 후 매출이 제자리다" (S2)</td><td><strong>① S2 재진단 리포트 + ③ 시즌 캘린더 기획</strong></td><td>메가와리 등 연 4회 시즌이 반복되어, 시즌마다 기획 수요가 다시 생긴다</td></tr>
+      </tbody>
+    </table>
+    <div class="grid cols2" style="margin-top:10px">
+      <div class="card card-grey">
+        <h3>진단의 근거: KR→JP 갭 가설 7종 (라쿠텐 코퍼스 304건 실측)</h3>
+        <p style="margin-top:4px">근거 라벨 부재, 医薬部外品 등급 혼동, 프리처방(무첨가) 누락, ※조건 각주 문화 부재, 제3자 지표 전환, 성분 정량화, 카테고리 문법 미스매치.
+        전부 <strong>번역으로는 메워지지 않는 정보 구조의 차이</strong>다</p>
+      </div>
+      <div class="card">
+        <h3>해결하지 않는 것</h3>
+        <p style="margin-top:4px">물류·통관·인허가, 광고 집행 대행, "리뷰 대량 확보 보장"(스테마 규제 리스크). 처음 정한 금지 포지션 그대로다</p>
+      </div>
+    </div>
+  </div>
+  <p class="fine footnote src">근거: docs/06-유저니즈 §3(니즈와 해결 가치) · docs/research/jp-detail-message-patterns §3(갭 가설)</p>
+</section>
+
+<!-- ═══════════ 6. 시장 조사 — 수치 ═══════════ -->
+<section class="slide" aria-label="시장 조사 수치">
+  <p class="kicker">2 · 시장 조사</p>
+  <h2>K-뷰티는 일본 1위, 그러나 성장의 성격이 바뀌었다</h2>
+  <div class="slide-body">
+    <div class="grid cols4">
+      <div class="card"><div class="stat-num">$1.087B</div><div class="stat-label">한국 화장품 대일 수출(2025, +4.9%) · 일본은 3위 시장</div></div>
+      <div class="card"><div class="stat-num">30.8%</div><div class="stat-label">일본 수입 화장품 내 한국산 점유 · 4년 연속 1위</div></div>
+      <div class="card"><div class="stat-num">+8.3%</div><div class="stat-label">색조 수입 성장(29.54십억엔) · 스킨케어는 수입의 43.3%</div></div>
+      <div class="card"><div class="stat-num">6.9%</div><div class="stat-label">일본 크로스보더 이커머스 연평균 성장률 (’22→’30)</div></div>
+    </div>
+    <div class="grid cols2" style="margin-top:12px;align-items:stretch">
+      <div class="card card-tint">
+        <h3>대일 수출 증가율이 1년 만에 꺾였다</h3>
+        <div class="bar-row" style="margin-top:8px"><span class="bl">2024년</span><div class="bt"><div class="bf" style="width:100%"></div></div><span class="bv">+40%</span></div>
+        <div class="bar-row"><span class="bl">2025년</span><div class="bt"><div class="bf" style="width:14%"></div></div><span class="bv">+5.6%</span></div>
+        <p style="margin-top:8px">물량으로 크던 시대가 끝나고, 같은 시장 안에서 <strong>콘텐츠로 경쟁하는 단계</strong>에 들어섰다는 신호로 읽는다.
+        <span class="fine">(둔화를 재설계 수요로 읽는 것은 우리의 해석)</span></p>
+      </div>
+      <div class="card">
+        <h3>일본 수입 화장품 점유율 (금액 기준, 2025)</h3>
+        <div class="share-bar" style="margin-top:10px" role="img" aria-label="일본 수입 화장품 점유율: 한국 30.8%, 프랑스 22.8%, 기타 46.4%">
+          <div class="seg" style="width:30.8%;background:var(--coral)"></div>
+          <div class="seg" style="width:22.8%;background:var(--muted)"></div>
+          <div class="seg" style="width:46.4%;background:var(--surface-alt)"></div>
+        </div>
+        <div class="legend">
+          <span class="key"><span class="dot" style="background:var(--coral)"></span>한국 <strong>30.8%</strong></span>
+          <span class="key"><span class="dot" style="background:var(--muted)"></span>프랑스 22.8%</span>
+          <span class="key"><span class="dot" style="background:var(--surface-alt)"></span>기타 46.4%</span>
+        </div>
+        <p class="axis-note">한국 141.77십억엔, 4년 연속 1위</p>
+      </div>
+    </div>
+    <div class="grid cols2" style="margin-top:10px">
+      <div class="card card-grey"><p><strong>규제가 진입장벽이자 우리의 훅이다.</strong> 薬機法 위반 시 2년 이하 징역 또는 200만엔 이하 벌금에 더해, 위반 기간 매출의 4.5%가 과징금이다(2021 신설)</p></div>
+      <div class="card card-grey"><p><strong>판매 채널.</strong> Qoo10 Japan은 회원 2,500만 명의 일본 온라인 뷰티 1위 채널로, K-뷰티의 주력 판매처다</p></div>
+    </div>
+  </div>
+  <p class="fine footnote src">출처: docs/research/00_시장리서치_K뷰티_일본진출_지원서비스 §4 (2개 이상 소스로 교차 확인한 항목만 인용)</p>
+</section>
+
+<!-- ═══════════ 7. 시장 조사 — 경쟁 지형과 수익 구조 ═══════════ -->
+<section class="slide" aria-label="경쟁 지형과 수익 구조">
+  <p class="kicker">2 · 시장 조사 — 경쟁 지형과 수익 구조</p>
+  <h2>가격은 고정가: 무료 체커에서 구독까지</h2>
+  <div class="slide-body">
+    <div class="grid cols2" style="margin-bottom:12px">
+      <div class="card">
+        <div class="stat-num">$150M~300M<span style="font-size:.45em;color:var(--muted-alt)"> /년</span></div>
+        <div class="stat-label">SAM: 대일 수출 $1.09B × 운영·마케팅·규제 지출 15~30% <span class="chip" style="margin-left:4px">자체 추산</span></div>
+      </div>
+      <div class="card">
+        <div class="stat-num">$5M~15M</div>
+        <div class="stat-label">SW/SaaS 초기 SOM 추정 <span class="chip" style="margin-left:4px">자체 추산</span> · 산식과 전제는 리서치 문서에 공개</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th style="width:13%">단계</th><th style="width:17%">가격</th><th>상품</th><th style="width:26%">퍼널에서의 역할</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Free</strong></td><td>무료</td><td>약기법 간이 체커: 위반 표현 검출 + 조항 근거</td><td>즉시 가치 증명. "결과물 보고 판단하겠다"에 대한 정직한 답</td></tr>
+        <tr><td><strong>Report</strong></td><td><strong>30만 · 1회</strong></td><td>진단 리포트 + 실물 산출물(썸네일·상세)</td><td><span style="color:var(--coral-strong);font-weight:600">구독으로 넘어가는 관문</span>. 결과물을 먼저 확인하는 유료 체험</td></tr>
+        <tr><td><strong>Growth</strong></td><td>월 20만</td><td>일본향 콘텐츠 제작·운영 (월 15~30건)</td><td>첫 달에 진단비를 공제해 리포트에서 자연스럽게 이어지게 한다</td></tr>
+        <tr><td><strong>Scale</strong></td><td>월 80만</td><td>복수 채널 전담 + 상시 모니터링 + 일본 기업 매칭</td><td>볼륨과 전담으로 차별</td></tr>
+      </tbody>
+    </table>
+    <div class="grid cols2" style="margin-top:10px">
+      <div class="card card-tint">
+        <p><strong>우리가 파고드는 틈.</strong> 지원 서비스의 약 90%가 사람이 붙는 에이전시이고, 완제형 SW 툴은 거의 없다
+        (유일한 SW형 경쟁자 Beauty Intelligence는 성분 규제 시뮬레이터로, 메시지 재설계와는 다른 영역).
+        인플루언서 패키지 100만~500만엔, 운영대행 월 1~10만엔+성과 5~12%의 가격대 아래에 <strong>대행 전 30만 원 사전 진단</strong>의 빈자리가 있다</p>
+      </div>
+      <div class="card card-grey">
+        <p><strong>증거 원칙(이 덱에도 적용).</strong> 가상 스탯과 익명 사례는 쓰지 않는다. 신뢰 장치는 샘플 리포트 실물, 채점 기준 공개, 벤치마크 공개 세 가지.
+        약기법 표현 DB와 일본 문법 룰셋, 시즌 캘린더가 쌓이면 해자가 된다는 가설은 아직 미검증(H6 이후 장기 과제)</p>
+      </div>
+    </div>
+  </div>
+  <p class="fine footnote src">출처: docs/02-product-spec 커머셜 모델 · docs/06-유저니즈 §4 린 캔버스 · 시장리서치 §2(지원서비스 지형 ~50개 서비스) · §4(SAM/SOM 산식)</p>
+</section>
+
+<!-- ═══════════ 8. 리서치 ═══════════ -->
+<section class="slide" aria-label="리서치">
+  <p class="kicker">3 · 리서치</p>
+  <h2>네 갈래로 조사했다: 웹 검증 2건, 실측 수집 2건</h2>
+  <div class="slide-body">
+    <table style="margin-bottom:10px">
+      <thead><tr><th style="width:20%">리서치</th><th style="width:29%">규모</th><th style="width:24%">방법</th><th>산출물과 쓰임새</th></tr></thead>
+      <tbody>
+        <tr><td><strong>시장·지원서비스</strong></td><td>22개 소스 · 주장 77개 중 <strong>22건 확정</strong></td><td>웹서치 5갈래, 3차 교차 검증</td><td>시장 규모·경쟁 지형 (포지셔닝 근거)</td></tr>
+        <tr><td><strong>인스타그램 뷰티 콘텐츠</strong></td><td>22+35개 소스 · 주장 109개 중 <strong>21건 확정</strong></td><td>딥리서치 + 보완 3갈래(시즌·해시태그·트렌드)</td><td>저장 알고리즘·규제·시즌 (③ 운영 설계 근거)</td></tr>
+        <tr><td><strong>상세페이지 메시지 관례</strong></td><td>라쿠텐 상세 OCR 304건: 소구문 <strong>1,409</strong> · 신뢰배지 380 · 성분 267</td><td>코퍼스 구조화 후 신뢰 관례 역설계</td><td>KR→JP 갭 7종 (① 진단 루브릭 A~E)</td></tr>
+        <tr><td><strong>썸네일 스타일</strong></td><td>948장 수집 중 <strong>120장</strong> 층화 표본 라벨링</td><td>플랫폼×제품군 균등 표본을 직접 열람</td><td>스타일 8종 분류 (② 변환 프롬프트 팩)</td></tr>
+      </tbody>
+    </table>
+    <div class="grid cols2">
+      <div class="card card-tint">
+        <h3>인스타그램 리서치에서 확인한 것</h3>
+        <ul class="tight" style="margin-top:6px">
+          <li>인스타는 상품을 <strong>발견하고 저장해 두는 채널</strong>이다. 구매 여정의 입구이지, 그 자체로 파는 곳이 아니다</li>
+          <li>2025~26 알고리즘은 좋아요보다 <strong>저장을 우선</strong>한다. 저장률이 2~3%를 넘으면 발견탭 노출이 늘어난다</li>
+          <li>薬機法상 일반 화장품의 효능 표현은 <strong>56개 항목으로 제한</strong>된다. 「美白」 같은 표현은 SNS에서도 금지다</li>
+          <li>시즌 축: Qoo10 메가와리가 연 4회(3·6·9·11월) 돌아와 콘텐츠 캘린더의 기둥이 된다</li>
+        </ul>
+      </div>
+      <div class="card card-grey">
+        <h3>리서치 운영 원칙</h3>
+        <p style="margin-top:6px">웹 리서치는 주장 단위로 반박을 시도하는 검증을 거쳐, 2개 이상 소스로 교차 확인된 항목만 의사결정에 쓴다. 단일 소스는 표시해 구분한다.
+        실측 코퍼스는 표본이 라쿠텐에 치우친 점과 수집 시점을 문서에 명시했다.
+        네 조사의 산출물은 그대로 세 기능의 근거 데이터가 된다.</p>
+      </div>
+    </div>
+  </div>
+  <p class="fine footnote src">정본: docs/research/00_시장리서치 · beautyContent/일본_뷰티_인스타그램_컨텐츠_마케팅_리서치 · jp-detail-message-patterns(OCR 코퍼스, 현 312건으로 증보) · jp-thumbnail-style-taxonomy</p>
+</section>
+
+<!-- ═══════════ 9. 가설과 검증 계획 ═══════════ -->
+<section class="slide" aria-label="가설과 검증">
+  <p class="kicker">4 · 페르소나 시뮬레이션 — 기획 가설과 검증 단계</p>
+  <h2>가설과 검증 계획</h2>
+  <div class="slide-body">
+    <div class="flow" style="margin-bottom:12px">
+      <div class="step"><b>0차 · 합성 페르소나 시뮬</b><span>20인 × 146회 (완료)</span></div><div class="arr">→</div>
+      <div class="step"><b>기능 검증 빌드</b><span>실 LLM E2E (완료)</span></div><div class="arr">→</div>
+      <div class="step"><b>실고객 인터뷰 5~10명</b><span>가격·인식 검증 (병행 예정)</span></div><div class="arr">→</div>
+      <div class="step"><b>UT 8/1~3</b><span>실사용자 완주 관찰</span></div><div class="arr">→</div>
+      <div class="step"><b>베타 운영</b><span>발표 후 · 갱신률</span></div>
+    </div>
+    <table>
+      <thead><tr><th style="width:6%">#</th><th>핵심 가설</th><th style="width:19%">현재 상태</th><th style="width:29%">다음 검증 · 폐기 기준</th></tr></thead>
+      <tbody>
+        <tr><td><strong>H1</strong></td><td>Report 30만 원이 전환 관문이다 (Free에서 Report로 넘어오는 지점이 퍼널의 중심)</td><td><span class="st st-p">부분 신호 · 합성 17/20</span></td><td>실고객 인터뷰에서 지불 의사 0~1명이면 폐기</td></tr>
+        <tr><td><strong>H2</strong></td><td>약기법 체커가 가장 강한 무료 진입점이다 (즉시 가치 + 법 조항 근거)</td><td><span class="st st-p">훅 신호 · 규제 실재는 확인</span></td><td>체커 vs 체크리스트 A/B에서 전환 우위 없으면 폐기</td></tr>
+        <tr><td><strong>H3</strong></td><td>구독(Growth)의 갱신 근거는 시즌 캘린더다</td><td><span class="st st-x">미검증 (수요 반복성만 확인)</span></td><td>UT와 베타 1~3곳 갱신률. 1회 쓰고 이탈하면 폐기</td></tr>
+        <tr><td><strong>H4</strong></td><td>위임형(S3)은 "초안이 도착합니다" 전달 방식으로 잡을 수 있다</td><td><span class="st st-p">이탈 관찰 후 카피 반영</span></td><td>시뮬 점수 변화. 정체 시 별도 라인 검토</td></tr>
+        <tr><td><strong>H6</strong></td><td>진단의 신뢰는 채점 기준 공개와 샘플 실물로 만든다</td><td><span class="st st-p">부분 신호 · 시뮬 2차에서 확인</span></td><td>3차 시뮬에서도 2점대에 머물면 신뢰 장벽 재탐색</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="fine footnote src">정본: docs/06-유저니즈-비즈니스-가설 §5 가설 백로그(여기서는 주요 5건만 표시). 상태 표기: 검증 = 반복 관찰/외부 교차 · 부분 신호 = 합성 시뮬의 간접 신호 · 미검증 = 추론 단계</p>
+</section>
+
+<!-- ═══════════ 10. 페르소나 설정 과정 ═══════════ -->
+<section class="slide" aria-label="페르소나 설정 과정">
+  <p class="kicker">4 · 페르소나 시뮬레이션 — 페르소나 설정</p>
+  <h2>가상 페르소나 20인, 이렇게 설계했다</h2>
+  <div class="slide-body">
+    <div class="flow" style="margin-bottom:12px">
+      <div class="step"><b>시장 리서치 근거</b><span>스킨케어 수입 43.3% · 색조 +8.3% · 성장 둔화 신호</span></div><div class="arr">→</div>
+      <div class="step"><b>13축 정의</b><span>카테고리 · 규모 · 진출 단계 · 채널 · 예산 권한 · 가격 민감도 …</span></div><div class="arr">→</div>
+      <div class="step"><b>4 아키타입 배분</b><span>핵심 타깃 가중 + 회의적 대비군 포함</span></div><div class="arr">→</div>
+      <div class="step"><b>20인 인스턴스</b><span>축 간 상관을 지켜 모순 조합 배제</span></div>
+    </div>
+    <div class="grid cols2" style="align-items:start">
+      <div>
+        <table>
+          <thead><tr><th>아키타입</th><th style="width:22%">배분</th><th>핵심 상황</th></tr></thead>
+          <tbody>
+            <tr><td><strong>A</strong> 입점 직전 인디 대표</td><td><strong>×8</strong> <span class="chip chip-coral">핵심 타깃</span></td><td>3~15인, 대표가 마케팅 겸직, Qoo10 입점 준비</td></tr>
+            <tr><td><strong>B</strong> 정체 돌파 운영자</td><td>×6</td><td>입점 후 매출 정체, 지불 여력은 가장 크다</td></tr>
+            <tr><td><strong>C</strong> 콘텐츠 리소스 부재형</td><td>×4</td><td>채널은 늘었는데 만들 손이 없다, 위임 니즈</td></tr>
+            <tr><td><strong>D</strong> 신중한 첫 도전자</td><td>×2</td><td>정보만 수집하는 저구매의향 <strong>대비군</strong></td></tr>
+          </tbody>
+        </table>
+        <h3 style="margin:12px 0 4px">가격 수용선 분포 (20인)</h3>
+        <div class="bar-row"><span class="bl">30~50만 수용</span><div class="bt"><div class="bf" style="width:35%"></div></div><span class="bv">7/20</span></div>
+        <div class="bar-row"><span class="bl">100만까지</span><div class="bt"><div class="bf" style="width:30%"></div></div><span class="bv">6/20</span></div>
+        <div class="bar-row"><span class="bl">월 리테이너 가능</span><div class="bt"><div class="bf" style="width:25%"></div></div><span class="bv">5/20</span></div>
+        <div class="bar-row"><span class="bl">저가만</span><div class="bt"><div class="bf grey" style="width:10%"></div></div><span class="bv">2/20</span></div>
+        <p class="axis-note">수용선을 분산시켜 30만 원 관문(H1)의 반응 폭을 확보</p>
+      </div>
+      <div class="card">
+        <h3>왜 이렇게 잡았나</h3>
+        <ul class="tight" style="margin-top:8px">
+          <li><strong>왜 3~15인 인디 브랜드인가.</strong> 대행사를 쓸 예산은 없지만 일본 진출은 직접 부딪혀야 하는 층이라, 사전 진단과 초안 도구의 필요가 가장 크다</li>
+          <li><strong>왜 진출 단계로 나눴나.</strong> 같은 브랜드라도 입점 전과 운영 중의 고민이 전혀 다르다. 반응을 가장 크게 가르는 축이었다</li>
+          <li><strong>왜 회의적인 2인을 넣었나.</strong> 우호적인 페르소나만 모으면 결과가 좋게만 나온다. 구매 의향이 낮은 대비군으로 편향을 눌렀다</li>
+          <li><strong>왜 성별·연령이 없나.</strong> 인구통계는 반응을 예측하는 힘이 약해서 뺐다. 대신 진출 단계, 실패 경험, 리스크 우려 같은 행동 축으로 채웠다</li>
+          <li><strong>왜 가상 인물인가.</strong> 실제 고객 인터뷰 전에 문구 반응을 빠르게 살펴보는 0차 검증이다. 수치는 참고 신호로만 쓴다</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="fine footnote src">정본: persona-simulation/personas/persona-criteria.md(13축과 근거 매핑) · persona-instances.md(P01~P20 전체 정의). 대상은 대일 수출 뷰티 브랜드 세그먼트로 한정</p>
+</section>
+
+<!-- ═══════════ 11. 시뮬 방법 + 정량 결과 ═══════════ -->
+<section class="slide" aria-label="시뮬레이션 결과">
+  <p class="kicker">4 · 페르소나 시뮬레이션 — 방법과 결과</p>
+  <h2>20인에게 146회 반응을 물었다</h2>
+  <div class="slide-body">
+    <div class="grid cols4" style="margin-bottom:12px">
+      <div class="card"><div class="stat-num">100회</div><div class="stat-label">1차: 히어로 5안(A~E) × 20인, 안마다 완전 분리 노출</div></div>
+      <div class="card"><div class="stat-num">20회</div><div class="stat-label">2차: 개선 단일안(v3) × 20인 · 평균 2.63/5</div></div>
+      <div class="card"><div class="stat-num">6인</div><div class="stat-label">진단 리포트 샘플 통독: <strong>6/6 "조건부 결제 의향"</strong></div></div>
+      <div class="card"><div class="stat-num">4차</div><div class="stat-label">S2(입점 후) 재시뮬 누적: 리포트 후 구독 전환 확인</div></div>
+    </div>
+    <div class="grid cols2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:6px">1차 히어로 5안 가입 의향 (5점 만점)</h3>
+        <div class="bar-row"><span class="bl">E · 실무 대행형</span><div class="bt"><div class="bf" style="width:55%"></div></div><span class="bv">2.75</span></div>
+        <div class="bar-row"><span class="bl">C · 자동화 강조형</span><div class="bt"><div class="bf dim" style="width:51%"></div></div><span class="bv">2.55</span></div>
+        <div class="bar-row"><span class="bl">A · 문제 자극형</span><div class="bt"><div class="bf dim" style="width:50%"></div></div><span class="bv">2.50</span></div>
+        <div class="bar-row"><span class="bl">B · 결과 제안형</span><div class="bt"><div class="bf dim" style="width:50%"></div></div><span class="bv">2.50</span></div>
+        <div class="bar-row"><span class="bl">D · 리스크 감소형</span><div class="bt"><div class="bf dim" style="width:48%"></div></div><span class="bv">2.40</span></div>
+        <p class="axis-note">막대 길이는 5점 만점 기준. 산출물을 구체적으로 적은 E안이 가장 높았다</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:6px">2차(v3)에서 확인한 신호</h3>
+        <div class="bar-row"><span class="bl">Report 30만 "고려"</span><div class="bt"><div class="bf" style="width:85%"></div></div><span class="bv">17/20</span><span class="st st-p">H1</span></div>
+        <div class="bar-row"><span class="bl">Growth 월정액 "보류"</span><div class="bt"><div class="bf grey" style="width:100%"></div></div><span class="bv">20/20</span><span class="st st-x">H3</span></div>
+        <div class="bar-row"><span class="bl">Before/After가 가장 끌린 섹션</span><div class="bt"><div class="bf" style="width:60%"></div></div><span class="bv">12/20</span><span class="st st-p">H6</span></div>
+        <p class="axis-note">20인 만점 기준. 문제 공감은 얻었지만 4점 이상은 없었다</p>
+      </div>
+    </div>
+    <div class="card card-grey" style="margin-top:10px">
+      <p><strong>월정액 전원 보류를 뜯어보면</strong>, 저항의 원인은 금액이 아니라 결과물을 보기 전에 월정액부터 내야 하는 구조였다.
+      Report를 관문으로 두고 첫 달 진단비를 공제하는 구조로 고쳤더니, S2 재시뮬 4차에서 P11이 "구독 사인", P09가 "리포트 후 거의 간다"로 돌아섰다.</p>
+    </div>
+  </div>
+  <p class="fine footnote src">한계 고지: 합성 페르소나는 실제 고객이 아닌 0차 사전 검증이다. 실고객 인터뷰와 UT 전까지 모든 수치는 가설 신호로만 다룬다 (docs/research/simulations/ 4개 문서)</p>
+</section>
+
+<!-- ═══════════ 12. 시뮬 인사이트 ═══════════ -->
+<section class="slide" aria-label="시뮬레이션 인사이트">
+  <p class="kicker">4 · 페르소나 시뮬레이션 — 인사이트</p>
+  <h2>시뮬레이션이 설계를 바꾼 세 가지</h2>
+  <div class="slide-body">
+    <div class="grid cols2" style="align-items:start">
+      <div class="grid" style="grid-template-columns:1fr">
+        <div class="card"><strong>1. 검수자 실명이 최대 신뢰 블로커다.</strong> 검수자 자리가 비어 있으면 결제 직전에 멈춘다.
+        "실명 하나면 바로 지갑 연다"는 반응이 반복됐다. 실명 검수와 서명을 상품 구조에 넣었고, 정책 확정은 남은 과제다</div>
+        <div class="card"><strong>2. Before/After가 가장 잘 설득한다.</strong> 번역과 재설계의 차이를 문장 대 문장으로 보여주는 유일한 자산(12/20 최고 선호).
+        랜딩과 리포트 모두 앞쪽에 배치했다. 자기 카테고리 예시가 없으면 그 자리가 그대로 이탈 사유가 되는 것도 확인했다</div>
+        <div class="card"><strong>3. 30만 원은 관문이고, 월정액은 구조 문제다.</strong> "Report 먼저, 결과 보고, 구독 판단"의 경로를 20인 대부분이 스스로 그렸다.
+        요금을 낮추는 대신 첫 달 진단비 공제로 응답했다</div>
+      </div>
+      <div class="card card-tint">
+        <h3>반영 결과: 랜딩페이지 최종본</h3>
+        <p style="margin-top:6px"><code style="background:#fff;border:1px solid var(--surface-alt);border-radius:4px;padding:1px 6px;font-size:.9em">persona-simulation/landing/index.html</code></p>
+        <ul class="tight" style="margin-top:8px">
+          <li>요금표 재구성: Free / Report / Growth / Scale 고정가에 첫 달 공제를 명시</li>
+          <li>Before/After 카테고리 탭을 페이지 앞쪽으로 이동</li>
+          <li>Problem 섹션을 2트랙으로 분리 (입점 준비 S1 / 운영 정체 S2)</li>
+        </ul>
+        <p class="fine" style="margin-top:8px">이 최종본이 4차 재시뮬의 자극물이며, 기능 검증 빌드 랜딩(/)의 카피 정본이 됐다</p>
+      </div>
+    </div>
+  </div>
+  <p class="fine footnote src">근거: docs/research/simulations/시뮬레이션-리포트-2 §4 · handoff-s2-노션공유-2026-07-09</p>
+</section>
+
+<!-- ═══════════ 13. 서비스 개요 ═══════════ -->
+<section class="slide" aria-label="서비스 개요">
+  <p class="kicker">5 · 서비스 개요 — MVP 3축</p>
+  <h2>진단으로 시작해, 제작과 운영으로 이어진다</h2>
+  <div class="slide-body">
+    <div class="grid cols3" style="align-items:stretch">
+      <div class="card" style="border-color:var(--coral)">
+        <span class="chip chip-coral">① 진단 리포트 · 30만</span>
+        <h3 style="margin-top:8px">일본 시장 진입 진단</h3>
+        <ul class="tight" style="margin-top:6px">
+          <li>薬機法 표현 <strong>전수 감사</strong> (문장별 판정 + 조항 각주 + 합법 대체)</li>
+          <li>일본 문법 진단 점수 0~100 (A~E 루브릭, 기준 공개)</li>
+          <li>페르소나 · 구매여정 · USP 재정의</li>
+          <li>NG/OK 재작성 + 한국어 해설 병기</li>
+          <li>품의용 표지 + PDF</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="chip">② 마케팅 스튜디오 · 월 20만</span>
+        <h3 style="margin-top:8px">일본향 콘텐츠 제작</h3>
+        <ul class="tight" style="margin-top:6px">
+          <li>썸네일 일본향 변환 (스타일 8종 · 플랫폼별)</li>
+          <li>상세페이지 재구성 · 인스타 피드 초안</li>
+          <li>자산만 연결하면 초안이 도착하는 배달형</li>
+          <li>첫 달 진단비 공제로 리포트와 연결</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="chip">③ 운영 · 구독 내 확장</span>
+        <h3 style="margin-top:8px">시즌 운영과 확장</h3>
+        <ul class="tight" style="margin-top:6px">
+          <li>시즌 캘린더 기획 (메가와리 · 코프레 · UV)</li>
+          <li>브랜드 자산 라이브러리</li>
+          <li>일본 기업 매칭</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card card-grey" style="margin-top:12px">
+      <p><strong>축을 관통하는 공통 엔진.</strong> ①의 약기법 판정 엔진을 ②의 콘텐츠 검수 게이트가 다시 쓰고,
+      모든 산출물은 브랜드 프로필 하나에 쌓인다. 독립된 상품 세 개가 아니라 하나의 순환 구조다.</p>
+    </div>
+  </div>
+  <p class="fine footnote src">근거: docs/decisions/2026-07-04-상품-구조-구체화 · docs/02-product-spec</p>
+</section>
+
+<!-- ═══════════ 14. 서비스 IA ═══════════ -->
+<section class="slide" aria-label="서비스 IA">
+  <p class="kicker">6 · 서비스 IA</p>
+  <h2>리포트가 중심, 브랜드 프로필이 공통 축</h2>
+  <div class="slide-body">
+    <div class="flow" style="margin-bottom:12px">
+      <div class="step"><b>공개 영역</b><span>랜딩 · 무료 약기법 체커 · 샘플 리포트 · 요금</span></div><div class="arr">→</div>
+      <div class="step"><b>온보딩</b><span>브랜드 프로필 등록, 리포트 입력에 미리 채움</span></div><div class="arr">→</div>
+      <div class="step" style="background:var(--coral-tint)"><b>① 진단 리포트</b><span>티어 입력 · 9블록 뷰 · PDF</span></div><div class="arr">→</div>
+      <div class="step"><b>② 스튜디오</b><span>썸네일 · 상세 · 피드</span></div><div class="arr">→</div>
+      <div class="step"><b>③ 운영</b><span>자산 라이브러리 · 매칭</span></div>
+    </div>
+    <div class="grid cols2">
+      <div class="card">
+        <h3>신뢰를 만드는 세 원칙 (시뮬 반영)</h3>
+        <ul class="tight" style="margin-top:6px">
+          <li><strong>고정가.</strong> 다음 단계 가격을 리포트 안에 표로 노출해 견적 왕복을 없앤다</li>
+          <li><strong>사람 검수.</strong> 검수자 실명 서명이 있어야 발행된다</li>
+          <li><strong>실물 샘플.</strong> 가상 통계 대신 샘플 실물과 채점 기준을 공개한다</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>순환 구조</h3>
+        <ul class="tight" style="margin-top:6px">
+          <li>무료 체커 결과에서 리포트로 이어지는 업셀 링크</li>
+          <li>리포트 마지막 블록의 고정가 안내가 스튜디오로 연결</li>
+          <li>스튜디오에서 만든 자산은 운영 라이브러리에 자동 적재</li>
+          <li>약기법 판정 엔진은 ①과 ②가 공유</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="fine footnote src">정본: docs/07-ia (사이트맵 · 화면 인벤토리 · 유저 플로우) · 데이터 계약: docs/08-data-flow</p>
+</section>
+
+<!-- ═══════════ 15. 디자인 시스템 ═══════════ -->
+<section class="slide" aria-label="디자인 시스템">
+  <p class="kicker">7 · 디자인 시스템</p>
+  <h2>스티비 레퍼런스 기반: 코랄 하나로 말하는 무그림자 시스템</h2>
+  <div class="slide-body">
+    <div class="grid cols2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:8px">컬러 토큰 (실사이트 라이브 추출)</h3>
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px">
+          <div class="swatch"><span class="sq" style="background:#ff6464"></span><span><span class="tagv p">#ff6464</span><br><small>primary · 유일한 액션 컬러</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#fff8f8"></span><span><span class="tagv">#fff8f8</span><br><small>coral tint 서피스</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#202124"></span><span><span class="tagv">#202124</span><br><small>ink · 순검정 대신</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#414245"></span><span><span class="tagv">#414245</span><br><small>body, 이어서 #606165 · #747579</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#f6f6f6"></span><span><span class="tagv">#f6f6f6</span><br><small>surface · 섹션 분리</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#ebebeb"></span><span><span class="tagv">#ebebeb / #d9d9d9</span><br><small>헤어라인 (카드/필드)</small></span></div>
+        </div>
+        <h3 style="margin:14px 0 6px">타이포그래피</h3>
+        <p><strong>Pretendard Variable 단일 서체.</strong> 위계는 서체가 아니라 굵기로 만든다 (헤드라인 600 / 본문 400). 히어로 44px(-0.4px) · 섹션 42px · 본문 14px/1.5</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">네 가지 원칙</h3>
+        <div class="grid" style="grid-template-columns:1fr">
+          <div class="card"><strong>1. 코랄은 단일 액션.</strong> 기본 CTA, 아웃라인 스트로크, 인라인 링크에만 쓴다. 다음 단계가 항상 한 색으로 보인다</div>
+          <div class="card"><strong>2. 무그림자.</strong> 깊이는 틴트 서피스(#f6f6f6 · #fff8f8)와 헤어라인으로 만든다</div>
+          <div class="card"><strong>3. 부드러운 지오메트리.</strong> 버튼과 인풋 4px, 카드 10px. 필도 아니고 각도 아니게</div>
+          <div class="card"><strong>4. 접근성 정책.</strong> 코랄 배경에 작은 흰 글씨는 대비 미달(약 2.9:1)이라, 소형 요소는 <span class="tagv p">#d93636</span>을 쓴다</div>
+        </div>
+        <p class="fine" style="margin-top:10px">이 슬라이드 덱 자체가 위 토큰으로 만들어졌다. 화면 적용 규약: design/wireframes/public-onboarding-spec §0</p>
+      </div>
+    </div>
+  </div>
+  <p class="fine footnote src">정본: design/references/stibee-design.md (2026-06-17 라이브 추출) · design/DESIGN.md</p>
+</section>
+
+<!-- ═══════════ 16. 생성 테스트 — 데이터 수집 ═══════════ -->
+<section class="slide" aria-label="데이터 수집">
+  <p class="kicker">8 · 생성 테스트 — 데이터 수집</p>
+  <h2>무엇을 어떻게 모았나</h2>
+  <div class="slide-body">
+    <div class="flow" style="margin-bottom:10px">
+      <div class="step"><b>수집</b><span>라쿠텐 · Qoo10 · 아마존JP 크롤러 (Playwright)</span></div><div class="arr">→</div>
+      <div class="step llm"><b>구조화</b><span>Claude 비전 OCR: 소구문 · 성분 · 신뢰배지 추출</span></div><div class="arr">→</div>
+      <div class="step"><b>정제</b><span>렉시콘 빌드 · 스타일 라벨링</span></div><div class="arr">→</div>
+      <div class="step"><b>집계</b><span>카테고리별 사전집계 후 리포트 생성에 주입</span></div>
+    </div>
+    <div class="grid cols4" style="margin-bottom:10px">
+      <div class="card"><div class="stat-num">1,261</div><div class="stat-label">제품 이미지 메타 카탈로그 (썸네일 + 상세)</div></div>
+      <div class="card"><div class="stat-num">312</div><div class="stat-label">상세페이지 OCR: 스킨케어 90 · 메이크업 92 · 선케어 73 · 클렌징 57</div></div>
+      <div class="card"><div class="stat-num">101</div><div class="stat-label">일본 뷰티 검색·고민 어휘 렉시콘 (빈도 실측)</div></div>
+      <div class="card"><div class="stat-num">120</div><div class="stat-label">썸네일 스타일 라벨 (8종 분류 · 변환 프롬프트 팩)</div></div>
+    </div>
+    <h3 style="margin-bottom:6px">실제 수집 썸네일 (원본 파일 그대로)</h3>
+    <div class="thumb-strip">
+      <figure><img src="../../data/raw/product-thumbnails/rakuten/rakuten_anuajapan_anua00118.jpg" alt="라쿠텐 Anua 공식샵 썸네일. 베스트코스메 수상 배지와 쿠폰 밴드" loading="lazy"><figcaption>라쿠텐 · Anua 공식샵. 수상 배지 스택형</figcaption></figure>
+      <figure><img src="../../data/raw/product-thumbnails/rakuten/rakuten_hincejapan_turedimension_4balm.jpg" alt="라쿠텐 hince 썸네일. 모델 컷과 GIFT 인셋" loading="lazy"><figcaption>라쿠텐 · hince. 모델 + 카피형</figcaption></figure>
+      <figure><img src="../../data/raw/product-thumbnails/amazon-jp/amazon_B0BYHXVPW4.jpg" alt="아마존JP Dr.G 썸네일. 흰 배경에 한국어 카피가 그대로 남아 있음" loading="lazy"><figcaption>아마존JP · Dr.G. 흰 배경 규정형인데 <strong>카피가 한국어 그대로</strong>인 미변환 사례</figcaption></figure>
+      <figure><img src="../../data/raw/product-thumbnails/qoo10/qoo10_8365212734.jpg" alt="Qoo10 주름 패치 썸네일. 50% 할인 밴드와 GIFT 인셋" loading="lazy"><figcaption>Qoo10 · 할인 밴드 + GIFT. K뷰티 프로모 문법형</figcaption></figure>
+    </div>
+  </div>
+  <p class="fine footnote src">경로: data/raw/product-thumbnails/ · 수집 코드: scripts/crawl. 한계: 상세 코퍼스는 라쿠텐 단일 채널 표본, 채널 확장은 로드맵에 있음</p>
+</section>
+
+<!-- ═══════════ 17. 생성 테스트 — 수집 데이터 실물 ═══════════ -->
+<section class="slide" aria-label="수집 데이터 실물">
+  <p class="kicker">8 · 생성 테스트 — 수집 데이터 실물</p>
+  <h2>수집한 데이터는 이렇게 생겼다</h2>
+  <div class="slide-body">
+    <div class="grid" style="grid-template-columns:0.8fr 1.2fr;align-items:start">
+      <figure style="text-align:center">
+        <img src="../../data/raw/product-detail/rakuten/rakuten_tvert_352/2.jpg" alt="라쿠텐 Tout Vert 상세페이지 원본 이미지. 일본어 카피가 실린 제품 컷" style="max-width:100%;max-height:46vh;width:auto;border:1px solid var(--surface-alt);border-radius:10px" loading="lazy">
+        <figcaption class="fine" style="margin-top:4px">원본: 라쿠텐 Tout Vert 프레 화장수 상세 이미지 (rakuten_tvert_352/2.jpg)</figcaption>
+      </figure>
+      <div>
+        <div class="card" style="margin-bottom:10px">
+          <h3>왼쪽 이미지에서 OCR로 뽑아낸 것 <span class="chip">detail-ocr.jsonl 실제 레코드</span></h3>
+          <ul class="tight" style="margin-top:6px">
+            <li>소구문: <span lang="ja">「エイジング・保湿を叶える新タイプ登場」「大人毛穴*に、始まりの一滴」「なめらかな素肌へ」</span></li>
+            <li>신뢰배지: <span lang="ja">NEW</span> · 상품명 키워드: <span lang="ja">グリシルグリシン 6% · 楽天ベストコスメ2024 · 毛穴 · テカリ</span></li>
+            <li>카테고리: skincare · 원본 경로와 수집 일자 포함</li>
+          </ul>
+          <p class="fine" style="margin-top:6px"><span lang="ja">大人毛穴*</span>의 별표처럼, 조건을 각주로 한정하는 일본 관례가 원문에서 그대로 보인다</p>
+        </div>
+        <div class="card">
+          <h3>렉시콘 상위 어휘 (라쿠텐 상품명 실측 빈도)</h3>
+          <div class="bar-row" style="margin-top:6px"><span class="bl" lang="ja">保湿 (보습)</span><div class="bt"><div class="bf" style="width:100%"></div></div><span class="bv">209</span></div>
+          <div class="bar-row"><span class="bl" lang="ja">毛穴 (모공)</span><div class="bt"><div class="bf" style="width:89%"></div></div><span class="bv">186</span></div>
+          <div class="bar-row"><span class="bl" lang="ja">スキンケア</span><div class="bt"><div class="bf" style="width:73%"></div></div><span class="bv">152</span></div>
+          <div class="bar-row"><span class="bl" lang="ja">メイク</span><div class="bt"><div class="bf" style="width:67%"></div></div><span class="bv">140</span></div>
+          <div class="bar-row"><span class="bl" lang="ja">敏感肌 (민감피부)</span><div class="bt"><div class="bf" style="width:57%"></div></div><span class="bv">119</span></div>
+          <div class="bar-row"><span class="bl" lang="ja">乾燥 (건조)</span><div class="bt"><div class="bf" style="width:55%"></div></div><span class="bv">115</span></div>
+          <div class="bar-row"><span class="bl" lang="ja">韓国コスメ</span><div class="bt"><div class="bf" style="width:43%"></div></div><span class="bv">90</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card card-grey" style="margin-top:10px">
+      <p><strong>이 데이터가 하는 일.</strong> 리포트의 모든 판정에 코퍼스 실측 인용을 붙인다.
+      A~E 채점 루브릭, 벤치마크 대비표, 검색 표기 전환이 전부 여기서 나온다. <span class="fine">약기법 규정 요약은 v0(전문가 검토 전)</span></p>
+    </div>
+  </div>
+  <p class="fine footnote src">파일: data/processed/detail-ocr.jsonl(312행) · sns-lexicon.csv(101어휘) · product-catalog.jsonl(1,261행)</p>
+</section>
+
+<!-- ═══════════ 18. 생성 테스트 — 리포트 파이프라인 ═══════════ -->
+<section class="slide" aria-label="리포트 생성 파이프라인">
+  <p class="kicker">8 · 생성 테스트 — 샘플 리포트 생성 파이프라인</p>
+  <h2>점수는 코드가 내고, 판정만 LLM이 한다</h2>
+  <div class="slide-body">
+    <div class="flow" style="margin-bottom:10px">
+      <div class="step"><b>정규화</b><span>문장 분해 K1..Kn (규칙)</span></div><div class="arr">→</div>
+      <div class="step llm"><b>콜① 루브릭 채점</b><span>항목별 0/1/2 판정</span></div><div class="arr">＋</div>
+      <div class="step llm"><b>콜② 약기법 전수 감사</b><span>문장별 불가/조건부/가능</span></div><div class="arr">＋</div>
+      <div class="step llm"><b>콜③ 페르소나·USP</b><span>3콜 병렬 실행</span></div>
+    </div>
+    <div class="flow" style="margin-bottom:12px">
+      <div class="step"><b>집계·가중 (규칙)</b><span>같은 판정이면 언제나 같은 점수 (단위 테스트 보증)</span></div><div class="arr">→</div>
+      <div class="step"><b>벤치마크 (규칙)</b><span>코퍼스 사전집계와 대비</span></div><div class="arr">→</div>
+      <div class="step llm"><b>콜④ NG/OK 재작성</b><span>일본어 + 한국어 해설</span></div><div class="arr">→</div>
+      <div class="step"><b>9블록 조립</b><span>품의 표지부터 고정가 안내까지</span></div><div class="arr">→</div>
+      <div class="step" style="background:var(--coral-tint)"><b>검수 서명 후 발행</b><span>서명 없는 발행 불가</span></div>
+    </div>
+    <div class="grid cols3">
+      <div class="card"><h3>결정성 계약</h3><p style="margin-top:4px">LLM은 항목 판정만 하고, 합산·가중·우선순위는 코드가 한다. 같은 판정이면 언제나 같은 점수가 나온다</p></div>
+      <div class="card"><h3>증거 가드레일</h3><p style="margin-top:4px">코퍼스와 규정 근거 밖의 수치·인증·후기 창작을 모든 콜에서 금지한다. 근거가 없으면 빈 값으로 둔다</p></div>
+      <div class="card"><h3>사람 검수 게이트</h3><p style="margin-top:4px">생성 후 검수 대기, 실명 서명, 발행으로 이어지는 상태 머신을 강제한다</p></div>
+    </div>
+  </div>
+  <p class="fine footnote src">계약 정본: docs/08-data-flow §3·§4 (LLM 콜별 요청/응답 스키마) · 구현: lib/engine/ (Next.js + claude-sonnet-5 구조화 출력)</p>
+</section>
+
+<!-- ═══════════ 19. 생성 테스트 — 리포트 실동 결과 ═══════════ -->
+<section class="slide" aria-label="리포트 실동 결과">
+  <p class="kicker">8 · 생성 테스트 — 리포트 실동 결과 (2026-07-09)</p>
+  <h2>실제로 돌려봤다: 입력에서 발행까지 한 사이클</h2>
+  <div class="slide-body">
+    <div class="grid cols4" style="margin-bottom:12px">
+      <div class="card"><div class="stat-num">17<span style="font-size:.5em;color:var(--muted-alt)">/100</span></div><div class="stat-label">실 LLM 종합점수. 수작업 정본 샘플(18/100)과 1점 차로, 판정 방향이 일치</div></div>
+      <div class="card">
+        <div class="stat-label" style="margin-bottom:6px"><strong style="color:var(--ink)">약기법 감사: cica 카피 11문장</strong></div>
+        <div class="share-bar" style="height:22px" role="img" aria-label="감사 판정: 불가 8건, 조건부 3건, 가능 0건">
+          <div class="seg" style="width:72.7%;background:var(--ng)"></div>
+          <div class="seg" style="width:27.3%;background:var(--cond)"></div>
+        </div>
+        <div class="legend" style="margin-top:6px">
+          <span class="key"><span class="dot" style="background:var(--ng)"></span>불가 8</span>
+          <span class="key"><span class="dot" style="background:var(--cond)"></span>조건부 3</span>
+          <span class="key">가능 0</span>
+        </div>
+      </div>
+      <div class="card"><div class="stat-num">약 2분</div><div class="stat-label">입력에서 9블록 리포트 생성까지 (LLM 4콜)</div></div>
+      <div class="card"><div class="stat-num">5/5</div><div class="stat-label">집계 결정성 단위 테스트 통과, 서명 후 발행 사이클 확인</div></div>
+    </div>
+    <h3 style="margin-bottom:6px">만들어진 리포트에 담기는 항목 (9블록)</h3>
+    <div class="blocks" style="margin-bottom:10px">
+      <div class="blk"><span class="no">0</span><b>품의용 표지</b></div>
+      <div class="blk"><span class="no">1</span><b>종합 점수 헤더</b></div>
+      <div class="blk"><span class="no">2</span><b>타깃 페르소나 · 구매 여정</b></div>
+      <div class="blk"><span class="no">3</span><b>약기법 전수 감사표</b></div>
+      <div class="blk"><span class="no">4</span><b>시장 벤치마크 대비</b></div>
+      <div class="blk"><span class="no">5</span><b>항목별 점수 A~E</b></div>
+      <div class="blk"><span class="no">6</span><b>USP 재정의</b></div>
+      <div class="blk"><span class="no">7</span><b>NG/OK 문구 재작성 (日+韓 해설)</b></div>
+      <div class="blk"><span class="no">8</span><b>비포 &amp; 애프터 샘플</b></div>
+      <div class="blk"><span class="no">9</span><b>다음 단계 · 고정가 안내</b></div>
+    </div>
+    <div class="card card-grey">
+      <p>감사표 예시: <span class="verd-ng">불가</span> "손상된 장벽을 재생시켜 치료" → <span class="verd-ok">대체</span> <span lang="ja">"うるおいのヴェールで肌を包み…"</span> + 한국어 해설.
+      <span class="fine">한계: LLM 판정은 실행마다 편차가 있을 수 있고(호출 로그로 관찰), 규정 요약 v0는 약무 검토 전이다. PDF 내보내기와 무료 체커는 다음 스프린트</span></p>
+    </div>
+  </div>
+  <p class="fine footnote src">상세: docs/10-implementation-status (실행 방법 · 코드 맵 · 잔여 작업) · 블록 구성 정본: docs/specs/01-report-spec</p>
+</section>
+
+<!-- ═══════════ 20. 생성 테스트 — 썸네일 변환 ═══════════ -->
+<section class="slide" aria-label="일본향 썸네일 변환">
+  <p class="kicker">8 · 생성 테스트 — 일본향 썸네일 변환 (실물 샘플)</p>
+  <h2>한국 프로모 이미지를 일본 신뢰 문법으로 재설계</h2>
+  <div class="slide-body">
+    <div class="flow" style="margin-bottom:10px">
+      <div class="step"><b>입력 분석</b><span>유지 / 재설계 / 제거 3분류</span></div><div class="arr">→</div>
+      <div class="step"><b>스타일 선택</b><span>플랫폼별 8종 (실측 120장 분류)</span></div><div class="arr">→</div>
+      <div class="step llm"><b>카피 재설계</b><span>약기법 엔진(콜②) 검수 통과분만</span></div><div class="arr">→</div>
+      <div class="step"><b>proof 게이트</b><span>근거 없는 배지·실적은 진입 불가</span></div><div class="arr">→</div>
+      <div class="step"><b>결정적 조립</b><span>프롬프트 팩 v1.1 (LLM 개입 없음)</span></div><div class="arr">→</div>
+      <div class="step llm"><b>이미지 생성</b><span>라벨 · 로고 보존 모드</span></div>
+    </div>
+    <div class="grid cols2" style="align-items:start">
+      <figure style="text-align:center">
+        <img src="../presentation/샘플원본.webp" alt="변환 전: 한국 프로모션 썸네일. 형광 테두리, 오늘의 특가 배지, '쿨톤 치트키' 카피" style="max-width:100%;max-height:34vh;width:auto;border:1px solid var(--surface-alt);border-radius:10px" loading="lazy">
+        <figcaption class="fine" style="margin-top:4px"><strong>Before</strong> · 특가 밴드, 기획전 뱃지, 밈 카피("쿨톤 치트키")</figcaption>
+      </figure>
+      <figure style="text-align:center">
+        <img src="../presentation/샘플.png" alt="변환 후: 일본향 재설계 썸네일. 일본어 캐치카피와 정돈된 레이아웃" style="max-width:100%;max-height:34vh;width:auto;border:1px solid var(--surface-alt);border-radius:10px" loading="lazy">
+        <figcaption class="fine" style="margin-top:4px"><strong>After</strong> · 밈 카피를 <span lang="ja">"白浮きしない、透明感トーンアップUV"</span>(코퍼스에서 확인한 고민 어휘)로, 특가·무근거 뱃지 제거, 관례 표기 <span lang="ja">"顔・からだ用"</span> 추가</figcaption>
+      </figure>
+    </div>
+    <div class="card card-grey" style="margin-top:8px">
+      <p><strong>범용 이미지 생성툴과의 경계선.</strong> 스타일 8종 밖의 자유 생성은 없다. 카피는 약기법 검수 통과분만 슬롯에 들어가고,
+      근거(수상명·집계기간) 없는 실적 배지는 프롬프트에 들어가지도 못한다. 이 제약이 범용 생성툴과의 차이다</p>
+    </div>
+  </div>
+  <p class="fine footnote src">정본: docs/specs/02-thumbnail-converter-spec (파이프라인 · 워크드 예시) · data/processed/thumbnail-style-prompts.json</p>
+</section>
+
+<!-- ═══════════ 21. 앞으로의 계획 — 일정 ═══════════ -->
+<section class="slide" aria-label="앞으로의 일정">
+  <p class="kicker">9 · 앞으로의 계획</p>
+  <h2>발표까지 4주, 축별 스프린트</h2>
+  <div class="slide-body">
+    <table>
+      <thead><tr><th style="width:17%">기간</th><th style="width:26%">단계</th><th>내용 · 완료 기준</th></tr></thead>
+      <tbody>
+        <tr><td>~7/17</td><td><strong>① 리포트 스프린트</strong> <span class="st st-v">선행 완료</span></td><td>한 사이클(입력, 리포트, 검수, 발행) 실동과 실 LLM E2E 통과. 잔여: PDF · 무료 체커</td></tr>
+        <tr><td>7/18~24</td><td><strong>② 마케팅 스튜디오</strong></td><td>썸네일 변환 실검증(이미지 API 연동)부터. 상세 전환과 피드는 스펙 확정 후 개발</td></tr>
+        <tr><td>7/25~31</td><td><strong>③ 운영</strong></td><td>자산 라이브러리, 기업 매칭, 시즌 캘린더 기획 상품화</td></tr>
+        <tr><td>8/1~3</td><td><strong>UT (사용성 테스트)</strong></td><td>실사용자의 한 사이클 완주 관찰. H1(30만)과 H3(시즌 구독) 실검증</td></tr>
+        <tr><td>8/4~9</td><td><strong>개선 · 완성</strong></td><td>UT 피드백 반영, 서비스 최종 완성, 발표</td></tr>
+      </tbody>
+    </table>
+    <div class="card card-tint" style="margin-top:10px">
+      <p><strong>검증 병행 트랙.</strong> 실고객 인터뷰 5~10명(H1 가격 검증), 3차 시뮬(체커 버전 랜딩 A/B, H2), 베타 운영(발표 후, H3 장기 확인)</p>
+    </div>
+  </div>
+  <p class="fine footnote src">정본: docs/04-roadmap · docs/06-유저니즈 §5(검증 수단과 일정 매핑) · docs/09-dev-spec §4(마일스톤)</p>
+</section>
+
+<!-- ═══════════ 22. 앞으로의 계획 — 남은 과제 ═══════════ -->
+<section class="slide" aria-label="남은 과제">
+  <p class="kicker">9 · 앞으로의 계획 — 결정과 검토가 필요한 것</p>
+  <h2>남은 과제</h2>
+  <div class="slide-body">
+    <div class="grid cols2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:8px">팀 결정 필요</h3>
+        <div class="grid" style="grid-template-columns:1fr">
+          <div class="card"><strong>검수자 실명 정책.</strong> 누가, 어떤 자격으로 서명하나. 시뮬에서 확인된 최대 신뢰 블로커이자 30만 리포트의 처리 속도에 직결된다</div>
+          <div class="card"><strong>약기법 규정 요약 v0 검토.</strong> 콜② 판정 품질의 근간. jp-localizer와 약무 검토 후 확정한다</div>
+          <div class="card"><strong>저장·재현성 기본안 확정 기록.</strong> Supabase와 결정성 전략은 구현에 반영됐고, DECISIONS 승격만 남았다</div>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">개발 잔여 (스프린트 내 처리)</h3>
+        <div class="grid" style="grid-template-columns:1fr">
+          <div class="card">PDF 내보내기(품의 동선 완성) · 무료 약기법 체커(비로그인 3회)</div>
+          <div class="card">인증·온보딩 도입(현재는 기능 검증용 비로그인) + 검수 화면 접근 제어</div>
+          <div class="card">Supabase 전환(현재 로컬 폴백으로 동작) · LLM 판정 편차 관찰 리포트(QA)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="fine footnote src">전체 목록: docs/10-implementation-status §5 (10건) · docs/05-open-questions</p>
+</section>
+
+<!-- ═══════════ 23. 맺음 ═══════════ -->
+<section class="slide" aria-label="맺음">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+    <p class="kicker">정리</p>
+    <h1 style="font-size:clamp(26px,5vh,42px)">문제는 확인했고, 가설은 검증 중이고,<br>엔진은 실제로 돌아갑니다.</h1>
+    <div class="grid cols3" style="margin-top:24px">
+      <div class="card"><h3>확인된 것</h3><p style="margin-top:4px">규제·시장 구조·채널 문법 (외부 자료 교차 확인), 리포트 파이프라인 실동</p></div>
+      <div class="card"><h3>검증 중인 것</h3><p style="margin-top:4px">30만 원 지불 의향(실고객), 무료 체커 진입점, 위임형 회수. 인터뷰와 3차 시뮬, UT로 확인한다</p></div>
+      <div class="card"><h3>미검증인 것</h3><p style="margin-top:4px">시즌 구독 갱신, 데이터 축적 효과. 베타 운영에서 길게 본다</p></div>
+    </div>
+    <p class="fine" style="margin-top:22px">문서 맵: 00-positioning · 06-가설 · 07-IA · 08-data-flow · 09-dev-spec · 10-implementation-status. 모든 수치는 정본 문서에서 추적 가능</p>
+  </div>
+</section>
+
+</div><!-- /deck -->
+
+<nav class="navbar" aria-label="슬라이드 내비게이션">
+  <button class="nav-btn" onclick="go(-1)" aria-label="이전 슬라이드">←</button>
+  <span class="counter"><span id="cur">1</span> / <span id="tot">23</span></span>
+  <button class="nav-btn" onclick="go(1)" aria-label="다음 슬라이드">→</button>
+</nav>
+
+<script>
+/** 슬라이드 표시·진행바·키보드 내비 (외부 의존성 없음) */
+const slides = document.querySelectorAll('.slide');
+document.getElementById('tot').textContent = slides.length;
+let cur = 1;
+function show(n){
+  cur = Math.min(Math.max(n,1), slides.length);
+  slides.forEach((s,i)=>s.classList.toggle('active', i===cur-1));
+  document.getElementById('cur').textContent = cur;
+  document.getElementById('progress').style.transform = 'scaleX(' + (cur/slides.length) + ')';
+}
+function go(d){ show(cur+d); }
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); go(1); }
+  if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(-1); }
+  if(e.key==='Home'){ show(1); } if(e.key==='End'){ show(slides.length); }
+});
+show(1);
+</script>
+</body>
+</html>

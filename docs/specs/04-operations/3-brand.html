@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>③ 운영 · 3. 브랜드 관리</title>
+<!--
+  비배포 · 기획 검토용 인터랙티브 프로토타입.
+  정본: 04-operations-ui-기획서.md # 3. 브랜드 관리 (BRAND-00~09 · 07.21 신설)
+  브랜드 킷 편집 정본 화면 — 생성 입력 허브. 온보딩 = 최초 생성만, 마이페이지 = 조회 요약만(MYPAGE-06 델타).
+  킷 수정은 발행된 리포트에 소급되지 X — 진단 원본은 tierInput 스냅샷(08-data-flow §6).
+  생성 자동 참조는 계약 제안 상태(BRAND-09) — "반영됩니다" 단정 카피 쓰지 X.
+  데모 값은 전부 기존 자산 재사용(새 카피 발명 금지):
+    포지셔닝 16종 = lib/engine/rules/positioning.ts · 금지 표현 = jp-detail-message-patterns.md §3-2·A3
+    제품명 표기 = 목업 썸네일(トーンアップUV)·리포트 샘플(CICA 앰플) 유래.
+  검토 스트립의 상태 스위처(기본/미작성)는 프로토타입 검토 전용 — 제품 UI 아님.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<!-- 프로토타입 검토 스트립 + 데모 상태 스위처 -->
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">③ 운영 · 프로토타입</span>
+    <a href="index.html">플로우</a>
+    <a href="1-home.html">1 운영 홈</a>
+    <a href="2-detail.html">2 자산 상세</a>
+    <a href="3-brand.html" class="on">3 브랜드 관리</a>
+    <a href="4-matching.html">4 기업 매칭</a>
+    <a href="04-operations-ui-기획서.md">기획서 ↗</a>
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
+      <span>상태(검토용):</span>
+      <button type="button" class="st-btn" data-st="default" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">기본 (작성 완료)</button>
+      <button type="button" class="st-btn" data-st="blank" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">미작성</button>
+    </span>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- 전역 내비(사이드바) — ⓪ MAIN-01 셸. 운영 on + 하위 메뉴 브랜드 관리 on -->
+  <aside class="app-side" aria-label="전역 내비게이션">
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <div style="position:relative">
+      <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
+        style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
+        <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#B96C00">하</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:block;font-size:13px;font-weight:700;color:#202124;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">하루온 HARUON</span>
+          <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">스킨케어 / <span lang="ja">スキンケア</span></span>
+        </span>
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="swMenu" role="listbox" aria-label="브랜드 프로필 전환" class="sw-menu"
+        style="display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+        <div class="sw-item" role="option" aria-selected="true" style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px">
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#B96C00">하</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#202124">하루온 HARUON</span><span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61)">현재 브랜드</span></span>
+          <span style="color:#00875A;font-size:13px;font-weight:800">✓</span>
+        </div>
+        <button type="button" class="sw-item" role="option" aria-selected="false" aria-disabled="true" title="브랜드 전환 데모는 홈 프로토타입에서 제공"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default">
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#E2F3E9,#BFE3CE);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#00875A">글</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#9CA0A8">글로우리프</span><span style="display:block;font-size:10.5px;color:#B6B8BF">전환 데모는 홈에서</span></span>
+        </button>
+        <div style="height:1px;background:#EBEBEB;margin:6px 4px"></div>
+        <button type="button" class="sw-item" aria-disabled="true" title="다중 브랜드 지원 범위 (미정)"
+          style="display:flex;width:100%;align-items:center;gap:8px;padding:8px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default;color:#B6B8BF;font-size:12px;font-weight:600">＋ 브랜드 추가 <span style="margin-left:auto;font-size:9.5px;font-weight:700;background:#F1F1F3;color:#9CA0A8;border-radius:9999px;padding:2px 7px">미정</span></button>
+      </div>
+    </div>
+    <nav class="side-nav" aria-label="주요 메뉴">
+      <a href="../00-main/1-home.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        대시보드</a>
+      <a href="../01-report/1-input.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        진단 리포트 <span class="side-badge b-ok">이용 가능 ○</span></a>
+      <a href="../02-studio/1-home.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+        마케팅 스튜디오 <span class="side-badge b-warn">썸네일 우선 △</span></a>
+      <a href="1-home.html" class="on">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        운영 <span class="side-badge b-warn">라이브러리 우선 △</span></a>
+      <!-- 운영 하위 메뉴 (LIB-00) — 아코디언: 운영 활성 화면에만 존재.
+           수정 시 1-home·2-detail·3-brand·4-matching 4파일 동시 반영 -->
+      <ul class="side-sub" aria-label="운영 하위 메뉴">
+        <li><a href="1-home.html">자산 라이브러리</a></li>
+        <li><a href="3-brand.html" class="on" aria-current="page">브랜드 관리</a></li>
+        <li><a href="4-matching.html">기업 매칭 <span id="matchBadge" class="side-badge" style="display:none"></span></a></li>
+      </ul>
+    </nav>
+    <span class="side-gap"></span>
+    <div class="side-kpi">
+      <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:.01em;color:rgba(55,56,60,0.61)">브랜드 자산</p>
+      <div class="k-row"><span style="color:#414245">진단 리포트</span><b><span class="tnum">2</span>건</b></div>
+      <div class="k-row"><span style="color:#414245">생성 썸네일</span><b><span class="tnum">4</span>건</b></div>
+      <div class="k-row"><span style="color:#414245">최근 진단 점수</span><b><span class="tnum">18</span><span style="font-weight:600;color:#B6B8BF">/100</span></b></div>
+      <div class="k-row"><span style="color:#414245">다음 메가와리</span><b>D-<span class="tnum">43</span><span style="font-weight:600;color:#B6B8BF"> · 9월</span></b></div>
+    </div>
+    <div class="side-foot">
+      <a href="../01-report/3-report.html" class="hbtn hbtn-secondary" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;text-decoration:none;margin-bottom:10px">
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 12v6"/><path d="M9 15l3 3 3-3"/></svg>
+        품의용 PDF</a>
+      <div style="position:relative">
+        <button type="button" id="avBtn" aria-haspopup="menu" aria-expanded="false" aria-label="계정 메뉴"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:7px 8px;border:none;border-radius:10px;background:transparent;font-family:inherit;cursor:pointer;text-align:left" class="sw-item">
+          <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:12.5px;font-weight:700;color:#202124;line-height:1.25">박민정</span>
+            <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">minjeong@haruon.kr</span>
+          </span>
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+        </button>
+        <div id="avMenu" role="menu" class="sw-menu" style="display:none;position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+          <a href="../03-account/2-mypage.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">마이페이지</a>
+          <a href="../03-account/1-login.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">로그아웃</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="app-main">
+
+  <!-- 3. 브랜드 관리 (BRAND-00~09) -->
+  <main style="flex:1;animation:fadeUp .45s ease both">
+    <div style="max-width:1120px;margin:0 auto;padding:44px 24px 0">
+
+      <!-- BRAND-01 · 상단 영역 (primary는 하단 저장 바의 「저장」 1개) -->
+      <div>
+        <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 운영</p>
+        <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">브랜드 관리</h1>
+        <p style="margin:14px 0 0;max-width:640px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">여기 저장한 브랜드 킷이 진단과 썸네일 생성의 입력이 됩니다. 한 번 정리하면 다시 입력하지 않습니다.</p>
+      </div>
+
+      <div style="max-width:760px;margin-top:28px;display:flex;flex-direction:column;gap:16px">
+
+        <!-- BRAND-02 · 브랜드 프로필 -->
+        <section class="kit-card" aria-labelledby="profileTitle">
+          <h2 id="profileTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">브랜드 프로필</h2>
+          <p style="margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">수정해도 이미 발행된 리포트는 바뀌지 않습니다 — 다음 진단·생성부터 반영됩니다.</p>
+          <div class="rwrap" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div>
+              <label class="kit-label" for="fBrand">브랜드명 <span style="color:#D93636">*</span></label>
+              <input id="fBrand" class="kit-input f-input" type="text" value="하루온 HARUON" />
+            </div>
+            <div>
+              <label class="kit-label" for="fCategory">카테고리 <span style="color:#D93636">*</span></label>
+              <select id="fCategory" class="kit-input f-input">
+                <option selected>스킨케어</option><option>메이크업</option><option>선케어</option><option>클렌징</option>
+              </select>
+            </div>
+            <div>
+              <label class="kit-label" for="fClass">제품분류</label>
+              <select id="fClass" class="kit-input f-input">
+                <option selected>화장품</option><option>의약외품</option><option>건강식품</option><option>미상</option>
+              </select>
+            </div>
+          </div>
+          <fieldset style="margin:16px 0 0;border:none;padding:0">
+            <legend class="kit-label" style="margin-bottom:2px">포지셔닝 태그 <span style="font-weight:600;color:rgba(55,56,60,0.61)">1~5개 선택 · <span id="posCount" class="tnum">0</span>/5</span></legend>
+            <p style="margin:0 0 8px;font-size:11.5px;color:#B6B8BF">① 진단 입력폼과 같은 목록입니다. 저장하면 다음 진단에서 미리 채워집니다.</p>
+            <div id="posChips" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+          </fieldset>
+          <div style="margin-top:16px">
+            <label class="kit-label" for="fTarget">타깃 메모 <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
+            <textarea id="fTarget" class="kit-area f-input" rows="2" placeholder="일본에서 만나고 싶은 고객을 자유롭게 적어 주세요"></textarea>
+          </div>
+        </section>
+
+        <!-- BRAND-03 · 제품 정보 -->
+        <section class="kit-card" aria-labelledby="productTitle">
+          <h2 id="productTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">제품 정보</h2>
+          <p id="productHint" style="display:none;margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">채우면 진단·생성 정확도가 올라갑니다.</p>
+          <div style="margin-top:14px">
+            <label class="kit-label" for="fProduct">제품 정보 메모</label>
+            <textarea id="fProduct" class="kit-area f-input" rows="3" placeholder="주력 제품·성분·특징을 적어 주세요"></textarea>
+          </div>
+          <div id="docRow" style="margin-top:12px;display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;background:#FAFAFB">
+            <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            <span id="docName" style="flex:1;font-size:12.5px;font-weight:600;color:#202124">하루온-상세페이지.pdf</span>
+            <span style="font-size:11px;color:#B6B8BF">재업로드 (추후 기획)</span>
+          </div>
+          <p style="margin:10px 0 0;font-size:11.5px;color:#B6B8BF">다상품 등록 (미정) — 지금은 브랜드 단위 메모 하나로 관리합니다.</p>
+        </section>
+
+        <!-- BRAND-04 · 채널 -->
+        <section class="kit-card" aria-labelledby="channelTitle">
+          <h2 id="channelTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">채널</h2>
+          <p style="margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">기업 매칭 신청서에 함께 전달됩니다.</p>
+          <div style="margin-top:14px">
+            <label class="kit-label" for="fKrUrl">한국 판매 채널 URL</label>
+            <input id="fKrUrl" class="kit-input f-input" type="url" placeholder="https://" value="https://smartstore.naver.com/haruon" />
+          </div>
+          <fieldset style="margin:14px 0 0;border:none;padding:0">
+            <legend class="kit-label">일본 진출 채널 <span style="font-weight:600;color:#B6B8BF">(복수 선택)</span></legend>
+            <div id="jpChips" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:2px"></div>
+          </fieldset>
+          <div id="jpUrlRow" style="margin-top:12px">
+            <label class="kit-label" for="fJpUrl">일본 채널 URL <span style="font-weight:600;color:#B6B8BF">(입점 후 입력)</span></label>
+            <input id="fJpUrl" class="kit-input f-input" type="url" placeholder="입점 완료 후 스토어 URL을 적어 주세요" />
+          </div>
+        </section>
+
+        <!-- BRAND-05 · 일본향 용어집·톤 가이드 -->
+        <section class="kit-card" aria-labelledby="kitTitle">
+          <h2 id="kitTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">일본향 용어집·톤 가이드</h2>
+          <p style="margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">다음 생성부터 입력으로 전달할 준비를 하고 있습니다.</p>
+
+          <!-- 5a · 제품명 일본어 표기 -->
+          <h3 style="margin:18px 0 0;font-size:13px;font-weight:700;color:#202124">제품명 일본어 표기</h3>
+          <div id="termRows" style="margin-top:6px"></div>
+          <button type="button" id="termAdd" class="hbtn hbtn-ghost" style="margin-top:6px;padding:0 8px;font-size:12.5px;color:#D93636">＋ 표기 추가</button>
+
+          <!-- 5b · 금지 표현 -->
+          <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">금지 표현</h3>
+          <p style="margin:5px 0 0;font-size:11.5px;color:#B6B8BF">근거 없이 등록하지 않습니다 — 약기법·플랫폼 규정 사유를 함께 적어 주세요.</p>
+          <div id="banList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+
+          <!-- 5c · 톤 가이드 -->
+          <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">톤 가이드</h3>
+          <div style="margin-top:8px">
+            <label class="visually-hidden" for="fTone">톤 가이드</label>
+            <textarea id="fTone" class="kit-area f-input" rows="3" maxlength="300" placeholder="일본 고객에게 말을 걸 때의 톤을 1~3문장으로 적어 주세요"></textarea>
+            <p style="margin:5px 0 0;text-align:right;font-size:11px;color:#B6B8BF"><span id="toneCount" class="tnum">0</span>/300</p>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- BRAND-06 · 저장 바 (화면 유일 primary) -->
+    <div class="save-bar" style="margin-top:32px">
+      <div style="max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px">
+        <p id="saveMsg" role="status" style="margin:0;font-size:12.5px;font-weight:600;color:rgba(55,56,60,0.61)"></p>
+        <button type="button" id="saveBtn" class="h-primary" disabled
+          style="margin-left:auto;display:inline-flex;height:44px;align-items:center;padding:0 22px;border:none;border-radius:11px;background:#FF6464;color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">저장</button>
+      </div>
+    </div>
+    <div style="height:48px"></div>
+  </main>
+  </div>
+</div>
+
+<script>
+/**
+ * 브랜드 관리 로직 (BRAND-02~07) — 포지셔닝 칩 1~5 선택 · 용어집 행 · 금지 표현 ·
+ * 톤 카운터 · 변경 감지 → 저장 활성 · 저장 시뮬레이션 · 하위 메뉴 매칭 배지.
+ * 데모 상태: 기본(작성 완료) / 미작성(BRAND-07 빈 상태). 실저장 없음 — 검토용.
+ */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+
+  /** 포지셔닝 태그 16종 — lib/engine/rules/positioning.ts 공용 목록(① 입력폼과 동일) */
+  var POS_TAGS = ['민감 피부·저자극', '무첨가·프리 처방', '성분 집중', '더마·피부과학', '클린·비건', '보습·장벽', '진정 케어', '모공·피지 케어', '톤·브라이트닝', '탄력·안티에이징', '효능 근거·기능성', '남성 특화', 'K뷰티 트렌드', '가성비', '향·질감 감성', '미니멀 처방'];
+  var JP_CHANNELS = ['Qoo10', '라쿠텐', '아마존JP', '미정'];
+
+  /** 데모 데이터(작성 완료 상태) — 기존 자산 유래 값만 사용 */
+  var FILLED = {
+    target: '진정·저자극을 찾는 20~30대. 荒れてる時に使える?가 첫 질문인 고객.',
+    product: '톤업 선크림(SPF50+ PA++++) · CICA 진정 앰플. 상세페이지 진단 리포트 발행 완료.',
+    pos: ['진정 케어', '민감 피부·저자극', '톤·브라이트닝'],
+    jp: ['Qoo10', '라쿠텐'],
+    terms: [
+      { kr: '하루온 톤업 선크림', ja: 'HARUON トーンアップUV' },
+      { kr: 'CICA 진정 앰플', ja: 'CICAアンプル' }
+    ],
+    bans: [
+      { term: '美白', reason: '의약외품 승인 효능 — 일반 화장품 표기 불가 (약기법)' },
+      { term: '肌荒れ防止', reason: '의약외품 유효성분 승인 범위 — 등급 표기 필요 (약기법)' }
+    ],
+    tone: '근거 있는 문장으로 차분하게. 효능은 시험·성분 근거와 함께, 과장 형용사 대신 사용 장면을 적는다.'
+  };
+
+  var state = { pos: [], jp: [], terms: [], bans: [], dirty: false, blank: false };
+
+  // ── 포지셔닝 칩 (BRAND-02 — 1~5개, ① 폼 칩 문법) ──
+  function renderPos() {
+    var box = $('posChips');
+    box.innerHTML = '';
+    POS_TAGS.forEach(function (t) {
+      var on = state.pos.indexOf(t) >= 0;
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip';
+      b.setAttribute('aria-pressed', String(on));
+      b.setAttribute('style', 'height:30px;padding:0 12px;border-radius:9999px;font-size:12px;white-space:nowrap;cursor:pointer;font-family:inherit;' +
+        (on ? 'background:#FFF8F8;border:1.5px solid #FF6464;color:#D93636;font-weight:700' : 'background:#fff;border:1px solid rgba(112,115,124,0.28);color:#414245;font-weight:500'));
+      b.textContent = t;
+      b.onclick = function () {
+        var i = state.pos.indexOf(t);
+        if (i >= 0) state.pos.splice(i, 1);
+        else if (state.pos.length < 5) state.pos.push(t);
+        else return; // 5개 초과 선택 불가 (POSITIONING_TAGS_MAX)
+        markDirty(); renderPos();
+      };
+      box.appendChild(b);
+    });
+    $('posCount').textContent = state.pos.length;
+  }
+
+  // ── 일본 채널 칩 (BRAND-04 — 복수 선택) ──
+  function renderJp() {
+    var box = $('jpChips');
+    box.innerHTML = '';
+    JP_CHANNELS.forEach(function (c) {
+      var on = state.jp.indexOf(c) >= 0;
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip';
+      b.setAttribute('aria-pressed', String(on));
+      b.setAttribute('style', 'height:30px;padding:0 12px;border-radius:9999px;font-size:12px;white-space:nowrap;cursor:pointer;font-family:inherit;' +
+        (on ? 'background:#FFF8F8;border:1.5px solid #FF6464;color:#D93636;font-weight:700' : 'background:#fff;border:1px solid rgba(112,115,124,0.28);color:#414245;font-weight:500'));
+      b.textContent = c;
+      b.onclick = function () {
+        var i = state.jp.indexOf(c);
+        if (i >= 0) state.jp.splice(i, 1); else state.jp.push(c);
+        markDirty(); renderJp();
+      };
+      box.appendChild(b);
+    });
+  }
+
+  // ── 제품명 표기 행 (BRAND-05a — KR → JA) ──
+  function renderTerms() {
+    var box = $('termRows');
+    box.innerHTML = '';
+    if (!state.terms.length) {
+      box.innerHTML = '<p style="margin:8px 0 0;font-size:12.5px;color:rgba(55,56,60,0.61)">아직 등록한 표기가 없습니다. 제품명을 일본어로 어떻게 쓸지 정해 두면 생성 문구가 흔들리지 않습니다.</p>';
+      return;
+    }
+    state.terms.forEach(function (t, i) {
+      var row = document.createElement('div');
+      row.className = 'term-row';
+      row.innerHTML = '<span style="flex:1;min-width:0">' + t.kr + '</span>' +
+        '<span class="term-arrow" aria-hidden="true">→</span>' +
+        '<span lang="ja" style="flex:1;min-width:0">' + t.ja + '</span>' +
+        '<button type="button" class="term-del" data-i="' + i + '" aria-label="' + t.kr + ' 표기 삭제">삭제</button>';
+      box.appendChild(row);
+    });
+    box.querySelectorAll('.term-del').forEach(function (b) {
+      b.onclick = function () { state.terms.splice(Number(b.getAttribute('data-i')), 1); markDirty(); renderTerms(); };
+    });
+  }
+
+  // ── 금지 표현 (BRAND-05b — danger 칩 + 사유. 근거 없는 항목 등록 X) ──
+  function renderBans() {
+    var box = $('banList');
+    box.innerHTML = '';
+    if (!state.bans.length) {
+      box.innerHTML = '<p style="margin:0;font-size:12.5px;color:rgba(55,56,60,0.61)">아직 등록한 금지 표현이 없습니다. 진단 리포트의 약기법 판정에서 걸린 표현을 옮겨 두면 좋습니다.</p>';
+      return;
+    }
+    state.bans.forEach(function (bn) {
+      var row = document.createElement('div');
+      row.setAttribute('style', 'display:flex;align-items:center;gap:10px;flex-wrap:wrap');
+      row.innerHTML = '<span class="ban-chip"><span aria-hidden="true">✕</span><span lang="ja">' + bn.term + '</span></span>' +
+        '<span style="flex:1;min-width:200px;font-size:12px;color:rgba(55,56,60,0.61)">' + bn.reason + '</span>';
+      box.appendChild(row);
+    });
+  }
+
+  // ── 변경 감지 → 저장 활성 (BRAND-06) ──
+  function markDirty() {
+    state.dirty = true;
+    var btn = $('saveBtn');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    $('saveMsg').textContent = '저장하지 않은 변경이 있습니다';
+    $('saveMsg').style.color = 'rgba(55,56,60,0.61)';
+  }
+  function markSaved(msg) {
+    state.dirty = false;
+    var btn = $('saveBtn');
+    btn.disabled = true;
+    btn.style.opacity = '.55';
+    $('saveMsg').textContent = msg || '';
+  }
+  ['fBrand', 'fCategory', 'fClass', 'fTarget', 'fProduct', 'fKrUrl', 'fJpUrl', 'fTone'].forEach(function (id) {
+    $(id).addEventListener('input', function () {
+      markDirty();
+      if (id === 'fTone') $('toneCount').textContent = $('fTone').value.length;
+    });
+  });
+  $('termAdd').onclick = function () {
+    // 데모: 입력 모달 대신 자리 행 추가 — 실입력 UI는 개발 시 인라인 폼
+    state.terms.push({ kr: '(제품명)', ja: '(表記)' });
+    markDirty(); renderTerms();
+  };
+  $('saveBtn').onclick = function () {
+    var btn = $('saveBtn');
+    if (btn.disabled) return;
+    if (!$('fBrand').value.trim()) {
+      $('saveMsg').textContent = '브랜드명을 입력해 주세요';
+      $('saveMsg').style.color = '#C6362C';
+      $('fBrand').focus();
+      return;
+    }
+    btn.disabled = true;
+    $('saveMsg').textContent = '저장 중…';
+    setTimeout(function () {
+      markSaved('저장되었습니다 — 다음 생성부터 반영됩니다');
+      $('saveMsg').style.color = '#00875A';
+    }, 700);
+  };
+
+  // ── 상태 데모 (기본 = 작성 완료 / 미작성 = BRAND-07) ──
+  function apply(blank) {
+    state.blank = blank;
+    state.pos = blank ? [] : FILLED.pos.slice();
+    state.jp = blank ? [] : FILLED.jp.slice();
+    state.terms = blank ? [] : FILLED.terms.slice();
+    state.bans = blank ? [] : FILLED.bans.slice();
+    $('fTarget').value = blank ? '' : FILLED.target;
+    $('fProduct').value = blank ? '' : FILLED.product;
+    $('fKrUrl').value = blank ? '' : 'https://smartstore.naver.com/haruon';
+    $('fJpUrl').value = '';
+    $('fTone').value = blank ? '' : FILLED.tone;
+    $('toneCount').textContent = $('fTone').value.length;
+    $('productHint').style.display = blank ? 'block' : 'none';
+    $('docRow').style.display = blank ? 'none' : 'flex';
+    renderPos(); renderJp(); renderTerms(); renderBans();
+    markSaved('');
+  }
+  document.querySelectorAll('.st-btn').forEach(function (b) {
+    b.onclick = function () { apply(b.getAttribute('data-st') === 'blank'); };
+  });
+
+  // ── 하위 메뉴 매칭 배지 (LIB-07 — 4-matching sessionStorage 연동) ──
+  (function () {
+    var m = null;
+    try { m = JSON.parse(sessionStorage.getItem('kglow_ops_match') || 'null'); } catch (e) {}
+    if (!m) return;
+    var badge = $('matchBadge');
+    if (m.status === 'proposal') { badge.className = 'side-badge b-ok'; badge.textContent = '제안 2 ○'; }
+    else { badge.className = 'side-badge b-warn'; badge.textContent = '검토 중 △'; }
+    badge.style.display = 'inline-flex';
+  })();
+
+  apply(false);
+})();
+</script>
+<script>
+/** 사이드바 스위처·계정 메뉴 토글 — ⓪ 홈과 동일 문법. 브랜드 전환 데모는 홈 전용. */
+(function () {
+  var sb = document.getElementById('swBtn'), sm = document.getElementById('swMenu');
+  var ab = document.getElementById('avBtn'), am = document.getElementById('avMenu');
+  function closeAll() { sb.setAttribute('aria-expanded', 'false'); sm.style.display = 'none'; ab.setAttribute('aria-expanded', 'false'); am.style.display = 'none'; }
+  sb.onclick = function (e) { e.stopPropagation(); var open = sb.getAttribute('aria-expanded') !== 'true'; closeAll(); if (open) { sb.setAttribute('aria-expanded', 'true'); sm.style.display = 'block'; } };
+  ab.onclick = function (e) { e.stopPropagation(); var open = ab.getAttribute('aria-expanded') !== 'true'; closeAll(); if (open) { ab.setAttribute('aria-expanded', 'true'); am.style.display = 'block'; } };
+  document.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+})();
+</script>
+</body>
+</html>

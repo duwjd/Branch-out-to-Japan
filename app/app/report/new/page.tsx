@@ -1,14 +1,13 @@
 'use client';
 
 /**
- * ① 진단 입력폼 — 브랜드 우선 2단 구조(스펙 §3 v4 · 기능 검증 빌드, 디자인 교체 전제).
- * 브랜드 섹션(필수: 브랜드명·포지셔닝·카테고리)이 전면, 제품 섹션(분류·제품명·성분·가격·상세페이지 콘텐츠)은 접힌 선택.
+ * ① 진단 입력폼 — 브랜드 우선 2단 구조(스펙 §3 v4). 디자인 정본: docs/specs/01-report/1-input.html.
+ * 브랜드 섹션(필수: 브랜드명·포지셔닝·카테고리)이 전면, 제품 섹션(분류·제품명·성분·가격·상세페이지 콘텐츠)이 뒤따른다.
  * 게이트: 제출된 콘텐츠에만 50자 하드/200자 소프트 발동(gates.ts 단일 정의) — 서버에서도 재검증.
  */
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { HARD_GATE_CHARS, SOFT_LINE_CHARS, contentCharCount, isValidHttpUrl } from '@/lib/engine/rules/gates';
 import {
   POSITIONING_NOTE_MAX,
@@ -16,6 +15,7 @@ import {
   POSITIONING_TAGS_MAX,
   POSITIONING_TAGS_MIN,
 } from '@/lib/engine/rules/positioning';
+import { SectionCard, StatusBadge, buttonClass, chipClass, fieldLabelClass, inputClass, textareaClass } from '@/components/ui/primitives';
 
 const CATEGORIES = [
   { value: 'skincare', label: '스킨케어 / スキンケア' },
@@ -30,11 +30,21 @@ const PRODUCT_CLASSES = [
   { value: '미상', label: '잘 모르겠음' },
 ] as const;
 
-/** 칩(라디오·체크 공용) 스타일 — 선택 시 코랄 강조 */
-function chipClass(on: boolean): string {
-  return `cursor-pointer rounded-full border px-3 py-1.5 text-sm ${
-    on ? 'border-[#D93636] bg-[#FFF8F8] font-semibold text-[#D93636]' : 'border-neutral-300'
-  }`;
+/** 라디오형 칩(카테고리·제품 분류 공용) — role="radio" 버튼 */
+function RadioChip({
+  label,
+  checked,
+  onSelect,
+}: {
+  label: string;
+  checked: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button type="button" role="radio" aria-checked={checked} onClick={onSelect} className={chipClass(checked)}>
+      {label}
+    </button>
+  );
 }
 
 export default function ReportNewPage() {
@@ -82,6 +92,7 @@ export default function ReportNewPage() {
   const contentProvided = sourceType === 'text' ? charCount > 0 : sourceUrl.trim().length > 0;
   const hardGateBlocked = sourceType === 'text' && charCount > 0 && charCount < HARD_GATE_CHARS;
   const softLimited = sourceType === 'text' && charCount >= HARD_GATE_CHARS && charCount < SOFT_LINE_CHARS;
+  const fullPrecision = sourceType === 'text' && charCount >= SOFT_LINE_CHARS;
   const urlInvalid = sourceType === 'url' && sourceUrl.trim().length > 0 && !isValidHttpUrl(sourceUrl);
   const contentOk = !hardGateBlocked && !urlInvalid;
   const canSubmit = brandReady && contentOk && !submitting;
@@ -120,214 +131,218 @@ export default function ReportNewPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
-      <nav className="mb-6 text-sm">
-        <Link href="/" className="text-[#D93636] underline">← 메인으로</Link>
-      </nav>
-      <h1 className="text-2xl font-bold">일본 시장 진입 진단 리포트</h1>
-      <p className="mt-2 text-neutral-700">
-        브랜드가 무엇을 지향하는지 알려주시면 일본 고객 관점의 페르소나·USP 재설계가 생성됩니다.
-        상세페이지 카피까지 넣으면 薬機法 전수 감사·일본 문법 점수·재작성이 열립니다.
-      </p>
-      {meta && (
-        <p className="mt-2 flex flex-wrap gap-2 text-xs">
-          {meta.storeKind === 'file' && (
-            <span className="rounded bg-amber-100 px-2 py-1 font-medium text-amber-900">
-              로컬 저장(dev) — Supabase 미연결 (docs/setup-supabase.md)
-            </span>
-          )}
-          {meta.llmMode === 'mock' && (
-            <span className="rounded bg-sky-100 px-2 py-1 font-medium text-sky-900">
-              목(mock) 모드 — ANTHROPIC_API_KEY 없음 · 판정은 데모용
-            </span>
-          )}
+    <main className="animate-fade-up">
+      <div className="mx-auto max-w-[768px] px-6 pt-14 pb-24">
+        <p className="text-xs font-extrabold tracking-wide text-coral-strong">KGLOW 진단 리포트</p>
+        <h1 className="mt-2.5 text-[30px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">
+          일본 시장 진입 진단 리포트
+        </h1>
+        <p className="mt-3.5 text-[15px] leading-[1.7] text-ink-body [text-wrap:pretty]">
+          브랜드가 무엇을 지향하는지 알려주시면 일본 고객 관점의 페르소나·USP 재설계가 생성됩니다. 상세페이지 카피까지
+          넣으면 <span lang="ja">薬機法</span> 전수 감사·일본 문법 점수·재작성이 열립니다.
         </p>
-      )}
+        {meta && (meta.storeKind === 'file' || meta.llmMode === 'mock') && (
+          <p className="mt-3 flex flex-wrap gap-1.5">
+            {meta.storeKind === 'file' && <StatusBadge tone="off">로컬 저장(dev) — Supabase 미연결</StatusBadge>}
+            {meta.llmMode === 'mock' && <StatusBadge tone="off">목(mock) 모드 — 판정은 데모용</StatusBadge>}
+          </p>
+        )}
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-8">
-        {/* 브랜드 — 필수 (스펙 §3.1) */}
-        <fieldset className="space-y-5">
-          <legend className="text-lg font-semibold">브랜드 (필수)</legend>
-
-          <div>
-            <label htmlFor="brandName" className="text-sm font-medium">브랜드명 *</label>
-            <input
-              id="brandName"
-              value={brandName}
-              onChange={(e) => setBrandName(e.target.value)}
-              maxLength={60}
-              placeholder="예: HARUON"
-              className="mt-1 w-full rounded-lg border border-neutral-300 p-2.5 text-sm"
-            />
-          </div>
-
-          <div>
-            <p className="mb-1 text-sm font-medium" id="positioning-label">
-              브랜드 포지셔닝 * <span className="font-normal text-neutral-500">— 1~{POSITIONING_TAGS_MAX}개 선택</span>
-            </p>
-            <p className="mb-2 text-xs text-neutral-500">
-              브랜드가 지향하는 것을 고르세요. 일본 고객 페르소나·USP 재정의의 근거가 됩니다.
-            </p>
-            <div role="group" aria-labelledby="positioning-label" className="flex flex-wrap gap-2">
-              {POSITIONING_TAGS.map((t) => {
-                const on = positioningTags.includes(t.value);
-                return (
-                  <button
-                    key={t.value}
-                    type="button"
-                    aria-pressed={on}
-                    onClick={() => toggleTag(t.value)}
-                    className={chipClass(on)}
-                  >
-                    {t.label}
-                  </button>
-                );
-              })}
-            </div>
-            <label htmlFor="positioningNote" className="mt-3 block text-sm font-medium">
-              한 줄 소개 <span className="font-normal text-neutral-500">(선택)</span>
-            </label>
-            <textarea
-              id="positioningNote"
-              value={positioningNote}
-              onChange={(e) => setPositioningNote(e.target.value)}
-              rows={2}
-              maxLength={POSITIONING_NOTE_MAX}
-              placeholder="예: 민감성 피부를 위한 저자극 시카 스킨케어 — 피부과 테스트를 마친 성분만 씁니다"
-              className="mt-1 w-full rounded-lg border border-neutral-300 p-2.5 text-sm"
-            />
-          </div>
-
-          <div>
-            <p className="mb-2 text-sm font-medium" id="category-label">카테고리 *</p>
-            <div role="radiogroup" aria-labelledby="category-label" className="flex flex-wrap gap-2">
-              {CATEGORIES.map((c) => (
-                <label key={c.value} className={chipClass(category === c.value)}>
-                  <input
-                    type="radio"
-                    name="category"
-                    value={c.value}
-                    checked={category === c.value}
-                    onChange={() => setCategory(c.value)}
-                    className="sr-only"
-                  />
-                  {c.label}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="targetMemo" className="text-sm font-medium">
-              타깃/고민 메모 <span className="font-normal text-neutral-500">(선택)</span>
-            </label>
-            <textarea
-              id="targetMemo"
-              value={targetMemo}
-              onChange={(e) => setTargetMemo(e.target.value)}
-              rows={2}
-              maxLength={500}
-              placeholder="예: 민감성 피부, 20~30대"
-              className="mt-1 w-full rounded-lg border border-neutral-300 p-2.5 text-sm"
-            />
-          </div>
-        </fieldset>
-
-        {/* 제품 — 선택 (스펙 §3.2) · 콘텐츠를 넣으면 감사·점수·재작성이 열린다 */}
-        <details className="rounded-xl border border-neutral-200 p-4" open>
-          <summary className="cursor-pointer font-medium">
-            제품 정보 (선택) — 상세페이지 카피를 넣으면 薬機法 전수 감사·문법 점수·재작성이 열립니다
-          </summary>
-          <div className="mt-4 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-9 space-y-5">
+          {/* 브랜드 — 필수 */}
+          <SectionCard title="브랜드" pill="필수" pillTone="required">
             <div>
-              <p className="mb-2 text-sm font-medium" id="class-label">제품 분류</p>
+              <label htmlFor="brandName" className={fieldLabelClass}>
+                브랜드명 <span className="text-coral-strong">*</span>
+              </label>
+              <input
+                id="brandName"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                maxLength={60}
+                placeholder="예: HARUON"
+                className={inputClass}
+              />
+            </div>
+
+            <div className="mt-6">
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span id="positioning-label" className="text-[13.5px] font-semibold text-ink">
+                  브랜드 포지셔닝 <span className="text-coral-strong">*</span>{' '}
+                  <span className="font-normal text-ink-mute">— 1~{POSITIONING_TAGS_MAX}개 선택</span>
+                </span>
+                <span className="ml-auto text-[12.5px] text-ink-mute">
+                  <b className="tnum text-ink">{positioningTags.length}</b> / {POSITIONING_TAGS_MAX} 선택
+                </span>
+              </div>
+              <p className="mt-1.5 mb-3 text-[13px] leading-relaxed text-ink-mute">
+                브랜드가 지향하는 것을 고르세요. 일본 고객 페르소나·USP 재정의의 근거가 됩니다.
+              </p>
+              <div role="group" aria-labelledby="positioning-label" className="flex flex-wrap gap-2">
+                {POSITIONING_TAGS.map((t) => {
+                  const on = positioningTags.includes(t.value);
+                  return (
+                    <button key={t.value} type="button" aria-pressed={on} onClick={() => toggleTag(t.value)} className={chipClass(on)}>
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-4">
+                <label htmlFor="positioningNote" className={fieldLabelClass}>
+                  한 줄 소개 <span className="font-normal text-ink-mute">(선택)</span>
+                </label>
+                <textarea
+                  id="positioningNote"
+                  value={positioningNote}
+                  onChange={(e) => setPositioningNote(e.target.value)}
+                  rows={2}
+                  maxLength={POSITIONING_NOTE_MAX}
+                  placeholder="예: 민감성 피부를 위한 저자극 시카 스킨케어 — 피부과 테스트를 마친 성분만 씁니다"
+                  className={textareaClass}
+                />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <span id="category-label" className={fieldLabelClass}>
+                카테고리 <span className="text-coral-strong">*</span>
+              </span>
+              <div role="radiogroup" aria-labelledby="category-label" className="flex flex-wrap gap-2">
+                {CATEGORIES.map((c) => (
+                  <RadioChip key={c.value} label={c.label} checked={category === c.value} onSelect={() => setCategory(c.value)} />
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <label htmlFor="targetMemo" className={fieldLabelClass}>
+                타깃/고민 메모 <span className="font-normal text-ink-mute">(선택)</span>
+              </label>
+              <textarea
+                id="targetMemo"
+                value={targetMemo}
+                onChange={(e) => setTargetMemo(e.target.value)}
+                rows={2}
+                maxLength={500}
+                placeholder="예: 민감성 피부, 20~30대"
+                className={textareaClass}
+              />
+            </div>
+          </SectionCard>
+
+          {/* 제품 정보 — 선택 */}
+          <SectionCard
+            title="제품 정보"
+            pill="선택"
+            pillTone="optional"
+            desc={
+              <>
+                상세페이지 카피를 넣으면 <span lang="ja">薬機法</span> 전수 감사·문법 점수·재작성이 열립니다. 비우고
+                제출하면 브랜드 진단으로 생성됩니다.
+              </>
+            }
+          >
+            <div>
+              <span id="class-label" className={fieldLabelClass}>제품 분류</span>
               <div role="radiogroup" aria-labelledby="class-label" className="flex flex-wrap gap-2">
                 {PRODUCT_CLASSES.map((c) => (
-                  <label key={c.value} className={chipClass(productClass === c.value)}>
-                    <input
-                      type="radio"
-                      name="productClass"
-                      value={c.value}
-                      checked={productClass === c.value}
-                      onChange={() => setProductClass(c.value)}
-                      className="sr-only"
-                    />
-                    {c.label}
-                  </label>
+                  <RadioChip key={c.value} label={c.label} checked={productClass === c.value} onSelect={() => setProductClass(c.value)} />
                 ))}
               </div>
               {productClass === '미상' && (
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="mt-2.5 rounded-[8px] bg-amber-bg p-2.5 text-[12.5px] leading-relaxed text-amber-text">
                   콘텐츠 감사 시 화장품으로 가정해 진단하고, 리포트에 &ldquo;분류 미확인&rdquo; 경고를 표기합니다.
                 </p>
               )}
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="productName" className="text-sm font-medium">제품명</label>
+                <label htmlFor="productName" className={fieldLabelClass}>제품명</label>
                 <input id="productName" value={productName} onChange={(e) => setProductName(e.target.value)} maxLength={120}
-                  className="mt-1 w-full rounded-lg border border-neutral-300 p-2 text-sm" />
+                  placeholder="예: CICA 진정 앰플" className={inputClass} />
               </div>
               <div>
-                <label htmlFor="priceJpy" className="text-sm font-medium">예상 판매가 (엔)</label>
+                <label htmlFor="priceJpy" className={fieldLabelClass}>예상 판매가 (엔)</label>
                 <input id="priceJpy" type="number" min={0} value={priceJpy} onChange={(e) => setPriceJpy(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-neutral-300 p-2 text-sm" />
-              </div>
-              <div className="sm:col-span-2">
-                <label htmlFor="keyIngredients" className="text-sm font-medium">핵심 성분 (쉼표 구분, 최대 8)</label>
-                <input id="keyIngredients" value={keyIngredients} onChange={(e) => setKeyIngredients(e.target.value)}
-                  placeholder="예: 센텔라, 나이아신아마이드"
-                  className="mt-1 w-full rounded-lg border border-neutral-300 p-2 text-sm" />
-                <p className="mt-1 text-xs text-neutral-500">상세페이지 콘텐츠와 함께 제출될 때 루브릭 채점에 반영됩니다.</p>
+                  placeholder="2980" className={inputClass} />
               </div>
             </div>
 
-            <div>
-              <p className="mb-2 text-sm font-medium">진단 대상 콘텐츠 (상세페이지 카피)</p>
-              <div className="mb-2 flex gap-2 text-sm">
+            <div className="mt-4">
+              <label htmlFor="keyIngredients" className={fieldLabelClass}>
+                핵심 성분 <span className="font-normal text-ink-mute">(쉼표 구분 · 최대 8개)</span>
+              </label>
+              <input id="keyIngredients" value={keyIngredients} onChange={(e) => setKeyIngredients(e.target.value)}
+                placeholder="예: 센텔라, 나이아신아마이드" className={inputClass} />
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-mute">
+                상세페이지 콘텐츠와 함께 제출될 때 루브릭 채점에 반영됩니다.
+              </p>
+            </div>
+
+            <div className="mt-7">
+              <span className={fieldLabelClass}>
+                진단 대상 콘텐츠 <span className="font-normal text-ink-mute">(상세페이지 카피)</span>
+              </span>
+              <div className="inline-flex gap-0.5 rounded-[10px] bg-n-100 p-1">
                 <button
                   type="button"
-                  onClick={() => setSourceType('text')}
                   aria-pressed={sourceType === 'text'}
-                  className={`rounded px-3 py-1 ${sourceType === 'text' ? 'bg-neutral-900 text-white' : 'border border-neutral-300'}`}
+                  onClick={() => setSourceType('text')}
+                  className={`h-[34px] rounded-lg px-4 text-[13.5px] transition-colors ${
+                    sourceType === 'text' ? 'bg-canvas font-bold text-ink shadow-card' : 'bg-transparent font-medium text-ink-mute'
+                  }`}
                 >
                   텍스트 붙여넣기 (권장)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSourceType('url')}
                   aria-pressed={sourceType === 'url'}
-                  className={`rounded px-3 py-1 ${sourceType === 'url' ? 'bg-neutral-900 text-white' : 'border border-neutral-300'}`}
+                  onClick={() => setSourceType('url')}
+                  className={`h-[34px] rounded-lg px-4 text-[13.5px] transition-colors ${
+                    sourceType === 'url' ? 'bg-canvas font-bold text-ink shadow-card' : 'bg-transparent font-medium text-ink-mute'
+                  }`}
                 >
                   URL
                 </button>
               </div>
+
               {sourceType === 'text' ? (
-                <>
+                <div className="mt-3">
                   <label htmlFor="sourceText" className="sr-only">상세페이지 카피</label>
                   <textarea
                     id="sourceText"
                     value={sourceText}
                     onChange={(e) => setSourceText(e.target.value)}
-                    rows={8}
+                    rows={7}
                     placeholder="상세페이지의 문구를 붙여넣어 주세요. 문장 단위로 전수 감사됩니다. (이미지 위주 상세라면 이미지 속 문구를 옮겨 적어 주세요)"
-                    className="w-full rounded-lg border border-neutral-300 p-3 text-sm"
+                    className={`${textareaClass} min-h-[150px] ${hardGateBlocked ? 'border-danger' : ''}`}
                   />
-                  <p className="mt-1 text-xs" aria-live="polite">
-                    <span className={hardGateBlocked ? 'font-semibold text-[#F0483C]' : 'text-neutral-500'}>
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2.5" aria-live="polite">
+                    <span className={`text-[12.5px] font-semibold ${hardGateBlocked ? 'text-danger-text' : 'font-medium text-ink-mute'}`}>
                       {charCount}자(공백 제외)
                     </span>
-                    {hardGateBlocked && ' — 최소 50자 이상 콘텐츠가 필요합니다'}
-                    {softLimited && (
-                      <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-900">
-                        정밀도 제한 — 200자 이상이면 더 정밀해집니다
+                    {hardGateBlocked && (
+                      <span className="inline-flex h-6 items-center rounded-[6px] bg-danger-bg px-2.5 text-xs font-semibold whitespace-nowrap text-danger-text">
+                        ✕ 최소 50자 이상 콘텐츠가 필요합니다
                       </span>
                     )}
-                  </p>
-                </>
+                    {softLimited && (
+                      <span className="inline-flex h-6 items-center rounded-[6px] bg-amber-bg px-2.5 text-xs font-semibold whitespace-nowrap text-amber-text">
+                        △ 정밀도 제한 — 200자 이상이면 더 정밀해집니다
+                      </span>
+                    )}
+                    {fullPrecision && (
+                      <span className="inline-flex h-6 items-center rounded-[6px] bg-green-bg px-2.5 text-xs font-semibold whitespace-nowrap text-green-text">
+                        ○ 브랜드+제품 진단 — 리포트 전체 산출
+                      </span>
+                    )}
+                    {charCount === 0 && <span className="text-xs font-medium text-ink-mute">브랜드 진단으로 진행</span>}
+                  </div>
+                </div>
               ) : (
-                <>
+                <div className="mt-3">
                   <label htmlFor="sourceUrl" className="sr-only">상세페이지 URL</label>
                   <input
                     id="sourceUrl"
@@ -335,49 +350,50 @@ export default function ReportNewPage() {
                     value={sourceUrl}
                     onChange={(e) => setSourceUrl(e.target.value)}
                     placeholder="https:// 상세페이지 주소"
-                    className="w-full rounded-lg border border-neutral-300 p-3 text-sm"
+                    className={`${inputClass} ${urlInvalid ? 'border-danger' : ''}`}
                   />
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute">
                     이미지 위주 상세는 텍스트가 적게 추출될 수 있습니다 — 실패 시 텍스트 붙여넣기로 안내됩니다.
                   </p>
-                </>
+                  {urlInvalid && (
+                    <p className="mt-2 text-[12.5px] font-semibold text-danger-text">✕ http(s)로 시작하는 URL을 입력해 주세요.</p>
+                  )}
+                </div>
               )}
             </div>
+          </SectionCard>
+
+          {error && (
+            <p role="alert" className="rounded-[10px] border border-danger bg-danger-bg p-3 text-[13px] text-danger-text">
+              {error}
+            </p>
+          )}
+
+          <div>
+            <button type="submit" disabled={!canSubmit} className={buttonClass('primary', 'lg', 'w-full')}>
+              {submitting ? '제출 중…' : '진단 리포트 생성'}
+            </button>
+            {!brandReady ? (
+              <p className="mt-3 text-center text-[13px] leading-relaxed text-ink-mute">
+                브랜드명·포지셔닝·카테고리를 채우면 진단할 수 있어요.
+              </p>
+            ) : hardGateBlocked ? (
+              <p className="mt-3 text-center text-[13px] leading-relaxed text-ink-mute">
+                콘텐츠는 50자 이상이어야 합니다 — 비우고 제출하면 브랜드 진단으로 생성됩니다.
+              </p>
+            ) : urlInvalid ? (
+              <p className="mt-3 text-center text-[13px] leading-relaxed text-ink-mute">
+                http(s)로 시작하는 URL을 입력해 주세요 — 비우고 제출하면 브랜드 진단으로 생성됩니다.
+              </p>
+            ) : !contentProvided ? (
+              <p className="mt-3 text-center text-[13px] leading-relaxed text-ink-mute">
+                지금 제출하면 <strong className="font-semibold text-ink">브랜드 진단</strong>(페르소나·USP·벤치마크)으로
+                생성됩니다 — 상세페이지 카피를 넣으면 약기법 감사·문법 점수까지 포함됩니다.
+              </p>
+            ) : null}
           </div>
-        </details>
-
-        {error && (
-          <p role="alert" className="rounded-lg border border-[#F0483C] bg-red-50 p-3 text-sm text-[#B3271D]">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className={`w-full rounded-lg px-6 py-3 text-lg font-bold text-white ${
-            canSubmit ? 'bg-[#FF6464] hover:bg-[#D93636]' : 'cursor-not-allowed bg-neutral-300'
-          }`}
-        >
-          {submitting ? '제출 중…' : '진단 리포트 생성'}
-        </button>
-        {!brandReady ? (
-          <p className="text-center text-xs text-neutral-500">브랜드명·포지셔닝·카테고리를 채우면 진단할 수 있어요.</p>
-        ) : hardGateBlocked ? (
-          <p className="text-center text-xs text-neutral-500">
-            콘텐츠는 50자 이상이어야 합니다 — 비우고 제출하면 브랜드 진단으로 생성됩니다.
-          </p>
-        ) : urlInvalid ? (
-          <p className="text-center text-xs text-neutral-500">
-            http(s)로 시작하는 URL을 입력해 주세요 — 비우고 제출하면 브랜드 진단으로 생성됩니다.
-          </p>
-        ) : !contentProvided ? (
-          <p className="text-center text-xs text-neutral-500">
-            지금 제출하면 <strong>브랜드 진단</strong>(페르소나·USP·벤치마크)으로 생성됩니다 — 상세페이지 카피를 넣으면
-            약기법 감사·문법 점수까지 포함됩니다.
-          </p>
-        ) : null}
-      </form>
+        </form>
+      </div>
     </main>
   );
 }

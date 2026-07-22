@@ -11,6 +11,7 @@
     "test": "tsc -p tsconfig.node.json && node --test \".tmp-node/lib/**/*.test.js\"",
     "aggregate": "node scripts/aggregate/aggregate-benchmark.mjs",
     "report:cli": "tsc -p tsconfig.node.json && node .tmp-node/scripts/run-report.js",
+    "thumbnail:cli": "tsc -p tsconfig.node.json && node .tmp-node/scripts/run-thumbnail.js",
     "crawl:rakuten-api": "node scripts/crawl/rakuten.mjs",
     "crawl:rakuten-browser": "node scripts/crawl/rakuten-browser.mjs",
     "crawl:amazon": "node scripts/crawl/amazon.mjs",
@@ -23,6 +24,7 @@
     "@anthropic-ai/sdk": "^0.110.0",
     "@supabase/supabase-js": "^2.110.2",
     "next": "^16.2.10",
+    "openai": "^6.48.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },

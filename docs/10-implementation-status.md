@@ -1,7 +1,9 @@
 # 10 · 구현 현황 (기능 검증 빌드)
 
 > **무엇이 실제로 돌아가는가**의 스냅샷 문서. 2026-07-16 기준 — 메인페이지 + ① 진단 리포트 한 사이클(입력→파이프라인→9블록 뷰→발행)이 **두 진단 모드**(`brand` 브랜드 진단 / `brandProduct` 브랜드+제품 진단)로 작동하고, 보고용 슬라이드 내보내기(모드별 7장/4장)까지 작동한다.
+> **2026-07-21 스프린트 2:** 목 로그인 + 앱 셸 + **② 썸네일 실생성 파이프라인**(콜⑥ studioCopy + OpenAI images.edit — 키 없으면 목 모드) + **③ 운영 3화면**(자산 라이브러리·브랜드 관리·기업 매칭) + 계정(마이페이지)이 추가로 작동한다 — §1b. 스펙: [[09-dev-spec]] §4b · [[08-data-flow]] §4.7·§6.1 스프린트 2 델타.
 > **2026-07-16 변경:** 검수 단계 제거(파이프라인 성공 = 발행) · 보고용 슬라이드 추가 · **입력 브랜드 우선 재구성(v4 — 두 진단 모드·`positioning` 신설·`gates.ts` 단일화)** → [[decisions/DECISIONS]] · [[specs/01-report-spec]] v3·v4.
+> **⚠ 2026-07-18 v6 스펙 개정 — 코드 미반영:** 스펙·와이어프레임은 **블록 6 재프레이밍**(리뷰 인과 서사 → 정보 공백→이탈 경로 · 리뷰 데이터 없음)·**블록 7·8 통합**(7-1 문장 재작성 + 7-2 통째 재구성)·**블록 9→8 재번호**(리포트 = 블록 0~8)로 갔으나, **아래 구현 현황은 개정 전 코드(블록 0~9 · `reviewNarrative` 스키마 · 블록 7/8 분리) 기준**이다. 코드(`lib/engine`·`components/report/ReportView.tsx`·콜③/④ 스키마) 반영은 후속 작업. 정본: [[specs/01-report-spec]] v6 · [[08-data-flow]] v6.
 > 계획 대비 진척은 [[09-dev-spec]] §4 체크박스, 데이터 계약은 [[08-data-flow]], 제품 정의는 [[specs/01-report-spec]]이 정본. 이 문서는 "지금 어디까지 왔고, 어떻게 돌리고, 무엇이 남았나"만 담는다.
 > 디자인: **기능 검증용 미니멀 UI** — `design/` 확정안이 나오면 컴포넌트 구조 유지한 채 스타일만 교체하는 전제.
 
@@ -21,7 +23,25 @@
 | 저장 | ✅ Supabase 구현 + **`.data/` 파일 폴백**(키 없으면 자동, UI에 "로컬 저장(dev)" 배지) |
 | 목(mock) 모드 | ✅ `ANTHROPIC_API_KEY` 없거나 `LLM_MODE=mock`이면 고정 픽스처로 전체 플로우 확인 가능(화면에 배지) |
 
-**미구현(다음 작업, §5):** PDF 내보내기 · 무료 약기법 체커 · 인증/온보딩(이번 범위에서 의도적 제외) · **결제 잠금(샘플 경계) 집행** · S2 재진단 뷰 · ②③축.
+**미구현(다음 작업, §5):** PDF 내보내기 · 무료 약기법 체커 · ~~인증/온보딩~~(→ 목 로그인으로 대체, 실 OAuth는 잔여) · **결제 잠금(샘플 경계) 집행** · S2 재진단 뷰 · ~~②③축~~(→ §1b에서 구현).
+
+## 1b. 스프린트 2 — ② 실생성 + ③ 운영 + 계정 (2026-07-21)
+
+| 구분 | 상태 |
+|---|---|
+| 계정: 목 로그인 | ✅ `/login` 소셜 3종 버튼(카카오·네이버·구글) — **실 OAuth 미연동, 클릭 = 세션 쿠키 발급**(httpOnly 1개 · 데모 유저 1명 하드코딩) · `/app/*` 가드는 `app/app/layout.tsx` 1곳(비로그인 → `/login`, middleware 없음) |
+| 앱 셸 | ✅ `components/app/AppShell.tsx` 사이드바(3축 내비 + 운영 하위 아코디언 + 계정 행 + 매칭 상태 배지) · `/app` → `/app/library` 리다이렉트 · 기존 리포트 2화면 셸 안에서 리그레션 없음(E2E 확인) |
+| 파일 저장 | ✅ 로컬 `.data/files/{prefix}-{uuid}.{ext}` + `GET /api/files/[id]` 서빙 — 스토어에는 fileId만. Supabase Storage 전환 시 `lib/files/storage.ts` 내부만 교체 |
+| ② 썸네일 생성 | ✅ 생성 퍼널(`/app/studio/thumbnail` — 드롭존·플랫폼 칩·템플릿 8종 실측 그리드·실적 아코디언·sticky 제출) → **콜⑥ studioCopy**(Claude 비전 1콜: 분석+카피 재설계+슬롯) → 결정적 조립(`buildPrompt` + proof 게이트 + 가격 슬롯 강제 공란, 단위테스트 7건) → **OpenAI `images.edit`**(모델·품질 env 주입 — `input_fidelity`는 지원 모델에만 조건부, gpt-image-2는 항상 고정밀 처리라 미지원·불필요) → `.data/files/` 저장 → 결과 상세(`[assetId]` 2.5초 폴링: 생성중→done 게이트 배지·재설계 해설·다운로드→failed 프리필 재시도) |
+| ② 목 모드 | ✅ `OPENAI_API_KEY` 없거나 `IMAGE_MODE=mock` → 실측 샘플 PNG 픽스처(콜⑥은 `LLM_MODE` 목 규칙 그대로) — 키 전무 상태로 전체 플로우 확인 가능. 모델 ID는 실검증으로 `gpt-image-2` 확정(2026-07-21, 스펙 §6-Q1 해소 — `OPENAI_IMAGE_MODEL`로 오버라이드 가능), **팩 §5 골든 픽스처 실검증은 잔여** |
+| ③ 자산 라이브러리 | ✅ `/app/library` 타입 탭 [진단 리포트\|썸네일] + 시즌 제안 카드(정적 상수) + 생성중 타일 + 빈 상태 — 재조회 전용(실시간 폴링 없음, 새로고침 반영) · `/app/library/[assetId]` 썸네일/리포트 요약 2모드(생성중은 폴링 화면으로 리다이렉트) |
+| ③ 브랜드 관리 | ✅ `/app/brand` 4섹션(프로필·제품·채널·브랜드 킷) `GET·PUT /api/brand` + 상세페이지 문서 업로드(`POST /api/brand/doc`) · 킷 수정 불소급 캡션 · 생성 시 `brandNameSnapshot` 물질화 확인 |
+| ③ 기업 매칭 | ✅ `/app/matching` 신청 폼(자동 첨부 요약 스냅샷) → 상태 스테퍼 → 취소 모달, `GET·POST·DELETE /api/matching` — 상태 갱신은 운영팀 수동(reviewing·proposed는 DB에서 직접) |
+| 계정: 마이페이지 | ✅ `/app/account` 계정 정보(provider 배지)·플랜 목업(FREE)·브랜드 요약(편집은 ③으로 링크)·로그아웃 |
+| 저장 확장 | ✅ `Store`에 `BrandProfile`(싱글턴)·`GeneratedAsset`·`MatchRequest` + list 조회 — fileStore·supabaseStore 동시 구현, `supabase/schema.sql` 3테이블 멱등 추가 |
+| 검증 | ✅ typecheck 0오류 · 테스트 37/37 · `next build` 전 라우트 통과 · **목 HTTP E2E 통과**(로그인→브랜드 저장→썸네일 생성 done·이미지 서빙→라이브러리 탭·상세→매칭 신청·취소→마이페이지→리포트 발행 리그레션→로그아웃 가드) |
+
+**스프린트 2 잔여:** OpenAI 팩 §5 골든 픽스처 실검증(모델 ID는 `gpt-image-2` 확정 — 2026-07-21) · `.env.example` 키 4종 추가(로컬 권한 설정으로 편집 차단 — 키 이름은 [[09-dev-spec]] §1) · 매칭 상태 갱신 운영 도구 · 실 OAuth 전환.
 
 ## 2. 실행 방법
 
@@ -36,11 +56,12 @@ cd C:\dev\jgs-run
 npm run dev          # → http://localhost:3000
 npm run typecheck    # 타입 검사
 npm run test         # 집계 결정성 테스트 (tsc 컴파일 → node --test)
-npm run report:cli   # 화면 없이 파이프라인만 (cica 픽스처)
-npm run aggregate    # 코퍼스 갱신 시 사전집계 재생성
+npm run report:cli    # 화면 없이 ① 파이프라인만 (cica 픽스처)
+npm run thumbnail:cli # 화면 없이 ② 썸네일 파이프라인만 (--style A~H · --platform · --proof)
+npm run aggregate     # 코퍼스 갱신 시 사전집계 재생성
 ```
 
-환경 변수(`.env`, [.env.example](../.env.example) 참조): `ANTHROPIC_API_KEY`(없으면 목 모드) · Supabase 3종(없으면 파일 폴백 — 셋업은 [setup-supabase.md](setup-supabase.md) 3단계).
+환경 변수(`.env`, [.env.example](../.env.example) 참조): `ANTHROPIC_API_KEY`(없으면 목 모드) · Supabase 3종(없으면 파일 폴백 — 셋업은 [setup-supabase.md](setup-supabase.md) 3단계) · **스프린트 2 추가**: `OPENAI_API_KEY`(없으면 이미지 목 모드) · `IMAGE_MODE=mock`(강제 목) · `OPENAI_IMAGE_MODEL`(기본 gpt-image-2) · `OPENAI_IMAGE_QUALITY`(기본 medium).
 
 **클릭 동선(E2E와 동일):** `/` 랜딩 → `무료 진단 시작` → 폼 입력·제출 → 진행 화면(자동 폴링) → **발행 완료 배너 + 리포트 열람** → `보고용 슬라이드 만들기` → HTML 다운로드. (2026-07-16: ~~검수 전 배너 → `/admin/review` 실명 서명~~ 경로 제거)
 **브랜드 진단 동선(v4 신규):** 같은 폼에서 **브랜드 섹션만**(브랜드명·포지셔닝·카테고리) 입력·제출(제품 섹션 비움 = 에러 아님) → 동일 진행 화면 → 발행(`mode: brand` — 블록 1·3·5·7·8 데이터 잠금·종합점수 없음) → 슬라이드 **4장** 다운로드.

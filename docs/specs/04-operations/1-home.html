@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>③ 운영 · 1. 운영 홈(자산 라이브러리)</title>
+<!--
+  비배포 · 기획 검토용 인터랙티브 프로토타입.
+  정본: 04-operations-ui-기획서.md # 1. 운영 홈(자산 라이브러리) (LIB-00~10 · 07.21 하위 메뉴 IA 개편)
+  운영 홈이 곧 자산 라이브러리다 — 여기서 만들지 않는다. ①·② 자산의 재조회 전용(08-data-flow §5.2).
+  타입 탭 [진단 리포트|썸네일]이 1차 내비(필터 칩 폐지 — LIB-04). 기본 탭 = 진단 리포트.
+  사이드바 "운영" 하위 메뉴(자산 라이브러리·브랜드 관리·기업 매칭)는 아코디언 —
+    운영 4개 화면에서 동일 마크업. 수정 시 1-home·2-detail·3-brand·4-matching 동시 반영(LIB-00).
+  시즌 스트립은 조회 전용 — 예약·발행 기능 없음(예약 발행툴 = 금지 포지션).
+  ② 2-create 제출 → sessionStorage(kglow_studio_job) → 썸네일 탭 맨 앞 생성중 타일.
+    ※ kglow_studio_job 은 읽기만 한다. removeItem 하지 X — 소비 주체는 ② 스튜디오 홈이며,
+      여기서 지우면 ② 데모가 깨진다.
+  4-matching 제출 → sessionStorage(kglow_ops_match) → 하위 메뉴 "기업 매칭" 상태 배지(LIB-07 개편).
+  검토 스트립의 상태 스위처(빈/기본/생성중)는 프로토타입 검토 전용 — 제품 UI 아님.
+    매칭 검토중/제안 토글은 4-matching 스위처로 이동(LIB-10).
+  화면 속 썸네일·리포트 표지는 전부 CSS 목업(가상 브랜드 HARUON) — 실제 산출물이 아니다.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<!-- 프로토타입 검토 스트립 + 데모 상태 스위처 -->
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">③ 운영 · 프로토타입</span>
+    <a href="index.html">플로우</a>
+    <a href="1-home.html" class="on">1 운영 홈</a>
+    <a href="2-detail.html">2 자산 상세</a>
+    <a href="3-brand.html">3 브랜드 관리</a>
+    <a href="4-matching.html">4 기업 매칭</a>
+    <a href="04-operations-ui-기획서.md">기획서 ↗</a>
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
+      <span>상태(검토용):</span>
+      <button type="button" class="st-btn" data-st="empty" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">빈 상태</button>
+      <button type="button" class="st-btn" data-st="default" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">기본</button>
+      <button type="button" class="st-btn" data-st="generating" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">생성중</button>
+    </span>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- 전역 내비(사이드바) — ⓪ 00-main과 동일 셸 (MAIN-01). 운영 메뉴만 on -->
+  <aside class="app-side" aria-label="전역 내비게이션">
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <div style="position:relative">
+      <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
+        style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
+        <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#B96C00">하</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:block;font-size:13px;font-weight:700;color:#202124;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">하루온 HARUON</span>
+          <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">스킨케어 / <span lang="ja">スキンケア</span></span>
+        </span>
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="swMenu" role="listbox" aria-label="브랜드 프로필 전환" class="sw-menu"
+        style="display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+        <div class="sw-item" role="option" aria-selected="true" style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px">
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#B96C00">하</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#202124">하루온 HARUON</span><span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61)">현재 브랜드</span></span>
+          <span style="color:#00875A;font-size:13px;font-weight:800">✓</span>
+        </div>
+        <button type="button" class="sw-item" role="option" aria-selected="false" aria-disabled="true" title="브랜드 전환 데모는 홈 프로토타입에서 제공"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default">
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#E2F3E9,#BFE3CE);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#00875A">글</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#9CA0A8">글로우리프</span><span style="display:block;font-size:10.5px;color:#B6B8BF">전환 데모는 홈에서</span></span>
+        </button>
+        <div style="height:1px;background:#EBEBEB;margin:6px 4px"></div>
+        <button type="button" class="sw-item" aria-disabled="true" title="다중 브랜드 지원 범위 (미정)"
+          style="display:flex;width:100%;align-items:center;gap:8px;padding:8px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default;color:#B6B8BF;font-size:12px;font-weight:600">＋ 브랜드 추가 <span style="margin-left:auto;font-size:9.5px;font-weight:700;background:#F1F1F3;color:#9CA0A8;border-radius:9999px;padding:2px 7px">미정</span></button>
+      </div>
+    </div>
+    <nav class="side-nav" aria-label="주요 메뉴">
+      <a href="../00-main/1-home.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        대시보드</a>
+      <a href="../01-report/1-input.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        진단 리포트 <span class="side-badge b-ok">이용 가능 ○</span></a>
+      <a href="../02-studio/1-home.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+        마케팅 스튜디오 <span class="side-badge b-warn">썸네일 우선 △</span></a>
+      <a href="1-home.html" class="on">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        운영 <span class="side-badge b-warn">라이브러리 우선 △</span></a>
+      <!-- 운영 하위 메뉴 (LIB-00) — 아코디언: 운영 활성 화면에만 존재.
+           수정 시 1-home·2-detail·3-brand·4-matching 4파일 동시 반영 -->
+      <ul class="side-sub" aria-label="운영 하위 메뉴">
+        <li><a href="1-home.html" class="on" aria-current="page">자산 라이브러리</a></li>
+        <li><a href="3-brand.html">브랜드 관리</a></li>
+        <li><a href="4-matching.html">기업 매칭 <span id="matchBadge" class="side-badge" style="display:none"></span></a></li>
+      </ul>
+    </nav>
+    <span class="side-gap"></span>
+    <div class="side-kpi">
+      <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:.01em;color:rgba(55,56,60,0.61)">브랜드 자산</p>
+      <div class="k-row"><span style="color:#414245">진단 리포트</span><b><span class="tnum">2</span>건</b></div>
+      <div class="k-row"><span style="color:#414245">생성 썸네일</span><b><span class="tnum">4</span>건</b></div>
+      <div class="k-row"><span style="color:#414245">최근 진단 점수</span><b><span class="tnum">18</span><span style="font-weight:600;color:#B6B8BF">/100</span></b></div>
+      <div class="k-row"><span style="color:#414245">다음 메가와리</span><b>D-<span class="tnum">43</span><span style="font-weight:600;color:#B6B8BF"> · 9월</span></b></div>
+    </div>
+    <div class="side-foot">
+      <a href="../01-report/3-report.html" class="hbtn hbtn-secondary" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;text-decoration:none;margin-bottom:10px">
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 12v6"/><path d="M9 15l3 3 3-3"/></svg>
+        품의용 PDF</a>
+      <div style="position:relative">
+        <button type="button" id="avBtn" aria-haspopup="menu" aria-expanded="false" aria-label="계정 메뉴"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:7px 8px;border:none;border-radius:10px;background:transparent;font-family:inherit;cursor:pointer;text-align:left" class="sw-item">
+          <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:12.5px;font-weight:700;color:#202124;line-height:1.25">박민정</span>
+            <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">minjeong@haruon.kr</span>
+          </span>
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+        </button>
+        <div id="avMenu" role="menu" class="sw-menu" style="display:none;position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+          <a href="../03-account/2-mypage.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">마이페이지</a>
+          <a href="../03-account/1-login.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">로그아웃</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="app-main">
+
+  <!-- 1. 운영 홈(자산 라이브러리) -->
+  <main style="flex:1;animation:fadeUp .45s ease both">
+    <div style="max-width:1120px;margin:0 auto;padding:44px 24px 96px">
+
+      <!-- LIB-01 · 상단 영역 (primary 없음 — 화면 primary는 제안 카드 1개) -->
+      <div>
+        <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 운영</p>
+        <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">브랜드 자산 라이브러리</h1>
+        <p style="margin:14px 0 0;max-width:640px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">진단 리포트와 생성 썸네일이 브랜드 단위로 모입니다. 여기서 만들지 않습니다 — 다시 꺼내 보고, 다음 시즌을 준비하는 화면입니다.</p>
+      </div>
+
+      <!-- LIB-02 · 시즌 타임라인 스트립 (조회 전용 — 예약·발행 기능 없음) -->
+      <section class="season-strip" style="margin-top:28px" aria-label="일본 뷰티 시즌 타임라인">
+        <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+          <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">시즌 타임라인</h2>
+          <span class="tnum" style="font-size:12px;font-weight:700;color:#D93636">다음 메가와리 D-43 · 9월</span>
+          <span style="margin-left:auto;font-size:11.5px;color:#B6B8BF">일정 예약 도구가 아닙니다. 지금 무엇을 준비할지 보는 캘린더입니다</span>
+        </div>
+        <div class="season-track" aria-hidden="true">
+          <span class="season-line"></span>
+          <!-- 기간형: 트랙 위 바 (겹치지 않는 창 배치) -->
+          <span class="season-bar on" style="left:0;width:16.5%;top:2px;height:9px" title="UV 상전 (4~7월) — 막바지"></span>
+          <span style="position:absolute;left:1%;top:-12px;font-size:10px;font-weight:700;color:#B96C00">UV 상전 · 진행 중</span>
+          <span class="season-bar" style="left:27%;width:45%;top:2px;height:9px" title="크리스마스 코프레 (정보 해금 8월 하순 → 발매 10월 하순~11월)"></span>
+          <span style="position:absolute;left:38%;top:-12px;font-size:10px;font-weight:600;color:rgba(55,56,60,0.61)">크리스마스 코프레 (해금 → 발매)</span>
+          <span class="season-bar on" style="left:12%;width:38%;top:58px;height:9px" title="가을 신색 (7월 하순~9월)"></span>
+          <span style="position:absolute;left:22%;top:70px;font-size:10px;font-weight:700;color:#B96C00">가을 신색 · 진행 중</span>
+          <!-- 시점형: 메가와리 노드 -->
+          <span class="season-ev ev-next" style="left:33.3%"><span class="ev-dot"></span>9월 메가와리 D-43</span>
+          <span class="season-ev" style="left:66.7%"><span class="ev-dot"></span>11월 메가와리</span>
+          <!-- 오늘 마커 (코랄 1개) -->
+          <span class="season-now" style="left:10.7%"><span class="now-line"></span><span class="now-tag">오늘</span></span>
+        </div>
+        <div aria-hidden="true" style="display:grid;grid-template-columns:repeat(6,1fr);margin-top:10px;border-top:1px solid #F1F1F3;padding-top:6px">
+          <span style="font-size:10px;color:#B6B8BF">7월</span><span style="font-size:10px;color:#B6B8BF">8월</span><span style="font-size:10px;color:#B6B8BF">9월</span><span style="font-size:10px;color:#B6B8BF">10월</span><span style="font-size:10px;color:#B6B8BF">11월</span><span style="font-size:10px;color:#B6B8BF">12월</span>
+        </div>
+        <p class="visually-hidden">향후 6개월 시즌: UV 상전이 7월 말까지 진행 중, 가을 신색 시즌이 7월 하순부터 9월까지 진행 중, 9월 메가와리까지 43일, 크리스마스 코프레 정보 해금은 8월 하순, 11월 메가와리 예정.</p>
+      </section>
+
+      <!-- LIB-03 · 이번 시즌 준비 제안 카드 (화면 유일 primary) -->
+      <section id="proposeCard" style="margin-top:14px;background:#fff;border:1px solid rgba(255,100,100,.3);border-radius:18px;padding:20px 22px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div style="flex:1;min-width:280px">
+          <span id="proposeBadge" style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.3);color:#D93636;font-size:11px;font-weight:700">9월 메가와리 D-43</span>
+          <h2 id="proposeTitle" style="margin:10px 0 0;font-size:17px;font-weight:800;letter-spacing:-0.01em;color:#202124">프로모션 강조형 썸네일을 준비할 때입니다</h2>
+          <p id="proposeDesc" style="margin:7px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">무엇을: 메가와리용 프로모션 썸네일 · 어떤 말로: 세트·특전 소구를 일본 구매 관례어로 재설계</p>
+        </div>
+        <a id="proposeCta" href="../02-studio/1-home.html" class="h-primary" style="display:inline-flex;height:44px;align-items:center;padding:0 20px;border-radius:11px;background:#FF6464;color:#fff;font-size:14px;font-weight:700;text-decoration:none">스튜디오에서 준비하기 →</a>
+      </section>
+
+      <!-- LIB-04 · 타입 탭 (1차 내비 — 필터 칩 폐지 07.21) + 툴바 (2차 정제: 기간·카운트) -->
+      <div id="tabsWrap" style="margin-top:32px">
+        <div id="libTabs" class="lib-tabs" role="tablist" aria-label="자산 종류"></div>
+      </div>
+      <div id="toolbar" style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <label for="periodSel" class="visually-hidden">기간</label>
+        <select id="periodSel" class="f-input" style="height:32px;border:1px solid rgba(112,115,124,0.28);border-radius:8px;background:#fff;font-family:inherit;font-size:12px;font-weight:600;color:#414245;padding:0 8px">
+          <option value="all">전체 기간</option>
+          <option value="p30">최근 30일</option>
+          <option value="p90">최근 90일</option>
+        </select>
+        <span id="countLabel" style="margin-left:auto;font-size:12.5px;font-weight:600;color:rgba(55,56,60,0.61);white-space:nowrap">총 0건 · 최신순</span>
+      </div>
+
+      <!-- LIB-04~05 · 자산 통합 그리드 -->
+      <div id="grid" class="rwrap-2" style="margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px"></div>
+      <p id="filterEmpty" style="display:none;margin:28px 0 0;font-size:13.5px;color:rgba(55,56,60,0.61)"></p>
+
+      <!-- LIB-06 · 빈 상태 (자산 0건) -->
+      <div id="emptyState" style="display:none;margin-top:28px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:56px 32px;text-align:center;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        <h2 style="margin:14px 0 0;font-size:19px;font-weight:800;color:#202124">아직 브랜드 자산이 없습니다</h2>
+        <p style="margin:10px 0 0;font-size:13.5px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty">첫 진단 리포트가 발행되면 여기에 쌓이기 시작합니다.<br>재설계 문구·썸네일이 모두 이 화면으로 모입니다.</p>
+        <a href="../01-report/1-input.html" class="hbtn hbtn-secondary" style="display:inline-flex;margin-top:22px;height:42px;align-items:center;padding:0 20px;border-radius:11px;font-size:13.5px;text-decoration:none">진단 시작</a>
+      </div>
+
+      <!-- LIB-08 · 준비 중인 기능 (성과 판별 자리 예약 — 매칭 엔트리 카드는 07.21 폐지, 하위 메뉴로 격상) -->
+      <section style="margin-top:44px">
+        <h2 style="margin:0;font-size:16px;font-weight:800;letter-spacing:-0.01em;color:#202124">준비 중인 기능</h2>
+        <div class="rwrap" style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+          <!-- LIB-08 · 성과 판별 (자리 예약 — 클릭 동작 X) -->
+          <div class="ops-card" aria-disabled="true" style="border-radius:18px;padding:22px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <h3 style="margin:0;font-size:15px;font-weight:800;color:#9CA0A8">성과 판별</h3>
+              <span style="display:inline-flex;height:19px;align-items:center;padding:0 7px;border-radius:9999px;background:#F1F1F3;color:#9CA0A8;font-size:10px;font-weight:700">준비 중</span>
+            </div>
+            <p style="margin:9px 0 0;font-size:12.5px;line-height:1.65;color:#B6B8BF">생성한 콘텐츠가 얼마나 효과적인지 판별 — 실현 가능성을 검토하고 있습니다.</p>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+  </div>
+</div>
+
+<script>
+/**
+ * 운영 홈 로직 (LIB-02~08) — 자산 통합 그리드 렌더 · 축 필터 · 생성중 타일 ·
+ * 시즌 제안 카드 전환 · 매칭 엔트리 카드 상태.
+ * 상태 소스: 검토용 스위처(강제) > sessionStorage(kglow_studio_job·kglow_ops_match) > 기본.
+ */
+(function () {
+  var STAGES = ['원본 분석 중', '일본 고객 관점으로 카피 재설계 중', '프롬프트 조립 중', '썸네일 생성 중', '검수 게이트 확인 중'];
+
+  /** 데모 자산 6건 = 사이드바 KPI(리포트 2 · 썸네일 4)와 일치 — 전부 CSS 목업. days = 오늘(07.21) 기준 경과일(기간 셀렉트용) */
+  var ASSETS = [
+    { id: 'a1', kind: 'thumb',  tpl: 'official',       name: '공식샵 신뢰 배지형',     meta: '라쿠텐 공식샵 · 2026.07.19', days: 2,  href: '2-detail.html?asset=a1' },
+    { id: 'a2', kind: 'thumb',  tpl: 'clean',          name: '클린 스튜디오 단독컷',   meta: '아마존JP · 2026.07.18',      days: 3,  href: '2-detail.html?asset=a2' },
+    { id: 'a3', kind: 'thumb',  tpl: 'copyIngredient', name: '캐치카피+성분 비주얼형', meta: '라쿠텐 공식샵 · 2026.07.18', days: 3,  href: '2-detail.html?asset=a3' },
+    { id: 'a4', kind: 'thumb',  tpl: 'promo',          name: '프로모션 강조형',        meta: 'Qoo10 · 2026.07.17',         days: 4,  href: '2-detail.html?asset=a4' },
+    { id: 'r1', kind: 'report', tpl: 'score',          name: 'CICA 진정 앰플 진단 리포트', meta: '발행 2026.07.16',        days: 5,  href: '2-detail.html?asset=r1' },
+    { id: 'r2', kind: 'report', tpl: 'brand',          name: '하루온 브랜드 진단 리포트',  meta: '발행 2026.07.11',        days: 10, href: '2-detail.html?asset=r2' }
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  /** tab = 타입 탭(LIB-04 · 기본 = 진단 리포트) · period = 기간 셀렉트(2차 정제) */
+  var state = { view: null, tab: 'report', period: 'all', doneAsset: null, match: null };
+
+  // ── CSS 목업: 썸네일 (② mockHtml 이식 — 가상 브랜드 HARUON) ──
+  var TUBE = '<span style="position:absolute;left:50%;top:26%;transform:translateX(-50%);width:24%;height:46%;border-radius:6px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE)"></span>' +
+             '<span style="position:absolute;left:50%;top:20%;transform:translateX(-50%);width:13%;height:7%;border-radius:3px;background:#E8A987"></span>';
+  function mockHtml(tpl) {
+    if (tpl === 'official') return '<span style="position:absolute;inset:0;background:linear-gradient(180deg,#BFD9F2,#EAF4FF)"></span>' +
+      '<span lang="ja" style="position:absolute;left:5%;top:5%;padding:2px 7px;border-radius:4px;background:#22304F;color:#fff;font-size:10px;font-weight:700">HARUON 公式ショップ</span>' + TUBE +
+      '<span lang="ja" style="position:absolute;left:26%;top:52%;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.85);color:#22304F;font-size:9px;font-weight:700">SPF50+</span>' +
+      '<span style="position:absolute;left:0;right:0;bottom:0;height:17%;background:#22304F;display:flex;align-items:center;justify-content:center"><span lang="ja" style="color:#fff;font-size:11px;font-weight:700;letter-spacing:.02em">白浮きしない、透明感トーンアップUV</span></span>';
+    if (tpl === 'clean') return '<span style="position:absolute;inset:0;background:#fff"></span>' +
+      '<span style="position:absolute;left:50%;top:22%;transform:translateX(-50%);width:26%;height:52%;border-radius:6px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE)"></span>' +
+      '<span style="position:absolute;left:50%;top:16%;transform:translateX(-50%);width:14%;height:7%;border-radius:3px;background:#E8A987"></span>' +
+      '<span style="position:absolute;left:50%;top:77%;transform:translateX(-50%);width:38%;height:5%;border-radius:50%;background:rgba(32,33,36,.08)"></span>';
+    if (tpl === 'copyIngredient') return '<span style="position:absolute;inset:0;background:linear-gradient(180deg,#FDF6E7,#FFFDF8)"></span>' +
+      '<span lang="ja" style="position:absolute;left:8%;top:8%;font-size:13px;font-weight:800;color:#3A3C40;letter-spacing:.01em">白浮きしない、透け感UV</span>' + TUBE +
+      '<span style="position:absolute;left:16%;top:46%;width:12%;aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#DFF1FF,#A9D4F5)"></span>' +
+      '<span style="position:absolute;right:16%;top:38%;width:9%;aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#DFF1FF,#A9D4F5)"></span>' +
+      '<span lang="ja" style="position:absolute;left:8%;bottom:6%;font-size:8px;color:#9CA0A8">※メーキャップ効果による</span>';
+    if (tpl === 'promo') return '<span style="position:absolute;inset:0;background:linear-gradient(180deg,#FFF0F3,#FFE4EA)"></span>' +
+      '<span lang="ja" style="position:absolute;left:0;right:0;top:0;height:16%;background:#E7638C;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:800">選べる2個セット</span>' +
+      '<span style="position:absolute;left:38%;top:26%;width:22%;height:38%;border-radius:6px;background:linear-gradient(180deg,#FFF3EC,#FFD4BE)"></span>' +
+      '<span lang="ja" style="position:absolute;right:6%;top:24%;width:24%;height:22%;border-radius:6px;background:#fff;border:1.5px dashed #E7638C;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#C6362C">限定GIFT</span>' +
+      '<span style="position:absolute;left:0;right:0;bottom:0;height:24%;background:#fff;border-top:1px solid #F3C2CF"></span>' +
+      '<span lang="ja" style="position:absolute;left:7%;bottom:7%;font-size:13px;font-weight:800;color:#C6362C">¥1,999<span style="font-size:8.5px;font-weight:600;color:#9CA0A8">（税込）</span></span>';
+    return '<span style="position:absolute;inset:0;background:#F1F1F3"></span>';
+  }
+
+  // ── CSS 목업: 리포트 표지 (⓪ MAIN-05b 문법 — 1:1 카드용) ──
+  function reportMock(tpl) {
+    var score = tpl === 'score';
+    return '<span style="position:absolute;inset:0;background:#fff"></span>' +
+      '<span style="position:absolute;left:9%;top:10%;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#D93636">KGLOW 진단 리포트</span>' +
+      (score
+        ? '<span class="tnum" style="position:absolute;left:9%;top:22%;font-size:34px;font-weight:800;letter-spacing:-0.02em;color:#202124">18<span style="font-size:14px;font-weight:600;color:#B6B8BF">/100</span></span>'
+        : '<span style="position:absolute;left:9%;top:24%;font-size:14px;font-weight:800;color:#202124">브랜드 진단<span style="display:block;margin-top:4px;font-size:10px;font-weight:600;color:#B6B8BF">종합점수 없음 · brand 모드</span></span>') +
+      '<span style="position:absolute;left:9%;right:36%;top:58%;height:5px;border-radius:3px;background:#F1F1F3"></span>' +
+      '<span style="position:absolute;left:9%;right:22%;top:68%;height:5px;border-radius:3px;background:#F1F1F3"></span>' +
+      '<span style="position:absolute;left:9%;right:48%;top:78%;height:5px;border-radius:3px;background:#F1F1F3"></span>' +
+      '<span aria-hidden="true" style="position:absolute;right:9%;top:10%;width:20%;aspect-ratio:1/1;border-radius:50%;border:3px solid #FFE2E2;border-top-color:#FF6464;transform:rotate(45deg)"></span>';
+  }
+
+  // ── 자산 카드 (LIB-04a·4b) ────────────────────────────
+  function assetCard(a, animate) {
+    var isThumb = a.kind === 'thumb';
+    var el = document.createElement('div');
+    el.className = 'h-tile';
+    el.setAttribute('style', 'position:relative;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(16,18,20,.04)' + (animate ? ';animation:tileIn .5s ease both' : ''));
+    el.innerHTML =
+      '<a href="' + a.href + '" style="display:block;text-decoration:none" aria-label="' + a.name + ' 열기">' +
+        '<span style="display:block;position:relative;aspect-ratio:1/1;overflow:hidden">' + (isThumb ? mockHtml(a.tpl) : reportMock(a.tpl)) +
+          '<span class="tile-ov" style="position:absolute;inset:0;background:rgba(32,33,36,.44);display:flex;align-items:center;justify-content:center;gap:8px">' +
+            (isThumb
+              ? '<span style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#fff;color:#202124;font-size:12.5px;font-weight:700">크게 보기</span>' +
+                '<button type="button" data-dl="' + a.id + '" style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#FF6464;border:none;color:#fff;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer">다운로드</button>'
+              : '<span style="display:inline-flex;height:32px;align-items:center;padding:0 12px;border-radius:8px;background:#fff;color:#202124;font-size:12.5px;font-weight:700">요약 보기</span>') +
+          '</span>' +
+        '</span>' +
+        '<span style="display:block;padding:10px 12px 12px">' +
+          '<span class="axis-chip ' + (isThumb ? 'ax-studio' : 'ax-report') + '">' + (isThumb ? '② 스튜디오' : '① 리포트') + '</span>' +
+          '<span style="display:block;margin-top:7px;font-size:12px;font-weight:700;color:#202124;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + a.name + '</span>' +
+          '<span style="display:block;margin-top:4px;font-size:11px;color:rgba(55,56,60,0.61)">' + a.meta + '</span>' +
+        '</span>' +
+      '</a>';
+    return el;
+  }
+
+  // ── 생성중 타일 (LIB-05 — ② HOME-04 문법. 완료 토스트 출력 X) ──
+  function generatingTile() {
+    var el = document.createElement('div');
+    el.id = 'genTile';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.setAttribute('style', 'position:relative;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(16,18,20,.04)');
+    el.innerHTML =
+      '<span style="display:block;position:relative;aspect-ratio:1/1;overflow:hidden;background:linear-gradient(180deg,#ECEDF0,#E2E4E9)">' +
+        '<span aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.75) 50%,transparent 80%);background-size:840px 100%;background-repeat:no-repeat;animation:shimmer 1.6s ease-in-out infinite"></span>' +
+        '<span style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center">' +
+          '<span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;border:2.5px solid #FF6464;border-top-color:transparent;animation:spin 1s linear infinite;display:inline-block"></span>' +
+          '<span id="genStage" style="font-size:12.5px;font-weight:700;color:#414245">대기 중</span>' +
+        '</span>' +
+      '</span>' +
+      '<span style="display:block;padding:10px 12px 12px">' +
+        '<span id="genMeta" style="display:block;font-size:11.5px;font-weight:600;color:#202124"></span>' +
+        '<span style="display:block;margin-top:5px;font-size:11px;line-height:1.5;color:rgba(55,56,60,0.61)">완료되면 여기에 표시됩니다. 다른 작업을 하셔도 됩니다.</span>' +
+      '</span>';
+    return el;
+  }
+
+  // ── 다운로드 (LIB-04a — ② RESULT-04와 동일 파일·파일명 규칙) ──
+  function downloadAsset(a) {
+    var cv = document.createElement('canvas');
+    cv.width = 1024; cv.height = 1024;
+    var x = cv.getContext('2d');
+    if (a.tpl === 'official') {
+      var g = x.createLinearGradient(0, 0, 0, 1024); g.addColorStop(0, '#BFD9F2'); g.addColorStop(1, '#EAF4FF');
+      x.fillStyle = g; x.fillRect(0, 0, 1024, 1024);
+      x.fillStyle = '#22304F'; x.fillRect(0, 850, 1024, 174);
+      x.fillStyle = '#fff'; x.font = '700 52px sans-serif'; x.textAlign = 'center';
+      x.fillText('白浮きしない、透明感トーンアップUV', 512, 950);
+      x.fillStyle = '#22304F'; x.fillRect(48, 48, 340, 64);
+      x.fillStyle = '#fff'; x.font = '700 34px sans-serif'; x.textAlign = 'left';
+      x.fillText('HARUON 公式ショップ', 64, 92);
+    } else if (a.tpl === 'promo') {
+      x.fillStyle = '#FFE4EA'; x.fillRect(0, 0, 1024, 1024);
+      x.fillStyle = '#E7638C'; x.fillRect(0, 0, 1024, 150);
+      x.fillStyle = '#fff'; x.fillRect(0, 790, 1024, 234);
+      x.fillStyle = '#C6362C'; x.font = '800 88px sans-serif'; x.textAlign = 'left';
+      x.fillText('¥1,999（税込）', 70, 940);
+    } else if (a.tpl === 'copyIngredient') {
+      x.fillStyle = '#FDF6E7'; x.fillRect(0, 0, 1024, 1024);
+      x.fillStyle = '#3A3C40'; x.font = '800 64px sans-serif'; x.textAlign = 'left';
+      x.fillText('白浮きしない、透け感UV', 70, 130);
+      x.fillStyle = '#9CA0A8'; x.font = '400 28px sans-serif';
+      x.fillText('※メーキャップ効果による', 70, 980);
+    } else {
+      x.fillStyle = '#ffffff'; x.fillRect(0, 0, 1024, 1024);
+      x.fillStyle = 'rgba(32,33,36,.08)';
+      x.beginPath(); x.ellipse(512, 800, 190, 28, 0, 0, Math.PI * 2); x.fill();
+    }
+    var tg = x.createLinearGradient(0, 280, 0, 760); tg.addColorStop(0, '#FFF3EC'); tg.addColorStop(1, '#FFD4BE');
+    x.fillStyle = tg;
+    if (x.roundRect) { x.beginPath(); x.roundRect(392, 280, 240, 480, 22); x.fill(); } else { x.fillRect(392, 280, 240, 480); }
+    x.fillStyle = '#E8A987'; x.fillRect(448, 220, 128, 60);
+    var link = document.createElement('a');
+    link.download = 'HARUON-' + a.name.replace(/[\s·+]/g, '') + '.png';
+    link.href = cv.toDataURL('image/png');
+    link.click();
+  }
+
+  // ── 렌더 ─────────────────────────────────────────────
+  function visibleAssets() {
+    var list = ASSETS.slice();
+    if (state.doneAsset) list.unshift(state.doneAsset);
+    list = list.filter(function (a) { return a.kind === state.tab; });
+    if (state.period !== 'all') {
+      var max = state.period === 'p30' ? 30 : 90;
+      list = list.filter(function (a) { return (a.days || 0) <= max; });
+    }
+    return list;
+  }
+  function render(animateFirst) {
+    var grid = $('grid');
+    grid.innerHTML = '';
+    var view = state.view;
+    var empty = view === 'empty';
+    $('emptyState').style.display = empty ? 'block' : 'none';
+    $('tabsWrap').style.display = empty ? 'none' : 'block';
+    $('toolbar').style.display = empty ? 'none' : 'flex';
+    grid.style.display = empty ? 'none' : 'grid';
+    $('filterEmpty').style.display = 'none';
+    renderPropose(empty);
+    renderMatchBadge();
+    if (empty) { return; }
+    renderTabs();
+    var generatingHere = view === 'generating' && state.tab === 'thumb';
+    if (generatingHere) grid.appendChild(generatingTile());
+    var list = visibleAssets();
+    list.forEach(function (a, i) { grid.appendChild(assetCard(a, animateFirst && i === 0)); });
+    if (!list.length && !generatingHere) {
+      $('filterEmpty').textContent = state.tab === 'thumb'
+        ? '생성한 썸네일이 없습니다. 스튜디오에서 첫 썸네일을 만들 수 있습니다.'
+        : '발행한 진단 리포트가 없습니다. 진단 입력에서 시작할 수 있습니다.';
+      $('filterEmpty').style.display = 'block';
+    }
+    $('countLabel').textContent = '총 ' + list.length + '건 · 최신순';
+    grid.querySelectorAll('[data-dl]').forEach(function (b) {
+      b.onclick = function (e) {
+        e.preventDefault(); e.stopPropagation();
+        var a = visibleAssets().filter(function (x) { return x.id === b.getAttribute('data-dl'); })[0];
+        if (a) downloadAsset(a);
+      };
+    });
+  }
+
+  // ── 시즌 제안 카드 (LIB-03 — 리포트 유무로 제안 전환) ──
+  function renderPropose(noReport) {
+    if (noReport) {
+      $('proposeBadge').textContent = '시작하기';
+      $('proposeTitle').textContent = '첫 진단으로 시작하세요';
+      $('proposeDesc').textContent = '진단에서 재설계한 문구가 시즌 콘텐츠의 재료가 됩니다.';
+      $('proposeCta').textContent = '진단 시작 →';
+      $('proposeCta').setAttribute('href', '../01-report/1-input.html');
+    } else {
+      $('proposeBadge').textContent = '9월 메가와리 D-43';
+      $('proposeTitle').textContent = '프로모션 강조형 썸네일을 준비할 때입니다';
+      $('proposeDesc').textContent = '무엇을: 메가와리용 프로모션 썸네일 · 어떤 말로: 세트·특전 소구를 일본 구매 관례어로 재설계';
+      $('proposeCta').textContent = '스튜디오에서 준비하기 →';
+      $('proposeCta').setAttribute('href', '../02-studio/1-home.html');
+    }
+  }
+
+  // ── 매칭 상태 배지 (LIB-07 개편 — 엔트리 카드 폐지, 하위 메뉴 배지로) ──
+  function renderMatchBadge() {
+    var badge = $('matchBadge');
+    var m = state.match;
+    if (!m) { badge.style.display = 'none'; badge.textContent = ''; badge.className = 'side-badge'; return; }
+    if (m.status === 'proposal') { badge.className = 'side-badge b-ok'; badge.textContent = '제안 2 ○'; }
+    else { badge.className = 'side-badge b-warn'; badge.textContent = '검토 중 △'; }
+    badge.style.display = 'inline-flex';
+  }
+
+  // ── 타입 탭 (LIB-04 — 1차 내비. "전체" 없음 · 통합 조망은 ⓪ 대시보드 몫) ──
+  var TABS = [{ key: 'report', id: 'tabReport', label: '진단 리포트' }, { key: 'thumb', id: 'tabThumb', label: '썸네일' }];
+  function tabCount(k) {
+    var n = ASSETS.filter(function (a) { return a.kind === k; }).length;
+    if (k === 'thumb' && state.doneAsset) n += 1;
+    return n;
+  }
+  function renderTabs() {
+    var box = $('libTabs');
+    box.innerHTML = '';
+    TABS.forEach(function (t) {
+      var on = state.tab === t.key;
+      var genDot = t.key === 'thumb' && state.view === 'generating' && !on;
+      var b = document.createElement('button');
+      b.type = 'button'; b.id = t.id; b.className = 'lib-tab';
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(on));
+      b.setAttribute('tabindex', on ? '0' : '-1');
+      b.innerHTML = t.label + ' <span class="tab-n tnum">' + tabCount(t.key) + '</span>' +
+        (genDot ? ' <span class="tab-dot" aria-hidden="true"></span>' : '');
+      if (genDot) b.setAttribute('aria-label', t.label + ' ' + tabCount(t.key) + '건 — 생성 진행 중');
+      b.onclick = function () { state.tab = t.key; render(); };
+      box.appendChild(b);
+    });
+    box.onkeydown = function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      state.tab = state.tab === 'report' ? 'thumb' : 'report';
+      render();
+      var sel = box.querySelector('[aria-selected="true"]');
+      if (sel) sel.focus();
+    };
+  }
+
+  // ── 생성중 시뮬레이션 (LIB-05 — ② 잡을 읽기만 함. 타일은 썸네일 탭에 출력) ──
+  function runJob(job) {
+    state.view = 'generating';
+    state.tab = 'thumb'; // 생성중 타일이 있는 탭으로 진입 — 리포트 탭에서는 탭 라벨 도트만
+    render();
+    var gm = $('genMeta');
+    if (gm) gm.textContent = (job.tplName || '템플릿') + ' · ' + (job.platformName || '미정');
+    var i = 0;
+    var gs = $('genStage');
+    if (gs) gs.textContent = STAGES[0];
+    var timer = setInterval(function () {
+      i += 1;
+      if (i >= STAGES.length) {
+        clearInterval(timer);
+        // kglow_studio_job 은 지우지 않는다 — 소비 주체는 ② 스튜디오 홈 (head 주석 참조)
+        state.doneAsset = { id: 'new', kind: 'thumb', tpl: job.tpl || 'official', name: job.tplName || '공식샵 신뢰 배지형', meta: (job.platformName || '라쿠텐 공식샵') + ' · 방금 전', days: 0, href: '2-detail.html?asset=a1' };
+        state.view = 'default';
+        render(state.tab === 'thumb'); // 완료 토스트 출력 X — 완료 확인 동선은 각 축 홈 몫 (LIB-05)
+      } else {
+        var el = $('genStage');
+        if (el) el.textContent = STAGES[i];
+      }
+    }, 1400);
+  }
+
+  // ── 상태 결정: 스위처(강제) > sessionStorage > 기본 ────
+  // 매칭 검토중/제안 토글은 4-matching 스위처로 이동 (LIB-10) — 배지는 sessionStorage 연동
+  document.querySelectorAll('.st-btn').forEach(function (b) {
+    b.onclick = function () {
+      var st = b.getAttribute('data-st');
+      state.doneAsset = null;
+      if (st === 'generating') { state.match = readMatch(); runJob({ tpl: 'official', tplName: '공식샵 신뢰 배지형', platformName: '라쿠텐 공식샵' }); return; }
+      state.view = st;
+      state.tab = 'report';
+      state.match = st === 'empty' ? null : readMatch();
+      render();
+    };
+  });
+  function readMatch() {
+    try { return JSON.parse(sessionStorage.getItem('kglow_ops_match') || 'null'); } catch (e) { return null; }
+  }
+  $('periodSel').onchange = function () { state.period = this.value; render(); };
+  var job = null;
+  try { job = JSON.parse(sessionStorage.getItem('kglow_studio_job') || 'null'); } catch (e) {}
+  state.match = readMatch();
+  if (job) { runJob(job); } else { state.view = 'default'; render(); }
+})();
+</script>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+<script>
+/** 사이드바 스위처·계정 메뉴 토글 — ⓪ 홈과 동일 문법. 브랜드 전환 데모는 홈 전용. */
+(function () {
+  var sb = document.getElementById('swBtn'), sm = document.getElementById('swMenu');
+  var ab = document.getElementById('avBtn'), am = document.getElementById('avMenu');
+  function closeAll() { sb.setAttribute('aria-expanded', 'false'); sm.style.display = 'none'; ab.setAttribute('aria-expanded', 'false'); am.style.display = 'none'; }
+  sb.onclick = function (e) { e.stopPropagation(); var open = sb.getAttribute('aria-expanded') !== 'true'; closeAll(); if (open) { sb.setAttribute('aria-expanded', 'true'); sm.style.display = 'block'; } };
+  ab.onclick = function (e) { e.stopPropagation(); var open = ab.getAttribute('aria-expanded') !== 'true'; closeAll(); if (open) { ab.setAttribute('aria-expanded', 'true'); am.style.display = 'block'; } };
+  document.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+})();
+</script>
+</body>
+</html>

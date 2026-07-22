@@ -4,7 +4,14 @@
  */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { DiagnosisRequestRecord, ReportRecord, Store } from './store';
+import type {
+  BrandProfileRecord,
+  DiagnosisRequestRecord,
+  GeneratedAssetRecord,
+  MatchRequestRecord,
+  ReportRecord,
+  Store,
+} from './store';
 import type { BlocksJson, ReportStatus, TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 
@@ -51,6 +58,110 @@ function toReportRecord(row: ReportRow): ReportRecord {
     top3: row.top3,
     publishedAt: row.published_at,
     createdAt: row.created_at,
+  };
+}
+
+// ── 스프린트 2 행 매핑 (스키마: supabase/schema.sql — 08 §6.1 스프린트 2 델타) ──
+
+interface BrandProfileRow {
+  id: string;
+  brand_name: string;
+  category: BrandProfileRecord['category'];
+  product_class: BrandProfileRecord['productClass'];
+  positioning_tags: string[];
+  target_memo: string;
+  product_info_memo: string;
+  detail_doc_path: string | null;
+  detail_doc_name: string | null;
+  channels: BrandProfileRecord['channels'];
+  brand_kit: BrandProfileRecord['brandKit'];
+  created_at: string;
+  updated_at: string;
+}
+
+function toBrandProfileRecord(row: BrandProfileRow): BrandProfileRecord {
+  return {
+    id: 'default',
+    brandName: row.brand_name,
+    category: row.category,
+    productClass: row.product_class,
+    positioningTags: row.positioning_tags,
+    targetMemo: row.target_memo,
+    productInfoMemo: row.product_info_memo,
+    detailDocPath: row.detail_doc_path,
+    detailDocName: row.detail_doc_name,
+    channels: row.channels,
+    brandKit: row.brand_kit,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+interface GeneratedAssetRow {
+  id: string;
+  kind: 'thumbnail';
+  style_category: string;
+  style_name: string;
+  platform: string;
+  status: GeneratedAssetRecord['status'];
+  stage: string | null;
+  error: string | null;
+  original_image_path: string;
+  image_path: string | null;
+  prompt_used: string | null;
+  gate_result: GeneratedAssetRecord['gateResult'];
+  explanation_json: GeneratedAssetRecord['explanationJson'];
+  proof: GeneratedAssetRecord['proof'];
+  brand_name_snapshot: string;
+  created_at: string;
+  updated_at: string;
+}
+
+function toAssetRecord(row: GeneratedAssetRow): GeneratedAssetRecord {
+  return {
+    id: row.id,
+    kind: row.kind,
+    styleCategory: row.style_category,
+    styleName: row.style_name,
+    platform: row.platform,
+    status: row.status,
+    stage: row.stage,
+    error: row.error,
+    originalImagePath: row.original_image_path,
+    imagePath: row.image_path,
+    promptUsed: row.prompt_used,
+    gateResult: row.gate_result,
+    explanationJson: row.explanation_json,
+    proof: row.proof,
+    brandNameSnapshot: row.brand_name_snapshot,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+interface MatchRequestRow {
+  id: string;
+  partner_types: string[];
+  channels: string[];
+  timing: string;
+  memo: string;
+  status: MatchRequestRecord['status'];
+  snapshot: MatchRequestRecord['snapshot'];
+  created_at: string;
+  updated_at: string;
+}
+
+function toMatchRecord(row: MatchRequestRow): MatchRequestRecord {
+  return {
+    id: row.id,
+    partnerTypes: row.partner_types,
+    channels: row.channels,
+    timing: row.timing,
+    memo: row.memo,
+    status: row.status,
+    snapshot: row.snapshot,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }
 
@@ -130,6 +241,141 @@ export function createSupabaseStore(): Store {
         duration_ms: entry.durationMs,
       });
       if (result.error) throw new Error(`supabase saveLlmLog 실패: ${result.error.message}`);
+    },
+
+    // ── 스프린트 2 ───────────────────────────────────────────────────────────
+
+    async listRequests() {
+      const result = await client
+        .from('diagnosis_requests')
+        .select()
+        .order('created_at', { ascending: false })
+        .returns<RequestRow[]>();
+      return must(result, 'listRequests').map(toRequestRecord);
+    },
+
+    async listReports() {
+      const result = await client
+        .from('reports')
+        .select()
+        .order('created_at', { ascending: false })
+        .returns<ReportRow[]>();
+      return must(result, 'listReports').map(toReportRecord);
+    },
+
+    async getBrandProfile() {
+      const result = await client.from('brand_profiles').select().eq('id', 'default').maybeSingle<BrandProfileRow>();
+      if (result.error) throw new Error(`supabase getBrandProfile 실패: ${result.error.message}`);
+      return result.data ? toBrandProfileRecord(result.data) : null;
+    },
+
+    async saveBrandProfile(profile: BrandProfileRecord) {
+      const result = await client.from('brand_profiles').upsert(
+        {
+          id: 'default',
+          brand_name: profile.brandName,
+          category: profile.category,
+          product_class: profile.productClass,
+          positioning_tags: profile.positioningTags,
+          target_memo: profile.targetMemo,
+          product_info_memo: profile.productInfoMemo,
+          detail_doc_path: profile.detailDocPath,
+          detail_doc_name: profile.detailDocName,
+          channels: profile.channels,
+          brand_kit: profile.brandKit,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'id' },
+      );
+      if (result.error) throw new Error(`supabase saveBrandProfile 실패: ${result.error.message}`);
+    },
+
+    async createAsset(input) {
+      const result = await client
+        .from('generated_assets')
+        .insert({
+          kind: input.kind,
+          style_category: input.styleCategory,
+          style_name: input.styleName,
+          platform: input.platform,
+          status: input.status,
+          stage: input.stage,
+          error: input.error,
+          original_image_path: input.originalImagePath,
+          image_path: input.imagePath,
+          prompt_used: input.promptUsed,
+          gate_result: input.gateResult,
+          explanation_json: input.explanationJson,
+          proof: input.proof,
+          brand_name_snapshot: input.brandNameSnapshot,
+        })
+        .select()
+        .single<GeneratedAssetRow>();
+      return toAssetRecord(must(result, 'createAsset'));
+    },
+
+    async getAsset(id) {
+      const result = await client.from('generated_assets').select().eq('id', id).maybeSingle<GeneratedAssetRow>();
+      if (result.error) throw new Error(`supabase getAsset 실패: ${result.error.message}`);
+      return result.data ? toAssetRecord(result.data) : null;
+    },
+
+    async updateAsset(id, patch) {
+      const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      if (patch.status !== undefined) row.status = patch.status;
+      if (patch.stage !== undefined) row.stage = patch.stage;
+      if (patch.error !== undefined) row.error = patch.error;
+      if (patch.imagePath !== undefined) row.image_path = patch.imagePath;
+      if (patch.promptUsed !== undefined) row.prompt_used = patch.promptUsed;
+      if (patch.gateResult !== undefined) row.gate_result = patch.gateResult;
+      if (patch.explanationJson !== undefined) row.explanation_json = patch.explanationJson;
+      const result = await client.from('generated_assets').update(row).eq('id', id);
+      if (result.error) throw new Error(`supabase updateAsset 실패: ${result.error.message}`);
+    },
+
+    async listAssets() {
+      const result = await client
+        .from('generated_assets')
+        .select()
+        .order('created_at', { ascending: false })
+        .returns<GeneratedAssetRow[]>();
+      return must(result, 'listAssets').map(toAssetRecord);
+    },
+
+    async createMatchRequest(input) {
+      const result = await client
+        .from('match_requests')
+        .insert({
+          partner_types: input.partnerTypes,
+          channels: input.channels,
+          timing: input.timing,
+          memo: input.memo,
+          status: 'submitted',
+          snapshot: input.snapshot,
+        })
+        .select()
+        .single<MatchRequestRow>();
+      return toMatchRecord(must(result, 'createMatchRequest'));
+    },
+
+    async getActiveMatchRequest() {
+      const result = await client
+        .from('match_requests')
+        .select()
+        .neq('status', 'cancelled')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .returns<MatchRequestRow[]>();
+      const rows = must(result, 'getActiveMatchRequest');
+      return rows.length ? toMatchRecord(rows[0]) : null;
+    },
+
+    async cancelMatchRequest(id) {
+      const result = await client
+        .from('match_requests')
+        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (result.error) throw new Error(`supabase cancelMatchRequest 실패: ${result.error.message}`);
     },
   };
 }
