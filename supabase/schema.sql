@@ -146,3 +146,35 @@ create index if not exists idx_match_status on match_requests(status);
 alter table brand_profiles enable row level security;
 alter table generated_assets enable row level security;
 alter table match_requests enable row level security;
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 검증 랜딩(/lp) · 2026-07-22 — 리드(상담/자료받기) + 전환 퍼널 이벤트
+-- 멱등 create. 공개 API(app/api/lead, app/api/track)에서 세션 없이 기록한다.
+-- RLS는 켜두고 정책 없이 둔다(anon 접근 차단, service role만 insert/select).
+-- ───────────────────────────────────────────────────────────────────────────
+
+create table if not exists leads (
+  id uuid primary key default gen_random_uuid(),
+  kind text not null,               -- consultation|resource
+  brand_name text not null,
+  contact_name text not null default '',
+  contact text not null,
+  channels jsonb not null default '[]',
+  stage text not null default '',
+  pain_points jsonb not null default '[]',
+  memo text not null default '',
+  source text not null default 'direct',
+  created_at timestamptz not null default now()
+);
+create table if not exists track_events (
+  id uuid primary key default gen_random_uuid(),
+  type text not null,               -- pageview|cta_click|video_play|lead_submit
+  cta text,
+  source text not null default 'direct',
+  path text not null default '',
+  created_at timestamptz not null default now()
+);
+create index if not exists idx_leads_kind on leads(kind);
+create index if not exists idx_track_type on track_events(type);
+alter table leads enable row level security;
+alter table track_events enable row level security;

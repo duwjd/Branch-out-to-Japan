@@ -11,9 +11,11 @@ import type {
   BrandProfileRecord,
   DiagnosisRequestRecord,
   GeneratedAssetRecord,
+  LeadRecord,
   MatchRequestRecord,
   ReportRecord,
   Store,
+  TrackEventRecord,
 } from './store';
 import type { TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
@@ -25,6 +27,8 @@ const LLM_LOGS = path.join(DATA_DIR, 'llm-call-logs.jsonl');
 const BRAND_PROFILE = path.join(DATA_DIR, 'brand-profile.json');
 const ASSETS = path.join(DATA_DIR, 'generated-assets.json');
 const MATCH_REQUESTS = path.join(DATA_DIR, 'match-requests.json');
+const LEADS = path.join(DATA_DIR, 'leads.json');
+const TRACK_EVENTS = path.join(DATA_DIR, 'track-events.json');
 
 /** 파일 IO를 순차화하는 초간단 큐(경합 방지) */
 let chain: Promise<unknown> = Promise.resolve();
@@ -205,6 +209,42 @@ export function createFileStore(): Store {
         if (idx < 0) return;
         all[idx] = { ...all[idx], status: 'cancelled', updatedAt: new Date().toISOString() };
         await writeJson(MATCH_REQUESTS, all);
+      });
+    },
+
+    // ── 검증 랜딩(/lp) 리드·트래킹 ─────────────────────────────────────────
+
+    createLead(input) {
+      return serialized(async () => {
+        const record: LeadRecord = { ...input, id: randomUUID(), createdAt: new Date().toISOString() };
+        const all = await readJson<LeadRecord[]>(LEADS, []);
+        all.push(record);
+        await writeJson(LEADS, all);
+        return record;
+      });
+    },
+
+    listLeads() {
+      return serialized(async () => {
+        const all = await readJson<LeadRecord[]>(LEADS, []);
+        return [...all].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      });
+    },
+
+    createTrackEvent(input) {
+      return serialized(async () => {
+        const record: TrackEventRecord = { ...input, id: randomUUID(), createdAt: new Date().toISOString() };
+        const all = await readJson<TrackEventRecord[]>(TRACK_EVENTS, []);
+        all.push(record);
+        await writeJson(TRACK_EVENTS, all);
+        return record;
+      });
+    },
+
+    listTrackEvents() {
+      return serialized(async () => {
+        const all = await readJson<TrackEventRecord[]>(TRACK_EVENTS, []);
+        return [...all].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       });
     },
   };
