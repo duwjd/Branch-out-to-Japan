@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getStore } from '@/lib/db/store';
+import { getStore, LEGACY_USER_ID } from '@/lib/db/store';
 import { getActiveBrand } from '@/lib/server/activeBrand';
 import { BrandForm } from './BrandForm';
 
@@ -13,7 +13,8 @@ export default async function BrandPage() {
   if (!profile) redirect('/app'); // no-brand → 홈 온보딩
 
   const [brands, reports, assets] = await Promise.all([
-    store.listBrandProfiles(),
+    // M1 전환: 세션 도입(M3) 후 session.user.id로 교체
+    store.listBrandProfiles(LEGACY_USER_ID),
     store.listReports(profile.id),
     store.listAssets(profile.id),
   ]);

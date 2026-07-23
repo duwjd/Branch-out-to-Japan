@@ -5,14 +5,15 @@
  */
 
 import { cookies } from 'next/headers';
-import { getStore, type BrandProfileRecord } from '../db/store';
+import { getStore, LEGACY_USER_ID, type BrandProfileRecord } from '../db/store';
 
 export const BRAND_COOKIE = 'kglow_brand';
 
 /** 활성 브랜드 레코드 — 브랜드가 하나도 없으면 null(=온보딩/no-brand) */
 export async function getActiveBrand(): Promise<BrandProfileRecord | null> {
   const store = await getStore();
-  const brands = await store.listBrandProfiles();
+  // M1 전환: 세션 도입(M3) 후 session.user.id로 교체
+  const brands = await store.listBrandProfiles(LEGACY_USER_ID);
   if (brands.length === 0) return null;
   const wanted = (await cookies()).get(BRAND_COOKIE)?.value;
   // 쿠키 id가 유효하면 그 브랜드, 아니면 최신 브랜드(listBrandProfiles는 최신순)

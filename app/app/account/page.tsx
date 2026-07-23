@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getSession, PROVIDER_LABELS } from '@/lib/server/session';
 import { getActiveBrand } from '@/lib/server/activeBrand';
-import { getStore } from '@/lib/db/store';
+import { getStore, LEGACY_USER_ID } from '@/lib/db/store';
 import { buttonClass, cardClass, StatusBadge } from '@/components/ui/primitives';
 import { IconCard } from '@/components/ui/icons';
 import { LogoutButton } from './LogoutButton';
@@ -20,7 +20,8 @@ export default async function AccountPage() {
   if (!session) redirect('/login');
 
   const store = await getStore();
-  const [profile, brandList] = await Promise.all([getActiveBrand(), store.listBrandProfiles()]);
+  // M1 전환: 세션 도입(M3) 후 session.user.id로 교체
+  const [profile, brandList] = await Promise.all([getActiveBrand(), store.listBrandProfiles(LEGACY_USER_ID)]);
   const [requests, assets] = profile
     ? await Promise.all([store.listRequests(profile.id), store.listAssets(profile.id)])
     : [[], []];
