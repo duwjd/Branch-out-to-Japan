@@ -26,7 +26,7 @@
   <div class="wf-strip-in">
     <span class="tag">③ 운영 · 프로토타입</span>
     <a href="index.html" class="on">플로우</a>
-    <a href="1-home.html">1 운영 홈</a>
+    <a href="1-home.html">1 자산 라이브러리</a>
     <a href="2-detail.html">2 자산 상세</a>
     <a href="3-brand.html">3 브랜드 관리</a>
     <a href="4-matching.html">4 기업 매칭</a>
@@ -51,11 +51,11 @@
   <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">③ 운영 · 인터랙티브 프로토타입</p>
   <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.25;letter-spacing:-0.02em;color:#202124">자산 라이브러리·브랜드 관리·기업 매칭 — 화면 흐름</h1>
   <p style="margin:14px 0 0;max-width:760px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">
-    ③ 운영은 무언가를 새로 만드는 축이 아닙니다. <b>①·②에서 만든 자산이 모이는 화면(운영 홈=자산 라이브러리)</b>과,
-    카드를 클릭하면 탭을 떠나지 않고 열리는 <b>자산 상세</b>, 생성의 입력이 되는 브랜드 킷을 한곳에서 정리하는 <b>브랜드 관리</b>,
+    ③ 운영은 생성의 입력을 정리하고 그 결과를 보관하는 축입니다. 생성의 입력이 되는 브랜드 킷을 한곳에서 정리하는 <b>브랜드 관리</b>와, <b>①·②에서 만든 자산이 모이는 자산 라이브러리</b>,
+    카드를 클릭하면 탭을 떠나지 않고 열리는 <b>자산 상세</b>,
     그 자산을 들고 일본 현지 기업과 연결되는 <b>기업 매칭</b>까지 4개 화면으로 구성합니다(07.21 하위 메뉴 IA 개편).
-    사이드바 "운영"의 하위 메뉴 [자산 라이브러리 / 브랜드 관리 / 기업 매칭]로 오갑니다 — 라이브러리 안에서 리포트/썸네일은 타입 탭으로 나뉩니다.
-    시즌 캘린더는 별도 화면 없이 운영 홈 상단 스트립으로 내장했습니다.
+    사이드바 "운영"의 하위 메뉴 <b>[브랜드 관리 / 자산 라이브러리 / 기업 매칭]</b>로 오갑니다(2026-07-22 순서 개편 — 설정 → 보관 → 확장). "운영"을 클릭하면 첫 항목인 브랜드 관리로 진입하며, <b>운영 홈이라는 화면은 없습니다</b>. 라이브러리 안에서 리포트/썸네일은 타입 탭으로 나뉩니다.
+    시즌 캘린더는 별도 화면 없이 자산 라이브러리 상단 스트립으로 내장했습니다.
   </p>
 
   <div class="doc-warn">
@@ -66,7 +66,7 @@
   <!-- ── 전체 플로우 ─────────────────────────────────── -->
   <section style="margin-top:44px">
     <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">전체 플로우 — 모이는 화면 하나, 상세 화면 하나, 연결 화면 하나</h2>
-    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">②의 "홈=갤러리 허브" 문법을 계승합니다. 운영 홈이 라이브러리를 겸하므로 중간 인덱스 화면이 없습니다. 개편 포인트: 그리드 카드를 클릭해도 더는 ①·② 탭으로 이탈하지 않고, 운영 안의 자산 상세가 열립니다 — 다른 축으로 가는 동선은 상세 화면의 버튼 2개(② 다른 템플릿·① 리포트 전체 보기)뿐입니다. 브랜드 관리·기업 매칭은 사이드바 하위 메뉴에서 병렬로 진입하는 독립 화면입니다 — 운영 홈 하단 엔트리 카드는 폐지했습니다(LIB-07 개편).</p>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">②의 "홈=갤러리 허브" 문법을 계승합니다. 운영은 3화면 메뉴 그룹이라 중간 인덱스 화면이 없습니다. 개편 포인트: 그리드 카드를 클릭해도 더는 ①·② 탭으로 이탈하지 않고, 운영 안의 자산 상세가 열립니다 — 다른 축으로 가는 동선은 상세 화면의 버튼 2개(② 다른 템플릿·① 리포트 전체 보기)뿐입니다. 브랜드 관리·기업 매칭은 사이드바 하위 메뉴에서 병렬로 진입하는 독립 화면입니다 — 운영 홈 하단 엔트리 카드는 폐지했습니다(LIB-07 개편).</p>
     <div class="rwrap" style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center;gap:8px">
       <div class="flow-node" style="cursor:default">
         <span style="font-size:11.5px;font-weight:800;color:#B96C00;letter-spacing:.04em">↩ 유입</span>

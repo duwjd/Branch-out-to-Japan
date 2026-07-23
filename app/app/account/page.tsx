@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getSession, PROVIDER_LABELS } from '@/lib/server/session';
+import { getActiveBrand } from '@/lib/server/activeBrand';
 import { getStore } from '@/lib/db/store';
-import { CATEGORY_LABELS } from '@/lib/engine/types';
 import { buttonClass, cardClass, StatusBadge } from '@/components/ui/primitives';
 import { IconCard } from '@/components/ui/icons';
 import { LogoutButton } from './LogoutButton';
 import { PlanChangeButton, WithdrawButton } from './AccountActions';
+import { MypageBrands } from './MypageBrands';
 
 /**
  * 마이페이지(docs/specs/03-account/2-mypage.html MYPAGE-00~09) — 계정 정보 ·
@@ -19,13 +20,26 @@ export default async function AccountPage() {
   if (!session) redirect('/login');
 
   const store = await getStore();
-  const [profile, requests, assets] = await Promise.all([
-    store.getBrandProfile(),
-    store.listRequests(),
-    store.listAssets(),
-  ]);
+  const [profile, brandList] = await Promise.all([getActiveBrand(), store.listBrandProfiles()]);
+  const [requests, assets] = profile
+    ? await Promise.all([store.listRequests(profile.id), store.listAssets(profile.id)])
+    : [[], []];
   const reportCount = requests.filter((r) => r.status === 'published').length;
   const thumbnailCount = assets.filter((a) => a.status === 'done').length;
+
+  // MYPAGE-06 브랜드 목록 — 브랜드별 카운트(복수 브랜드)
+  const brands = await Promise.all(
+    brandList.map(async (b) => {
+      const [reps, ass] = await Promise.all([store.listReports(b.id), store.listAssets(b.id)]);
+      return {
+        id: b.id,
+        name: b.brandName,
+        category: b.category,
+        reportCount: reps.filter((r) => r.publishedAt !== null).length,
+        thumbnailCount: ass.filter((a) => a.status === 'done').length,
+      };
+    }),
+  );
 
   return (
     <main className="animate-fade-up">
@@ -183,45 +197,24 @@ export default async function AccountPage() {
           </div>
         </section>
 
-        {/* MYPAGE-06 · 브랜드 프로필(조회 요약만 — 편집 정본은 /app/brand) */}
+        {/* MYPAGE-06 · 브랜드 프로필(복수 · 조회 요약만 — 편집 정본은 /app/brand) */}
         <section aria-labelledby="brand-title" className="mt-8">
           <h2 id="brand-title" className="text-[15px] font-extrabold tracking-[-0.01em] text-ink">
             브랜드 프로필
           </h2>
           <div className={cardClass('mt-3 overflow-hidden')}>
-            {profile ? (
-              <div className="flex flex-wrap items-center gap-3 p-4 sm:px-5">
-                <span
-                  aria-hidden="true"
-                  className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[9px] bg-linear-135 from-[#ffe9df] to-[#ffcfb8] text-[11px] font-extrabold text-amber-text"
-                >
-                  {profile.brandName.slice(0, 1)}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-bold text-ink">{profile.brandName}</p>
-                  <p className="mt-0.5 truncate text-[11.5px] text-ink-mute">
-                    {CATEGORY_LABELS[profile.category] ?? profile.category} · 리포트 {reportCount} · 썸네일{' '}
-                    {thumbnailCount}
-                  </p>
-                </div>
-                <Link href="/app/brand" className={buttonClass('secondary', 'sm', 'flex-none no-underline')}>
-                  수정
-                </Link>
-              </div>
+            {brands.length > 0 ? (
+              <MypageBrands brands={brands} activeBrandId={profile?.id ?? null} />
             ) : (
-              <div className="flex flex-wrap items-center gap-3 p-4 sm:px-5">
-                <p className="flex-1 text-[13px] text-ink-mute">아직 등록된 브랜드가 없습니다.</p>
-                <Link href="/app/brand" className={buttonClass('secondary', 'sm', 'flex-none no-underline')}>
-                  등록하기
-                </Link>
-              </div>
+              <>
+                <div className="flex flex-wrap items-center gap-3 p-4 sm:px-5">
+                  <p className="flex-1 text-[13px] text-ink-mute">아직 등록된 브랜드가 없습니다.</p>
+                  <Link href="/app" className={buttonClass('secondary', 'sm', 'flex-none no-underline')}>
+                    등록하기
+                  </Link>
+                </div>
+              </>
             )}
-            <div className="flex items-center gap-1.5 border-t border-n-150 p-4 sm:px-5">
-              <span aria-disabled="true" className="cursor-default text-[12.5px] font-semibold text-ink-faint">
-                ＋ 브랜드 추가
-              </span>
-              <span className="rounded-full bg-n-150 px-[7px] py-0.5 text-[9.5px] font-bold text-[#9ca0a8]">미정</span>
-            </div>
           </div>
         </section>
 

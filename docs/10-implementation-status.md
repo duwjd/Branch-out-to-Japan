@@ -29,7 +29,7 @@
 
 | 구분 | 상태 |
 |---|---|
-| 계정: 목 로그인 | ✅ `/login` 소셜 3종 버튼(카카오·네이버·구글) — **실 OAuth 미연동, 클릭 = 세션 쿠키 발급**(httpOnly 1개 · 데모 유저 1명 하드코딩) · `/app/*` 가드는 `app/app/layout.tsx` 1곳(비로그인 → `/login`, middleware 없음) |
+| 계정: 목 로그인 | ✅ `/login` 소셜 3종 버튼(카카오·네이버·구글) — **실 OAuth 미연동, 클릭 = 세션 쿠키 발급**(httpOnly 1개 · 데모 유저 1명 하드코딩) · `/app/*` 가드는 `app/app/layout.tsx` 1곳(비로그인 → `/login`, middleware 없음) · ⚠ **스펙(2026-07-23)은 소셜+이메일 병행 · 비회원 열람 + 실행 직전 게이트로 확대 — 실 구현 잔여**(현 구현은 소셜 목 세션·전역 리다이렉트 그대로 · 정본 `specs/03-account/03-account-ui-기획서` §1·§3) |
 | 앱 셸 | ✅ `components/app/AppShell.tsx` 사이드바(3축 내비 + 운영 하위 아코디언 + 계정 행 + 매칭 상태 배지) · `/app` → `/app/library` 리다이렉트 · 기존 리포트 2화면 셸 안에서 리그레션 없음(E2E 확인) |
 | 파일 저장 | ✅ 로컬 `.data/files/{prefix}-{uuid}.{ext}` + `GET /api/files/[id]` 서빙 — 스토어에는 fileId만. Supabase Storage 전환 시 `lib/files/storage.ts` 내부만 교체 |
 | ② 썸네일 생성 | ✅ 생성 퍼널(`/app/studio/thumbnail` — 드롭존·플랫폼 칩·템플릿 8종 실측 그리드·실적 아코디언·sticky 제출) → **콜⑥ studioCopy**(Claude 비전 1콜: 분석+카피 재설계+슬롯) → 결정적 조립(`buildPrompt` + proof 게이트 + 가격 슬롯 강제 공란, 단위테스트 7건) → **OpenAI `images.edit`**(모델·품질 env 주입 — `input_fidelity`는 지원 모델에만 조건부, gpt-image-2는 항상 고정밀 처리라 미지원·불필요) → `.data/files/` 저장 → 결과 상세(`[assetId]` 2.5초 폴링: 생성중→done 게이트 배지·재설계 해설·다운로드→failed 프리필 재시도) |
@@ -131,7 +131,7 @@ supabase/schema.sql               # 테이블 3종 + RLS · `reports.overall_sco
 | 3b | 🔴 **면책의 대가물 부재** | 검수 제거로 "법적 확정 판정 아님" 면책을 떠받치던 실명 서명이 사라짐. 30만 정당화·AI 불신층 전환 근거 약화 → **별도 결정 필요**([[decisions/DECISIONS]] 🔴) |
 | 4 | PDF 내보내기 | 미구현 (09 M4 잔여 · 08 §8-D7) |
 | 5 | 무료 약기법 체커 | 미구현 (stretch — 콜② 엔진·체커 스키마는 준비됨) |
-| 6 | 인증·온보딩·프리필 | 이번 범위에서 의도적 제외 — 브랜드 섹션 직접 입력(온보딩 도입 시 프리필 — 08 §3.1). 도입 시 `users`·`brand_profiles` 스키마 추가 |
+| 6 | 인증·온보딩·프리필 · 이메일 가입·비회원 게이트 | 이번 범위에서 의도적 제외 — 브랜드 섹션 직접 입력(온보딩 도입 시 프리필 — 08 §3.1). 도입 시 `users`·`brand_profiles` 스키마 추가. **스펙(2026-07-23)은 이메일 가입·로그인·인증·비번재설정 + 비회원 열람 + 실행 직전 게이트를 포함하나 실 구현은 잔여**(가드 완화·생성/등록 API 401→프론트 게이트·`users`(email·passwordHash·emailVerified) — 03-account §1·§3) |
 | 7 | 비동기 잡 실행 모델 | `after()` + 폴링(단일 프로세스 전제) — 서버리스 배포 시 큐 필요(08 §6.2 대안) |
 | 8 | 한글 경로 실행 차단 | 미러 우회 중 — 근본 해결(저장소 영문 경로 이전 or 보안SW 예외)은 **팀 결정 필요** |
 | 9 | D1(Supabase)·D6(재현성) 팀 확정 | 기본안으로 구현했으나 `DECISIONS.md` 승격 기록·스펙 §9-Q5 갱신은 미완 (09 M0 잔여) |

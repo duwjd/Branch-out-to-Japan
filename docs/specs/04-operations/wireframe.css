@@ -373,9 +373,170 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 /* 금지 표현 칩 (BRAND-05b) — danger 색+글자+✕ 기호 3중 표기 */
 .ban-chip { display: inline-flex; align-items: center; gap: 6px; height: 27px; padding: 0 11px; border-radius: 9999px; background: var(--danger-bg); color: var(--danger-text); font-size: 12px; font-weight: 700; }
 
-/* 저장 바 (BRAND-06) — 본문 하단 sticky */
+/* 저장 바 (구 BRAND-06) — 2026-07-23 폐기. 저장은 모달 단위 즉시 저장으로
+   전환됐고 3-brand.html 마크업에서 제거됨. 클래스는 diff 최소화로 존치 */
 .save-bar {
   position: sticky; bottom: 0; z-index: 40;
   background: rgba(255, 255, 255, .94); backdrop-filter: blur(10px);
   border-top: 1px solid var(--hairline);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   BRAND-03 · 제품 자산 CRUD (2026-07-22 신설) + 모달 공통
+   모달 문법은 ⓪ MAIN-01b′ 와 동일 — 스크림은 배경 해제 표시이지
+   장식 블러가 아니다.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 제품 카드 — ⓪ MAIN-05b 자산 카드의 리프트 문법 계승 */
+.prod-card {
+  position: relative; display: flex; flex-direction: column; text-align: left;
+  border: 1px solid var(--card-border); border-radius: 13px; background: var(--canvas);
+  padding: 0; overflow: hidden; cursor: pointer; font-family: inherit;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.prod-card:hover, .prod-card:focus-visible { border-color: var(--coral); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(16, 18, 20, .10); }
+.prod-thumb { position: relative; aspect-ratio: 1 / 1; background: var(--n-100); border-bottom: 1px solid var(--n-150); overflow: hidden; }
+.prod-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* 대표컷 없음 — 깨진 이미지 대신 상태를 말한다 */
+.prod-thumb-empty { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 11px; font-weight: 600; color: var(--ink-faint); }
+.prod-body { padding: 10px 12px 12px; }
+.prod-name { display: block; font-size: 12.5px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-name-ja { display: block; margin-top: 2px; font-size: 11px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-meta { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.prod-cat { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 9999px; background: var(--n-100); color: var(--ink-body); font-size: 10.5px; font-weight: 600; }
+.prod-shots { margin-left: auto; font-size: 10.5px; color: var(--ink-faint); }
+/* 삭제는 카드 클릭과 분리된 별도 타깃 */
+.prod-del {
+  position: absolute; top: 7px; right: 7px; z-index: 2;
+  width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 8px; background: rgba(255, 255, 255, .92); color: #70737c;
+  cursor: pointer; font-family: inherit; opacity: 0; transition: opacity .15s, background .15s, color .15s;
+}
+.prod-card:hover .prod-del, .prod-card:focus-within .prod-del, .prod-del:focus-visible { opacity: 1; }
+.prod-del:hover { background: var(--danger-bg); color: var(--danger-text); }
+
+/* 모달 안 제품컷 타일 — 대표 지정·삭제 */
+.shot-tile { position: relative; aspect-ratio: 1 / 1; border: 1px solid var(--card-border); border-radius: 9px; overflow: hidden; background: var(--n-100); }
+.shot-tile.is-primary { border: 1.5px solid var(--coral); }
+.shot-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.shot-badge { position: absolute; left: 4px; top: 4px; padding: 1px 6px; border-radius: 5px; background: var(--coral); color: #fff; font-size: 9.5px; font-weight: 700; }
+.shot-acts { position: absolute; inset: auto 0 0 0; display: flex; opacity: 0; transition: opacity .15s; }
+.shot-tile:hover .shot-acts, .shot-tile:focus-within .shot-acts { opacity: 1; }
+.shot-acts button { flex: 1; border: none; background: rgba(16, 18, 20, .74); color: #fff; font-size: 10px; font-weight: 600; font-family: inherit; padding: 5px 0; cursor: pointer; }
+.shot-acts button:hover { background: rgba(16, 18, 20, .9); }
+
+/* 용어집·금지 표현 인라인 입력 행 (BRAND-05 CRUD) */
+.inline-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--n-150); flex-wrap: wrap; }
+.inline-row:last-child { border-bottom: none; }
+.inline-input { flex: 1; min-width: 120px; height: 34px; padding: 0 10px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 12.5px; font-family: inherit; color: var(--ink); background: #fff; }
+.inline-input:focus { outline: none; border: 1.5px solid #70737c; }
+.inline-ok { height: 34px; padding: 0 12px; border: none; border-radius: 8px; background: var(--coral); color: #fff; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.inline-ok:disabled { opacity: .5; cursor: default; }
+.inline-cancel { height: 34px; padding: 0 10px; border: 1px solid var(--input-border); border-radius: 8px; background: #fff; color: var(--ink-body); font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.row-del { border: none; background: transparent; color: var(--ink-faint); font-size: 11.5px; font-weight: 600; font-family: inherit; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.row-del:hover { background: var(--danger-bg); color: var(--danger-text); }
+
+/* 모달 (⓪ MAIN-01b′ 와 동일 문법) */
+@keyframes modalIn { 0% { opacity: 0; transform: translateY(10px) scale(.985); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-scrim { position: fixed; inset: 0; z-index: 100; background: rgba(16, 18, 20, .48); display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+.modal-card { width: 100%; max-width: 560px; background: var(--canvas); border-radius: 18px; box-shadow: 0 24px 60px rgba(16, 18, 20, .28); padding: 26px; animation: modalIn .2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.modal-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.m-label { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--ink-body); }
+.m-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--input-border); border-radius: 10px; background: #fff; color: var(--ink); font-size: 13.5px; font-family: inherit; }
+.m-input:focus { outline: none; border: 1.5px solid #70737c; }
+select.m-input { cursor: pointer; }
+.m-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }
+
+@media (max-width: 760px) {
+  #pmShots { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ⓪ MAIN-01b′ · 브랜드 추가 모달 (2026-07-22 — 앱 전 화면 공통)
+   사이드바 셸이 전역이므로 그 안의 모달도 모든 폴더에 동일하게 둔다
+   (기존 "폴더 자족" 관례). ab- 접두어는 각 화면의 기존 모달과 충돌 회피용.
+   ════════════════════════════════════════════════════════════════════ */
+@keyframes abIn { 0% { opacity: 0; transform: translateY(10px) scale(.985); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.ab-scrim { position: fixed; inset: 0; z-index: 110; background: rgba(16, 18, 20, .48); display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+.ab-card { width: 100%; max-width: 440px; background: var(--canvas); border-radius: 18px; box-shadow: 0 24px 60px rgba(16, 18, 20, .28); padding: 26px; animation: abIn .2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.ab-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.ab-label { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--ink-body); }
+.ab-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--input-border); border-radius: 10px; background: #fff; color: var(--ink); font-size: 13.5px; font-family: inherit; }
+.ab-input:focus { outline: none; border: 1.5px solid #70737c; }
+select.ab-input { cursor: pointer; }
+.ab-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }
+
+/* ════════════════════════════════════════════════════════════════════
+   ③ 운영(04) 확장 v3 — 브랜드 관리 조회 우선(view-first) 전환
+   2026-07-23 개편(기획서 # 3 개정 — BRAND-02b·03d·04b·04c·05d 신설).
+   조회 뷰(라벨:값 행·읽기 전용 칩)·연필 편집 버튼·채널 행 리스트·
+   JP 상태 배지·저장 status 토스트. 3-brand.html 전용.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 카드 헤더 — 제목 + 우측 연필 (BRAND-02·03c·05) */
+.kit-head { display: flex; align-items: flex-start; gap: 10px; }
+.kit-head .kit-desc { margin: 6px 0 0; font-size: 12px; color: var(--ink-mute); }
+.kit-edit {
+  flex: none; margin-left: auto;
+  width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--input-border); border-radius: 9px; background: #fff; color: #70737c;
+  cursor: pointer; font-family: inherit;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.kit-edit:hover { border-color: var(--coral); background: var(--coral-tint); color: var(--coral-strong); }
+
+/* 조회 뷰 라벨:값 행 (BRAND-02·03c·05c) — dl/dt/dd */
+.kv-list { margin: 14px 0 0; }
+.kv-row { display: grid; grid-template-columns: 128px 1fr; gap: 6px 14px; padding: 10px 0; border-bottom: 1px solid var(--n-150); margin: 0; }
+.kv-row:last-child { border-bottom: none; padding-bottom: 2px; }
+.kv-row dt { font-size: 12.5px; font-weight: 600; color: var(--ink-mute); padding-top: 1px; }
+.kv-row dd { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.kv-empty { color: var(--ink-faint); font-weight: 500; }
+
+/* 읽기 전용 칩 (BRAND-02 포지셔닝 · 조회 전용 — 클릭 동작 없음) */
+.chip-ro {
+  display: inline-flex; align-items: center; height: 27px; padding: 0 11px;
+  border-radius: 9999px; background: var(--coral-tint); border: 1px solid rgba(255, 100, 100, .32);
+  color: var(--coral-strong); font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+
+/* 채널 그룹·행 리스트 (BRAND-04) */
+.ch-group { margin-top: 18px; }
+.ch-head { display: flex; align-items: center; gap: 8px; }
+.ch-head h3 { margin: 0; font-size: 13px; font-weight: 700; color: var(--ink); }
+.ch-head .ch-n { font-size: 11.5px; font-weight: 700; color: #9ca0a8; background: var(--n-150); border-radius: 9999px; padding: 1px 8px; }
+.ch-list { margin-top: 4px; }
+.ch-row { display: flex; align-items: center; gap: 10px; padding: 11px 2px; border-bottom: 1px solid var(--n-150); font-size: 13px; }
+.ch-row:last-child { border-bottom: none; }
+.ch-name { flex: none; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.ch-url { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
+.ch-none { flex: 1; min-width: 0; font-size: 12px; color: var(--ink-faint); }
+.ch-acts { flex: none; margin-left: auto; display: inline-flex; gap: 2px; }
+/* JP 상태 배지 — 색+글자+기호(○/△) 3중 표기 */
+.ch-badge { flex: none; display: inline-flex; align-items: center; gap: 3px; height: 20px; padding: 0 8px; border-radius: 9999px; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+.ch-badge.b-sell { background: var(--green-bg); color: var(--green-text); }
+.ch-badge.b-goal { background: var(--amber-bg); color: var(--amber-text); }
+/* 그룹 빈 상태 — 안내 1줄 + 추가 버튼 유지 (BRAND-04 4a) */
+.ch-empty {
+  margin-top: 8px; padding: 14px 16px; border: 1px dashed rgba(112, 115, 124, 0.3);
+  border-radius: 10px; background: var(--n-50);
+  font-size: 12.5px; line-height: 1.6; color: var(--ink-mute);
+}
+
+/* 행 "수정" 텍스트 버튼 — .row-del 짝 (hover 중립. 삭제만 danger) */
+.row-edit { border: none; background: transparent; color: var(--ink-faint); font-size: 11.5px; font-weight: 600; font-family: inherit; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.row-edit:hover { background: var(--n-100); color: var(--ink); }
+
+/* 저장 status 토스트 (BRAND-06) — 모달 저장·행 삭제 안내 */
+.op-toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 28px; z-index: 95;
+  background: #202124; color: #fff; border-radius: 11px; padding: 11px 17px;
+  font-size: 12.5px; font-weight: 600; box-shadow: 0 8px 24px rgba(16, 18, 20, .24);
+  animation: toastIn .3s ease both;
+}
+
+@media (max-width: 760px) {
+  .kv-row { grid-template-columns: 1fr; gap: 2px; }
+  .ch-row { flex-wrap: wrap; }
+  .ch-acts { margin-left: 0; }
 }

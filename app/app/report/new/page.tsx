@@ -6,9 +6,9 @@
  * 게이트: 제출된 콘텐츠에만 50자 하드/200자 소프트 발동(gates.ts 단일 정의) — 서버에서도 재검증.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { HARD_GATE_CHARS, SOFT_LINE_CHARS, contentCharCount, isValidHttpUrl } from '@/lib/engine/rules/gates';
+import { HARD_GATE_CHARS, SOFT_LINE_CHARS, contentCharCount } from '@/lib/engine/rules/gates';
 import {
   POSITIONING_NOTE_MAX,
   POSITIONING_TAGS,
@@ -60,13 +60,19 @@ export default function ReportNewPage() {
   const [productName, setProductName] = useState('');
   const [keyIngredients, setKeyIngredients] = useState('');
   const [priceJpy, setPriceJpy] = useState('');
-  const [sourceType, setSourceType] = useState<'text' | 'url'>('text');
+  // v7: 이미지 업로드(기본) + 텍스트(보조). URL 제거
+  const [sourceType, setSourceType] = useState<'image' | 'text'>('image');
   const [sourceText, setSourceText] = useState('');
-  const [sourceUrl, setSourceUrl] = useState('');
+  const [sourceImages, setSourceImages] = useState<{ key: string; file: File; url: string; lowRes: boolean }[]>([]);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<{ storeKind: string; llmMode: string } | null>(null);
+  // 브랜드 프로필에서 이어받은 필드가 있으면 캡션 노출(온보딩 도입 · INPUT-02·05)
+  const [prefilled, setPrefilled] = useState(false);
+  const imgInputRef = useRef<HTMLInputElement>(null);
+  const imgKeyRef = useRef(0);
 
   useEffect(() => {
     fetch('/api/report')
@@ -74,6 +80,52 @@ export default function ReportNewPage() {
       .then(setMeta)
       .catch(() => setMeta(null));
   }, []);
+
+  /**
+   * 브랜드 프로필로 브랜드 필드 프리필(INPUT-02·05).
+   * force=false(진입): 사용자가 먼저 입력했으면 덮지 않는다.
+   * force=true(브랜드 전환 MAIN-01b″): 브랜드 종속 필드(브랜드명·카테고리·포지셔닝·한줄소개·타깃)를
+   *   새 브랜드로 교체한다. 제품 콘텐츠(브랜드 무관)는 이 함수가 건드리지 않아 유지된다.
+   */
+  const loadBrandPrefill = useCallback((force: boolean) => {
+    fetch('/api/brand')
+      .then((res) => res.json())
+      .then((data) => {
+        const p = data?.profile;
+        if (!p) {
+          if (force) {
+            setBrandName('');
+            setCategory('');
+            setPositioningTags([]);
+            setPositioningNote('');
+            setTargetMemo('');
+            setPrefilled(false);
+          }
+          return;
+        }
+        if (force) {
+          setBrandName(p.brandName || '');
+          setCategory(p.category || '');
+          setPositioningTags(Array.isArray(p.positioningTags) ? p.positioningTags : []);
+          setPositioningNote('');
+          setTargetMemo('');
+        } else {
+          setBrandName((prev) => prev || p.brandName || '');
+          setCategory((prev) => prev || p.category || '');
+          setPositioningTags((prev) => (prev.length ? prev : Array.isArray(p.positioningTags) ? p.positioningTags : []));
+        }
+        setPrefilled(Boolean(p.brandName));
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    loadBrandPrefill(false);
+    // 브랜드 전환 시 브랜드 종속 필드만 새 브랜드로 교체(MAIN-01b″)
+    const onSwitch = () => loadBrandPrefill(true);
+    window.addEventListener('kglow:brand-switched', onSwitch);
+    return () => window.removeEventListener('kglow:brand-switched', onSwitch);
+  }, [loadBrandPrefill]);
 
   /** 포지셔닝 칩 토글 — 최대 개수를 넘기면 무시 */
   function toggleTag(value: string) {
@@ -86,15 +138,67 @@ export default function ReportNewPage() {
     );
   }
 
+  /** 상세페이지 이미지 채택(INPUT-03 3e) — 형식·용량·장수 검증 + 512px 저해상 경고(차단 X) */
+  function addImages(list: FileList) {
+    setImageError(null);
+    const room = 10 - sourceImages.length;
+    const accepted: { key: string; file: File; url: string; lowRes: boolean }[] = [];
+    for (const f of Array.from(list)) {
+      if (accepted.length >= room) {
+        setImageError('최대 10장까지 올릴 수 있어요.');
+        break;
+      }
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) {
+        setImageError('JPG·PNG·WebP 파일만 올릴 수 있어요.');
+        continue;
+      }
+      if (f.size > 10 * 1024 * 1024) {
+        setImageError('장당 10MB 이하로 올려 주세요.');
+        continue;
+      }
+      const url = URL.createObjectURL(f);
+      const item = { key: `si-${imgKeyRef.current++}`, file: f, url, lowRes: false };
+      accepted.push(item);
+      // 512px 저해상 검사(비동기 · 경고 배지만)
+      const probe = new window.Image();
+      probe.onload = () => {
+        if (probe.naturalWidth < 512 || probe.naturalHeight < 512) {
+          setSourceImages((prev) => prev.map((p) => (p.key === item.key ? { ...p, lowRes: true } : p)));
+        }
+      };
+      probe.src = url;
+    }
+    if (accepted.length) setSourceImages((prev) => [...prev, ...accepted]);
+  }
+
+  function removeImage(key: string) {
+    setSourceImages((prev) => {
+      const t = prev.find((p) => p.key === key);
+      if (t) URL.revokeObjectURL(t.url);
+      return prev.filter((p) => p.key !== key);
+    });
+  }
+
+  /** 순서 이동(위→아래 = 상세페이지 순서) */
+  function moveImage(idx: number, dir: -1 | 1) {
+    setSourceImages((prev) => {
+      const next = [...prev];
+      const j = idx + dir;
+      if (j < 0 || j >= next.length) return prev;
+      [next[idx], next[j]] = [next[j], next[idx]];
+      return next;
+    });
+  }
+
   const brandReady = Boolean(brandName.trim() && positioningTags.length >= POSITIONING_TAGS_MIN && category);
   const charCount = useMemo(() => contentCharCount(sourceText), [sourceText]);
   // 콘텐츠는 선택(§3.3) — 비우면 브랜드 진단. 게이트는 "넣다 만" 입력에만 발동한다
-  const contentProvided = sourceType === 'text' ? charCount > 0 : sourceUrl.trim().length > 0;
+  const contentProvided = sourceType === 'image' ? sourceImages.length > 0 : charCount > 0;
   const hardGateBlocked = sourceType === 'text' && charCount > 0 && charCount < HARD_GATE_CHARS;
   const softLimited = sourceType === 'text' && charCount >= HARD_GATE_CHARS && charCount < SOFT_LINE_CHARS;
   const fullPrecision = sourceType === 'text' && charCount >= SOFT_LINE_CHARS;
-  const urlInvalid = sourceType === 'url' && sourceUrl.trim().length > 0 && !isValidHttpUrl(sourceUrl);
-  const contentOk = !hardGateBlocked && !urlInvalid;
+  // 이미지 모드는 폼에서 글자수 게이트 발동 X — 추출 후 파이프라인에서 판정(PROCESS-02)
+  const contentOk = !hardGateBlocked;
   const canSubmit = brandReady && contentOk && !submitting;
 
   /** 제출 → 요청 생성 → 진행 화면으로 이동 */
@@ -104,23 +208,21 @@ export default function ReportNewPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch('/api/report', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          brandName,
-          positioning: { tags: positioningTags, note: positioningNote },
-          category,
-          targetMemo: targetMemo || undefined,
-          productClass: productClass || undefined,
-          productName: productName || undefined,
-          keyIngredients: keyIngredients || undefined,
-          priceJpy: priceJpy || undefined,
-          sourceType,
-          sourceText: sourceType === 'text' ? sourceText : undefined,
-          sourceUrl: sourceType === 'url' ? sourceUrl : undefined,
-        }),
-      });
+      // v7: 이미지 업로드가 기본이라 multipart FormData로 전송(브라우저가 content-type 자동 설정)
+      const form = new FormData();
+      form.set('brandName', brandName);
+      form.set('positioningTags', JSON.stringify(positioningTags));
+      form.set('positioningNote', positioningNote);
+      form.set('category', category);
+      form.set('targetMemo', targetMemo);
+      form.set('productClass', productClass);
+      form.set('productName', productName);
+      form.set('keyIngredients', keyIngredients);
+      form.set('priceJpy', priceJpy);
+      form.set('sourceType', sourceType);
+      if (sourceType === 'text') form.set('sourceText', sourceText);
+      if (sourceType === 'image') sourceImages.forEach((im) => form.append('images', im.file));
+      const res = await fetch('/api/report', { method: 'POST', body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '제출에 실패했습니다.');
       router.push(`/app/report/${data.id}`);
@@ -151,6 +253,11 @@ export default function ReportNewPage() {
         <form onSubmit={handleSubmit} className="mt-9 space-y-5">
           {/* 브랜드 — 필수 */}
           <SectionCard title="브랜드" pill="필수" pillTone="required">
+            {prefilled && (
+              <p className="mb-5 rounded-[8px] bg-coral-tint px-3 py-2.5 text-[12.5px] leading-relaxed text-coral-strong">
+                브랜드 관리에서 이어받았어요. 필요하면 바꿔도 됩니다.
+              </p>
+            )}
             <div>
               <label htmlFor="brandName" className={fieldLabelClass}>
                 브랜드명 <span className="text-coral-strong">*</span>
@@ -288,27 +395,99 @@ export default function ReportNewPage() {
               <div className="inline-flex gap-0.5 rounded-[10px] bg-n-100 p-1">
                 <button
                   type="button"
+                  aria-pressed={sourceType === 'image'}
+                  onClick={() => setSourceType('image')}
+                  className={`h-[34px] rounded-lg px-4 text-[13.5px] transition-colors ${
+                    sourceType === 'image' ? 'bg-canvas font-bold text-ink shadow-card' : 'bg-transparent font-medium text-ink-mute'
+                  }`}
+                >
+                  이미지 업로드 (권장)
+                </button>
+                <button
+                  type="button"
                   aria-pressed={sourceType === 'text'}
                   onClick={() => setSourceType('text')}
                   className={`h-[34px] rounded-lg px-4 text-[13.5px] transition-colors ${
                     sourceType === 'text' ? 'bg-canvas font-bold text-ink shadow-card' : 'bg-transparent font-medium text-ink-mute'
                   }`}
                 >
-                  텍스트 붙여넣기 (권장)
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={sourceType === 'url'}
-                  onClick={() => setSourceType('url')}
-                  className={`h-[34px] rounded-lg px-4 text-[13.5px] transition-colors ${
-                    sourceType === 'url' ? 'bg-canvas font-bold text-ink shadow-card' : 'bg-transparent font-medium text-ink-mute'
-                  }`}
-                >
-                  URL
+                  텍스트 붙여넣기
                 </button>
               </div>
 
-              {sourceType === 'text' ? (
+              {sourceType === 'image' ? (
+                <div className="mt-3">
+                  <input
+                    ref={imgInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="sr-only"
+                    onChange={(e) => {
+                      if (e.target.files) addImages(e.target.files);
+                      e.target.value = '';
+                    }}
+                  />
+                  {sourceImages.length === 0 ? (
+                    <button
+                      type="button"
+                      aria-label="상세페이지 이미지 업로드"
+                      onClick={() => imgInputRef.current?.click()}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (e.dataTransfer.files) addImages(e.dataTransfer.files);
+                      }}
+                      className="flex min-h-[150px] w-full flex-col items-center justify-center gap-2 rounded-[12px] border-[1.5px] border-dashed border-input-border bg-n-50 p-6 text-center transition-colors hover:border-coral hover:bg-coral-tint"
+                    >
+                      <span className="text-[14px] font-semibold text-ink-body">
+                        상세페이지 캡처를 끌어다 놓거나 <span className="text-coral-strong">클릭해서 선택</span>
+                      </span>
+                      <span className="text-[12px] text-ink-mute">JPG · PNG · WebP / 장당 10MB / 1~10장 · 위에서부터 순서대로</span>
+                    </button>
+                  ) : (
+                    <div className="flex flex-wrap gap-2.5">
+                      {sourceImages.map((im, i) => (
+                        <div key={im.key} className="relative w-[92px]">
+                          <span className="block h-[92px] w-[92px] overflow-hidden rounded-[10px] border border-input-border">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={im.url} alt={`상세페이지 이미지 ${i + 1}`} className="h-full w-full object-cover" />
+                          </span>
+                          <span className="absolute top-1 left-1 rounded-[5px] bg-[rgba(16,18,20,.62)] px-1.5 text-[9px] font-bold text-white">{i + 1}</span>
+                          {im.lowRes && (
+                            <span className="absolute bottom-1 left-1 rounded-[5px] bg-amber-bg px-1 text-[8.5px] font-bold text-amber-text">△ 저해상</span>
+                          )}
+                          <button
+                            type="button"
+                            aria-label={`이미지 ${i + 1} 삭제`}
+                            onClick={() => removeImage(im.key)}
+                            className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-[10px] font-bold text-white"
+                          >
+                            ✕
+                          </button>
+                          <div className="mt-1 flex justify-center gap-1">
+                            <button type="button" aria-label="앞으로" disabled={i === 0} onClick={() => moveImage(i, -1)} className="text-[13px] text-ink-mute disabled:opacity-30">◀</button>
+                            <button type="button" aria-label="뒤로" disabled={i === sourceImages.length - 1} onClick={() => moveImage(i, 1)} className="text-[13px] text-ink-mute disabled:opacity-30">▶</button>
+                          </div>
+                        </div>
+                      ))}
+                      {sourceImages.length < 10 && (
+                        <button
+                          type="button"
+                          onClick={() => imgInputRef.current?.click()}
+                          className="flex h-[92px] w-[92px] flex-col items-center justify-center rounded-[10px] border-[1.5px] border-dashed border-input-border text-[11px] font-semibold text-ink-mute hover:border-coral hover:text-coral-strong"
+                        >
+                          ＋<span className="text-[9px]">추가</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {imageError && <p className="mt-2 text-[12.5px] font-semibold text-danger-text">{imageError}</p>}
+                  <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute">
+                    상세페이지를 위에서부터 순서대로 캡처해 올려 주세요. 글자가 보이면 충분해요. 이미지에서 문구를 읽어 진단합니다.
+                  </p>
+                </div>
+              ) : (
                 <div className="mt-3">
                   <label htmlFor="sourceText" className="sr-only">상세페이지 카피</label>
                   <textarea
@@ -341,24 +520,6 @@ export default function ReportNewPage() {
                     {charCount === 0 && <span className="text-xs font-medium text-ink-mute">브랜드 진단으로 진행</span>}
                   </div>
                 </div>
-              ) : (
-                <div className="mt-3">
-                  <label htmlFor="sourceUrl" className="sr-only">상세페이지 URL</label>
-                  <input
-                    id="sourceUrl"
-                    type="url"
-                    value={sourceUrl}
-                    onChange={(e) => setSourceUrl(e.target.value)}
-                    placeholder="https:// 상세페이지 주소"
-                    className={`${inputClass} ${urlInvalid ? 'border-danger' : ''}`}
-                  />
-                  <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute">
-                    이미지 위주 상세는 텍스트가 적게 추출될 수 있습니다 — 실패 시 텍스트 붙여넣기로 안내됩니다.
-                  </p>
-                  {urlInvalid && (
-                    <p className="mt-2 text-[12.5px] font-semibold text-danger-text">✕ http(s)로 시작하는 URL을 입력해 주세요.</p>
-                  )}
-                </div>
               )}
             </div>
           </SectionCard>
@@ -381,9 +542,9 @@ export default function ReportNewPage() {
               <p className="mt-3 text-center text-[13px] leading-relaxed text-ink-mute">
                 콘텐츠는 50자 이상이어야 합니다 — 비우고 제출하면 브랜드 진단으로 생성됩니다.
               </p>
-            ) : urlInvalid ? (
+            ) : sourceType === 'image' && sourceImages.length > 0 ? (
               <p className="mt-3 text-center text-[13px] leading-relaxed text-ink-mute">
-                http(s)로 시작하는 URL을 입력해 주세요 — 비우고 제출하면 브랜드 진단으로 생성됩니다.
+                이미지 {sourceImages.length}장에서 문구를 읽어 진단합니다 — 글자를 읽지 못하면 텍스트 붙여넣기로 안내해 드려요.
               </p>
             ) : !contentProvided ? (
               <p className="mt-3 text-center text-[13px] leading-relaxed text-ink-mute">

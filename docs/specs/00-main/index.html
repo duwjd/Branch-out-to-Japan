@@ -48,9 +48,9 @@
   <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.25;letter-spacing:-0.02em;color:#202124">3축을 담는 현관 — 화면 흐름</h1>
   <p style="margin:14px 0 0;max-width:760px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">
     로그인·온보딩 후 진입하는 앱 홈이자 ① 진단 리포트 · ② 마케팅 스튜디오 · ③ 운영의 허브입니다.
-    설계 원칙은 지표 대시보드가 아니라 <b>"다음 단계 제안"</b>입니다. 3축 성숙도가 서로 달라, 홈이 지금 할 일 하나를 골라 보여줍니다.
-    셸은 <b>좌측 사이드바</b>(브랜드 스위처·3축 내비·KPI 위젯·품의 PDF·계정) + 본문(다음 단계 히어로 + 최근 자산 그리드) + 우하단 플로팅 진행 패널입니다.
-    화면은 1개이고 <b>상태 변형 5종(첫 방문·기본·생성중·로딩·오류)</b>이 화면의 얼굴을 바꿉니다.
+    설계 원칙은 지표 대시보드가 아니라 <b>"다음 단계 제안"</b>입니다. 3축 성숙도가 서로 달라 홈이 지금 할 일 하나를 골라 보여줍니다.
+    셸은 <b>좌측 사이드바</b>(브랜드 스위처·3축 내비·KPI 위젯·품의 PDF·계정) + 본문(다음 단계 밴드 → 리포트 요약·브랜드 정보 위젯 → 다가오는 이벤트 → 최근 자산) + 우하단 플로팅 진행 패널입니다.
+    화면은 1개이고 <b>상태 변형 5종(첫 방문·기본·생성중·로딩·오류)</b>이 화면의 얼굴을 바꿉니다. 사이드바 메뉴명은 2026-07-22 개편으로 <b>"홈"</b>이 됐고, 스위처의 "＋ 브랜드 추가"가 모달로 열립니다.
   </p>
 
   <div class="doc-warn">
@@ -65,13 +65,13 @@
       <a class="flow-node" href="../03-account/1-login.html">
         <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">0 · 진입</span>
         <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">로그인</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">소셜 3종(카카오·네이버·구글). <a href="../03-account/index.html">계정 프로토타입 ↗</a> · 온보딩은 미설계.</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">소셜 3종(카카오·네이버·구글). <a href="../03-account/index.html">계정 프로토타입 ↗</a> · 온보딩 = 브랜드 미등록 시 첫 브랜드 캡처(<a href="01-onboarding-ui-기획서.md">01-onboarding 기획서 ↗</a>).</p>
       </a>
       <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
       <a class="flow-node" href="1-home.html">
         <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">1 · 홈</span>
         <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">메인(앱 홈)</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">사이드바 3축 내비 · 다음 단계 히어로 · 최근 자산 그리드 · 플로팅 진행 패널.</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">사이드바 3축 내비 · 다음 단계 밴드 · 위젯 3종 · 최근 자산 · 플로팅 진행 패널.</p>
       </a>
       <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
       <div class="flow-node" style="cursor:default">
@@ -83,18 +83,19 @@
       <a class="flow-node" href="1-home.html">
         <span style="font-size:11.5px;font-weight:800;color:#B96C00;letter-spacing:.04em">↩ 다시 홈</span>
         <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">축 횡단 집계</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">② 생성중·① 처리중이 우하단 플로팅 패널에 모이고, 완료 행과 그리드 crossfade로 알립니다.</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">② 생성중·① 처리중이 우하단 플로팅 패널에 모이고 완료 행과 그리드 crossfade로 알립니다.</p>
       </a>
     </div>
-    <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">홈의 검토용 상태 스위처로 첫 방문/기본/생성중/로딩/오류 5상태를 바로 볼 수 있습니다. 브랜드 스위처에서 "글로우리프"(자산 0)로 전환하면 첫 방문 상태가 되는 것도 데모의 일부입니다.</p>
+    <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">홈의 검토용 상태 스위처로 온보딩(브랜드 미등록)/첫 방문/기본/생성중/로딩/오류 6상태를 바로 볼 수 있습니다. 브랜드 스위처에서 "글로우리프"(자산 0)로 전환하면 첫 방문 상태가 되는 것도 데모의 일부입니다.</p>
   </section>
 
   <!-- ── 상태 변형 5종 ────────────────────────────────── -->
   <section style="margin-top:44px">
-    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">상태 변형 5종 — 화면 1개가 이렇게 바뀐다</h2>
-    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">별도 화면 대신 상태가 화면의 얼굴을 바꿉니다(기획서 MAIN-06~08). 첫 방문의 셋업 가이드는 Shopify Home 패턴, 진행중 타일은 ② HOME-04 문법 재사용입니다.</p>
-    <div class="rwrap" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
-      <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">(자산 0)</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">첫 방문</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">셋업 가이드 1/3 + 샘플 리포트 링크. 히어로·그리드 대신 출력.</p></div>
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">상태 변형 6종 — 화면 1개가 이렇게 바뀐다</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">별도 화면 대신 상태가 화면의 얼굴을 바꿉니다(기획서 MAIN-06~08·MAIN-13). 온보딩은 브랜드 미등록 first-run의 첫 브랜드 캡처, 첫 방문의 셋업 가이드는 Shopify Home 패턴, 진행중 타일은 ② HOME-04 문법 재사용입니다.</p>
+    <div class="rwrap" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px">
+      <div style="background:#fff;border:1px solid rgba(255,100,100,.35);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#D93636">(브랜드 0)</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">온보딩</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">첫 브랜드 캡처(필수 3필드). 등록 시 첫 방문 가이드로. MAIN-13.</p></div>
+      <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">(자산 0)</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">첫 방문</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">셋업 가이드 1/4 + 샘플 리포트 링크. 히어로·그리드 대신 출력.</p></div>
       <div style="background:#fff;border:1px solid rgba(0,185,124,.35);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#00875A">default ○</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">기본</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">다음 단계 히어로 1개 + 최근 자산 그리드 + 사이드바 KPI(카운트업).</p></div>
       <div style="background:#fff;border:1px solid rgba(255,171,0,.4);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#B96C00">generating △</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">생성중</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">플로팅 패널(진행바 + 단계 5종). 완료 시 그리드 crossfade + 완료 행.</p></div>
       <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">loading</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">로딩</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">치수 유지 스켈레톤. 레이아웃 이동 없음.</p></div>
@@ -117,7 +118,7 @@
             </tr>
           </thead>
           <tbody style="color:#414245">
-            <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">다중 브랜드 지원 범위</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">미정</span></td><td style="padding:12px 16px;line-height:1.55">1개 전제 vs 다수(app-spec). 프로토타입은 2개 데모(스위처 "브랜드 추가"는 비활성)</td></tr>
+            <tr style="border-top:1px solid #ECECEF"><td style="padding:10px 12px;border-bottom:1px solid #F1F1F3">다중 브랜드 · 브랜드 추가</td><td style="padding:10px 12px;border-bottom:1px solid #F1F1F3"><span style="display:inline-flex;height:20px;align-items:center;padding:0 8px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:11px;font-weight:700">진입점 확정 ○</span></td><td style="padding:10px 12px;border-bottom:1px solid #F1F1F3">브랜드 추가 모달을 전 화면 사이드바 스위처·마이페이지에서 동일하게 연다(MAIN-01b′). 추가 후 착지는 항상 ③ 브랜드 관리. 삭제는 ③ BRAND-10. 브랜드 수 상한만 (추후 기획)</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">마이페이지 · 결제/구독 상태 표기</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:11.5px;font-weight:700">별도 기획 ○</span></td><td style="padding:12px 16px;line-height:1.55">계정 메뉴는 <a href="../03-account/2-mypage.html">마이페이지</a>·<a href="../03-account/1-login.html">로그인</a>으로 연결됨. 결제 연동·구독 엔티티는 여전히 미정(03-account 기획서 MYPAGE-09)</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">무료 진입점 문안 (무료=샘플 v4)</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">미결</span></td><td style="padding:12px 16px;line-height:1.55">"샘플 리포트 먼저 보기" 문안은 임시. v4 무료 재정의 정리(decisions) 후 확정</td></tr>
             <tr style="border-top:1px solid #ECECEF"><td style="padding:12px 16px">GeneratedAsset.status 계약 델타</td><td style="padding:12px 16px"><span style="display:inline-flex;height:22px;align-items:center;padding:0 9px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700">② 제안 전제</span></td><td style="padding:12px 16px;line-height:1.55">홈 진행중 작업은 ② 기획서의 status 신설 제안을 전제(08-data-flow §6 개정)</td></tr>

@@ -42,9 +42,14 @@ async function main(): Promise<void> {
   const originalImagePath = await saveFile(source, 'jpg', 'orig');
 
   const record = await createThumbnailAsset({
+    brandProfileId: 'default',
+    brandName: 'HARUON',
     originalImagePath,
     platform,
     styleId,
+    modelImagePath: null,
+    modelConsent: false,
+    promoInput: null,
     proof: withProof
       ? { rankTitle: '楽天ランキング1位', genre: '日焼け止め', aggregationDate: '2026/6/14更新 [集計日6/13]' }
       : null,

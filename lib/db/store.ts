@@ -7,8 +7,17 @@ import type { BlocksJson, Category, ReportStatus, RubricGroup, RubricItemId, Tie
 import type { LlmCallLogEntry } from '../engine/llm/client';
 import type { LeadKind, TrackEventType } from '../lead';
 
+/**
+ * 레거시 단일 브랜드 id — 멀티 브랜드 이전에 만들어진 레코드(brandProfileId 없음)와
+ * 마이그레이션된 첫 브랜드 프로필이 공유한다. 신규 브랜드는 uuid를 받는다.
+ * 스코핑 필터는 `record.brandProfileId ?? LEGACY_BRAND_ID` 로 구 데이터를 이 브랜드에 귀속시킨다.
+ */
+export const LEGACY_BRAND_ID = 'default';
+
 export interface DiagnosisRequestRecord {
   id: string;
+  /** 소속 브랜드(스냅샷 원칙 — 제출 시점 활성 브랜드에 귀속) */
+  brandProfileId: string;
   tierInput: TierInput;
   precisionLimited: boolean;
   status: ReportStatus;
@@ -21,6 +30,8 @@ export interface DiagnosisRequestRecord {
 
 export interface ReportRecord {
   requestId: string;
+  /** 소속 브랜드 — 요청에서 물질화(브랜드별 스코핑용 비정규화) */
+  brandProfileId: string;
   blocksJson: BlocksJson;
   /** null = 브랜드 진단(점수 없음 — reports.overall_score nullable, 스펙 §3.3) */
   overallScore: number | null;
@@ -44,9 +55,9 @@ export interface BrandKit {
   toneGuide: string;
 }
 
-/** 브랜드 프로필 — 싱글턴(id='default', 다중 브랜드 미정). 편집 정본은 /app/brand */
+/** 브랜드 프로필 — 복수 지원(id=uuid, 레거시 마이그레이션분만 'default'). 편집 정본은 /app/brand */
 export interface BrandProfileRecord {
-  id: 'default';
+  id: string;
   brandName: string;
   category: Category;
   productClass: BrandProductClass;
@@ -84,8 +95,25 @@ export interface ThumbnailProof {
   aggregationDate: string;
 }
 
+/**
+ * 프로모션 강조형(G) 입력(HOME-05b) — 가격·특전은 지어낼 수 없는 값이라 사용자 입력만 받는다.
+ * 통상가 취소선은 normalPriceVerified가 true일 때만 렌더한다(실적 없는 이중가격 = 有利誤認 리스크).
+ */
+export interface PromoInput {
+  setTitle: string;            // 세트명(필수)
+  salePrice: string;           // 판매가(필수, 숫자 문자열)
+  normalPrice: string;         // 통상가(선택)
+  normalPriceVerified: boolean;// "실제 판매 실적 있음" 체크 — true여야 통상가 취소선 반영(有利誤認 방지)
+  discountRate: string;        // 할인율(선택)
+  gift: string;                // GIFT(선택)
+  qualifierChips: string[];    // 한정 칩(선택)
+  footnote: string;            // ※각주(선택)
+}
+
 export interface GeneratedAssetRecord {
   id: string;
+  /** 소속 브랜드(제출 시점 활성 브랜드 스냅샷) */
+  brandProfileId: string;
   kind: 'thumbnail';
   /** 내부 스타일 ID A~H — 화면 비노출(라벨 정책), 표시는 styleName */
   styleCategory: string;
@@ -101,8 +129,33 @@ export interface GeneratedAssetRecord {
   gateResult: GateResult | null;
   explanationJson: ExplanationJson | null;
   proof: ThumbnailProof | null;
+  modelImagePath: string | null;   // F 모델컷 fileId (F 아니면 null)
+  modelConsent: boolean;           // 모델 사용 권한 동의(F 필수, 미체크 생성 불가)
+  promoInput: PromoInput | null;   // G 프로모 입력(G 아니면 null)
   /** 제출 시점 브랜드명 물질화 — 킷 수정 불소급(tierInput 스냅샷 원칙과 동일) */
   brandNameSnapshot: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** 제품 이미지 — fileId + 대표 여부(BRAND-03b). 첫 장이 자동 대표, 대표 삭제 시 첫 장 승계 */
+export interface ProductImage {
+  fileId: string;
+  isPrimary: boolean;
+}
+
+/** 제품 자산(BRAND-03) — 브랜드 하위 제품 단위. ② 스튜디오 브랜드 자산 피커(HOME-02)의 소스 */
+export interface ProductRecord {
+  id: string;
+  brandProfileId: string;
+  /** 제품명 KR(필수) */
+  nameKr: string;
+  /** 제품명 JA(선택) */
+  nameJa: string;
+  /** 카테고리 라벨(선택, 자유 문자열) */
+  category: string;
+  memo: string;
+  images: ProductImage[];
   createdAt: string;
   updatedAt: string;
 }
@@ -112,6 +165,8 @@ export type MatchStatus = 'submitted' | 'reviewing' | 'proposed' | 'cancelled';
 /** 기업 매칭 신청 — 컨시어지형(상태 갱신은 운영팀 수동, MATCH-04) */
 export interface MatchRequestRecord {
   id: string;
+  /** 소속 브랜드(신청 시점 활성 브랜드) */
+  brandProfileId: string;
   partnerTypes: string[];
   channels: string[];
   timing: string;
@@ -157,10 +212,13 @@ export interface TrackEventRecord {
   createdAt: string;
 }
 
+/** 브랜드 생성 입력 — id·타임스탬프는 스토어가 부여 */
+export type NewBrandProfile = Omit<BrandProfileRecord, 'id' | 'createdAt' | 'updatedAt'>;
+
 export interface Store {
   /** 어떤 구현이 동작 중인지 — UI에 "로컬 저장(dev)" 배지 표시용 */
   kind(): 'supabase' | 'file';
-  createRequest(input: TierInput): Promise<DiagnosisRequestRecord>;
+  createRequest(input: TierInput, brandProfileId: string): Promise<DiagnosisRequestRecord>;
   getRequest(id: string): Promise<DiagnosisRequestRecord | null>;
   updateRequest(
     id: string,
@@ -170,11 +228,22 @@ export interface Store {
   getReport(requestId: string): Promise<ReportRecord | null>;
   saveLlmLog(requestId: string | null, entry: LlmCallLogEntry): Promise<void>;
 
-  // ── 스프린트 2 (최신순 목록 조회는 라이브러리·매칭 카운트·마이페이지가 사용)
-  listRequests(): Promise<DiagnosisRequestRecord[]>;
-  listReports(): Promise<ReportRecord[]>;
-  getBrandProfile(): Promise<BrandProfileRecord | null>;
+  // ── 브랜드 프로필(복수 지원 · MAIN-01 스위처/추가/삭제) ──────────────────────
+  /** 전 브랜드 목록(최신순) — 스위처·마이페이지 브랜드 목록 */
+  listBrandProfiles(): Promise<BrandProfileRecord[]>;
+  /** id로 브랜드 조회 — 활성 브랜드 해석은 lib/server/activeBrand.ts */
+  getBrandProfile(id: string): Promise<BrandProfileRecord | null>;
+  /** 브랜드 생성(온보딩·추가 모달) — uuid 발급 */
+  createBrandProfile(input: NewBrandProfile): Promise<BrandProfileRecord>;
+  /** 브랜드 갱신(편집·문서 업로드) — profile.id 기준 upsert */
   saveBrandProfile(profile: BrandProfileRecord): Promise<void>;
+  /** 브랜드 삭제(BRAND-10) — 종속 요청·리포트·자산·매칭 cascade */
+  deleteBrandProfile(id: string): Promise<void>;
+
+  // ── 스프린트 2 (최신순 목록 조회는 라이브러리·매칭 카운트·마이페이지가 사용)
+  //    목록·활성 매칭은 브랜드별 스코핑 — 구 데이터(brandProfileId 없음)는 LEGACY_BRAND_ID로 귀속
+  listRequests(brandProfileId: string): Promise<DiagnosisRequestRecord[]>;
+  listReports(brandProfileId: string): Promise<ReportRecord[]>;
   createAsset(input: Omit<GeneratedAssetRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<GeneratedAssetRecord>;
   getAsset(id: string): Promise<GeneratedAssetRecord | null>;
   updateAsset(
@@ -186,12 +255,12 @@ export interface Store {
       >
     >,
   ): Promise<void>;
-  listAssets(): Promise<GeneratedAssetRecord[]>;
+  listAssets(brandProfileId: string): Promise<GeneratedAssetRecord[]>;
   createMatchRequest(
     input: Omit<MatchRequestRecord, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
   ): Promise<MatchRequestRecord>;
-  /** 취소되지 않은 최신 신청 1건 — 화면·사이드바 배지의 단일 소스 */
-  getActiveMatchRequest(): Promise<MatchRequestRecord | null>;
+  /** 취소되지 않은 최신 신청 1건(브랜드별) — 화면·사이드바 배지의 단일 소스 */
+  getActiveMatchRequest(brandProfileId: string): Promise<MatchRequestRecord | null>;
   cancelMatchRequest(id: string): Promise<void>;
 
   // ── 검증 랜딩(/lp) 리드·트래킹 ─────────────────────────────────────────────
@@ -201,6 +270,15 @@ export interface Store {
   createTrackEvent(input: Omit<TrackEventRecord, 'id' | 'createdAt'>): Promise<TrackEventRecord>;
   /** 최신순 */
   listTrackEvents(): Promise<TrackEventRecord[]>;
+  // ── 제품 자산(BRAND-03) — 브랜드별 스코핑 ────────────────────────────────────
+  listProducts(brandProfileId: string): Promise<ProductRecord[]>;
+  getProduct(id: string): Promise<ProductRecord | null>;
+  createProduct(input: Omit<ProductRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<ProductRecord>;
+  updateProduct(
+    id: string,
+    patch: Partial<Pick<ProductRecord, 'nameKr' | 'nameJa' | 'category' | 'memo' | 'images'>>,
+  ): Promise<void>;
+  deleteProduct(id: string): Promise<void>;
 }
 
 let storeInstance: Store | null = null;

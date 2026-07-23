@@ -7,12 +7,13 @@
  * 탭: ①진단 요약 ②일본 시장 ③리스크 진단 ④고객·전략 ⑤처방·다음 단계.
  */
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { buttonClass, cardClass, StatusBadge } from '@/components/ui/primitives';
 import type { AuditVerdict, BlocksJson, RewriteResult, RubricGroup, RubricItemId } from '@/lib/engine/types';
 
-const TAB_LABELS = ['진단 요약', '일본 시장', '리스크 진단', '고객·전략', '처방·다음 단계'];
+/** 3탭 하이브리드(REPORT-14) — 블록0·1은 탭 위 상단 고정, 본문만 3탭으로 */
+const TAB_LABELS = ['시장', '진단', '처방'];
 
 const GROUP_ORDER: RubricGroup[] = ['A', 'B', 'C', 'D', 'E'];
 const GROUP_LABELS: Record<RubricGroup, string> = {
@@ -308,12 +309,36 @@ const THUMB_DIST: { label: string; pct: number }[] = [
   { label: '수상 스택', pct: 5 },
 ];
 
-/** 스티키 탭 내비 — role="tablist" ARIA 탭 패턴, 번호 배지 + 활성 코랄 */
-function TabNav({ active, onChange }: { active: number; onChange: (i: number) => void }) {
+/**
+ * 스티키 탭 내비(REPORT-14) — role="tablist" ARIA 탭 패턴 + roving tabindex + 좌우/Home/End 키.
+ * navRef는 상단 고정 요약 아래 스티키 위치(tabsStickTop) 계산에 쓰인다(스크롤 클램프).
+ */
+function TabNav({
+  active,
+  onChange,
+  navRef,
+}: {
+  active: number;
+  onChange: (i: number) => void;
+  navRef: React.RefObject<HTMLElement | null>;
+}) {
+  function onKeyDown(e: React.KeyboardEvent) {
+    let next = active;
+    if (e.key === 'ArrowRight') next = (active + 1) % TAB_LABELS.length;
+    else if (e.key === 'ArrowLeft') next = (active - 1 + TAB_LABELS.length) % TAB_LABELS.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = TAB_LABELS.length - 1;
+    else return;
+    e.preventDefault();
+    onChange(next);
+    navRef.current?.querySelector<HTMLButtonElement>(`#report-tab-${next}`)?.focus();
+  }
   return (
     <nav
+      ref={navRef}
       aria-label="리포트 구간 이동"
       role="tablist"
+      onKeyDown={onKeyDown}
       className="sticky top-0 z-40 mt-6 flex gap-1 overflow-x-auto rounded-[14px] border border-card-border bg-canvas/95 p-1.5 shadow-nav backdrop-blur"
     >
       {TAB_LABELS.map((label, i) => {
@@ -326,6 +351,7 @@ function TabNav({ active, onChange }: { active: number; onChange: (i: number) =>
             id={`report-tab-${i}`}
             aria-selected={on}
             aria-controls={`report-tabpanel-${i}`}
+            tabIndex={on ? 0 : -1}
             onClick={() => onChange(i)}
             className={`flex h-[42px] flex-1 items-center justify-center gap-2 rounded-[10px] px-3.5 text-[13.5px] whitespace-nowrap transition-colors ${
               on ? 'bg-coral font-bold text-white' : 'font-semibold text-ink-body hover:bg-n-100'
@@ -361,17 +387,15 @@ function CoverSummaryCard({ block0 }: { block0: BlocksJson['block0'] }) {
   );
 }
 
-// ══════════ 탭1 · 진단 요약 (블록 0·1) ══════════
+// ══════════ 상단 고정 — 블록 1 진단 요약 헤더(REPORT-04, 탭 무관 상시 노출) ══════════
 
-function Tab1Summary({ b, onTab }: { b: BlocksJson; onTab: (i: number) => void }) {
+function Block1Header({ b, onDeepLink }: { b: BlocksJson; onDeepLink: (itemId: string) => void }) {
   const block1 = b.block1;
   const observed = b.block4.comparisonRows.filter((r) => r.customerStatus === '관찰됨').length;
   const totalDevices = b.block4.comparisonRows.length;
 
   return (
-    <div id="report-tabpanel-0" role="tabpanel" aria-labelledby="report-tab-0">
-      <CoverSummaryCard block0={b.block0} />
-
+    <>
       <section className={cardClass('mt-4 p-9')}>
         <p className="text-[11px] font-semibold text-ink-faint">블록 1</p>
         {block1.scored ? (
@@ -423,7 +447,7 @@ function Tab1Summary({ b, onTab }: { b: BlocksJson; onTab: (i: number) => void }
                 <button
                   key={t.itemId}
                   type="button"
-                  onClick={() => onTab(2)}
+                  onClick={() => onDeepLink(t.itemId)}
                   className="flex items-center gap-3.5 rounded-[12px] border border-card-border bg-canvas p-3.5 text-left transition-colors hover:border-coral"
                 >
                   <span aria-hidden className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-coral text-[13px] font-extrabold text-white">
@@ -442,22 +466,16 @@ function Tab1Summary({ b, onTab }: { b: BlocksJson; onTab: (i: number) => void }
           </div>
         </section>
       )}
-
-      <div className="mt-6 flex justify-end">
-        <button type="button" onClick={() => onTab(1)} className={buttonClass('primary', 'md')}>
-          다음 · 일본 시장은 이렇게 판다 →
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
 
-// ══════════ 탭2 · 일본 시장 (정적 에디토리얼) ══════════
+// ══════════ 시장 탭 (정적 에디토리얼 · REPORT-15) ══════════
 
-function Tab2Market({ onTab }: { onTab: (i: number) => void }) {
+function MarketPanel() {
   const maxPct = THUMB_DIST[0].pct;
   return (
-    <div id="report-tabpanel-1" role="tabpanel" aria-labelledby="report-tab-1">
+    <>
       <section className={cardClass('mt-5 p-9')}>
         <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-ink">일본 시장은 이렇게 판다</h2>
         <p className="mt-2.5 max-w-[640px] text-sm leading-[1.7] text-ink-body [text-wrap:pretty]">
@@ -516,12 +534,7 @@ function Tab2Market({ onTab }: { onTab: (i: number) => void }) {
         </div>
         <p className="mt-3.5 text-[11.5px] text-ink-mute">분포는 층화 표본 120/948장의 추정치입니다.</p>
       </section>
-
-      <div className="mt-6 flex justify-between">
-        <button type="button" onClick={() => onTab(0)} className={buttonClass('secondary', 'md')}>← 진단 요약</button>
-        <button type="button" onClick={() => onTab(2)} className={buttonClass('primary', 'md')}>다음 · 내 브랜드 리스크 진단 →</button>
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -784,26 +797,11 @@ function RubricSection({ block5 }: { block5: BlocksJson['block5'] }) {
   );
 }
 
-function Tab3Risk({ b, onTab }: { b: BlocksJson; onTab: (i: number) => void }) {
-  return (
-    <div id="report-tabpanel-2" role="tabpanel" aria-labelledby="report-tab-2">
-      <BenchmarkSection block4={b.block4} />
-      <AuditSection block3={b.block3} productClassAssumed={b.meta.productClassAssumed} />
-      <RubricSection block5={b.block5} />
-      <div className="mt-6 flex justify-between">
-        <button type="button" onClick={() => onTab(1)} className={buttonClass('secondary', 'md')}>← 일본 시장</button>
-        <button type="button" onClick={() => onTab(3)} className={buttonClass('primary', 'md')}>다음 · 누가, 왜 떠나는가 →</button>
-      </div>
-    </div>
-  );
-}
+// ══════════ 진단 탭 블록 2 — 페르소나·구매여정·USP(REPORT-05) ══════════
 
-// ══════════ 탭4 · 고객·전략 (블록 2·6) ══════════
-
-function Tab4Customer({ b, onTab }: { b: BlocksJson; onTab: (i: number) => void }) {
-  const p = b.block2;
+function PersonaSection({ block2: p }: { block2: BlocksJson['block2'] }) {
   return (
-    <div id="report-tabpanel-3" role="tabpanel" aria-labelledby="report-tab-3">
+    <>
       <section className={cardClass('mt-5 p-9')}>
         <p className="text-[11px] font-semibold text-ink-faint">블록 2</p>
         <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-ink">이 고객이, 이 지점에서 만납니다</h2>
@@ -862,26 +860,6 @@ function Tab4Customer({ b, onTab }: { b: BlocksJson; onTab: (i: number) => void 
       </section>
 
       <section className={cardClass('mt-4 p-9')}>
-        <p className="text-[11px] font-semibold text-ink-faint">블록 6</p>
-        <h2 className="text-[17px] font-bold text-ink">정보 공백 → 의문 → 이탈</h2>
-        <div className="mt-4 overflow-hidden rounded-[14px] border border-card-border">
-          <div className="grid grid-cols-3 gap-2.5 bg-n-100 px-4.5 py-3 text-[11.5px] font-bold text-ink-body">
-            <span>진단된 정보 공백</span>
-            <span>고객이 떠올리는 의문</span>
-            <span>이탈 행동</span>
-          </div>
-          {b.block6.narrative.map((row, i) => (
-            <div key={i} className="grid grid-cols-3 gap-2.5 border-t border-n-150 px-4.5 py-3.5 text-[13px]">
-              <span className="font-semibold text-ink">{row.infoGap}</span>
-              <span className="text-ink-body">{row.distrustSignal}</span>
-              <span className="text-ink-body">{row.dropOff}</span>
-            </div>
-          ))}
-        </div>
-        <p className="mt-3 text-[11.5px] text-ink-mute">{b.block6.generalNote}</p>
-      </section>
-
-      <section className={cardClass('mt-4 p-9')}>
         <h2 className="text-[17px] font-bold text-ink">USP 재정의 — 같은 강점, 일본의 언어로</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[640px] border-collapse text-[13px]">
@@ -904,12 +882,33 @@ function Tab4Customer({ b, onTab }: { b: BlocksJson; onTab: (i: number) => void 
           </table>
         </div>
       </section>
+    </>
+  );
+}
 
-      <div className="mt-6 flex justify-between">
-        <button type="button" onClick={() => onTab(2)} className={buttonClass('secondary', 'md')}>← 리스크 진단</button>
-        <button type="button" onClick={() => onTab(4)} className={buttonClass('primary', 'md')}>다음 · 이렇게 바꾸면 풀린다 →</button>
+// ══════════ 진단 탭 블록 6 — 정보 공백 → 이탈(REPORT-09) ══════════
+
+function Block6Section({ block6 }: { block6: BlocksJson['block6'] }) {
+  return (
+    <section className={cardClass('mt-4 p-9')}>
+      <p className="text-[11px] font-semibold text-ink-faint">블록 6</p>
+      <h2 className="text-[17px] font-bold text-ink">정보 공백 → 의문 → 이탈</h2>
+      <div className="mt-4 overflow-hidden rounded-[14px] border border-card-border">
+        <div className="grid grid-cols-3 gap-2.5 bg-n-100 px-4.5 py-3 text-[11.5px] font-bold text-ink-body">
+          <span>진단된 정보 공백</span>
+          <span>고객이 떠올리는 의문</span>
+          <span>이탈 행동</span>
+        </div>
+        {block6.narrative.map((row, i) => (
+          <div key={i} className="grid grid-cols-3 gap-2.5 border-t border-n-150 px-4.5 py-3.5 text-[13px]">
+            <span className="font-semibold text-ink">{row.infoGap}</span>
+            <span className="text-ink-body">{row.distrustSignal}</span>
+            <span className="text-ink-body">{row.dropOff}</span>
+          </div>
+        ))}
       </div>
-    </div>
+      <p className="mt-3 text-[11.5px] text-ink-mute">{block6.generalNote}</p>
+    </section>
   );
 }
 
@@ -1068,9 +1067,9 @@ function NextStepSection({ block9 }: { block9: BlocksJson['block9'] }) {
   );
 }
 
-function Tab5Prescription({ b, onTab, slideExportSlot }: { b: BlocksJson; onTab: (i: number) => void; slideExportSlot?: React.ReactNode }) {
+function PrescriptionPanel({ b, slideExportSlot }: { b: BlocksJson; slideExportSlot?: React.ReactNode }) {
   return (
-    <div id="report-tabpanel-4" role="tabpanel" aria-labelledby="report-tab-4">
+    <>
       <RewriteSection block7={b.block7} />
       <SampleSection block8={b.block8} />
       <NextStepSection block9={b.block9} />
@@ -1107,11 +1106,8 @@ function Tab5Prescription({ b, onTab, slideExportSlot }: { b: BlocksJson; onTab:
         </div>
       </section>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <button type="button" onClick={() => onTab(3)} className={buttonClass('secondary', 'md')}>← 고객·전략</button>
-        {slideExportSlot}
-      </div>
-    </div>
+      {slideExportSlot && <div className="mt-6 flex justify-end">{slideExportSlot}</div>}
+    </>
   );
 }
 
@@ -1123,12 +1119,61 @@ interface ReportViewProps {
   slideExportSlot?: React.ReactNode;
 }
 
+/** 탭 인덱스 ↔ URL 해시(REPORT-14 — 새로고침·링크 공유 시 활성 탭 유지) */
+const TAB_HASHES = ['market', 'diagnosis', 'prescription'] as const;
+
 /**
- * 리포트 본문 — 목업 배너(fixtures 모드)·정밀도 제한 배너를 상단에 유지하고,
- * 이후 스티키 탭 내비 + 활성 탭만 렌더한다.
+ * 리포트 본문(3탭 하이브리드 · REPORT-14) — 목업/정밀도 배너 → 상단 고정(블록0 표지 + 블록1 요약 헤더)
+ * → 스티키 탭 내비(시장/진단/처방) → 활성 탭만 렌더. 블록 번호·blocksJson 계약은 불변, 표시 구조만 재편.
  */
 export function ReportView({ blocks: b, slideExportSlot }: ReportViewProps) {
-  const [tab, setTab] = useState(0);
+  const [tab, setTab] = useState(0); // 기본 탭 "시장"
+  const navRef = useRef<HTMLElement | null>(null);
+
+  // 진입 시 URL 해시로 활성 탭 복원 + popstate 동기화(딥링크 뒤로가기)
+  useEffect(() => {
+    const idxOf = (h: string) => TAB_HASHES.indexOf(h.replace('#', '') as (typeof TAB_HASHES)[number]);
+    const initial = idxOf(window.location.hash);
+    if (initial >= 0) setTab(initial);
+    const onPop = () => {
+      const i = idxOf(window.location.hash);
+      if (i >= 0) setTab(i);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  /** 앵커 도착 — details 펼침 + 스크롤 + hl-flash 2초(REPORT-16). 패널 마운트를 위해 2프레임 대기 */
+  function flashAnchor(id: string) {
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el instanceof HTMLDetailsElement) el.open = true;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('hl-flash');
+        setTimeout(() => el.classList.remove('hl-flash'), 2000);
+      }),
+    );
+  }
+
+  /** 탭 전환(스티키 탭 바) — 해시 교체 + 스크롤 클램프(맨 위 X → 탭 바 상단 정렬까지만) */
+  const goTab = useCallback((i: number) => {
+    setTab(i);
+    window.history.replaceState(null, '', `#${TAB_HASHES[i]}`);
+    requestAnimationFrame(() => {
+      const top = navRef.current?.offsetTop ?? 0;
+      // 현재 스크롤이 탭 바 상단보다 아래면 그 지점까지만 올림. 위(상단 고정 요약 열람 중)면 이동 X
+      if (window.scrollY > top) window.scrollTo({ top, behavior: 'smooth' });
+    });
+  }, []);
+
+  /** 상단 고정 Top3 → 진단 탭 블록5 항목 앵커로 딥링크(REPORT-16, pushState = 뒤로가기 복귀) */
+  const deepLinkToRubric = useCallback((itemId: string) => {
+    setTab(1);
+    window.history.pushState(null, '', '#diagnosis');
+    flashAnchor(`rubric-${itemId}`);
+  }, []);
 
   return (
     <div>
@@ -1147,13 +1192,26 @@ export function ReportView({ blocks: b, slideExportSlot }: ReportViewProps) {
         </div>
       )}
 
-      <TabNav active={tab} onChange={setTab} />
+      {/* 상단 고정 — 블록0 표지 + 블록1 요약 헤더(탭 무관 상시 노출 · REPORT-14) */}
+      <CoverSummaryCard block0={b.block0} />
+      <Block1Header b={b} onDeepLink={deepLinkToRubric} />
 
-      {tab === 0 && <Tab1Summary b={b} onTab={setTab} />}
-      {tab === 1 && <Tab2Market onTab={setTab} />}
-      {tab === 2 && <Tab3Risk b={b} onTab={setTab} />}
-      {tab === 3 && <Tab4Customer b={b} onTab={setTab} />}
-      {tab === 4 && <Tab5Prescription b={b} onTab={setTab} slideExportSlot={slideExportSlot} />}
+      <TabNav active={tab} onChange={goTab} navRef={navRef} />
+
+      <div id={`report-tabpanel-${tab}`} role="tabpanel" aria-labelledby={`report-tab-${tab}`} tabIndex={0}>
+        {tab === 0 && <MarketPanel />}
+        {tab === 1 && (
+          <>
+            {/* 진단 탭 표시 순서: 블록 4 → 2 → 3 → 5 → 6 (REPORT-14) */}
+            <BenchmarkSection block4={b.block4} />
+            <PersonaSection block2={b.block2} />
+            <AuditSection block3={b.block3} productClassAssumed={b.meta.productClassAssumed} />
+            <RubricSection block5={b.block5} />
+            <Block6Section block6={b.block6} />
+          </>
+        )}
+        {tab === 2 && <PrescriptionPanel b={b} slideExportSlot={slideExportSlot} />}
+      </div>
 
       <p className="mt-9 text-center text-[11.5px] leading-relaxed text-ink-faint">
         KGLOW · 진단 리포트 — 화면 속 점수·판정·일본어 카피는 이 진단의 실제 산출 결과입니다.

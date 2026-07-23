@@ -36,7 +36,7 @@ const FILE_ID_RE = /^[a-z]+-[0-9a-f-]{36}\.(png|jpe?g|webp|pdf)$/;
  * 파일을 저장하고 fileId를 반환한다. 사용자 입력(브랜드명 등)은 파일명에 넣지 않는다 —
  * 다운로드 파일명은 클라이언트 download 속성 몫(RESULT-04).
  */
-export async function saveFile(buf: Buffer, ext: StoredFileExt, prefix: 'orig' | 'thumb' | 'doc'): Promise<string> {
+export async function saveFile(buf: Buffer, ext: StoredFileExt, prefix: 'orig' | 'thumb' | 'doc' | 'model' | 'product'): Promise<string> {
   if (!existsSync(FILES_DIR)) mkdirSync(FILES_DIR, { recursive: true });
   const fileId = `${prefix}-${randomUUID()}.${ext}`;
   await writeFile(path.join(FILES_DIR, fileId), buf);

@@ -4,25 +4,27 @@
  */
 
 export const REPORT_STAGE_LABELS: Record<string, string> = {
-  normalize: '콘텐츠 정규화 · 문장 분해',
-  presignals: '신뢰 장치 신호 추출',
-  llmCalls: '루브릭 채점 · 薬機法 감사 · 페르소나 (병렬 진단 중)',
-  persona: '페르소나 · USP 재정의 (브랜드 진단)',
-  aggregate: '점수 집계 (결정적)',
-  benchmark: '코퍼스 벤치마크 대비',
-  call4: 'NG/OK 재작성 · 총평 생성',
-  assemble: '리포트 조립',
+  extract: '상세페이지 이미지에서 문구를 읽는 중',
+  normalize: '콘텐츠를 정리하는 중',
+  presignals: '신뢰 요소를 확인하는 중',
+  llmCalls: '일본 기준 채점 · 薬機法 감사 · 페르소나 진단 중',
+  persona: '페르소나 · USP를 다시 정의하는 중 (브랜드 진단)',
+  aggregate: '점수를 계산하는 중',
+  benchmark: '일본 상위 제품과 비교하는 중',
+  call4: '일본향 문안을 다시 쓰는 중',
+  assemble: '리포트를 구성하는 중',
 };
 
-/** 처리 화면 7단계 표시 순서 — llmCalls·persona(브랜드 진단)는 같은 슬롯을 공유한다 */
+/** 처리 화면 표시 순서 — extract는 이미지 업로드 시에만 도는 첫 단계, llmCalls·persona는 같은 슬롯 공유 */
 export const REPORT_STAGE_STEPS: { keys: string[]; label: string }[] = [
-  { keys: ['normalize'], label: '콘텐츠 정규화 · 문장 분해' },
-  { keys: ['presignals'], label: '신뢰 장치 신호 추출' },
-  { keys: ['llmCalls', 'persona'], label: '루브릭 채점 · 薬機法 감사 · 페르소나 (병렬 진단 중)' },
-  { keys: ['aggregate'], label: '점수 집계 (결정적)' },
-  { keys: ['benchmark'], label: '코퍼스 벤치마크 대비' },
-  { keys: ['call4'], label: 'NG/OK 재작성 · 총평 생성' },
-  { keys: ['assemble'], label: '리포트 조립' },
+  { keys: ['extract'], label: '상세페이지 이미지에서 문구를 읽는 중' },
+  { keys: ['normalize'], label: '콘텐츠를 정리하는 중' },
+  { keys: ['presignals'], label: '신뢰 요소를 확인하는 중' },
+  { keys: ['llmCalls', 'persona'], label: '일본 기준 채점 · 薬機法 감사 · 페르소나 진단 중' },
+  { keys: ['aggregate'], label: '점수를 계산하는 중' },
+  { keys: ['benchmark'], label: '일본 상위 제품과 비교하는 중' },
+  { keys: ['call4'], label: '일본향 문안을 다시 쓰는 중' },
+  { keys: ['assemble'], label: '리포트를 구성하는 중' },
 ];
 
 /** 현재 stage 키 → 7단계 인덱스(모르는 키·null은 0) */

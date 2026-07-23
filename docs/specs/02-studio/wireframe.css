@@ -383,3 +383,63 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   .app-side { width: auto; flex: none; position: static; height: auto; border-right: none; border-bottom: 1px solid var(--hairline); }
   .side-gap { display: none; }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   HOME-02-0 · 제품컷 소스 선택 탭 + 브랜드 자산 피커 (2026-07-22 신설)
+   피커는 조회 전용이다 — 여기서 이미지를 올리거나 지우지 않는다.
+   ════════════════════════════════════════════════════════════════════ */
+
+.src-tab {
+  height: 32px; padding: 0 14px; border: none; border-radius: 8px;
+  background: transparent; color: var(--ink-body);
+  font-size: 12.5px; font-weight: 600; font-family: inherit; cursor: pointer;
+  transition: background .15s, color .15s, box-shadow .15s;
+}
+.src-tab[aria-selected="true"] { background: #fff; color: var(--coral-strong); font-weight: 700; box-shadow: 0 1px 2px rgba(16, 18, 20, .08); }
+.src-tab:hover[aria-selected="false"] { color: var(--ink); }
+
+/* 제품 단위로 묶은 제품컷 그리드 */
+.pick-group + .pick-group { margin-top: 18px; }
+.pick-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 9px; }
+.pick-head h3 { margin: 0; font-size: 13px; font-weight: 700; color: var(--ink); }
+.pick-head .pick-ja { font-size: 11.5px; color: var(--ink-mute); font-weight: 600; }
+.pick-head .pick-n { margin-left: auto; font-size: 11px; color: var(--ink-faint); }
+.pick-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
+
+.pick-tile {
+  position: relative; aspect-ratio: 1 / 1; padding: 0; overflow: hidden;
+  border: 1.5px solid var(--card-border); border-radius: 10px; background: var(--n-100);
+  cursor: pointer; font-family: inherit;
+  transition: border-color .15s, transform .15s;
+}
+.pick-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pick-tile:hover { border-color: var(--coral); transform: translateY(-2px); }
+.pick-tile[aria-checked="true"] { border-color: var(--coral); border-width: 2px; }
+.pick-tile[aria-checked="true"]::after {
+  content: "✓"; position: absolute; right: 5px; bottom: 5px;
+  width: 20px; height: 20px; border-radius: 50%; background: var(--coral); color: #fff;
+  font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+}
+.pick-primary { position: absolute; left: 4px; top: 4px; padding: 1px 6px; border-radius: 5px; background: rgba(16, 18, 20, .72); color: #fff; font-size: 9.5px; font-weight: 700; }
+
+/* 선택 출처 라벨 (미리보기 안) */
+.src-label { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px; border-radius: 9999px; background: var(--coral-tint); border: 1px solid rgba(255, 100, 100, .3); color: var(--coral-strong); font-size: 11px; font-weight: 700; }
+
+@media (max-width: 760px) {
+  .pick-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ⓪ MAIN-01b′ · 브랜드 추가 모달 (2026-07-22 — 앱 전 화면 공통)
+   사이드바 셸이 전역이므로 그 안의 모달도 모든 폴더에 동일하게 둔다
+   (기존 "폴더 자족" 관례). ab- 접두어는 각 화면의 기존 모달과 충돌 회피용.
+   ════════════════════════════════════════════════════════════════════ */
+@keyframes abIn { 0% { opacity: 0; transform: translateY(10px) scale(.985); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.ab-scrim { position: fixed; inset: 0; z-index: 110; background: rgba(16, 18, 20, .48); display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+.ab-card { width: 100%; max-width: 440px; background: var(--canvas); border-radius: 18px; box-shadow: 0 24px 60px rgba(16, 18, 20, .28); padding: 26px; animation: abIn .2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.ab-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.ab-label { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--ink-body); }
+.ab-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--input-border); border-radius: 10px; background: #fff; color: var(--ink); font-size: 13.5px; font-family: inherit; }
+.ab-input:focus { outline: none; border: 1.5px solid #70737c; }
+select.ab-input { cursor: pointer; }
+.ab-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }

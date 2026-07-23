@@ -11,6 +11,7 @@ import { aggregateScores } from './rules/aggregate';
 import { buildBenchmark } from './rules/benchmark';
 import { assembleBlocks, assembleBrandBlocks } from './rules/assemble';
 import { runCall1, runCall2, runCall3, runCall4, type LogSink } from './llm/calls';
+import { runCall0 } from './llm/call0';
 import { mockCall3 } from './llm/fixtures';
 import { logger } from '../logger';
 
@@ -86,8 +87,17 @@ async function runBrandPipeline(tierInput: BrandOnlyInput, deps: PipelineDeps = 
 async function runFullPipeline(tierInput: BrandProductInput, deps: PipelineDeps = {}): Promise<PipelineResult> {
   const { onStage, onLog } = deps;
 
+  // 이미지 모드 — 콜⓪ 비전 추출 후 그 텍스트를 정규화에 넘긴다(v7). 추출 실패는 SourceContentError로 잡 실패
+  let extractedText: string | undefined;
+  if (tierInput.sourceType === 'image') {
+    await onStage?.('extract');
+    const extraction = await runCall0(tierInput.sourceImages ?? [], tierInput.productClass, onLog);
+    extractedText = extraction.plainText;
+    logger.info('이미지 추출 완료', { images: tierInput.sourceImages?.length ?? 0, chars: extractedText.length });
+  }
+
   await onStage?.('normalize');
-  const content = await normalizeContent(tierInput);
+  const content = await normalizeContent(tierInput, extractedText);
   logger.info('정규화 완료', { sentences: content.sentences.length, chars: content.charCount });
 
   await onStage?.('presignals');
