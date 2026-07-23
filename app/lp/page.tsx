@@ -55,7 +55,7 @@ const FAQ_ROWS = [
   { q: '일본어를 못 읽어도 되나요?', a: '재설계된 모든 일본어 문장에 한국어 역해설이 병기됩니다. 무엇이 어떻게 바뀌었는지 한국어로 검수할 수 있습니다.' },
   {
     q: '파일럿은 정말 무료인가요?',
-    a: `네. 정가 ${formatKrw(PILOT_OFFER.reportListPrice)}인 진단 리포트를 파일럿 참여 브랜드에 무료로 제공하고, 마케팅 스튜디오 이용 크레딧 ${PILOT_OFFER.studioCreditCount}회를 함께 드립니다. 선착순 ${PILOT_OFFER.pilotSeats}팀 한정입니다.`,
+    a: `네. 정가 ${formatKrw(PILOT_OFFER.reportListPrice)}인 진단 리포트를 파일럿 참여 브랜드에 무료로 제공합니다. 선착순 ${PILOT_OFFER.pilotSeats}팀 한정입니다.`,
   },
 ];
 
@@ -190,8 +190,7 @@ export default function LpPage() {
             <span className="text-4xl font-extrabold text-[#D93636]">무료</span>
           </p>
           <p className="mt-4 max-w-xl text-neutral-700">
-            파일럿에 참여하는 브랜드에는 정가 {formatKrw(PILOT_OFFER.reportListPrice)} 진단 리포트를 무료로 제공하고,
-            마케팅 스튜디오 이용 크레딧 {PILOT_OFFER.studioCreditCount}회를 함께 드립니다. 선착순{' '}
+            파일럿에 참여하는 브랜드에는 정가 {formatKrw(PILOT_OFFER.reportListPrice)} 진단 리포트를 무료로 제공합니다. 선착순{' '}
             {PILOT_OFFER.pilotSeats}팀 한정입니다.
           </p>
           <TrackedCta
@@ -244,7 +243,6 @@ export default function LpPage() {
               </p>
               <ul className="mt-4 space-y-2 text-sm text-neutral-700">
                 <li>정가 {formatKrw(PILOT_OFFER.reportListPrice)} 진단 리포트 무료 제공</li>
-                <li>마케팅 스튜디오 이용 크레딧 {PILOT_OFFER.studioCreditCount}회</li>
                 <li>선착순 {PILOT_OFFER.pilotSeats}팀 한정</li>
               </ul>
             </div>
