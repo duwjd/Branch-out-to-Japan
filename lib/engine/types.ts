@@ -49,9 +49,13 @@ export interface BrandOnlyInput extends TierInputBase {
 /** 브랜드+제품 진단 — 상세페이지 콘텐츠 제출. 9블록 전부 산출 */
 export interface BrandProductInput extends TierInputBase {
   mode: 'brandProduct';
-  sourceType: 'url' | 'text';
-  sourceUrl?: string;
+  /** v7: 이미지 업로드(기본) 또는 텍스트 붙여넣기. URL은 제거됨(데드필드) */
+  sourceType: 'image' | 'text';
+  /** 이미지 모드 — 상세페이지 캡처 fileId 배열(위→아래 순서, 1~10장). 콜⓪ 비전 추출 입력 */
+  sourceImages?: string[];
   sourceText?: string;
+  /** 데드필드 — v7에서 URL 입력 제거(소비처 0). 스키마 키만 예약 */
+  sourceUrl?: string;
   /** 약기법 감사 판정 프레임 키 — 미입력은 라우트가 '미상'으로 정규화(§3.2) */
   productClass: ProductClass;
 }

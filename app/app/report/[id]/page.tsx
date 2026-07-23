@@ -159,9 +159,21 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           <section role="alert" className="rounded-card border border-danger bg-danger-bg p-8">
             <h1 className="text-lg font-extrabold text-danger-text">✕ 진단 생성에 실패했습니다</h1>
             <p className="mt-2 text-sm text-ink-body">{payload.error}</p>
-            <Link href="/app/report/new" className={`${buttonClass('primary', 'md')} mt-5 no-underline`}>
-              다시 진단하기 →
-            </Link>
+            {/* PROCESS-02 — 이미지 추출 실패는 두 출구를 안내(텍스트 붙여넣기 / 브랜드 진단), 조용한 강등 X */}
+            {payload.error?.includes('이미지') && payload.error?.includes('글자') ? (
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                <Link href="/app/report/new" className={`${buttonClass('primary', 'md')} no-underline`}>
+                  텍스트 붙여넣기로 다시 →
+                </Link>
+                <Link href="/app/report/new" className={`${buttonClass('secondary', 'md')} no-underline`}>
+                  콘텐츠 비우고 브랜드 진단
+                </Link>
+              </div>
+            ) : (
+              <Link href="/app/report/new" className={`${buttonClass('primary', 'md')} mt-5 no-underline`}>
+                다시 진단하기 →
+              </Link>
+            )}
           </section>
         </div>
       </main>

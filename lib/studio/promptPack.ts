@@ -2,12 +2,13 @@
  * 썸네일 프롬프트 팩(v1.1.0) 로더 + 결정적 조립 — 스펙 §2-⑤ buildPrompt의 구현.
  * LLM 출력 이후의 법적 게이트를 코드가 강제한다(08 §4.7):
  *  - requiresProof 배지 문단: proof 3필드 전부 있을 때만 채움, 아니면 문단째 제거
- *  - 가격·특가 슬롯(G.priceBlock·giftInsetParagraph): v1 항상 공란(입력 UI 없음 — 有利誤認 차단)
+ *  - 가격·특가 슬롯(G.priceBlock·giftInsetParagraph): 프로모 입력(HOME-05b)이 있으면 입력값만 코드가 조립,
+ *    없으면 공란(지어내기 차단). LLM은 가격을 절대 산출하지 않는다.
  */
 
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import type { ThumbnailProof } from '../db/store';
+import type { PromoInput, ThumbnailProof } from '../db/store';
 
 export type StyleId = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H';
 
@@ -107,20 +108,51 @@ export function badgeParagraphs(style: StyleCategory, proof: ThumbnailProof | nu
 }
 
 /**
- * LLM 슬롯 산출을 스타일 정의에 맞춰 정리한다 — 미지 슬롯 제거, 배지 문단 병합, 가격 슬롯 강제 공란.
+ * 프로모 입력(HOME-05b) → G 슬롯 결정적 조립 — 입력값만 자단위로, LLM 개입 없음.
+ * priceBlock: 판매가부터 시작 → 통상가는 실적 확인(normalPriceVerified)일 때만 취소선 프리펜드(有利誤認 방지) → 할인율 접미.
+ * 통화 기호·세금 표기·쉼표는 코드가 재가공하지 않는다(입력 문자열 그대로).
+ */
+export function promoSlots(promo: PromoInput): Record<string, string> {
+  let priceBlock = `¥${promo.salePrice}`;
+  if (promo.normalPriceVerified && promo.normalPrice.trim()) {
+    priceBlock = `通常¥${promo.normalPrice}（取り消し線） → ${priceBlock}`;
+  }
+  if (promo.discountRate.trim()) {
+    priceBlock = `${priceBlock} ${promo.discountRate}%OFF`;
+  }
+  return {
+    setTitleJa: promo.setTitle,
+    priceBlock,
+    giftInsetParagraph: promo.gift.trim() ? `GIFT: ${promo.gift}` : '',
+    qualifierChipsJa: promo.qualifierChips.join(' / '),
+    footnoteJa: promo.footnote,
+  };
+}
+
+/**
+ * LLM 슬롯 산출을 스타일 정의에 맞춰 정리한다 — 미지 슬롯 제거, 배지 문단 병합.
+ * 가격 계열 슬롯은 코드가 소유한다: 프로모 입력이 있으면 입력값으로 조립(promoSlots),
+ * 없으면 공란(현 안전 기본값 — 지어내기 차단). LLM이 낸 가격 값은 어느 경우에도 채택하지 않는다.
  */
 export function assembleSlots(
   style: StyleCategory,
   llmSlotValues: { key: string; value: string }[],
   proof: ThumbnailProof | null,
+  promoInput: PromoInput | null = null,
 ): Record<string, string> {
   const merged: Record<string, string> = {};
   for (const { key, value } of llmSlotValues) {
     if (key in style.textSlots) merged[key] = value;
   }
   Object.assign(merged, badgeParagraphs(style, proof));
-  for (const locked of PRICE_LOCKED_SLOTS) {
-    if (locked in style.textSlots) merged[locked] = '';
+  if (promoInput) {
+    for (const [key, value] of Object.entries(promoSlots(promoInput))) {
+      if (key in style.textSlots) merged[key] = value;
+    }
+  } else {
+    for (const locked of PRICE_LOCKED_SLOTS) {
+      if (locked in style.textSlots) merged[locked] = '';
+    }
   }
   return merged;
 }
@@ -132,11 +164,8 @@ export function assembleSlots(
 export function buildPrompt(styleId: string, slots: Record<string, string>, isPromoInput: boolean): string {
   const pack = getPromptPack();
   const cat = getStyle(styleId);
-  const safeSlots = { ...slots };
-  for (const locked of PRICE_LOCKED_SLOTS) {
-    if (locked in cat.textSlots) safeSlots[locked] = '';
-  }
-  const body = fillTemplate(cat.promptTemplate, safeSlots);
+  // 가격 슬롯 공란/조립은 assembleSlots가 최종 권한 — 여기서 다시 덮어쓰지 않는다(프로모 입력값 보존)
+  const body = fillTemplate(cat.promptTemplate, slots);
   const constraints = [
     ...cat.constraints,
     ...pack.commonConstraints,
@@ -162,8 +191,10 @@ export interface StyleUiMeta {
   platformFit: string[];
   /** E — 실적 3필드 필수(HOME-04a) */
   needsProof: boolean;
-  /** F — 브랜드 보유 모델컷 필요, 업로드 미지원이라 생성 잠금(HOME-04a) */
+  /** F — 브랜드 보유 모델컷 1장 + 사용 권한 동의 필수(HOME-02b·04a) */
   needsModel: boolean;
+  /** G — 프로모 입력(세트명·판매가) 필수(HOME-05b·04a) */
+  needsPromo: boolean;
 }
 
 export function styleUiMetas(): StyleUiMeta[] {
@@ -175,5 +206,6 @@ export function styleUiMetas(): StyleUiMeta[] {
     platformFit: c.platformFit,
     needsProof: c.id === 'E',
     needsModel: c.id === 'F',
+    needsPromo: c.id === 'G',
   }));
 }

@@ -4,6 +4,8 @@
 
 import { NextResponse } from 'next/server';
 import { getStore } from '@/lib/db/store';
+import { currentLlmMode } from '@/lib/engine/llm/client';
+import { currentImageMode } from '@/lib/studio/imageGen';
 
 export async function GET(
   _request: Request,
@@ -17,7 +19,12 @@ export async function GET(
   return NextResponse.json({
     ...asset,
     storeKind: store.kind(),
+    // 목 모드 계약(RESULT-01·02·04) — 배지·데모 파일명 판단용(환경 고정값이라 조회 시점 판정 정확)
+    imageMode: currentImageMode(),
+    llmMode: currentLlmMode(),
     imageUrl: asset.imagePath ? `/api/files/${asset.imagePath}` : null,
     originalUrl: `/api/files/${asset.originalImagePath}`,
+    // F 모델+카피형 Before 병기용(RESULT-01) — 모델컷 없으면 null
+    modelImageUrl: asset.modelImagePath ? `/api/files/${asset.modelImagePath}` : null,
   });
 }

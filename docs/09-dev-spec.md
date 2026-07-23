@@ -29,8 +29,8 @@
 | `/sample-report` | 샘플 리포트(정적) | ① stretch | `public-onboarding` §3 |
 | `/pricing` | 요금(정적) | ① stretch | `public-onboarding` §4 |
 | `/login` | 로그인 — 소셜 3종(카카오·네이버·구글) **목 세션**(실 OAuth 미연동 — 스프린트 2 결정) | 스프린트 2 M5 | `specs/03-account/1-login.html` |
-| `/onboarding` | 브랜드 프로필 4단계 | 보류 — 브랜드 편집은 `/app/brand`가 정본 | `public-onboarding` §6 |
-| `/app` | `/app/library`로 리다이렉트 1줄 (⓪ 대시보드는 이번 범위 제외) | 스프린트 2 M5 | — |
+| `/onboarding` | 브랜드 프로필 4단계 | 보류 — `/app` no-brand firstRun(첫 브랜드 캡처)이 대체 · 편집은 `/app/brand`가 정본 | `public-onboarding` §6 |
+| `/app` | 홈 — no-brand 온보딩(첫 브랜드 캡처 MAIN-13) · 첫 방문 셋업 가이드(MAIN-06) · 복귀 위젯(MAIN-10~12) 상태 변형 | 2차(M11) | `specs/00-main/1-home.html` |
 | `/app/account` | 마이페이지(계정 정보·플랜 목업·브랜드 요약·로그아웃) | 스프린트 2 M8 | `specs/03-account/2-mypage.html` |
 | `/app/report/new` | 진단 입력폼(브랜드 필수/제품 선택) | ① M3 | `specs/01-report/1-input.html` |
 | `/app/report/[id]` | 처리 로딩(폴링) + 8블록 뷰 + 슬라이드 내보내기 버튼 | ① M3 (슬라이드 버튼 M4) | `report-wireframe` |
@@ -177,8 +177,20 @@ scripts/
 8. **화면** — `StudioForm.tsx`에 모델컷 업로더·동의 체크·프로모 입력 추가 + **최근 생성 스트립 제거**(섹션·2.5초 폴링·`GET /api/studio/thumbnail`의 `recent` 필드까지. dev 배지 메타는 유지 — 유일한 소비자가 이 폼이다) · 결과 상세에 모델컷 병기
 - **DoD:** 목 모드로 **8종 전부** 제출→`done` 도달. 실 API로 F(얼굴이 업로드 원본 그대로인지)·G(입력 가격 문자열 자단위 일치 · 미체크 시 취소선 없음) 각 1장 스모크. 홈에 자산 표면 0개. `npm run typecheck && npm test`
 
+### M11 · 온보딩 · 빈 상태 · 홈 위젯 (⓪ 상태 커버리지 코드화)
+정본: `specs/00-main/01-onboarding-ui-기획서.md`(ONBOARD·상태 매트릭스) · `specs/00-main/00-main-ui-기획서.md`(MAIN-06·10~13) · `lib/season.ts`.
+1. **시즌 이벤트** — `lib/season.ts`에 `SEASON_EVENTS` 상수 + `upcomingEvents(now, limit=3)` 헬퍼(임박순·`dDay`·진행중 플래그). MAIN-12·KPI 단일 소스. 단위 테스트(결정성)
+2. **브랜드 생성 경로** — `POST /api/brand`(create 전용 · 포지셔닝 0개 허용 · 싱글턴이면 409). 편집 `PUT`은 ≥1 포지셔닝 규칙 유지. store 인터페이스 변경 없음(`saveBrandProfile` upsert 재사용)
+3. **온보딩 캡처** — `components/app/BrandOnboarding.tsx`(필수 3필드 · 필드 정본 MAIN-01b′) + `app/app/page.tsx` no-brand 분기(ONBOARD-01·MAIN-13)
+4. **4단계 가이드** — `app/app/page.tsx` 셋업 가이드 3→4단계(제품 등록 신설 · 완료 판정 proxy=`productInfoMemo`/`detailDocName`) · step4 데이터 구동(`disabled = 발행 리포트 없음` · Model A)
+5. **홈 위젯** — `components/app/HomeWidgets.tsx`(BrandInfoWidget MAIN-11 · ReportSummaryWidget MAIN-10 · UpcomingEventsWidget MAIN-12) + 복귀 뷰 그리드 조립. 홈은 재조회 전용 — 새 저장 없음(08 §7)
+6. **리포트 프리필** — `report/new` 마운트 시 `GET /api/brand` 프로필로 빈 브랜드 필드(브랜드명·카테고리·포지셔닝) 프리필 + "이어받음" 캡션(스펙 INPUT-05 프리필 활성)
+7. **셸 정합** — `AppShell` 내비 라벨 "대시보드" → "홈"(스펙 2026-07-22)
+- ※ **스튜디오 빈 상태는 이 라운드 대상 아님** — 첫 사용 온보딩 = 템플릿 그리드(② HOME-04), 제품 피커 빈 상태 = ② HOME-02-0a(M10). ② HOME-07 "홈에 자산 되비추는 표면 두지 X" 정합이라 별도 갤러리 zero-state를 만들지 X
+- **DoD:** `.data/` 비운 상태 로그인 → 첫 브랜드 캡처 → 4단계 가이드. 리포트 발행 → 복귀 뷰 위젯(MAIN-10/11/12) 렌더 · brand 모드 리포트 요약 "종합점수 없음" 분기. 리포트 프리필 동작. `Product` 엔티티는 범위 밖(제품 단계 proxy). `npm run typecheck && npm test` 통과
+
 ### 하지 말 것 (과설계 차단 — 스프린트 2)
-middleware.ts / User 엔티티·실 OAuth / ⓪ 대시보드(KPI·히어로·브랜드 스위처) / 하이브리드 오버레이(sharp·canvas) / 비전 자동검수 / FileStorage 추상 인터페이스 / 잡 큐 / status 전용 라우트 분리 / 결제·탈퇴 백엔드·자산 삭제·다중 브랜드·페이지네이션 / 라이브러리 실시간 폴링·시즌 타임라인 실데이터 / 기존 리포트 v6 개정 착수 / `wireframe.css` 클래스 이식(Tailwind로 재구성)
+middleware.ts / User 엔티티·실 OAuth / ⓪ 대시보드(KPI·히어로·브랜드 스위처 — **2차 M11에서 홈·위젯 해소**) / 하이브리드 오버레이(sharp·canvas) / 비전 자동검수 / FileStorage 추상 인터페이스 / 잡 큐 / status 전용 라우트 분리 / 결제·탈퇴 백엔드·자산 삭제·다중 브랜드·페이지네이션 / 라이브러리 실시간 폴링·시즌 타임라인 실데이터 / 기존 리포트 v6 개정 착수 / `wireframe.css` 클래스 이식(Tailwind로 재구성)
 
 **M10 추가분** — 모델컷 계약서 업로드·사용 기간 관리(동의는 체크박스 자기 신고까지) / 모델컷 다건·배리에이션 그리드 / 쿠폰 조건부 가격 계산·검증(각주 문자열까지) / 가격 텍스트의 코드 오버레이(하이브리드) — 전부 (추후 기획)
 
@@ -206,6 +218,7 @@ middleware.ts / User 엔티티·실 OAuth / ⓪ 대시보드(KPI·히어로·브
 ---
 
 ## 변경 이력
+- 2026-07-23 **온보딩·빈 상태·홈 위젯 코드화 스펙**. **[추가]** §4c **M11**(시즌 이벤트·`POST /api/brand` create·`BrandOnboarding`·4단계 가이드·`HomeWidgets` MAIN-10~12·스튜디오 빈 상태·리포트 프리필·셸 "홈" 정합). **[변경]** §2 라우트 맵 `/app`(리다이렉트 → 홈 상태 변형 · 와이어프레임 = `specs/00-main/1-home.html`)·`/onboarding`(보류를 `/app` no-brand firstRun이 대체) · 하지 말 것의 "⓪ 대시보드"에 2차 M11 해소 주석. 정본 = `specs/00-main/01-onboarding-ui-기획서.md`.
 - 2026-07-21 **스프린트 2 개발 스펙 확정**(사용자 결정 → [[decisions/DECISIONS]] 2026-07-21 스프린트 2 행). **[추가]** §4b 마일스톤 M5~M9(② 실생성 + ③ 운영 + 계정) · §2 라우트 `/app/account`·`/app`(리다이렉트)·스프린트 2 서버 경계(목 세션·파일 서빙·스튜디오·브랜드·매칭 API) · §3 `lib/studio`·`lib/files`·`lib/server/session`·`AppShell`·`run-thumbnail.ts`. **[변경]** §1 인증 = 목 세션 잠정·파일 = 로컬 우선(Supabase Storage 전환 경계 유지) · 시크릿 키 4종 추가(`IMAGE_MODE`·`OPENAI_IMAGE_MODEL`·`OPENAI_IMAGE_QUALITY`) · `/login` 정본 = `specs/03-account`.
 - 2026-07-21 **②·③ IA 개편 반영**([[07-ia]] §5 · `specs/02-studio`·`specs/04-operations` UI 기획서). **[변경]** §2 라우트 맵 `/app/studio/thumbnail` = 스튜디오 홈(홈=생성 · 기존 "썸네일 변환기" 갤러리 허브 폐지) · 와이어프레임 정본을 specs 프로토타입으로 갱신. **[추가]** `/app/studio/thumbnail/[assetId]` 생성 결과 상세(생성중 상태로 시작) · `/app/library/[assetId]` 자산 상세(카드 클릭 시 축 이동 제거 — 재열람 정본).
 - 2026-07-16 **입력 브랜드 우선 재구성(v4) · 두 진단 모드 반영**([[specs/01-report-spec]] v4 배너·§3 · [[08-data-flow]] §3.1~3.2 · [[decisions/DECISIONS]]). **[변경]** §2 라우트 맵 `/app/report/new` "티어 입력폼" → **진단 입력폼(브랜드 필수/제품 선택)** · 와이어프레임 정본 = `docs/specs/01-report/1-input.html` · 서버 경계에 모드 판정(제출 경계 1회: `source` 유무 → `tierInput.mode`)·`brand` 파이프라인(stages `persona → benchmark → assemble` · 콜③ 실패 = 잡 실패) 한 줄 · §3 `rules/` 주석에 `gates.ts`(게이트 단일 정의)·`positioning.ts`(택소노미 16종) 추가·슬라이드 골격 모드별(7장/4장) · §6 참조 정본 표 §3 서술·입력폼 화면 정본 갱신. **[추가]** M3 체크 항목: 입력 브랜드 우선 재구성(v4) — 테스트 30/30. 기존 M3 "티어 폼" 항목은 취소하지 않고 이력 주석만 부기.

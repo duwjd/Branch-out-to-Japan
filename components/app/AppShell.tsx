@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { KglowLogo } from '@/components/brand/Logo';
+import { AddBrandModal } from '@/components/app/AddBrandModal';
 import { StatusBadge, type BadgeTone } from '@/components/ui/primitives';
 import {
   IconBox,
@@ -23,13 +24,24 @@ import {
   IconImage,
 } from '@/components/ui/icons';
 
+/** 스위처 한 줄 — 브랜드 + 브랜드별 자산 카운트(MAIN-01b) */
+export interface BrandSwitcherItem {
+  id: string;
+  name: string;
+  category: string;
+  reportCount: number;
+  thumbnailCount: number;
+}
+
 interface ShellProps {
   userName: string;
   userEmail: string;
   providerLabel: string;
-  /** 브랜드 프로필(스위처 표시용) — 미등록이면 null */
-  brand: { name: string; category: string } | null;
-  /** KPI 위젯 값 */
+  /** 전 브랜드(스위처 목록) — 하나도 없으면 빈 배열(no-brand) */
+  brands: BrandSwitcherItem[];
+  /** 활성 브랜드 id — 스위처 현재 선택. 브랜드 없으면 null */
+  activeBrandId: string | null;
+  /** KPI 위젯 값(활성 브랜드 기준) */
   kpi: { reportCount: number; thumbnailCount: number; latestScore: number | null; megawari: { dDay: number; month: string } };
   /** 품의용 PDF 진입점 — 최신 발행 리포트. 없으면 버튼 비노출 */
   latestReportId: string | null;
@@ -75,14 +87,18 @@ function subClass(active: boolean): string {
   ].join(' ');
 }
 
-export function AppShell({ userName, userEmail, providerLabel, brand, kpi, latestReportId, matchBadge, children }: ShellProps) {
+export function AppShell({ userName, userEmail, providerLabel, brands, activeBrandId, kpi, latestReportId, matchBadge, children }: ShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [swOpen, setSwOpen] = useState(false);
   const [avOpen, setAvOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [switching, setSwitching] = useState<string | null>(null);
   const swRef = useRef<HTMLDivElement>(null);
   const avRef = useRef<HTMLDivElement>(null);
+
+  const activeBrand = brands.find((b) => b.id === activeBrandId) ?? null;
 
   const dashActive = pathname === '/app';
   const reportActive = pathname.startsWith('/app/report');
@@ -125,11 +141,37 @@ export function AppShell({ userName, userEmail, providerLabel, brand, kpi, lates
     router.refresh();
   }
 
-  const brandName = brand?.name ?? '브랜드 미설정';
-  const brandCat = brand ? CATEGORY_LABELS[brand.category] : undefined;
+  /**
+   * 활성 브랜드 전환(MAIN-01b·MAIN-01b″) — 쿠키 갱신 후 셸·본문 재조회.
+   * 입력 폼 화면(리포트 입력·스튜디오)에서는 브랜드 종속 입력이 초기화되므로 전환 전 확인한다
+   * (취소 시 원 브랜드 유지). 조회 전용 화면은 확인 없이 즉시 전환. 폼은 `kglow:brand-switched`
+   * 이벤트로 브랜드 종속 필드만 리셋하고 브랜드 무관 입력은 유지한다. 진행 중 잡은 제출 시점 브랜드 귀속.
+   */
+  async function switchBrand(id: string) {
+    if (id === activeBrandId) {
+      setSwOpen(false);
+      return;
+    }
+    const onForm = pathname === '/app/report/new' || pathname === '/app/studio/thumbnail';
+    if (onForm && !window.confirm('브랜드를 바꾸면 작성 중인 브랜드 관련 입력(프리필·제품컷 등)이 초기화됩니다. 계속할까요?')) {
+      return;
+    }
+    setSwitching(id);
+    try {
+      await fetch(`/api/brand/${id}`, { method: 'POST' });
+      setSwOpen(false);
+      window.dispatchEvent(new CustomEvent('kglow:brand-switched'));
+      router.refresh();
+    } finally {
+      setSwitching(null);
+    }
+  }
+
+  const brandName = activeBrand?.name ?? '브랜드 미설정';
+  const brandCat = activeBrand ? CATEGORY_LABELS[activeBrand.category] : undefined;
   const brandInitial = brandName.slice(0, 1);
 
-  /* ── 1b · 브랜드 프로필 스위처 ─────────────────────────── */
+  /* ── 1b · 브랜드 프로필 스위처(복수 · MAIN-01b) ─────────── */
   const brandSwitcher = (
     <div ref={swRef} className="relative">
       <button
@@ -150,9 +192,9 @@ export function AppShell({ userName, userEmail, providerLabel, brand, kpi, lates
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[13px] leading-tight font-bold text-ink">{brandName}</span>
           <span className="block truncate text-[10.5px] leading-tight text-ink-mute">
-            {brand ? (
+            {activeBrand ? (
               <>
-                {brandCat?.kr ?? brand.category}
+                {brandCat?.kr ?? activeBrand.category}
                 {brandCat && (
                   <>
                     {' / '}
@@ -171,34 +213,60 @@ export function AppShell({ userName, userEmail, providerLabel, brand, kpi, lates
         <div
           role="listbox"
           aria-label="브랜드 프로필 전환"
-          className="absolute inset-x-0 top-[calc(100%+6px)] z-70 rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in"
+          className="absolute inset-x-0 top-[calc(100%+6px)] z-70 max-h-[320px] overflow-y-auto rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in"
         >
-          <div role="option" aria-selected="true" className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left">
-            <span
-              aria-hidden
-              className="inline-flex h-[22px] w-[22px] flex-none items-center justify-center rounded-[7px] bg-linear-135 from-[#ffe9df] to-[#ffcfb8] text-[10px] font-extrabold text-amber-text"
-            >
-              {brandInitial}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-[12.5px] font-bold text-ink">{brandName}</span>
-              <span className="block text-[10.5px] text-ink-mute">
-                리포트 {kpi.reportCount} · 썸네일 {kpi.thumbnailCount}
-              </span>
-            </span>
-            <span aria-hidden className="text-[13px] font-extrabold text-green-text">
-              ✓
-            </span>
-          </div>
+          {brands.length === 0 && (
+            <p className="px-2.5 py-2 text-[11.5px] text-ink-mute">등록된 브랜드가 없습니다.</p>
+          )}
+          {brands.map((b) => {
+            const selected = b.id === activeBrandId;
+            return (
+              <button
+                key={b.id}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                disabled={switching !== null}
+                onClick={() => void switchBrand(b.id)}
+                className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors disabled:opacity-60 ${
+                  selected ? '' : 'cursor-pointer hover:bg-n-50'
+                }`}
+              >
+                <span
+                  aria-hidden
+                  className="inline-flex h-[22px] w-[22px] flex-none items-center justify-center rounded-[7px] bg-linear-135 from-[#ffe9df] to-[#ffcfb8] text-[10px] font-extrabold text-amber-text"
+                >
+                  {b.name.slice(0, 1)}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[12.5px] font-bold text-ink">{b.name}</span>
+                  <span className="block text-[10.5px] text-ink-mute">
+                    리포트 {b.reportCount} · 썸네일 {b.thumbnailCount}
+                  </span>
+                </span>
+                {switching === b.id ? (
+                  <span aria-hidden className="text-[10px] text-ink-faint">
+                    전환 중…
+                  </span>
+                ) : selected ? (
+                  <span aria-hidden className="text-[13px] font-extrabold text-green-text">
+                    ✓
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
           <div aria-hidden className="mx-1 my-1.5 h-px bg-hairline" />
-          <div
-            aria-disabled="true"
-            title="다중 브랜드 지원 범위 (미정)"
-            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-ink-faint"
+          <button
+            type="button"
+            onClick={() => {
+              setSwOpen(false);
+              setAddOpen(true);
+            }}
+            className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-coral-strong transition-colors hover:bg-coral-tint"
           >
             ＋ 브랜드 추가
-            <span className="ml-auto rounded-full bg-n-150 px-[7px] py-0.5 text-[9.5px] font-bold text-[#9ca0a8]">미정</span>
-          </div>
+          </button>
         </div>
       )}
     </div>
@@ -209,7 +277,7 @@ export function AppShell({ userName, userEmail, providerLabel, brand, kpi, lates
     <nav className="mt-4 flex flex-col gap-0.5" aria-label="주요 메뉴">
       <Link href="/app" className={navClass(dashActive)} aria-current={dashActive ? 'page' : undefined}>
         <IconHome className={dashActive ? 'text-coral-strong' : 'text-ink-mute'} />
-        대시보드
+        홈
       </Link>
       <Link href="/app/report/new" className={navClass(reportActive)} aria-current={reportActive ? 'page' : undefined}>
         <IconDoc className={reportActive ? 'text-coral-strong' : 'text-ink-mute'} />
@@ -370,7 +438,7 @@ export function AppShell({ userName, userEmail, providerLabel, brand, kpi, lates
         aria-label="전역 내비게이션"
         className="flex w-sidebar flex-none flex-col border-r border-hairline bg-canvas px-3.5 pt-[18px] pb-3.5 max-lg:static max-lg:h-auto max-lg:w-auto max-lg:border-r-0 max-lg:border-b lg:sticky lg:top-0 lg:h-screen"
       >
-        <Link href="/app" aria-label="KGLOW 대시보드" className="block px-2.5 pt-1 pb-4">
+        <Link href="/app" aria-label="KGLOW 홈" className="block px-2.5 pt-1 pb-4">
           <KglowLogo className="h-[22px] w-auto" uid="shell-logo" />
         </Link>
         {brandSwitcher}
@@ -382,6 +450,9 @@ export function AppShell({ userName, userEmail, providerLabel, brand, kpi, lates
 
       {/* 본문 — 상단 중앙 코랄 글로우 */}
       <div className="main-glow min-w-0 flex-1">{children}</div>
+
+      {/* MAIN-01b′ 브랜드 추가 모달(스위처 진입) — 성공 시 ③ 브랜드 관리로 착지 */}
+      <AddBrandModal open={addOpen} onClose={() => setAddOpen(false)} />
     </div>
   );
 }

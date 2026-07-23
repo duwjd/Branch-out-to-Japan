@@ -33,6 +33,8 @@ export interface StructuredCallOptions<T> {
   maxTokens: number;
   /** 원본 이미지 첨부(비전 콜 — 콜⑥ studioCopy) — user content 맨 앞에 image 블록으로 들어간다 */
   image?: { mediaType: 'image/png' | 'image/jpeg' | 'image/webp'; dataBase64: string };
+  /** 복수 이미지 첨부(비전 콜 — 콜⓪ 상세페이지 추출, 1~10장) — 위→아래 순서로 앞에 들어간다 */
+  images?: { mediaType: 'image/png' | 'image/jpeg' | 'image/webp'; dataBase64: string }[];
   /** 데이터 유효성 검증 — 문제 있으면 교정 지시 문자열 반환(1회 재시도), 정상이면 null */
   validate?: (data: T) => string | null;
   /** 목 모드 응답(키 없음 / LLM_MODE=mock) */
@@ -62,15 +64,16 @@ function parseTextJson<T>(message: Anthropic.Message): T {
 
 async function callOnce<T>(opts: StructuredCallOptions<T>, maxTokens: number, correction?: string): Promise<{ data: T; usage: unknown }> {
   const text = correction ? `${opts.userPayload}\n\n[교정 지시 — 직전 응답의 문제] ${correction}` : opts.userPayload;
-  const content: Anthropic.ContentBlockParam[] = opts.image
-    ? [
-        {
-          type: 'image',
-          source: { type: 'base64', media_type: opts.image.mediaType, data: opts.image.dataBase64 },
-        },
-        { type: 'text', text },
-      ]
-    : [{ type: 'text', text }];
+  const imgs = opts.images ?? (opts.image ? [opts.image] : []);
+  const content: Anthropic.ContentBlockParam[] = [
+    ...imgs.map(
+      (im): Anthropic.ContentBlockParam => ({
+        type: 'image',
+        source: { type: 'base64', media_type: im.mediaType, data: im.dataBase64 },
+      }),
+    ),
+    { type: 'text', text },
+  ];
 
   const message = await getClient().messages.create({
     model: LLM_MODEL,

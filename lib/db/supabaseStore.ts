@@ -3,20 +3,24 @@
  * 서버 전용(service role 키 사용 — 클라이언트 번들에 절대 노출 금지).
  */
 
+import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type {
   BrandProfileRecord,
   DiagnosisRequestRecord,
   GeneratedAssetRecord,
   MatchRequestRecord,
+  ProductRecord,
   ReportRecord,
   Store,
 } from './store';
+import { LEGACY_BRAND_ID } from './store';
 import type { BlocksJson, ReportStatus, TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 
 interface RequestRow {
   id: string;
+  brand_profile_id: string | null;
   tier_input: TierInput;
   precision_limited: boolean;
   status: ReportStatus;
@@ -28,6 +32,7 @@ interface RequestRow {
 
 interface ReportRow {
   request_id: string;
+  brand_profile_id: string | null;
   blocks_json: BlocksJson;
   overall_score: number | null;
   group_scores: ReportRecord['groupScores'];
@@ -39,6 +44,7 @@ interface ReportRow {
 function toRequestRecord(row: RequestRow): DiagnosisRequestRecord {
   return {
     id: row.id,
+    brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
     tierInput: row.tier_input,
     precisionLimited: row.precision_limited,
     status: row.status,
@@ -52,6 +58,7 @@ function toRequestRecord(row: RequestRow): DiagnosisRequestRecord {
 function toReportRecord(row: ReportRow): ReportRecord {
   return {
     requestId: row.request_id,
+    brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
     blocksJson: row.blocks_json,
     overallScore: row.overall_score,
     groupScores: row.group_scores,
@@ -81,7 +88,7 @@ interface BrandProfileRow {
 
 function toBrandProfileRecord(row: BrandProfileRow): BrandProfileRecord {
   return {
-    id: 'default',
+    id: row.id,
     brandName: row.brand_name,
     category: row.category,
     productClass: row.product_class,
@@ -99,6 +106,7 @@ function toBrandProfileRecord(row: BrandProfileRow): BrandProfileRecord {
 
 interface GeneratedAssetRow {
   id: string;
+  brand_profile_id: string | null;
   kind: 'thumbnail';
   style_category: string;
   style_name: string;
@@ -112,6 +120,9 @@ interface GeneratedAssetRow {
   gate_result: GeneratedAssetRecord['gateResult'];
   explanation_json: GeneratedAssetRecord['explanationJson'];
   proof: GeneratedAssetRecord['proof'];
+  model_image_path: string | null;
+  model_consent: boolean | null;
+  promo_input: GeneratedAssetRecord['promoInput'];
   brand_name_snapshot: string;
   created_at: string;
   updated_at: string;
@@ -120,6 +131,7 @@ interface GeneratedAssetRow {
 function toAssetRecord(row: GeneratedAssetRow): GeneratedAssetRecord {
   return {
     id: row.id,
+    brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
     kind: row.kind,
     styleCategory: row.style_category,
     styleName: row.style_name,
@@ -133,6 +145,9 @@ function toAssetRecord(row: GeneratedAssetRow): GeneratedAssetRecord {
     gateResult: row.gate_result,
     explanationJson: row.explanation_json,
     proof: row.proof,
+    modelImagePath: row.model_image_path ?? null,
+    modelConsent: row.model_consent ?? false,
+    promoInput: row.promo_input ?? null,
     brandNameSnapshot: row.brand_name_snapshot,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -141,6 +156,7 @@ function toAssetRecord(row: GeneratedAssetRow): GeneratedAssetRecord {
 
 interface MatchRequestRow {
   id: string;
+  brand_profile_id: string | null;
   partner_types: string[];
   channels: string[];
   timing: string;
@@ -154,12 +170,39 @@ interface MatchRequestRow {
 function toMatchRecord(row: MatchRequestRow): MatchRequestRecord {
   return {
     id: row.id,
+    brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
     partnerTypes: row.partner_types,
     channels: row.channels,
     timing: row.timing,
     memo: row.memo,
     status: row.status,
     snapshot: row.snapshot,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+interface ProductRow {
+  id: string;
+  brand_profile_id: string | null;
+  name_kr: string;
+  name_ja: string;
+  category: string;
+  memo: string;
+  images: ProductRecord['images'];
+  created_at: string;
+  updated_at: string;
+}
+
+function toProductRecord(row: ProductRow): ProductRecord {
+  return {
+    id: row.id,
+    brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
+    nameKr: row.name_kr,
+    nameJa: row.name_ja,
+    category: row.category,
+    memo: row.memo,
+    images: row.images ?? [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -182,10 +225,10 @@ export function createSupabaseStore(): Store {
   return {
     kind: () => 'supabase',
 
-    async createRequest(input: TierInput) {
+    async createRequest(input: TierInput, brandProfileId: string) {
       const result = await client
         .from('diagnosis_requests')
-        .insert({ tier_input: input, status: 'submitted' })
+        .insert({ tier_input: input, status: 'submitted', brand_profile_id: brandProfileId })
         .select()
         .single<RequestRow>();
       return toRequestRecord(must(result, 'createRequest'));
@@ -211,6 +254,7 @@ export function createSupabaseStore(): Store {
       const result = await client.from('reports').upsert(
         {
           request_id: report.requestId,
+          brand_profile_id: report.brandProfileId,
           blocks_json: report.blocksJson,
           overall_score: report.overallScore,
           group_scores: report.groupScores,
@@ -245,34 +289,58 @@ export function createSupabaseStore(): Store {
 
     // ── 스프린트 2 ───────────────────────────────────────────────────────────
 
-    async listRequests() {
+    async listRequests(brandProfileId: string) {
       const result = await client
         .from('diagnosis_requests')
         .select()
+        .eq('brand_profile_id', brandProfileId)
         .order('created_at', { ascending: false })
         .returns<RequestRow[]>();
       return must(result, 'listRequests').map(toRequestRecord);
     },
 
-    async listReports() {
+    async listReports(brandProfileId: string) {
       const result = await client
         .from('reports')
         .select()
+        .eq('brand_profile_id', brandProfileId)
         .order('created_at', { ascending: false })
         .returns<ReportRow[]>();
       return must(result, 'listReports').map(toReportRecord);
     },
 
-    async getBrandProfile() {
-      const result = await client.from('brand_profiles').select().eq('id', 'default').maybeSingle<BrandProfileRow>();
+    async listBrandProfiles() {
+      const result = await client
+        .from('brand_profiles')
+        .select()
+        .order('created_at', { ascending: false })
+        .returns<BrandProfileRow[]>();
+      return must(result, 'listBrandProfiles').map(toBrandProfileRecord);
+    },
+
+    async getBrandProfile(id: string) {
+      const result = await client.from('brand_profiles').select().eq('id', id).maybeSingle<BrandProfileRow>();
       if (result.error) throw new Error(`supabase getBrandProfile 실패: ${result.error.message}`);
       return result.data ? toBrandProfileRecord(result.data) : null;
+    },
+
+    async createBrandProfile(input) {
+      const now = new Date().toISOString();
+      const record: BrandProfileRecord = { ...input, id: randomUUID(), createdAt: now, updatedAt: now };
+      await this.saveBrandProfile(record);
+      return record;
+    },
+
+    async deleteBrandProfile(id: string) {
+      // 종속 요청·리포트·자산·매칭은 brand_profile_id FK(on delete cascade)로 DB가 정리
+      const result = await client.from('brand_profiles').delete().eq('id', id);
+      if (result.error) throw new Error(`supabase deleteBrandProfile 실패: ${result.error.message}`);
     },
 
     async saveBrandProfile(profile: BrandProfileRecord) {
       const result = await client.from('brand_profiles').upsert(
         {
-          id: 'default',
+          id: profile.id,
           brand_name: profile.brandName,
           category: profile.category,
           product_class: profile.productClass,
@@ -294,6 +362,7 @@ export function createSupabaseStore(): Store {
       const result = await client
         .from('generated_assets')
         .insert({
+          brand_profile_id: input.brandProfileId,
           kind: input.kind,
           style_category: input.styleCategory,
           style_name: input.styleName,
@@ -307,6 +376,9 @@ export function createSupabaseStore(): Store {
           gate_result: input.gateResult,
           explanation_json: input.explanationJson,
           proof: input.proof,
+          model_image_path: input.modelImagePath,
+          model_consent: input.modelConsent,
+          promo_input: input.promoInput,
           brand_name_snapshot: input.brandNameSnapshot,
         })
         .select()
@@ -333,10 +405,11 @@ export function createSupabaseStore(): Store {
       if (result.error) throw new Error(`supabase updateAsset 실패: ${result.error.message}`);
     },
 
-    async listAssets() {
+    async listAssets(brandProfileId: string) {
       const result = await client
         .from('generated_assets')
         .select()
+        .eq('brand_profile_id', brandProfileId)
         .order('created_at', { ascending: false })
         .returns<GeneratedAssetRow[]>();
       return must(result, 'listAssets').map(toAssetRecord);
@@ -346,6 +419,7 @@ export function createSupabaseStore(): Store {
       const result = await client
         .from('match_requests')
         .insert({
+          brand_profile_id: input.brandProfileId,
           partner_types: input.partnerTypes,
           channels: input.channels,
           timing: input.timing,
@@ -358,10 +432,11 @@ export function createSupabaseStore(): Store {
       return toMatchRecord(must(result, 'createMatchRequest'));
     },
 
-    async getActiveMatchRequest() {
+    async getActiveMatchRequest(brandProfileId: string) {
       const result = await client
         .from('match_requests')
         .select()
+        .eq('brand_profile_id', brandProfileId)
         .neq('status', 'cancelled')
         .order('created_at', { ascending: false })
         .limit(1)
@@ -376,6 +451,55 @@ export function createSupabaseStore(): Store {
         .update({ status: 'cancelled', updated_at: new Date().toISOString() })
         .eq('id', id);
       if (result.error) throw new Error(`supabase cancelMatchRequest 실패: ${result.error.message}`);
+    },
+
+    // ── 제품 자산(BRAND-03) ──────────────────────────────────────────────────
+    async listProducts(brandProfileId: string) {
+      const result = await client
+        .from('products')
+        .select()
+        .eq('brand_profile_id', brandProfileId)
+        .order('created_at', { ascending: false })
+        .returns<ProductRow[]>();
+      return must(result, 'listProducts').map(toProductRecord);
+    },
+
+    async getProduct(id: string) {
+      const result = await client.from('products').select().eq('id', id).maybeSingle<ProductRow>();
+      if (result.error) throw new Error(`supabase getProduct 실패: ${result.error.message}`);
+      return result.data ? toProductRecord(result.data) : null;
+    },
+
+    async createProduct(input) {
+      const result = await client
+        .from('products')
+        .insert({
+          brand_profile_id: input.brandProfileId,
+          name_kr: input.nameKr,
+          name_ja: input.nameJa,
+          category: input.category,
+          memo: input.memo,
+          images: input.images,
+        })
+        .select()
+        .single<ProductRow>();
+      return toProductRecord(must(result, 'createProduct'));
+    },
+
+    async updateProduct(id, patch) {
+      const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      if (patch.nameKr !== undefined) row.name_kr = patch.nameKr;
+      if (patch.nameJa !== undefined) row.name_ja = patch.nameJa;
+      if (patch.category !== undefined) row.category = patch.category;
+      if (patch.memo !== undefined) row.memo = patch.memo;
+      if (patch.images !== undefined) row.images = patch.images;
+      const result = await client.from('products').update(row).eq('id', id);
+      if (result.error) throw new Error(`supabase updateProduct 실패: ${result.error.message}`);
+    },
+
+    async deleteProduct(id) {
+      const result = await client.from('products').delete().eq('id', id);
+      if (result.error) throw new Error(`supabase deleteProduct 실패: ${result.error.message}`);
     },
   };
 }

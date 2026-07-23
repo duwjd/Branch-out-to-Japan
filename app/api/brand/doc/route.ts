@@ -4,6 +4,7 @@
 
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/server/session';
+import { getActiveBrand } from '@/lib/server/activeBrand';
 import { getStore } from '@/lib/db/store';
 import { extForMime, saveFile } from '@/lib/files/storage';
 import { logger } from '@/lib/logger';
@@ -14,7 +15,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (!(await getSession())) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
 
   const store = await getStore();
-  const existing = await store.getBrandProfile();
+  const existing = await getActiveBrand();
   if (!existing) {
     return NextResponse.json({ error: '브랜드 프로필을 먼저 저장해 주세요.' }, { status: 400 });
   }

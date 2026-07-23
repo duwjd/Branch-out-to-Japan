@@ -1,25 +1,45 @@
 import { redirect } from 'next/navigation';
 import { getSession, PROVIDER_LABELS } from '@/lib/server/session';
 import { getStore } from '@/lib/db/store';
+import { getActiveBrand } from '@/lib/server/activeBrand';
 import { NEXT_MEGAWARI, dDay } from '@/lib/season';
-import { AppShell } from '@/components/app/AppShell';
+import { AppShell, type BrandSwitcherItem } from '@/components/app/AppShell';
 
 /**
  * /app 세그먼트 레이아웃 — 인증 가드 단일 지점(middleware 없음, 09 §4b M5).
- * 목 세션이 없으면 /login으로 보낸다. 사이드바 셸 데이터(브랜드·KPI·매칭 배지·품의 PDF)를
- * 여기서 조회해 주입한다(MAIN-01~02 셸 정본).
+ * 목 세션이 없으면 /login으로 보낸다. 사이드바 셸 데이터(브랜드 목록·활성 브랜드·KPI·매칭
+ * 배지·품의 PDF)를 여기서 조회해 주입한다(MAIN-01~02 셸 정본).
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
   if (!session) redirect('/login');
 
   const store = await getStore();
-  const [match, brandProfile, reports, assets] = await Promise.all([
-    store.getActiveMatchRequest(),
-    store.getBrandProfile(),
-    store.listReports(),
-    store.listAssets(),
-  ]);
+  const [brandList, activeBrand] = await Promise.all([store.listBrandProfiles(), getActiveBrand()]);
+  const activeBrandId = activeBrand?.id ?? null;
+
+  // 스위처 각 행의 브랜드별 카운트(MAIN-01b) — 브랜드 수가 적어 브랜드당 스코핑 조회
+  const brands: BrandSwitcherItem[] = await Promise.all(
+    brandList.map(async (b) => {
+      const [reports, assets] = await Promise.all([store.listReports(b.id), store.listAssets(b.id)]);
+      return {
+        id: b.id,
+        name: b.brandName,
+        category: b.category,
+        reportCount: reports.filter((r) => r.publishedAt !== null).length,
+        thumbnailCount: assets.filter((a) => a.status === 'done').length,
+      };
+    }),
+  );
+
+  // 활성 브랜드 기준 KPI·매칭 배지
+  const [match, reports, assets] = activeBrandId
+    ? await Promise.all([
+        store.getActiveMatchRequest(activeBrandId),
+        store.listReports(activeBrandId),
+        store.listAssets(activeBrandId),
+      ])
+    : [null, [], []];
 
   // 기업 매칭 상태 배지(LIB-07) — 미신청이면 null
   const matchBadge =
@@ -47,7 +67,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       userName={session.user.name}
       userEmail={session.user.email}
       providerLabel={PROVIDER_LABELS[session.provider]}
-      brand={brandProfile ? { name: brandProfile.brandName, category: brandProfile.category } : null}
+      brands={brands}
+      activeBrandId={activeBrandId}
       kpi={kpi}
       latestReportId={latestPublished?.requestId ?? null}
       matchBadge={matchBadge}

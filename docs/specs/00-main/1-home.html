@@ -34,6 +34,7 @@
     <a href="00-main-ui-기획서.md">기획서 ↗</a>
     <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
       <span>상태(검토용):</span>
+      <button type="button" class="st-btn" data-st="onboard" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">온보딩(미등록)</button>
       <button type="button" class="st-btn" data-st="first" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">첫 방문</button>
       <button type="button" class="st-btn" data-st="default" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">기본</button>
       <button type="button" class="st-btn" data-st="brandmode" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">brand 모드 리포트</button>
@@ -168,6 +169,40 @@
           <button type="button" id="retryBtn" class="h-primary" style="display:inline-flex;margin-top:20px;height:40px;align-items:center;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer">다시 시도</button>
         </div>
 
+        <!-- MAIN-13 / ONBOARD-01 · 온보딩: 첫 브랜드 캡처 (브랜드 미등록 first-run) -->
+        <div id="onboardView" style="display:none;padding-top:56px">
+          <div style="max-width:520px;margin:0 auto">
+            <div style="text-align:center">
+              <span style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 13px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.3);color:#D93636;font-size:12px;font-weight:700">시작하기</span>
+              <h1 class="hero-head" style="margin:16px 0 0">브랜드를 <b>먼저</b> 등록해 주세요</h1>
+              <p style="margin:12px 0 0;font-size:14px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty">브랜드·카테고리만 있으면 진단을 시작할 수 있습니다. 제품·채널·용어집은 나중에 브랜드 관리에서 채웁니다.</p>
+            </div>
+            <div style="margin-top:24px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+              <div>
+                <label class="ab-label" for="obName">브랜드명 <span style="color:#D93636">*</span></label>
+                <input id="obName" class="ab-input" type="text" maxlength="40" placeholder="예: 하루온 HARUON" autocomplete="off" />
+              </div>
+              <div style="margin-top:16px">
+                <span class="ab-label">카테고리 <span style="color:#D93636">*</span></span>
+                <div id="obCatWrap" role="radiogroup" aria-label="카테고리" style="display:flex;flex-wrap:wrap;gap:8px">
+                  <button type="button" class="ob-chip" role="radio" aria-checked="false" data-cat="skincare">스킨케어 / <span lang="ja">スキンケア</span></button>
+                  <button type="button" class="ob-chip" role="radio" aria-checked="false" data-cat="makeup">메이크업 / <span lang="ja">メイク</span></button>
+                  <button type="button" class="ob-chip" role="radio" aria-checked="false" data-cat="suncare">선케어 / <span lang="ja">日焼け止め</span></button>
+                  <button type="button" class="ob-chip" role="radio" aria-checked="false" data-cat="cleansing">클렌징 / <span lang="ja">クレンジング</span></button>
+                </div>
+              </div>
+              <div style="margin-top:16px">
+                <label class="ab-label" for="obClass">제품분류 <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
+                <select id="obClass" class="ab-input"><option selected>화장품</option><option>의약외품</option><option>건강식품</option><option>미상</option></select>
+              </div>
+              <button type="button" id="obSubmit" disabled style="margin-top:20px;width:100%;height:48px;border:none;border-radius:11px;background:#FF6464;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:default;opacity:.5">진단 준비 시작 →</button>
+              <p id="obHint" style="margin:10px 0 0;text-align:center;font-size:12.5px;color:rgba(55,56,60,0.61)">브랜드명·카테고리를 입력하면 시작할 수 있어요.</p>
+              <p style="margin:14px 0 0;padding-top:14px;border-top:1px solid #F1F1F3;font-size:12px;line-height:1.6;color:rgba(55,56,60,0.61);text-wrap:pretty">여기서 정한 브랜드를 ① 진단 · ② 생성 · ③ 운영 세 곳에서 그대로 씁니다.</p>
+            </div>
+            <p style="margin:16px 0 0;text-align:center;font-size:12.5px;color:rgba(55,56,60,0.61)">먼저 결과물을 보고 싶다면: <a href="../01-report/3-report.html">샘플 리포트 먼저 보기</a> <span style="color:#B6B8BF">(무료 범위 문안 미정 · v4)</span></p>
+          </div>
+        </div>
+
         <!-- MAIN-06 · 첫 방문: 셋업 가이드 (중앙) -->
         <div id="setupGuide" style="display:none;padding-top:64px">
           <div style="max-width:640px;margin:0 auto">
@@ -267,16 +302,15 @@
                   <span class="tnum" style="font-size:38px;font-weight:800;letter-spacing:-0.03em;line-height:1;color:#202124">18</span>
                   <span style="font-size:14px;font-weight:600;color:#B6B8BF">/100</span>
                 </span>
-                <span style="display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">E 등급 · 재설계 필요</span>
               </div>
 
               <!-- A~E 그룹 미니 막대 -->
               <dl style="margin:16px 0 0;display:flex;flex-direction:column;gap:7px">
-                <div class="grp-row"><dt>A 신뢰 근거</dt><dd><span class="grp-track"><span class="grp-fill" style="width:24%"></span></span><b class="tnum">24%</b></dd></div>
-                <div class="grp-row"><dt>B 구매 이유</dt><dd><span class="grp-track"><span class="grp-fill" style="width:16%"></span></span><b class="tnum">16%</b></dd></div>
-                <div class="grp-row"><dt>C 표현 적합</dt><dd><span class="grp-track"><span class="grp-fill" style="width:12%"></span></span><b class="tnum">12%</b></dd></div>
-                <div class="grp-row"><dt>D 정보 완결</dt><dd><span class="grp-track"><span class="grp-fill" style="width:20%"></span></span><b class="tnum">20%</b></dd></div>
-                <div class="grp-row"><dt>E 규정 준수</dt><dd><span class="grp-track"><span class="grp-fill" style="width:18%"></span></span><b class="tnum">18%</b></dd></div>
+                <div class="grp-row"><dt>A 신뢰 구축</dt><dd><span class="grp-track"><span class="grp-fill" style="width:24%"></span></span><b class="tnum">24%</b></dd></div>
+                <div class="grp-row"><dt>B 무첨가·안전</dt><dd><span class="grp-track"><span class="grp-fill" style="width:16%"></span></span><b class="tnum">16%</b></dd></div>
+                <div class="grp-row"><dt>C 서사 구조</dt><dd><span class="grp-track"><span class="grp-fill" style="width:12%"></span></span><b class="tnum">12%</b></dd></div>
+                <div class="grp-row"><dt>D 성분 프레이밍</dt><dd><span class="grp-track"><span class="grp-fill" style="width:20%"></span></span><b class="tnum">20%</b></dd></div>
+                <div class="grp-row"><dt>E 카테고리 적합성</dt><dd><span class="grp-track"><span class="grp-fill" style="width:18%"></span></span><b class="tnum">18%</b></dd></div>
               </dl>
 
               <!-- Top3 개선 포인트 -->
@@ -477,14 +511,15 @@
     var hasAssets = v === 'default' || v === 'generating';
     show('skelView', v === 'loading');
     show('errView', v === 'error');
+    show('onboardView', v === 'onboard');
     show('setupGuide', v === 'first');
     show('heroDefault', hasAssets, 'flex');
     // 위젯 그리드·이벤트 스트립은 자산이 있을 때만 (MAIN-06 — 빈 위젯 출력 X)
     show('widgetGrid', hasAssets, 'grid');
     show('eventStrip', hasAssets);
     show('recentSec', hasAssets && RECENTS.length > 0);
-    show('kpiWidget', v !== 'first');
-    show('kpiEmpty', v === 'first');
+    show('kpiWidget', v !== 'first' && v !== 'onboard');
+    show('kpiEmpty', v === 'first' || v === 'onboard');
     $('pdfBtn').style.display = hasAssets ? 'flex' : 'none';
     if (v !== 'generating') hideJobPanel();
     if (hasAssets && !state.counted) { state.counted = true; countUp(); }
@@ -638,6 +673,35 @@
     render();
     setTimeout(function () { state.view = 'default'; state.counted = false; render(); }, 900);
   };
+
+  // ── 온보딩 첫 브랜드 캡처 (MAIN-13 / ONBOARD) ─────────
+  // 데모 — 실제 저장 없음. 필수 2필드 충족 시 제출 활성, 성공 = 첫 방문 가이드 진입(ONBOARD-03)
+  (function initOnboard() {
+    var name = $('obName'), submit = $('obSubmit'), hint = $('obHint'), cat = '';
+    if (!name) return;
+    function syncOb() {
+      var ok = name.value.trim().length > 0 && cat !== '';
+      submit.disabled = !ok;
+      submit.style.opacity = ok ? '1' : '.5';
+      submit.style.cursor = ok ? 'pointer' : 'default';
+      hint.textContent = ok ? '진단 준비가 되면 홈 셋업 가이드로 이동합니다.' : '브랜드명·카테고리를 입력하면 시작할 수 있어요.';
+    }
+    document.querySelectorAll('#obCatWrap .ob-chip').forEach(function (c) {
+      c.onclick = function () {
+        cat = c.getAttribute('data-cat');
+        document.querySelectorAll('#obCatWrap .ob-chip').forEach(function (x) { x.setAttribute('aria-checked', String(x === c)); });
+        syncOb();
+      };
+    });
+    name.addEventListener('input', syncOb);
+    submit.onclick = function () {
+      if (submit.disabled) return;
+      state.view = 'first';
+      state.counted = false;
+      render();
+      toast(name.value.trim() + ' 등록 완료', '제품과 채널을 채우면 진단·생성 정확도가 올라갑니다.');
+    };
+  })();
 
   renderRecents(false);
   render();

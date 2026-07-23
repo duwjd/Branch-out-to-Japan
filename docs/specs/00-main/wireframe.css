@@ -348,3 +348,8 @@ select.m-input { cursor: pointer; }
 .ab-input:focus { outline: none; border: 1.5px solid #70737c; }
 select.ab-input { cursor: pointer; }
 .ab-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }
+
+/* 온보딩 첫 브랜드 캡처 — 카테고리 선택 칩(radio) */
+.ob-chip { display: inline-flex; align-items: center; height: 38px; padding: 0 15px; border: 1px solid var(--input-border); border-radius: 9999px; background: #fff; color: var(--ink-body); font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.ob-chip:hover { background: var(--n-100); }
+.ob-chip[aria-checked="true"] { border-color: var(--coral); background: var(--coral-tint); color: var(--coral-strong); }
