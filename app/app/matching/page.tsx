@@ -1,4 +1,5 @@
 import { getStore } from '@/lib/db/store';
+import { getActiveBrand } from '@/lib/server/activeBrand';
 import { MatchingView } from './MatchingView';
 
 /**
@@ -6,13 +7,16 @@ import { MatchingView } from './MatchingView';
  */
 export default async function MatchingPage() {
   const store = await getStore();
-  const [active, requests, assets, reports, profile] = await Promise.all([
-    store.getActiveMatchRequest(),
-    store.listRequests(),
-    store.listAssets(),
-    store.listReports(),
-    store.getBrandProfile(),
-  ]);
+  const profile = await getActiveBrand();
+
+  const [active, requests, assets, reports] = profile
+    ? await Promise.all([
+        store.getActiveMatchRequest(profile.id),
+        store.listRequests(profile.id),
+        store.listAssets(profile.id),
+        store.listReports(profile.id),
+      ])
+    : [null, [], [], []];
 
   return (
     <MatchingView

@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/server/session';
+import { getActiveBrandId } from '@/lib/server/activeBrand';
 import { getStore } from '@/lib/db/store';
 import { MATCH_CHANNELS, PARTNER_TYPES } from '@/lib/matching';
 import { logger } from '@/lib/logger';
@@ -13,11 +14,19 @@ const CHANNELS = MATCH_CHANNELS.map((c) => c.value as string);
 
 export async function GET(): Promise<NextResponse> {
   const store = await getStore();
+  const brandId = await getActiveBrandId();
+  if (!brandId) {
+    return NextResponse.json({
+      active: null,
+      summary: { reportCount: 0, thumbnailCount: 0, latestScore: null },
+      storeKind: store.kind(),
+    });
+  }
   const [active, requests, assets, reports] = await Promise.all([
-    store.getActiveMatchRequest(),
-    store.listRequests(),
-    store.listAssets(),
-    store.listReports(),
+    store.getActiveMatchRequest(brandId),
+    store.listRequests(brandId),
+    store.listAssets(brandId),
+    store.listReports(brandId),
   ]);
   const published = requests.filter((r) => r.status === 'published');
   const latestReport = reports.find((r) => r.publishedAt !== null) ?? null;
@@ -57,13 +66,20 @@ export async function POST(request: Request): Promise<NextResponse> {
   const memo = typeof body.memo === 'string' ? body.memo.slice(0, 500) : '';
 
   const store = await getStore();
-  if (await store.getActiveMatchRequest()) {
+  const brandId = await getActiveBrandId();
+  if (!brandId) return NextResponse.json({ error: '브랜드를 먼저 등록해 주세요.' }, { status: 400 });
+  if (await store.getActiveMatchRequest(brandId)) {
     return NextResponse.json({ error: '이미 진행 중인 신청이 있습니다.' }, { status: 409 });
   }
 
   // 신청 시점 자산 요약 물질화(MATCH-02a 스냅샷)
-  const [requests, assets, reports] = await Promise.all([store.listRequests(), store.listAssets(), store.listReports()]);
+  const [requests, assets, reports] = await Promise.all([
+    store.listRequests(brandId),
+    store.listAssets(brandId),
+    store.listReports(brandId),
+  ]);
   const record = await store.createMatchRequest({
+    brandProfileId: brandId,
     partnerTypes,
     channels,
     timing,
@@ -82,7 +98,8 @@ export async function DELETE(): Promise<NextResponse> {
   if (!(await getSession())) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
 
   const store = await getStore();
-  const active = await store.getActiveMatchRequest();
+  const brandId = await getActiveBrandId();
+  const active = brandId ? await store.getActiveMatchRequest(brandId) : null;
   if (!active) return NextResponse.json({ error: '진행 중인 신청이 없습니다.' }, { status: 404 });
   await store.cancelMatchRequest(active.id);
   logger.info('매칭 신청 취소', { matchId: active.id });

@@ -9,7 +9,7 @@
 import { use, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { PLATFORM_LABELS, STUDIO_STAGE_LABELS, type Platform } from '@/lib/studio/platform';
-import type { ExplanationJson, GateResult, GeneratedAssetStatus, ThumbnailProof } from '@/lib/db/store';
+import type { ExplanationJson, GateResult, GeneratedAssetStatus, PromoInput, ThumbnailProof } from '@/lib/db/store';
 import { EmptyState, Skeleton, StatusBadge, buttonClass, cardClass } from '@/components/ui/primitives';
 import { GateBadges, StageList } from '@/components/ui/progress';
 import { IconChevronDown, IconChevronUp } from '@/components/ui/icons';
@@ -25,11 +25,18 @@ interface AssetPayload {
   gateResult: GateResult | null;
   explanationJson: ExplanationJson | null;
   proof: ThumbnailProof | null;
+  modelImagePath: string | null;
+  modelConsent: boolean;
+  promoInput: PromoInput | null;
   brandNameSnapshot: string;
   createdAt: string;
   storeKind: 'supabase' | 'file';
+  imageMode: 'real' | 'mock';
+  llmMode: 'real' | 'mock';
   imageUrl: string | null;
   originalUrl: string;
+  /** F 모델+카피형 Before 병기용 — 모델컷 없으면 null */
+  modelImageUrl: string | null;
 }
 
 /** 생성중 파이프라인 단계 순서 — analyze가 분석+카피 재설계를 겸한다(STUDIO_STAGE_LABELS 정의) */
@@ -85,7 +92,7 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
     };
   }, [poll]);
 
-  /** 다운로드(RESULT-04) — 파일명 "{브랜드명}-{스타일 평문}-{플랫폼}.png" */
+  /** 다운로드(RESULT-04) — 파일명 "{브랜드명}-{스타일 평문}-{플랫폼}[-demo].png". 목 모드는 데모 표기 전파 */
   async function handleDownload() {
     if (!asset?.imageUrl) return;
     const res = await fetch(asset.imageUrl);
@@ -93,7 +100,8 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${asset.brandNameSnapshot}-${asset.styleName}-${PLATFORM_LABELS[asset.platform as Platform] ?? asset.platform}.png`;
+    const demoSuffix = asset.imageMode === 'mock' ? '-demo' : '';
+    a.download = `${asset.brandNameSnapshot}-${asset.styleName}-${PLATFORM_LABELS[asset.platform as Platform] ?? asset.platform}${demoSuffix}.png`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -225,6 +233,12 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
         {asset?.status === 'done' && asset.imageUrl && (
           <div className="grid gap-9 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:items-start">
             <div className="lg:sticky lg:top-6">
+              {/* 목 모드 이미지 고지(RESULT-01) — 작은 배지로 흘리지 않고 상단 배너로 명시 */}
+              {asset.imageMode === 'mock' && (
+                <div role="note" className="mb-3.5 rounded-[10px] border border-amber bg-amber-bg px-4 py-3 text-[12.5px] leading-relaxed text-amber-text">
+                  <b className="font-bold">데모 이미지입니다.</b> 업로드한 제품컷이 반영되지 않은 샘플이며, 다운로드 파일명에 <code>-demo</code>가 붙습니다. 실제 생성은 이미지 API 연결 후 동작합니다.
+                </div>
+              )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={asset.imageUrl}
@@ -285,7 +299,10 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
               {asset.explanationJson && (
                 <>
                   <section className={cardClass('mt-6 p-5 sm:p-[22px]')}>
-                    <h2 className="text-[15px] font-extrabold text-ink">왜 이 문법인가</h2>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-[15px] font-extrabold text-ink">왜 이 문법인가</h2>
+                      {asset.llmMode === 'mock' && <StatusBadge tone="warn">데모 해설 — 실제 진단 아님</StatusBadge>}
+                    </div>
                     <p className="mt-2.5 text-[13.5px] leading-[1.75] text-ink-body [text-wrap:pretty]">{asset.explanationJson.styleReason}</p>
                   </section>
 

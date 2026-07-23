@@ -43,6 +43,9 @@ export interface GenerateThumbnailOptions {
   original: Buffer;
   mediaType: string;
   styleId: StyleId;
+  /** F 모델+카피형 — 있으면 images.edit에 [제품컷, 모델컷] 배열로 넘긴다(그대로 쓸 모델 원본) */
+  model?: Buffer;
+  modelMediaType?: string;
 }
 
 /**
@@ -62,11 +65,20 @@ export async function generateThumbnail(opts: GenerateThumbnailOptions): Promise
   const quality = process.env.OPENAI_IMAGE_QUALITY ?? 'medium';
   const started = Date.now();
 
+  const productFile = await toFile(opts.original, `source.${opts.mediaType === 'image/png' ? 'png' : 'jpg'}`, {
+    type: opts.mediaType,
+  });
+  // F 모델+카피형은 [제품컷, 모델컷] 2장 배열(스펙 §2-⑥ 다중 이미지 입력) — 1번째 변형 금지 제품, 2번째 그대로 쓸 모델
+  let image: Awaited<ReturnType<typeof toFile>> | Awaited<ReturnType<typeof toFile>>[] = productFile;
+  if (opts.model) {
+    const modelType = opts.modelMediaType ?? 'image/png';
+    const modelFile = await toFile(opts.model, `model.${modelType === 'image/png' ? 'png' : 'jpg'}`, { type: modelType });
+    image = [productFile, modelFile];
+  }
+
   const params: Record<string, unknown> = {
     model,
-    image: await toFile(opts.original, `source.${opts.mediaType === 'image/png' ? 'png' : 'jpg'}`, {
-      type: opts.mediaType,
-    }),
+    image,
     prompt: opts.prompt,
     size: '1024x1024',
     quality,

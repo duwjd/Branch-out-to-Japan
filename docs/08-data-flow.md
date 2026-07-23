@@ -16,7 +16,7 @@
 
 | 액터 | 입력하는 것 | 받는 것 |
 |---|---|---|
-| **비로그인 방문자** | 카피 텍스트/URL + 제품분류 (무료 체커) | 위반 표현 후보 + 조항 근거 + 리포트 업셀 |
+| **비로그인 방문자 (비회원)** | 카피 텍스트/URL + 제품분류 (무료 체커) · **앱 화면(홈·리포트 입력폼·② 스튜디오 폼) 열람·작성** (2026-07-23) | 위반 표현 후보 + 조항 근거 + 리포트 업셀 · 생성·등록 시 로그인 유도(§3 GATE — `specs/03-account/03-account-ui-기획서`) |
 | **로그인 브랜드** | 브랜드 프로필(온보딩) · 진단 입력(브랜드 섹션 필수 + 제품 섹션 선택 — 리포트) · 이미지+플랫폼(썸네일) | 리포트 8블록(`brand` 모드는 블록 1·3·5·7 데이터 잠금)·PDF·보고용 슬라이드(모드별 7장/4장) · 일본향 썸네일 · 자산 라이브러리 |
 | **시스템(배치)** | 코퍼스 원천(`data/raw`) | 사전집계·렉시콘 등 grounding 자산(§2) |
 
@@ -35,7 +35,7 @@ flowchart TD
         SIGN --> BP["브랜드 프로필 등록 (4단계)<br/>브랜드·카테고리·제품분류·채널·자산"]
     end
 
-    subgraph APP["앱 영역 (로그인)"]
+    subgraph APP["앱 영역 (비회원 열람 가능 · 생성·등록은 로그인 후)"]
         BP -->|"브랜드 섹션 프리필"| FORM["① 진단 입력폼<br/>브랜드 필수 · 제품 선택"]
         FORM -->|"source 유무 → 모드 판정"| PIPE["리포트 생성 파이프라인 (§3·§4)<br/>brandProduct: 규칙 + LLM 4콜<br/>brand: 콜③ + 벤치마크(코퍼스 측)"]
         PIPE -->|"성공 = 발행"| RPT["리포트 8블록 뷰 + PDF"]
@@ -60,7 +60,7 @@ flowchart TD
 ```
 
 - 근거: [[07-ia]] §4(사이트맵)·§7(공통 엔티티)·§8(유저 플로우)를 데이터 관점으로 재구성.
-- 무료→로그인 경계: 체커는 비로그인 3회(§6 `CheckerRun`), 리포트 발행 시점에 가입·온보딩 유도.
+- **비회원 열람 + 실행 직전 게이트(2026-07-23 개편)**: 체커·샘플은 비로그인(§6 `CheckerRun`). 더해 비회원도 앱 화면(홈·리포트 입력폼·② 스튜디오 폼)을 열람·작성할 수 있고, **리포트 생성·썸네일 생성·브랜드 등록 직전에만 로그인 유도**(정본 `specs/03-account/03-account-ui-기획서` §3 GATE). 이전 "리포트 발행 시점 유도"를 대체 — 로그인 벽이 진입 시점 → 실행 시점으로 이동.
 
 ---
 
@@ -430,7 +430,7 @@ const scored = JSON.parse(
 ```typescript
 const result = await openai.images.edit({
   model: "gpt-image-2",                   // 실검증으로 확정(2026-07-21) — 스펙 §6-Q1 해소
-  image: fs.createReadStream(inputPath),  // F 유형은 [제품컷, 모델컷] 배열
+  image: sources,                         // [제품컷] · F 모델+카피형만 [제품컷, 모델컷] (2026-07-22 계약)
   prompt: buildPrompt(categoryId, slots, isPromoInput),
   size: "1024x1024",
   quality: "high",                        // 개발 반복 중 "medium"
@@ -448,7 +448,9 @@ const result = await openai.images.edit({
 
 - **콜②(문장 감사)를 콜로 재사용하지 않는다** — 콜②는 상세페이지 문장(K1..Kn) 계약이라 슬롯 카피와 형태가 불일치하고 콜 수·지연이 배가된다. 대신 **grounding(약기법 판정 프레임 + 렉시콘)을 studioCopy 시스템 프롬프트에 재주입**해 §5.1 "③단계 약기법 검수 = 콜② 엔진 재사용"의 취지를 충족하고, 코드 게이트(proof·가격 슬롯)가 최종 방어선이다.
 - 출력(= `GeneratedAsset.explanationJson`의 원천): `{ isPromoInput, styleReason, slotValues[]{key,value}, copySlots[]{slotKey,ja,krIntent,rationale,footnote}, krElementMap[]{element,action(유지·정제|재설계|제거),reason} }` — ② RESULT-02·03·③ DETAIL-02 해설 렌더와 1:1.
-- 결정적 코드가 LLM 출력 이후 강제하는 것: requiresProof 배지 문단(proof 3필드 전부 있을 때만 채움), **가격·특가 슬롯(G.priceBlock·giftInsetParagraph) v1 항상 공란**(입력 UI 없음 — 有利誤認 차단), 프롬프트 조립(buildPrompt).
+- 결정적 코드가 LLM 출력 이후 강제하는 것: requiresProof 배지 문단(proof 3필드 전부 있을 때만 채움), **가격·특가 슬롯(G.priceBlock·giftInsetParagraph)은 사용자 프로모 입력에서만 조립**, 프롬프트 조립(buildPrompt).
+- **가격 슬롯 정책 개정(2026-07-22)**: 구 정책 "가격 슬롯 v1 항상 공란"은 입력 UI가 없던 시기의 임시 차단이었다. ② 기획서 HOME-05b로 프로모션 입력(세트명·판매가 필수 / 통상가·할인율·GIFT·한정 칩·각주 선택)이 생겨 **입력값만 자단위 조립**으로 대체한다. 취소선 통상가는 `promoInput.normalPriceVerified === true`일 때만 포함한다(有利誤認 차단 목적은 동일). LLM은 여전히 가격 슬롯을 산출하지 X — 코드 소유 슬롯이다.
+- **모델컷(2026-07-22)**: F 모델+카피형은 제품컷과 별도로 모델컷 1장 + 사용 권한 동의를 입력받아 생성 호출에 `[제품컷, 모델컷]` 배열로 넘긴다. 동의 미체크분은 파이프라인 진입 자체가 불가하고, 콜⑥ studioCopy에도 2장을 함께 첨부해 `modelHandling`·`insetParagraph`가 실제 모델컷을 근거로 산출되게 한다.
 
 ### 4.8 호출 순서 — 병렬 구간
 
@@ -536,6 +538,7 @@ erDiagram
         uuid id PK
         string email
         string passwordHash
+        boolean emailVerified
         timestamptz createdAt
     }
     BRAND_PROFILE {
@@ -612,9 +615,17 @@ erDiagram
 - `LlmCallLog.requestBody`는 원문 저장이 원칙(재현성). 저장량 우려 시 system 프리픽스는 해시로 대체 가능.
 
 **스프린트 2 구현 확정 델타 (2026-07-21 — ② 실생성·③ 운영·목 세션):**
-- **`User` 엔티티는 이번 스프린트에 만들지 않는다** — 인증은 목 세션(httpOnly 쿠키 1개, 값 = provider 이름, 데모 유저 1명 하드코딩). 어떤 엔티티에도 `userId`를 두지 않는다 — Supabase Auth 도입 시 일괄 마이그레이션이 더 싸다.
+- **`User` 엔티티는 이번 스프린트에 만들지 않는다** — 인증은 목 세션(httpOnly 쿠키 1개, 값 = provider 이름, 데모 유저 1명 하드코딩). 어떤 엔티티에도 `userId`를 두지 않는다 — Supabase Auth 도입 시 일괄 마이그레이션이 더 싸다. ※ **스펙(2026-07-23)은 이메일/비밀번호 가입·로그인을 병행**하므로 `User`에 `email`·`passwordHash`·`emailVerified`가 실사용된다(§6.1 ER 반영). 다만 **실 인증(소셜 OAuth·이메일 메일 발송·`users` 테이블·비회원 열람 게이트) 구현은 잔여** — 목 세션은 그대로 유지하고 Auth 도입 시 함께 마이그레이션.
 - **`BrandProfile`은 싱글턴(id='default')** — 다중 브랜드 (미정)이므로 1브랜드 전제. `brandKitJson` 예약 필드를 실구현하고(`brandKit`), `productClass`에 `건강식품` 포함(§6.1 ER 그대로), `detailDocPath`+`detailDocName`(업로드 파일 fileId·원본 파일명).
 - **`GeneratedAsset` 확장 확정**(② 기획서 델타 2건 채택): `status`(generating|done|failed) · `stage`(진행 단계) · `error` · `explanationJson`(콜⑥ 산출 — §4.7) · `originalImagePath`(원본 fileId) · `proof`(실적 3필드 스냅샷) · `brandNameSnapshot`(제출 시점 브랜드명 물질화 — `tierInput` 스냅샷 원칙과 동일). 실패물은 `status=failed`로 남되 라이브러리는 `done`만 조회(“검수 게이트 통과분만 자산” 원칙의 status 필터 구현).
+- **`GeneratedAsset` 조건 입력 델타 3건 (2026-07-22 — ② 기획서 HOME-02b·05b 채택)**: `modelImagePath`(모델컷 fileId · F 전용 · nullable) · `modelConsent`(사용 권한 동의 여부 boolean — 동의 사실을 자산에 함께 보존해 사후 추적 가능) · `promoInput`(G 전용 · nullable · `{ setTitle, salePrice, normalPrice, normalPriceVerified, discountRate, gift, qualifierChips, footnote }`). 셋 다 **제출 시점 스냅샷**이며 이후 수정 불소급(`brandNameSnapshot` 원칙과 동일). Supabase는 `model_image_path text` · `model_consent boolean not null default false` · `promo_input jsonb` 3열 추가.
+**2026-07-22 UI 기획 델타 제안 (⓪ 홈 개편 · ③ 제품 자산 CRUD — 백엔드 스펙 확정 전 "제안" 상태):**
+- **`Product` 엔티티 신설 제안** — ③ 브랜드 관리가 제품을 레코드 단위로 등록하고 제품당 제품컷을 여러 장 보관하도록 개정됨(`specs/04-operations/04-operations-ui-기획서.md` BRAND-03·09). 필드: `id` · `brandProfileId`(FK) · `nameKr`(필수) · `nameJa`(nullable) · `category` · `memo` · `images[]{fileId, isPrimary}` · `createdAt`. 이미지는 기존 fileId 체계를 그대로 씀(`.data/files/` + `GET /api/files/[id]`) — 새 파일 계층 만들지 않는다. 이로써 §6.1 설계 노트의 "IA §7 `상품` 엔티티는 MVP에서 생략 · 다상품은 스키마 예약만"이 **UI 기획 수준에서는 해제**됐다. `BrandProfile.productInfoMemo`는 제품별로 나누기 어려운 브랜드 공통 메모로 존치한다.
+- **② 생성 요청 델타 제안**: `productImageSource`(upload \| brandAsset) · `productId`(brandAsset일 때 참조 제품). ② 스튜디오가 제품컷을 업로드 대신 등록 자산에서 고를 수 있게 됨(`specs/02-studio/02-studio-ui-기획서.md` HOME-02). 어느 경로든 파이프라인 입력은 이미지 1장이고, `GeneratedAsset`에는 **제출 시점 이미지가 스냅샷으로 복사**되므로 이후 제품 삭제·교체가 소급되지 않는다(`brandNameSnapshot` 원칙과 동일).
+- **`BrandProfile` 싱글턴 해제 제안** — ⓪ 브랜드 스위처의 "＋ 브랜드 추가"가 모달로 확정되며(`specs/00-main/00-main-ui-기획서.md` MAIN-01b′) 1브랜드 전제가 UI에서 깨졌다. 다중 브랜드 지원 시점·마이그레이션 범위는 백엔드 스펙 몫. 브랜드 삭제·상한은 여전히 (추후 기획).
+- **브랜드 삭제 cascade 제안 (2026-07-22 2차)** — ③ BRAND-10이 브랜드 삭제를 정의했으므로 삭제 범위 계약이 필요하다. `BrandProfile` 삭제 시 `Product`(+제품컷 파일) · `DiagnosisRequest` · `Report` · `AuditSentence` · `GeneratedAsset`(+이미지 파일) · `MatchRequest`가 함께 지워진다. 즉시 삭제 vs 소프트 삭제(보관 기한)와 파일 실물 삭제 시점은 백엔드 스펙 몫 (미정). **마지막 브랜드는 삭제 불가** — 앱 전체가 브랜드 컨텍스트 위에서 동작하므로 빈 컨텍스트 상태는 정의하지 않는다.
+- ⓪ 홈 위젯 3종(MAIN-10~12)은 **신규 저장 없음** — `Report`·`BrandProfile`·`Product`와 정적 시즌 상수를 재조회만 한다(§7).
+
 - **`MatchRequest` 신설 확정**(§5.2 TBD 해소 — 컨시어지형 최소 계약): `partnerTypes[]` · `channels[]` · `timing` · `memo` · `status`(submitted|reviewing|proposed|cancelled — 갱신은 운영팀 수동) · `snapshot{reportCount, thumbnailCount, latestScore}`(신청 시점 자산 요약 물질화).
 - **파일 저장 = 로컬 우선**: 업로드·생성 이미지는 `.data/files/{prefix}-{uuid}.{ext}`에 저장하고 DB(스토어)에는 **fileId만** 기록, `GET /api/files/[id]`가 서빙한다. Supabase Storage 전환 시 `lib/files/storage.ts` 내부만 교체(fileId 체계·URL·스키마 무변경 — §6.2 개정).
 
@@ -639,19 +650,20 @@ erDiagram
 | 무료 약기법 체커 (`public-onboarding`) | `CheckerRun`(anonKey 횟수) | `CheckerRun` + `LlmCallLog` | §4.6 콜 |
 | 샘플 리포트 미리보기 (`public-onboarding`) | — (정적 샘플 = cica 정본) | — | 블록7 부분 잠금(veil) |
 | 요금 (`public-onboarding`) | — (정적) | — | |
-| 로그인/회원가입 (`public-onboarding`) | `User` | `User` | Supabase Auth |
+| 로그인/회원가입 (소셜 3종 + 이메일 · `specs/03-account`) | `User` | `User`(email·passwordHash·emailVerified) | Supabase Auth(OAuth + 이메일/비번) · 실 구현 잔여(목 세션) |
 | 브랜드 프로필 등록 4단계 (`public-onboarding`) | `User` | `BrandProfile` | 완료 시 리포트 폼으로 프리필(§3.1) |
-| 대시보드/마이페이지 (`app`) | `BrandProfile`·`Report`·`GeneratedAsset`·`DiagnosisRequest.status` | — | 브랜드 프로필 스위처. 브랜드 편집 정본은 ③ 브랜드 관리(2026-07-21) — 여기서는 조회만 |
+| 홈/마이페이지 (`app`) | `BrandProfile`·`Product`(제안)·`Report`(`overallScore`·`groupScores`·`top3`)·`GeneratedAsset`·`DiagnosisRequest.status`·시즌 상수 | `BrandProfile`(브랜드 추가 모달에서 신규 생성 시에만) | 메뉴명 "홈"(2026-07-22 — 구 "대시보드"). 위젯 3종(⓪ MAIN-10~12)은 **재조회 전용**. 브랜드 편집 정본은 ③ 브랜드 관리 — 홈에서는 조회만 |
 | ① 진단 입력폼 — 브랜드 필수/제품 선택 (`report`) | `BrandProfile`(프리필) | `DiagnosisRequest` | 50자 게이트는 클라이언트(텍스트 제출 시에만 — `source` 미제출은 `brand` 모드 제출. 정의 = `lib/engine/rules/gates.ts`) |
 | ① 처리 로딩 (`report`) | `DiagnosisRequest.status` 폴링 | — | §3.3 상태 머신 |
 | ① 리포트 8블록 뷰 (`report`) | `Report`·`AuditSentence` | — | published만 사용자 노출 |
 | ① PDF 내보내기 (`report`) | `Report.pdfPath` | `Report.pdfPath`(최초 생성 시) | |
 | ① 보고용 슬라이드 내보내기 (`report` 내 버튼) | `Report.blocksJson`·`DiagnosisRequest.tierInput` | `LlmCallLog`(콜⑤) | 화면 아님 — 다운로드 응답(단일 HTML). **저장 없음**(§4.5 · 스펙 §10.6) |
 | ① S2 재진단 뷰 (`report-postentry`) | `Report`(S2 블록 구성) | — | S2 스펙(`01-report-spec-postentry`)과 입력 차이는 해당 스펙에서 |
-| ② 썸네일 변환기 (`service`) | `BrandProfile`·프롬프트 팩 | `GeneratedAsset` + `LlmCallLog` | §5.1 |
+| ② 스튜디오 홈(생성) (`02-studio/1-home`) | `BrandProfile`·`Product`(제품컷 피커 — 제안)·프롬프트 팩 | `GeneratedAsset`(+`modelImagePath`·`modelConsent`·`promoInput`·`productImageSource`·`productId`) + `LlmCallLog` | §5.1 · 2026-07-22 조건 입력 3종(실적·모델컷·가격) + 제품컷 소스 선택. **완료 자산 목록 조회 없음**(최근 생성 스트립 삭제) — 제품 자산은 생성 입력이라 조회 대상임 |
+| ② 생성 결과 상세 (`02-studio/2-result`) | `GeneratedAsset`(status·stage 폴링 → `explanationJson`·`gateResult`) | — | 생성중 시작 상태 → 결과 crossfade. 진행 확인의 정본 표면 |
+| ③ 브랜드 관리 (`04-operations/3-brand`) | `BrandProfile`·`Product`(제안) | `BrandProfile`(+`brandKitJson`)·`Product` CRUD + 제품컷 파일(fileId) — 둘 다 §6.1 계약 제안 | 편집 정본(2026-07-21 신설 · 2026-07-22 제품 자산 CRUD 추가). 킷·제품 수정은 발행 리포트·생성 자산에 불소급(스냅샷) |
 | ③ 자산 라이브러리 (`04-operations/1-home`) | `Report`·`GeneratedAsset` | — | 재조회 전용 · 타입 탭 [진단 리포트\|썸네일] (2026-07-21 IA 개편) |
 | ③ 자산 상세 (`04-operations/2-detail`) | `Report`·`GeneratedAsset`(`explanationJson` 재조회) | — | 재조회 전용 · 썸네일/리포트 요약 2모드 |
-| ③ 브랜드 관리 (`04-operations/3-brand`) | `BrandProfile` | `BrandProfile`(+`brandKitJson` — §6.1 설계 노트 스키마 예약·계약 제안) | 편집 정본(2026-07-21 신설). 킷 수정은 발행 리포트에 불소급(`tierInput` 스냅샷) |
 | ③ 기업 매칭 (`04-operations/4-matching`) | `BrandProfile`·자산 카운트 | `MatchRequest`(계약 제안 — §5.2 TBD) | 컨시어지형 · 상태 갱신은 운영팀 수동 |
 | ~~검수자용 내부 화면 (공백)~~ | — | — | **폐기(2026-07-16)** — 검수 단계 제거로 화면 자체가 없어졌다. 공백은 **만들어서가 아니라 삭제로 닫혔다**(§8-D4) |
 | 산출물 프로토 (`deliverable-proto-cica`) | — (정적 목업) | — | 블록7 하이라이트·② 산출물의 시각 기준 |
@@ -679,6 +691,7 @@ erDiagram
 ---
 
 ## 변경 이력
+- 2026-07-22 **② 스튜디오 조건 입력 3종 · 홈 최근 생성 스트립 삭제**(사용자 결정 → [[specs/02-studio/02-studio-ui-기획서]] 2026-07-22 개정 · [[specs/02-thumbnail-converter-spec]] §1·§2-④·§2-⑥·§4). **[변경]** §4.7 **가격 슬롯 "v1 항상 공란" 정책 폐기** → 사용자 프로모 입력(HOME-05b)에서 코드가 자단위 조립, 취소선 통상가는 `normalPriceVerified` 체크가 있을 때만(有利誤認 차단 목적 동일) · §4.7 생성 호출 `image`를 배열 계약으로 명시(F 모델+카피형만 `[제품컷, 모델컷]`) · §7 스튜디오 행을 홈(생성)/결과 상세 2행으로 분리하고 **홈의 자산 목록 조회를 제거**. **[추가]** §6.1 `GeneratedAsset` 델타 3건 — `modelImagePath`·`modelConsent`·`promoInput`(전부 제출 시점 스냅샷·불소급). 배경: 템플릿 8종 중 F(모델컷 잠금)·G(가격 공란) 2종이 자기 서명 요소를 렌더하지 못하던 문제를 **입력 경로를 열어** 해소 — 지어내기 차단(인물 합성 금지·이중가격 제한)은 그대로 둔다.
 - 2026-07-21 **스프린트 2 구현 확정 델타**(사용자 결정 → [[decisions/DECISIONS]] · [[09-dev-spec]] §4b). **[추가]** §4.7 콜⑥ studioCopy 계약(Claude 비전 1콜 — ①분석+③카피+④슬롯 통합 · 콜② 재사용 대신 grounding 재주입 · 가격 슬롯 v1 강제 공란 · 이미지 목 모드) · §6.1 스프린트 2 델타(User 없음 = 목 세션 · `BrandProfile` 싱글턴+`brandKit` 실구현 · `GeneratedAsset` status/stage/explanationJson/proof/원본 fileId/brandNameSnapshot 확정 · `MatchRequest` 신설 확정). **[변경]** §6.2 파일 = 로컬 `.data/files/` 우선 + fileId 서빙(Supabase Storage는 전환 대안).
 - 2026-07-18 **v6 블록 6 재프레이밍 · 블록 7·8 통합 · 블록 9→8 재번호 정합**(사용자 요청 → [[specs/01-report-spec]] v6). **[개정]** §4.3 콜③ 출력 스키마 `reviewNarrative`→`dropOffPath`(`{infoGap, customerDoubt, dropOff}`) — 블록6은 리뷰가 아니라 벤치마크 갭·페르소나 기반 **이탈 경로**로 재정의(리뷰 데이터 없음, `reviewSourceUrl` 무관), 가짜 리뷰 금지 가드레일 존치 · §4.4 콜④ 산출 블록 `1·7·8`→`1·7`(구 블록 8 '비포&애프터 샘플'이 블록 7 하이라이트로 통합) · 블록 9(맺음)→블록 8 재번호 → 리포트 블록0~8, brand 모드 잠금 목록 1·3·5·7. **[불변]** 파이프라인·두 모드·집계·LLM 4콜 구조 그대로(렌더/스키마 라벨만). 코드(`lib/engine`·`ReportView`) 반영은 후속.
 - 2026-07-16 **v4 입력 브랜드 우선 재구성 · 두 진단 모드 반영**(제품 오너 결정 → [[specs/01-report-spec]] v4 배너·§2·§3 · [[decisions/DECISIONS]]). **[변경]** §3.1 입력 표를 "티어(Tier 0/1/2)" 체계 → **브랜드 섹션 필수(`brandName`·`positioning` 신규 `{tags[], note}`·`category`) / 제품 섹션 전부 선택**(`source` 포함)의 2단 구조로 재편 — 온보딩 프리필 관계는 유지·필수화 반영, 게이트 단일 정의 = `lib/engine/rules/gates.ts`, `source` 미제출 = `brand` 모드(URL fetch 실패는 조용히 강등하지 않음) · §4.3 콜③ 입력 페이로드에 `brandName`·`positioning` 필수 주입(콘텐츠 요약은 brandProduct만 · 가변 데이터라 grounding 아닌 user payload) · 콜② 잡 실패 불변식을 "**제품 콘텐츠가 제출된 진단은 감사표 없이 발행하지 않는다**"로 재서술(§3.2·§4.0) · §4.5 콜⑤ 골격 모드별 2종(brandProduct 7장 / brand 4장)·검증 = 모드의 키 전부 · §6 `tierInput` 주석(2단 스냅샷 + `mode` 판별자)·`Report.overallScore` **nullable**(`ReportRecord.overallScore: number | null` · brand 모드 점수 없음·`block1`은 `scored:false` 판별 유니온)·`positioningTags` = `positioning` 프리필 소스 · §7 "티어 입력폼" → "진단 입력폼(브랜드 필수/제품 선택)" · §8-D2 결제 게이트 ~~재선정 필요~~ → **자리 확정: 샘플 → 풀 열람 직전**(잔여 = 집행 미구현·브랜드 진단 가격 (미정)). **[추가]** §1.2·§3.2·§3.3·§4.8에 두 진단 모드 분기 — `brand` 모드는 normalize·presignals·콜①②④·집계 없이 stages `persona → benchmark → assemble`, 블록 1·3·5·7·8 데이터 잠금(대체 수치 발명 금지), 블록4 "내 콘텐츠" 칸 = "미확인" · §3.4 무료 = 샘플(두 모드 공통·두 모드 모두 유료) 경계. **[삭제]** §3.1 `reviewSourceUrl` 폼 행 — 소비처 0, 데드필드로 존치(스펙 §3.4).

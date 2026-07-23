@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getStore } from '@/lib/db/store';
+import { getActiveBrandId } from '@/lib/server/activeBrand';
 import type { DiagnosisRequestRecord, GeneratedAssetRecord } from '@/lib/db/store';
 import { PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
 import { NEXT_MEGAWARI, dDay } from '@/lib/season';
@@ -225,7 +226,10 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
   const activeTab: Tab = tab === 'thumbnail' ? 'thumbnail' : 'report';
 
   const store = await getStore();
-  const [requests, reports, assets] = await Promise.all([store.listRequests(), store.listReports(), store.listAssets()]);
+  const brandId = await getActiveBrandId();
+  const [requests, reports, assets] = brandId
+    ? await Promise.all([store.listRequests(brandId), store.listReports(brandId), store.listAssets(brandId)])
+    : [[], [], []];
 
   const reportByRequest = new Map(reports.map((r) => [r.requestId, r]));
   // 실패물은 자산이 아니다(LIB-05) — 발행분 + 진행중만

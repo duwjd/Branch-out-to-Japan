@@ -259,6 +259,24 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 .social-btn { transition: background .15s, border-color .15s; }
 .social-btn[aria-disabled="true"] { opacity: .55; cursor: default; }
 
+/* 이메일 인증 UI (LOGIN-06~10) — 소셜과 병행. 입력은 공용 .ab-input/.ab-label/.ab-err 재사용 */
+.email-cta {
+  display: flex; width: 100%; align-items: center; justify-content: center; gap: 6px;
+  height: 46px; border: 1px solid var(--input-border); border-radius: 11px;
+  background: #fff; color: var(--ink-body); font-size: 14px; font-weight: 700;
+  font-family: inherit; cursor: pointer; transition: background .15s, border-color .15s;
+}
+.email-cta:hover { background: var(--n-50); border-color: #70737c; }
+.auth-tabs { display: flex; gap: 4px; margin-top: 22px; padding: 4px; background: var(--n-50); border-radius: 12px; }
+.auth-tab {
+  flex: 1; height: 38px; border: none; border-radius: 9px; background: transparent;
+  color: var(--ink-body); font-size: 13.5px; font-weight: 700; font-family: inherit; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.auth-tab.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(16,18,20,.06); }
+.auth-link { background: none; border: none; padding: 0; font-family: inherit; font-size: 12.5px; color: var(--coral); font-weight: 600; cursor: pointer; }
+.auth-back { background: none; border: none; padding: 0; margin-bottom: 4px; font-family: inherit; font-size: 12.5px; color: rgba(55,56,60,.61); cursor: pointer; }
+
 /* 플랜 비교 카드 — 현재 플랜은 코랄 보더 고정, 나머지는 hover 리프트.
    카드 보더는 인라인 스타일이라 !important 로만 덮인다(① hover 클래스 관례 동일). */
 .plan-card { transition: border-color .15s, transform .15s, box-shadow .15s; }
@@ -281,3 +299,18 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   background: var(--canvas); border-radius: 16px; box-shadow: var(--shadow-2);
   padding: 24px; animation: modalIn .2s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   ⓪ MAIN-01b′ · 브랜드 추가 모달 (2026-07-22 — 앱 전 화면 공통)
+   사이드바 셸이 전역이므로 그 안의 모달도 모든 폴더에 동일하게 둔다
+   (기존 "폴더 자족" 관례). ab- 접두어는 각 화면의 기존 모달과 충돌 회피용.
+   ════════════════════════════════════════════════════════════════════ */
+@keyframes abIn { 0% { opacity: 0; transform: translateY(10px) scale(.985); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.ab-scrim { position: fixed; inset: 0; z-index: 110; background: rgba(16, 18, 20, .48); display: flex; align-items: center; justify-content: center; padding: 24px; overflow-y: auto; }
+.ab-card { width: 100%; max-width: 440px; background: var(--canvas); border-radius: 18px; box-shadow: 0 24px 60px rgba(16, 18, 20, .28); padding: 26px; animation: abIn .2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.ab-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+.ab-label { display: block; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--ink-body); }
+.ab-input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--input-border); border-radius: 10px; background: #fff; color: var(--ink); font-size: 13.5px; font-family: inherit; }
+.ab-input:focus { outline: none; border: 1.5px solid #70737c; }
+select.ab-input { cursor: pointer; }
+.ab-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }

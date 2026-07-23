@@ -89,9 +89,9 @@ alter table reports alter column overall_score drop not null;
 -- 파일은 로컬 .data/files/ (image_path 등은 fileId 문자열 — Supabase Storage 전환 시에도 값 불변).
 -- ───────────────────────────────────────────────────────────────────────────
 
--- 브랜드 프로필 — 싱글턴(id='default' 텍스트 PK, 다중 브랜드 미정)
+-- 브랜드 프로필 — 복수 지원(id=uuid 문자열, 레거시 마이그레이션분만 'default'). 텍스트 PK 유지
 create table if not exists brand_profiles (
-  id text primary key, -- 'default'
+  id text primary key, -- uuid 문자열(코드가 발급) · 레거시분은 'default'
   brand_name text not null,
   category text not null, -- skincare|makeup|suncare|cleansing
   product_class text not null default '미상', -- 화장품|의약외품|건강식품|미상
@@ -146,3 +146,90 @@ create index if not exists idx_match_status on match_requests(status);
 alter table brand_profiles enable row level security;
 alter table generated_assets enable row level security;
 alter table match_requests enable row level security;
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 마이그레이션 · 2026-07-23 — 복수 브랜드(브랜드별 스코핑, MAIN-01 스위처/추가/삭제)
+-- 요청·리포트·자산·매칭에 brand_profile_id(text FK) 추가 + on delete cascade.
+-- 멱등. 새 DB는 아래 add column if not exists 만으로 충분하다.
+--
+-- ⚠ 실행 순서: 이 블록을 애플리케이션 코드보다 먼저 돌린다(구 코드는 이 컬럼을 안 쓴다).
+-- ⚠ 백필: 기존 행을 레거시 브랜드 'default'에 귀속시킨다 — 먼저 'default' 브랜드 행이
+--   있어야 FK가 성립한다(아래 insert가 없으면 백필 UPDATE가 FK 위반).
+-- ───────────────────────────────────────────────────────────────────────────
+
+-- 0) 레거시 귀속용 'default' 브랜드 보장(기존 단일 브랜드가 이 id면 그대로 사용)
+insert into brand_profiles (id, brand_name, category)
+  select 'default', '기본 브랜드', 'skincare'
+  where exists (select 1 from diagnosis_requests)
+    and not exists (select 1 from brand_profiles where id = 'default');
+
+alter table diagnosis_requests add column if not exists brand_profile_id text;
+alter table reports add column if not exists brand_profile_id text;
+alter table generated_assets add column if not exists brand_profile_id text;
+alter table match_requests add column if not exists brand_profile_id text;
+
+-- 1) 백필 — 구 행은 전부 레거시 브랜드 소속
+update diagnosis_requests set brand_profile_id = 'default' where brand_profile_id is null;
+update reports set brand_profile_id = 'default' where brand_profile_id is null;
+update generated_assets set brand_profile_id = 'default' where brand_profile_id is null;
+update match_requests set brand_profile_id = 'default' where brand_profile_id is null;
+
+-- 2) FK(on delete cascade) — 브랜드 삭제 시 종속 레코드 자동 정리. 멱등 DO 가드
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'fk_requests_brand') then
+    alter table diagnosis_requests add constraint fk_requests_brand
+      foreign key (brand_profile_id) references brand_profiles(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'fk_reports_brand') then
+    alter table reports add constraint fk_reports_brand
+      foreign key (brand_profile_id) references brand_profiles(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'fk_assets_brand') then
+    alter table generated_assets add constraint fk_assets_brand
+      foreign key (brand_profile_id) references brand_profiles(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'fk_match_brand') then
+    alter table match_requests add constraint fk_match_brand
+      foreign key (brand_profile_id) references brand_profiles(id) on delete cascade;
+  end if;
+end $$;
+
+create index if not exists idx_requests_brand on diagnosis_requests(brand_profile_id);
+create index if not exists idx_reports_brand on reports(brand_profile_id);
+create index if not exists idx_assets_brand on generated_assets(brand_profile_id);
+create index if not exists idx_match_brand on match_requests(brand_profile_id);
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 마이그레이션 · 2026-07-23 — ② 모델컷/프로모 필드 + ③ 제품 자산(BRAND-03)
+-- 멱등. 자산 델타는 add column, 제품은 신규 테이블(brand_profile_id FK cascade).
+-- ───────────────────────────────────────────────────────────────────────────
+
+alter table generated_assets add column if not exists model_image_path text;
+alter table generated_assets add column if not exists model_consent boolean not null default false;
+alter table generated_assets add column if not exists promo_input jsonb;
+
+-- 제품 자산 — 브랜드 하위 제품 단위(이미지는 fileId 배열 jsonb). 브랜드 삭제 시 cascade
+create table if not exists products (
+  id uuid primary key default gen_random_uuid(),
+  brand_profile_id text references brand_profiles(id) on delete cascade,
+  name_kr text not null,
+  name_ja text not null default '',
+  category text not null default '',
+  memo text not null default '',
+  images jsonb not null default '[]', -- [{ fileId, isPrimary }]
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists idx_products_brand on products(brand_profile_id);
+alter table products enable row level security;
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 마이그레이션 · 2026-07-23 — ② 스튜디오 조건 입력 3종(모델+카피형 F · 프로모션 강조형 G)
+-- 08 §6 델타: 모델컷 fileId·사용 권한 동의·프로모 입력을 자산 레코드에 함께 보존.
+-- 멱등. 구 코드는 이 컬럼을 안 쓰므로 순서 무관하게 먼저 돌려도 안전하다.
+-- ───────────────────────────────────────────────────────────────────────────
+
+alter table generated_assets add column if not exists model_image_path text;
+alter table generated_assets add column if not exists model_consent boolean not null default false;
+alter table generated_assets add column if not exists promo_input jsonb;

@@ -49,9 +49,9 @@
   <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">계정 · 인터랙티브 프로토타입</p>
   <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.25;letter-spacing:-0.02em;color:#202124">앱의 문과 계정의 방 — 화면 흐름</h1>
   <p style="margin:14px 0 0;max-width:760px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">
-    로그인은 <b>소셜 3종(카카오·네이버·구글)</b>만으로 열리는 앱의 문이고, 마이페이지는 구독 플랜 가입 정보 ·
+    로그인은 <b>소셜 3종(카카오·네이버·구글) + 이메일/비밀번호</b>로 열리는 앱의 문이고, 마이페이지는 구독 플랜 가입 정보 ·
     계정 정보 · 결제 · 브랜드 프로필을 한곳에서 확인하는 방입니다. ⓪ 메인이 "자리만" 잡아 두었던
-    사이드바 계정 메뉴(MAIN-01e)가 이 두 화면으로 연결됩니다. 이메일/비밀번호 인증 계획은 본 기획으로 대체됩니다.
+    사이드바 계정 메뉴(MAIN-01e)가 이 두 화면으로 연결됩니다. <b>비회원도 앱을 둘러볼 수 있고</b>, 리포트·썸네일 생성·브랜드 등록 직전에만 <b>로그인 유도(게이트) 모달</b>이 뜹니다(2026-07-23 개편 · 기획서 §3).
   </p>
 
   <div class="doc-warn">
@@ -64,18 +64,18 @@
   <!-- ── 전체 플로우 ──────────────────────────────────── -->
   <section style="margin-top:44px">
     <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">전체 플로우 — 문에서 방까지</h2>
-    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">비로그인 접근·세션 만료는 전부 로그인으로 모입니다. 로그인 성공 시 기존 회원은 ⓪ 메인, 신규 회원은 온보딩(범위 외)으로 갈립니다. 마이페이지 진입은 사이드바 최하단 계정 메뉴 한 곳입니다.</p>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">비회원 접근은 더 이상 리다이렉트되지 않습니다. 앱을 둘러보다 생성·등록을 누르면 게이트 모달(기획서 §3)로 로그인이 유도됩니다(세션 만료는 여전히 로그인으로 모입니다). 로그인은 소셜·이메일 병행이고, 성공 시 기존 회원은 ⓪ 메인, 신규 회원은 온보딩(범위 외)으로 갈립니다. 마이페이지 진입은 사이드바 최하단 계정 메뉴 한 곳입니다.</p>
     <div class="rwrap" style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr 40px 1fr;align-items:center;gap:8px">
       <div class="flow-node" style="cursor:default;opacity:.75">
         <span style="font-size:11.5px;font-weight:800;color:#70737C;letter-spacing:.04em">0 · 진입</span>
-        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">랜딩 · 비로그인 접근</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">랜딩 CTA · 비로그인 앱 접근 리다이렉트 · 세션 만료. 랜딩 자체는 범위 외.</p>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">랜딩 · 비회원 열람 · 게이트</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">랜딩 CTA · 비회원 앱 열람 → 생성·등록 게이트 · 세션 만료. 랜딩 자체는 범위 외.</p>
       </div>
       <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
       <a class="flow-node" href="1-login.html">
         <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">1 · 로그인</span>
-        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">소셜 로그인</h3>
-        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">카카오·네이버·구글 3버튼 + 약관 고지. 신규 회원은 온보딩(범위 외)으로 분기.</p>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">소셜 · 이메일 로그인</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">소셜 3버튼 + "이메일로 계속하기"(로그인/회원가입·비번찾기). 신규 회원은 온보딩(범위 외)으로 분기.</p>
       </a>
       <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
       <a class="flow-node" href="../00-main/1-home.html">
@@ -96,12 +96,14 @@
   <!-- ── 상태 변형 ────────────────────────────────────── -->
   <section style="margin-top:44px">
     <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">상태 변형 — 화면 2개가 이렇게 바뀐다</h2>
-    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">로그인 4상태(기획서 LOGIN-00·02·04) · 마이페이지 4상태(MYPAGE-03·08). 오류 화면 문법은 ⓪ MAIN-08과 동일해 다시 그리지 않았습니다.</p>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">로그인 4상태(기획서 LOGIN-00·02·04) + 이메일 계열(LOGIN-06~10: 이메일 로그인·가입·인증메일·비번찾기) · 마이페이지 4상태(MYPAGE-03·08). 오류 화면 문법은 ⓪ MAIN-08과 동일해 다시 그리지 않았습니다.</p>
     <div class="rwrap" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
       <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">login · default</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">기본</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">소셜 3버튼 + "최근 로그인" 배지 + 약관 고지.</p></div>
       <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">login · loading</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">로딩</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">클릭한 버튼 스피너 + 3버튼 비활성(중복 클릭 방지).</p></div>
       <div style="background:#fff;border:1px solid rgba(240,72,60,.35);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#C6362C">login · fail ✕</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">실패</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">실패 토스트 + 버튼 복귀. 취소는 토스트 없이 유지.</p></div>
       <div style="background:#fff;border:1px solid rgba(255,171,0,.4);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#B96C00">login · expired △</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">세션 만료</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">카드 위 안내 배너 "세션이 만료되었습니다".</p></div>
+      <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">login · email</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">이메일 로그인·가입</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">"이메일로 계속하기" → 로그인/회원가입 탭 폼 + 비번찾기.</p></div>
+      <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">login · verify</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">인증 메일 발송</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">가입 후 "인증 메일을 보냈어요" + 재발송 쿨다운.</p></div>
       <div style="background:#fff;border:1px solid rgba(0,185,124,.35);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#00875A">mypage · default ○</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">기본 (Growth)</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">플랜 카드 "이용 중 ○" + 다음 결제일 + 결제 내역 2건.</p></div>
       <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#70737C">mypage · free</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">무료 (FREE)</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">"약기법 간이 체커만 이용 중" + 플랜 살펴보기. 결제 수단·내역 없음.</p></div>
       <div style="background:#fff;border:1px solid rgba(255,171,0,.4);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(16,18,20,.04)"><span style="font-family:ui-monospace,monospace;font-size:11.5px;color:#B96C00">mypage · failed △</span><h3 style="margin:8px 0 4px;font-size:14px;font-weight:700;color:#202124">결제 실패</h3><p style="margin:0;font-size:12px;line-height:1.55;color:rgba(55,56,60,0.61)">카드 상단 경고 배너 + "결제 확인 필요 △" + 실패 내역 행.</p></div>

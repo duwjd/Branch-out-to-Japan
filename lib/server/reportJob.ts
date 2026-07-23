@@ -9,10 +9,10 @@ import { getStore } from '../db/store';
 import { logger } from '../logger';
 import type { TierInput } from '../engine/types';
 
-/** 요청 생성(submitted) — 폼 POST가 호출 */
-export async function createDiagnosisRequest(input: TierInput) {
+/** 요청 생성(submitted) — 폼 POST가 호출. 활성 브랜드에 귀속 */
+export async function createDiagnosisRequest(input: TierInput, brandProfileId: string) {
   const store = await getStore();
-  return store.createRequest(input);
+  return store.createRequest(input, brandProfileId);
 }
 
 /** 파이프라인 실행(processing → published | failed) — 응답 후 백그라운드로 실행 */
@@ -35,6 +35,7 @@ export async function runDiagnosisJob(requestId: string): Promise<void> {
     const now = new Date().toISOString();
     await store.saveReport({
       requestId,
+      brandProfileId: request.brandProfileId,
       blocksJson: result.blocksJson,
       overallScore: result.overallScore,
       groupScores: result.groupScores,

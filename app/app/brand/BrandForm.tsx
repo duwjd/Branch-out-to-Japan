@@ -6,10 +6,13 @@
  * 디자인 정본: docs/specs/04-operations/3-brand.html
  */
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { POSITIONING_TAGS, POSITIONING_TAGS_MAX } from '@/lib/engine/rules/positioning';
 import { CATEGORY_LABELS, type Category } from '@/lib/engine/types';
 import type { BrandProductClass, BrandProfileRecord } from '@/lib/db/store';
+import { Modal } from '@/components/ui/Modal';
+import { ProductManager } from './ProductManager';
 import {
   SectionCard,
   StatusBadge,
@@ -33,10 +36,17 @@ const JP_CHANNELS = [
 export function BrandForm({
   initialProfile,
   storeKind,
+  canDelete = false,
+  deleteCounts = { reportCount: 0, thumbnailCount: 0 },
 }: {
   initialProfile: BrandProfileRecord | null;
   storeKind: 'supabase' | 'file';
+  /** 마지막 브랜드가 아니면 삭제 가능(BRAND-10) */
+  canDelete?: boolean;
+  /** 삭제 확인 모달에 보여줄 종속 자산 수 */
+  deleteCounts?: { reportCount: number; thumbnailCount: number };
 }) {
+  const router = useRouter();
   const p = initialProfile;
   const [brandName, setBrandName] = useState(p?.brandName ?? '');
   const [category, setCategory] = useState<Category | ''>(p?.category ?? '');
@@ -57,6 +67,22 @@ export function BrandForm({
   const [error, setError] = useState<string | null>(null);
   const [docError, setDocError] = useState<string | null>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
+
+  // 브랜드 삭제(BRAND-10)
+  const [delOpen, setDelOpen] = useState(false);
+  const [delConfirm, setDelConfirm] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [delError, setDelError] = useState<string | null>(null);
+  // 추가 모달 착지(MAIN-01b′) — ?added=1이면 성공 배너
+  const [justAdded, setJustAdded] = useState(false);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('added') === '1') {
+      setJustAdded(true);
+      window.history.replaceState(null, '', window.location.pathname);
+      const t = setTimeout(() => setJustAdded(false), 5000);
+      return () => clearTimeout(t);
+    }
+  }, []);
 
   const canSave = Boolean(brandName.trim() && category && tags.length >= 1);
 
@@ -117,11 +143,38 @@ export function BrandForm({
     setDetailDocName(data.detailDocName);
   }
 
+  /** 브랜드 삭제(BRAND-10) — 브랜드명 재입력 일치 시에만. 성공 후 최근 브랜드로 자동 전환·홈 이동 */
+  async function handleDelete() {
+    if (!p || deleting) return;
+    setDeleting(true);
+    setDelError(null);
+    try {
+      const res = await fetch(`/api/brand/${p.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmName: delConfirm.trim() }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error ?? `HTTP ${res.status}`);
+      setDelOpen(false);
+      router.push('/app');
+      router.refresh();
+    } catch (err) {
+      setDelError(String((err as Error).message));
+      setDeleting(false);
+    }
+  }
+
   const saveMsgClass = error ? 'text-danger-text' : savedMsg ? 'text-green-text' : 'text-ink-mute';
 
   return (
     <main className="animate-fade-up">
       <div className="mx-auto max-w-[760px] px-6 pt-11 pb-28 max-sm:px-5">
+        {/* MAIN-01b′ 브랜드 추가 착지 — 성공 배너(빈 상태 BRAND-07 위) */}
+        {justAdded && (
+          <p role="status" className="mb-4 rounded-[10px] border border-green bg-green-bg px-4 py-3 text-[13px] font-semibold text-green-text">
+            ○ 브랜드가 추가되었습니다 — 아래에서 제품·채널·용어집을 채워 주세요.
+          </p>
+        )}
         {/* 상단 영역(BRAND-01) — primary는 하단 저장 바의 「저장」 1개 */}
         <header>
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -234,8 +287,13 @@ export function BrandForm({
             </div>
           </SectionCard>
 
-          {/* 제품 정보(BRAND-03) */}
-          <SectionCard title="제품 정보">
+          {/* 제품 자산(BRAND-03) — 제품 단위 CRUD */}
+          <SectionCard title="제품 자산">
+            <ProductManager />
+          </SectionCard>
+
+          {/* 제품 공통 정보(하위 존치분 — 브랜드 공통 메모·상세 문서) */}
+          <SectionCard title="제품 공통 정보">
             <div className="space-y-4">
               <div>
                 <label htmlFor="productInfoMemo" className={fieldLabelClass}>
@@ -468,8 +526,77 @@ export function BrandForm({
               </div>
             </div>
           </SectionCard>
+
+          {/* 브랜드 삭제(BRAND-10) — 위험 액션. 저장 바와 분리, 화면 최하단 */}
+          <div className="mt-2 rounded-[14px] border border-danger/40 bg-danger-bg/40 p-5">
+            <h2 className="text-[14px] font-bold text-danger-text">브랜드 삭제</h2>
+            <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-body">
+              이 브랜드의 진단 리포트·생성 썸네일·기업 매칭 신청이 모두 삭제됩니다. 되돌릴 수 없습니다.
+            </p>
+            {canDelete ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setDelConfirm('');
+                  setDelError(null);
+                  setDelOpen(true);
+                }}
+                className="mt-3 text-[13px] font-bold text-danger-text underline-offset-2 hover:underline"
+              >
+                이 브랜드 삭제…
+              </button>
+            ) : (
+              <p className="mt-3 text-[12px] font-semibold text-ink-mute">
+                마지막 브랜드는 삭제할 수 없습니다 — 서비스를 그만두려면 마이페이지에서 회원 탈퇴를 진행해 주세요.
+              </p>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* BRAND-10 삭제 확인 — 브랜드명 재입력 */}
+      <Modal open={delOpen} onClose={() => !deleting && setDelOpen(false)} labelledBy="delBrandTitle">
+        <h2 id="delBrandTitle" className="text-lg font-extrabold text-danger-text">
+          브랜드를 삭제할까요?
+        </h2>
+        <p className="mt-2 text-[13px] leading-relaxed text-ink-body">
+          <b className="text-ink">{p?.brandName}</b> 브랜드와 함께 아래 자산이 영구 삭제됩니다.
+        </p>
+        <ul className="mt-2 space-y-0.5 text-[12.5px] text-ink-mute">
+          <li>· 진단 리포트 {deleteCounts.reportCount}개</li>
+          <li>· 생성 썸네일 {deleteCounts.thumbnailCount}개</li>
+          <li>· 기업 매칭 신청(있다면)</li>
+        </ul>
+        <label htmlFor="delConfirm" className="mt-4 block text-[12.5px] font-semibold text-ink-body">
+          확인을 위해 브랜드명 <b className="text-ink">{p?.brandName}</b>을(를) 입력해 주세요.
+        </label>
+        <input
+          id="delConfirm"
+          value={delConfirm}
+          onChange={(e) => setDelConfirm(e.target.value)}
+          autoComplete="off"
+          placeholder={p?.brandName ?? ''}
+          className={`${inputClass} mt-1.5`}
+        />
+        {delError && (
+          <p role="alert" className="mt-2.5 text-[12.5px] font-semibold text-danger-text">
+            {delError}
+          </p>
+        )}
+        <div className="mt-5 flex gap-2">
+          <button type="button" onClick={() => setDelOpen(false)} disabled={deleting} className={buttonClass('secondary', 'md', 'flex-1')}>
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleDelete()}
+            disabled={deleting || delConfirm.trim() !== (p?.brandName.trim() ?? '')}
+            className={buttonClass('danger', 'md', 'flex-1')}
+          >
+            {deleting ? '삭제 중…' : '영구 삭제'}
+          </button>
+        </div>
+      </Modal>
 
       {/* 저장 바(BRAND-06) — 화면 유일 primary */}
       <div className="fixed inset-x-0 bottom-0 left-0 z-40 border-t border-hairline bg-canvas/95 px-6 py-3.5 backdrop-blur lg:left-sidebar">

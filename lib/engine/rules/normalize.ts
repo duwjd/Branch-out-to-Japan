@@ -17,44 +17,6 @@ export class SourceContentError extends Error {
   }
 }
 
-/** HTML에서 본문 텍스트만 남긴다(간이 — 이미지 위주 상세는 텍스트가 빈약할 수 있음, 스펙 §9-Q1) */
-function stripHtml(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-/** URL에서 텍스트를 가져온다. 실패·빈약 시 SourceContentError(텍스트 붙여넣기 안내). */
-async function fetchUrlText(url: string): Promise<string> {
-  let html: string;
-  try {
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(10_000),
-      headers: { 'user-agent': 'Mozilla/5.0 (report-diagnosis-bot)' },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    html = await res.text();
-  } catch (err) {
-    throw new SourceContentError(
-      `URL을 가져오지 못했습니다(${String((err as Error)?.message ?? err)}). 상세페이지 텍스트를 직접 붙여넣어 주세요 — 이미지 위주 페이지는 붙여넣기가 가장 정확합니다. 또는 콘텐츠를 비우고 제출하면 제품 정보 없이 브랜드 진단만 받으실 수 있습니다.`,
-    );
-  }
-  const text = stripHtml(html);
-  if (text.length < HARD_GATE_CHARS) {
-    throw new SourceContentError(
-      'URL에서 추출된 텍스트가 너무 적습니다(이미지 위주 상세로 보입니다). 상세페이지 문구를 직접 붙여넣어 주세요. 또는 콘텐츠를 비우고 제출하면 브랜드 진단만 받으실 수 있습니다.',
-    );
-  }
-  return text;
-}
-
 /** 평문을 문장 단위로 분해하고 K1..Kn ID를 부여한다 */
 export function splitSentences(plainText: string): Sentence[] {
   const chunks = plainText
@@ -64,18 +26,26 @@ export function splitSentences(plainText: string): Sentence[] {
   return chunks.slice(0, MAX_SENTENCES).map((text, i) => ({ id: `K${i + 1}`, text }));
 }
 
-/** 제품 콘텐츠(source)를 정규화 산출물로 변환한다 — 브랜드+제품 진단 전용(브랜드 진단은 이 단계가 없다, 스펙 §3.3) */
-export async function normalizeContent(input: BrandProductInput): Promise<NormalizedContent> {
-  const raw =
-    input.sourceType === 'url'
-      ? await fetchUrlText(input.sourceUrl ?? '')
-      : (input.sourceText ?? '').trim();
+/**
+ * 제품 콘텐츠(source)를 정규화 산출물로 변환한다 — 브랜드+제품 진단 전용(스펙 §3.3).
+ * 이미지 모드는 콜⓪ 비전 추출 결과(extractedText)를 파이프라인이 넘겨준다(v7). 텍스트 모드는 붙여넣기 원문.
+ */
+export async function normalizeContent(
+  input: BrandProductInput,
+  extractedText?: string,
+): Promise<NormalizedContent> {
+  const raw = input.sourceType === 'image' ? (extractedText ?? '').trim() : (input.sourceText ?? '').trim();
 
   const plainText = raw.replace(/\r/g, '');
   const charCount = contentCharCount(plainText);
 
   if (charCount < HARD_GATE_CHARS) {
-    throw new SourceContentError(`최소 ${HARD_GATE_CHARS}자 이상 콘텐츠가 필요합니다(현재 ${charCount}자).`);
+    // 이미지 모드는 추출 실패 문법(두 출구 안내), 텍스트 모드는 하드 게이트 문법
+    throw new SourceContentError(
+      input.sourceType === 'image'
+        ? '이미지에서 글자를 충분히 읽지 못했습니다. 텍스트 붙여넣기로 다시 시도하거나, 콘텐츠를 비우고 제출하면 브랜드 진단만 받을 수 있습니다.'
+        : `최소 ${HARD_GATE_CHARS}자 이상 콘텐츠가 필요합니다(현재 ${charCount}자).`,
+    );
   }
 
   return {
