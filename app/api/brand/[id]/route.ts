@@ -15,11 +15,13 @@ export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
-  if (!(await getSession())) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
 
   const { id } = await params;
   const store = await getStore();
-  const brand = await store.getBrandProfile(id);
+  // 내 브랜드 목록 안에서만 전환 대상 검증 — 타 유저 브랜드 전환·존재 탐지 차단(DELETE와 동일 소유 스코핑)
+  const brand = (await store.listBrandProfiles(session.user.id)).find((b) => b.id === id);
   if (!brand) return NextResponse.json({ error: '브랜드를 찾을 수 없습니다.' }, { status: 404 });
 
   await setActiveBrand(id);

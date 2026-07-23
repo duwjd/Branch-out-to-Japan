@@ -54,11 +54,19 @@ export interface Session {
   provider: AuthProvider;
 }
 
-/** 세션 쿠키 옵션 — remember면 30일 유지(maxAge), 아니면 브라우저 세션 쿠키(maxAge 생략) */
+/**
+ * 세션 쿠키 옵션 — remember면 30일 유지(maxAge), 아니면 브라우저 세션 쿠키(maxAge 생략).
+ * secure는 프로덕션에서만(로컬 dev는 http라 secure면 쿠키가 안 실린다).
+ */
 export function sessionCookieOptions(
   remember: boolean,
-): { httpOnly: true; sameSite: 'lax'; path: '/'; maxAge?: number } {
-  const base = { httpOnly: true as const, sameSite: 'lax' as const, path: '/' as const };
+): { httpOnly: true; sameSite: 'lax'; path: '/'; secure: boolean; maxAge?: number } {
+  const base = {
+    httpOnly: true as const,
+    sameSite: 'lax' as const,
+    path: '/' as const,
+    secure: process.env.NODE_ENV === 'production',
+  };
   return remember ? { ...base, maxAge: SESSION_MAX_AGE } : base;
 }
 

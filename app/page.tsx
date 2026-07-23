@@ -67,6 +67,9 @@ export default function LandingPage() {
             <a href="#before-after" className="text-ink-mute hover:text-ink">Before·After</a>
             <a href="#pricing" className="text-ink-mute hover:text-ink">요금</a>
             <a href="#faq" className="text-ink-mute hover:text-ink">FAQ</a>
+            <Link href="/login" className="font-semibold text-coral-strong hover:underline">
+              로그인
+            </Link>
             <Link
               href="/app/report/new"
               className="rounded-lg bg-coral px-4 py-2 text-base font-bold text-white hover:bg-coral-strong"
