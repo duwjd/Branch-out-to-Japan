@@ -6,7 +6,7 @@
 
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/server/session';
-import { getStore, LEGACY_USER_ID } from '@/lib/db/store';
+import { getStore } from '@/lib/db/store';
 import { getActiveBrandId, setActiveBrand } from '@/lib/server/activeBrand';
 import { logger } from '@/lib/logger';
 
@@ -32,12 +32,13 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
-  if (!(await getSession())) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
 
   const { id } = await params;
   const store = await getStore();
-  // M1 전환: 세션 도입(M3) 후 session.user.id로 교체
-  const brands = await store.listBrandProfiles(LEGACY_USER_ID);
+  // 내 브랜드 목록 안에서만 삭제 대상 검증 — 타 유저 브랜드 삭제 차단(소유 스코핑)
+  const brands = await store.listBrandProfiles(session.user.id);
   const target = brands.find((b) => b.id === id);
   if (!target) return NextResponse.json({ error: '브랜드를 찾을 수 없습니다.' }, { status: 404 });
 

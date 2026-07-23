@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
-import { getStore, LEGACY_USER_ID } from '@/lib/db/store';
+import { getStore } from '@/lib/db/store';
+import { getSession } from '@/lib/server/session';
 import { getActiveBrand } from '@/lib/server/activeBrand';
 import { BrandForm } from './BrandForm';
 
@@ -9,12 +10,14 @@ import { BrandForm } from './BrandForm';
  */
 export default async function BrandPage() {
   const store = await getStore();
+  const session = await getSession();
   const profile = await getActiveBrand();
-  if (!profile) redirect('/app'); // no-brand → 홈 온보딩
+  if (!profile) redirect('/app'); // no-brand(게스트 포함) → 홈 온보딩
 
   const [brands, reports, assets] = await Promise.all([
-    // M1 전환: 세션 도입(M3) 후 session.user.id로 교체
-    store.listBrandProfiles(LEGACY_USER_ID),
+    // profile이 있으면 세션이 보장된다(getActiveBrand는 세션 유저 스코핑) —
+    // 방어적으로 활성 브랜드 소유 유저(profile.userId)로 폴백(레이아웃 가드가 게스트를 막는다)
+    store.listBrandProfiles(session?.user.id ?? profile.userId),
     store.listReports(profile.id),
     store.listAssets(profile.id),
   ]);

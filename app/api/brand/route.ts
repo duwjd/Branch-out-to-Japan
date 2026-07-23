@@ -7,7 +7,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/server/session';
 import { getActiveBrand, setActiveBrand } from '@/lib/server/activeBrand';
-import { getStore, LEGACY_USER_ID, type BrandProductClass, type BrandProfileRecord } from '@/lib/db/store';
+import { getStore, type BrandProductClass, type BrandProfileRecord } from '@/lib/db/store';
 import {
   POSITIONING_TAGS_MAX,
   POSITIONING_TAGS_MIN,
@@ -90,7 +90,8 @@ function parseProfile(body: Record<string, unknown>): { input: Omit<BrandProfile
  * 복수 브랜드 지원 — 같은 브랜드명만 409(중복 등록 방지). 생성 즉시 활성 브랜드로 전환한다.
  */
 export async function POST(request: Request): Promise<NextResponse> {
-  if (!(await getSession())) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
 
   let body: Record<string, unknown>;
   try {
@@ -110,17 +111,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     : '미상';
 
   const store = await getStore();
-  // M1 전환: 세션 도입(M3) 후 session.user.id로 교체
-  const existing = await store.listBrandProfiles(LEGACY_USER_ID);
-  // 같은 브랜드명 중복 방지(MAIN-01b′ 검증) — 대소문자·공백 무시
+  const existing = await store.listBrandProfiles(session.user.id);
+  // 같은 브랜드명 중복 방지(MAIN-01b′ 검증) — 유저별 스코핑, 대소문자·공백 무시
   const norm = (s: string) => s.trim().toLowerCase();
   if (existing.some((b) => norm(b.brandName) === norm(brandName))) {
     return NextResponse.json({ error: '이미 등록한 브랜드명입니다.' }, { status: 409 });
   }
 
   const profile = await store.createBrandProfile({
-    // M1 전환: 세션 도입(M3) 후 session.user.id로 교체
-    userId: LEGACY_USER_ID,
+    userId: session.user.id,
     brandName,
     category,
     productClass,

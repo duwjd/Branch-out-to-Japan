@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getSession, PROVIDER_LABELS } from '@/lib/server/session';
-import { getStore, LEGACY_USER_ID } from '@/lib/db/store';
+import { getStore } from '@/lib/db/store';
 import { getActiveBrand } from '@/lib/server/activeBrand';
 import { NEXT_MEGAWARI, dDay } from '@/lib/season';
 import { AppShell, type BrandSwitcherItem } from '@/components/app/AppShell';
@@ -15,8 +15,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!session) redirect('/login');
 
   const store = await getStore();
-  // M1 전환: 세션 도입(M3) 후 session.user.id로 교체
-  const [brandList, activeBrand] = await Promise.all([store.listBrandProfiles(LEGACY_USER_ID), getActiveBrand()]);
+  const [brandList, activeBrand] = await Promise.all([
+    store.listBrandProfiles(session.user.id),
+    getActiveBrand(),
+  ]);
   const activeBrandId = activeBrand?.id ?? null;
 
   // 스위처 각 행의 브랜드별 카운트(MAIN-01b) — 브랜드 수가 적어 브랜드당 스코핑 조회
