@@ -4,6 +4,8 @@
 
 import { NextResponse } from 'next/server';
 import { getStore } from '@/lib/db/store';
+import { getSession } from '@/lib/server/session';
+import { sessionOwnsBrand } from '@/lib/server/ownership';
 import { currentLlmMode } from '@/lib/engine/llm/client';
 import { currentImageMode } from '@/lib/studio/imageGen';
 
@@ -15,6 +17,10 @@ export async function GET(
   const store = await getStore();
   const asset = await store.getAsset(id);
   if (!asset) return NextResponse.json({ error: '썸네일을 찾을 수 없습니다.' }, { status: 404 });
+  // 소유 가드 — 비소유·게스트는 존재를 노출하지 않도록 not-found와 동일한 404로 응답
+  if (!(await sessionOwnsBrand(asset.brandProfileId, await getSession()))) {
+    return NextResponse.json({ error: '썸네일을 찾을 수 없습니다.' }, { status: 404 });
+  }
 
   return NextResponse.json({
     ...asset,
