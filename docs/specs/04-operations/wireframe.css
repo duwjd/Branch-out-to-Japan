@@ -373,7 +373,8 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 /* 금지 표현 칩 (BRAND-05b) — danger 색+글자+✕ 기호 3중 표기 */
 .ban-chip { display: inline-flex; align-items: center; gap: 6px; height: 27px; padding: 0 11px; border-radius: 9999px; background: var(--danger-bg); color: var(--danger-text); font-size: 12px; font-weight: 700; }
 
-/* 저장 바 (BRAND-06) — 본문 하단 sticky */
+/* 저장 바 (구 BRAND-06) — 2026-07-23 폐기. 저장은 모달 단위 즉시 저장으로
+   전환됐고 3-brand.html 마크업에서 제거됨. 클래스는 diff 최소화로 존치 */
 .save-bar {
   position: sticky; bottom: 0; z-index: 40;
   background: rgba(255, 255, 255, .94); backdrop-filter: blur(10px);
@@ -464,3 +465,78 @@ select.m-input { cursor: pointer; }
 .ab-input:focus { outline: none; border: 1.5px solid #70737c; }
 select.ab-input { cursor: pointer; }
 .ab-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }
+
+/* ════════════════════════════════════════════════════════════════════
+   ③ 운영(04) 확장 v3 — 브랜드 관리 조회 우선(view-first) 전환
+   2026-07-23 개편(기획서 # 3 개정 — BRAND-02b·03d·04b·04c·05d 신설).
+   조회 뷰(라벨:값 행·읽기 전용 칩)·연필 편집 버튼·채널 행 리스트·
+   JP 상태 배지·저장 status 토스트. 3-brand.html 전용.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 카드 헤더 — 제목 + 우측 연필 (BRAND-02·03c·05) */
+.kit-head { display: flex; align-items: flex-start; gap: 10px; }
+.kit-head .kit-desc { margin: 6px 0 0; font-size: 12px; color: var(--ink-mute); }
+.kit-edit {
+  flex: none; margin-left: auto;
+  width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--input-border); border-radius: 9px; background: #fff; color: #70737c;
+  cursor: pointer; font-family: inherit;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.kit-edit:hover { border-color: var(--coral); background: var(--coral-tint); color: var(--coral-strong); }
+
+/* 조회 뷰 라벨:값 행 (BRAND-02·03c·05c) — dl/dt/dd */
+.kv-list { margin: 14px 0 0; }
+.kv-row { display: grid; grid-template-columns: 128px 1fr; gap: 6px 14px; padding: 10px 0; border-bottom: 1px solid var(--n-150); margin: 0; }
+.kv-row:last-child { border-bottom: none; padding-bottom: 2px; }
+.kv-row dt { font-size: 12.5px; font-weight: 600; color: var(--ink-mute); padding-top: 1px; }
+.kv-row dd { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.kv-empty { color: var(--ink-faint); font-weight: 500; }
+
+/* 읽기 전용 칩 (BRAND-02 포지셔닝 · 조회 전용 — 클릭 동작 없음) */
+.chip-ro {
+  display: inline-flex; align-items: center; height: 27px; padding: 0 11px;
+  border-radius: 9999px; background: var(--coral-tint); border: 1px solid rgba(255, 100, 100, .32);
+  color: var(--coral-strong); font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+
+/* 채널 그룹·행 리스트 (BRAND-04) */
+.ch-group { margin-top: 18px; }
+.ch-head { display: flex; align-items: center; gap: 8px; }
+.ch-head h3 { margin: 0; font-size: 13px; font-weight: 700; color: var(--ink); }
+.ch-head .ch-n { font-size: 11.5px; font-weight: 700; color: #9ca0a8; background: var(--n-150); border-radius: 9999px; padding: 1px 8px; }
+.ch-list { margin-top: 4px; }
+.ch-row { display: flex; align-items: center; gap: 10px; padding: 11px 2px; border-bottom: 1px solid var(--n-150); font-size: 13px; }
+.ch-row:last-child { border-bottom: none; }
+.ch-name { flex: none; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.ch-url { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
+.ch-none { flex: 1; min-width: 0; font-size: 12px; color: var(--ink-faint); }
+.ch-acts { flex: none; margin-left: auto; display: inline-flex; gap: 2px; }
+/* JP 상태 배지 — 색+글자+기호(○/△) 3중 표기 */
+.ch-badge { flex: none; display: inline-flex; align-items: center; gap: 3px; height: 20px; padding: 0 8px; border-radius: 9999px; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+.ch-badge.b-sell { background: var(--green-bg); color: var(--green-text); }
+.ch-badge.b-goal { background: var(--amber-bg); color: var(--amber-text); }
+/* 그룹 빈 상태 — 안내 1줄 + 추가 버튼 유지 (BRAND-04 4a) */
+.ch-empty {
+  margin-top: 8px; padding: 14px 16px; border: 1px dashed rgba(112, 115, 124, 0.3);
+  border-radius: 10px; background: var(--n-50);
+  font-size: 12.5px; line-height: 1.6; color: var(--ink-mute);
+}
+
+/* 행 "수정" 텍스트 버튼 — .row-del 짝 (hover 중립. 삭제만 danger) */
+.row-edit { border: none; background: transparent; color: var(--ink-faint); font-size: 11.5px; font-weight: 600; font-family: inherit; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.row-edit:hover { background: var(--n-100); color: var(--ink); }
+
+/* 저장 status 토스트 (BRAND-06) — 모달 저장·행 삭제 안내 */
+.op-toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 28px; z-index: 95;
+  background: #202124; color: #fff; border-radius: 11px; padding: 11px 17px;
+  font-size: 12.5px; font-weight: 600; box-shadow: 0 8px 24px rgba(16, 18, 20, .24);
+  animation: toastIn .3s ease both;
+}
+
+@media (max-width: 760px) {
+  .kv-row { grid-template-columns: 1fr; gap: 2px; }
+  .ch-row { flex-wrap: wrap; }
+  .ch-acts { margin-left: 0; }
+}

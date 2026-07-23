@@ -41,6 +41,7 @@
       <button type="button" class="st-btn" data-st="generating" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">생성중</button>
       <button type="button" class="st-btn" data-st="loading" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">로딩</button>
       <button type="button" class="st-btn" data-st="error" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">오류</button>
+      <button type="button" class="st-btn" data-st="guest" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">비회원</button>
     </span>
     <span class="ex">비배포 · 기획 검토용</span>
   </div>
@@ -125,7 +126,7 @@
       <a id="pdfBtn" href="../01-report/3-report.html" class="hbtn hbtn-secondary" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;text-decoration:none;margin-bottom:10px">
         <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 12v6"/><path d="M9 15l3 3 3-3"/></svg>
         품의용 PDF</a>
-      <div style="position:relative">
+      <div id="memberAccount" style="position:relative">
         <button type="button" id="avBtn" aria-haspopup="menu" aria-expanded="false" aria-label="계정 메뉴"
           style="display:flex;width:100%;align-items:center;gap:9px;padding:7px 8px;border:none;border-radius:10px;background:transparent;font-family:inherit;cursor:pointer;text-align:left" class="sw-item">
           <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</span>
@@ -140,6 +141,8 @@
           <a href="../03-account/1-login.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">로그아웃</a>
         </div>
       </div>
+      <!-- MAIN-01e · 비회원(로그인 전) 변형 — 아바타 대신 로그인/가입 CTA (게스트 모드에서만 노출) -->
+      <a id="guestLoginCta" href="../03-account/1-login.html" style="display:none;align-items:center;justify-content:center;gap:7px;width:100%;height:40px;border:1px solid rgba(255,100,100,.4);border-radius:10px;background:#FFF8F8;color:#D93636;font-size:12.5px;font-weight:700;text-decoration:none">로그인 / 회원가입</a>
     </div>
   </aside>
 
@@ -147,6 +150,13 @@
   <div class="app-main">
     <main style="animation:fadeUp .45s ease both">
       <div style="max-width:960px;margin:0 auto;padding:0 32px 96px">
+
+        <!-- 비회원 열람 배너 (게스트 모드에서만 노출 — 03-account §3 GATE) -->
+        <div id="guestBanner" style="display:none;margin-top:20px;align-items:center;gap:10px;border:1px solid rgba(255,171,0,.4);background:#FFF9EC;border-radius:12px;padding:12px 16px">
+          <span aria-hidden="true" style="font-size:16px">👀</span>
+          <span style="flex:1;font-size:12.5px;line-height:1.55;color:#7A5B00">둘러보는 중입니다 — 리포트·썸네일을 생성하거나 브랜드를 저장하려면 로그인이 필요해요.</span>
+          <a href="../03-account/1-login.html" style="flex:none;font-size:12px;font-weight:700;color:#D93636;text-decoration:none">로그인 →</a>
+        </div>
 
         <!-- MAIN-07 · 로딩 스켈레톤 (밴드·위젯·스트립·자산 치수 유지) -->
         <div id="skelView" style="display:none;padding-top:40px" aria-hidden="true">
@@ -651,11 +661,29 @@
     if (e.key === 'Escape' && document.getElementById('abModal').style.display !== 'flex') closeMenus();
   });
 
+  // ── 비회원(게스트) 모드 토글 — 03-account §3 GATE. 셸 변형 + 게이트 데모용 ──
+  function setGuest(on) {
+    state.guest = on;
+    var b = document.getElementById('guestBanner'); if (b) b.style.display = on ? 'flex' : 'none';
+    var g = document.getElementById('guestLoginCta'); if (g) g.style.display = on ? 'flex' : 'none';
+    var m = document.getElementById('memberAccount'); if (m) m.style.display = on ? 'none' : 'block';
+  }
+  // 비회원이 생성·등록을 누를 때 뜨는 로그인 유도 모달 (GATE-00~03)
+  function openGate() {
+    var s = document.getElementById('gateScrim'); if (!s) return;
+    s.style.display = 'flex';
+    var c = document.getElementById('gateCancel');
+    if (c) c.onclick = function () { s.style.display = 'none'; }; // 취소 = 화면·입력값 유지 (GATE-03)
+    s.onclick = function (e) { if (e.target === s) s.style.display = 'none'; };
+  }
+
   // ── 검토용 상태 스위처 (MAIN-09 — 제품 UI 아님) ───────
   document.querySelectorAll('.st-btn').forEach(function (b) {
     b.onclick = function () {
       var st = b.getAttribute('data-st');
       clearInterval(state.timer);
+      if (st === 'guest') { setGuest(true); state.view = 'onboard'; state.counted = false; render(); return; }
+      setGuest(false);
       if (st === 'generating') { runJob(); return; }
       // brand 모드 리포트(MAIN-10b) — 기본 상태에서 요약 위젯만 점수 없는 판으로 바꿔 본다
       var brandMode = st === 'brandmode';
@@ -696,6 +724,7 @@
     name.addEventListener('input', syncOb);
     submit.onclick = function () {
       if (submit.disabled) return;
+      if (state.guest) { openGate(); return; } // 비회원 = 저장 직전 게이트 (GATE-00)
       state.view = 'first';
       state.counted = false;
       render();
@@ -755,6 +784,19 @@
       <button type="button" id="abKeep" class="hbtn hbtn-secondary" style="height:40px;padding:0 15px;border-radius:10px">계속 입력</button>
       <button type="button" id="abDrop" class="hbtn" style="height:40px;padding:0 15px;border:1px solid rgba(240,72,60,.4);border-radius:10px;background:#fff;color:#C6362C;font-weight:700">닫기</button>
     </div>
+  </div>
+</div>
+
+<!-- 로그인 유도(게이트) 모달 — 비회원이 생성·등록을 누를 때 (03-account §3 GATE). 데모: 표기용 -->
+<div id="gateScrim" class="ab-scrim" style="display:none;z-index:130">
+  <div class="ab-card" role="dialog" aria-modal="true" aria-labelledby="gateTitle" style="max-width:400px">
+    <h2 id="gateTitle" class="ab-title" style="font-size:18px">가입하고 이어서 진행하세요</h2>
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.6;color:rgba(55,56,60,0.7)">지금 입력한 내용은 그대로 유지됩니다. 로그인하거나 가입하면 방금 하려던 작업이 이어집니다.</p>
+    <div style="margin-top:18px;display:flex;flex-direction:column;gap:9px">
+      <a href="../03-account/1-login.html" style="display:flex;align-items:center;justify-content:center;height:46px;border-radius:11px;background:#FF6464;color:#fff;font-size:14px;font-weight:700;text-decoration:none">로그인 / 회원가입</a>
+      <button type="button" id="gateCancel" class="hbtn hbtn-secondary" style="height:44px;border-radius:11px">계속 둘러보기</button>
+    </div>
+    <p style="margin:14px 0 0;font-size:11.5px;line-height:1.55;color:#B6B8BF;text-align:center">소셜 3종 + 이메일로 로그인·가입할 수 있어요 · 무료 체커·샘플은 로그인 없이 계속 이용 가능</p>
   </div>
 </div>
 

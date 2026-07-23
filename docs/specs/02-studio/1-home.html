@@ -36,6 +36,10 @@
     <a href="2-result.html">2 결과</a>
     <a href="02-studio-ui-기획서.md">기획서 ↗</a>
     <!-- 데모 상태 스위처(빈 상태/기본/생성중)는 최근 생성 스트립 전용이었다 — 스트립 삭제와 함께 제거(2026-07-22) -->
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
+      <span>상태(검토용):</span>
+      <button type="button" class="st-btn" data-st="guest" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">비회원</button>
+    </span>
     <span class="ex">비배포 · 기획 검토용</span>
   </div>
 </div>
@@ -153,7 +157,7 @@
             <h2 style="margin:0;font-size:18px;font-weight:700;color:#202124">제품 이미지</h2>
             <span style="display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:9999px;background:#FFF8F8;border:1px solid rgba(255,100,100,.4);color:#D93636;font-size:11.5px;font-weight:700">필수 · 1장</span>
           </div>
-          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61);text-wrap:pretty">한국 썸네일 또는 제품 단독컷 1장이 필요합니다. 제품이 선명하고 가려지지 않아야 하며, 카피·뱃지가 있는 프로모 썸네일이어도 됩니다.</p>
+          <p style="margin:8px 0 0;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61);text-wrap:pretty">한국 썸네일 또는 제품 단독컷 1장이 필요합니다. 제품이 선명하고 가려지지 않아야 하며 카피·뱃지가 있는 프로모 썸네일이어도 됩니다.</p>
 
           <!-- HOME-02-0 · 소스 선택 탭 (2026-07-22 신설) -->
           <div id="srcTabs" role="tablist" aria-label="제품 이미지 소스" style="margin-top:18px;display:inline-flex;padding:3px;border-radius:10px;background:#F1F1F3;gap:2px">
@@ -189,7 +193,7 @@
               <div style="flex:1;min-width:220px">
                 <p id="pvSrc" style="display:none;margin:0 0 8px"><span class="src-label"><span aria-hidden="true">◈</span><span id="pvSrcText"></span></span></p>
                 <p style="margin:0;font-size:13.5px;font-weight:700;color:#202124;word-break:break-all"><span id="pvName"></span> <span id="pvSize" style="font-weight:500;color:rgba(55,56,60,0.61)"></span></p>
-                <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">프로모 썸네일이면 기존 한국어 오버레이(카피·뱃지·테두리)는 걷어내고, 일본 문법으로 재설계합니다.</p>
+                <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">프로모 썸네일이면 기존 한국어 오버레이(카피·뱃지·테두리)는 걷어내고 일본 문법으로 재설계합니다.</p>
                 <button type="button" id="replaceBtn" class="hbtn hbtn-secondary h-soft" style="margin-top:12px">다른 이미지 선택</button>
               </div>
             </div>
@@ -393,7 +397,7 @@
 
           <!-- 처리 방식 고지 — 팩 F constraints 의 UI 표면화 -->
           <p style="margin:14px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty">
-            업로드한 모델컷을 <b style="font-weight:700;color:#414245">그대로</b> 씁니다. 얼굴을 새로 만들거나 이목구비를 바꾸지 않고, 조명·색만 자연스럽게 맞춥니다.
+            업로드한 모델컷을 <b style="font-weight:700;color:#414245">그대로</b> 씁니다. 얼굴을 새로 만들거나 이목구비를 바꾸지 않고 조명·색만 자연스럽게 맞춥니다.
             근거가 없으면 그 요소는 넣지 않는다는 실적 배지와 같은 규칙입니다.
           </p>
           <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61);text-wrap:pretty">
@@ -558,7 +562,7 @@
   var chipOff = chipBase + 'background:#fff;border:1px solid rgba(112,115,124,0.28);color:#414245;font-weight:500';
   var chipOn = chipBase + 'background:#FFF8F8;border:1.5px solid #FF6464;color:#D93636;font-weight:700';
 
-  var state = { hasImage: false, isExample: false, fileName: '', fileSize: '', source: '', product: '', platform: '', tpl: '', hasModel: false };
+  var state = { hasImage: false, isExample: false, fileName: '', fileSize: '', source: '', product: '', platform: '', tpl: '', hasModel: false, guest: false };
   var $ = function (id) { return document.getElementById(id); };
 
   // ── 업로드 (HOME-02) ──────────────────────────────────
@@ -894,8 +898,25 @@
     else hint = '약 1~2분 걸립니다. 완료되면 결과 화면에 진행 상황이 표시됩니다.';
     $('hint').textContent = hint;
   }
+  // ── 비회원(게스트) 모드 — 03-account §3 GATE. 검토용 상태 스위처 전용, 기본은 회원 동작과 동일 ──
+  /** 비회원이 생성을 누를 때 뜨는 로그인 유도 모달 (GATE-00) */
+  function openGate() {
+    var s = document.getElementById('gateScrim'); if (!s) return;
+    s.style.display = 'flex';
+    var c = document.getElementById('gateCancel');
+    if (c) c.onclick = function () { s.style.display = 'none'; }; // 취소 = 화면·입력값 유지 (GATE-03)
+    s.onclick = function (e) { if (e.target === s) s.style.display = 'none'; };
+  }
+  document.querySelectorAll('.st-btn').forEach(function (b) {
+    b.onclick = function () {
+      var st = b.getAttribute('data-st');
+      state.guest = st === 'guest';
+    };
+  });
+
   $('submitBtn').onclick = function () {
     if (!canSubmit()) return;
+    if (state.guest) { openGate(); return; } // 비회원 = 생성 직전 게이트 (GATE-00)
     var sb = $('submitBtn');
     sb.textContent = '생성 시작 중…';
     sb.style.cursor = 'default';
@@ -1082,5 +1103,18 @@
   };
 })();
 </script>
+
+<!-- 로그인 유도(게이트) 모달 — 비회원이 생성을 누를 때 (03-account §3 GATE). 데모: 표기용 -->
+<div id="gateScrim" class="ab-scrim" style="display:none;z-index:130">
+  <div class="ab-card" role="dialog" aria-modal="true" aria-labelledby="gateTitle" style="max-width:400px">
+    <h2 id="gateTitle" class="ab-title" style="font-size:18px">가입하고 이어서 진행하세요</h2>
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.6;color:rgba(55,56,60,0.7)">지금 입력한 내용은 그대로 유지됩니다. 로그인하거나 가입하면 방금 하려던 작업이 이어집니다.</p>
+    <div style="margin-top:18px;display:flex;flex-direction:column;gap:9px">
+      <a href="../03-account/1-login.html" style="display:flex;align-items:center;justify-content:center;height:46px;border-radius:11px;background:#FF6464;color:#fff;font-size:14px;font-weight:700;text-decoration:none">로그인 / 회원가입</a>
+      <button type="button" id="gateCancel" class="hbtn hbtn-secondary" style="height:44px;border-radius:11px">계속 둘러보기</button>
+    </div>
+    <p style="margin:14px 0 0;font-size:11.5px;line-height:1.55;color:#B6B8BF;text-align:center">소셜 3종 + 이메일로 로그인·가입할 수 있어요 · 무료 체커·샘플은 로그인 없이 계속 이용 가능</p>
+  </div>
+</div>
 </body>
 </html>

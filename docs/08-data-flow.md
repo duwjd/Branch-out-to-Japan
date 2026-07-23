@@ -16,7 +16,7 @@
 
 | 액터 | 입력하는 것 | 받는 것 |
 |---|---|---|
-| **비로그인 방문자** | 카피 텍스트/URL + 제품분류 (무료 체커) | 위반 표현 후보 + 조항 근거 + 리포트 업셀 |
+| **비로그인 방문자 (비회원)** | 카피 텍스트/URL + 제품분류 (무료 체커) · **앱 화면(홈·리포트 입력폼·② 스튜디오 폼) 열람·작성** (2026-07-23) | 위반 표현 후보 + 조항 근거 + 리포트 업셀 · 생성·등록 시 로그인 유도(§3 GATE — `specs/03-account/03-account-ui-기획서`) |
 | **로그인 브랜드** | 브랜드 프로필(온보딩) · 진단 입력(브랜드 섹션 필수 + 제품 섹션 선택 — 리포트) · 이미지+플랫폼(썸네일) | 리포트 8블록(`brand` 모드는 블록 1·3·5·7 데이터 잠금)·PDF·보고용 슬라이드(모드별 7장/4장) · 일본향 썸네일 · 자산 라이브러리 |
 | **시스템(배치)** | 코퍼스 원천(`data/raw`) | 사전집계·렉시콘 등 grounding 자산(§2) |
 
@@ -35,7 +35,7 @@ flowchart TD
         SIGN --> BP["브랜드 프로필 등록 (4단계)<br/>브랜드·카테고리·제품분류·채널·자산"]
     end
 
-    subgraph APP["앱 영역 (로그인)"]
+    subgraph APP["앱 영역 (비회원 열람 가능 · 생성·등록은 로그인 후)"]
         BP -->|"브랜드 섹션 프리필"| FORM["① 진단 입력폼<br/>브랜드 필수 · 제품 선택"]
         FORM -->|"source 유무 → 모드 판정"| PIPE["리포트 생성 파이프라인 (§3·§4)<br/>brandProduct: 규칙 + LLM 4콜<br/>brand: 콜③ + 벤치마크(코퍼스 측)"]
         PIPE -->|"성공 = 발행"| RPT["리포트 8블록 뷰 + PDF"]
@@ -60,7 +60,7 @@ flowchart TD
 ```
 
 - 근거: [[07-ia]] §4(사이트맵)·§7(공통 엔티티)·§8(유저 플로우)를 데이터 관점으로 재구성.
-- 무료→로그인 경계: 체커는 비로그인 3회(§6 `CheckerRun`), 리포트 발행 시점에 가입·온보딩 유도.
+- **비회원 열람 + 실행 직전 게이트(2026-07-23 개편)**: 체커·샘플은 비로그인(§6 `CheckerRun`). 더해 비회원도 앱 화면(홈·리포트 입력폼·② 스튜디오 폼)을 열람·작성할 수 있고, **리포트 생성·썸네일 생성·브랜드 등록 직전에만 로그인 유도**(정본 `specs/03-account/03-account-ui-기획서` §3 GATE). 이전 "리포트 발행 시점 유도"를 대체 — 로그인 벽이 진입 시점 → 실행 시점으로 이동.
 
 ---
 
@@ -538,6 +538,7 @@ erDiagram
         uuid id PK
         string email
         string passwordHash
+        boolean emailVerified
         timestamptz createdAt
     }
     BRAND_PROFILE {
@@ -614,7 +615,7 @@ erDiagram
 - `LlmCallLog.requestBody`는 원문 저장이 원칙(재현성). 저장량 우려 시 system 프리픽스는 해시로 대체 가능.
 
 **스프린트 2 구현 확정 델타 (2026-07-21 — ② 실생성·③ 운영·목 세션):**
-- **`User` 엔티티는 이번 스프린트에 만들지 않는다** — 인증은 목 세션(httpOnly 쿠키 1개, 값 = provider 이름, 데모 유저 1명 하드코딩). 어떤 엔티티에도 `userId`를 두지 않는다 — Supabase Auth 도입 시 일괄 마이그레이션이 더 싸다.
+- **`User` 엔티티는 이번 스프린트에 만들지 않는다** — 인증은 목 세션(httpOnly 쿠키 1개, 값 = provider 이름, 데모 유저 1명 하드코딩). 어떤 엔티티에도 `userId`를 두지 않는다 — Supabase Auth 도입 시 일괄 마이그레이션이 더 싸다. ※ **스펙(2026-07-23)은 이메일/비밀번호 가입·로그인을 병행**하므로 `User`에 `email`·`passwordHash`·`emailVerified`가 실사용된다(§6.1 ER 반영). 다만 **실 인증(소셜 OAuth·이메일 메일 발송·`users` 테이블·비회원 열람 게이트) 구현은 잔여** — 목 세션은 그대로 유지하고 Auth 도입 시 함께 마이그레이션.
 - **`BrandProfile`은 싱글턴(id='default')** — 다중 브랜드 (미정)이므로 1브랜드 전제. `brandKitJson` 예약 필드를 실구현하고(`brandKit`), `productClass`에 `건강식품` 포함(§6.1 ER 그대로), `detailDocPath`+`detailDocName`(업로드 파일 fileId·원본 파일명).
 - **`GeneratedAsset` 확장 확정**(② 기획서 델타 2건 채택): `status`(generating|done|failed) · `stage`(진행 단계) · `error` · `explanationJson`(콜⑥ 산출 — §4.7) · `originalImagePath`(원본 fileId) · `proof`(실적 3필드 스냅샷) · `brandNameSnapshot`(제출 시점 브랜드명 물질화 — `tierInput` 스냅샷 원칙과 동일). 실패물은 `status=failed`로 남되 라이브러리는 `done`만 조회(“검수 게이트 통과분만 자산” 원칙의 status 필터 구현).
 - **`GeneratedAsset` 조건 입력 델타 3건 (2026-07-22 — ② 기획서 HOME-02b·05b 채택)**: `modelImagePath`(모델컷 fileId · F 전용 · nullable) · `modelConsent`(사용 권한 동의 여부 boolean — 동의 사실을 자산에 함께 보존해 사후 추적 가능) · `promoInput`(G 전용 · nullable · `{ setTitle, salePrice, normalPrice, normalPriceVerified, discountRate, gift, qualifierChips, footnote }`). 셋 다 **제출 시점 스냅샷**이며 이후 수정 불소급(`brandNameSnapshot` 원칙과 동일). Supabase는 `model_image_path text` · `model_consent boolean not null default false` · `promo_input jsonb` 3열 추가.
@@ -649,7 +650,7 @@ erDiagram
 | 무료 약기법 체커 (`public-onboarding`) | `CheckerRun`(anonKey 횟수) | `CheckerRun` + `LlmCallLog` | §4.6 콜 |
 | 샘플 리포트 미리보기 (`public-onboarding`) | — (정적 샘플 = cica 정본) | — | 블록7 부분 잠금(veil) |
 | 요금 (`public-onboarding`) | — (정적) | — | |
-| 로그인/회원가입 (`public-onboarding`) | `User` | `User` | Supabase Auth |
+| 로그인/회원가입 (소셜 3종 + 이메일 · `specs/03-account`) | `User` | `User`(email·passwordHash·emailVerified) | Supabase Auth(OAuth + 이메일/비번) · 실 구현 잔여(목 세션) |
 | 브랜드 프로필 등록 4단계 (`public-onboarding`) | `User` | `BrandProfile` | 완료 시 리포트 폼으로 프리필(§3.1) |
 | 홈/마이페이지 (`app`) | `BrandProfile`·`Product`(제안)·`Report`(`overallScore`·`groupScores`·`top3`)·`GeneratedAsset`·`DiagnosisRequest.status`·시즌 상수 | `BrandProfile`(브랜드 추가 모달에서 신규 생성 시에만) | 메뉴명 "홈"(2026-07-22 — 구 "대시보드"). 위젯 3종(⓪ MAIN-10~12)은 **재조회 전용**. 브랜드 편집 정본은 ③ 브랜드 관리 — 홈에서는 조회만 |
 | ① 진단 입력폼 — 브랜드 필수/제품 선택 (`report`) | `BrandProfile`(프리필) | `DiagnosisRequest` | 50자 게이트는 클라이언트(텍스트 제출 시에만 — `source` 미제출은 `brand` 모드 제출. 정의 = `lib/engine/rules/gates.ts`) |

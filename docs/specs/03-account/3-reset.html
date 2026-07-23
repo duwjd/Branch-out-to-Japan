@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>계정 · 비밀번호 재설정</title>
+<!--
+  비배포 · 기획 검토용 인터랙티브 프로토타입.
+  정본: 03-account-ui-기획서.md # 1. 로그인 (LOGIN-10 비밀번호 찾기·재설정)
+  이메일의 재설정 링크(/reset-password?token=)로 도달하는 "새 비밀번호 설정" 랜딩.
+  셸 없는 단독 화면(센터 카드 1장). 데모: 토큰 검증·저장 미연동 — 상태 스위처로
+  기본/성공/만료를 시연한다. 화면 속 계정·수치는 전부 목업.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<!-- 프로토타입 검토 스트립 + 데모 상태 스위처 -->
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">계정 · 프로토타입</span>
+    <a href="index.html">플로우</a>
+    <a href="1-login.html">로그인</a>
+    <a href="3-reset.html" class="on">비번 재설정</a>
+    <a href="2-mypage.html">마이페이지</a>
+    <a href="03-account-ui-기획서.md">기획서 ↗</a>
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding-left:10px;border-left:1px solid #EBEBEB">
+      <span>상태(검토용):</span>
+      <button type="button" class="st-btn" data-st="default" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">기본</button>
+      <button type="button" class="st-btn" data-st="done" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">변경 완료</button>
+      <button type="button" class="st-btn" data-st="expired" style="border:1px solid #EBEBEB;background:#fff;border-radius:5px;padding:2px 7px;font-size:11px;font-family:inherit;cursor:pointer;color:#70737C">링크 만료</button>
+    </span>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<!-- 셸 없는 단독 화면 — 센터 카드 -->
+<main style="min-height:calc(100vh - 35px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px 64px;background-image:radial-gradient(900px 380px at 50% -60px, rgba(255,100,100,.05), transparent);background-repeat:no-repeat">
+
+  <section aria-label="비밀번호 재설정" style="width:100%;max-width:400px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px 32px 30px;box-shadow:0 1px 3px rgba(16,18,20,.04);animation:fadeUp .45s ease both">
+    <span class="app-wordmark" style="font-size:22px">KGLOW<span>.</span></span>
+
+    <!-- 기본: 새 비밀번호 설정 폼 -->
+    <div id="formView">
+      <h1 style="margin:18px 0 0;font-size:22px;font-weight:800;letter-spacing:-0.02em;line-height:1.3;color:#202124">새 비밀번호 설정</h1>
+      <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">계정에 사용할 새 비밀번호를 입력해 주세요.</p>
+      <form id="resetForm" style="margin-top:22px;text-align:left" onsubmit="return false">
+        <label class="ab-label" for="rs-pw">새 비밀번호</label>
+        <input class="ab-input" id="rs-pw" type="password" autocomplete="new-password" placeholder="8자 이상" />
+        <label class="ab-label" for="rs-pw2" style="margin-top:12px">새 비밀번호 확인</label>
+        <input class="ab-input" id="rs-pw2" type="password" autocomplete="new-password" placeholder="비밀번호 다시 입력" />
+        <p id="rs-err" class="ab-err" style="display:none">비밀번호가 일치하지 않습니다(8자 이상).</p>
+        <button type="submit" style="margin-top:18px;width:100%;height:48px;border:none;border-radius:11px;background:#ff6464;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer">비밀번호 변경</button>
+      </form>
+    </div>
+
+    <!-- 변경 완료 -->
+    <div id="doneView" style="display:none;text-align:center">
+      <div style="display:flex;justify-content:center;margin:8px 0 4px">
+        <span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:rgba(52,168,83,.12);color:#1E8E3E;font-size:26px">✓</span>
+      </div>
+      <h1 style="margin:10px 0 0;font-size:21px;font-weight:800;letter-spacing:-0.02em;color:#202124">비밀번호가 변경되었습니다</h1>
+      <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">새 비밀번호로 다시 로그인해 주세요.</p>
+      <a href="1-login.html" style="display:flex;align-items:center;justify-content:center;margin-top:22px;width:100%;height:48px;border-radius:11px;background:#ff6464;color:#fff;font-size:14.5px;font-weight:700;text-decoration:none">로그인하러 가기</a>
+    </div>
+
+    <!-- 링크 만료·무효 -->
+    <div id="expiredView" style="display:none;text-align:center">
+      <div style="display:flex;justify-content:center;margin:8px 0 4px">
+        <span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:#FFF6E5;color:#B96C00;font-size:26px">△</span>
+      </div>
+      <h1 style="margin:10px 0 0;font-size:21px;font-weight:800;letter-spacing:-0.02em;color:#202124">링크가 만료되었습니다</h1>
+      <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">재설정 링크는 일정 시간 후 만료됩니다.<br>다시 요청해 주세요.</p>
+      <a href="1-login.html" style="display:flex;align-items:center;justify-content:center;margin-top:22px;width:100%;height:48px;border-radius:11px;background:#ff6464;color:#fff;font-size:14.5px;font-weight:700;text-decoration:none">재설정 메일 다시 요청</a>
+    </div>
+  </section>
+
+  <p style="margin:18px 0 0;font-size:12.5px">
+    <a href="1-login.html" style="color:rgba(55,56,60,0.61);text-decoration:none">← 로그인으로</a>
+  </p>
+</main>
+
+<script>
+/**
+ * 비밀번호 재설정 (LOGIN-10) — 새 비밀번호 폼 → 목 제출 → 완료.
+ * 실제 토큰 검증·저장은 미연동. 상태 스위처로 기본/완료/만료를 시연한다.
+ */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function show(view) {
+    $('formView').style.display = view === 'form' ? 'block' : 'none';
+    $('doneView').style.display = view === 'done' ? 'block' : 'none';
+    $('expiredView').style.display = view === 'expired' ? 'block' : 'none';
+  }
+  $('resetForm').addEventListener('submit', function () {
+    var pw = $('rs-pw').value, pw2 = $('rs-pw2').value;
+    if (pw.length < 8 || pw !== pw2) { $('rs-err').style.display = 'block'; return; }
+    $('rs-err').style.display = 'none';
+    show('done');
+  });
+  document.querySelectorAll('.st-btn').forEach(function (b) {
+    b.onclick = function () {
+      var st = b.getAttribute('data-st');
+      show(st === 'done' ? 'done' : st === 'expired' ? 'expired' : 'form');
+    };
+  });
+})();
+</script>
+</body>
+</html>

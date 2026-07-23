@@ -13,7 +13,7 @@
 |---|---|
 | 프레임워크 | Next.js(App Router) · TypeScript · Tailwind · npm — 저장소 루트 = 앱 루트 (CLAUDE.md 확정) |
 | 스캐폴딩 | `create-next-app` 후 **기존 자산 병합 유지**: `package.json`의 `crawl:*`·`build:lexicon` 스크립트, `@anthropic-ai/sdk`·`playwright` devDeps, `scripts/`·`data/` 그대로 |
-| 저장·인증·파일 | Supabase (Postgres + Auth + Storage) — 엔티티는 [[08-data-flow]] §6. **스프린트 2 잠정(2026-07-21):** 인증 = **목 세션**(실 OAuth 미연동 — §4b M5), 파일 = **로컬 `.data/files/` 우선**(`/api/files/[id]` 서빙, DB에는 fileId만 — Supabase Storage 전환 경계 유지, 08 §6.2) |
+| 저장·인증·파일 | Supabase (Postgres + Auth + Storage) — 엔티티는 [[08-data-flow]] §6. **스프린트 2 잠정(2026-07-21):** 인증 = **목 세션**(실 OAuth·이메일 인증 미연동 — §4b M5), 파일 = **로컬 `.data/files/` 우선**(`/api/files/[id]` 서빙, DB에는 fileId만 — Supabase Storage 전환 경계 유지, 08 §6.2). **스펙(2026-07-23)은 소셜 3종 + 이메일/비밀번호 병행 · 비회원 열람 + 실행 직전 게이트로 확대**(구현 잔여 — `specs/03-account/03-account-ui-기획서` §1·§3) |
 | 시크릿 | `.env`(비커밋) + `.env.example`에 키 이름 문서화: `ANTHROPIC_API_KEY` · `LLM_MODE`(mock 강제) · `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` · (② 스프린트 2) `OPENAI_API_KEY`(없으면 이미지 목 모드) · `IMAGE_MODE`(mock 강제) · `OPENAI_IMAGE_MODEL`(기본값 코드 상수 — 무배포 교체용) · `OPENAI_IMAGE_QUALITY`(기본 medium — 개발 비용 절약) |
 | 로컬 검증 | `npm run typecheck` 기본. ⚠ 한글 경로 머신은 대용량 JS 실행이 차단됨 — **영문 경로 미러(`C:\dev\jgs-run`)에서 실행** ([CONTRIBUTING 트러블슈팅](../CONTRIBUTING.md)) |
 | 테스트 | **node 내장 러너**(`npm run test` = tsc 컴파일 → `node --test`) — vitest/tsx는 esbuild 네이티브가 한글 경로에서 차단되어 제외(2026-07-09 규명). typescript는 5.x 고정(7은 네이티브) |
@@ -28,7 +28,9 @@
 | `/checker` | 무료 약기법 체커 | ① stretch | `public-onboarding` §2 |
 | `/sample-report` | 샘플 리포트(정적) | ① stretch | `public-onboarding` §3 |
 | `/pricing` | 요금(정적) | ① stretch | `public-onboarding` §4 |
-| `/login` | 로그인 — 소셜 3종(카카오·네이버·구글) **목 세션**(실 OAuth 미연동 — 스프린트 2 결정) | 스프린트 2 M5 | `specs/03-account/1-login.html` |
+| `/login` | 로그인 — 소셜 3종 + **이메일/비밀번호(가입·로그인)** **목 세션**(실 OAuth·메일 미연동 — 소셜은 스프린트 2, 이메일은 2026-07-23 스펙) | 스프린트 2 M5 | `specs/03-account/1-login.html` |
+| `/verify-email` | 이메일 인증 링크 랜딩(`?token=`) — 성공/만료 (LOGIN-09) | 스프린트 2 M5 (스펙 · 구현 잔여) | `specs/03-account/1-login.html` 내 상태 |
+| `/reset-password` | 비밀번호 재설정 링크 랜딩(`?token=`) — 새 비번 설정 (LOGIN-10) | 스프린트 2 M5 (스펙 · 구현 잔여) | `specs/03-account/3-reset.html` |
 | `/onboarding` | 브랜드 프로필 4단계 | 보류 — `/app` no-brand firstRun(첫 브랜드 캡처)이 대체 · 편집은 `/app/brand`가 정본 | `public-onboarding` §6 |
 | `/app` | 홈 — no-brand 온보딩(첫 브랜드 캡처 MAIN-13) · 첫 방문 셋업 가이드(MAIN-06) · 복귀 위젯(MAIN-10~12) 상태 변형 | 2차(M11) | `specs/00-main/1-home.html` |
 | `/app/account` | 마이페이지(계정 정보·플랜 목업·브랜드 요약·로그아웃) | 스프린트 2 M8 | `specs/03-account/2-mypage.html` |
@@ -45,7 +47,7 @@
 
 **서버 경계(①분):** 진단 제출 `POST /api/report` → **진단 모드 판정(제출 경계에서 서버가 1회: `source` 유무 → `tierInput.mode` — 08 §3.2)** → 잡 실행(성공 = 발행 · `brand` 모드는 stages `persona → benchmark → assemble`로 짧게 완주, **콜③ 실패 = 잡 실패**) · 상태 폴링 `GET /api/report/[id]/status` · PDF `GET /api/report/[id]/pdf` · **보고용 슬라이드 `GET /api/report/[id]/slides`**(동기 라우트 — 콜⑤ + 렌더 후 단일 HTML 응답, `published`만 허용·그 외 409. 08 §4.5 · 스펙 §10) · 체커 `POST /api/checker`(stretch). Server Component 기본, 폼·폴링만 `"use client"`.
 
-**서버 경계(스프린트 2분 · 2026-07-21):** 목 세션 `POST /api/auth/login`(provider → httpOnly 쿠키 1개) · `POST /api/auth/logout` — 인증 가드는 `app/app/layout.tsx` 서버 레이아웃 1곳(middleware 없음). 파일 `POST 업로드는 각 기능 라우트의 FormData` · `GET /api/files/[id]`(로컬 `.data/files/` 서빙 — fileId만 노출, 경로 탈출 검증). ② 썸네일 `POST /api/studio/thumbnail`(FormData: 원본 이미지·플랫폼·템플릿·실적 3필드 → 잡 킥오프, `after()`) · `GET /api/studio/thumbnail`(모드 메타 + 최근 자산 — dev 배지·홈 스트립) · `GET /api/studio/thumbnail/[id]`(폴링 겸 결과 — status 전용 라우트 분리하지 않음). ③ 브랜드 `GET·PUT /api/brand` + `POST /api/brand/doc`(상세페이지 문서 업로드) · 매칭 `GET·POST·DELETE /api/matching`.
+**서버 경계(스프린트 2분 · 2026-07-21):** 목 세션 `POST /api/auth/login`(provider → httpOnly 쿠키 1개) · `POST /api/auth/logout` — 인증 가드는 `app/app/layout.tsx` 서버 레이아웃 1곳(middleware 없음). **스펙 개편(2026-07-23): 비로그인 `/app` 열람 허용(전역 리다이렉트 제거) + 리포트·썸네일 생성·브랜드 등록 액션에서만 로그인 유도 — 구현 시 가드를 액션 경계(생성·등록 API 401 → 프론트 게이트 모달)로 이동. 실 구현 잔여.** 파일 `POST 업로드는 각 기능 라우트의 FormData` · `GET /api/files/[id]`(로컬 `.data/files/` 서빙 — fileId만 노출, 경로 탈출 검증). ② 썸네일 `POST /api/studio/thumbnail`(FormData: 원본 이미지·플랫폼·템플릿·실적 3필드 → 잡 킥오프, `after()`) · `GET /api/studio/thumbnail`(모드 메타 + 최근 자산 — dev 배지·홈 스트립) · `GET /api/studio/thumbnail/[id]`(폴링 겸 결과 — status 전용 라우트 분리하지 않음). ③ 브랜드 `GET·PUT /api/brand` + `POST /api/brand/doc`(상세페이지 문서 업로드) · 매칭 `GET·POST·DELETE /api/matching`.
 
 ## 3. 모듈 구조
 
@@ -132,6 +134,7 @@ scripts/
 
 ### M5 · 기반 — 세션·셸·파일 저장·스토어 확장
 - [ ] 목 로그인: `lib/server/session.ts`(데모 유저 1명 하드코딩 + `getSession()`) · `POST /api/auth/login|logout` · `/login` 화면(소셜 3종 버튼 — 클릭 = 쿠키 발급) · `app/app/layout.tsx` 가드(비로그인 → `/login`). **middleware·User 엔티티·Supabase Auth 만들지 않는다**
+  - ※ **스펙(2026-07-23)은 소셜+이메일 병행 · 비회원 열람 + 실행 직전 게이트로 확대**됐다. 이 M5 목 구현 범위는 **소셜 목 세션 그대로 유지**하고, 이메일 인증·비회원 열람 게이트(전역 가드 완화 → 생성·등록 액션 게이트)는 **후속(구현 잔여)** — 스펙 정본 `specs/03-account/03-account-ui-기획서` §1·§3
 - [ ] `components/app/AppShell.tsx` 사이드바 셸(3축 내비·운영 아코디언·계정 행) + `/app` → `/app/library` 리다이렉트
 - [ ] `lib/files/storage.ts`(saveFile·readStoredFile 2함수) + `GET /api/files/[id]`
 - [ ] `lib/db/store.ts` 인터페이스 확장(BrandProfile 싱글턴·GeneratedAsset·MatchRequest + list 조회) + fileStore·supabaseStore 구현
@@ -190,7 +193,7 @@ scripts/
 - **DoD:** `.data/` 비운 상태 로그인 → 첫 브랜드 캡처 → 4단계 가이드. 리포트 발행 → 복귀 뷰 위젯(MAIN-10/11/12) 렌더 · brand 모드 리포트 요약 "종합점수 없음" 분기. 리포트 프리필 동작. `Product` 엔티티는 범위 밖(제품 단계 proxy). `npm run typecheck && npm test` 통과
 
 ### 하지 말 것 (과설계 차단 — 스프린트 2)
-middleware.ts / User 엔티티·실 OAuth / ⓪ 대시보드(KPI·히어로·브랜드 스위처 — **2차 M11에서 홈·위젯 해소**) / 하이브리드 오버레이(sharp·canvas) / 비전 자동검수 / FileStorage 추상 인터페이스 / 잡 큐 / status 전용 라우트 분리 / 결제·탈퇴 백엔드·자산 삭제·다중 브랜드·페이지네이션 / 라이브러리 실시간 폴링·시즌 타임라인 실데이터 / 기존 리포트 v6 개정 착수 / `wireframe.css` 클래스 이식(Tailwind로 재구성)
+middleware.ts / User 엔티티·실 OAuth·이메일 인증·비회원 열람 게이트(**스펙엔 있으나 2026-07-23 개편분은 이 스프린트 구현 대상 아님** — 목 소셜 세션 유지) / ⓪ 대시보드(KPI·히어로·브랜드 스위처 — **2차 M11에서 홈·위젯 해소**) / 하이브리드 오버레이(sharp·canvas) / 비전 자동검수 / FileStorage 추상 인터페이스 / 잡 큐 / status 전용 라우트 분리 / 결제·탈퇴 백엔드·자산 삭제·다중 브랜드·페이지네이션 / 라이브러리 실시간 폴링·시즌 타임라인 실데이터 / 기존 리포트 v6 개정 착수 / `wireframe.css` 클래스 이식(Tailwind로 재구성)
 
 **M10 추가분** — 모델컷 계약서 업로드·사용 기간 관리(동의는 체크박스 자기 신고까지) / 모델컷 다건·배리에이션 그리드 / 쿠폰 조건부 가격 계산·검증(각주 문자열까지) / 가격 텍스트의 코드 오버레이(하이브리드) — 전부 (추후 기획)
 

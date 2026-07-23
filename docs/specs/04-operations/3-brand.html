@@ -6,13 +6,18 @@
 <title>③ 운영 · 3. 브랜드 관리</title>
 <!--
   비배포 · 기획 검토용 인터랙티브 프로토타입.
-  정본: 04-operations-ui-기획서.md # 3. 브랜드 관리 (BRAND-00~09 · 07.21 신설)
-  브랜드 킷 편집 정본 화면 — 생성 입력 허브. 온보딩 = 최초 생성만, 마이페이지 = 조회 요약만(MYPAGE-06 델타).
+  정본: 04-operations-ui-기획서.md # 3. 브랜드 관리 (BRAND-00~10 · 2026-07-23 view-first 개정)
+  조회 우선(view-first) 화면 — 진입 시 4개 섹션 카드가 읽기 전용 조회 뷰.
+  편집은 연필 버튼 → 편집 모달(프로필 02b · 공통 메모 03d · 용어집·톤 5d),
+  컬렉션(제품 03b · 채널 04b)은 「＋ 추가」 + 행 클릭 → 항목 모달.
+  저장은 모달 단위 즉시 저장 — 전역 저장 바 폐기(BRAND-06 개정).
+  채널은 국내/일본 다건 행 리스트(BRAND-04 전면 개편 — JP 상태 진출 목표 △/판매 중 ○).
   킷 수정은 발행된 리포트에 소급되지 X — 진단 원본은 tierInput 스냅샷(08-data-flow §6).
   생성 자동 참조는 계약 제안 상태(BRAND-09) — "반영됩니다" 단정 카피 쓰지 X.
   데모 값은 전부 기존 자산 재사용(새 카피 발명 금지):
     포지셔닝 16종 = lib/engine/rules/positioning.ts · 금지 표현 = jp-detail-message-patterns.md §3-2·A3
     제품명 표기 = 목업 썸네일(トーンアップUV)·리포트 샘플(CICA 앰플) 유래.
+    채널 = 기존 스마트스토어 URL + 구 FILLED.jp(Qoo10·라쿠텐) 유래.
   검토 스트립의 상태 스위처(기본/미작성)는 프로토타입 검토 전용 — 제품 UI 아님.
 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
@@ -128,11 +133,11 @@
 
   <div class="app-main">
 
-  <!-- 3. 브랜드 관리 (BRAND-00~09) -->
+  <!-- 3. 브랜드 관리 (BRAND-00~10 · 2026-07-23 view-first) -->
   <main style="flex:1;animation:fadeUp .45s ease both">
-    <div style="max-width:1120px;margin:0 auto;padding:44px 24px 0">
+    <div style="max-width:1120px;margin:0 auto;padding:44px 24px 64px">
 
-      <!-- BRAND-01 · 상단 영역 (primary는 하단 저장 바의 「저장」 1개) -->
+      <!-- BRAND-01 · 상단 영역 (조회 화면에 primary 없음 — primary는 각 편집 모달의 「저장」) -->
       <div>
         <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 운영</p>
         <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">브랜드 관리</h1>
@@ -141,40 +146,29 @@
 
       <div style="max-width:760px;margin-top:28px;display:flex;flex-direction:column;gap:16px">
 
-        <!-- BRAND-02 · 브랜드 프로필 -->
+        <!-- BRAND-02 · 브랜드 프로필 (조회) -->
         <section class="kit-card" aria-labelledby="profileTitle">
-          <h2 id="profileTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">브랜드 프로필</h2>
-          <p style="margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">수정해도 이미 발행된 리포트는 바뀌지 않습니다 — 다음 진단·생성부터 반영됩니다.</p>
-          <div class="rwrap" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
-            <div>
-              <label class="kit-label" for="fBrand">브랜드명 <span style="color:#D93636">*</span></label>
-              <input id="fBrand" class="kit-input f-input" type="text" value="하루온 HARUON" />
-            </div>
-            <div>
-              <label class="kit-label" for="fCategory">카테고리 <span style="color:#D93636">*</span></label>
-              <select id="fCategory" class="kit-input f-input">
-                <option selected>스킨케어</option><option>메이크업</option><option>선케어</option><option>클렌징</option>
-              </select>
-            </div>
-            <div>
-              <label class="kit-label" for="fClass">제품분류</label>
-              <select id="fClass" class="kit-input f-input">
-                <option selected>화장품</option><option>의약외품</option><option>건강식품</option><option>미상</option>
-              </select>
-            </div>
+          <div class="kit-head">
+            <h2 id="profileTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">브랜드 프로필</h2>
+            <button type="button" id="pfEdit" class="kit-edit" aria-label="브랜드 프로필 수정">
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            </button>
           </div>
-          <fieldset style="margin:16px 0 0;border:none;padding:0">
-            <legend class="kit-label" style="margin-bottom:2px">포지셔닝 태그 <span style="font-weight:600;color:rgba(55,56,60,0.61)">1~5개 선택 · <span id="posCount" class="tnum">0</span>/5</span></legend>
-            <p style="margin:0 0 8px;font-size:11.5px;color:#B6B8BF">① 진단 입력폼과 같은 목록입니다. 저장하면 다음 진단에서 미리 채워집니다.</p>
-            <div id="posChips" style="display:flex;flex-wrap:wrap;gap:7px"></div>
-          </fieldset>
-          <div style="margin-top:16px">
-            <label class="kit-label" for="fTarget">타깃 메모 <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
-            <textarea id="fTarget" class="kit-area f-input" rows="2" placeholder="일본에서 만나고 싶은 고객을 자유롭게 적어 주세요"></textarea>
+          <dl class="kv-list">
+            <div class="kv-row"><dt>브랜드명</dt><dd id="pvName"></dd></div>
+            <div class="kv-row"><dt>카테고리</dt><dd id="pvCat"></dd></div>
+            <div class="kv-row"><dt>제품분류</dt><dd id="pvCls"></dd></div>
+            <div class="kv-row"><dt>포지셔닝 태그</dt><dd id="pvPos" style="display:flex;flex-wrap:wrap;gap:6px"></dd></div>
+            <div class="kv-row"><dt>타깃 메모</dt><dd id="pvTarget"></dd></div>
+          </dl>
+          <!-- BRAND-07 · 빈 상태 채움 유도 (필수값만 있을 때) -->
+          <div id="pfBlank" style="display:none;margin-top:14px;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border:1px dashed rgba(112,115,124,0.3);border-radius:10px;background:#FAFAFB">
+            <p style="flex:1;min-width:200px;margin:0;font-size:12.5px;color:rgba(55,56,60,0.61)">채우면 진단·생성 정확도가 올라갑니다.</p>
+            <button type="button" id="pfWrite" class="hbtn hbtn-secondary h-soft">작성하기</button>
           </div>
         </section>
 
-        <!-- BRAND-03 · 제품 자산 (제품 단위 CRUD · 2026-07-22 전면 개정) -->
+        <!-- BRAND-03 · 제품 자산 (제품 단위 CRUD — 그리드가 곧 조회 뷰) -->
         <section class="kit-card" aria-labelledby="productTitle">
           <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
             <h2 id="productTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">제품</h2>
@@ -191,68 +185,97 @@
             <button type="button" id="prodAddEmpty" class="hbtn hbtn-secondary h-soft" style="margin-top:14px">＋ 제품 추가</button>
           </div>
 
-          <!-- 3c · 브랜드 공통 메모·문서 (구 BRAND-03 존치분) -->
-          <div style="margin-top:22px;padding-top:20px;border-top:1px solid #F1F1F3">
-            <label class="kit-label" for="fProduct">브랜드 공통 메모 <span style="font-weight:600;color:#B6B8BF">(제품별로 나누기 어려운 내용)</span></label>
-            <textarea id="fProduct" class="kit-area f-input" rows="2" placeholder="브랜드 전체에 해당하는 특징·처방 방향을 적어 주세요"></textarea>
-            <p id="productHint" style="display:none;margin:8px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">채우면 진단·생성 정확도가 올라갑니다.</p>
-            <div id="docRow" style="margin-top:12px;display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;background:#FAFAFB">
-              <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-              <span id="docName" style="flex:1;font-size:12.5px;font-weight:600;color:#202124">하루온-상세페이지.pdf</span>
-              <span style="font-size:11px;color:#B6B8BF">재업로드 (추후 기획)</span>
+          <!-- 3c · 브랜드 공통 메모·문서 (조회) — 연필 → BRAND-03d 편집 모달 -->
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid #F1F1F3">
+            <div class="kit-head">
+              <div style="flex:1;min-width:0">
+                <h3 style="margin:0;font-size:13px;font-weight:700;color:#202124">브랜드 공통 메모·문서</h3>
+                <p class="kit-desc">제품별로 나누기 어려운 내용을 적는 자리입니다.</p>
+              </div>
+              <button type="button" id="mmEdit" class="kit-edit" aria-label="브랜드 공통 메모 수정" style="width:30px;height:30px">
+                <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              </button>
+            </div>
+            <dl class="kv-list" style="margin-top:8px">
+              <div class="kv-row"><dt>공통 메모</dt><dd id="mvMemo"></dd></div>
+              <div class="kv-row" id="mvDocRow"><dt>상세페이지 문서</dt><dd id="mvDoc" style="display:flex;align-items:center;gap:7px"></dd></div>
+            </dl>
+            <div id="mmBlank" style="display:none;margin-top:12px;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border:1px dashed rgba(112,115,124,0.3);border-radius:10px;background:#FAFAFB">
+              <p style="flex:1;min-width:200px;margin:0;font-size:12.5px;color:rgba(55,56,60,0.61)">채우면 진단·생성 정확도가 올라갑니다.</p>
+              <button type="button" id="mmWrite" class="hbtn hbtn-secondary h-soft">작성하기</button>
             </div>
           </div>
         </section>
 
-        <!-- BRAND-04 · 채널 -->
+        <!-- BRAND-04 · 채널 (국내/일본 다건 행 리스트 — 2026-07-23 전면 개편) -->
         <section class="kit-card" aria-labelledby="channelTitle">
-          <h2 id="channelTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">채널</h2>
-          <p style="margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">기업 매칭 신청서에 함께 전달됩니다.</p>
-          <div style="margin-top:14px">
-            <label class="kit-label" for="fKrUrl">한국 판매 채널 URL</label>
-            <input id="fKrUrl" class="kit-input f-input" type="url" placeholder="https://" value="https://smartstore.naver.com/haruon" />
+          <div class="kit-head">
+            <div style="flex:1;min-width:0">
+              <h2 id="channelTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">채널</h2>
+              <p class="kit-desc">기업 매칭 신청서에 함께 전달됩니다.</p>
+            </div>
           </div>
-          <fieldset style="margin:14px 0 0;border:none;padding:0">
-            <legend class="kit-label">일본 진출 채널 <span style="font-weight:600;color:#B6B8BF">(복수 선택)</span></legend>
-            <div id="jpChips" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:2px"></div>
-          </fieldset>
-          <div id="jpUrlRow" style="margin-top:12px">
-            <label class="kit-label" for="fJpUrl">일본 채널 URL <span style="font-weight:600;color:#B6B8BF">(입점 후 입력)</span></label>
-            <input id="fJpUrl" class="kit-input f-input" type="url" placeholder="입점 완료 후 스토어 URL을 적어 주세요" />
+
+          <!-- 4a · 국내 그룹 -->
+          <div class="ch-group">
+            <div class="ch-head">
+              <h3 id="chKrTitle">국내 판매 채널</h3>
+              <span id="chKrN" class="ch-n tnum">0</span>
+              <button type="button" id="chKrAdd" class="hbtn hbtn-secondary h-soft" style="margin-left:auto;height:30px;font-size:12px">＋ 채널 추가</button>
+            </div>
+            <div id="chKrList" class="ch-list"></div>
+            <p id="chKrEmpty" class="ch-empty" style="display:none">아직 등록한 국내 채널이 없습니다. 지금 판매 중인 곳을 추가해 주세요.</p>
+          </div>
+
+          <!-- 4a · 일본 그룹 (상태 배지 — 색+글자+기호 3중 표기) -->
+          <div class="ch-group">
+            <div class="ch-head">
+              <h3 id="chJpTitle">일본 판매·진출 채널</h3>
+              <span id="chJpN" class="ch-n tnum">0</span>
+              <button type="button" id="chJpAdd" class="hbtn hbtn-secondary h-soft" style="margin-left:auto;height:30px;font-size:12px">＋ 채널 추가</button>
+            </div>
+            <div id="chJpList" class="ch-list"></div>
+            <p id="chJpEmpty" class="ch-empty" style="display:none">아직 일본 채널이 없습니다. 진출 목표 채널부터 담아 두세요.</p>
           </div>
         </section>
 
-        <!-- BRAND-05 · 일본향 용어집·톤 가이드 -->
+        <!-- BRAND-05 · 일본향 용어집·톤 가이드 (조회) — 연필 → BRAND-05d 편집 모달 -->
         <section class="kit-card" aria-labelledby="kitTitle">
-          <h2 id="kitTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">일본향 용어집·톤 가이드</h2>
-          <p style="margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">다음 생성부터 입력으로 전달할 준비를 하고 있습니다.</p>
+          <div class="kit-head">
+            <div style="flex:1;min-width:0">
+              <h2 id="kitTitle" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">일본향 용어집·톤 가이드</h2>
+              <p class="kit-desc">다음 생성부터 입력으로 전달할 준비를 하고 있습니다.</p>
+            </div>
+            <button type="button" id="ktEdit" class="kit-edit" aria-label="일본향 용어집·톤 가이드 수정">
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            </button>
+          </div>
 
-          <!-- 5a · 제품명 일본어 표기 (인라인 CRUD) -->
-          <h3 style="margin:18px 0 0;font-size:13px;font-weight:700;color:#202124">제품명 일본어 표기</h3>
+          <!-- 5a · 제품명 일본어 표기 (조회) + 제품 연동 제안 스트립 -->
+          <h3 style="margin:16px 0 0;font-size:13px;font-weight:700;color:#202124">제품명 일본어 표기</h3>
           <div id="termSuggest" style="display:none;margin-top:8px;align-items:center;gap:9px;flex-wrap:wrap;padding:9px 12px;border:1px solid rgba(255,100,100,.3);border-radius:9px;background:#FFF8F8">
             <span id="termSuggestText" style="flex:1;min-width:180px;font-size:12px;color:#414245"></span>
             <button type="button" id="termSuggestAdd" class="inline-ok" style="height:30px">추가</button>
             <button type="button" id="termSuggestNo" class="inline-cancel" style="height:30px">아니요</button>
           </div>
-          <div id="termRows" style="margin-top:6px"></div>
-          <button type="button" id="termAdd" class="hbtn hbtn-ghost" style="margin-top:6px;padding:0 8px;font-size:12.5px;color:#D93636">＋ 표기 추가</button>
+          <div id="termView" style="margin-top:2px"></div>
 
-          <!-- 5b · 금지 표현 (인라인 CRUD — 표현+사유 둘 다 필수) -->
+          <!-- 5b · 금지 표현 (조회) -->
           <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">금지 표현</h3>
-          <p style="margin:5px 0 0;font-size:11.5px;color:#B6B8BF">근거 없이 등록하지 않습니다 — 진단 리포트 약기법 감사표에서 걸린 표현을 사유와 함께 옮겨 적어 주세요.</p>
-          <div id="banList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
-          <button type="button" id="banAdd" class="hbtn hbtn-ghost" style="margin-top:8px;padding:0 8px;font-size:12.5px;color:#D93636">＋ 금지 표현 추가</button>
+          <p style="margin:5px 0 0;font-size:11.5px;color:rgba(55,56,60,0.61)">근거 없이 등록하지 않습니다. 진단 리포트 약기법 감사표에서 걸린 표현을 사유와 함께 옮겨 적습니다.</p>
+          <div id="banView" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
 
-          <!-- 5c · 톤 가이드 -->
+          <!-- 5c · 톤 가이드 (조회) -->
           <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">톤 가이드</h3>
-          <div style="margin-top:8px">
-            <label class="visually-hidden" for="fTone">톤 가이드</label>
-            <textarea id="fTone" class="kit-area f-input" rows="3" maxlength="300" placeholder="일본 고객에게 말을 걸 때의 톤을 1~3문장으로 적어 주세요"></textarea>
-            <p style="margin:5px 0 0;text-align:right;font-size:11px;color:#B6B8BF"><span id="toneCount" class="tnum">0</span>/300</p>
+          <p id="toneView" style="margin:8px 0 0;font-size:13.5px;line-height:1.7;color:#202124;text-wrap:pretty"></p>
+
+          <div id="ktBlank" style="display:none;margin-top:14px;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border:1px dashed rgba(112,115,124,0.3);border-radius:10px;background:#FAFAFB">
+            <p style="flex:1;min-width:200px;margin:0;font-size:12.5px;color:rgba(55,56,60,0.61)">채우면 진단·생성 정확도가 올라갑니다.</p>
+            <button type="button" id="ktWrite" class="hbtn hbtn-secondary h-soft">작성하기</button>
           </div>
         </section>
 
-        <!-- BRAND-10 · 브랜드 삭제 (위험 액션 — 저장 바와 시각적으로 분리) -->
+        <!-- BRAND-10 · 브랜드 삭제 (위험 액션 — 다른 섹션과 시각적으로 분리) -->
         <section aria-labelledby="dangerTitle" style="margin-top:20px;padding-top:22px;border-top:1px solid #EBEBEB">
           <h2 id="dangerTitle" style="margin:0;font-size:14px;font-weight:800;letter-spacing:-0.01em;color:#202124">브랜드 삭제</h2>
           <p style="margin:6px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">이 브랜드와 브랜드에 속한 자산이 모두 사라집니다. 되돌릴 수 없습니다.</p>
@@ -264,24 +287,161 @@
 
       </div>
     </div>
-
-    <!-- BRAND-06 · 저장 바 (화면 유일 primary) -->
-    <div class="save-bar" style="margin-top:32px">
-      <div style="max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px">
-        <p id="saveMsg" role="status" style="margin:0;font-size:12.5px;font-weight:600;color:rgba(55,56,60,0.61)"></p>
-        <button type="button" id="saveBtn" class="h-primary" disabled
-          style="margin-left:auto;display:inline-flex;height:44px;align-items:center;padding:0 22px;border:none;border-radius:11px;background:#FF6464;color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">저장</button>
-      </div>
-    </div>
-    <div style="height:48px"></div>
   </main>
   </div>
 </div>
+
+<!-- BRAND-06 · 저장 status 토스트 (모달 저장·행 삭제 안내 — 구 저장 바 대체) -->
+<p id="opStatus" role="status" aria-live="polite" class="op-toast" style="display:none;margin:0"></p>
 
 <!-- 브랜드 추가 착지 토스트 (⓪ MAIN-01b′-3) — 어느 화면에서 추가했든 여기로 온다 -->
 <div id="landToast" role="status" aria-live="polite" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:88px;z-index:95;background:#202124;color:#fff;border-radius:12px;padding:13px 18px;box-shadow:0 8px 24px rgba(16,18,20,.24);animation:toastIn .3s ease both;max-width:400px">
   <p id="landToastTitle" style="margin:0;font-size:13px;font-weight:700"></p>
   <p style="margin:3px 0 0;font-size:11.5px;color:rgba(255,255,255,.72)">제품과 채널을 채워 주세요. <a href="../00-main/1-home.html" style="color:#fff;text-decoration:underline">나중에 하기</a></p>
+</div>
+
+<!-- BRAND-02b · 프로필 편집 모달 (연필 → 편집 — 저장은 모달 단위 즉시 저장) -->
+<div id="pfModal" class="modal-scrim" style="display:none">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pfTitle">
+    <h2 id="pfTitle" class="modal-title">브랜드 프로필 수정</h2>
+    <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">수정해도 이미 발행된 리포트는 바뀌지 않습니다 — 다음 진단·생성부터 반영됩니다.</p>
+
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label class="m-label" for="pfName">브랜드명 <span style="color:#D93636">*</span></label>
+        <input id="pfName" class="m-input" type="text" maxlength="40" autocomplete="off" />
+        <p id="pfNameHint" class="m-err" role="alert" style="display:none">브랜드명을 입력해 주세요</p>
+      </div>
+      <div class="rwrap" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label class="m-label" for="pfCat">카테고리 <span style="color:#D93636">*</span></label>
+          <select id="pfCat" class="m-input">
+            <option>스킨케어</option><option>메이크업</option><option>선케어</option><option>클렌징</option>
+          </select>
+        </div>
+        <div>
+          <label class="m-label" for="pfCls">제품분류</label>
+          <select id="pfCls" class="m-input">
+            <option value="">선택 안 함</option>
+            <option>화장품</option><option>의약외품</option><option>건강식품</option><option>미상</option>
+          </select>
+        </div>
+      </div>
+      <fieldset style="margin:0;border:none;padding:0">
+        <legend class="m-label" style="margin-bottom:2px">포지셔닝 태그 <span style="font-weight:600;color:rgba(55,56,60,0.61)">1~5개 선택 · <span id="pfPosCount" class="tnum">0</span>/5</span></legend>
+        <p style="margin:0 0 8px;font-size:11.5px;color:#B6B8BF">① 진단 입력폼과 같은 목록입니다. 저장하면 다음 진단에서 미리 채워집니다.</p>
+        <div id="pfPosChips" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+      </fieldset>
+      <div>
+        <label class="m-label" for="pfTarget">타깃 메모 <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
+        <textarea id="pfTarget" class="m-input" rows="2" style="height:auto;padding:10px 12px;line-height:1.6;resize:vertical" placeholder="일본에서 만나고 싶은 고객을 자유롭게 적어 주세요"></textarea>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="pfCancel" class="hbtn hbtn-secondary" style="height:42px;padding:0 16px;border-radius:10px">취소</button>
+      <button type="button" id="pfSave" class="h-primary"
+        style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAND-03d · 공통 메모 편집 모달 -->
+<div id="mmModal" class="modal-scrim" style="display:none">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mmTitle" style="max-width:480px">
+    <h2 id="mmTitle" class="modal-title" style="font-size:17px">브랜드 공통 메모 수정</h2>
+    <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">수정해도 이미 발행된 리포트는 바뀌지 않습니다 — 다음 진단·생성부터 반영됩니다.</p>
+
+    <div style="margin-top:18px">
+      <label class="m-label" for="mmMemo">브랜드 공통 메모 <span style="font-weight:600;color:#B6B8BF">(제품별로 나누기 어려운 내용)</span></label>
+      <textarea id="mmMemo" class="m-input" rows="3" style="height:auto;padding:10px 12px;line-height:1.6;resize:vertical" placeholder="브랜드 전체에 해당하는 특징·처방 방향을 적어 주세요"></textarea>
+    </div>
+    <div id="mmDocRow" style="margin-top:12px;display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;background:#FAFAFB">
+      <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <span id="mmDocName" style="flex:1;font-size:12.5px;font-weight:600;color:#202124"></span>
+      <span style="font-size:11px;color:#B6B8BF">재업로드 (추후 기획)</span>
+    </div>
+
+    <div style="margin-top:22px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="mmCancel" class="hbtn hbtn-secondary" style="height:42px;padding:0 16px;border-radius:10px">취소</button>
+      <button type="button" id="mmSave" class="h-primary"
+        style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAND-04b · 채널 추가·수정 모달 (진입한 그룹으로 국내/일본 고정 — 모달 안 그룹 토글 없음) -->
+<div id="chModal" class="modal-scrim" style="display:none">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="chTitle" style="max-width:460px">
+    <h2 id="chTitle" class="modal-title" style="font-size:17px">국내 채널 추가</h2>
+
+    <div style="margin-top:18px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label class="m-label" for="chPlatform">플랫폼 <span style="color:#D93636">*</span></label>
+        <select id="chPlatform" class="m-input"></select>
+        <p id="chPlatformHint" style="display:none;margin:6px 0 0;font-size:11.5px;color:#B6B8BF">플랫폼을 선택해 주세요.</p>
+      </div>
+      <div id="chCustomWrap" style="display:none">
+        <label class="m-label" for="chCustom">플랫폼명 <span style="color:#D93636">*</span></label>
+        <input id="chCustom" class="m-input" type="text" maxlength="30" placeholder="플랫폼 이름" autocomplete="off" />
+      </div>
+      <fieldset id="chStatusWrap" style="display:none;margin:0;border:none;padding:0">
+        <legend class="m-label" style="margin-bottom:6px">상태</legend>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <label style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#414245;cursor:pointer">
+            <input type="radio" name="chStatus" value="goal" checked style="accent-color:#FF6464" />
+            <span style="font-weight:600;color:#B96C00">진출 목표 △</span>
+          </label>
+          <label style="display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#414245;cursor:pointer">
+            <input type="radio" name="chStatus" value="selling" style="accent-color:#FF6464" />
+            <span style="font-weight:600;color:#00875A">판매 중 ○</span>
+          </label>
+        </div>
+      </fieldset>
+      <div>
+        <label class="m-label" for="chUrl">URL <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
+        <input id="chUrl" class="m-input" type="url" placeholder="https://" autocomplete="off" />
+        <p id="chUrlHint" style="display:none;margin:6px 0 0;font-size:11.5px;color:#B6B8BF">입점 후 입력해도 됩니다.</p>
+      </div>
+      <p id="chWarn" style="display:none;margin:0;padding:9px 12px;border:1px solid rgba(255,171,0,.45);border-radius:9px;background:#FFF6E5;font-size:12px;line-height:1.6;color:#B96C00"></p>
+    </div>
+
+    <div style="margin-top:22px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="chCancel" class="hbtn hbtn-secondary" style="height:42px;padding:0 16px;border-radius:10px">취소</button>
+      <button type="button" id="chSave" class="h-primary" disabled
+        style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:default;opacity:.5">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAND-05d · 용어집·톤 편집 모달 (draft 편집 → 「저장」 일괄 커밋) -->
+<div id="ktModal" class="modal-scrim" style="display:none">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="ktTitle">
+    <h2 id="ktTitle" class="modal-title" style="font-size:17px">일본향 용어집·톤 가이드 수정</h2>
+    <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">수정해도 이미 발행된 리포트는 바뀌지 않습니다 — 다음 진단·생성부터 반영됩니다.</p>
+
+    <h3 style="margin:18px 0 0;font-size:13px;font-weight:700;color:#202124">제품명 일본어 표기</h3>
+    <div id="ktTermRows" style="margin-top:2px"></div>
+    <button type="button" id="ktTermAdd" class="hbtn hbtn-ghost" style="margin-top:6px;padding:0 8px;font-size:12.5px;color:#D93636">＋ 표기 추가</button>
+
+    <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">금지 표현</h3>
+    <p style="margin:5px 0 0;font-size:11.5px;color:#B6B8BF">근거 없이 등록하지 않습니다. 표현과 사유를 함께 적어 주세요.</p>
+    <div id="ktBanList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+    <button type="button" id="ktBanAdd" class="hbtn hbtn-ghost" style="margin-top:8px;padding:0 8px;font-size:12.5px;color:#D93636">＋ 금지 표현 추가</button>
+
+    <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">톤 가이드</h3>
+    <div style="margin-top:8px">
+      <label class="visually-hidden" for="ktTone">톤 가이드</label>
+      <textarea id="ktTone" class="m-input" rows="3" maxlength="300" style="height:auto;padding:10px 12px;line-height:1.6;resize:vertical" placeholder="일본 고객에게 말을 걸 때의 톤을 1~3문장으로 적어 주세요"></textarea>
+      <p style="margin:5px 0 0;text-align:right;font-size:11px;color:#B6B8BF"><span id="ktToneCount" class="tnum">0</span>/300</p>
+    </div>
+
+    <div style="margin-top:22px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="ktCancel" class="hbtn hbtn-secondary" style="height:42px;padding:0 16px;border-radius:10px">취소</button>
+      <button type="button" id="ktSave" class="h-primary"
+        style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer">저장</button>
+    </div>
+  </div>
 </div>
 
 <!-- BRAND-03b · 제품 추가·편집 모달 (C·U — 추가/수정이 같은 폼) -->
@@ -366,7 +526,7 @@
   </div>
 </div>
 
-<!-- 편집 취소 확인 (입력값 변경이 있을 때만) -->
+<!-- 편집 취소 확인 (입력값 변경이 있을 때만 — 전 편집 모달 공용) -->
 <div id="discardModal" class="modal-scrim" style="display:none;z-index:110">
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="dcTitle" style="max-width:360px">
     <h2 id="dcTitle" class="modal-title" style="font-size:16px">입력한 내용이 사라집니다</h2>
@@ -380,8 +540,9 @@
 
 <script>
 /**
- * 브랜드 관리 로직 (BRAND-02~07) — 포지셔닝 칩 1~5 선택 · 용어집 행 · 금지 표현 ·
- * 톤 카운터 · 변경 감지 → 저장 활성 · 저장 시뮬레이션 · 하위 메뉴 매칭 배지.
+ * 브랜드 관리 로직 (BRAND-00~10 · 2026-07-23 view-first 개정) —
+ * 조회 렌더러 4종(프로필·공통 메모·채널·용어집) + 편집 모달 5종(프로필·메모·채널·용어집·제품) +
+ * 모달 단위 즉시 저장(저장 시뮬레이션 + status 토스트) + 채널 다건 CRUD.
  * 데모 상태: 기본(작성 완료) / 미작성(BRAND-07 빈 상태). 실저장 없음 — 검토용.
  */
 (function () {
@@ -389,7 +550,19 @@
 
   /** 포지셔닝 태그 16종 — lib/engine/rules/positioning.ts 공용 목록(① 입력폼과 동일) */
   var POS_TAGS = ['민감 피부·저자극', '무첨가·프리 처방', '성분 집중', '더마·피부과학', '클린·비건', '보습·장벽', '진정 케어', '모공·피지 케어', '톤·브라이트닝', '탄력·안티에이징', '효능 근거·기능성', '남성 특화', 'K뷰티 트렌드', '가성비', '향·질감 감성', '미니멀 처방'];
-  var JP_CHANNELS = ['Qoo10', '라쿠텐', '아마존JP', '미정'];
+
+  /** 채널 플랫폼 프리셋 (BRAND-04b · BRAND-09 `lib/constants/channels.ts` 제안) */
+  var KR_PLATFORMS = [
+    { key: 'ownmall', name: '자사몰' }, { key: 'smartstore', name: '스마트스토어' },
+    { key: 'coupang', name: '쿠팡' }, { key: 'oliveyoung', name: '올리브영' },
+    { key: 'musinsa', name: '무신사' }, { key: 'custom', name: '직접 입력' }
+  ];
+  var JP_PLATFORMS = [
+    { key: 'qoo10', name: 'Qoo10' }, { key: 'rakuten', name: '라쿠텐' },
+    { key: 'amazonjp', name: '아마존JP' }, { key: 'yahoo', name: 'Yahoo!쇼핑' },
+    { key: 'zozotown', name: 'ZOZOTOWN' }, { key: 'atcosme', name: '@cosme' },
+    { key: 'custom', name: '직접 입력' }
+  ];
 
   /** 데모 제품 2종 — 이미지는 ② 스튜디오 샘플 자산 재사용(새 자산 만들지 않음) */
   var SHOT = '../02-studio/assets/samples/';
@@ -402,12 +575,25 @@
       shots: [SHOT + 'haruon-texture.png'] }
   ];
 
-  /** 데모 데이터(작성 완료 상태) — 기존 자산 유래 값만 사용 */
+  /** 데모 데이터(작성 완료 상태) — 기존 자산 유래 값만 사용. 채널은 구 KR URL·구 JP 칩(FILLED.jp) 유래 */
   var FILLED = {
-    target: '진정·저자극을 찾는 20~30대. 荒れてる時に使える?가 첫 질문인 고객.',
-    product: '전 제품 저자극 처방 기준을 공유함. 상세페이지 진단 리포트 발행 완료.',
-    pos: ['진정 케어', '민감 피부·저자극', '톤·브라이트닝'],
-    jp: ['Qoo10', '라쿠텐'],
+    profile: {
+      name: '하루온 HARUON', cat: '스킨케어', cls: '화장품',
+      pos: ['진정 케어', '민감 피부·저자극', '톤·브라이트닝'],
+      target: '진정·저자극을 찾는 20~30대. 荒れてる時に使える?가 첫 질문인 고객.'
+    },
+    memo: '전 제품 저자극 처방 기준을 공유함. 상세페이지 진단 리포트 발행 완료.',
+    doc: '하루온-상세페이지.pdf',
+    channels: {
+      kr: [
+        { platform: 'smartstore', label: null, url: 'https://smartstore.naver.com/haruon' },
+        { platform: 'oliveyoung', label: null, url: null }
+      ],
+      jp: [
+        { platform: 'qoo10', label: null, status: 'selling', url: 'https://www.qoo10.jp/shop/haruon' },
+        { platform: 'rakuten', label: null, status: 'goal', url: null }
+      ]
+    },
     terms: [
       { kr: '하루온 톤업 선크림', ja: 'HARUON トーンアップUV' },
       { kr: 'CICA 진정 앰플', ja: 'CICAアンプル' }
@@ -419,15 +605,118 @@
     tone: '근거 있는 문장으로 차분하게. 효능은 시험·성분 근거와 함께, 과장 형용사 대신 사용 장면을 적는다.'
   };
 
-  var state = { pos: [], jp: [], terms: [], bans: [], products: [], dirty: false, blank: false };
-  var modal = { editingId: null, shots: [], primary: 0, lastFocus: null, dirty: false, pendingDeleteId: null };
+  var state = {
+    blank: false,
+    profile: { name: '', cat: '스킨케어', cls: '', pos: [], target: '' },
+    memo: '', doc: null,
+    channels: { kr: [], jp: [] },
+    terms: [], bans: [], tone: '',
+    products: []
+  };
 
-  // ── 포지셔닝 칩 (BRAND-02 — 1~5개, ① 폼 칩 문법) ──
-  function renderPos() {
-    var box = $('posChips');
+  /* ══════════ 모달 공통 컨트롤러 (BRAND-03b-4 문법 — 트랩·복귀·dirty 확인) ══════════ */
+
+  /** 열려 있는 편집 모달 컨텍스트 — { id, first(초기 포커스 id), trigger, dirty } */
+  var editCtx = null;
+
+  /** @param {string} id 모달 id @param {string} first 초기 포커스 요소 id @param {Element} [trigger] 복귀 대상 */
+  function openEdit(id, first, trigger) {
+    editCtx = { id: id, first: first, trigger: trigger || document.activeElement, dirty: false };
+    $(id).style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    if (first && $(first)) $(first).focus();
+  }
+  function closeEdit() {
+    if (!editCtx) return;
+    $(editCtx.id).style.display = 'none';
+    $('discardModal').style.display = 'none';
+    document.body.style.overflow = '';
+    var t = editCtx.trigger;
+    editCtx = null;
+    if (t && t.focus && document.contains(t)) t.focus();
+  }
+  /** dirty면 discard 확인부터 */
+  function requestCloseEdit() {
+    if (editCtx && editCtx.dirty) { $('discardModal').style.display = 'flex'; $('dcKeep').focus(); return; }
+    closeEdit();
+  }
+  $('dcKeep').onclick = function () {
+    $('discardModal').style.display = 'none';
+    if (editCtx && $(editCtx.first)) $(editCtx.first).focus();
+  };
+  $('dcDiscard').onclick = closeEdit;
+
+  /** 스크림 클릭 = 닫기 요청 (편집 모달 공통) */
+  ['pfModal', 'mmModal', 'chModal', 'ktModal', 'prodModal'].forEach(function (id) {
+    $(id).addEventListener('click', function (e) { if (e.target === $(id)) requestCloseEdit(); });
+  });
+
+  /** 저장 status 토스트 (BRAND-06 — 구 저장 바 대체) */
+  var toastTimer = null;
+  function announce(msg) {
+    var el = $('opStatus');
+    if (toastTimer) clearTimeout(toastTimer);
+    if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+    el.style.display = 'block';
+    el.textContent = msg;
+    toastTimer = setTimeout(function () { el.style.display = 'none'; el.textContent = ''; }, 4000);
+  }
+
+  /**
+   * 저장 시뮬레이션 — "저장 중…" + 중복 제출 잠금 후 커밋 (실저장 없음 · BRAND-06 문법).
+   * @param {HTMLButtonElement} btn 저장 버튼
+   * @param {function():void} commit 커밋 콜백 (닫기·렌더 포함)
+   */
+  function simSave(btn, commit) {
+    if (btn.disabled) return;
+    var label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '저장 중…';
+    setTimeout(function () {
+      btn.disabled = false;
+      btn.textContent = label;
+      commit();
+      announce('저장되었습니다 — 다음 생성부터 반영됩니다');
+    }, 500);
+  }
+
+  /* ══════════ BRAND-02 · 브랜드 프로필 (조회 + 02b 편집 모달) ══════════ */
+
+  /** @param {HTMLElement} dd 값 셀 @param {string} v 값 — 비면 "—" */
+  function setKv(dd, v) {
+    if (v) { dd.textContent = v; dd.classList.remove('kv-empty'); }
+    else { dd.textContent = '—'; dd.classList.add('kv-empty'); }
+  }
+
+  function renderProfileView() {
+    var p = state.profile;
+    setKv($('pvName'), p.name);
+    setKv($('pvCat'), p.cat);
+    setKv($('pvCls'), p.cls);
+    var pos = $('pvPos');
+    pos.innerHTML = '';
+    if (p.pos.length) {
+      pos.classList.remove('kv-empty');
+      p.pos.forEach(function (t) {
+        var c = document.createElement('span');
+        c.className = 'chip-ro';
+        c.textContent = t;
+        pos.appendChild(c);
+      });
+    } else {
+      pos.classList.add('kv-empty');
+      pos.textContent = '—';
+    }
+    setKv($('pvTarget'), p.target);
+    $('pfBlank').style.display = (!p.pos.length && !p.target && !p.cls) ? 'flex' : 'none';
+  }
+
+  var pfDraftPos = [];
+  function renderPfPos() {
+    var box = $('pfPosChips');
     box.innerHTML = '';
     POS_TAGS.forEach(function (t) {
-      var on = state.pos.indexOf(t) >= 0;
+      var on = pfDraftPos.indexOf(t) >= 0;
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'chip';
       b.setAttribute('aria-pressed', String(on));
@@ -435,39 +724,443 @@
         (on ? 'background:#FFF8F8;border:1.5px solid #FF6464;color:#D93636;font-weight:700' : 'background:#fff;border:1px solid rgba(112,115,124,0.28);color:#414245;font-weight:500'));
       b.textContent = t;
       b.onclick = function () {
-        var i = state.pos.indexOf(t);
-        if (i >= 0) state.pos.splice(i, 1);
-        else if (state.pos.length < 5) state.pos.push(t);
+        var i = pfDraftPos.indexOf(t);
+        if (i >= 0) pfDraftPos.splice(i, 1);
+        else if (pfDraftPos.length < 5) pfDraftPos.push(t);
         else return; // 5개 초과 선택 불가 (POSITIONING_TAGS_MAX)
-        markDirty(); renderPos();
+        if (editCtx) editCtx.dirty = true;
+        renderPfPos();
+        syncPfSave();
       };
       box.appendChild(b);
     });
-    $('posCount').textContent = state.pos.length;
+    $('pfPosCount').textContent = pfDraftPos.length;
   }
 
-  // ── 일본 채널 칩 (BRAND-04 — 복수 선택) ──
-  function renderJp() {
-    var box = $('jpChips');
-    box.innerHTML = '';
-    JP_CHANNELS.forEach(function (c) {
-      var on = state.jp.indexOf(c) >= 0;
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'chip';
-      b.setAttribute('aria-pressed', String(on));
-      b.setAttribute('style', 'height:30px;padding:0 12px;border-radius:9999px;font-size:12px;white-space:nowrap;cursor:pointer;font-family:inherit;' +
-        (on ? 'background:#FFF8F8;border:1.5px solid #FF6464;color:#D93636;font-weight:700' : 'background:#fff;border:1px solid rgba(112,115,124,0.28);color:#414245;font-weight:500'));
-      b.textContent = c;
+  function syncPfSave() {
+    var ok = $('pfName').value.trim().length > 0 && $('pfCat').value !== '';
+    var btn = $('pfSave');
+    btn.disabled = !ok;
+    btn.style.opacity = ok ? '1' : '.5';
+    btn.style.cursor = ok ? 'pointer' : 'default';
+    $('pfNameHint').style.display = $('pfName').value.trim() ? 'none' : 'block';
+  }
+
+  function openProfile(trigger) {
+    var p = state.profile;
+    $('pfName').value = p.name;
+    $('pfCat').value = p.cat || '스킨케어';
+    $('pfCls').value = p.cls || '';
+    $('pfTarget').value = p.target;
+    pfDraftPos = p.pos.slice();
+    renderPfPos();
+    openEdit('pfModal', 'pfName', trigger);
+    syncPfSave();
+    $('pfNameHint').style.display = 'none';
+  }
+  $('pfEdit').onclick = function () { openProfile(this); };
+  $('pfWrite').onclick = function () { openProfile(this); };
+  ['pfName', 'pfCat', 'pfCls', 'pfTarget'].forEach(function (id) {
+    $(id).addEventListener('input', function () { if (editCtx) editCtx.dirty = true; syncPfSave(); });
+  });
+  $('pfCancel').onclick = requestCloseEdit;
+  $('pfSave').onclick = function () {
+    if ($('pfSave').disabled) return;
+    simSave($('pfSave'), function () {
+      state.profile = {
+        name: $('pfName').value.trim(), cat: $('pfCat').value, cls: $('pfCls').value,
+        pos: pfDraftPos.slice(), target: $('pfTarget').value.trim()
+      };
+      closeEdit();
+      renderProfileView();
+      syncDelBrand();
+    });
+  };
+
+  /* ══════════ BRAND-03c·03d · 브랜드 공통 메모·문서 (조회 + 편집 모달) ══════════ */
+
+  function renderMemoView() {
+    setKv($('mvMemo'), state.memo);
+    var doc = $('mvDoc');
+    if (state.doc) {
+      $('mvDocRow').style.display = '';
+      doc.innerHTML = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>' +
+        '<span style="font-weight:600">' + state.doc + '</span>';
+    } else {
+      $('mvDocRow').style.display = 'none';
+    }
+    $('mmBlank').style.display = (!state.memo && !state.doc) ? 'flex' : 'none';
+  }
+
+  function openMemo(trigger) {
+    $('mmMemo').value = state.memo;
+    $('mmDocRow').style.display = state.doc ? 'flex' : 'none';
+    $('mmDocName').textContent = state.doc || '';
+    openEdit('mmModal', 'mmMemo', trigger);
+  }
+  $('mmEdit').onclick = function () { openMemo(this); };
+  $('mmWrite').onclick = function () { openMemo(this); };
+  $('mmMemo').addEventListener('input', function () { if (editCtx) editCtx.dirty = true; });
+  $('mmCancel').onclick = requestCloseEdit;
+  $('mmSave').onclick = function () {
+    simSave($('mmSave'), function () {
+      state.memo = $('mmMemo').value.trim();
+      closeEdit();
+      renderMemoView();
+    });
+  };
+
+  /* ══════════ BRAND-04 · 채널 다건 행 리스트 (조회 + 04b 모달 + 04c 행 삭제) ══════════ */
+
+  /** @param {'kr'|'jp'} group @returns {{key:string,name:string}[]} */
+  function presets(group) { return group === 'kr' ? KR_PLATFORMS : JP_PLATFORMS; }
+
+  /** @param {'kr'|'jp'} group @param {{platform:string,label:?string}} row @returns {string} 표시명 */
+  function platName(group, row) {
+    if (row.platform === 'custom') return row.label || '직접 입력';
+    var hit = presets(group).filter(function (p) { return p.key === row.platform; })[0];
+    return hit ? hit.name : row.platform;
+  }
+
+  /** 채널 그룹 1개 렌더 — 행 = 플랫폼명 + (JP 상태 배지) + URL/안내 + 수정·삭제 */
+  function renderChGroup(group) {
+    var rows = state.channels[group];
+    var list = $(group === 'kr' ? 'chKrList' : 'chJpList');
+    var empty = $(group === 'kr' ? 'chKrEmpty' : 'chJpEmpty');
+    $(group === 'kr' ? 'chKrN' : 'chJpN').textContent = rows.length;
+    list.innerHTML = '';
+    empty.style.display = rows.length ? 'none' : 'block';
+    rows.forEach(function (row, i) {
+      var name = platName(group, row);
+      var div = document.createElement('div');
+      div.className = 'ch-row';
+      var html = '<span class="ch-name">' + name + '</span>';
+      if (group === 'jp') {
+        html += row.status === 'selling'
+          ? '<span class="ch-badge b-sell">판매 중 ○</span>'
+          : '<span class="ch-badge b-goal">진출 목표 △</span>';
+      }
+      if (row.url) {
+        html += '<a class="ch-url" href="' + row.url + '" target="_blank" rel="noopener">' +
+          row.url.replace(/^https?:\/\//, '') + ' ↗</a>';
+      } else {
+        html += '<span class="ch-none">' + (group === 'jp' && row.status !== 'selling' ? '입점 후 입력' : 'URL 미입력') + '</span>';
+      }
+      html += '<span class="ch-acts">' +
+        '<button type="button" class="row-edit" data-edit="' + i + '" aria-label="' + name + ' 채널 수정">수정</button>' +
+        '<button type="button" class="row-del" data-del="' + i + '" aria-label="' + name + ' 채널 삭제">삭제</button></span>';
+      div.innerHTML = html;
+      list.appendChild(div);
+    });
+    list.querySelectorAll('[data-edit]').forEach(function (b) {
+      b.onclick = function () { openChannel(group, Number(b.getAttribute('data-edit')), b); };
+    });
+    list.querySelectorAll('[data-del]').forEach(function (b) {
       b.onclick = function () {
-        var i = state.jp.indexOf(c);
-        if (i >= 0) state.jp.splice(i, 1); else state.jp.push(c);
-        markDirty(); renderJp();
+        var i = Number(b.getAttribute('data-del'));
+        var name = platName(group, state.channels[group][i]);
+        state.channels[group].splice(i, 1);   // 확인 모달 없이 즉시 삭제 (BRAND-04c)
+        renderChannels();
+        syncDelBrand();
+        announce(name + ' 채널을 삭제했습니다');
       };
-      box.appendChild(b);
+    });
+  }
+  function renderChannels() { renderChGroup('kr'); renderChGroup('jp'); }
+
+  var chCtx = { group: 'kr', idx: null };
+
+  /** 플랫폼 셀렉트 채우기 — 진입 그룹의 프리셋만 (모달 안 그룹 토글 없음) */
+  function fillChPlatform(group, selected) {
+    var sel = $('chPlatform');
+    sel.innerHTML = '<option value="">선택해 주세요</option>';
+    presets(group).forEach(function (p) {
+      var o = document.createElement('option');
+      o.value = p.key; o.textContent = p.name;
+      if (p.key === selected) o.selected = true;
+      sel.appendChild(o);
     });
   }
 
-  // ── 제품 자산 CRUD (BRAND-03 · 03b · 03c) ─────────────
+  function syncChSave() {
+    var plat = $('chPlatform').value;
+    var ok = !!plat && (plat !== 'custom' || $('chCustom').value.trim().length > 0);
+    var btn = $('chSave');
+    btn.disabled = !ok;
+    btn.style.opacity = ok ? '1' : '.5';
+    btn.style.cursor = ok ? 'pointer' : 'default';
+    $('chPlatformHint').style.display = plat ? 'none' : 'block';
+    $('chPlatformHint').textContent = plat === 'custom' && !$('chCustom').value.trim()
+      ? '플랫폼명을 입력해 주세요.' : '플랫폼을 선택해 주세요.';
+    if (plat === 'custom' && !$('chCustom').value.trim()) $('chPlatformHint').style.display = 'block';
+  }
+
+  /** 경고(차단 X) — 같은 그룹 동일 플랫폼 중복 / http로 시작하지 않는 URL */
+  function syncChWarn() {
+    var msgs = [];
+    var plat = $('chPlatform').value;
+    if (plat && plat !== 'custom') {
+      var dup = state.channels[chCtx.group].some(function (r, i) { return r.platform === plat && i !== chCtx.idx; });
+      if (dup) msgs.push('이미 등록한 플랫폼입니다. 스토어가 여러 개라면 그대로 저장해도 됩니다.');
+    }
+    var url = $('chUrl').value.trim();
+    if (url && !/^https?:\/\//i.test(url)) msgs.push('URL이 http로 시작하지 않습니다. 그대로 저장할 수 있지만 한번 확인해 주세요.');
+    $('chWarn').textContent = msgs.join(' ');
+    $('chWarn').style.display = msgs.length ? 'block' : 'none';
+  }
+
+  /** JP만 상태 라디오 노출 + "진출 목표"일 때 URL 캡션 */
+  function syncChStatusUi() {
+    var jp = chCtx.group === 'jp';
+    $('chStatusWrap').style.display = jp ? 'block' : 'none';
+    var goal = jp && (document.querySelector('input[name="chStatus"]:checked') || {}).value !== 'selling';
+    $('chUrlHint').style.display = goal ? 'block' : 'none';
+  }
+
+  /**
+   * 채널 모달 열기 (BRAND-04b) — 추가/수정이 같은 폼.
+   * @param {'kr'|'jp'} group 진입 그룹 @param {?number} idx 수정 대상 행. null이면 추가
+   */
+  function openChannel(group, idx, trigger) {
+    chCtx = { group: group, idx: idx };
+    var row = idx == null ? null : state.channels[group][idx];
+    $('chTitle').textContent = (group === 'kr' ? '국내 채널 ' : '일본 채널 ') + (row ? '수정' : '추가');
+    fillChPlatform(group, row ? row.platform : '');
+    $('chCustomWrap').style.display = row && row.platform === 'custom' ? 'block' : 'none';
+    $('chCustom').value = row && row.label ? row.label : '';
+    $('chUrl').value = row && row.url ? row.url : '';
+    var status = row && row.status === 'selling' ? 'selling' : 'goal';
+    document.querySelectorAll('input[name="chStatus"]').forEach(function (r) { r.checked = r.value === status; });
+    openEdit('chModal', 'chPlatform', trigger);
+    syncChStatusUi();
+    syncChSave();
+    syncChWarn();
+    $('chPlatformHint').style.display = 'none';
+  }
+  $('chKrAdd').onclick = function () { openChannel('kr', null, this); };
+  $('chJpAdd').onclick = function () { openChannel('jp', null, this); };
+  $('chPlatform').addEventListener('change', function () {
+    if (editCtx) editCtx.dirty = true;
+    $('chCustomWrap').style.display = this.value === 'custom' ? 'block' : 'none';
+    if (this.value === 'custom') $('chCustom').focus();
+    syncChSave(); syncChWarn();
+  });
+  $('chCustom').addEventListener('input', function () { if (editCtx) editCtx.dirty = true; syncChSave(); });
+  $('chUrl').addEventListener('input', function () { if (editCtx) editCtx.dirty = true; syncChWarn(); });
+  document.querySelectorAll('input[name="chStatus"]').forEach(function (r) {
+    r.addEventListener('change', function () { if (editCtx) editCtx.dirty = true; syncChStatusUi(); });
+  });
+  $('chCancel').onclick = requestCloseEdit;
+  $('chSave').onclick = function () {
+    if ($('chSave').disabled) return;
+    simSave($('chSave'), function () {
+      var plat = $('chPlatform').value;
+      var row = {
+        platform: plat,
+        label: plat === 'custom' ? $('chCustom').value.trim() : null,
+        url: $('chUrl').value.trim() || null
+      };
+      if (chCtx.group === 'jp') row.status = (document.querySelector('input[name="chStatus"]:checked') || {}).value === 'selling' ? 'selling' : 'goal';
+      if (chCtx.idx == null) state.channels[chCtx.group].push(row);
+      else state.channels[chCtx.group][chCtx.idx] = row;
+      closeEdit();
+      renderChannels();
+      syncDelBrand();
+    });
+  };
+
+  /* ══════════ BRAND-05 · 용어집·톤 (조회 + 05d 편집 모달 — draft 일괄 커밋) ══════════ */
+
+  function renderKitView() {
+    var tv = $('termView');
+    tv.innerHTML = '';
+    if (!state.terms.length) {
+      tv.innerHTML = '<p style="margin:8px 0 0;font-size:12.5px;color:rgba(55,56,60,0.61)">아직 등록한 표기가 없습니다. 제품명을 일본어로 어떻게 쓸지 정해 두면 생성 문구가 흔들리지 않습니다.</p>';
+    } else {
+      state.terms.forEach(function (t) {
+        var row = document.createElement('div');
+        row.className = 'term-row';
+        row.innerHTML = '<span style="flex:1;min-width:0">' + t.kr + '</span>' +
+          '<span class="term-arrow" aria-hidden="true">→</span>' +
+          '<span lang="ja" style="flex:1;min-width:0">' + t.ja + '</span>';
+        tv.appendChild(row);
+      });
+    }
+    var bv = $('banView');
+    bv.innerHTML = '';
+    if (!state.bans.length) {
+      bv.innerHTML = '<p style="margin:0;font-size:12.5px;color:rgba(55,56,60,0.61)">아직 등록한 금지 표현이 없습니다. 진단 리포트의 약기법 판정에서 걸린 표현을 옮겨 두면 좋습니다.</p>';
+    } else {
+      state.bans.forEach(function (bn) {
+        var row = document.createElement('div');
+        row.setAttribute('style', 'display:flex;align-items:center;gap:10px;flex-wrap:wrap');
+        row.innerHTML = '<span class="ban-chip"><span aria-hidden="true">✕</span><span lang="ja">' + bn.term + '</span></span>' +
+          '<span style="flex:1;min-width:200px;font-size:12px;color:rgba(55,56,60,0.61)">' + bn.reason + '</span>';
+        bv.appendChild(row);
+      });
+    }
+    if (state.tone) {
+      $('toneView').textContent = state.tone;
+      $('toneView').classList.remove('kv-empty');
+    } else {
+      $('toneView').textContent = '—';
+      $('toneView').classList.add('kv-empty');
+    }
+    $('ktBlank').style.display = (!state.terms.length && !state.bans.length && !state.tone) ? 'flex' : 'none';
+  }
+
+  /** 편집 draft — 「저장」 시에만 state로 커밋 (BRAND-05d) */
+  var ktDraft = { terms: [], bans: [], tone: '' };
+
+  function renderKtTerms() {
+    var box = $('ktTermRows');
+    box.innerHTML = '';
+    if (!ktDraft.terms.length) {
+      box.innerHTML = '<p style="margin:8px 0 0;font-size:12.5px;color:rgba(55,56,60,0.61)">아직 등록한 표기가 없습니다.</p>';
+      return;
+    }
+    ktDraft.terms.forEach(function (t, i) {
+      var row = document.createElement('div');
+      row.className = 'term-row';
+      row.innerHTML = '<span style="flex:1;min-width:0">' + t.kr + '</span>' +
+        '<span class="term-arrow" aria-hidden="true">→</span>' +
+        '<span lang="ja" style="flex:1;min-width:0">' + t.ja + '</span>' +
+        '<button type="button" class="row-edit" data-edit="' + i + '" aria-label="' + t.kr + ' 표기 수정">수정</button>' +
+        '<button type="button" class="row-del" data-i="' + i + '" aria-label="' + t.kr + ' 표기 삭제">삭제</button>';
+      box.appendChild(row);
+    });
+    box.querySelectorAll('[data-i]').forEach(function (b) {
+      b.onclick = function () { ktDraft.terms.splice(Number(b.getAttribute('data-i')), 1); if (editCtx) editCtx.dirty = true; renderKtTerms(); };
+    });
+    // 행 "수정" 클릭 시 그 자리가 인라인 입력으로 전환됨
+    box.querySelectorAll('[data-edit]').forEach(function (b) {
+      b.onclick = function () {
+        var i = Number(b.getAttribute('data-edit')), t = ktDraft.terms[i], row = b.parentNode;
+        row.innerHTML = '';
+        row.className = 'inline-row';
+        inlineRow(row, { a: 'KR 제품명', b: 'JA 표기', bLang: 'ja', hint: 'KR·JA 둘 다 입력해야 저장됩니다.' },
+          function (kr, ja) { ktDraft.terms[i] = { kr: kr, ja: ja }; if (editCtx) editCtx.dirty = true; renderKtTerms(); });
+        row.querySelector('.ir-a').value = t.kr;
+        row.querySelector('.ir-b').value = t.ja;
+        row.querySelector('.inline-ok').disabled = false;
+        row.querySelector('.ir-hint').textContent = '';
+        row.querySelector('.inline-cancel').onclick = renderKtTerms;
+      };
+    });
+  }
+
+  function renderKtBans() {
+    var box = $('ktBanList');
+    box.innerHTML = '';
+    if (!ktDraft.bans.length) {
+      box.innerHTML = '<p style="margin:0;font-size:12.5px;color:rgba(55,56,60,0.61)">아직 등록한 금지 표현이 없습니다.</p>';
+      return;
+    }
+    ktDraft.bans.forEach(function (bn, i) {
+      var row = document.createElement('div');
+      row.setAttribute('style', 'display:flex;align-items:center;gap:10px;flex-wrap:wrap');
+      row.innerHTML = '<span class="ban-chip"><span aria-hidden="true">✕</span><span lang="ja">' + bn.term + '</span></span>' +
+        '<span style="flex:1;min-width:200px;font-size:12px;color:rgba(55,56,60,0.61)">' + bn.reason + '</span>' +
+        '<button type="button" class="row-del" data-ban="' + i + '" aria-label="' + bn.term + ' 금지 표현 삭제">삭제</button>';
+      box.appendChild(row);
+    });
+    box.querySelectorAll('[data-ban]').forEach(function (b) {
+      b.onclick = function () { ktDraft.bans.splice(Number(b.getAttribute('data-ban')), 1); if (editCtx) editCtx.dirty = true; renderKtBans(); };
+    });
+  }
+
+  /**
+   * 인라인 입력 행 생성 (BRAND-05d — 행마다 모달을 띄우지 않는다).
+   * @param {HTMLElement} host 행을 붙일 컨테이너
+   * @param {{a:string, b:string, aLang?:string, bLang?:string, hint:string}} opt 필드 설정
+   * @param {function(string,string):void} onOk 확인 콜백
+   */
+  function inlineRow(host, opt, onOk) {
+    var row = document.createElement('div');
+    row.className = 'inline-row';
+    row.innerHTML =
+      '<input class="inline-input ir-a" type="text" placeholder="' + opt.a + '"' + (opt.aLang ? ' lang="' + opt.aLang + '"' : '') + ' />' +
+      '<input class="inline-input ir-b" type="text" placeholder="' + opt.b + '"' + (opt.bLang ? ' lang="' + opt.bLang + '"' : '') + ' />' +
+      '<button type="button" class="inline-ok" disabled>확인</button>' +
+      '<button type="button" class="inline-cancel">취소</button>' +
+      '<p class="ir-hint" style="flex-basis:100%;margin:2px 0 0;font-size:11px;color:#B6B8BF"></p>';
+    host.appendChild(row);
+    var a = row.querySelector('.ir-a'), b = row.querySelector('.ir-b');
+    var ok = row.querySelector('.inline-ok'), hint = row.querySelector('.ir-hint');
+    function sync() {
+      var full = a.value.trim() && b.value.trim();
+      ok.disabled = !full;
+      hint.textContent = full ? '' : opt.hint;
+    }
+    hint.textContent = opt.hint;
+    a.addEventListener('input', sync);
+    b.addEventListener('input', sync);
+    ok.onclick = function () { if (!ok.disabled) onOk(a.value.trim(), b.value.trim()); };
+    row.querySelector('.inline-cancel').onclick = function () { row.remove(); };
+    a.focus();
+  }
+
+  $('ktTermAdd').onclick = function () {
+    if ($('ktTermRows').querySelector('.inline-row')) return;   // 입력 행 중복 생성 방지
+    if (!ktDraft.terms.length) $('ktTermRows').innerHTML = '';  // 빈 상태 문구 치움
+    inlineRow($('ktTermRows'), { a: 'KR 제품명', b: 'JA 표기', bLang: 'ja', hint: 'KR·JA 둘 다 입력해야 저장됩니다.' },
+      function (kr, ja) { ktDraft.terms.push({ kr: kr, ja: ja }); if (editCtx) editCtx.dirty = true; renderKtTerms(); });
+  };
+  $('ktBanAdd').onclick = function () {
+    if ($('ktBanList').querySelector('.inline-row')) return;
+    if (!ktDraft.bans.length) $('ktBanList').innerHTML = '';
+    inlineRow($('ktBanList'), { a: '금지 표현 (예: 美白)', b: '왜 금지인지 근거', aLang: 'ja',
+      hint: '왜 금지인지 근거를 함께 적어 주세요 — 사유 없이는 등록되지 않습니다.' },
+      function (term, reason) { ktDraft.bans.push({ term: term, reason: reason }); if (editCtx) editCtx.dirty = true; renderKtBans(); });
+  };
+  $('ktTone').addEventListener('input', function () {
+    if (editCtx) editCtx.dirty = true;
+    $('ktToneCount').textContent = $('ktTone').value.length;
+  });
+
+  function openKit(trigger) {
+    ktDraft = {
+      terms: state.terms.map(function (t) { return { kr: t.kr, ja: t.ja }; }),
+      bans: state.bans.map(function (b) { return { term: b.term, reason: b.reason }; }),
+      tone: state.tone
+    };
+    renderKtTerms();
+    renderKtBans();
+    $('ktTone').value = ktDraft.tone;
+    $('ktToneCount').textContent = ktDraft.tone.length;
+    openEdit('ktModal', 'ktTermAdd', trigger);
+  }
+  $('ktEdit').onclick = function () { openKit(this); };
+  $('ktWrite').onclick = function () { openKit(this); };
+  $('ktCancel').onclick = requestCloseEdit;
+  $('ktSave').onclick = function () {
+    simSave($('ktSave'), function () {
+      state.terms = ktDraft.terms;
+      state.bans = ktDraft.bans;
+      state.tone = $('ktTone').value.trim();
+      closeEdit();
+      renderKitView();
+    });
+  };
+
+  /** 제품 일본어 표기가 용어집(5a)에 없으면 추가를 제안한다 — 자동 동기화 X. 「추가」 = 쌍 즉시 저장 */
+  function maybeSuggestTerm(p) {
+    if (!p.ja) return;
+    if (state.terms.some(function (t) { return t.kr === p.kr; })) return;
+    $('termSuggest').style.display = 'flex';
+    $('termSuggestText').innerHTML = '「' + p.kr + '」의 일본어 표기를 용어집에도 추가할까요?';
+    $('termSuggestAdd').onclick = function () {
+      state.terms.push({ kr: p.kr, ja: p.ja });
+      $('termSuggest').style.display = 'none';
+      renderKitView();
+      announce('용어집에 추가했습니다');
+    };
+    $('termSuggestNo').onclick = function () { $('termSuggest').style.display = 'none'; };
+  }
+
+  /* ══════════ BRAND-03 · 제품 자산 CRUD (그리드 = 조회 뷰 · 저장은 즉시) ══════════ */
+
+  var prod = { editingId: null, shots: [], primary: 0, pendingDeleteId: null, delFocus: null };
 
   /** 제품 카드 그리드 렌더 — 0건이면 빈 상태로 교체 (빈 카드 자리표시자 출력 X) */
   function renderProducts() {
@@ -504,7 +1197,7 @@
       grid.appendChild(card);
     });
     grid.querySelectorAll('[data-open]').forEach(function (b) {
-      b.onclick = function () { openProduct(b.getAttribute('data-open')); };
+      b.onclick = function () { openProduct(b.getAttribute('data-open'), b); };
     });
     grid.querySelectorAll('[data-del]').forEach(function (b) {
       b.onclick = function (e) { e.stopPropagation(); askDelete(b.getAttribute('data-del')); };
@@ -515,33 +1208,33 @@
   function renderShots() {
     var box = $('pmShots');
     box.innerHTML = '';
-    modal.shots.forEach(function (src, i) {
+    prod.shots.forEach(function (src, i) {
       var t = document.createElement('div');
-      t.className = 'shot-tile' + (i === modal.primary ? ' is-primary' : '');
+      t.className = 'shot-tile' + (i === prod.primary ? ' is-primary' : '');
       t.innerHTML = '<img src="' + src + '" alt="제품컷 ' + (i + 1) + '" />' +
-        (i === modal.primary ? '<span class="shot-badge">대표</span>' : '') +
+        (i === prod.primary ? '<span class="shot-badge">대표</span>' : '') +
         '<span class="shot-acts">' +
-          (i === modal.primary ? '' : '<button type="button" data-pri="' + i + '">대표로</button>') +
+          (i === prod.primary ? '' : '<button type="button" data-pri="' + i + '">대표로</button>') +
           '<button type="button" data-rm="' + i + '">삭제</button>' +
         '</span>';
       box.appendChild(t);
     });
     box.querySelectorAll('[data-pri]').forEach(function (b) {
-      b.onclick = function () { modal.primary = Number(b.getAttribute('data-pri')); modal.dirty = true; renderShots(); };
+      b.onclick = function () { prod.primary = Number(b.getAttribute('data-pri')); if (editCtx) editCtx.dirty = true; renderShots(); };
     });
     box.querySelectorAll('[data-rm]').forEach(function (b) {
       b.onclick = function () {
         var i = Number(b.getAttribute('data-rm'));
-        modal.shots.splice(i, 1);
-        if (modal.primary >= modal.shots.length) modal.primary = 0;
-        else if (i < modal.primary) modal.primary -= 1;
-        modal.dirty = true;
+        prod.shots.splice(i, 1);
+        if (prod.primary >= prod.shots.length) prod.primary = 0;
+        else if (i < prod.primary) prod.primary -= 1;
+        if (editCtx) editCtx.dirty = true;
         renderShots();
       };
     });
   }
 
-  function syncSave() {
+  function syncPmSave() {
     var ok = $('pmName').value.trim().length > 0;
     var btn = $('pmSave');
     btn.disabled = !ok;
@@ -550,13 +1243,11 @@
   }
 
   /** @param {string|null} id 수정 대상 제품 id. null 이면 추가 모드 */
-  function openProduct(id) {
+  function openProduct(id, trigger) {
     var p = id ? state.products.filter(function (x) { return x.id === id; })[0] : null;
-    modal.editingId = id;
-    modal.shots = p ? p.shots.slice() : [];
-    modal.primary = 0;
-    modal.dirty = false;
-    modal.lastFocus = document.activeElement;
+    prod.editingId = id;
+    prod.shots = p ? p.shots.slice() : [];
+    prod.primary = 0;
     $('pmTitle').textContent = p ? '제품 수정' : '제품 추가';
     $('pmName').value = p ? p.kr : '';
     $('pmNameJa').value = p ? p.ja : '';
@@ -566,31 +1257,16 @@
     $('pmImgErr').style.display = 'none';
     $('pmDelete').style.display = p ? 'inline-flex' : 'none';
     renderShots();
-    syncSave();
-    $('prodModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    $('pmName').focus();
-  }
-  function closeProduct() {
-    $('prodModal').style.display = 'none';
-    $('discardModal').style.display = 'none';
-    document.body.style.overflow = '';
-    if (modal.lastFocus && modal.lastFocus.focus) modal.lastFocus.focus();
-  }
-  function requestCloseProduct() {
-    if (modal.dirty) { $('discardModal').style.display = 'flex'; return; }
-    closeProduct();
+    openEdit('prodModal', 'pmName', trigger);
+    syncPmSave();
   }
 
-  $('prodAdd').onclick = function () { openProduct(null); };
-  $('prodAddEmpty').onclick = function () { openProduct(null); };
+  $('prodAdd').onclick = function () { openProduct(null, this); };
+  $('prodAddEmpty').onclick = function () { openProduct(null, this); };
   ['pmName', 'pmNameJa', 'pmCat', 'pmMemo'].forEach(function (id) {
-    $(id).addEventListener('input', function () { modal.dirty = true; $('pmNameErr').style.display = 'none'; syncSave(); });
+    $(id).addEventListener('input', function () { if (editCtx) editCtx.dirty = true; $('pmNameErr').style.display = 'none'; syncPmSave(); });
   });
-  $('pmCancel').onclick = requestCloseProduct;
-  $('prodModal').addEventListener('click', function (e) { if (e.target === $('prodModal')) requestCloseProduct(); });
-  $('dcKeep').onclick = function () { $('discardModal').style.display = 'none'; $('pmName').focus(); };
-  $('dcDiscard').onclick = closeProduct;
+  $('pmCancel').onclick = requestCloseEdit;
 
   // 제품컷 업로드 — ② HOME-02 와 동일 규격 (JPG·PNG·WebP / 10MB / 512px 경고)
   $('pmDrop').onclick = function () { $('pmFile').click(); };
@@ -610,8 +1286,8 @@
     Array.prototype.forEach.call(files, function (f) {
       if (['image/jpeg', 'image/png', 'image/webp'].indexOf(f.type) < 0) { err = 'JPG·PNG·WebP만 업로드할 수 있습니다'; return; }
       if (f.size > 10 * 1024 * 1024) { err = '10MB 이하 이미지만 업로드할 수 있습니다'; return; }
-      modal.shots.push(URL.createObjectURL(f));
-      modal.dirty = true;
+      prod.shots.push(URL.createObjectURL(f));
+      if (editCtx) editCtx.dirty = true;
     });
     $('pmImgErr').textContent = err;
     $('pmImgErr').style.display = err ? 'block' : 'none';
@@ -622,50 +1298,38 @@
     if ($('pmSave').disabled) return;
     var kr = $('pmName').value.trim();
     // 같은 브랜드 안 제품명 중복 차단 (3b-3)
-    var dup = state.products.some(function (p) { return p.kr === kr && p.id !== modal.editingId; });
+    var dup = state.products.some(function (p) { return p.kr === kr && p.id !== prod.editingId; });
     if (dup) {
       $('pmNameErr').textContent = '이미 등록한 제품명입니다';
       $('pmNameErr').style.display = 'block';
       $('pmName').focus();
       return;
     }
-    // 대표컷을 배열 첫 장으로 물질화 — 렌더는 항상 shots[0]을 대표로 읽는다
-    var shots = modal.shots.slice();
-    if (modal.primary > 0) shots.unshift(shots.splice(modal.primary, 1)[0]);
-    var next = { id: modal.editingId || ('p' + state.products.length + '-' + kr.length),
-                 kr: kr, ja: $('pmNameJa').value.trim(), cat: $('pmCat').value,
-                 memo: $('pmMemo').value.trim(), shots: shots };
-    if (modal.editingId) {
-      state.products = state.products.map(function (p) { return p.id === modal.editingId ? next : p; });
-    } else {
-      state.products.push(next);
-    }
-    closeProduct();
-    renderProducts();
-    markDirty();   // 저장은 화면 하단 저장 바 1개로 모은다 (제품만 따로 저장하지 X)
-    maybeSuggestTerm(next);
+    simSave($('pmSave'), function () {
+      // 대표컷을 배열 첫 장으로 물질화 — 렌더는 항상 shots[0]을 대표로 읽는다
+      var shots = prod.shots.slice();
+      if (prod.primary > 0) shots.unshift(shots.splice(prod.primary, 1)[0]);
+      var next = { id: prod.editingId || ('p' + state.products.length + '-' + kr.length),
+                   kr: kr, ja: $('pmNameJa').value.trim(), cat: $('pmCat').value,
+                   memo: $('pmMemo').value.trim(), shots: shots };
+      if (prod.editingId) {
+        state.products = state.products.map(function (p) { return p.id === prod.editingId ? next : p; });
+      } else {
+        state.products.push(next);
+      }
+      closeEdit();
+      renderProducts();
+      syncDelBrand();
+      maybeSuggestTerm(next);
+    });
   };
 
-  /** 제품 일본어 표기가 용어집(5a)에 없으면 추가를 제안한다 — 자동 동기화 X */
-  function maybeSuggestTerm(p) {
-    if (!p.ja) return;
-    if (state.terms.some(function (t) { return t.kr === p.kr; })) return;
-    $('termSuggest').style.display = 'flex';
-    $('termSuggestText').innerHTML = '「' + p.kr + '」의 일본어 표기를 용어집에도 추가할까요?';
-    $('termSuggestAdd').onclick = function () {
-      state.terms.push({ kr: p.kr, ja: p.ja });
-      $('termSuggest').style.display = 'none';
-      markDirty(); renderTerms();
-    };
-    $('termSuggestNo').onclick = function () { $('termSuggest').style.display = 'none'; };
-  }
-
-  // 삭제 (BRAND-03c) — 확인 모달 경유
+  // 삭제 (BRAND-03c) — 확인 모달 경유. 삭제는 즉시 반영 (별도 저장 없음)
   function askDelete(id) {
     var p = state.products.filter(function (x) { return x.id === id; })[0];
     if (!p) return;
-    modal.pendingDeleteId = id;
-    modal.lastFocus = document.activeElement;
+    prod.pendingDeleteId = id;
+    prod.delFocus = document.activeElement;
     $('dmTitle').textContent = p.kr + '을(를) 삭제할까요?';
     $('dmBody').innerHTML = '등록한 제품컷 <b class="tnum">' + p.shots.length + '</b>장이 함께 삭제됩니다.<br>이미 생성된 썸네일과 발행된 리포트는 그대로 남습니다.';
     $('delModal').style.display = 'flex';
@@ -674,211 +1338,85 @@
   }
   function closeDelete() {
     $('delModal').style.display = 'none';
-    document.body.style.overflow = '';
-    modal.pendingDeleteId = null;
-    if (modal.lastFocus && modal.lastFocus.focus) modal.lastFocus.focus();
+    if (!editCtx) document.body.style.overflow = '';
+    prod.pendingDeleteId = null;
+    if (prod.delFocus && prod.delFocus.focus && document.contains(prod.delFocus)) prod.delFocus.focus();
   }
   $('dmCancel').onclick = closeDelete;
   $('delModal').addEventListener('click', function (e) { if (e.target === $('delModal')) closeDelete(); });
   $('dmConfirm').onclick = function () {
-    var p = state.products.filter(function (x) { return x.id === modal.pendingDeleteId; })[0];
-    state.products = state.products.filter(function (x) { return x.id !== modal.pendingDeleteId; });
+    var p = state.products.filter(function (x) { return x.id === prod.pendingDeleteId; })[0];
+    state.products = state.products.filter(function (x) { return x.id !== prod.pendingDeleteId; });
     closeDelete();
     renderProducts();
-    markDirty();
-    $('saveMsg').textContent = (p ? p.kr : '제품') + '을(를) 삭제했습니다 — 저장하지 않은 변경이 있습니다';
+    syncDelBrand();
+    announce((p ? p.kr : '제품') + '을(를) 삭제했습니다');
   };
-  $('pmDelete').onclick = function () { var id = modal.editingId; closeProduct(); askDelete(id); };
-
-  // ── 제품명 표기 행 (BRAND-05a — KR → JA) ──
-  function renderTerms() {
-    var box = $('termRows');
-    box.innerHTML = '';
-    if (!state.terms.length) {
-      box.innerHTML = '<p style="margin:8px 0 0;font-size:12.5px;color:rgba(55,56,60,0.61)">아직 등록한 표기가 없습니다. 제품명을 일본어로 어떻게 쓸지 정해 두면 생성 문구가 흔들리지 않습니다.</p>';
-      return;
-    }
-    state.terms.forEach(function (t, i) {
-      var row = document.createElement('div');
-      row.className = 'term-row';
-      row.innerHTML = '<span style="flex:1;min-width:0">' + t.kr + '</span>' +
-        '<span class="term-arrow" aria-hidden="true">→</span>' +
-        '<span lang="ja" style="flex:1;min-width:0">' + t.ja + '</span>' +
-        '<button type="button" class="row-del" data-edit="' + i + '" aria-label="' + t.kr + ' 표기 수정">수정</button>' +
-        '<button type="button" class="row-del" data-i="' + i + '" aria-label="' + t.kr + ' 표기 삭제">삭제</button>';
-      box.appendChild(row);
-    });
-    box.querySelectorAll('[data-i]').forEach(function (b) {
-      b.onclick = function () { state.terms.splice(Number(b.getAttribute('data-i')), 1); markDirty(); renderTerms(); };
-    });
-    // 행 클릭 시 그 자리가 인라인 입력으로 전환됨 (수정)
-    box.querySelectorAll('[data-edit]').forEach(function (b) {
-      b.onclick = function () {
-        var i = Number(b.getAttribute('data-edit')), t = state.terms[i], row = b.parentNode;
-        row.innerHTML = '';
-        row.className = 'inline-row';
-        inlineRow(row, { a: 'KR 제품명', b: 'JA 표기', bothRequired: true, bLang: 'ja',
-          hint: 'KR·JA 둘 다 입력해야 저장됩니다.' },
-          function (kr, ja) { state.terms[i] = { kr: kr, ja: ja }; markDirty(); renderTerms(); });
-        row.querySelector('.ir-a').value = t.kr;
-        row.querySelector('.ir-b').value = t.ja;
-        row.querySelector('.inline-ok').disabled = false;
-        row.querySelector('.ir-hint').textContent = '';
-        row.querySelector('.inline-cancel').onclick = renderTerms;
-      };
-    });
-  }
-
-  // ── 금지 표현 (BRAND-05b — danger 칩 + 사유. 근거 없는 항목 등록 X) ──
-  function renderBans() {
-    var box = $('banList');
-    box.innerHTML = '';
-    if (!state.bans.length) {
-      box.innerHTML = '<p style="margin:0;font-size:12.5px;color:rgba(55,56,60,0.61)">아직 등록한 금지 표현이 없습니다. 진단 리포트의 약기법 판정에서 걸린 표현을 옮겨 두면 좋습니다.</p>';
-      return;
-    }
-    state.bans.forEach(function (bn, i) {
-      var row = document.createElement('div');
-      row.setAttribute('style', 'display:flex;align-items:center;gap:10px;flex-wrap:wrap');
-      row.innerHTML = '<span class="ban-chip"><span aria-hidden="true">✕</span><span lang="ja">' + bn.term + '</span></span>' +
-        '<span style="flex:1;min-width:200px;font-size:12px;color:rgba(55,56,60,0.61)">' + bn.reason + '</span>' +
-        '<button type="button" class="row-del" data-ban="' + i + '" aria-label="' + bn.term + ' 금지 표현 삭제">삭제</button>';
-      box.appendChild(row);
-    });
-    box.querySelectorAll('[data-ban]').forEach(function (b) {
-      b.onclick = function () { state.bans.splice(Number(b.getAttribute('data-ban')), 1); markDirty(); renderBans(); };
-    });
-  }
-
-  /**
-   * 인라인 입력 행 생성 (BRAND-05 — 한 줄짜리 입력이라 모달 쓰지 않음).
-   * @param {HTMLElement} host 행을 붙일 컨테이너
-   * @param {{a:string, b:string, bothRequired:boolean, aLang?:string, bLang?:string}} opt 필드 설정
-   * @param {function(string,string):void} onOk 확인 콜백
-   */
-  function inlineRow(host, opt, onOk) {
-    var row = document.createElement('div');
-    row.className = 'inline-row';
-    row.innerHTML =
-      '<input class="inline-input ir-a" type="text" placeholder="' + opt.a + '"' + (opt.aLang ? ' lang="' + opt.aLang + '"' : '') + ' />' +
-      '<input class="inline-input ir-b" type="text" placeholder="' + opt.b + '"' + (opt.bLang ? ' lang="' + opt.bLang + '"' : '') + ' />' +
-      '<button type="button" class="inline-ok" disabled>확인</button>' +
-      '<button type="button" class="inline-cancel">취소</button>' +
-      '<p class="ir-hint" style="flex-basis:100%;margin:2px 0 0;font-size:11px;color:#B6B8BF"></p>';
-    host.appendChild(row);
-    var a = row.querySelector('.ir-a'), b = row.querySelector('.ir-b');
-    var ok = row.querySelector('.inline-ok'), hint = row.querySelector('.ir-hint');
-    function sync() {
-      var full = a.value.trim() && b.value.trim();
-      ok.disabled = !full;
-      hint.textContent = full ? '' : opt.hint;
-    }
-    hint.textContent = opt.hint;
-    a.addEventListener('input', sync);
-    b.addEventListener('input', sync);
-    ok.onclick = function () { if (!ok.disabled) onOk(a.value.trim(), b.value.trim()); };
-    row.querySelector('.inline-cancel').onclick = function () { row.remove(); };
-    a.focus();
-  }
-
-  $('banAdd').onclick = function () {
-    inlineRow($('banList'), { a: '금지 표현 (예: 美白)', b: '왜 금지인지 근거', bothRequired: true, aLang: 'ja',
-      hint: '왜 금지인지 근거를 함께 적어 주세요 — 사유 없이는 등록되지 않습니다.' },
-      function (term, reason) { state.bans.push({ term: term, reason: reason }); markDirty(); renderBans(); });
+  $('pmDelete').onclick = function () {
+    var id = prod.editingId;
+    editCtx = editCtx && Object.assign(editCtx, { dirty: false });
+    closeEdit();
+    askDelete(id);
   };
 
-  // ── 변경 감지 → 저장 활성 (BRAND-06) ──
-  function markDirty() {
-    state.dirty = true;
-    var btn = $('saveBtn');
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    $('saveMsg').textContent = '저장하지 않은 변경이 있습니다';
-    $('saveMsg').style.color = 'rgba(55,56,60,0.61)';
-  }
-  function markSaved(msg) {
-    state.dirty = false;
-    var btn = $('saveBtn');
-    btn.disabled = true;
-    btn.style.opacity = '.55';
-    $('saveMsg').textContent = msg || '';
-  }
-  ['fBrand', 'fCategory', 'fClass', 'fTarget', 'fProduct', 'fKrUrl', 'fJpUrl', 'fTone'].forEach(function (id) {
-    $(id).addEventListener('input', function () {
-      markDirty();
-      if (id === 'fTone') $('toneCount').textContent = $('fTone').value.length;
-    });
-  });
-  $('termAdd').onclick = function () {
-    if ($('termRows').querySelector('.inline-row')) return;   // 입력 행 중복 생성 방지
-    if (!state.terms.length) $('termRows').innerHTML = '';    // 빈 상태 문구 치움
-    inlineRow($('termRows'), { a: 'KR 제품명', b: 'JA 표기', bothRequired: true, bLang: 'ja',
-      hint: 'KR·JA 둘 다 입력해야 저장됩니다.' },
-      function (kr, ja) { state.terms.push({ kr: kr, ja: ja }); markDirty(); renderTerms(); });
-  };
-  $('saveBtn').onclick = function () {
-    var btn = $('saveBtn');
-    if (btn.disabled) return;
-    if (!$('fBrand').value.trim()) {
-      $('saveMsg').textContent = '브랜드명을 입력해 주세요';
-      $('saveMsg').style.color = '#C6362C';
-      $('fBrand').focus();
-      return;
-    }
-    btn.disabled = true;
-    $('saveMsg').textContent = '저장 중…';
-    setTimeout(function () {
-      markSaved('저장되었습니다 — 다음 생성부터 반영됩니다');
-      $('saveMsg').style.color = '#00875A';
-    }, 700);
-  };
+  /* ══════════ 상태 데모 (기본 = 작성 완료 / 미작성 = BRAND-07) ══════════ */
 
-  // ── 상태 데모 (기본 = 작성 완료 / 미작성 = BRAND-07) ──
+  /** @param {boolean} blank 미작성 상태 여부 */
   function apply(blank) {
+    if (editCtx) { editCtx.dirty = false; closeEdit(); }
+    $('delModal').style.display = 'none';
+    $('delBrandModal').style.display = 'none';
+    document.body.style.overflow = '';
     state.blank = blank;
-    state.pos = blank ? [] : FILLED.pos.slice();
-    state.jp = blank ? [] : FILLED.jp.slice();
-    state.terms = blank ? [] : FILLED.terms.slice();
-    state.bans = blank ? [] : FILLED.bans.slice();
+    state.profile = blank
+      ? { name: '하루온 HARUON', cat: '스킨케어', cls: '', pos: [], target: '' }
+      : JSON.parse(JSON.stringify(FILLED.profile));
+    state.memo = blank ? '' : FILLED.memo;
+    state.doc = blank ? null : FILLED.doc;
+    state.channels = blank ? { kr: [], jp: [] } : JSON.parse(JSON.stringify(FILLED.channels));
+    state.terms = blank ? [] : FILLED.terms.map(function (t) { return { kr: t.kr, ja: t.ja }; });
+    state.bans = blank ? [] : FILLED.bans.map(function (b) { return { term: b.term, reason: b.reason }; });
+    state.tone = blank ? '' : FILLED.tone;
     state.products = blank ? [] : DEMO_PRODUCTS.map(function (p) { return JSON.parse(JSON.stringify(p)); });
     $('termSuggest').style.display = 'none';
-    $('fTarget').value = blank ? '' : FILLED.target;
-    $('fProduct').value = blank ? '' : FILLED.product;
-    $('fKrUrl').value = blank ? '' : 'https://smartstore.naver.com/haruon';
-    $('fJpUrl').value = '';
-    $('fTone').value = blank ? '' : FILLED.tone;
-    $('toneCount').textContent = $('fTone').value.length;
-    $('productHint').style.display = blank ? 'block' : 'none';
-    $('docRow').style.display = blank ? 'none' : 'flex';
-    renderPos(); renderJp(); renderTerms(); renderBans(); renderProducts();
-    markSaved('');
+    announce('');
+    renderProfileView(); renderMemoView(); renderChannels(); renderKitView(); renderProducts();
+    syncDelBrand();
   }
+  document.querySelectorAll('.st-btn').forEach(function (b) {
+    b.onclick = function () { apply(b.getAttribute('data-st') === 'blank'); };
+  });
 
-  // Esc — 위 레이어부터 닫는다 (확인 → 삭제 → 제품 모달)
+  /* ══════════ Esc 계층 · 포커스 트랩 ══════════ */
+
+  // Esc — 위 레이어부터 닫는다 (편집 취소 확인 → 브랜드 삭제 → 제품 삭제 → 열린 편집 모달)
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
-    if ($('discardModal').style.display === 'flex') { $('discardModal').style.display = 'none'; $('pmName').focus(); return; }
+    if ($('discardModal').style.display === 'flex') {
+      $('discardModal').style.display = 'none';
+      if (editCtx && $(editCtx.first)) $(editCtx.first).focus();
+      return;
+    }
     if ($('delBrandModal').style.display === 'flex') { closeDelBrand(); return; }
     if ($('delModal').style.display === 'flex') { closeDelete(); return; }
-    if ($('prodModal').style.display === 'flex') requestCloseProduct();
+    if (editCtx) requestCloseEdit();
   });
 
   // 포커스 트랩 — 모달 안에서만 Tab 순환
-  ['prodModal', 'delModal', 'discardModal', 'delBrandModal'].forEach(function (id) {
+  ['pfModal', 'mmModal', 'chModal', 'ktModal', 'prodModal', 'delModal', 'discardModal', 'delBrandModal'].forEach(function (id) {
     $(id).addEventListener('keydown', function (e) {
       if (e.key !== 'Tab') return;
-      var f = $(id).querySelectorAll('input, select, textarea, button');
+      var f = Array.prototype.filter.call(
+        $(id).querySelectorAll('input, select, textarea, button'),
+        function (el) { return el.offsetParent !== null && !el.disabled; });
       if (!f.length) return;
       var first = f[0], last = f[f.length - 1];
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
   });
-  document.querySelectorAll('.st-btn').forEach(function (b) {
-    b.onclick = function () { apply(b.getAttribute('data-st') === 'blank'); };
-  });
 
-  // ── 하위 메뉴 매칭 배지 (LIB-07 — 4-matching sessionStorage 연동) ──
+  /* ══════════ 하위 메뉴 매칭 배지 (LIB-07 — 4-matching sessionStorage 연동) ══════════ */
   (function () {
     var m = null;
     try { m = JSON.parse(sessionStorage.getItem('kglow_ops_match') || 'null'); } catch (e) {}
@@ -889,7 +1427,7 @@
     badge.style.display = 'inline-flex';
   })();
 
-  // ── 브랜드 삭제 (BRAND-10) — 마지막 브랜드는 삭제 불가 ──
+  /* ══════════ 브랜드 삭제 (BRAND-10) — 마지막 브랜드는 삭제 불가 ══════════ */
   /** 데모: 보유 브랜드 2개(하루온·글로우리프) 전제. 1개면 삭제 버튼이 잠긴다 */
   var BRAND_COUNT = 2;
   function syncDelBrand() {
@@ -908,11 +1446,13 @@
   }
   $('delBrandBtn').onclick = function () {
     if ($('delBrandBtn').disabled) return;
-    var name = $('fBrand').value.trim() || '이 브랜드';
+    var name = state.profile.name || '이 브랜드';
     var shots = state.products.reduce(function (n, p) { return n + p.shots.length; }, 0);
+    var chN = state.channels.kr.length + state.channels.jp.length;
     $('dbNameEcho').textContent = name;
     $('dbList').innerHTML =
       '<li>제품 <b class="tnum">' + state.products.length + '</b>건 · 제품컷 <b class="tnum">' + shots + '</b>장</li>' +
+      '<li>채널 <b class="tnum">' + chN + '</b>건 (국내 <b class="tnum">' + state.channels.kr.length + '</b> · 일본 <b class="tnum">' + state.channels.jp.length + '</b>)</li>' +
       '<li>진단 리포트 <b class="tnum">2</b>건 · 생성 썸네일 <b class="tnum">4</b>건</li>' +
       '<li>일본향 용어집 <b class="tnum">' + state.terms.length + '</b>건 · 금지 표현 <b class="tnum">' + state.bans.length + '</b>건</li>' +
       '<li>매칭 신청 내역</li>';
@@ -924,7 +1464,7 @@
   };
   /** 브랜드명을 정확히 입력해야 삭제 활성 (BRAND-10b) */
   function syncDbConfirm() {
-    var ok = $('dbConfirmName').value.trim() === ($('fBrand').value.trim() || '이 브랜드');
+    var ok = $('dbConfirmName').value.trim() === (state.profile.name || '이 브랜드');
     var b = $('dbConfirm');
     b.disabled = !ok;
     b.style.opacity = ok ? '1' : '.5';
@@ -947,21 +1487,20 @@
   };
 
   apply(false);
-  syncDelBrand();
 
-  // ── 브랜드 추가 착지 (⓪ MAIN-01b′-3) — 새 브랜드는 빈 킷 상태로 도착한다 ──
+  /* ══════════ 브랜드 추가 착지 (⓪ MAIN-01b′-3) — 새 브랜드는 빈 킷 상태로 도착 ══════════ */
   (function () {
     var added = null;
     try { added = JSON.parse(sessionStorage.getItem('kglow_brand_added') || 'null'); } catch (e) {}
     if (!added) return;
     sessionStorage.removeItem('kglow_brand_added');
     apply(true);                                   // BRAND-07 빈 상태로 시작
-    $('fBrand').value = added.name;
-    $('fCategory').value = added.cat || '스킨케어';
+    state.profile.name = added.name;
+    state.profile.cat = added.cat || '스킨케어';
+    renderProfileView();
     document.querySelectorAll('.sw-btn span span').forEach(function (s, i) {
       if (i === 0) s.textContent = added.name;
     });
-    markSaved('');
     $('landToastTitle').textContent = added.name + '을(를) 추가했습니다';
     $('landToast').style.display = 'block';
     setTimeout(function () { $('landToast').style.display = 'none'; }, 7000);
