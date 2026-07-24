@@ -20,6 +20,9 @@ import {
 } from '@/lib/engine/rules/positioning';
 import type { Category, ProductClass, TierInput } from '@/lib/engine/types';
 
+// after() 진단 파이프라인(LLM 4~5콜, 2~3분)이 이 예산 안에서 실행된다 — Vercel Fluid 기준(11 §3)
+export const maxDuration = 300;
+
 const CATEGORIES: Category[] = ['skincare', 'makeup', 'suncare', 'cleansing'];
 const PRODUCT_CLASSES: ProductClass[] = ['화장품', '의약외품', '미상'];
 

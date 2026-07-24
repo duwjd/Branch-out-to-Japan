@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "description": "일본 시장 진출 브랜드 전환 스튜디오 — 데이터 수집 도구 포함",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
