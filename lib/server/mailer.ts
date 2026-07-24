@@ -18,10 +18,21 @@ export interface AuthMailInput {
  *   예외: AUTH_MAIL_MODE=devlink이면 운영에서도 devLink 반환 — 실메일 미구현 상태의
  *   폐쇄 UT용 임시 모드(11 §4). 실메일(Resend) 도입 시 이 플래그를 제거한다.
  */
+let suppressWarned = false;
+
 export async function sendAuthMail(input: AuthMailInput): Promise<{ devLink: string | null }> {
   const { to, kind, link } = input;
   // 링크 원문(토큰 포함)은 로그에 남기지 않는다 — 수신자·종류만 기록
   logger.info('인증 메일(dev)', { to, kind });
   const exposeLink = process.env.NODE_ENV !== 'production' || process.env.AUTH_MAIL_MODE === 'devlink';
+  // 운영에서 링크가 억제되는데 실 메일 발송이 미구현이면 아무도 인증을 완료할 수 없다(가입 전원 차단).
+  // 침묵 실패를 막기 위해 최초 1회 시끄럽게 경고한다(원인·해결 명시).
+  if (!exposeLink && !suppressWarned) {
+    suppressWarned = true;
+    logger.error(
+      '인증 링크 미노출(운영) — 실 메일 발송이 미구현이라 이 상태에서는 사용자가 인증을 완료할 수 없습니다(가입 전원 차단). ' +
+        '원인: AUTH_MAIL_MODE 미설정 / 해결: Vercel 환경변수에 AUTH_MAIL_MODE=devlink 설정 후 Redeploy(docs/deploy-runbook.md §5).',
+    );
+  }
   return { devLink: exposeLink ? link : null };
 }

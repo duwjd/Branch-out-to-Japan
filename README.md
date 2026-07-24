@@ -38,6 +38,8 @@
 - **데이터**: 일본 쇼핑몰 제품 카탈로그·상세 OCR·SNS 렉시콘·썸네일 스타일 팩 (`data/processed/`)
 - **검증**: 합성 페르소나 20인 시뮬레이션 + 리포트 샘플 6인 검증 + S2 재시뮬 (`docs/research/`)
 
+**배포 준비 진입(2026-07-24):** **Vercel Hobby + Supabase Free** 무료 스택으로 UT(8/1~3) 전 실사용자 접속 배포를 준비 중입니다 — 스펙 [docs/11-deploy-spec.md](docs/11-deploy-spec.md) · 운영 가이드 [docs/deploy-runbook.md](docs/deploy-runbook.md) · 결정 [호스팅·배포 ADR](docs/decisions/2026-07-24-호스팅-배포-결정.md).
+
 ## 지금 바로 볼 수 있는 것 (설치·서버 불필요)
 
 와이어프레임·랜딩 시안은 단일 HTML이라 브라우저에서 바로 열립니다:
@@ -153,6 +155,7 @@ persona-simulation/  페르소나 검증용 랜딩 시안·카피 팩·결과 �
 
 - **선행 완료**: 리서치 · 데이터 정제 · IA·플로우 설계 · 스펙 · 와이어프레임
 - **1차 개발**: 리포트(7/11~17) → 스튜디오(7/18~24) → 운영(7/25~31)
+- **배포**: UT 전 무료 배포(Vercel Hobby + Supabase Free) — [배포 스펙](docs/11-deploy-spec.md) · [운영 가이드](docs/deploy-runbook.md)
 - **검증·완성**: UT(8/1~3) → 개선·완성(8/4~9) → 발표
 
 자세히: [docs/04-roadmap.md](docs/04-roadmap.md)

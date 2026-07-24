@@ -8,7 +8,7 @@ import { createDiagnosisRequest, runDiagnosisJob } from '@/lib/server/reportJob'
 import { currentLlmMode } from '@/lib/engine/llm/client';
 import { getSession } from '@/lib/server/session';
 import { getActiveBrandId } from '@/lib/server/activeBrand';
-import { getStore } from '@/lib/db/store';
+import { hasSupabaseEnv } from '@/lib/db/supabaseClient';
 import { saveFile, extForMime } from '@/lib/files/storage';
 import { logger } from '@/lib/logger';
 import { HARD_GATE_CHARS, contentCharCount } from '@/lib/engine/rules/gates';
@@ -167,6 +167,13 @@ export async function POST(request: Request): Promise<NextResponse> {
 }
 
 export async function GET(): Promise<NextResponse> {
-  const store = await getStore();
-  return NextResponse.json({ storeKind: store.kind(), llmMode: currentLlmMode() });
+  // 진단용 — 저장 오설정을 throw로 감추지 않고 env 기준으로 그대로 보고한다(런북 §3 확진 관문).
+  // getStore()를 부르지 않으므로 프로덕션 미설정에서도 500 없이 원인을 드러낸다.
+  const supabaseConfigured = hasSupabaseEnv();
+  return NextResponse.json({
+    storeKind: supabaseConfigured ? 'supabase' : 'file',
+    llmMode: currentLlmMode(),
+    // 프로덕션 + 파일 저장 = 오설정(서버리스 비영속) — 데이터 라우트는 명시적 500난다
+    misconfigured: process.env.NODE_ENV === 'production' && !supabaseConfigured,
+  });
 }

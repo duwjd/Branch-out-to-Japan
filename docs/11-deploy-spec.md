@@ -96,9 +96,10 @@ Supabase Free
 | 증상 | 원인 후보 | 대응 |
 |---|---|---|
 | 진단이 `processing` 고착 → 10분 후 `failed` | 함수 300초 초과(파이프라인 지연) 또는 Fluid off(60초) | Fluid on 확인(§5-B4) → 재발 시 로그에서 콜별 소요 확인, 큐 도입 검토(08 §6.2 대안) |
-| `storeKind: "file"` | Supabase env 3종 미설정·오타 | §4 재확인 후 Redeploy |
+| `/api/report`가 `storeKind:"file"` 또는 `misconfigured:true` | Supabase env 3종 미설정·오타 | §4 재확인 후 Redeploy |
+| **가입/로그인이 500** (프로덕션) | Supabase env 미설정 → 저장 팩토리가 명시적 throw(파일 폴백 차단, `lib/db/store.ts`) | Vercel **로그**에 "Supabase 환경변수 미설정…" 메시지 확인 → §4 설정 후 Redeploy |
 | 업로드·이미지 표시 실패 | Storage 버킷 `files` 미생성 / 이름 불일치 | setup-supabase.md 4단계 |
-| 가입 후 인증 불가 | `AUTH_MAIL_MODE` 미설정 | §4 |
+| 가입 완료 화면에 **인증 링크가 없음** → 로그인 403 | `AUTH_MAIL_MODE` 미설정(실메일 미구현이라 링크 억제 시 아무도 인증 불가) | Vercel **로그**에 "인증 링크 미노출(운영)…" error 확인 → §4에서 `AUTH_MAIL_MODE=devlink` 설정 후 Redeploy |
 | Supabase "project paused" | 7일 무활동 | 대시보드에서 Restore(수 분) — UT 직전 접속으로 예방 |
 | 대역폭·빌드 한도 경고 | Hobby 100GB 초과 등 | Vercel Usage 확인 — UT 규모에서 도달 시 원인(대용량 이미지 반복 서빙) 먼저 제거 |
 | **유료 고객 발생** | Hobby 비상업 한정 위반 | **Pro 전환($20/월)** — 과금 전 팀 결정 |
@@ -107,10 +108,11 @@ Supabase Free
 ## 8. P1 백로그 (배포 후 개선)
 
 - **실메일 발송**: Resend 무료(100통/일) + 커스텀 도메인 검증 → `AUTH_MAIL_MODE=devlink` 제거(`mailer.ts` 내부만 교체 — 연결 지점 단일화 유지)
-- **프로덕션 가드 강화**: production에서 `AUTH_SECRET` 미설정 시 throw · Supabase env 누락 시 파일 폴백 대신 명시적 에러(침묵 실패 방지)
+- ~~**프로덕션 가드 강화**~~ **(2026-07-24 완료)**: Supabase env 누락 시 **파일 폴백 대신 명시적 throw**(`lib/db/store.ts`, 빌드 페이즈 제외) · `AUTH_MAIL_MODE` 억제 시 · `AUTH_SECRET` 미설정 시 운영 **error 로그** 승격(mailer·sessionToken) · `/api/report`에 `misconfigured` 플래그. (`AUTH_SECRET`은 throw 대신 로그 — verifySession no-throw 계약 유지)
 - **파일 서빙 서명 URL 직행**: `/api/files/[id]` 함수 경유 대신 Storage signed URL — 함수 호출·대역폭 절감
 - **커스텀 도메인** 연결(Vercel 무료 지원) — UT 이후
 - 실 OAuth·결제 게이트 집행 등 기능 잔여는 [[10-implementation-status]] §5 정본 유지
 
 ## 변경 이력
 - 2026-07-24 신규 작성: 호스팅 확정(Vercel Hobby + Supabase Free — [[decisions/2026-07-24-호스팅-배포-결정]])에 따른 배포 스펙 정본. P0 코드 6건(Storage 전환·devlink·트레이싱·maxDuration·engines·스테일 가드)과 같은 PR.
+- 2026-07-24 **인증 배포 가드 강화**: 배포본 이메일 가입/로그인 무동작(원인=Supabase env·`AUTH_MAIL_MODE` 미설정) 대응. **[코드]** 저장 팩토리 프로덕션 명시적 throw(침묵 파일 폴백 차단) · mailer/sessionToken 운영 error 로그 승격 · `/api/report` `misconfigured` 플래그 · `supabase/schema.sql` 상단 주석 함정(users 없음 오도) 교정. **[문서]** §7 트러블슈팅 3행 갱신 · §8 가드 항목 완료 표시. 필수 env(§4)는 코드 변경 아님 — 운영자가 Vercel에 설정(런북 §1-B).

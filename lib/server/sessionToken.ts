@@ -33,10 +33,13 @@ function getSecret(): string {
   if (secret) return secret;
   if (!secretWarned) {
     secretWarned = true;
-    logger.warn(
-      'AUTH_SECRET 미설정 — dev 고정 시크릿으로 세션을 서명합니다. ' +
-        '원인: 환경변수 누락 / 해결: 배포 전 .env에 AUTH_SECRET(랜덤 32바이트 이상) 지정',
-    );
+    // 운영에서 dev 고정 시크릿을 쓰면 누구나 세션을 위조할 수 있으므로 error로 승격한다.
+    // (verifySession의 no-throw 계약은 유지 — throw하면 /app 전 요청이 500나므로 로그로만 승격)
+    const msg =
+      'AUTH_SECRET 미설정 — dev 고정 시크릿으로 세션을 서명합니다(누구나 세션 위조 가능). ' +
+      '원인: 환경변수 누락 / 해결: 배포 환경변수에 AUTH_SECRET(openssl rand -base64 32) 설정 후 Redeploy(docs/deploy-runbook.md §1-B).';
+    if (process.env.NODE_ENV === 'production') logger.error(msg);
+    else logger.warn(msg);
   }
   return DEV_SECRET;
 }

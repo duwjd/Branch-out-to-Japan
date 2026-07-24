@@ -1,8 +1,9 @@
 -- ① 진단 리포트 저장 스키마 (기능 검증 빌드)
 -- 정본 엔티티: docs/08-data-flow.md §6.
 -- 이번 범위 간소화: audit_sentences 는 reports.blocks_json(블록3) 안에 포함(별도 테이블은 ②축·체커 재사용 시 분리).
--- 인증 생략 단계라 users/brand_profiles 테이블도 아직 없음 — 온보딩 구현 시 추가.
--- 실행: Supabase 대시보드 → SQL Editor → 이 파일 전체 붙여넣기 → Run.
+-- users·auth_tokens·brand_profiles 등 인증/브랜드 테이블은 파일 하단 마이그레이션 블록(2026-07-23~)에서 생성한다.
+--   ⚠ 반드시 이 파일 "전체"를 순서대로 실행할 것 — 상단만 적용하면 users 릴레이션이 없어 가입/로그인이 500난다.
+-- 실행: Supabase 대시보드 → SQL Editor → 이 파일 전체 붙여넣기 → Run → Table Editor에 테이블 11개 확인.
 
 create table if not exists diagnosis_requests (
   id uuid primary key default gen_random_uuid(),
