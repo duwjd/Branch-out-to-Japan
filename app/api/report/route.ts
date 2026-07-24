@@ -6,6 +6,7 @@
 import { NextResponse, after } from 'next/server';
 import { createDiagnosisRequest, runDiagnosisJob } from '@/lib/server/reportJob';
 import { currentLlmMode } from '@/lib/engine/llm/client';
+import { getSession } from '@/lib/server/session';
 import { getActiveBrandId } from '@/lib/server/activeBrand';
 import { getStore } from '@/lib/db/store';
 import { saveFile, extForMime } from '@/lib/files/storage';
@@ -97,6 +98,11 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export async function POST(request: Request): Promise<NextResponse> {
+  // 게스트 업로드 낭비 방지 + 리포트 게이트(M4)의 서버측 근거 — 파싱·이미지 저장보다 먼저 세션 가드
+  if (!(await getSession())) {
+    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  }
+
   // v7: 상세페이지 이미지 업로드가 기본 경로라 multipart FormData로 받는다(브랜드/제품 필드 + 이미지)
   let form: FormData;
   try {

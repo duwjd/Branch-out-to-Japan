@@ -7,6 +7,12 @@
 
 import { useEffect, useRef } from 'react';
 
+/**
+ * 열려 있는 모달의 스택 — 게이트 모달처럼 모달이 다른 모달 위에 겹칠 때
+ * 최상단 모달만 Esc에 반응하게 해 이중 발화(하위 모달 동시 닫힘·입력 유실)를 막는다(GATE-03).
+ */
+const modalStack: symbol[] = [];
+
 export function Modal({
   open,
   onClose,
@@ -21,19 +27,25 @@ export function Modal({
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
+  const tokenRef = useRef<symbol | null>(null);
+  if (tokenRef.current === null) tokenRef.current = Symbol('modal');
 
   useEffect(() => {
     if (!open) return;
+    const token = tokenRef.current as symbol;
+    modalStack.push(token);
     restoreRef.current = document.activeElement as HTMLElement | null;
     cardRef.current?.focus();
 
-    /** Esc로 닫기 */
+    /** Esc로 닫기 — 최상단 모달만 반응(중첩 시 하위 모달 보호) */
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && modalStack[modalStack.length - 1] === token) onClose();
     }
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('keydown', onKey);
+      const idx = modalStack.lastIndexOf(token);
+      if (idx >= 0) modalStack.splice(idx, 1);
       restoreRef.current?.focus();
     };
   }, [open, onClose]);

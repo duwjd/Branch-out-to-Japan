@@ -3,9 +3,10 @@ import { KglowLogo } from '@/components/brand/Logo';
 
 /**
  * 랜딩(메인) 페이지 — 기능 검증 빌드.
- * 카피 정본: design/wireframes/public-onboarding-spec.md §1 확정 카피(jp-localizer 2026-07-09) 그대로 사용.
- * 규칙 준수: Stats 수치 비노출(실측 전) · 가상 통계 금지 · CTA 코랄 정책(#FF6464 + 큰 흰 글씨만).
- * 디자인은 확정 후 교체 — 섹션 구조(id)와 카피만 유지하면 된다.
+ * 카피 정본: design/wireframes/public-onboarding-spec.md §1 확정 카피(jp-localizer 2026-07-09) 기반.
+ *  - Trust(§9)는 리포트 검수·서명 단계 폐지(2026-07-16) 반영해 근거 투명성 카피로 수정.
+ * 스타일: globals.css @theme 디자인 토큰 유틸 사용(coral·ink·surface). 인라인 색 금지.
+ * 규칙 준수: Stats 수치 비노출(실측 전) · 가상 통계 금지 · CTA 코랄 정책(coral 솔리드는 큰 흰 글씨 버튼만).
  */
 
 const BEFORE_AFTER_ROWS = [
@@ -46,7 +47,7 @@ const FAQ_ROWS = [
 /** 랜딩 섹션 공통 래퍼 */
 function Section({ id, children, alt }: { id: string; children: React.ReactNode; alt?: boolean }) {
   return (
-    <section id={id} className={alt ? 'bg-neutral-50' : 'bg-white'}>
+    <section id={id} className={alt ? 'bg-page' : 'bg-canvas'}>
       <div className="mx-auto max-w-4xl px-6 py-14">{children}</div>
     </section>
   );
@@ -56,20 +57,23 @@ export default function LandingPage() {
   return (
     <main>
       {/* 1 Header */}
-      <header className="sticky top-0 z-10 border-b border-neutral-200 bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-hairline bg-canvas/90 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
           <Link href="/" aria-label="KGLOW 홈">
             {/* 로고에 Japan Growth Studio 서브카피가 포함돼 뷰박스가 높아짐 → 워드마크 크기 유지 위해 32px */}
             <KglowLogo height={32} />
           </Link>
           <nav aria-label="주요 메뉴" className="flex items-center gap-4 text-sm">
-            <a href="#service" className="text-neutral-600 hover:text-neutral-900">서비스</a>
-            <a href="#before-after" className="text-neutral-600 hover:text-neutral-900">Before·After</a>
-            <a href="#pricing" className="text-neutral-600 hover:text-neutral-900">요금</a>
-            <a href="#faq" className="text-neutral-600 hover:text-neutral-900">FAQ</a>
+            <a href="#service" className="text-ink-mute hover:text-ink">서비스</a>
+            <a href="#before-after" className="text-ink-mute hover:text-ink">Before·After</a>
+            <a href="#pricing" className="text-ink-mute hover:text-ink">요금</a>
+            <a href="#faq" className="text-ink-mute hover:text-ink">FAQ</a>
+            <Link href="/login" className="font-semibold text-coral-strong hover:underline">
+              로그인
+            </Link>
             <Link
               href="/app/report/new"
-              className="rounded-lg bg-[#FF6464] px-4 py-2 text-base font-bold text-white hover:bg-[#D93636]"
+              className="rounded-lg bg-coral px-4 py-2 text-base font-bold text-white hover:bg-coral-strong"
             >
               무료 진단 시작
             </Link>
@@ -79,12 +83,12 @@ export default function LandingPage() {
 
       {/* 2 Hero */}
       <Section id="hero">
-        <h1 className="text-3xl font-extrabold leading-snug sm:text-4xl">
+        <h1 className="text-3xl font-extrabold leading-snug text-ink sm:text-4xl">
           번역이 아니라,
           <br />
           일본 고객 관점의 메시지 재설계
         </h1>
-        <p className="mt-5 max-w-2xl text-lg text-neutral-700">
+        <p className="mt-5 max-w-2xl text-lg text-ink-body">
           한국 상세·SNS 문구를 일본 구매자가 &lsquo;사는 이유&rsquo;로 다시 씁니다. 일본어로 옮기는 게 아니라,
           무엇을 근거로 신뢰하고 구매하는지를 역설계해 문장을 다시 짓습니다.{' '}
           <strong>일본향 전문가가 확정하고, AI가 속도를 냅니다.</strong>
@@ -92,13 +96,13 @@ export default function LandingPage() {
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href="/app/report/new"
-            className="rounded-lg bg-[#FF6464] px-6 py-3 text-lg font-bold text-white hover:bg-[#D93636]"
+            className="rounded-lg bg-coral px-6 py-3 text-lg font-bold text-white hover:bg-coral-strong"
           >
             무료 진단 시작
           </Link>
           <span
             aria-disabled="true"
-            className="cursor-not-allowed rounded-lg border border-neutral-300 px-6 py-3 text-lg font-semibold text-neutral-400"
+            className="cursor-not-allowed rounded-lg border border-input-border px-6 py-3 text-lg font-semibold text-ink-faint"
             title="샘플 리포트 페이지는 다음 단계에서 제공됩니다"
           >
             샘플 리포트 보기 (준비 중)
@@ -108,11 +112,11 @@ export default function LandingPage() {
 
       {/* 3 Stats — 실측 확보 전 수치 비노출(가상 통계 금지). 판단 근거 공개 칩만. */}
       <Section id="stats" alt>
-        <h2 className="text-xl font-bold">숫자로 설득하지 않습니다. 근거로 보여드립니다.</h2>
-        <p className="mt-2 text-neutral-700">정착률·만족도를 지어내지 않습니다. 대신 판단 근거를 전부 공개합니다.</p>
+        <h2 className="text-xl font-bold text-ink">숫자로 설득하지 않습니다. 근거로 보여드립니다.</h2>
+        <p className="mt-2 text-ink-body">정착률·만족도를 지어내지 않습니다. 대신 판단 근거를 전부 공개합니다.</p>
         <ul className="mt-4 flex flex-wrap gap-2 text-sm">
           {['薬機法 조항 각주', '채점 기준 공개', '라쿠텐 상세 코퍼스 대조', '한국어 역해설 병기'].map((chip) => (
-            <li key={chip} className="rounded-full border border-neutral-300 bg-white px-3 py-1 text-neutral-700">
+            <li key={chip} className="rounded-full border border-input-border bg-canvas px-3 py-1 text-ink-body">
               {chip}
             </li>
           ))}
@@ -121,56 +125,56 @@ export default function LandingPage() {
 
       {/* 4 Problem — 2트랙 */}
       <Section id="problem">
-        <h2 className="text-xl font-bold">지금 어떤 상황이신가요?</h2>
+        <h2 className="text-xl font-bold text-ink">지금 어떤 상황이신가요?</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-neutral-200 p-5">
-            <h3 className="font-semibold">입점 준비</h3>
-            <p className="mt-2 text-neutral-700">번역은 끝냈는데, 이게 일본에서 통할지 확신이 없다</p>
+          <div className="rounded-xl border border-card-border p-5">
+            <h3 className="font-semibold text-ink">입점 준비</h3>
+            <p className="mt-2 text-ink-body">번역은 끝냈는데, 이게 일본에서 통할지 확신이 없다</p>
           </div>
-          <div className="rounded-xl border border-neutral-200 p-5">
-            <h3 className="font-semibold">운영 정체</h3>
-            <p className="mt-2 text-neutral-700">입점은 했는데, 리뷰(口コミ)도 랭킹도 오르지 않는다</p>
+          <div className="rounded-xl border border-card-border p-5">
+            <h3 className="font-semibold text-ink">운영 정체</h3>
+            <p className="mt-2 text-ink-body">입점은 했는데, 리뷰(口コミ)도 랭킹도 오르지 않는다</p>
           </div>
         </div>
       </Section>
 
       {/* 5 Service 3축 */}
       <Section id="service" alt>
-        <h2 className="text-xl font-bold">진단부터 제작·운영까지, 한 곳에서</h2>
+        <h2 className="text-xl font-bold text-ink">진단부터 제작·운영까지, 한 곳에서</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-neutral-200 bg-white p-5">
-            <h3 className="font-semibold">① 진단 리포트</h3>
-            <p className="mt-2 text-sm text-neutral-700">薬機法 전수 감사 + 페르소나·USP 재정의 + 근거 기반 재작성</p>
+          <div className="rounded-xl border border-card-border bg-canvas p-5">
+            <h3 className="font-semibold text-ink">① 진단 리포트</h3>
+            <p className="mt-2 text-sm text-ink-body">薬機法 전수 감사 + 페르소나·USP 재정의 + 근거 기반 재작성</p>
           </div>
-          <div className="rounded-xl border border-neutral-200 bg-white p-5">
-            <h3 className="font-semibold">② 마케팅 스튜디오</h3>
-            <p className="mt-2 text-sm text-neutral-700">자산만 연결하면 재설계된 상세·썸네일·피드 초안이 도착</p>
+          <div className="rounded-xl border border-card-border bg-canvas p-5">
+            <h3 className="font-semibold text-ink">② 마케팅 스튜디오</h3>
+            <p className="mt-2 text-sm text-ink-body">자산만 연결하면 재설계된 상세·썸네일·피드 초안이 도착</p>
           </div>
-          <div className="rounded-xl border border-neutral-200 bg-white p-5">
-            <h3 className="font-semibold">③ 운영</h3>
-            <p className="mt-2 text-sm text-neutral-700">시즌 사이클 대응 + 일본 기업 매칭</p>
+          <div className="rounded-xl border border-card-border bg-canvas p-5">
+            <h3 className="font-semibold text-ink">③ 운영</h3>
+            <p className="mt-2 text-sm text-ink-body">시즌 사이클 대응 + 일본 기업 매칭</p>
           </div>
         </div>
       </Section>
 
       {/* 6 Before/After ★ 최강 자산 */}
       <Section id="before-after">
-        <h2 className="text-xl font-bold">직역하면 이렇게, 재설계하면 이렇게</h2>
+        <h2 className="text-xl font-bold text-ink">직역하면 이렇게, 재설계하면 이렇게</h2>
         <div className="mt-4 space-y-4">
           {BEFORE_AFTER_ROWS.map((row) => (
-            <article key={row.category} className="rounded-xl border border-neutral-200 p-5">
-              <h3 className="text-sm font-semibold text-[#D93636]">{row.category}</h3>
+            <article key={row.category} className="rounded-xl border border-card-border p-5">
+              <h3 className="text-sm font-semibold text-coral-strong">{row.category}</h3>
               <dl className="mt-3 grid gap-3 sm:grid-cols-2">
                 <div>
-                  <dt className="text-xs font-semibold text-neutral-500">Before (직역)</dt>
-                  <dd className="mt-1 text-neutral-700 line-through decoration-neutral-400" lang="ja">{row.before}</dd>
+                  <dt className="text-xs font-semibold text-ink-mute">Before (직역)</dt>
+                  <dd className="mt-1 text-ink-body line-through decoration-ink-faint" lang="ja">{row.before}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-semibold text-neutral-500">After (재설계)</dt>
-                  <dd className="mt-1 font-medium" lang="ja">{row.after}</dd>
+                  <dt className="text-xs font-semibold text-ink-mute">After (재설계)</dt>
+                  <dd className="mt-1 font-medium text-ink" lang="ja">{row.after}</dd>
                 </div>
               </dl>
-              <p className="mt-3 text-sm text-neutral-600">{row.note}</p>
+              <p className="mt-3 text-sm text-ink-mute">{row.note}</p>
             </article>
           ))}
         </div>
@@ -178,14 +182,14 @@ export default function LandingPage() {
 
       {/* 7 How */}
       <Section id="how" alt>
-        <h2 className="text-xl font-bold">배울 것 없습니다. 자산만 연결하면 됩니다.</h2>
+        <h2 className="text-xl font-bold text-ink">배울 것 없습니다. 자산만 연결하면 됩니다.</h2>
         <ol className="mt-4 grid gap-4 sm:grid-cols-3">
           {[
             'STEP 1 — 브랜드 자산 연결 (새로 배울 도구 없음)',
             'STEP 2 — 전문가가 확정, AI가 속도',
             'STEP 3 — 한국어 역해설 붙은 초안·완성본 도착',
           ].map((step) => (
-            <li key={step} className="rounded-xl border border-neutral-200 bg-white p-5 text-sm text-neutral-700">
+            <li key={step} className="rounded-xl border border-card-border bg-canvas p-5 text-sm text-ink-body">
               {step}
             </li>
           ))}
@@ -194,12 +198,12 @@ export default function LandingPage() {
 
       {/* 8 Compliance — 약기법 훅 */}
       <Section id="compliance">
-        <div className="rounded-xl border border-[#FFD6D6] bg-[#FFF8F8] p-6">
-          <h2 className="text-xl font-bold">그 効能 문구, 일본에선 광고가 내려갈 수도 있습니다</h2>
-          <p className="mt-2 text-neutral-700">
+        <div className="rounded-xl border border-coral/20 bg-coral-tint p-6">
+          <h2 className="text-xl font-bold text-ink">그 効能 문구, 일본에선 광고가 내려갈 수도 있습니다</h2>
+          <p className="mt-2 text-ink-body">
             화장품·의약외품이 말할 수 있는 효능 범위는 薬機法으로 정해져 있습니다. 지금 문구를 진단으로 확인하세요.
           </p>
-          <Link href="/app/report/new" className="mt-3 inline-block text-sm font-semibold text-[#D93636] underline">
+          <Link href="/app/report/new" className="mt-3 inline-block text-sm font-semibold text-coral-strong underline">
             진단으로 확인하기 →
           </Link>
         </div>
@@ -207,13 +211,13 @@ export default function LandingPage() {
 
       {/* 9 Trust */}
       <Section id="trust" alt>
-        <h2 className="text-xl font-bold">AI가 먼저가 아닙니다. 사람이 확정합니다.</h2>
-        <p className="mt-2 max-w-2xl text-neutral-700">
-          모든 판정·재설계는 일본 약무·현지화 담당자 검토·서명을 거쳐 발행됩니다.
+        <h2 className="text-xl font-bold text-ink">점수만 던지지 않습니다. 근거를 전부 보여드립니다.</h2>
+        <p className="mt-2 max-w-2xl text-ink-body">
+          항목마다 통과 기준·내 문장·코퍼스 근거를 함께 노출하고, 약기법 판정에는 규정 조항을 각주로 답니다.
         </p>
         <ul className="mt-4 flex flex-wrap gap-2 text-sm">
-          {['근거 각주', '채점 기준 공개', '사람 서명 발행'].map((chip) => (
-            <li key={chip} className="rounded-full border border-neutral-300 bg-white px-3 py-1 text-neutral-700">
+          {['근거 각주', '채점 기준 공개', '한국어 역해설 병기'].map((chip) => (
+            <li key={chip} className="rounded-full border border-input-border bg-canvas px-3 py-1 text-ink-body">
               {chip}
             </li>
           ))}
@@ -222,8 +226,8 @@ export default function LandingPage() {
 
       {/* 10 Pricing 요약 */}
       <Section id="pricing">
-        <h2 className="text-xl font-bold">고정가입니다. 견적 왕복이 없습니다.</h2>
-        <p className="mt-2 max-w-2xl text-neutral-700">
+        <h2 className="text-xl font-bold text-ink">고정가입니다. 견적 왕복이 없습니다.</h2>
+        <p className="mt-2 max-w-2xl text-ink-body">
           진단 1건 30만 고정. 제작이 필요하면 Growth 월 20만, 첫 달은 진단비 공제. 결과물 보기 전 월정액 아님.
           언제든 해지, 품의용 PDF.
         </p>
@@ -233,10 +237,10 @@ export default function LandingPage() {
             { name: 'Report', price: '30만 / 1회', desc: '방향 확인 — 진단 리포트' },
             { name: 'Growth', price: '월 20만', desc: '콘텐츠 제작 · 첫 달 진단비 공제' },
           ].map((tier) => (
-            <div key={tier.name} className="rounded-xl border border-neutral-200 p-5">
-              <h3 className="font-semibold">{tier.name}</h3>
-              <p className="mt-1 text-lg font-bold">{tier.price}</p>
-              <p className="mt-1 text-sm text-neutral-600">{tier.desc}</p>
+            <div key={tier.name} className="rounded-xl border border-card-border p-5">
+              <h3 className="font-semibold text-ink">{tier.name}</h3>
+              <p className="mt-1 text-lg font-bold text-ink">{tier.price}</p>
+              <p className="mt-1 text-sm text-ink-mute">{tier.desc}</p>
             </div>
           ))}
         </div>
@@ -244,12 +248,12 @@ export default function LandingPage() {
 
       {/* 11 FAQ */}
       <Section id="faq" alt>
-        <h2 className="text-xl font-bold">자주 묻는 질문</h2>
+        <h2 className="text-xl font-bold text-ink">자주 묻는 질문</h2>
         <div className="mt-4 space-y-2">
           {FAQ_ROWS.map((row) => (
-            <details key={row.q} className="rounded-lg border border-neutral-200 bg-white p-4">
-              <summary className="cursor-pointer font-medium">{row.q}</summary>
-              <p className="mt-2 text-sm text-neutral-700">{row.a}</p>
+            <details key={row.q} className="rounded-lg border border-card-border bg-canvas p-4">
+              <summary className="cursor-pointer font-medium text-ink">{row.q}</summary>
+              <p className="mt-2 text-sm text-ink-body">{row.a}</p>
             </details>
           ))}
         </div>
@@ -257,20 +261,20 @@ export default function LandingPage() {
 
       {/* 12 Final CTA */}
       <Section id="cta">
-        <div className="rounded-2xl bg-[#FFF8F8] p-8 text-center">
-          <h2 className="text-2xl font-bold">지금 쓰는 문구부터, 무료로 진단해 보세요.</h2>
-          <p className="mt-2 text-neutral-700">실제 카피를 넣으면 문장 단위 감사와 재설계안이 담긴 리포트가 생성됩니다.</p>
+        <div className="rounded-2xl bg-coral-tint p-8 text-center">
+          <h2 className="text-2xl font-bold text-ink">지금 쓰는 문구부터, 무료로 진단해 보세요.</h2>
+          <p className="mt-2 text-ink-body">실제 카피를 넣으면 문장 단위 감사와 재설계안이 담긴 리포트가 생성됩니다.</p>
           <Link
             href="/app/report/new"
-            className="mt-5 inline-block rounded-lg bg-[#FF6464] px-8 py-3 text-lg font-bold text-white hover:bg-[#D93636]"
+            className="mt-5 inline-block rounded-lg bg-coral px-8 py-3 text-lg font-bold text-white hover:bg-coral-strong"
           >
             무료 진단 시작
           </Link>
         </div>
       </Section>
 
-      <footer className="border-t border-neutral-200">
-        <div className="mx-auto max-w-4xl px-6 py-8 text-sm text-neutral-500">
+      <footer className="border-t border-hairline">
+        <div className="mx-auto max-w-4xl px-6 py-8 text-sm text-ink-mute">
           KGLOW — 기능 검증 빌드. 디자인은 확정 후 교체됩니다.
         </div>
       </footer>

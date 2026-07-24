@@ -7,6 +7,7 @@ import { buttonClass, cardClass, StatusBadge } from '@/components/ui/primitives'
 import { IconCard } from '@/components/ui/icons';
 import { LogoutButton } from './LogoutButton';
 import { PlanChangeButton, WithdrawButton } from './AccountActions';
+import { PasswordChange } from './PasswordChange';
 import { MypageBrands } from './MypageBrands';
 
 /**
@@ -20,7 +21,10 @@ export default async function AccountPage() {
   if (!session) redirect('/login');
 
   const store = await getStore();
-  const [profile, brandList] = await Promise.all([getActiveBrand(), store.listBrandProfiles()]);
+  const [profile, brandList] = await Promise.all([
+    getActiveBrand(),
+    store.listBrandProfiles(session.user.id),
+  ]);
   const [requests, assets] = profile
     ? await Promise.all([store.listRequests(profile.id), store.listAssets(profile.id)])
     : [[], []];
@@ -225,6 +229,8 @@ export default async function AccountPage() {
           </h2>
           <div className="mt-3 flex flex-wrap items-center gap-4">
             <LogoutButton />
+            {/* 이메일 계정만 비밀번호 변경 노출 — 소셜 계정은 각 사에서 관리 */}
+            {session.provider === 'email' && <PasswordChange email={session.user.email} />}
             <WithdrawButton reportCount={reportCount} thumbnailCount={thumbnailCount} brandName={profile?.brandName ?? null} />
           </div>
         </section>
