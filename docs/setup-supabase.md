@@ -1,6 +1,6 @@
-# Supabase 셋업 (3단계 · 약 5분)
+# Supabase 셋업 (4단계 · 약 7분)
 
-> 저장 계층 기본안(08 §8-D1). **키를 채우기 전까지는 `.data/` 로컬 파일 스토어로 자동 폴백**되며, 화면에 "로컬 저장(dev)" 배지가 표시된다.
+> 저장 계층 기본안(08 §8-D1). **키를 채우기 전까지는 `.data/` 로컬 파일 스토어로 자동 폴백**되며, 화면에 "로컬 저장(dev)" 배지가 표시된다. 배포(프로덕션)에서는 폴백이 동작하지 않으므로 필수([[11-deploy-spec]] §1).
 
 ## 1. 프로젝트 생성
 1. https://supabase.com → 로그인 → **New project**
@@ -11,7 +11,12 @@
 2. 저장소의 [`supabase/schema.sql`](../supabase/schema.sql) 내용 전체를 붙여넣고 **Run**
 3. Table Editor에서 `diagnosis_requests` · `reports` · `llm_call_logs` 3개 테이블 확인
 
-## 3. .env 채우기
+## 3. Storage 버킷 생성 (파일 업로드·생성 이미지용)
+1. 대시보드 좌측 **Storage** → **New bucket**
+2. 이름 **`files`** (코드 고정값 — `lib/files/storage.ts`), **Public bucket 체크 해제**(private — 서빙은 `GET /api/files/[id]`가 담당)
+3. 나머지 옵션 기본값으로 **Create**
+
+## 4. .env 채우기
 대시보드 **Settings → API** 에서 값 복사 → 저장소 루트 `.env` 파일에:
 
 ```
