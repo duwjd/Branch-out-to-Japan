@@ -339,6 +339,18 @@ export async function getStore(): Promise<Store> {
     const { createSupabaseStore } = await import('./supabaseStore');
     storeInstance = createSupabaseStore();
   } else {
+    // 프로덕션(서버리스)에서 파일 저장(.data/)은 읽기전용 FS(EROFS)라 가입·저장이 500으로 죽고,
+    // 인스턴스 간 비공유라 폴백해도 데이터가 유실된다. 조용히 폴백하면 "가입/로그인 안 됨"의
+    // 원인을 추적하기 어려우므로, 요청 시점에는 즉시 명시적 에러로 승격한다(11 §4·§8 가드).
+    // 빌드 프리렌더(NEXT_PHASE)에서는 데이터를 쓰지 않으므로 폴백을 허용해 빌드를 깨지 않는다.
+    const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+    if (process.env.NODE_ENV === 'production' && !isBuildPhase) {
+      throw new Error(
+        'Supabase 환경변수 미설정 — 프로덕션은 Supabase 저장이 필수입니다. ' +
+          'Vercel 환경변수에 NEXT_PUBLIC_SUPABASE_URL·SUPABASE_SERVICE_ROLE_KEY를 설정하고 Redeploy 하세요 ' +
+          '(docs/deploy-runbook.md §1-B·§5). 파일 저장(.data/)은 서버리스 읽기전용 FS에서 동작하지 않습니다.',
+      );
+    }
     const { createFileStore } = await import('./fileStore');
     storeInstance = createFileStore();
   }
