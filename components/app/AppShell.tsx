@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { KglowLogo } from '@/components/brand/Logo';
 import { AddBrandModal } from '@/components/app/AddBrandModal';
-import { StatusBadge, type BadgeTone } from '@/components/ui/primitives';
+import { StatusBadge, buttonClass, type BadgeTone } from '@/components/ui/primitives';
 import {
   IconBox,
   IconChevronDown,
@@ -34,9 +34,8 @@ export interface BrandSwitcherItem {
 }
 
 interface ShellProps {
-  userName: string;
-  userEmail: string;
-  providerLabel: string;
+  /** 로그인 세션 유저 — 게스트(비로그인 열람)면 null(계정 행 대신 로그인 CTA) */
+  user: { name: string; email: string; providerLabel: string } | null;
   /** 전 브랜드(스위처 목록) — 하나도 없으면 빈 배열(no-brand) */
   brands: BrandSwitcherItem[];
   /** 활성 브랜드 id — 스위처 현재 선택. 브랜드 없으면 null */
@@ -87,7 +86,7 @@ function subClass(active: boolean): string {
   ].join(' ');
 }
 
-export function AppShell({ userName, userEmail, providerLabel, brands, activeBrandId, kpi, latestReportId, matchBadge, children }: ShellProps) {
+export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, matchBadge, children }: ShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -379,55 +378,67 @@ export function AppShell({ userName, userEmail, providerLabel, brands, activeBra
           품의용 PDF
         </Link>
       )}
-      <div ref={avRef} className="relative">
-        <button
-          type="button"
-          aria-haspopup="menu"
-          aria-expanded={avOpen}
-          aria-label="계정 메뉴"
-          onClick={() => setAvOpen((v) => !v)}
-          className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-2 py-[7px] text-left transition-colors hover:bg-n-50"
-        >
-          <span
-            aria-hidden
-            className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full border border-coral/35 bg-coral-tint text-xs font-extrabold text-coral-strong"
+      {user ? (
+        <div ref={avRef} className="relative">
+          <button
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded={avOpen}
+            aria-label="계정 메뉴"
+            onClick={() => setAvOpen((v) => !v)}
+            className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-2 py-[7px] text-left transition-colors hover:bg-n-50"
           >
-            {userName.slice(0, 1)}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-[12.5px] leading-tight font-bold text-ink">{userName}</span>
-            <span className="block truncate text-[10.5px] leading-tight text-ink-mute">{userEmail}</span>
-          </span>
-          <IconChevronUp className="flex-none text-ink-faint" />
-        </button>
-        {avOpen && (
-          <div
-            role="menu"
-            className="absolute inset-x-0 bottom-[calc(100%+6px)] z-70 rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in"
-          >
-            <Link
-              href="/app/account"
-              role="menuitem"
-              aria-current={pathname.startsWith('/app/account') ? 'page' : undefined}
-              className={`block w-full rounded-lg px-2.5 py-2 text-left text-[12.5px] font-semibold no-underline transition-colors ${
-                pathname.startsWith('/app/account') ? 'bg-coral-tint text-coral-strong' : 'text-ink-body hover:bg-n-50'
-              }`}
+            <span
+              aria-hidden
+              className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full border border-coral/35 bg-coral-tint text-xs font-extrabold text-coral-strong"
             >
-              마이페이지
-            </Link>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => void handleLogout()}
-              disabled={busy}
-              className="block w-full cursor-pointer rounded-lg px-2.5 py-2 text-left text-[12.5px] font-semibold text-ink-body transition-colors hover:bg-n-50 disabled:opacity-50"
+              {user.name.slice(0, 1)}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[12.5px] leading-tight font-bold text-ink">{user.name}</span>
+              <span className="block truncate text-[10.5px] leading-tight text-ink-mute">{user.email}</span>
+            </span>
+            <IconChevronUp className="flex-none text-ink-faint" />
+          </button>
+          {avOpen && (
+            <div
+              role="menu"
+              className="absolute inset-x-0 bottom-[calc(100%+6px)] z-70 rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in"
             >
-              {busy ? '로그아웃 중…' : '로그아웃'}
-            </button>
-          </div>
-        )}
-        <p className="sr-only">{providerLabel} 연결됨</p>
-      </div>
+              <Link
+                href="/app/account"
+                role="menuitem"
+                aria-current={pathname.startsWith('/app/account') ? 'page' : undefined}
+                className={`block w-full rounded-lg px-2.5 py-2 text-left text-[12.5px] font-semibold no-underline transition-colors ${
+                  pathname.startsWith('/app/account') ? 'bg-coral-tint text-coral-strong' : 'text-ink-body hover:bg-n-50'
+                }`}
+              >
+                마이페이지
+              </Link>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => void handleLogout()}
+                disabled={busy}
+                className="block w-full cursor-pointer rounded-lg px-2.5 py-2 text-left text-[12.5px] font-semibold text-ink-body transition-colors hover:bg-n-50 disabled:opacity-50"
+              >
+                {busy ? '로그아웃 중…' : '로그아웃'}
+              </button>
+            </div>
+          )}
+          <p className="sr-only">{user.providerLabel} 연결됨</p>
+        </div>
+      ) : (
+        /* 게스트(비로그인 열람) — 계정 행 대신 로그인 CTA(GATE 밖 상시 진입점) */
+        <div>
+          <Link href="/login" className={buttonClass('primary', 'md', 'w-full no-underline')}>
+            로그인 / 회원가입
+          </Link>
+          <p className="mt-2 text-[11px] leading-relaxed text-ink-mute">
+            로그인하면 진단·생성 결과가 저장됩니다.
+          </p>
+        </div>
+      )}
     </div>
   );
 

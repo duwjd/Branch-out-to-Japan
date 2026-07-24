@@ -6,6 +6,7 @@
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type {
+  AuthTokenRecord,
   BrandProfileRecord,
   DiagnosisRequestRecord,
   GeneratedAssetRecord,
@@ -13,8 +14,9 @@ import type {
   ProductRecord,
   ReportRecord,
   Store,
+  UserRecord,
 } from './store';
-import { LEGACY_BRAND_ID } from './store';
+import { LEGACY_BRAND_ID, LEGACY_USER_ID } from './store';
 import type { BlocksJson, ReportStatus, TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 
@@ -68,10 +70,55 @@ function toReportRecord(row: ReportRow): ReportRecord {
   };
 }
 
+// ── 유저·인증 토큰 행 매핑 (스키마: supabase/schema.sql — 08 §6 USER) ──
+
+interface UserRow {
+  id: string;
+  email: string;
+  password_hash: string | null;
+  name: string;
+  email_verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+function toUserRecord(row: UserRow): UserRecord {
+  return {
+    id: row.id,
+    email: row.email,
+    passwordHash: row.password_hash,
+    name: row.name,
+    emailVerified: row.email_verified,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+interface AuthTokenRow {
+  token_hash: string;
+  user_id: string;
+  kind: AuthTokenRecord['kind'];
+  expires_at: string;
+  used_at: string | null;
+  created_at: string;
+}
+
+function toAuthTokenRecord(row: AuthTokenRow): AuthTokenRecord {
+  return {
+    tokenHash: row.token_hash,
+    userId: row.user_id,
+    kind: row.kind,
+    expiresAt: row.expires_at,
+    usedAt: row.used_at,
+    createdAt: row.created_at,
+  };
+}
+
 // ── 스프린트 2 행 매핑 (스키마: supabase/schema.sql — 08 §6.1 스프린트 2 델타) ──
 
 interface BrandProfileRow {
   id: string;
+  user_id: string | null;
   brand_name: string;
   category: BrandProfileRecord['category'];
   product_class: BrandProfileRecord['productClass'];
@@ -89,6 +136,7 @@ interface BrandProfileRow {
 function toBrandProfileRecord(row: BrandProfileRow): BrandProfileRecord {
   return {
     id: row.id,
+    userId: row.user_id ?? LEGACY_USER_ID,
     brandName: row.brand_name,
     category: row.category,
     productClass: row.product_class,
@@ -309,10 +357,11 @@ export function createSupabaseStore(): Store {
       return must(result, 'listReports').map(toReportRecord);
     },
 
-    async listBrandProfiles() {
+    async listBrandProfiles(userId: string) {
       const result = await client
         .from('brand_profiles')
         .select()
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .returns<BrandProfileRow[]>();
       return must(result, 'listBrandProfiles').map(toBrandProfileRecord);
@@ -341,6 +390,7 @@ export function createSupabaseStore(): Store {
       const result = await client.from('brand_profiles').upsert(
         {
           id: profile.id,
+          user_id: profile.userId,
           brand_name: profile.brandName,
           category: profile.category,
           product_class: profile.productClass,
@@ -500,6 +550,82 @@ export function createSupabaseStore(): Store {
     async deleteProduct(id) {
       const result = await client.from('products').delete().eq('id', id);
       if (result.error) throw new Error(`supabase deleteProduct 실패: ${result.error.message}`);
+    },
+
+    // ── 유저·인증 토큰(실 인증 — 08 §6 USER) ──────────────────────────────────
+    async getUserById(id: string) {
+      const result = await client.from('users').select().eq('id', id).maybeSingle<UserRow>();
+      if (result.error) throw new Error(`supabase getUserById 실패: ${result.error.message}`);
+      return result.data ? toUserRecord(result.data) : null;
+    },
+
+    async getUserByEmail(email: string) {
+      const result = await client.from('users').select().eq('email', email.toLowerCase()).maybeSingle<UserRow>();
+      if (result.error) throw new Error(`supabase getUserByEmail 실패: ${result.error.message}`);
+      return result.data ? toUserRecord(result.data) : null;
+    },
+
+    async createUser(input) {
+      const result = await client
+        .from('users')
+        .insert({
+          id: input.id ?? randomUUID(),
+          email: input.email.toLowerCase(),
+          password_hash: input.passwordHash,
+          name: input.name,
+          email_verified: input.emailVerified,
+        })
+        .select()
+        .single<UserRow>();
+      return toUserRecord(must(result, 'createUser'));
+    },
+
+    async updateUser(id, patch) {
+      const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      if (patch.passwordHash !== undefined) row.password_hash = patch.passwordHash;
+      if (patch.emailVerified !== undefined) row.email_verified = patch.emailVerified;
+      if (patch.name !== undefined) row.name = patch.name;
+      const result = await client.from('users').update(row).eq('id', id);
+      if (result.error) throw new Error(`supabase updateUser 실패: ${result.error.message}`);
+    },
+
+    async createAuthToken(input) {
+      const result = await client.from('auth_tokens').insert({
+        token_hash: input.tokenHash,
+        user_id: input.userId,
+        kind: input.kind,
+        expires_at: input.expiresAt,
+      });
+      if (result.error) throw new Error(`supabase createAuthToken 실패: ${result.error.message}`);
+    },
+
+    async consumeAuthToken(tokenHash: string, kind: 'verify' | 'reset') {
+      // 원자적 update-returning — 미사용(used_at is null)·미만료(expires_at > now)만 소비 마킹 후 반환
+      const now = new Date().toISOString();
+      const result = await client
+        .from('auth_tokens')
+        .update({ used_at: now })
+        .eq('token_hash', tokenHash)
+        .eq('kind', kind)
+        .is('used_at', null)
+        .gt('expires_at', now)
+        .select()
+        .maybeSingle<AuthTokenRow>();
+      if (result.error) throw new Error(`supabase consumeAuthToken 실패: ${result.error.message}`);
+      return result.data ? toAuthTokenRecord(result.data) : null;
+    },
+
+    async getLatestAuthToken(userId: string, kind: 'verify' | 'reset') {
+      const result = await client
+        .from('auth_tokens')
+        .select()
+        .eq('user_id', userId)
+        .eq('kind', kind)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .returns<AuthTokenRow[]>();
+      const rows = must(result, 'getLatestAuthToken');
+      return rows.length ? toAuthTokenRecord(rows[0]) : null;
     },
   };
 }

@@ -5,17 +5,23 @@
 
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/server/session';
+import { sessionOwnsBrand } from '@/lib/server/ownership';
 import { getStore, type ProductImage } from '@/lib/db/store';
 import { saveProductImages } from '@/lib/server/productImages';
 import { logger } from '@/lib/logger';
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
-  if (!(await getSession())) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
 
   const { id } = await params;
   const store = await getStore();
   const existing = await store.getProduct(id);
   if (!existing) return NextResponse.json({ error: '제품을 찾을 수 없습니다.' }, { status: 404 });
+  // 소유 가드 — 타 유저 제품 수정 차단(존재 비노출: not-found와 동일 404)
+  if (!(await sessionOwnsBrand(existing.brandProfileId, session))) {
+    return NextResponse.json({ error: '제품을 찾을 수 없습니다.' }, { status: 404 });
+  }
 
   const form = await request.formData();
   const nameKr = String(form.get('nameKr') ?? '').trim().slice(0, 40);
@@ -80,12 +86,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
-  if (!(await getSession())) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
 
   const { id } = await params;
   const store = await getStore();
   const existing = await store.getProduct(id);
   if (!existing) return NextResponse.json({ error: '제품을 찾을 수 없습니다.' }, { status: 404 });
+  // 소유 가드 — 타 유저 제품 삭제 차단(존재 비노출: not-found와 동일 404)
+  if (!(await sessionOwnsBrand(existing.brandProfileId, session))) {
+    return NextResponse.json({ error: '제품을 찾을 수 없습니다.' }, { status: 404 });
+  }
 
   await store.deleteProduct(id);
   logger.info('제품 자산 삭제', { productId: id });

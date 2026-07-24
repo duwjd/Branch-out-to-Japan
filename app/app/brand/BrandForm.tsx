@@ -12,6 +12,8 @@ import { POSITIONING_TAGS, POSITIONING_TAGS_MAX } from '@/lib/engine/rules/posit
 import { CATEGORY_LABELS, type Category } from '@/lib/engine/types';
 import type { BrandProductClass, BrandProfileRecord } from '@/lib/db/store';
 import { Modal } from '@/components/ui/Modal';
+import { LoginGateModal } from '@/components/auth/LoginGateModal';
+import { useLoginGate } from '@/components/auth/useLoginGate';
 import { ProductManager } from './ProductManager';
 import {
   SectionCard,
@@ -67,6 +69,7 @@ export function BrandForm({
   const [error, setError] = useState<string | null>(null);
   const [docError, setDocError] = useState<string | null>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
+  const { gateOpen, openGate, closeGate, onAuthedGate } = useLoginGate();
 
   // 브랜드 삭제(BRAND-10)
   const [delOpen, setDelOpen] = useState(false);
@@ -119,6 +122,10 @@ export function BrandForm({
           brandKit: { productNamesJa, forbiddenTerms, toneGuide },
         }),
       });
+      if (res.status === 401) {
+        openGate(handleSave); // 세션 만료 중 저장 방어 — 로그인 후 자동 재저장(finally가 saving 해제)
+        return;
+      }
       if (!res.ok) throw new Error((await res.json()).error ?? `HTTP ${res.status}`);
       setHasProfile(true);
       setSavedMsg('저장되었습니다 — 다음 생성부터 반영됩니다');
@@ -135,6 +142,10 @@ export function BrandForm({
     const form = new FormData();
     form.set('doc', file);
     const res = await fetch('/api/brand/doc', { method: 'POST', body: form });
+    if (res.status === 401) {
+      openGate(() => handleDocUpload(file)); // 같은 파일로 재개(File 객체는 클로저에 유지)
+      return;
+    }
     if (!res.ok) {
       setDocError((await res.json()).error ?? `HTTP ${res.status}`);
       return;
@@ -609,6 +620,8 @@ export function BrandForm({
           </button>
         </div>
       </div>
+
+      <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
     </main>
   );
 }

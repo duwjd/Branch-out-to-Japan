@@ -127,6 +127,16 @@ export function IconCard({ size, ...rest }: IconProps) {
   );
 }
 
+/** 이메일(봉투) — 로그인 "이메일로 계속하기" 등 */
+export function IconMail({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 6 9-6" />
+    </svg>
+  );
+}
+
 /** 스피너 — animate-spin과 함께 사용 */
 export function IconSpinner({ size, ...rest }: IconProps) {
   return (
