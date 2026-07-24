@@ -5,6 +5,7 @@
 
 import type { BlocksJson, Category, ReportStatus, RubricGroup, RubricItemId, TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
+import type { LeadKind, TrackEventType } from '../lead';
 
 /**
  * 레거시 단일 브랜드 id — 멀티 브랜드 이전에 만들어진 레코드(brandProfileId 없음)와
@@ -204,6 +205,40 @@ export interface MatchRequestRecord {
   updatedAt: string;
 }
 
+// ── 검증 랜딩(/lp) 리드·트래킹 엔티티 ────────────────────────────────────────
+
+/** 검증 랜딩 리드 — consultation(주 지표)/resource(보조) 공용 레코드 */
+export interface LeadRecord {
+  id: string;
+  kind: LeadKind;
+  brandName: string;
+  /** resource는 '' 허용 */
+  contactName: string;
+  /** 이메일 또는 전화(둘 다 문자열 하나로) */
+  contact: string;
+  /** LEAD_CHANNELS value들 */
+  channels: string[];
+  /** LEAD_STAGES value | '' */
+  stage: string;
+  /** PAIN_POINTS 문자열들 */
+  painPoints: string[];
+  memo: string;
+  /** 유입 소스 태그(utm_source/src/referrer) */
+  source: string;
+  createdAt: string;
+}
+
+/** 전환 퍼널 이벤트 — 방문→CTA클릭→영상재생→신청 */
+export interface TrackEventRecord {
+  id: string;
+  type: TrackEventType;
+  /** cta_click일 때 어떤 CTA 버튼인지 */
+  cta: string | null;
+  source: string;
+  path: string;
+  createdAt: string;
+}
+
 /** 브랜드 생성 입력 — id·타임스탬프는 스토어가 부여 */
 export type NewBrandProfile = Omit<BrandProfileRecord, 'id' | 'createdAt' | 'updatedAt'>;
 
@@ -277,6 +312,13 @@ export interface Store {
   getActiveMatchRequest(brandProfileId: string): Promise<MatchRequestRecord | null>;
   cancelMatchRequest(id: string): Promise<void>;
 
+  // ── 검증 랜딩(/lp) 리드·트래킹 ─────────────────────────────────────────────
+  createLead(input: Omit<LeadRecord, 'id' | 'createdAt'>): Promise<LeadRecord>;
+  /** 최신순 */
+  listLeads(): Promise<LeadRecord[]>;
+  createTrackEvent(input: Omit<TrackEventRecord, 'id' | 'createdAt'>): Promise<TrackEventRecord>;
+  /** 최신순 */
+  listTrackEvents(): Promise<TrackEventRecord[]>;
   // ── 제품 자산(BRAND-03) — 브랜드별 스코핑 ────────────────────────────────────
   listProducts(brandProfileId: string): Promise<ProductRecord[]>;
   getProduct(id: string): Promise<ProductRecord | null>;

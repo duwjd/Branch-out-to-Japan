@@ -10,10 +10,12 @@ import type {
   BrandProfileRecord,
   DiagnosisRequestRecord,
   GeneratedAssetRecord,
+  LeadRecord,
   MatchRequestRecord,
   ProductRecord,
   ReportRecord,
   Store,
+  TrackEventRecord,
   UserRecord,
 } from './store';
 import { LEGACY_BRAND_ID, LEGACY_USER_ID } from './store';
@@ -227,6 +229,58 @@ function toMatchRecord(row: MatchRequestRow): MatchRequestRecord {
     snapshot: row.snapshot,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+// ── 검증 랜딩(/lp) 리드·트래킹 행 매핑 (스키마: supabase/schema.sql) ──────────
+
+interface LeadRow {
+  id: string;
+  kind: LeadRecord['kind'];
+  brand_name: string;
+  contact_name: string;
+  contact: string;
+  channels: string[];
+  stage: string;
+  pain_points: string[];
+  memo: string;
+  source: string;
+  created_at: string;
+}
+
+function toLeadRecord(row: LeadRow): LeadRecord {
+  return {
+    id: row.id,
+    kind: row.kind,
+    brandName: row.brand_name,
+    contactName: row.contact_name,
+    contact: row.contact,
+    channels: row.channels,
+    stage: row.stage,
+    painPoints: row.pain_points,
+    memo: row.memo,
+    source: row.source,
+    createdAt: row.created_at,
+  };
+}
+
+interface TrackEventRow {
+  id: string;
+  type: TrackEventRecord['type'];
+  cta: string | null;
+  source: string;
+  path: string;
+  created_at: string;
+}
+
+function toTrackEventRecord(row: TrackEventRow): TrackEventRecord {
+  return {
+    id: row.id,
+    type: row.type,
+    cta: row.cta,
+    source: row.source,
+    path: row.path,
+    createdAt: row.created_at,
   };
 }
 
@@ -501,6 +555,55 @@ export function createSupabaseStore(): Store {
         .update({ status: 'cancelled', updated_at: new Date().toISOString() })
         .eq('id', id);
       if (result.error) throw new Error(`supabase cancelMatchRequest 실패: ${result.error.message}`);
+    },
+
+    // ── 검증 랜딩(/lp) 리드·트래킹 ─────────────────────────────────────────
+
+    async createLead(input) {
+      const result = await client
+        .from('leads')
+        .insert({
+          kind: input.kind,
+          brand_name: input.brandName,
+          contact_name: input.contactName,
+          contact: input.contact,
+          channels: input.channels,
+          stage: input.stage,
+          pain_points: input.painPoints,
+          memo: input.memo,
+          source: input.source,
+        })
+        .select()
+        .single<LeadRow>();
+      return toLeadRecord(must(result, 'createLead'));
+    },
+
+    async listLeads() {
+      const result = await client.from('leads').select().order('created_at', { ascending: false }).returns<LeadRow[]>();
+      return must(result, 'listLeads').map(toLeadRecord);
+    },
+
+    async createTrackEvent(input) {
+      const result = await client
+        .from('track_events')
+        .insert({
+          type: input.type,
+          cta: input.cta,
+          source: input.source,
+          path: input.path,
+        })
+        .select()
+        .single<TrackEventRow>();
+      return toTrackEventRecord(must(result, 'createTrackEvent'));
+    },
+
+    async listTrackEvents() {
+      const result = await client
+        .from('track_events')
+        .select()
+        .order('created_at', { ascending: false })
+        .returns<TrackEventRow[]>();
+      return must(result, 'listTrackEvents').map(toTrackEventRecord);
     },
 
     // ── 제품 자산(BRAND-03) ──────────────────────────────────────────────────

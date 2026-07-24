@@ -60,7 +60,8 @@ export default function LandingPage() {
       <header className="sticky top-0 z-10 border-b border-hairline bg-canvas/90 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
           <Link href="/" aria-label="KGLOW 홈">
-            <KglowLogo height={22} />
+            {/* 로고에 Japan Growth Studio 서브카피가 포함돼 뷰박스가 높아짐 → 워드마크 크기 유지 위해 32px */}
+            <KglowLogo height={32} />
           </Link>
           <nav aria-label="주요 메뉴" className="flex items-center gap-4 text-sm">
             <a href="#service" className="text-ink-mute hover:text-ink">서비스</a>
