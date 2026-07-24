@@ -126,13 +126,13 @@ supabase/schema.sql               # 테이블 3종 + RLS · `reports.overall_sco
 | # | 항목 | 내용 |
 |---|---|---|
 | 1 | **regulatory-summary v0 검토** | 조항 요약이 미검토(v0) — jp-localizer·약무 검토 후 `status: reviewed`로. 콜② 판정 품질의 근간 |
-| 2 | Supabase 전환 | 현재 파일 폴백으로 동작 중 — [setup-supabase.md](setup-supabase.md) 3단계(약 5분) 후 자동 전환 |
+| 2 | Supabase 전환 | 현재 파일 폴백으로 동작 중 — [setup-supabase.md](setup-supabase.md) 4단계(약 7분) 후 자동 전환. **파일 저장도 Storage 버킷 `files`로 전환 구현됨(2026-07-24 — env 있으면 Storage, 없으면 `.data/files/` 폴백)**. 프로덕션은 필수([[11-deploy-spec]] §4) |
 | 3 | ~~`/admin/review` 보호~~ | **해소(2026-07-16)** — 화면 자체를 제거. 남은 인증 과제는 #6 |
 | 3b | 🔴 **면책의 대가물 부재** | 검수 제거로 "법적 확정 판정 아님" 면책을 떠받치던 실명 서명이 사라짐. 30만 정당화·AI 불신층 전환 근거 약화 → **별도 결정 필요**([[decisions/DECISIONS]] 🔴) |
 | 4 | PDF 내보내기 | 미구현 (09 M4 잔여 · 08 §8-D7) |
 | 5 | 무료 약기법 체커 | 미구현 (stretch — 콜② 엔진·체커 스키마는 준비됨) |
 | 6 | 인증·온보딩·프리필 · 이메일 가입·비회원 게이트 | 이번 범위에서 의도적 제외 — 브랜드 섹션 직접 입력(온보딩 도입 시 프리필 — 08 §3.1). 도입 시 `users`·`brand_profiles` 스키마 추가. **스펙(2026-07-23)은 이메일 가입·로그인·인증·비번재설정 + 비회원 열람 + 실행 직전 게이트를 포함하나 실 구현은 잔여**(가드 완화·생성/등록 API 401→프론트 게이트·`users`(email·passwordHash·emailVerified) — 03-account §1·§3) |
-| 7 | 비동기 잡 실행 모델 | `after()` + 폴링(단일 프로세스 전제) — 서버리스 배포 시 큐 필요(08 §6.2 대안) |
+| 7 | ~~비동기 잡 실행 모델~~ | **해소(2026-07-24)** — Vercel Fluid Compute 300초가 파이프라인(2~3분)을 수용해 `after()`+폴링 유지, 큐 미도입. report·thumbnail `maxDuration=300` + 폴링 스테일 잡 가드(10분 초과 비터미널 → failed) 구현([[11-deploy-spec]] §3) |
 | 8 | 한글 경로 실행 차단 | 미러 우회 중 — 근본 해결(저장소 영문 경로 이전 or 보안SW 예외)은 **팀 결정 필요** |
 | 9 | D1(Supabase)·D6(재현성) 팀 확정 | 기본안으로 구현했으나 `DECISIONS.md` 승격 기록·스펙 §9-Q5 갱신은 미완 (09 M0 잔여) |
 | 10 | LLM 판정 편차 관찰 | `LlmCallLog` 저장 구현됨 — 동일 입력 N회 편차 리포트는 QA 단계 과제(08 §8-D6) |
@@ -142,3 +142,4 @@ supabase/schema.sql               # 테이블 3종 + RLS · `reports.overall_sco
 - 2026-07-09 신규 작성: 기능 검증 빌드(메인페이지+① 리포트 사이클) 구현·검증 완료 시점의 현황 스냅샷. 실 LLM E2E 결과(17/100, 정본 샘플과 1점 차)·코드 맵·실행 방법(한글 경로 미러 우회)·잔여 작업 10건.
 - 2026-07-16 **v4 갱신**: **[변경] 입력 브랜드 우선 재구성** — 진단 입력폼(브랜드 필수: 브랜드명·포지셔닝(택소노미 16종)·카테고리 / 제품 전부 선택)·두 진단 모드(`brand`/`brandProduct`)·게이트 단일 정의 `gates.ts`·`reports.overall_score` nullable. **[추가]** 브랜드 진단 E2E(에러 0·관리자 조작 0으로 `published`·블록 1·3·5·7·8 잠금·대비표 "미확인"·4장 덱)·풀 모드 회귀(9블록·7장 덱)·서버 이중 검증 6종 400 — typecheck 0오류·테스트 **30/30**. **[신규 한계]** #11 결제 잠금(샘플 경계) 집행 미구현(경계 정의만 · 브랜드 진단 가격 (미정)).
 - 2026-07-16 갱신: **[삭제] 검수 단계** — `/admin/review`·검수 API 2종·`signReport`/`rejectReport`/`listByStatus`·검수 3필드 제거, 상태 머신 4개로 축소, 파이프라인 성공 = 발행. 랜딩 FAQ의 서명 약속 카피 교체. **[추가] 보고용 슬라이드 내보내기**(스펙 §10). **[신규 한계] 3b 면책의 대가물 부재**(🔴).
+- 2026-07-24 갱신: **[추가] 배포 준비(P0 6건)** — 파일 저장 Supabase Storage 전환(`lib/files/storage.ts` + `lib/db/supabaseClient.ts` 공유 헬퍼, 로컬 폴백 유지) · `AUTH_MAIL_MODE=devlink`(운영 인증 링크 화면 노출 — 가입 차단 해소) · `next.config.ts` outputFileTracingIncludes(`data/processed/**`·목 샘플 — 서버리스 ENOENT 방지) · report/thumbnail `maxDuration=300` · `engines.node 22.x` · 폴링 스테일 잡 가드. 호스팅 확정 Vercel Hobby + Supabase Free — 정본 [[11-deploy-spec]] · [[decisions/2026-07-24-호스팅-배포-결정]]. **한계 #7(잡 실행 모델) 해소**, #2(Supabase 전환)는 인프라 세팅만 잔여.

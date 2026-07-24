@@ -4,7 +4,8 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from './supabaseClient';
 import type {
   AuthTokenRecord,
   BrandProfileRecord,
@@ -312,11 +313,7 @@ function toProductRecord(row: ProductRow): ProductRecord {
 
 /** Supabase 스토어 생성 — 호출 전 env 존재는 getStore()가 보장 */
 export function createSupabaseStore(): Store {
-  const client: SupabaseClient = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    process.env.SUPABASE_SERVICE_ROLE_KEY as string,
-    { auth: { persistSession: false } },
-  );
+  const client: SupabaseClient = getSupabaseClient();
 
   /** supabase 오류를 명시적으로 던진다(원인 파악용) */
   function must<T>(result: { data: T | null; error: { message: string } | null }, op: string): T {

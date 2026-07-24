@@ -15,11 +15,13 @@ export interface AuthMailInput {
  * 인증/재설정 메일을 보낸다(dev: 발송 대신 로그).
  * @returns devLink — 비-운영 환경에서만 링크 원문(프론트가 화면에 노출해 클릭 테스트).
  *   운영(NODE_ENV==='production')에서는 null(링크는 실제 메일로만 전달).
+ *   예외: AUTH_MAIL_MODE=devlink이면 운영에서도 devLink 반환 — 실메일 미구현 상태의
+ *   폐쇄 UT용 임시 모드(11 §4). 실메일(Resend) 도입 시 이 플래그를 제거한다.
  */
 export async function sendAuthMail(input: AuthMailInput): Promise<{ devLink: string | null }> {
   const { to, kind, link } = input;
   // 링크 원문(토큰 포함)은 로그에 남기지 않는다 — 수신자·종류만 기록
   logger.info('인증 메일(dev)', { to, kind });
-  const devLink = process.env.NODE_ENV !== 'production' ? link : null;
-  return { devLink };
+  const exposeLink = process.env.NODE_ENV !== 'production' || process.env.AUTH_MAIL_MODE === 'devlink';
+  return { devLink: exposeLink ? link : null };
 }
