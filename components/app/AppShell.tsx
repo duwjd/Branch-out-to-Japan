@@ -1,11 +1,12 @@
 'use client';
 
 /**
- * 앱 셸 — 좌측 248px 고정 사이드바 + 본문(상단 중앙 코랄 글로우).
- * 디자인 정본: docs/specs/00-main/1-home.html MAIN-01~02 (셸 마크업).
- * 구성: 워드마크 → 브랜드 스위처 → 3축 내비(+성숙도 배지, 운영 하위 아코디언)
- *       → KPI 위젯 → 품의용 PDF · 계정 행(드롭업 메뉴).
- * 1024px 미만에서는 사이드바가 상단 블록으로 접힌다(디자인 §반응형).
+ * 앱 셸 — 좌측 사이드바(펼침 248px · 접힘 64px 아이콘 레일) + 본문(상단 중앙 코랄 글로우).
+ * 디자인 정본: docs/specs/00-main/1-home.html MAIN-01 (2026-07-24 개정 — 성숙도 배지·KPI 위젯·
+ * 품의용 PDF를 사이드바에서 제거하고 접기/펼치기 아이콘 레일을 추가).
+ * 구성: (접기 토글) → 워드마크 → 브랜드 스위처 → 3축 내비(운영 하위 아코디언) → 계정 행.
+ * 접힘은 ≥lg(1024px)에서만 적용되고 상태는 localStorage로 페이지 간 유지된다.
+ * 1024px 미만에서는 사이드바가 상단 블록으로 접히며 접기 토글은 자동 no-op(숨김)이다.
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -17,9 +18,9 @@ import { StatusBadge, buttonClass, type BadgeTone } from '@/components/ui/primit
 import {
   IconBox,
   IconChevronDown,
+  IconChevronLeft,
   IconChevronUp,
   IconDoc,
-  IconDocDown,
   IconHome,
   IconImage,
 } from '@/components/ui/icons';
@@ -40,11 +41,7 @@ interface ShellProps {
   brands: BrandSwitcherItem[];
   /** 활성 브랜드 id — 스위처 현재 선택. 브랜드 없으면 null */
   activeBrandId: string | null;
-  /** KPI 위젯 값(활성 브랜드 기준) */
-  kpi: { reportCount: number; thumbnailCount: number; latestScore: number | null; megawari: { dDay: number; month: string } };
-  /** 품의용 PDF 진입점 — 최신 발행 리포트. 없으면 버튼 비노출 */
-  latestReportId: string | null;
-  /** 기업 매칭 상태 배지(LIB-07) — null이면 미신청(배지 없음) */
+  /** 기업 매칭 상태 배지(LIB-07) — null이면 미신청(배지 없음). 성숙도 배지가 아닌 라이브 상태 배지 */
   matchBadge: { label: string; tone: 'amber' | 'green' | 'neutral' } | null;
   children: React.ReactNode;
 }
@@ -70,10 +67,16 @@ const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
   cleansing: { kr: '클렌징', ja: 'クレンジング' },
 };
 
-/** 3축 내비 항목 클래스 */
+/** ≥lg 접힘(아이콘 레일)에서 숨길 라벨·텍스트. 라벨은 DOM에 유지하고 시각만 숨겨 모바일 스택은 무영향 */
+const HIDE_ON_RAIL = 'lg:group-data-[collapsed=true]:hidden';
+/** 접힘 상태 지속 키 */
+const COLLAPSE_KEY = 'kglow:sidebar-collapsed';
+
+/** 3축 내비 항목 클래스 — 접힘 시 아이콘만 가운데 정렬 */
 function navClass(active: boolean): string {
   return [
     'flex h-[42px] items-center gap-2.5 rounded-[10px] px-3 text-[13.5px] font-semibold no-underline transition-colors',
+    'lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:gap-0 lg:group-data-[collapsed=true]:px-0',
     active ? 'bg-coral-tint text-coral-strong font-bold' : 'text-ink-body hover:bg-n-100 hover:text-ink',
   ].join(' ');
 }
@@ -86,7 +89,7 @@ function subClass(active: boolean): string {
   ].join(' ');
 }
 
-export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, matchBadge, children }: ShellProps) {
+export function AppShell({ user, brands, activeBrandId, matchBadge, children }: ShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -94,6 +97,7 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
   const [avOpen, setAvOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [switching, setSwitching] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
   const swRef = useRef<HTMLDivElement>(null);
   const avRef = useRef<HTMLDivElement>(null);
 
@@ -103,7 +107,20 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
   const reportActive = pathname.startsWith('/app/report');
   const studioActive = pathname.startsWith('/app/studio');
   const opsActive = OPS_ITEMS.some((i) => pathname.startsWith(i.href));
-  const hasAssets = kpi.reportCount > 0 || kpi.thumbnailCount > 0;
+
+  /* 접힘 상태 localStorage 복원 — 초기값 false로 렌더한 뒤 마운트 후 반영(하이드레이션 미스매치 방지) */
+  useEffect(() => {
+    setCollapsed(window.localStorage.getItem(COLLAPSE_KEY) === '1');
+  }, []);
+
+  /** 접기/펼치기 토글(MAIN-01 2026-07-24) — 상태를 localStorage로 페이지 간 유지 */
+  function toggleCollapse() {
+    setCollapsed((v) => {
+      const next = !v;
+      window.localStorage.setItem(COLLAPSE_KEY, next ? '1' : '0');
+      return next;
+    });
+  }
 
   /* 드롭다운: 바깥 클릭·Esc 닫힘 */
   useEffect(() => {
@@ -177,8 +194,9 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
         type="button"
         aria-haspopup="listbox"
         aria-expanded={swOpen}
+        aria-label="브랜드 프로필 전환"
         onClick={() => setSwOpen((v) => !v)}
-        className={`flex w-full cursor-pointer items-center gap-2 rounded-[11px] border bg-canvas px-2.5 py-2 text-left transition-colors hover:border-coral ${
+        className={`flex w-full cursor-pointer items-center gap-2 rounded-[11px] border bg-canvas px-2.5 py-2 text-left transition-colors hover:border-coral lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:px-0 ${
           swOpen ? 'border-coral bg-coral-tint' : 'border-input-border'
         }`}
       >
@@ -188,7 +206,7 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
         >
           {brandInitial}
         </span>
-        <span className="min-w-0 flex-1">
+        <span className={`min-w-0 flex-1 ${HIDE_ON_RAIL}`}>
           <span className="block truncate text-[13px] leading-tight font-bold text-ink">{brandName}</span>
           <span className="block truncate text-[10.5px] leading-tight text-ink-mute">
             {activeBrand ? (
@@ -206,13 +224,13 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
             )}
           </span>
         </span>
-        <IconChevronDown className="flex-none text-[#70737c]" />
+        <IconChevronDown className={`flex-none text-[#70737c] ${HIDE_ON_RAIL}`} />
       </button>
       {swOpen && (
         <div
           role="listbox"
           aria-label="브랜드 프로필 전환"
-          className="absolute inset-x-0 top-[calc(100%+6px)] z-70 max-h-[320px] overflow-y-auto rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in"
+          className="absolute inset-x-0 top-[calc(100%+6px)] z-70 max-h-[320px] overflow-y-auto rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in lg:group-data-[collapsed=true]:right-auto lg:group-data-[collapsed=true]:min-w-[232px]"
         >
           {brands.length === 0 && (
             <p className="px-2.5 py-2 text-[11.5px] text-ink-mute">등록된 브랜드가 없습니다.</p>
@@ -271,37 +289,30 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
     </div>
   );
 
-  /* ── 1c · 3축 내비 ────────────────────────────────────── */
+  /* ── 1c · 3축 내비 (성숙도 배지 제거 · 2026-07-24) ─────── */
   const nav = (
     <nav className="mt-4 flex flex-col gap-0.5" aria-label="주요 메뉴">
       <Link href="/app" className={navClass(dashActive)} aria-current={dashActive ? 'page' : undefined}>
         <IconHome className={dashActive ? 'text-coral-strong' : 'text-ink-mute'} />
-        홈
+        <span className={HIDE_ON_RAIL}>홈</span>
       </Link>
       <Link href="/app/report/new" className={navClass(reportActive)} aria-current={reportActive ? 'page' : undefined}>
         <IconDoc className={reportActive ? 'text-coral-strong' : 'text-ink-mute'} />
-        진단 리포트
-        <StatusBadge tone="ok" className="ml-auto">
-          이용 가능 ○
-        </StatusBadge>
+        <span className={HIDE_ON_RAIL}>진단 리포트</span>
       </Link>
       <Link href="/app/studio/thumbnail" className={navClass(studioActive)} aria-current={studioActive ? 'page' : undefined}>
         <IconImage className={studioActive ? 'text-coral-strong' : 'text-ink-mute'} />
-        마케팅 스튜디오
-        <StatusBadge tone="warn" className="ml-auto">
-          썸네일 우선 △
-        </StatusBadge>
+        <span className={HIDE_ON_RAIL}>마케팅 스튜디오</span>
       </Link>
       <Link href="/app/library" className={navClass(opsActive)}>
         <IconBox className={opsActive ? 'text-coral-strong' : 'text-ink-mute'} />
-        운영
-        <StatusBadge tone="warn" className="ml-auto">
-          라이브러리 우선 △
-        </StatusBadge>
+        <span className={HIDE_ON_RAIL}>운영</span>
       </Link>
-      {/* LIB-00 · 운영 활성 시에만 펼치는 하위 아코디언 */}
+      {/* LIB-00 · 운영 활성 시에만 펼치는 하위 아코디언 — 레일(접힘)에서는 숨김 */}
       {opsActive && (
-        <ul className="relative mt-0.5 mb-1.5 ml-[21px] list-none pl-3 before:absolute before:top-1 before:bottom-1 before:left-0 before:w-0.5 before:rounded-full before:bg-n-150">
+        <ul
+          className={`relative mt-0.5 mb-1.5 ml-[21px] list-none pl-3 before:absolute before:top-1 before:bottom-1 before:left-0 before:w-0.5 before:rounded-full before:bg-n-150 ${HIDE_ON_RAIL}`}
+        >
           {OPS_ITEMS.map((item) => {
             const active = pathname.startsWith(item.href);
             return (
@@ -322,62 +333,9 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
     </nav>
   );
 
-  /* ── MAIN-02 · KPI 위젯 ───────────────────────────────── */
-  const kpiWidget = (
-    <div className="rounded-xl border border-card-border bg-n-50 px-3.5 py-3">
-      <p className="mb-1 text-[11px] font-bold tracking-[0.01em] text-ink-mute">브랜드 자산</p>
-      {hasAssets ? (
-        <>
-          <div className="flex items-baseline justify-between py-1 text-xs">
-            <span className="text-ink-body">진단 리포트</span>
-            <b className="text-[13px] font-bold text-ink">
-              <span className="tnum">{kpi.reportCount}</span>건
-            </b>
-          </div>
-          <div className="flex items-baseline justify-between py-1 text-xs">
-            <span className="text-ink-body">생성 썸네일</span>
-            <b className="text-[13px] font-bold text-ink">
-              <span className="tnum">{kpi.thumbnailCount}</span>건
-            </b>
-          </div>
-          {kpi.latestScore !== null && (
-            <div className="flex items-baseline justify-between py-1 text-xs">
-              <span className="text-ink-body">최근 진단 점수</span>
-              <b className="text-[13px] font-bold text-ink">
-                <span className="tnum">{kpi.latestScore}</span>
-                <span className="font-semibold text-ink-faint">/100</span>
-              </b>
-            </div>
-          )}
-          <div className="flex items-baseline justify-between py-1 text-xs">
-            <span className="text-ink-body">다음 메가와리</span>
-            <b className="text-[13px] font-bold text-ink">
-              D-<span className="tnum">{kpi.megawari.dDay}</span>
-              <span className="font-semibold text-ink-faint"> · {kpi.megawari.month}</span>
-            </b>
-          </div>
-        </>
-      ) : (
-        <p className="text-xs leading-relaxed text-ink-faint">
-          아직 자산이 없습니다.
-          <br />첫 진단에서 시작됩니다.
-        </p>
-      )}
-    </div>
-  );
-
-  /* ── 1d·1e · 품의 PDF + 계정 ──────────────────────────── */
+  /* ── 1e · 계정 (사이드바 최하단 · 품의 PDF는 2026-07-24 제거) ─── */
   const sideFoot = (
     <div className="mt-3 border-t border-hairline pt-3">
-      {latestReportId && (
-        <Link
-          href={`/app/report/${latestReportId}`}
-          className="mb-2.5 flex h-[34px] w-full items-center justify-center gap-[7px] rounded-lg border border-input-border bg-canvas text-[13px] font-semibold text-ink-body no-underline transition-colors hover:bg-n-100"
-        >
-          <IconDocDown size={13} />
-          품의용 PDF
-        </Link>
-      )}
       {user ? (
         <div ref={avRef} className="relative">
           <button
@@ -386,7 +344,7 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
             aria-expanded={avOpen}
             aria-label="계정 메뉴"
             onClick={() => setAvOpen((v) => !v)}
-            className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-2 py-[7px] text-left transition-colors hover:bg-n-50"
+            className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-2 py-[7px] text-left transition-colors hover:bg-n-50 lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:px-0"
           >
             <span
               aria-hidden
@@ -394,16 +352,16 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
             >
               {user.name.slice(0, 1)}
             </span>
-            <span className="min-w-0 flex-1">
+            <span className={`min-w-0 flex-1 ${HIDE_ON_RAIL}`}>
               <span className="block truncate text-[12.5px] leading-tight font-bold text-ink">{user.name}</span>
               <span className="block truncate text-[10.5px] leading-tight text-ink-mute">{user.email}</span>
             </span>
-            <IconChevronUp className="flex-none text-ink-faint" />
+            <IconChevronUp className={`flex-none text-ink-faint ${HIDE_ON_RAIL}`} />
           </button>
           {avOpen && (
             <div
               role="menu"
-              className="absolute inset-x-0 bottom-[calc(100%+6px)] z-70 rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in"
+              className="absolute inset-x-0 bottom-[calc(100%+6px)] z-70 rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in lg:group-data-[collapsed=true]:right-auto lg:group-data-[collapsed=true]:min-w-[200px]"
             >
               <Link
                 href="/app/account"
@@ -429,12 +387,19 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
           <p className="sr-only">{user.providerLabel} 연결됨</p>
         </div>
       ) : (
-        /* 게스트(비로그인 열람) — 계정 행 대신 로그인 CTA(GATE 밖 상시 진입점) */
+        /* 게스트(비로그인 열람) — 계정 행 대신 로그인 CTA(GATE 밖 상시 진입점). 접힘 시 → 아이콘 버튼 */
         <div>
-          <Link href="/login" className={buttonClass('primary', 'md', 'w-full no-underline')}>
-            로그인 / 회원가입
+          <Link
+            href="/login"
+            aria-label="로그인 / 회원가입"
+            className={buttonClass('primary', 'md', 'w-full no-underline lg:group-data-[collapsed=true]:px-0')}
+          >
+            <span className={HIDE_ON_RAIL}>로그인 / 회원가입</span>
+            <span aria-hidden className="hidden text-base font-extrabold lg:group-data-[collapsed=true]:inline">
+              →
+            </span>
           </Link>
-          <p className="mt-2 text-[11px] leading-relaxed text-ink-mute">
+          <p className={`mt-2 text-[11px] leading-relaxed text-ink-mute ${HIDE_ON_RAIL}`}>
             로그인하면 진단·생성 결과가 저장됩니다.
           </p>
         </div>
@@ -444,18 +409,41 @@ export function AppShell({ user, brands, activeBrandId, kpi, latestReportId, mat
 
   return (
     <div className="flex min-h-screen items-stretch max-lg:flex-col">
-      {/* 사이드바 — 1024px 미만에서 상단 블록으로 */}
+      {/* 사이드바 — 1024px 미만에서 상단 블록으로. 접힘(≥lg)은 data-collapsed로 구동(group) */}
       <aside
         aria-label="전역 내비게이션"
-        className="flex w-sidebar flex-none flex-col border-r border-hairline bg-canvas px-3.5 pt-[18px] pb-3.5 max-lg:static max-lg:h-auto max-lg:w-auto max-lg:border-r-0 max-lg:border-b lg:sticky lg:top-0 lg:h-screen"
+        data-collapsed={collapsed ? 'true' : 'false'}
+        className="group flex w-sidebar flex-none flex-col border-r border-hairline bg-canvas px-3.5 pt-[18px] pb-3.5 transition-[width] duration-200 max-lg:static max-lg:h-auto max-lg:w-auto max-lg:border-r-0 max-lg:border-b lg:sticky lg:top-0 lg:h-screen lg:data-[collapsed=true]:w-16 lg:data-[collapsed=true]:px-2"
       >
-        <Link href="/app" aria-label="KGLOW 홈" className="block px-2.5 pt-1 pb-4">
-          <KglowLogo className="h-[22px] w-auto" uid="shell-logo" />
+        {/* 접기/펼치기 토글 — ≤lg(상단 블록)에서는 숨김(자동 no-op) */}
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
+          className="mb-1.5 inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center self-end rounded-lg border border-card-border bg-canvas text-ink-mute transition-colors hover:bg-n-100 hover:text-ink max-lg:hidden lg:group-data-[collapsed=true]:self-center"
+        >
+          <IconChevronLeft className="transition-transform lg:group-data-[collapsed=true]:rotate-180" />
+        </button>
+
+        {/* 1a · 워드마크 — 접힘 시 네이비 "K" 마크로 축약(로고 전용색) */}
+        <Link
+          href="/app"
+          aria-label="KGLOW 홈"
+          className="block px-2.5 pt-1 pb-4 lg:group-data-[collapsed=true]:px-0 lg:group-data-[collapsed=true]:text-center"
+        >
+          <KglowLogo className={`h-[22px] w-auto ${HIDE_ON_RAIL}`} uid="shell-logo" />
+          <span
+            aria-hidden
+            className="hidden text-[19px] font-extrabold lg:group-data-[collapsed=true]:inline"
+            style={{ color: '#22304F' }}
+          >
+            K
+          </span>
         </Link>
         {brandSwitcher}
         {nav}
         <span className="flex-1 max-lg:hidden" aria-hidden />
-        <div className="max-lg:hidden">{kpiWidget}</div>
         {sideFoot}
       </aside>
 

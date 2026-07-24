@@ -231,7 +231,7 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 .side-kpi .k-row { display: flex; align-items: baseline; justify-content: space-between; padding: 4px 0; font-size: 12px; }
 .side-kpi .k-row b { font-size: 13px; font-weight: 700; color: var(--ink); }
 
-/* 사이드바 하단 고정(품의 PDF·계정) */
+/* 사이드바 하단 고정(계정) */
 .side-foot { border-top: 1px solid var(--hairline); margin-top: 12px; padding-top: 12px; }
 
 /* 로딩 스켈레톤 — 치수를 유지한 채 pulse */
@@ -242,6 +242,45 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   .app-shell { flex-direction: column; }
   .app-side { width: auto; flex: none; position: static; height: auto; border-right: none; border-bottom: 1px solid var(--hairline); }
   .side-gap { display: none; }
+}
+
+/* ── 사이드바 접기/펼치기 (아이콘 레일) — 상태는 .app-side[data-collapsed] ─────────
+   펼침 = 248px 전체, 접힘 = 64px 아이콘 레일. 접힘 규칙은 ≥981px 에서만 적용해
+   좁은 화면 상단 블록 레이아웃에서는 자동 no-op 된다. */
+.side-collapse {
+  align-self: flex-end; display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; margin: 0 0 6px; border: 1px solid var(--card-border);
+  border-radius: 8px; background: #fff; color: var(--ink-mute);
+  font-family: inherit; cursor: pointer; transition: background .15s, color .15s;
+}
+.side-collapse:hover { background: var(--n-100); color: var(--ink); }
+@media (max-width: 980px) { .side-collapse { display: none; } }
+
+@media (min-width: 981px) {
+  .app-side[data-collapsed="true"] { width: 64px; flex: 0 0 64px; padding: 18px 8px 14px; }
+  .app-side[data-collapsed="true"] .side-collapse { align-self: center; }
+  .app-side[data-collapsed="true"] .side-collapse svg { transform: rotate(180deg); }
+
+  /* 워드마크 → K 마크 (텍스트 노드는 font-size:0 로 지우고 ::before 로 대체) */
+  .app-side[data-collapsed="true"] .app-wordmark { font-size: 0; text-align: center; padding: 4px 0 16px; }
+  .app-side[data-collapsed="true"] .app-wordmark::before { content: "K"; font-size: 19px; font-weight: 800; color: var(--navy); }
+  .app-side[data-collapsed="true"] .app-wordmark span { display: none; }
+
+  /* 3축 내비 → 아이콘만 (라벨은 텍스트 노드라 font-size:0) */
+  .app-side[data-collapsed="true"] .side-nav a { font-size: 0; gap: 0; padding: 0; justify-content: center; }
+  .app-side[data-collapsed="true"] .side-nav a svg { flex: none; }
+  .app-side[data-collapsed="true"] .side-sub { display: none; }
+
+  /* 브랜드 스위처·계정 → 아바타만 (엘리먼트 span 은 display:none !important 로 인라인을 이김) */
+  .app-side[data-collapsed="true"] .sw-btn { justify-content: center; padding: 9px 0; }
+  .app-side[data-collapsed="true"] .sw-btn > span:nth-child(2),
+  .app-side[data-collapsed="true"] .sw-btn > svg { display: none !important; }
+  .app-side[data-collapsed="true"] #avBtn { justify-content: center; padding: 7px 0; }
+  .app-side[data-collapsed="true"] #avBtn > span:nth-child(2),
+  .app-side[data-collapsed="true"] #avBtn > svg { display: none !important; }
+
+  /* 열린 드롭다운은 64px 레일보다 넓게 */
+  .app-side[data-collapsed="true"] .sw-menu { min-width: 232px; }
 }
 
 /* ════════════════════════════════════════════════════════════════════
