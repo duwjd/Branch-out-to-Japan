@@ -1,11 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="KGLOW">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 197.184 197.184" width="197" height="197" role="img" aria-label="KGLOW">
 <title>KGLOW 심볼</title>
 <defs>
-<linearGradient id="ltm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8570"/><stop offset="1" stop-color="#FF6A57"/></linearGradient>
-<linearGradient id="dkm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E85742"/><stop offset="1" stop-color="#D8402B"/></linearGradient>
-<clipPath id="cpm"><circle cx="100" cy="100" r="100"/></clipPath></defs><g transform="translate(0.00,0.00) scale(1.00000)" clip-path="url(#cpm)">
-      <circle cx="100" cy="100" r="100" fill="url(#ltm)"/>
-      <path d="M -10,114 C 45,138 125,108 210,26 L 210,210 L -10,210 Z" fill="#fff"/>
-      <path d="M -10,128 C 45,152 125,120 210,38 L 210,210 L -10,210 Z" fill="url(#dkm)"/>
-    </g>
+<filter id="blur" x="-2.33427" y="48.6657" width="188.169" height="120.038" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="0.917137" result="effect1_foregroundBlur"/>
+</filter>
+<radialGradient id="r0" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50.7899 36.5986) rotate(47) scale(195.691)">
+<stop stop-color="#FF6464"/><stop offset="0.28" stop-color="#D93636"/><stop offset="0.66" stop-color="#D93636"/><stop offset="1" stop-color="#FF6464"/>
+</radialGradient>
+<radialGradient id="r1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(47.8023 31.3702) rotate(44) scale(118.012)">
+<stop stop-color="white" stop-opacity="0.31"/><stop offset="0.47" stop-color="white" stop-opacity="0.08"/><stop offset="1" stop-color="white" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="r2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(138.925 159.839) rotate(-120) scale(143.407)">
+<stop stop-color="#841918" stop-opacity="0.37"/><stop offset="0.62" stop-color="#A82320" stop-opacity="0.11"/><stop offset="1" stop-color="#A82320" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="swoosh" x1="-0.000611462" y1="126.228" x2="184.486" y2="49.2964" gradientUnits="userSpaceOnUse">
+<stop stop-color="#F1F2F4"/><stop offset="0.33" stop-color="white"/><stop offset="0.78" stop-color="white"/><stop offset="1" stop-color="#F8F8F9"/>
+</linearGradient>
+<mask id="mask" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="198" height="198">
+<path d="M98.5922 197.184C153.043 197.184 197.184 153.043 197.184 98.5922C197.184 44.1412 153.043 0 98.5922 0C44.1412 0 0 44.1412 0 98.5922C0 153.043 44.1412 197.184 98.5922 197.184Z" fill="white"/>
+</mask>
+</defs>
+<path d="M98.5922 197.184C153.043 197.184 197.184 153.043 197.184 98.5922C197.184 44.1412 153.043 0 98.5922 0C44.1412 0 0 44.1412 0 98.5922C0 153.043 44.1412 197.184 98.5922 197.184Z" fill="url(#r0)"/>
+<path d="M98.5922 197.184C153.043 197.184 197.184 153.043 197.184 98.5922C197.184 44.1412 153.043 0 98.5922 0C44.1412 0 0 44.1412 0 98.5922C0 153.043 44.1412 197.184 98.5922 197.184Z" fill="url(#r1)"/>
+<path d="M98.5922 197.184C153.043 197.184 197.184 153.043 197.184 98.5922C197.184 44.1412 153.043 0 98.5922 0C44.1412 0 0 44.1412 0 98.5922C0 153.043 44.1412 197.184 98.5922 197.184Z" fill="url(#r2)"/>
+<g mask="url(#mask)">
+<g filter="url(#blur)">
+<path d="M-0.5 111.5C17 145 77.5 124.5 118 102C143.118 88.0454 167.5 65.5 184 50.5C173.5 73.5 147.407 115.568 125 132C87 163.5 46 183 9 149L-0.5 111.5Z" fill="#7E1717" fill-opacity="0.3"/>
+</g>
+<path d="M0.5 111C13 158.5 98 118.5 126 100.5C150.171 84.9618 175.5 61.5 184.486 49.2964C176.5 66.5 160.5 94 132 122C103.5 150 34.5866 192.16 0.5 132V111Z" fill="url(#swoosh)"/>
+<path d="M0.5 110.764C8.5 149.5 72.5 132.5 120 104.5C145.832 89.2728 173.747 62.1748 184.5 49.5C168.815 68.9197 153.5 89 133 109C91.5 149.488 11.3237 163.238 1.5 133L0.5 110.764Z" fill="white" fill-opacity="0.23"/>
+</g>
 </svg>
