@@ -74,7 +74,10 @@
 
 /* ── 키프레임 (wireframe.css 계승) ─────────────────────── */
 @keyframes indet  { 0% { transform: translateX(-110%); } 100% { transform: translateX(480%); } }
-@keyframes fadeUp { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
+/* 100% 는 translateY(0) 이 아니라 transform:none — 정착 후 남는 transform 이 있으면
+   그 요소가 position:fixed 자손(JobPanel·하단 제출 바)의 컨테이닝 블록이 되어
+   뷰포트 고정이 깨진다. none 은 컨테이닝 블록을 만들지 않아 자손이 뷰포트 기준으로 복귀한다. */
+@keyframes fadeUp { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: none; } }
 @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 @keyframes shimmer { 0% { background-position: -420px 0; } 100% { background-position: 420px 0; } }

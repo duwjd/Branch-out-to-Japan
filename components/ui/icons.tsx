@@ -106,6 +106,15 @@ export function IconChevronUp({ size, ...rest }: IconProps) {
   );
 }
 
+/** 셰브론 ← (사이드바 접기 토글 — 접힘 시 180° 회전해 →) */
+export function IconChevronLeft({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size ?? 16, rest)}>
+      <path d="M15 6l-6 6 6 6" />
+    </svg>
+  );
+}
+
 /** 업로드(구름 화살표 없이 — 드롭존 픽토그램) */
 export function IconUpload({ size, ...rest }: IconProps) {
   return (
