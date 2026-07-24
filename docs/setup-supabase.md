@@ -1,6 +1,7 @@
 # Supabase 셋업 (4단계 · 약 7분)
 
 > 저장 계층 기본안(08 §8-D1). **키를 채우기 전까지는 `.data/` 로컬 파일 스토어로 자동 폴백**되며, 화면에 "로컬 저장(dev)" 배지가 표시된다. 배포(프로덕션)에서는 폴백이 동작하지 않으므로 필수([[11-deploy-spec]] §1).
+> 배포 전체 절차(Vercel 포함)·정지 복구는 [deploy-runbook.md](deploy-runbook.md).
 
 ## 1. 프로젝트 생성
 1. https://supabase.com → 로그인 → **New project**
