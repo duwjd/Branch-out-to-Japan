@@ -14,7 +14,8 @@
 | 프레임워크 | Next.js(App Router) · TypeScript · Tailwind · npm — 저장소 루트 = 앱 루트 (CLAUDE.md 확정) |
 | 스캐폴딩 | `create-next-app` 후 **기존 자산 병합 유지**: `package.json`의 `crawl:*`·`build:lexicon` 스크립트, `@anthropic-ai/sdk`·`playwright` devDeps, `scripts/`·`data/` 그대로 |
 | 저장·인증·파일 | Supabase (Postgres + Auth + Storage) — 엔티티는 [[08-data-flow]] §6. **스프린트 2 잠정(2026-07-21):** 인증 = **목 세션**(실 OAuth·이메일 인증 미연동 — §4b M5), 파일 = **로컬 `.data/files/` 우선**(`/api/files/[id]` 서빙, DB에는 fileId만 — Supabase Storage 전환 경계 유지, 08 §6.2). **스펙(2026-07-23)은 소셜 3종 + 이메일/비밀번호 병행 · 비회원 열람 + 실행 직전 게이트로 확대**(구현 잔여 — `specs/03-account/03-account-ui-기획서` §1·§3) |
-| 시크릿 | `.env`(비커밋) + `.env.example`에 키 이름 문서화: `ANTHROPIC_API_KEY` · `LLM_MODE`(mock 강제) · `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` · (② 스프린트 2) `OPENAI_API_KEY`(없으면 이미지 목 모드) · `IMAGE_MODE`(mock 강제) · `OPENAI_IMAGE_MODEL`(기본값 코드 상수 — 무배포 교체용) · `OPENAI_IMAGE_QUALITY`(기본 medium — 개발 비용 절약) |
+| 시크릿 | `.env`(비커밋) + `.env.example`에 키 이름 문서화: `ANTHROPIC_API_KEY` · `LLM_MODE`(mock 강제) · `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` · (② 스프린트 2) `OPENAI_API_KEY`(없으면 이미지 목 모드) · `IMAGE_MODE`(mock 강제) · `OPENAI_IMAGE_MODEL`(기본값 코드 상수 — 무배포 교체용) · `OPENAI_IMAGE_QUALITY`(기본 medium — 개발 비용 절약) · (배포 2026-07-24) `AUTH_SECRET`(세션 서명 — **프로덕션 필수**, 미설정 시 dev 시크릿 폴백) · `AUTH_MAIL_MODE`(`devlink` = 운영에서도 인증 링크 화면 노출 — 폐쇄 UT용 임시, [[11-deploy-spec]] §4) |
+| 배포 | **Vercel Hobby + Supabase Free** — 정본 [[11-deploy-spec]](아키텍처·한도·환경변수·절차·스모크) · 결정 [[decisions/2026-07-24-호스팅-배포-결정]] |
 | 로컬 검증 | `npm run typecheck` 기본. ⚠ 한글 경로 머신은 대용량 JS 실행이 차단됨 — **영문 경로 미러(`C:\dev\jgs-run`)에서 실행** ([CONTRIBUTING 트러블슈팅](../CONTRIBUTING.md)) |
 | 테스트 | **node 내장 러너**(`npm run test` = tsc 컴파일 → `node --test`) — vitest/tsx는 esbuild 네이티브가 한글 경로에서 차단되어 제외(2026-07-09 규명). typescript는 5.x 고정(7은 네이티브) |
 

@@ -6,8 +6,9 @@
 import { NextResponse, after } from 'next/server';
 import { createDiagnosisRequest, runDiagnosisJob } from '@/lib/server/reportJob';
 import { currentLlmMode } from '@/lib/engine/llm/client';
+import { getSession } from '@/lib/server/session';
 import { getActiveBrandId } from '@/lib/server/activeBrand';
-import { getStore } from '@/lib/db/store';
+import { hasSupabaseEnv } from '@/lib/db/supabaseClient';
 import { saveFile, extForMime } from '@/lib/files/storage';
 import { logger } from '@/lib/logger';
 import { HARD_GATE_CHARS, contentCharCount } from '@/lib/engine/rules/gates';
@@ -18,6 +19,9 @@ import {
   isKnownPositioningTag,
 } from '@/lib/engine/rules/positioning';
 import type { Category, ProductClass, TierInput } from '@/lib/engine/types';
+
+// after() 진단 파이프라인(LLM 4~5콜, 2~3분)이 이 예산 안에서 실행된다 — Vercel Fluid 기준(11 §3)
+export const maxDuration = 300;
 
 const CATEGORIES: Category[] = ['skincare', 'makeup', 'suncare', 'cleansing'];
 const PRODUCT_CLASSES: ProductClass[] = ['화장품', '의약외품', '미상'];
@@ -97,6 +101,11 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export async function POST(request: Request): Promise<NextResponse> {
+  // 게스트 업로드 낭비 방지 + 리포트 게이트(M4)의 서버측 근거 — 파싱·이미지 저장보다 먼저 세션 가드
+  if (!(await getSession())) {
+    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  }
+
   // v7: 상세페이지 이미지 업로드가 기본 경로라 multipart FormData로 받는다(브랜드/제품 필드 + 이미지)
   let form: FormData;
   try {
@@ -158,6 +167,13 @@ export async function POST(request: Request): Promise<NextResponse> {
 }
 
 export async function GET(): Promise<NextResponse> {
-  const store = await getStore();
-  return NextResponse.json({ storeKind: store.kind(), llmMode: currentLlmMode() });
+  // 진단용 — 저장 오설정을 throw로 감추지 않고 env 기준으로 그대로 보고한다(런북 §3 확진 관문).
+  // getStore()를 부르지 않으므로 프로덕션 미설정에서도 500 없이 원인을 드러낸다.
+  const supabaseConfigured = hasSupabaseEnv();
+  return NextResponse.json({
+    storeKind: supabaseConfigured ? 'supabase' : 'file',
+    llmMode: currentLlmMode(),
+    // 프로덕션 + 파일 저장 = 오설정(서버리스 비영속) — 데이터 라우트는 명시적 500난다
+    misconfigured: process.env.NODE_ENV === 'production' && !supabaseConfigured,
+  });
 }

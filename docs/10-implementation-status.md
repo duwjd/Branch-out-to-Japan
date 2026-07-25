@@ -1,7 +1,8 @@
 # 10 · 구현 현황 (기능 검증 빌드)
 
-> **무엇이 실제로 돌아가는가**의 스냅샷 문서. 2026-07-16 기준 — 메인페이지 + ① 진단 리포트 한 사이클(입력→파이프라인→9블록 뷰→발행)이 **두 진단 모드**(`brand` 브랜드 진단 / `brandProduct` 브랜드+제품 진단)로 작동하고, 보고용 슬라이드 내보내기(모드별 7장/4장)까지 작동한다.
+> **무엇이 실제로 돌아가는가**의 스냅샷 문서. 2026-07-24 기준 — 메인페이지 + ① 진단 리포트 한 사이클(입력→파이프라인→9블록 뷰→발행)이 **두 진단 모드**(`brand` 브랜드 진단 / `brandProduct` 브랜드+제품 진단)로 작동하고, 보고용 슬라이드 내보내기(모드별 7장/4장)까지 작동한다.
 > **2026-07-21 스프린트 2:** 목 로그인 + 앱 셸 + **② 썸네일 실생성 파이프라인**(콜⑥ studioCopy + OpenAI images.edit — 키 없으면 목 모드) + **③ 운영 3화면**(자산 라이브러리·브랜드 관리·기업 매칭) + 계정(마이페이지)이 추가로 작동한다 — §1b. 스펙: [[09-dev-spec]] §4b · [[08-data-flow]] §4.7·§6.1 스프린트 2 델타.
+> **2026-07-24 배포 준비 P0:** 파일 저장 Supabase Storage 전환 · `AUTH_MAIL_MODE=devlink` · 서버리스 설정(`maxDuration 300`·outputFileTracingIncludes)으로 무료 배포 채비 — 변경이력·§5 known-limits 반영. 배포 정본: [[11-deploy-spec]] · 운영 절차 [[deploy-runbook]] · 결정 [[decisions/2026-07-24-호스팅-배포-결정]].
 > **2026-07-16 변경:** 검수 단계 제거(파이프라인 성공 = 발행) · 보고용 슬라이드 추가 · **입력 브랜드 우선 재구성(v4 — 두 진단 모드·`positioning` 신설·`gates.ts` 단일화)** → [[decisions/DECISIONS]] · [[specs/01-report-spec]] v3·v4.
 > **⚠ 2026-07-18 v6 스펙 개정 — 코드 미반영:** 스펙·와이어프레임은 **블록 6 재프레이밍**(리뷰 인과 서사 → 정보 공백→이탈 경로 · 리뷰 데이터 없음)·**블록 7·8 통합**(7-1 문장 재작성 + 7-2 통째 재구성)·**블록 9→8 재번호**(리포트 = 블록 0~8)로 갔으나, **아래 구현 현황은 개정 전 코드(블록 0~9 · `reviewNarrative` 스키마 · 블록 7/8 분리) 기준**이다. 코드(`lib/engine`·`components/report/ReportView.tsx`·콜③/④ 스키마) 반영은 후속 작업. 정본: [[specs/01-report-spec]] v6 · [[08-data-flow]] v6.
 > 계획 대비 진척은 [[09-dev-spec]] §4 체크박스, 데이터 계약은 [[08-data-flow]], 제품 정의는 [[specs/01-report-spec]]이 정본. 이 문서는 "지금 어디까지 왔고, 어떻게 돌리고, 무엇이 남았나"만 담는다.
@@ -126,13 +127,13 @@ supabase/schema.sql               # 테이블 3종 + RLS · `reports.overall_sco
 | # | 항목 | 내용 |
 |---|---|---|
 | 1 | **regulatory-summary v0 검토** | 조항 요약이 미검토(v0) — jp-localizer·약무 검토 후 `status: reviewed`로. 콜② 판정 품질의 근간 |
-| 2 | Supabase 전환 | 현재 파일 폴백으로 동작 중 — [setup-supabase.md](setup-supabase.md) 3단계(약 5분) 후 자동 전환 |
+| 2 | Supabase 전환 | 현재 파일 폴백으로 동작 중 — [setup-supabase.md](setup-supabase.md) 4단계(약 7분) 후 자동 전환. **파일 저장도 Storage 버킷 `files`로 전환 구현됨(2026-07-24 — env 있으면 Storage, 없으면 `.data/files/` 폴백)**. 프로덕션은 필수([[11-deploy-spec]] §4) |
 | 3 | ~~`/admin/review` 보호~~ | **해소(2026-07-16)** — 화면 자체를 제거. 남은 인증 과제는 #6 |
 | 3b | 🔴 **면책의 대가물 부재** | 검수 제거로 "법적 확정 판정 아님" 면책을 떠받치던 실명 서명이 사라짐. 30만 정당화·AI 불신층 전환 근거 약화 → **별도 결정 필요**([[decisions/DECISIONS]] 🔴) |
 | 4 | PDF 내보내기 | 미구현 (09 M4 잔여 · 08 §8-D7) |
 | 5 | 무료 약기법 체커 | 미구현 (stretch — 콜② 엔진·체커 스키마는 준비됨) |
 | 6 | 인증·온보딩·프리필 · 이메일 가입·비회원 게이트 | 이번 범위에서 의도적 제외 — 브랜드 섹션 직접 입력(온보딩 도입 시 프리필 — 08 §3.1). 도입 시 `users`·`brand_profiles` 스키마 추가. **스펙(2026-07-23)은 이메일 가입·로그인·인증·비번재설정 + 비회원 열람 + 실행 직전 게이트를 포함하나 실 구현은 잔여**(가드 완화·생성/등록 API 401→프론트 게이트·`users`(email·passwordHash·emailVerified) — 03-account §1·§3) |
-| 7 | 비동기 잡 실행 모델 | `after()` + 폴링(단일 프로세스 전제) — 서버리스 배포 시 큐 필요(08 §6.2 대안) |
+| 7 | ~~비동기 잡 실행 모델~~ | **해소(2026-07-24)** — Vercel Fluid Compute 300초가 파이프라인(2~3분)을 수용해 `after()`+폴링 유지, 큐 미도입. report·thumbnail `maxDuration=300` + 폴링 스테일 잡 가드(10분 초과 비터미널 → failed) 구현([[11-deploy-spec]] §3) |
 | 8 | 한글 경로 실행 차단 | 미러 우회 중 — 근본 해결(저장소 영문 경로 이전 or 보안SW 예외)은 **팀 결정 필요** |
 | 9 | D1(Supabase)·D6(재현성) 팀 확정 | 기본안으로 구현했으나 `DECISIONS.md` 승격 기록·스펙 §9-Q5 갱신은 미완 (09 M0 잔여) |
 | 10 | LLM 판정 편차 관찰 | `LlmCallLog` 저장 구현됨 — 동일 입력 N회 편차 리포트는 QA 단계 과제(08 §8-D6) |
@@ -142,3 +143,5 @@ supabase/schema.sql               # 테이블 3종 + RLS · `reports.overall_sco
 - 2026-07-09 신규 작성: 기능 검증 빌드(메인페이지+① 리포트 사이클) 구현·검증 완료 시점의 현황 스냅샷. 실 LLM E2E 결과(17/100, 정본 샘플과 1점 차)·코드 맵·실행 방법(한글 경로 미러 우회)·잔여 작업 10건.
 - 2026-07-16 **v4 갱신**: **[변경] 입력 브랜드 우선 재구성** — 진단 입력폼(브랜드 필수: 브랜드명·포지셔닝(택소노미 16종)·카테고리 / 제품 전부 선택)·두 진단 모드(`brand`/`brandProduct`)·게이트 단일 정의 `gates.ts`·`reports.overall_score` nullable. **[추가]** 브랜드 진단 E2E(에러 0·관리자 조작 0으로 `published`·블록 1·3·5·7·8 잠금·대비표 "미확인"·4장 덱)·풀 모드 회귀(9블록·7장 덱)·서버 이중 검증 6종 400 — typecheck 0오류·테스트 **30/30**. **[신규 한계]** #11 결제 잠금(샘플 경계) 집행 미구현(경계 정의만 · 브랜드 진단 가격 (미정)).
 - 2026-07-16 갱신: **[삭제] 검수 단계** — `/admin/review`·검수 API 2종·`signReport`/`rejectReport`/`listByStatus`·검수 3필드 제거, 상태 머신 4개로 축소, 파이프라인 성공 = 발행. 랜딩 FAQ의 서명 약속 카피 교체. **[추가] 보고용 슬라이드 내보내기**(스펙 §10). **[신규 한계] 3b 면책의 대가물 부재**(🔴).
+- 2026-07-24 갱신: **[추가] 배포 준비(P0 6건)** — 파일 저장 Supabase Storage 전환(`lib/files/storage.ts` + `lib/db/supabaseClient.ts` 공유 헬퍼, 로컬 폴백 유지) · `AUTH_MAIL_MODE=devlink`(운영 인증 링크 화면 노출 — 가입 차단 해소) · `next.config.ts` outputFileTracingIncludes(`data/processed/**`·목 샘플 — 서버리스 ENOENT 방지) · report/thumbnail `maxDuration=300` · `engines.node 22.x` · 폴링 스테일 잡 가드. 호스팅 확정 Vercel Hobby + Supabase Free — 정본 [[11-deploy-spec]] · [[decisions/2026-07-24-호스팅-배포-결정]]. **한계 #7(잡 실행 모델) 해소**, #2(Supabase 전환)는 인프라 세팅만 잔여.
+- 2026-07-24 **[개선] 인증 배포 가드 강화**: 배포본 이메일 가입/로그인 무동작 대응(원인=배포 env 미설정의 침묵 실패). `lib/db/store.ts` 프로덕션 Supabase env 누락 시 파일 폴백 대신 **명시적 throw**(빌드 페이즈 제외) · `mailer.ts`·`sessionToken.ts` 운영 **error 로그 승격**(`AUTH_MAIL_MODE`·`AUTH_SECRET` 미설정) · `GET /api/report`에 `misconfigured` 플래그(`hasSupabaseEnv` 기반, throw 회피) · `supabase/schema.sql` 상단 주석 함정(users 없음 오도) 교정. **typecheck 0오류 · 테스트 52/52**. 필수 env 3종 설정은 운영자 수동([[deploy-runbook]] §8·§1-B). [[11-deploy-spec]] §7·§8 갱신.

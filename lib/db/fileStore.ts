@@ -8,6 +8,7 @@ import { readFile, writeFile, appendFile } from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type {
+  AuthTokenRecord,
   BrandProfileRecord,
   DiagnosisRequestRecord,
   GeneratedAssetRecord,
@@ -17,8 +18,9 @@ import type {
   ReportRecord,
   Store,
   TrackEventRecord,
+  UserRecord,
 } from './store';
-import { LEGACY_BRAND_ID } from './store';
+import { LEGACY_BRAND_ID, LEGACY_USER_ID } from './store';
 import type { TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 
@@ -35,10 +37,17 @@ const MATCH_REQUESTS = path.join(DATA_DIR, 'match-requests.json');
 const LEADS = path.join(DATA_DIR, 'leads.json');
 const TRACK_EVENTS = path.join(DATA_DIR, 'track-events.json');
 const PRODUCTS = path.join(DATA_DIR, 'products.json');
+const USERS = path.join(DATA_DIR, 'users.json');
+const AUTH_TOKENS = path.join(DATA_DIR, 'auth-tokens.json');
 
 /** 구 데이터(brandProfileId 없음)를 레거시 브랜드에 귀속시키는 스코핑 키 */
 function brandOf(record: { brandProfileId?: string }): string {
   return record.brandProfileId ?? LEGACY_BRAND_ID;
+}
+
+/** 구 데이터(userId 없음)를 레거시 유저(demo-user)에 귀속시키는 스코핑 키 */
+function ownerOf(record: { userId?: string }): string {
+  return record.userId ?? LEGACY_USER_ID;
 }
 
 /** 파일 IO를 순차화하는 초간단 큐(경합 방지) */
@@ -161,10 +170,13 @@ export function createFileStore(): Store {
       });
     },
 
-    listBrandProfiles() {
+    listBrandProfiles(userId: string) {
       return serialized(async () => {
+        // 구 브랜드(userId 없음)는 ownerOf가 demo-user로 귀속 — .data/brand-profiles.json은 재기록하지 않는다
         const all = await readBrands();
-        return [...all].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        return all
+          .filter((b) => ownerOf(b) === userId)
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       });
     },
 
@@ -365,6 +377,82 @@ export function createFileStore(): Store {
       return serialized(async () => {
         const all = await readJson<ProductRecord[]>(PRODUCTS, []);
         await writeJson(PRODUCTS, all.filter((pr) => pr.id !== id));
+      });
+    },
+
+    // ── 유저·인증 토큰(실 인증 — 08 §6 USER) ──────────────────────────────────
+    getUserById(id: string) {
+      return serialized(async () => (await readJson<UserRecord[]>(USERS, [])).find((u) => u.id === id) ?? null);
+    },
+
+    getUserByEmail(email: string) {
+      return serialized(async () => {
+        const norm = email.toLowerCase();
+        return (await readJson<UserRecord[]>(USERS, [])).find((u) => u.email === norm) ?? null;
+      });
+    },
+
+    createUser(input) {
+      return serialized(async () => {
+        const now = new Date().toISOString();
+        const record: UserRecord = {
+          id: input.id ?? randomUUID(),
+          email: input.email.toLowerCase(),
+          passwordHash: input.passwordHash,
+          name: input.name,
+          emailVerified: input.emailVerified,
+          createdAt: now,
+          updatedAt: now,
+        };
+        const all = await readJson<UserRecord[]>(USERS, []);
+        all.push(record);
+        await writeJson(USERS, all);
+        return record;
+      });
+    },
+
+    updateUser(id, patch) {
+      return serialized(async () => {
+        const all = await readJson<UserRecord[]>(USERS, []);
+        const idx = all.findIndex((u) => u.id === id);
+        if (idx < 0) return;
+        all[idx] = { ...all[idx], ...patch, updatedAt: new Date().toISOString() };
+        await writeJson(USERS, all);
+      });
+    },
+
+    createAuthToken(input) {
+      return serialized(async () => {
+        const record: AuthTokenRecord = { ...input, usedAt: null, createdAt: new Date().toISOString() };
+        const all = await readJson<AuthTokenRecord[]>(AUTH_TOKENS, []);
+        all.push(record);
+        await writeJson(AUTH_TOKENS, all);
+      });
+    },
+
+    consumeAuthToken(tokenHash: string, kind: 'verify' | 'reset') {
+      // 원자성은 serialized 큐가 보장한다(단일 프로세스 dev) — 미사용·미만료만 소비
+      return serialized(async () => {
+        const all = await readJson<AuthTokenRecord[]>(AUTH_TOKENS, []);
+        const idx = all.findIndex((t) => t.tokenHash === tokenHash && t.kind === kind);
+        if (idx < 0) return null;
+        const token = all[idx];
+        const now = new Date().toISOString();
+        if (token.usedAt !== null || token.expiresAt < now) return null;
+        all[idx] = { ...token, usedAt: now };
+        await writeJson(AUTH_TOKENS, all);
+        return all[idx];
+      });
+    },
+
+    getLatestAuthToken(userId: string, kind: 'verify' | 'reset') {
+      return serialized(async () => {
+        const all = await readJson<AuthTokenRecord[]>(AUTH_TOKENS, []);
+        return (
+          all
+            .filter((t) => t.userId === userId && t.kind === kind)
+            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null
+        );
       });
     },
   };

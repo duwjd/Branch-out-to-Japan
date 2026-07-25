@@ -11,6 +11,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal';
 import { buttonClass, chipClass, fieldLabelClass, inputClass, selectClass } from '@/components/ui/primitives';
+import { LoginGateModal } from '@/components/auth/LoginGateModal';
+import { useLoginGate } from '@/components/auth/useLoginGate';
 
 /** 카테고리 정본 — 온보딩·리포트 입력폼과 동일(한/일 병기) */
 const CATEGORIES = [
@@ -30,6 +32,7 @@ export function AddBrandModal({ open, onClose }: { open: boolean; onClose: () =>
   const [productClass, setProductClass] = useState<string>('화장품');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { gateOpen, openGate, closeGate, onAuthedGate } = useLoginGate();
 
   const dirty = brandName.trim() !== '' || category !== '';
   const canSubmit = brandName.trim() !== '' && category !== '' && !submitting;
@@ -50,9 +53,8 @@ export function AddBrandModal({ open, onClose }: { open: boolean; onClose: () =>
     onClose();
   }
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    if (!canSubmit) return;
+  /** 브랜드 추가 요청(파라미터 없는 재시도 함수) — 401이면 게이트를 열고 로그인 후 자동 재개 */
+  async function doSubmit() {
     setSubmitting(true);
     setError(null);
     try {
@@ -61,6 +63,11 @@ export function AddBrandModal({ open, onClose }: { open: boolean; onClose: () =>
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ brandName, category, productClass }),
       });
+      if (res.status === 401) {
+        setSubmitting(false);
+        openGate(doSubmit); // 게이트는 이 모달 위에 열리고, 이 모달은 뒤에 그대로 유지된다
+        return;
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '추가에 실패했습니다.');
       reset();
@@ -74,9 +81,16 @@ export function AddBrandModal({ open, onClose }: { open: boolean; onClose: () =>
     }
   }
 
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!canSubmit) return;
+    void doSubmit();
+  }
+
   return (
-    <Modal open={open} onClose={requestClose} labelledBy="addBrandTitle">
-      <form onSubmit={handleSubmit}>
+    <>
+      <Modal open={open} onClose={requestClose} labelledBy="addBrandTitle">
+        <form onSubmit={handleSubmit}>
         <h2 id="addBrandTitle" className="text-lg font-extrabold text-ink">
           브랜드 추가
         </h2>
@@ -152,6 +166,8 @@ export function AddBrandModal({ open, onClose }: { open: boolean; onClose: () =>
           </button>
         </div>
       </form>
-    </Modal>
+      </Modal>
+      <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
+    </>
   );
 }

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getStore } from '@/lib/db/store';
+import { getSession } from '@/lib/server/session';
+import { sessionOwnsBrand } from '@/lib/server/ownership';
 import type { GeneratedAssetRecord } from '@/lib/db/store';
 import { PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
 import { ReportCoverPreview } from '@/components/app/AssetPreview';
@@ -25,9 +27,12 @@ const ACTION_STYLE: Record<string, { symbol: string; cls: string }> = {
 export default async function AssetDetailPage({ params }: { params: Promise<{ assetId: string }> }) {
   const { assetId } = await params;
   const store = await getStore();
+  // 소유 검증 — 비소유·게스트가 uuid만으로 타 유저 자산을 열람하지 못하게 막는다.
+  //  not-found와 동일하게 처리(존재 비노출): 소유 자산이 아니면 다음 모드로 흘러 결국 NotFoundView.
+  const session = await getSession();
 
   const asset = await store.getAsset(assetId);
-  if (asset) {
+  if (asset && (await sessionOwnsBrand(asset.brandProfileId, session))) {
     if (asset.status === 'generating') redirect(`/app/studio/thumbnail/${asset.id}`);
     if (asset.status === 'failed') return <NotFoundView />; // 실패물은 상세에 도달하지 않는다(DETAIL-06)
     return <ThumbnailDetail asset={asset} />;
@@ -35,7 +40,7 @@ export default async function AssetDetailPage({ params }: { params: Promise<{ as
 
   // 리포트 요약 모드(DETAIL-05)
   const request = await store.getRequest(assetId);
-  if (request) {
+  if (request && (await sessionOwnsBrand(request.brandProfileId, session))) {
     if (request.status === 'submitted' || request.status === 'processing') redirect(`/app/report/${request.id}`);
     if (request.status === 'failed') return <NotFoundView />;
     const report = await store.getReport(request.id);

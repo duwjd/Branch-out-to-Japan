@@ -1,9 +1,11 @@
 'use client';
 
 /**
- * 소셜 로그인 버튼 3종 (LOGIN-02) — 클릭 시 목 세션 발급 후 /app으로 이동.
- * "최근 로그인" 배지는 localStorage(기획서 LOGIN-02 명시 위치). 소셜 브랜드색은
- * 디자인 토큰이 아니라 각 사 가이드 고정색 — 인라인 리터럴로만 쓴다.
+ * 소셜 로그인 버튼 3종 (LOGIN-02) — 클릭 시 목 세션 발급 후 성공 콜백.
+ * app/login/LoginButtons.tsx에서 이식·일반화(M4a): onSuccess prop을 받아 로그인 카드와
+ * 게이트 모달(M4b)이 공유한다. onSuccess 없으면 기본 동작(/app 이동)을 한다.
+ * "최근 로그인" 배지는 localStorage. 소셜 브랜드색은 디자인 토큰이 아니라 각 사 가이드
+ * 고정색 — 인라인 리터럴로만 쓴다.
  */
 
 import { useEffect, useState } from 'react';
@@ -73,7 +75,8 @@ const BUTTONS: SocialButtonSpec[] = [
   { provider: 'google', label: 'Google로 계속하기', className: 'border border-input-border bg-canvas text-ink-body hover:bg-n-50', Symbol: GoogleSymbol },
 ];
 
-export function LoginButtons() {
+/** 소셜 로그인 성공 후 착지 — 게이트는 onSuccess로 "모달 닫고 재개"를 넘긴다 */
+export function SocialButtons({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
   const [busy, setBusy] = useState<AuthProvider | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +93,7 @@ export function LoginButtons() {
     return () => clearTimeout(timer);
   }, [error]);
 
-  /** 목 로그인 — provider 쿠키 발급 후 앱으로 이동 */
+  /** 목 로그인 — provider 쿠키 발급 후 성공 콜백(없으면 /app 이동) */
   async function handleLogin(provider: AuthProvider) {
     setBusy(provider);
     setError(null);
@@ -102,6 +105,10 @@ export function LoginButtons() {
       });
       if (!res.ok) throw new Error((await res.json()).error ?? `HTTP ${res.status}`);
       localStorage.setItem(RECENT_KEY, provider);
+      if (onSuccess) {
+        onSuccess();
+        return;
+      }
       router.replace('/app');
       router.refresh();
     } catch (err) {

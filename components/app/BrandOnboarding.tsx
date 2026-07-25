@@ -10,6 +10,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { buttonClass, cardClass, chipClass, fieldLabelClass, inputClass, selectClass } from '@/components/ui/primitives';
+import { LoginGateModal } from '@/components/auth/LoginGateModal';
+import { useLoginGate } from '@/components/auth/useLoginGate';
 
 /** 카테고리 정본 — 리포트 입력폼과 동일(한/일 병기) */
 const CATEGORIES = [
@@ -29,13 +31,12 @@ export function BrandOnboarding() {
   const [productClass, setProductClass] = useState<string>('화장품');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { gateOpen, openGate, closeGate, onAuthedGate } = useLoginGate();
 
   const canSubmit = brandName.trim().length > 0 && category !== '' && !submitting;
 
-  /** 제출 → 브랜드 생성 → 홈 재렌더(첫 방문 가이드) */
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    if (!canSubmit) return;
+  /** 브랜드 생성 요청(파라미터 없는 재시도 함수) — 401이면 게이트를 열고 로그인 후 자동 재개 */
+  async function doSubmit() {
     setSubmitting(true);
     setError(null);
     try {
@@ -44,6 +45,11 @@ export function BrandOnboarding() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ brandName, category, productClass }),
       });
+      if (res.status === 401) {
+        setSubmitting(false);
+        openGate(doSubmit); // 게스트 첫 브랜드 캡처의 주 게이트(ONBOARD-02)
+        return;
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '등록에 실패했습니다.');
       router.refresh();
@@ -51,6 +57,13 @@ export function BrandOnboarding() {
       setError(String((err as Error).message));
       setSubmitting(false);
     }
+  }
+
+  /** 제출 → 브랜드 생성 → 홈 재렌더(첫 방문 가이드) */
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!canSubmit) return;
+    void doSubmit();
   }
 
   return (
@@ -139,6 +152,7 @@ export function BrandOnboarding() {
           </p>
         </form>
       </div>
+      <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
     </main>
   );
 }

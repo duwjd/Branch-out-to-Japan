@@ -21,6 +21,8 @@ import {
   inputClass,
 } from '@/components/ui/primitives';
 import { IconChevronDown, IconChevronUp, IconUpload } from '@/components/ui/icons';
+import { LoginGateModal } from '@/components/auth/LoginGateModal';
+import { useLoginGate } from '@/components/auth/useLoginGate';
 
 interface StyleCard {
   id: string;
@@ -96,6 +98,7 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [meta, setMeta] = useState<StudioMeta | null>(null);
+  const { gateOpen, openGate, closeGate, onAuthedGate } = useLoginGate();
 
   /** 파일 채택 — 포맷·용량 검증(HOME-02c) 후 미리보기 치환 */
   const acceptFile = useCallback((f: File) => {
@@ -288,6 +291,11 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
         form.set('promoFootnote', promo.footnote);
       }
       const res = await fetch('/api/studio/thumbnail', { method: 'POST', body: form });
+      if (res.status === 401) {
+        setSubmitting(false);
+        openGate(handleSubmit); // handleSubmit은 파라미터 없이 상태에서 재구성 — 로그인 후 자동 재개
+        return;
+      }
       if (!res.ok) throw new Error((await res.json()).error ?? `HTTP ${res.status}`);
       const { id } = await res.json();
       router.push(`/app/studio/thumbnail/${id}`);
@@ -919,6 +927,7 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
           )}
         </div>
       </div>
+      <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
     </main>
   );
 }

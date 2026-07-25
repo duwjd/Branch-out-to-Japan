@@ -16,6 +16,8 @@ import {
   POSITIONING_TAGS_MIN,
 } from '@/lib/engine/rules/positioning';
 import { SectionCard, StatusBadge, buttonClass, chipClass, fieldLabelClass, inputClass, textareaClass } from '@/components/ui/primitives';
+import { LoginGateModal } from '@/components/auth/LoginGateModal';
+import { useLoginGate } from '@/components/auth/useLoginGate';
 
 const CATEGORIES = [
   { value: 'skincare', label: '스킨케어 / スキンケア' },
@@ -68,6 +70,7 @@ export default function ReportNewPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { gateOpen, openGate, closeGate, onAuthedGate } = useLoginGate();
   const [meta, setMeta] = useState<{ storeKind: string; llmMode: string } | null>(null);
   // 브랜드 프로필에서 이어받은 필드가 있으면 캡션 노출(온보딩 도입 · INPUT-02·05)
   const [prefilled, setPrefilled] = useState(false);
@@ -201,10 +204,8 @@ export default function ReportNewPage() {
   const contentOk = !hardGateBlocked;
   const canSubmit = brandReady && contentOk && !submitting;
 
-  /** 제출 → 요청 생성 → 진행 화면으로 이동 */
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    if (!canSubmit) return;
+  /** 리포트 생성 요청(파라미터 없는 재시도 함수) — 401이면 게이트를 열고 로그인 후 자동 재개 */
+  async function doSubmit() {
     setSubmitting(true);
     setError(null);
     try {
@@ -223,6 +224,11 @@ export default function ReportNewPage() {
       if (sourceType === 'text') form.set('sourceText', sourceText);
       if (sourceType === 'image') sourceImages.forEach((im) => form.append('images', im.file));
       const res = await fetch('/api/report', { method: 'POST', body: form });
+      if (res.status === 401) {
+        setSubmitting(false);
+        openGate(doSubmit); // 게스트 리포트 생성 주 게이트(이미지 FormData는 state에 그대로 살아 재개 시 재구성)
+        return;
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '제출에 실패했습니다.');
       router.push(`/app/report/${data.id}`);
@@ -230,6 +236,13 @@ export default function ReportNewPage() {
       setError(String((err as Error).message));
       setSubmitting(false);
     }
+  }
+
+  /** 제출 → 요청 생성 → 진행 화면으로 이동 */
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!canSubmit) return;
+    void doSubmit();
   }
 
   return (
@@ -555,6 +568,7 @@ export default function ReportNewPage() {
           </div>
         </form>
       </div>
+      <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
     </main>
   );
 }

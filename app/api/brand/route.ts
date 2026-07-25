@@ -25,7 +25,7 @@ export async function GET(): Promise<NextResponse> {
 }
 
 /** 폼 입력을 서버에서 재검증해 프로필로 정규화한다(클라이언트와 동일 규칙 이중 적용) */
-function parseProfile(body: Record<string, unknown>): { input: Omit<BrandProfileRecord, 'id' | 'createdAt' | 'updatedAt' | 'detailDocPath' | 'detailDocName'> } | { error: string } {
+function parseProfile(body: Record<string, unknown>): { input: Omit<BrandProfileRecord, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'detailDocPath' | 'detailDocName'> } | { error: string } {
   const brandName = typeof body.brandName === 'string' ? body.brandName.trim().slice(0, 60) : '';
   if (!brandName) return { error: '브랜드명을 입력해 주세요.' };
 
@@ -90,7 +90,8 @@ function parseProfile(body: Record<string, unknown>): { input: Omit<BrandProfile
  * 복수 브랜드 지원 — 같은 브랜드명만 409(중복 등록 방지). 생성 즉시 활성 브랜드로 전환한다.
  */
 export async function POST(request: Request): Promise<NextResponse> {
-  if (!(await getSession())) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
 
   let body: Record<string, unknown>;
   try {
@@ -110,14 +111,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     : '미상';
 
   const store = await getStore();
-  const existing = await store.listBrandProfiles();
-  // 같은 브랜드명 중복 방지(MAIN-01b′ 검증) — 대소문자·공백 무시
+  const existing = await store.listBrandProfiles(session.user.id);
+  // 같은 브랜드명 중복 방지(MAIN-01b′ 검증) — 유저별 스코핑, 대소문자·공백 무시
   const norm = (s: string) => s.trim().toLowerCase();
   if (existing.some((b) => norm(b.brandName) === norm(brandName))) {
     return NextResponse.json({ error: '이미 등록한 브랜드명입니다.' }, { status: 409 });
   }
 
   const profile = await store.createBrandProfile({
+    userId: session.user.id,
     brandName,
     category,
     productClass,
@@ -154,6 +156,7 @@ export async function PUT(request: Request): Promise<NextResponse> {
   const store = await getStore();
   const profile: BrandProfileRecord = {
     id: existing.id,
+    userId: existing.userId, // 편집은 소유 유저를 보존한다(스냅샷 아님 — 소속 불변)
     ...parsed.input,
     // 문서 업로드는 별도 라우트(/api/brand/doc) — 저장 시 기존 값 유지
     detailDocPath: existing.detailDocPath,

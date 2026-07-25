@@ -14,6 +14,31 @@ import type { LeadKind, TrackEventType } from '../lead';
  */
 export const LEGACY_BRAND_ID = 'default';
 
+/** 레거시 유저 id — 목 소셜 세션의 데모 유저이자, userId 없는 구 데이터의 귀속 대상.
+ *  DEMO_USER.id 와 동일 문자열이라 세션 도입 후 교체해도 동작이 바뀌지 않는다. */
+export const LEGACY_USER_ID = 'demo-user';
+
+/** 유저(실 인증 — 08 §6 USER). id는 레거시 'demo-user' 또는 uuid. */
+export interface UserRecord {
+  id: string;                    // 'demo-user'(레거시) 또는 uuid
+  email: string;                 // 소문자 정규화된 값으로 저장
+  passwordHash: string | null;   // null = 소셜(목) 계정
+  name: string;                  // 표시명(AppShell·마이페이지)
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** 이메일 검증·비밀번호 재설정 토큰 — 원문은 저장하지 않고 sha256 해시만 보관한다. */
+export interface AuthTokenRecord {
+  tokenHash: string;             // sha256(원문 토큰) hex — PK, 원문은 저장 안 함
+  userId: string;
+  kind: 'verify' | 'reset';
+  expiresAt: string;
+  usedAt: string | null;
+  createdAt: string;
+}
+
 export interface DiagnosisRequestRecord {
   id: string;
   /** 소속 브랜드(스냅샷 원칙 — 제출 시점 활성 브랜드에 귀속) */
@@ -58,6 +83,8 @@ export interface BrandKit {
 /** 브랜드 프로필 — 복수 지원(id=uuid, 레거시 마이그레이션분만 'default'). 편집 정본은 /app/brand */
 export interface BrandProfileRecord {
   id: string;
+  /** 소속 유저 — 목 세션 데모 유저 또는 가입 유저 */
+  userId: string;
   brandName: string;
   category: Category;
   productClass: BrandProductClass;
@@ -228,9 +255,31 @@ export interface Store {
   getReport(requestId: string): Promise<ReportRecord | null>;
   saveLlmLog(requestId: string | null, entry: LlmCallLogEntry): Promise<void>;
 
+  // ── 유저·인증 토큰(실 인증 — 08 §6 USER) ──
+  /** id로 유저 조회 — 세션 복원·마이페이지 */
+  getUserById(id: string): Promise<UserRecord | null>;
+  /** email로 유저 조회 — 로그인·중복 가입 검사. email은 내부에서 소문자 정규화 비교 */
+  getUserByEmail(email: string): Promise<UserRecord | null>;
+  /** 유저 생성 — id 생략 시 uuid 발급, email은 내부에서 소문자 정규화 저장 */
+  createUser(input: {
+    id?: string;
+    email: string;
+    passwordHash: string | null;
+    name: string;
+    emailVerified: boolean;
+  }): Promise<UserRecord>;
+  /** 유저 갱신 — 비밀번호 해시·이메일 검증 여부·표시명만 패치 */
+  updateUser(id: string, patch: Partial<Pick<UserRecord, 'passwordHash' | 'emailVerified' | 'name'>>): Promise<void>;
+  /** 인증 토큰 발급 — 원문 해시(sha256 hex)만 저장 */
+  createAuthToken(input: { tokenHash: string; userId: string; kind: 'verify' | 'reset'; expiresAt: string }): Promise<void>;
+  /** 토큰 원자적 소비 — 미사용·미만료면 usedAt 마킹 후 레코드 반환, 아니면(없음/사용됨/만료) null */
+  consumeAuthToken(tokenHash: string, kind: 'verify' | 'reset'): Promise<AuthTokenRecord | null>;
+  /** 재발송 쿨다운용 — 해당 유저·kind의 최신 토큰 1건(사용 여부 무관) */
+  getLatestAuthToken(userId: string, kind: 'verify' | 'reset'): Promise<AuthTokenRecord | null>;
+
   // ── 브랜드 프로필(복수 지원 · MAIN-01 스위처/추가/삭제) ──────────────────────
-  /** 전 브랜드 목록(최신순) — 스위처·마이페이지 브랜드 목록 */
-  listBrandProfiles(): Promise<BrandProfileRecord[]>;
+  /** 해당 유저의 브랜드 목록(최신순) — 스위처·마이페이지 브랜드 목록 */
+  listBrandProfiles(userId: string): Promise<BrandProfileRecord[]>;
   /** id로 브랜드 조회 — 활성 브랜드 해석은 lib/server/activeBrand.ts */
   getBrandProfile(id: string): Promise<BrandProfileRecord | null>;
   /** 브랜드 생성(온보딩·추가 모달) — uuid 발급 */
@@ -290,6 +339,18 @@ export async function getStore(): Promise<Store> {
     const { createSupabaseStore } = await import('./supabaseStore');
     storeInstance = createSupabaseStore();
   } else {
+    // 프로덕션(서버리스)에서 파일 저장(.data/)은 읽기전용 FS(EROFS)라 가입·저장이 500으로 죽고,
+    // 인스턴스 간 비공유라 폴백해도 데이터가 유실된다. 조용히 폴백하면 "가입/로그인 안 됨"의
+    // 원인을 추적하기 어려우므로, 요청 시점에는 즉시 명시적 에러로 승격한다(11 §4·§8 가드).
+    // 빌드 프리렌더(NEXT_PHASE)에서는 데이터를 쓰지 않으므로 폴백을 허용해 빌드를 깨지 않는다.
+    const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+    if (process.env.NODE_ENV === 'production' && !isBuildPhase) {
+      throw new Error(
+        'Supabase 환경변수 미설정 — 프로덕션은 Supabase 저장이 필수입니다. ' +
+          'Vercel 환경변수에 NEXT_PUBLIC_SUPABASE_URL·SUPABASE_SERVICE_ROLE_KEY를 설정하고 Redeploy 하세요 ' +
+          '(docs/deploy-runbook.md §1-B·§5). 파일 저장(.data/)은 서버리스 읽기전용 FS에서 동작하지 않습니다.',
+      );
+    }
     const { createFileStore } = await import('./fileStore');
     storeInstance = createFileStore();
   }

@@ -15,6 +15,9 @@ import { currentImageMode, imageModel } from '@/lib/studio/imageGen';
 import { PLATFORMS, getPromptPack, type Platform, type StyleId } from '@/lib/studio/promptPack';
 import { logger } from '@/lib/logger';
 
+// after() 썸네일 잡(카피 1콜 + 이미지 생성 1콜, 1~2분)이 이 예산 안에서 실행된다 — Vercel Fluid 기준(11 §3)
+export const maxDuration = 300;
+
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB (HOME-02)
 const IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 

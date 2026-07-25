@@ -106,6 +106,15 @@ export function IconChevronUp({ size, ...rest }: IconProps) {
   );
 }
 
+/** 셰브론 ← (사이드바 접기 토글 — 접힘 시 180° 회전해 →) */
+export function IconChevronLeft({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size ?? 16, rest)}>
+      <path d="M15 6l-6 6 6 6" />
+    </svg>
+  );
+}
+
 /** 업로드(구름 화살표 없이 — 드롭존 픽토그램) */
 export function IconUpload({ size, ...rest }: IconProps) {
   return (
@@ -123,6 +132,16 @@ export function IconCard({ size, ...rest }: IconProps) {
     <svg {...baseProps(size, rest)}>
       <rect x="2" y="5" width="20" height="14" rx="2" />
       <path d="M2 10h20" />
+    </svg>
+  );
+}
+
+/** 이메일(봉투) — 로그인 "이메일로 계속하기" 등 */
+export function IconMail({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 6 9-6" />
     </svg>
   );
 }

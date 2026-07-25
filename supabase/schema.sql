@@ -1,8 +1,9 @@
 -- ① 진단 리포트 저장 스키마 (기능 검증 빌드)
 -- 정본 엔티티: docs/08-data-flow.md §6.
 -- 이번 범위 간소화: audit_sentences 는 reports.blocks_json(블록3) 안에 포함(별도 테이블은 ②축·체커 재사용 시 분리).
--- 인증 생략 단계라 users/brand_profiles 테이블도 아직 없음 — 온보딩 구현 시 추가.
--- 실행: Supabase 대시보드 → SQL Editor → 이 파일 전체 붙여넣기 → Run.
+-- users·auth_tokens·brand_profiles 등 인증/브랜드 테이블은 파일 하단 마이그레이션 블록(2026-07-23~)에서 생성한다.
+--   ⚠ 반드시 이 파일 "전체"를 순서대로 실행할 것 — 상단만 적용하면 users 릴레이션이 없어 가입/로그인이 500난다.
+-- 실행: Supabase 대시보드 → SQL Editor → 이 파일 전체 붙여넣기 → Run → Table Editor에 테이블 11개 확인.
 
 create table if not exists diagnosis_requests (
   id uuid primary key default gen_random_uuid(),
@@ -265,3 +266,55 @@ alter table products enable row level security;
 alter table generated_assets add column if not exists model_image_path text;
 alter table generated_assets add column if not exists model_consent boolean not null default false;
 alter table generated_assets add column if not exists promo_input jsonb;
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 마이그레이션 · 2026-07-23 — 실 인증(User) + 브랜드 유저 스코핑 (08 §6 USER)
+-- 멱등. ⚠ 실행 순서: 이 블록을 애플리케이션 코드보다 먼저 돌린다(구 코드는 users/user_id를 안 쓴다).
+-- ⚠ demo-user insert가 brand_profiles.user_id 백필·FK보다 먼저다(FK 성립 조건).
+-- ───────────────────────────────────────────────────────────────────────────
+
+-- 유저 — id는 text PK(코드가 'demo-user' 또는 uuid 문자열 발급). email은 소문자 정규화 저장
+create table if not exists users (
+  id text primary key, -- 'demo-user'(레거시) 또는 uuid 문자열
+  email text unique not null,
+  password_hash text, -- null = 소셜(목) 계정
+  name text not null default '',
+  email_verified boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- 이메일 검증·비번 재설정 토큰 — 원문 미저장, sha256(hex)만 PK로 보관. 유저 삭제 시 cascade
+create table if not exists auth_tokens (
+  token_hash text primary key, -- sha256(원문 토큰) hex
+  user_id text not null references users(id) on delete cascade,
+  kind text not null, -- verify|reset
+  expires_at timestamptz not null,
+  used_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create index if not exists idx_auth_tokens_user on auth_tokens(user_id, kind);
+
+-- 0) 레거시 귀속용 데모 유저 보장 — user_id 백필·FK보다 먼저여야 FK가 성립한다
+insert into users (id, email, name, email_verified)
+  select 'demo-user', 'demo@kglow.example', '데모 사용자', true
+  where not exists (select 1 from users where id = 'demo-user');
+
+-- 1) 브랜드 프로필에 user_id 추가 + 구 브랜드를 데모 유저에 귀속
+alter table brand_profiles add column if not exists user_id text;
+update brand_profiles set user_id = 'demo-user' where user_id is null;
+
+-- 2) FK(on delete cascade) — 유저 삭제 시 브랜드 자동 정리. 멱등 DO 가드
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'fk_brands_user') then
+    alter table brand_profiles add constraint fk_brands_user
+      foreign key (user_id) references users(id) on delete cascade;
+  end if;
+end $$;
+
+create index if not exists idx_brands_user on brand_profiles(user_id);
+
+-- 서버(service role)만 접근하므로 RLS는 켜두고 정책 없이 둔다(anon 접근 차단).
+alter table users enable row level security;
+alter table auth_tokens enable row level security;
