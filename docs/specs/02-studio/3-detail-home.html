@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>② 마케팅 스튜디오 · 3. 상세페이지 홈(생성)</title>
+<!--
+  비배포 · 기획 검토용 인터랙티브 프로토타입.
+  정본: 02-studio-detail-ui-기획서.md # 1. 상세페이지 홈(생성) (DETAIL-00~08)
+  이 화면 = 상세 생성 퍼널. 제출이 아니라 "블록 구성 확인"으로 넘어간다(4-detail-confirm.html).
+  셸(사이드바·브랜드 스위처)은 1-home.html 과 동일 마크업을 재사용한다 — ⓪ MAIN-01 정본.
+  요소 id 는 캡처 스크립트가 참조하므로 임의로 바꾸지 않는다.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">② 마케팅 스튜디오 · 상세페이지 프로토타입</span>
+    <a href="index.html">플로우(index)</a>
+    <a href="1-home.html">1 썸네일 홈</a>
+    <a href="2-result.html">2 썸네일 결과</a>
+    <a href="3-detail-home.html" class="on">3 상세 홈</a>
+    <a href="4-detail-confirm.html">4 블록 확인</a>
+    <a href="5-detail-result.html">5 상세 결과</a>
+    <a href="02-studio-detail-ui-기획서.md">기획서 ↗</a>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- 전역 내비(사이드바) — ⓪ 00-main과 동일 셸 (MAIN-01) -->
+  <aside class="app-side" aria-label="전역 내비게이션">
+    <!-- 사이드바 접기/펼치기 토글 (아이콘 레일) -->
+    <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <div style="position:relative">
+      <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
+        style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
+        <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#B96C00">하</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:block;font-size:13px;font-weight:700;color:#202124;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">하루온 HARUON</span>
+          <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">스킨케어 / <span lang="ja">スキンケア</span></span>
+        </span>
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="swMenu" role="listbox" aria-label="브랜드 프로필 전환" class="sw-menu"
+        style="display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+        <div class="sw-item" role="option" aria-selected="true" style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px">
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#B96C00">하</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#202124">하루온 HARUON</span><span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61)">현재 브랜드</span></span>
+          <span style="color:#00875A;font-size:13px;font-weight:800">✓</span>
+        </div>
+        <button type="button" class="sw-item" role="option" aria-selected="false" aria-disabled="true" title="브랜드 전환 데모는 홈 프로토타입에서 제공"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default">
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#E2F3E9,#BFE3CE);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#00875A">글</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#9CA0A8">글로우리프</span><span style="display:block;font-size:10.5px;color:#B6B8BF">전환 데모는 홈에서</span></span>
+        </button>
+        <div style="height:1px;background:#EBEBEB;margin:6px 4px"></div>
+          <!-- MAIN-01b′ · 브랜드 추가 (2026-07-22 (미정) 해제 · 전 화면 동일 동작) -->
+          <button type="button" class="sw-item ab-open"
+            style="display:flex;width:100%;align-items:center;gap:8px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer;color:#D93636;font-size:12.5px;font-weight:700">
+            <span aria-hidden="true" style="flex:none;display:inline-flex;width:22px;height:22px;border-radius:7px;border:1px dashed rgba(255,100,100,.55);align-items:center;justify-content:center;font-size:13px;line-height:1">＋</span>
+            브랜드 추가</button>
+      </div>
+    </div>
+    <nav class="side-nav" aria-label="주요 메뉴">
+      <a href="../00-main/1-home.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        홈</a>
+      <a href="../01-report/1-input.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        진단 리포트</a>
+      <a href="3-detail-home.html" class="on" aria-current="page">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+        마케팅 스튜디오</a>
+      <a href="../04-operations/3-brand.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        운영</a>
+    </nav>
+    <span class="side-gap"></span>
+    <div class="side-foot">
+      <div style="position:relative">
+        <button type="button" id="avBtn" aria-haspopup="menu" aria-expanded="false" aria-label="계정 메뉴"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:7px 8px;border:none;border-radius:10px;background:transparent;font-family:inherit;cursor:pointer;text-align:left" class="sw-item">
+          <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:12.5px;font-weight:700;color:#202124;line-height:1.25">박민정</span>
+            <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">minjeong@haruon.kr</span>
+          </span>
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+        </button>
+        <div id="avMenu" role="menu" class="sw-menu" style="display:none;position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+          <a href="../03-account/2-mypage.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">마이페이지</a>
+          <a href="../03-account/1-login.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">로그아웃</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <main class="app-main" style="padding-bottom:120px">
+    <div style="margin:0 auto;max-width:768px;padding:32px 24px 0">
+      <header>
+        <p style="margin:0;font-size:12.5px;font-weight:800;color:#FF6464">마케팅 스튜디오</p>
+        <h1 style="margin:6px 0 0;font-size:25px;font-weight:800;line-height:1.25;color:#202124">상세페이지 만들기</h1>
+        <p style="margin:8px 0 0;font-size:13.5px;line-height:1.7;color:rgba(55,56,60,0.61)">블록을 하나씩 만들어 세로로 이어 붙입니다. 글자는 전부 폰트로 그리므로 일본어가 깨지지 않습니다.</p>
+      </header>
+      <div class="mod-tabs" role="tablist" aria-label="스튜디오 모듈" style="display:flex;gap:2px;border-bottom:1px solid #EBEBEB;margin-top:26px">
+        <a href="1-home.html" role="tab" aria-selected="false" style="padding:10px 14px;font-size:13.5px;font-weight:600;color:rgba(55,56,60,0.61);text-decoration:none">썸네일</a>
+        <span role="tab" aria-selected="true" style="margin-bottom:-1px;border-bottom:2px solid #FF6464;padding:10px 14px;font-size:13.5px;font-weight:800;color:#D93636">상세페이지</span>
+        <span role="tab" aria-selected="false" aria-disabled="true" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;font-size:13.5px;font-weight:600;color:#B6B8BF">인스타 피드 <span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#EFEFF1;padding:0 7px;font-size:10px;font-weight:800;color:#9CA0A8">준비 중</span></span>
+      </div>
+      <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">1</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">원본 이미지</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF0F0;padding:0 7px;font-size:10px;font-weight:800;color:#D93636">필수</span></div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">제품컷 1장은 필수입니다. 한국 상세페이지 원본을 위→아래 순서로 함께 올리면 갭 진단에 씁니다. 최대 10장.</p>
+        <div style="margin-top:14px"><div id="dropzone" style="border:1px dashed rgba(112,115,124,0.28);border-radius:12px;padding:26px;text-align:center">
+      <span style="display:inline-flex;height:38px;align-items:center;gap:6px;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:0 14px;font-size:12.5px;font-weight:700;color:#414245">이미지 선택</span>
+      <p style="margin:9px 0 0;font-size:11.5px;color:rgba(55,56,60,0.61)">JPG · PNG · WebP · 10MB 이하</p></div>
+    <div style="display:flex;gap:10px;margin-top:14px"><div style="position:relative;width:76px;height:76px;border:1px solid rgba(112,115,124,0.14);border-radius:9px;background:#F2F2F4"><span style="position:absolute;left:4px;top:4px;border-radius:4px;background:rgba(32,33,36,.7);padding:0 5px;font-size:10px;font-weight:800;color:#fff">1</span></div><div style="position:relative;width:76px;height:76px;border:1px solid rgba(112,115,124,0.14);border-radius:9px;background:#F2F2F4"><span style="position:absolute;left:4px;top:4px;border-radius:4px;background:rgba(32,33,36,.7);padding:0 5px;font-size:10px;font-weight:800;color:#fff">2</span></div><div style="position:relative;width:76px;height:76px;border:1px solid rgba(112,115,124,0.14);border-radius:9px;background:#F2F2F4"><span style="position:absolute;left:4px;top:4px;border-radius:4px;background:rgba(32,33,36,.7);padding:0 5px;font-size:10px;font-weight:800;color:#fff">3</span></div></div></div>
+      </section>
+      <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">2</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">상품 종류 · 타깃 플랫폼</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF0F0;padding:0 7px;font-size:10px;font-weight:800;color:#D93636">필수</span></div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">상품 종류가 템플릿 기본값과 이미지 무드를 결정합니다.</p>
+        <div style="margin-top:14px"><p style="margin:0 0 7px;font-size:11.5px;font-weight:700;color:#414245">상품 종류</p><div style="display:flex;flex-wrap:wrap;gap:8px"><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid #FF6464;background:#FFF0F0;color:#D93636">스킨케어</span><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid rgba(112,115,124,0.28);background:#fff;color:#414245">선케어</span><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid rgba(112,115,124,0.28);background:#fff;color:#414245">색조</span><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid rgba(112,115,124,0.28);background:#fff;color:#414245">클렌징</span><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid rgba(112,115,124,0.28);background:#fff;color:#414245">헤어</span><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid rgba(112,115,124,0.28);background:#fff;color:#414245">기타</span></div><p style="margin:16px 0 7px;font-size:11.5px;font-weight:700;color:#414245">타깃 플랫폼</p><div style="display:flex;flex-wrap:wrap;gap:8px"><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid rgba(112,115,124,0.28);background:#fff;color:#414245">미정</span><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid rgba(112,115,124,0.28);background:#fff;color:#414245">아마존JP</span><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid #FF6464;background:#FFF0F0;color:#D93636">라쿠텐 공식샵</span><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid rgba(112,115,124,0.28);background:#fff;color:#414245">라쿠텐 리셀러</span><span style="display:inline-flex;height:34px;align-items:center;border-radius:999px;padding:0 14px;font-size:12.5px;font-weight:700;border:1px solid rgba(112,115,124,0.28);background:#fff;color:#414245">Qoo10</span></div><p id="amazonNote" style="margin:11px 0 0;border-radius:9px;background:#FFF6E5;padding:9px 11px;font-size:12px;line-height:1.7;color:#B96C00">아마존JP를 고르면 이 안내가 뜹니다 — A+ 콘텐츠는 가격·프로모션 표기가 규정상 금지라, 프로모션 블록은 넣지 않습니다.</p></div>
+      </section>
+      <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">3</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">템플릿</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF0F0;padding:0 7px;font-size:10px;font-weight:800;color:#D93636">필수</span></div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">상세페이지는 순서가 핵심입니다. 카드의 블록 흐름을 보고 고르세요.</p>
+        <div style="margin-top:14px"><div id="tplGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:11px"><div style="border:1px solid #FF6464;box-shadow:0 0 0 3px rgba(255,100,100,.18);border-radius:14px;background:#fff;padding:14px">
+      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">문제해결 서사형</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#EAF9F3;padding:0 7px;font-size:10px;font-weight:800;color:#00875A">추천</span></div>
+      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">고민을 먼저 합의시키고 원인·기전으로 해결을 설명한다.</p>
+      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>문제 제기</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>원인 구조화</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>비교 도해</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>기전 도해</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>시험 근거</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
+    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
+      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">성분 근거형</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#EAF9F3;padding:0 7px;font-size:10px;font-weight:800;color:#00875A">추천</span></div>
+      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">문제 제기 없이 성분명·농도·시험 근거로 바로 진입한다.</p>
+      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>성분 카드</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>기전 도해</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>정량 그래프</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>시험 근거</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>무첨가</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
+    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
+      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">스펙·씬 신뢰형</b></div>
+      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">정량 스펙을 첫 화면에 세우고 사용 씬으로 신뢰를 쌓는다.</p>
+      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>스펙 패널</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>니즈 제기</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>POINT</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>사용 씬</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>시험 근거</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
+    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
+      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">컬러 배리에이션형</b></div>
+      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">전 색상 → 컬러 차트 → 퍼스널컬러로 색 선택을 돕는다.</p>
+      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>컬러 칩</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>컬러 차트</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>퍼스널컬러</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>발색 시연</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>POINT</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
+    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
+      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">저자극·편의형</b></div>
+      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">부담 없음·시간 절약을 코어로 무첨가·저자극 근거를 붙인다.</p>
+      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>문제 제기</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>POINT</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>무첨가</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>시험 근거</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>사용법</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
+    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
+      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">브랜드 프리미엄형</b></div>
+      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">브랜드 서사가 페이지를 지배한다. 배지·수치는 최소.</p>
+      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>브랜드 스토리</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>기전 도해</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>성분 카드</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>텍스처</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>사용법</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
+    </div></div></div>
+      </section>
+      <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">4</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">제품 스펙</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF0F0;padding:0 7px;font-size:10px;font-weight:800;color:#D93636">필수</span></div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">표시 의무 항목입니다. 입력하신 원문을 그대로 넣습니다 — 저희가 고쳐 쓰지 않습니다.</p>
+        <div style="margin-top:14px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:11px"><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">内容量</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">30mL</span></label><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">区分</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">化粧品 / 医薬部外品</span></label><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">販売元</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">株式会社◯◯</span></label><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">原産国</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">韓国</span></label></div><div style="margin-top:11px"><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">全成分</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">水、BG、グリセリン…</span></label></div></div>
+      </section>
+      <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">5</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">성분 · 무첨가 · 사용법</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#EFEFF1;padding:0 7px;font-size:10px;font-weight:800;color:#70737C">선택</span></div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">성분을 입력하지 않으면 성분·기전 블록은 넣지 않습니다. 성분명을 지어내지 않습니다.</p>
+        <div style="margin-top:14px"><div style="display:grid;gap:11px"><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">성분 (성분명|농도|배합목적)</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">ナイアシンアミド|2%|整肌成分</span></label><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">무첨가 항목</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">合成香料</span></label><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">스펙 수치 (라벨|값)</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">SPF|50+</span></label><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">사용법 STEP</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">洗顔後、適量をなじませます。</span></label></div></div>
+      </section>
+      <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between">
+        <span><b style="font-size:13.5px;color:#202124">실적 · 시험 근거</b><span style="margin-left:8px;font-size:11.5px;color:rgba(55,56,60,0.61)">그룹별로 전부 채워야 해당 블록이 들어갑니다</span></span>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </section>
+      <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between">
+        <span><b style="font-size:13.5px;color:#202124">프로모션</b><span style="margin-left:8px;font-size:11.5px;color:rgba(55,56,60,0.61)">세트명·판매가가 있어야 가격 블록이 들어갑니다</span></span>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </section>
+      <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between">
+        <span><b style="font-size:13.5px;color:#202124">옵션</b><span style="margin-left:8px;font-size:11.5px;color:rgba(55,56,60,0.61)">2개 이상이면 옵션 블록이 들어갑니다</span></span>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </section>
+      <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">6</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">추가 요청</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#EFEFF1;padding:0 7px;font-size:10px;font-weight:800;color:#70737C">선택</span></div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다.</p>
+        <div style="margin-top:14px"><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">추가 요청</span>
+      <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">예: 전체적으로 더 밝고 화사하게</span></label></div>
+      </section>
+      <p style="margin:16px 0 0;border-radius:10px;background:#FFF8F8;padding:13px 15px;font-size:12.5px;line-height:1.75;color:#414245">번역이 아니라 <b>일본 고객 관점의 메시지 재설계</b>입니다. 근거를 입력하지 않은 배지·가격·수치는 만들지 않습니다.</p>
+    </div>
+  </main>
+</div>
+
+  <div style="position:fixed;left:248px;right:0;bottom:0;z-index:40;border-top:1px solid #EBEBEB;background:rgba(255,255,255,.95);padding:15px 24px">
+    <div style="margin:0 auto;max-width:768px">
+      <span style="display:flex;height:46px;align-items:center;justify-content:center;border-radius:11px;background:#FF6464;font-size:14px;font-weight:800;color:#fff">블록 구성 확인</span>
+      <p style="margin:9px 0 0;text-align:center;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">이미지와 템플릿을 고르면 구성을 미리 볼 수 있어요.</p>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -335,19 +335,22 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
           >
             썸네일
           </button>
-          {['상세페이지 전환', '인스타 피드'].map((label) => (
-            <button
-              key={label}
-              type="button"
-              role="tab"
-              aria-selected="false"
-              aria-disabled="true"
-              tabIndex={-1}
-              className="flex cursor-default items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium text-ink-faint"
-            >
-              {label} <StatusBadge tone="off">준비 중</StatusBadge>
-            </button>
-          ))}
+          <Link
+            href="/app/studio/detail"
+            role="tab"
+            aria-selected="false"
+            className="px-3.5 py-2.5 text-sm font-medium text-ink-mute hover:text-ink"
+          >
+            상세페이지
+          </Link>
+          <span
+            role="tab"
+            aria-selected="false"
+            aria-disabled="true"
+            className="flex cursor-default items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium text-ink-faint"
+          >
+            인스타 피드 <StatusBadge tone="off">준비 중</StatusBadge>
+          </span>
         </div>
 
         {/* 원본 이미지(HOME-02) */}

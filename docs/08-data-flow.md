@@ -496,7 +496,7 @@ flowchart LR
     T6["⑥ 생성 gpt-image-2.0 (§4.7)<br/>+ 하이브리드 오버레이"] --> T7
     T7["검수 게이트<br/>라벨 보존·오탈자·무단 배지"] --> OUT2["GeneratedAsset 저장<br/>다운로드 + ③ 라이브러리 적재"]
 
-    TBD1["상세페이지 일본향 전환 — 스펙 미착수 (7/18~24)"]:::tbd
+    D1["상세페이지 만들기 — 콜⑦ detailCopy → 블록 렌더(satori) → sharp 결합·분할"]
     TBD2["인스타 피드 생성 (썸네일+텍스트) — 스펙 미착수"]:::tbd
 
     classDef tbd fill:#f7f7f7,stroke:#bbb,color:#888,stroke-dasharray: 5 5;

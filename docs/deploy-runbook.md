@@ -34,7 +34,7 @@
 
 1. **프로젝트 생성** — https://supabase.com → GitHub 로그인 → **New project**
    - Name 자유(예: `japan-growth-studio`) · **Database Password는 메모장에 보관** · Region `Northeast Asia (Seoul)` → Create(1~2분 대기)
-2. **스키마 실행** — 좌측 **SQL Editor** → New query → 저장소 `supabase/schema.sql` 전체 복사 → 붙여넣기 → **Run** → "Success" → **Table Editor**에 테이블 11개 확인
+2. **스키마 실행** — 좌측 **SQL Editor** → New query → 저장소 `supabase/schema.sql` 전체 복사 → 붙여넣기 → **Run** → "Success" → **Table Editor**에 테이블 12개 확인(`asset_blocks` 포함 — 상세페이지 기능이 쓴다)
 3. **Storage 버킷 생성** ⭐ — 좌측 **Storage** → New bucket → 이름 **`files`**(정확히 이 이름 — 코드 고정값) · **Public 체크 해제**(private) → Create
 4. **연결 값 복사** — **Settings → API**에서:
    - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
@@ -68,7 +68,8 @@
 2. 가입(이메일/비번) → 완료 화면의 **(dev) 인증 링크** 클릭 → 로그인
 3. 브랜드 등록 → 진단 생성(텍스트 1회) → ~3분 내 발행 확인
 4. 썸네일 생성 → 결과 이미지 표시 확인
-5. Supabase **Table Editor**·**Storage**에 데이터·파일 실재 확인
+5. **상세페이지** — `https://<배포URL>/api/studio/detail` 에서 `"ready": true` 확인 → 화면(`/app/studio/detail`)에 붉은 배너가 없으면 생성 1회 → 2~3분 내 결합본·분할본 표시. 일본어가 □로 보이면 폰트 문제([[11-deploy-spec]] §3-1)
+6. Supabase **Table Editor**·**Storage**에 데이터·파일 실재 확인
 
 전체 체크리스트 정본: [[11-deploy-spec]] §6.
 
@@ -178,6 +179,19 @@ API 키 교체, `AUTH_MAIL_MODE` 조정, 새 키 추가 등.
 - 순서가 뒤바뀌면(코드가 먼저 배포) 새 컬럼을 못 찾아 런타임 에러가 난다.
 - 파괴적 변경(컬럼 삭제·타입 변경)은 프리뷰/사본에서 먼저 검증.
 
+### 6-A. 지금 실행해야 하는 마이그레이션 — ② 상세페이지 만들기
+
+이미 배포된 프로젝트라면 **이 SQL을 먼저 실행해야** 상세페이지 기능이 켜진다.
+
+1. Supabase 대시보드 → **SQL Editor** → New query
+2. 저장소의 `supabase/schema.sql` 을 열어 맨 아래 **`2026-08-10 · ② 마케팅 스튜디오 — 상세페이지 만들기`** 주석 블록부터 파일 끝까지 복사해 붙여넣고 Run
+   - `alter table ... add column if not exists` · `create table if not exists` 로만 되어 있어 **여러 번 실행해도 안전**하다.
+   - 만드는 것: `asset_blocks` 테이블 · `generated_assets` 4컬럼(`detail_input`·`block_total`·`block_done`·`slice_paths`) · `increment_block_done()` 함수
+3. 확인 — Table Editor에 `asset_blocks` 가 보이면 완료
+4. 코드 배포 후 `GET https://<도메인>/api/studio/detail` 의 `readiness.ready` 가 `true` 인지 확인
+
+안 하고 배포하면 앱이 조용히 실패하지 않는다 — 상세페이지 화면에 **붉은 배너가 뜨고 생성 버튼이 잠긴다**(무엇을 실행해야 하는지 배너에 적혀 있다). 카피·이미지 비용을 태운 뒤 죽는 일이 없도록 제출 전에 막는 구조다.
+
 ---
 
 ## 7. 정기 점검 체크리스트
@@ -201,6 +215,13 @@ API 키 교체, `AUTH_MAIL_MODE` 조정, 새 키 추가 등.
   - Vercel → 프로젝트 → **Logs**에 `Supabase 환경변수 미설정…` 메시지가 있으면 확정.
   - 해결: §5로 `NEXT_PUBLIC_SUPABASE_URL`·`SUPABASE_SERVICE_ROLE_KEY` 확인·입력 → **Redeploy**.
 
+**1b) URL 값이 정확한가 — 로그에 `Invalid path specified in request URL`**
+- `storeKind:"supabase"`인데 가입이 500이고 로그가 `supabase getUserByEmail 실패: Invalid path specified in request URL`이면 → `NEXT_PUBLIC_SUPABASE_URL` **형식 오류**.
+- 값은 정확히 `https://<프로젝트ref>.supabase.co` 여야 한다(Supabase → **Settings → API → Project URL**). 흔한 실수:
+  - 끝에 **슬래시**(`…supabase.co/`) · 붙여넣기 시 딸려온 **공백·개행**
+  - **대시보드 URL**(`https://supabase.com/dashboard/project/…`)을 넣음 · 뒤에 `/rest/v1` 같은 **경로**를 붙임
+- 해결: §5로 값을 `https://<ref>.supabase.co`(경로·끝슬래시 없이)로 교정 → **Redeploy**. (코드도 끝슬래시·공백을 자동 정리하도록 방어됨 — `lib/db/supabaseClient.ts`)
+
 **2) 인증 링크가 화면에 안 뜨나 — 가입은 되는데 로그인이 "인증이 필요합니다"(403)**
 - 실메일 발송은 아직 미구현이라, 가입 완료 화면에 뜨는 **인증 링크를 눌러야** 로그인이 된다.
 - 링크가 안 보이면 → `AUTH_MAIL_MODE=devlink` 미설정. Vercel **Logs**에 `인증 링크 미노출(운영)…` error가 있으면 확정.
@@ -217,3 +238,4 @@ API 키 교체, `AUTH_MAIL_MODE` 조정, 새 키 추가 등.
 ## 변경 이력
 - 2026-07-24 신규 작성: 최초 배포 성공 직후. 첫 배포 튜토리얼(§1)·일상 업데이트 흐름(§2)·롤백(§3)·리셋/정지 복구(§4)·환경변수(§5)·스키마 변경(§6)·정기 점검(§7). 설계 정본 [[11-deploy-spec]]의 실전 동반 문서.
 - 2026-07-24 **§8 "인증 안 될 때" 추가**: 배포본 이메일 가입/로그인 무동작 3원인(Supabase env·`AUTH_MAIL_MODE`·users 테이블) 진단 절차. 코드측 가드 강화([[11-deploy-spec]] §8 완료)와 짝.
+- 2026-08-11 **§6-A 신설**: ② 상세페이지 만들기 마이그레이션 절차(SQL Editor에서 schema.sql 델타 블록 실행 → readiness 확인). 미적용 시 앱이 붉은 배너로 막고 생성 버튼을 잠근다.

@@ -1,0 +1,1512 @@
+{
+  "version": "1.1.0",
+  "createdAt": "2026-08-10",
+  "targetModel": "gpt-image-2",
+  "renderer": "satori (next/og) — 문자는 전부 벡터 렌더. AI는 글자 없는 배경컷만 만든다.",
+  "purpose": "한국 상세페이지를 일본향 상세페이지(블록 시퀀스)로 재설계하는 템플릿·블록 팩. 근거: docs/research/jp-detail-style-taxonomy.md · 루브릭: docs/research/jp-detail-message-patterns.md §4 · 파이프라인: docs/specs/02-detail-converter-spec.md",
+  "usageNotes": [
+    "이 팩의 단위는 이미지 1장이 아니라 '블록 시퀀스'다. templates 는 blockCatalog 의 id를 순서대로 참조할 뿐, 프롬프트 본문을 자기 안에 복제하지 않는다(곱셈 폭발 차단).",
+    "조립 순서: (1) selectionGuide 로 템플릿 결정 → (2) template.blockSequence 를 펼침 → (3) conditionalLayers 를 조건 충족 시 지정 위치에 삽입 → (4) 각 블록의 requires 게이트 검사 — 미충족 블록은 시퀀스에서 통째로 제거 → (5) 슬롯 채움 → (6) renderKind 에 따라 satori 렌더(text) 또는 AI 배경컷+satori(hybrid/ai-visual).",
+    "블록 제거는 '실패'가 아니라 기본값이다. 근거가 없으면 그 블록이 없는 상세페이지가 나오는 것이 정상 동작이다(썸네일 팩 conditionalBadgeSlots 와 동일 문법).",
+    "footnote-block(B27)은 마지막에 조립한다 — 앞선 모든 블록이 배출한 각주 마커(※1·＊ 등)를 수집해 한 번에 해소한다. 본문에 있는 마커가 B27에 없으면 조립 실패로 처리한다(고아 각주 금지).",
+    "renderKind='text' 인 블록은 팩에서 변경할 수 없다. 근거 표기(効能評価試験済み·集計日·全成分)는 한 글자만 어긋나도 근거로서 무효가 되고, 확산 모델의 글리프 정확도는 문자 수에 대해 곱셈으로 떨어진다."
+  ],
+  "inputCleanupNote": {
+    "when": "입력이 한국 상세페이지 이미지(들)일 때, AI 배경컷 프롬프트 맨 앞에 프리펜드한다.",
+    "template": "The input is a Korean product detail page: extract only the physical product and its factual package printing. Discard every Korean overlay copy, Korean promotional band, and Korean event badge. Do not translate the Korean copy — Japanese copy is rendered separately as vector text and must not appear in the generated image."
+  },
+  "slotFillingRules": [
+    "성분 데이터가 입력에 없으면 성분명을 절대 지어내지 않는다 — ingredient-card·mechanism-explainer 는 시퀀스에서 제거하고, 필요하면 texture-shot 으로 대체한다.",
+    "トーンアップ·透明感·白浮きしない 등 외관 변화 카피에는 그 블록의 각주에 '※メーキャップ効果による'를 기본으로 넣는다.",
+    "가격·할인·증정 슬롯(mall-promo-banner·set-offer-table)은 LLM이 채우지 않는다. 화면 프로모션 입력에서 코드가 자단위 그대로 조립하며, 이중가격(취소선 통상가)은 normalPriceVerified === true 일 때만 포함한다(有利誤認).",
+    "실적 슬롯(ranking-stack·cumulative-sales·quant-data-graph·test-evidence-label·customer-review)은 proofFields 가 전부 있을 때만 채운다. 하나라도 비면 블록째 제거가 기본값(景表法 우량오인).",
+    "before-after-diagram·swatch-demo 에는 반드시 '※イラストはイメージです' 또는 '※画像はイメージです'를 넣는다. 실사 Before/After 피부 변화는 생성하지 않는다.",
+    "product-spec-table 의 区分·全成分 은 브랜드 제공 원문만 쓴다. 코드가 재가공하거나 LLM이 추론하지 않는다 — 약기법 표시 의무 영역.",
+    "한국 카피는 직역하지 않는다. 의도를 추출해 일본 고민 어휘·관례어로 재설계한 카피만 슬롯에 넣는다.",
+    "CASE·STEP·POINT·LOOK 등 번호 배지는 코드가 렌더한다. 슬롯 제목에 같은 라벨을 다시 넣으면 이중 표기가 되므로 넣지 않는다.",
+    "한 상세페이지에는 하나의 제품만 등장한다. 배경컷 연출(sceneDescription·storyVisual·diagramDescription)에 업로드된 제품과 다른 용기·패키지를 등장시키지 않는다 — 제품이 서야 하는 블록은 원본 제품컷을 편집해 쓰고, 그 외 블록은 용기를 아예 그리지 않는다."
+  ],
+  "defaults": {
+    "canvasWidth": 1200,
+    "sidePadding": 72,
+    "blockGap": 0,
+    "typography": {
+      "family": "NotoSansJP",
+      "catchCopy": {
+        "size": 52,
+        "weight": 700
+      },
+      "body": {
+        "size": 27,
+        "lineHeight": 1.75
+      },
+      "label": {
+        "size": 26,
+        "weight": 700,
+        "letterSpacing": 4
+      },
+      "footnote": {
+        "size": 19,
+        "lineHeight": 1.6
+      }
+    },
+    "footnoteMinRatio": 0.36,
+    "footnoteMinRatioNote": "본문 대비 각주 크기 하한. 景表法 打消し表示는 시각적으로 묻히면 안 된다."
+  },
+  "moodProfiles": {
+    "skincare": {
+      "accent": "#ff6464",
+      "surface": "#fff8f8",
+      "keywords": "calm, clinical-clean, soft daylight, dewy texture, minimal props"
+    },
+    "suncare": {
+      "accent": "#ff6464",
+      "surface": "#f2f8ff",
+      "keywords": "bright outdoor light, fresh blue-white, water droplets, summer air, crisp"
+    },
+    "makeup": {
+      "accent": "#ff6464",
+      "surface": "#fff5f6",
+      "keywords": "editorial studio light, saturated pigment, glossy swatch, playful color blocking"
+    },
+    "cleansing": {
+      "accent": "#ff6464",
+      "surface": "#f6fbf9",
+      "keywords": "clean bathroom light, foam and water, gentle pastel, hygienic"
+    },
+    "haircare": {
+      "accent": "#ff6464",
+      "surface": "#f8f7fb",
+      "keywords": "soft salon light, silky flow, warm neutral, glossy strands"
+    },
+    "etc": {
+      "accent": "#ff6464",
+      "surface": "#f7f7f8",
+      "keywords": "neutral studio light, clean minimal, soft shadow"
+    }
+  },
+  "commonConstraints": [
+    "Preserve the product from the input exactly: same shape, proportions, cap, label layout, logo, and colors. Never redraw or invent anything printed on the physical package.",
+    "This image is one full-width horizontal slice of a vertical detail page. Keep the composition calm and leave generous empty space where vector text will be placed on top.",
+    "Keep left and right safe margins clear of important subject matter (about 6% each side).",
+    "Match the mood keywords exactly; the block must sit visually next to the neighbouring blocks of the same page."
+  ],
+  "commonNegativeConstraints": [
+    "No text, letters, kana, kanji, hangul, numbers, captions, labels, logos, badges, or watermarks anywhere in the image.",
+    "No Korean (Hangul) characters anywhere.",
+    "No fabricated rankings, awards, No.1 claims, SPF values, test results, graphs, review quotes, or prices.",
+    "No photorealistic before/after skin-change imagery.",
+    "No human faces unless a brand-owned model cut was explicitly supplied.",
+    "No QR codes, no UI chrome, no borders or frames."
+  ],
+  "blockCatalog": [
+    {
+      "id": "mall-promo-banner",
+      "code": "B01",
+      "nameKo": "몰 프로모 배너",
+      "nameJa": "モールプロモバナー",
+      "role": "쿠폰·기간 한정 고지로 즉시 행동을 유도한다. 일본 몰 상세의 앞머리를 차지하는 캠페인 문맥.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "promo",
+      "requires": [
+        "promo.setTitle",
+        "promo.salePrice"
+      ],
+      "slots": {
+        "couponTitleJa": {
+          "required": true,
+          "source": "promo",
+          "description": "캠페인·쿠폰명"
+        },
+        "discountRateJa": {
+          "required": false,
+          "source": "promo",
+          "description": "할인율 표기"
+        },
+        "periodJa": {
+          "required": false,
+          "source": "promo",
+          "description": "유효 기간"
+        },
+        "conditionFootnoteJa": {
+          "required": false,
+          "source": "promo",
+          "description": "적용 조건 각주"
+        }
+      },
+      "mustInclude": [
+        "유효기간·적용조건 명기"
+      ],
+      "mustNotInclude": [
+        "입력하지 않은 今だけ·残りわずか 등 긴박 문구 생성"
+      ],
+      "rubric": [
+        "A5"
+      ]
+    },
+    {
+      "id": "set-offer-table",
+      "code": "B02",
+      "nameKo": "세트·수량 오퍼표",
+      "nameJa": "セット・数量オファー表",
+      "role": "단품가와 세트가를 비교해 객단가를 올린다.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "promo",
+      "requires": [
+        "promo.setTitle",
+        "promo.salePrice"
+      ],
+      "slots": {
+        "setTitleJa": {
+          "required": true,
+          "source": "promo",
+          "description": "세트명"
+        },
+        "salePriceJa": {
+          "required": true,
+          "source": "promo",
+          "description": "판매가(코드 조립)"
+        },
+        "normalPriceJa": {
+          "required": false,
+          "source": "promo",
+          "description": "통상가 — normalPriceVerified 일 때만"
+        },
+        "discountRateJa": {
+          "required": false,
+          "source": "promo",
+          "description": "할인율"
+        },
+        "giftJa": {
+          "required": false,
+          "source": "promo",
+          "description": "증정품"
+        },
+        "footnoteJa": {
+          "required": false,
+          "source": "promo",
+          "description": "가격 조건 각주"
+        }
+      },
+      "mustInclude": [
+        "세금 포함 표기(（税込）)"
+      ],
+      "mustNotInclude": [
+        "normalPriceVerified 가 아닌 통상가 취소선 표기(有利誤認)"
+      ],
+      "rubric": [
+        "A5"
+      ]
+    },
+    {
+      "id": "hero-product",
+      "code": "B03",
+      "nameKo": "히어로 제품컷·캐치카피",
+      "nameJa": "ヒーロー商品カット",
+      "role": "제품 정체성·용량·기능 표시를 한 화면에 세운다. 전 템플릿 필수.",
+      "renderKind": "hybrid",
+      "necessity": "required",
+      "requires": [],
+      "promptTemplate": "A premium Japanese e-commerce detail-page hero band for a Korean beauty product. Place the supplied product upright in the {{heroPlacement}} third of the frame, {{backgroundVisual}}. Mood: {{moodKeywords}}. Leave the opposite side visually calm and uncluttered — Japanese headline text will be composited on top as vector type. Soft directional light, gentle contact shadow, {{surfaceColor}} background.",
+      "slots": {
+        "productNameJa": {
+          "required": true,
+          "source": "llm",
+          "description": "일본향 제품명 표기"
+        },
+        "catchCopyJa": {
+          "required": true,
+          "source": "llm",
+          "description": "캐치카피 1행(20자 내외)"
+        },
+        "subCopyJa": {
+          "required": false,
+          "source": "llm",
+          "description": "보조 카피 1~2행"
+        },
+        "volumeJa": {
+          "required": false,
+          "source": "input",
+          "description": "내용량"
+        },
+        "functionLabelJa": {
+          "required": false,
+          "source": "input",
+          "description": "医薬部外品·3重機能性 등 승인 등급"
+        },
+        "heroPlacement": {
+          "required": false,
+          "source": "llm",
+          "description": "left | right",
+          "default": "right"
+        },
+        "backgroundVisual": {
+          "required": true,
+          "source": "llm",
+          "description": "배경 연출(영문, 글자 없음)"
+        }
+      },
+      "mustInclude": [
+        "기능성 표시는 실제 승인 등급만"
+      ],
+      "mustNotInclude": [
+        "승인 없는 美白·シワ改善 표기(薬機法)",
+        "Qoo10 메인 이미지 자리일 때 텍스트·로고·가격 오버레이"
+      ],
+      "rubric": [
+        "A3"
+      ],
+      "productPresence": "source"
+    },
+    {
+      "id": "ranking-stack",
+      "code": "B04",
+      "nameKo": "랭킹·수상 스택",
+      "nameJa": "ランキング・受賞スタック",
+      "role": "제3자 지표로 신뢰를 만든다.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "proof",
+      "requires": [
+        "proof.rankTitle",
+        "proof.genre",
+        "proof.aggregationDate"
+      ],
+      "slots": {
+        "rankTitleJa": {
+          "required": true,
+          "source": "proof",
+          "description": "실적명"
+        },
+        "genreJa": {
+          "required": true,
+          "source": "proof",
+          "description": "부문"
+        },
+        "aggregationDateJa": {
+          "required": true,
+          "source": "proof",
+          "description": "집계일"
+        },
+        "footnoteJa": {
+          "required": true,
+          "source": "code",
+          "description": "※실적명（부문・집계일）"
+        }
+      },
+      "mustInclude": [
+        "부문·집계일 병기"
+      ],
+      "mustNotInclude": [
+        "실적 3필드 미입력 시 블록 생성(景表法 우량오인)"
+      ],
+      "rubric": [
+        "A4"
+      ]
+    },
+    {
+      "id": "cumulative-sales",
+      "code": "B05",
+      "nameKo": "누적 판매·리뷰 수",
+      "nameJa": "累計販売・レビュー数",
+      "role": "사회적 증명. 수치는 반드시 집계 기간과 함께.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "proof",
+      "requires": [
+        "sales.count",
+        "sales.period"
+      ],
+      "slots": {
+        "cumulativeCountJa": {
+          "required": true,
+          "source": "input",
+          "description": "누적 판매 수"
+        },
+        "aggregationPeriodJa": {
+          "required": true,
+          "source": "input",
+          "description": "집계 기간"
+        },
+        "reviewCountJa": {
+          "required": false,
+          "source": "input",
+          "description": "리뷰 수"
+        },
+        "ratingJa": {
+          "required": false,
+          "source": "input",
+          "description": "평점"
+        }
+      },
+      "mustInclude": [
+        "집계 기간 명기"
+      ],
+      "mustNotInclude": [
+        "근거 없는 수치",
+        "생성된 리뷰"
+      ],
+      "rubric": [
+        "A4"
+      ]
+    },
+    {
+      "id": "problem-hook",
+      "code": "B06",
+      "nameKo": "문제 제기·공감",
+      "nameJa": "お悩み提起・共感",
+      "role": "효능을 외치기 전에 문제·원인을 합의시키는 일본식 근거 축적형 서사의 도입부.",
+      "renderKind": "hybrid",
+      "necessity": "required",
+      "requires": [],
+      "promptTemplate": "A quiet Japanese detail-page mood band suggesting a skin concern moment. {{sceneDescription}} Mood: {{moodKeywords}}. Muted, empathetic, soft natural light. Keep the {{copyZone}} half almost empty and low-contrast so Japanese vector text can be placed there. No people's faces.",
+      "slots": {
+        "hookQuestionJa": {
+          "required": true,
+          "source": "llm",
+          "description": "질문형 훅(こんなお悩みありませんか？)"
+        },
+        "painPointsJa": {
+          "required": true,
+          "source": "llm",
+          "description": "고민 항목 2~4개(줄바꿈 구분)"
+        },
+        "empathyCopyJa": {
+          "required": false,
+          "source": "llm",
+          "description": "공감 문장"
+        },
+        "sceneDescription": {
+          "required": true,
+          "source": "llm",
+          "description": "배경 연출(영문)"
+        },
+        "copyZone": {
+          "required": false,
+          "source": "llm",
+          "description": "left | right",
+          "default": "left"
+        }
+      },
+      "mustInclude": [
+        "질문형 훅"
+      ],
+      "mustNotInclude": [
+        "불안 조장이 질병 시사로 넘어가는 표현(薬機法)"
+      ],
+      "rubric": [
+        "C1"
+      ],
+      "productPresence": "none"
+    },
+    {
+      "id": "cause-structure",
+      "code": "B07",
+      "nameKo": "원인 구조화",
+      "nameJa": "原因の構造化",
+      "role": "원인을 번호로 쪼개 논리를 축적한다(CASE1/2/3).",
+      "renderKind": "text",
+      "necessity": "optional",
+      "requires": [],
+      "slots": {
+        "titleJa": {
+          "required": true,
+          "source": "llm",
+          "description": "원인 제시 제목"
+        },
+        "causeItemsJa": {
+          "required": true,
+          "source": "llm",
+          "description": "원인 항목 2~4개(원인요약|설명 형식, 줄바꿈 구분). 왼쪽 열은 원인 자체를 한 구로 요약한 일본어 문구를 넣는다 — \"CASE1\" 같은 번호 라벨은 코드가 배지로 자동으로 붙이므로 절대 넣지 않는다."
+        },
+        "causeSummaryJa": {
+          "required": false,
+          "source": "llm",
+          "description": "요약 한 줄"
+        }
+      },
+      "mustInclude": [
+        "번호·라벨 구조화"
+      ],
+      "mustNotInclude": [
+        "의학적 원인 단정"
+      ],
+      "rubric": [
+        "C2"
+      ]
+    },
+    {
+      "id": "before-after-diagram",
+      "code": "B08",
+      "nameKo": "비교 도해",
+      "nameJa": "比較図解",
+      "role": "상태 대비를 그림으로 보여준다. 반드시 일러스트임을 각주로 밝힌다.",
+      "renderKind": "ai-visual",
+      "necessity": "optional",
+      "requires": [],
+      "promptTemplate": "A clean flat vector-style Japanese cosmetics infographic comparing two skin states side by side, {{diagramDescription}}. Simple cross-section illustration, pastel palette with {{accentColor}} accents, generous white space, no text of any kind. Labels will be composited separately as vector type.",
+      "slots": {
+        "leftLabelJa": {
+          "required": true,
+          "source": "llm",
+          "description": "좌측 라벨"
+        },
+        "rightLabelJa": {
+          "required": true,
+          "source": "llm",
+          "description": "우측 라벨"
+        },
+        "diagramDescription": {
+          "required": true,
+          "source": "llm",
+          "description": "도해 내용(영문)"
+        },
+        "footnoteJa": {
+          "required": true,
+          "source": "code",
+          "description": "※イラストはイメージです"
+        }
+      },
+      "mustInclude": [
+        "※イラストはイメージです 각주"
+      ],
+      "mustNotInclude": [
+        "실사 Before/After 피부 변화(薬機法·景表法)"
+      ],
+      "rubric": [
+        "C2"
+      ],
+      "productPresence": "none"
+    },
+    {
+      "id": "mechanism-explainer",
+      "code": "B09",
+      "nameKo": "기전 도해",
+      "nameJa": "メカニズム図解",
+      "role": "성분 → 전달 원리 → 기대 효과를 단계로 설명한다. 침투 범위를 스스로 각주로 한정한다.",
+      "renderKind": "text",
+      "necessity": "required",
+      "requires": [
+        "ingredients"
+      ],
+      "slots": {
+        "mechanismTitleJa": {
+          "required": true,
+          "source": "llm",
+          "description": "기전 제목"
+        },
+        "stepsJa": {
+          "required": true,
+          "source": "llm",
+          "description": "단계(제목|본문, 줄바꿈 구분) 2~4개"
+        },
+        "scopeFootnoteJa": {
+          "required": true,
+          "source": "code",
+          "description": "※角質層まで 등 범위 한정"
+        }
+      },
+      "mustInclude": [
+        "침투 범위 각주(角質層まで)"
+      ],
+      "mustNotInclude": [
+        "肌の奥深く 류 무한정 표현"
+      ],
+      "rubric": [
+        "C2",
+        "C3",
+        "D2"
+      ]
+    },
+    {
+      "id": "ingredient-card",
+      "code": "B10",
+      "nameKo": "성분 카드",
+      "nameJa": "成分カード",
+      "role": "성분명 + 농도 + 배합 목적. 일본 상세의 근거 축의 중심.",
+      "renderKind": "text",
+      "necessity": "required",
+      "requires": [
+        "ingredients"
+      ],
+      "slots": {
+        "sectionLabel": {
+          "required": false,
+          "source": "code",
+          "description": "INGREDIENT",
+          "default": "INGREDIENT"
+        },
+        "headlineJa": {
+          "required": true,
+          "source": "llm",
+          "description": "성분 소구 헤드라인"
+        },
+        "bodyJa": {
+          "required": true,
+          "source": "llm",
+          "description": "성분 설명 본문"
+        },
+        "ingredientRows": {
+          "required": true,
+          "source": "input",
+          "description": "성분명·농도·목적 행"
+        },
+        "purposeFootnoteJa": {
+          "required": true,
+          "source": "code",
+          "description": "＊保湿成分として 등 배합 목적 각주"
+        }
+      },
+      "mustInclude": [
+        "배합 목적 각주"
+      ],
+      "mustNotInclude": [
+        "성분 데이터 미입력 시 성분명 창작"
+      ],
+      "rubric": [
+        "D1",
+        "D4"
+      ]
+    },
+    {
+      "id": "quant-data-graph",
+      "code": "B11",
+      "nameKo": "정량 데이터·그래프",
+      "nameJa": "定量データ・グラフ",
+      "role": "수치로 근거화한다. 시험기관·시점·n수·개인차 각주가 반드시 붙는다.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "proof",
+      "requires": [
+        "test.name",
+        "test.institution",
+        "test.date",
+        "test.sampleSize"
+      ],
+      "slots": {
+        "metricNameJa": {
+          "required": true,
+          "source": "input",
+          "description": "측정 항목"
+        },
+        "dataRows": {
+          "required": true,
+          "source": "input",
+          "description": "항목·수치 행"
+        },
+        "sourceFootnoteJa": {
+          "required": true,
+          "source": "code",
+          "description": "시험기관·시점·n수·개인차"
+        }
+      },
+      "mustInclude": [
+        "시험기관·시점·n수·개인차 각주"
+      ],
+      "mustNotInclude": [
+        "AI가 만든 가공 그래프·수치"
+      ],
+      "rubric": [
+        "D3"
+      ]
+    },
+    {
+      "id": "test-evidence-label",
+      "code": "B12",
+      "nameKo": "시험·근거 라벨",
+      "nameJa": "試験・エビデンス表示",
+      "role": "효능 주장의 방어선. 부인 문구를 반드시 동반한다.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "proof",
+      "requires": [
+        "test.name",
+        "test.institution",
+        "test.date",
+        "test.sampleSize"
+      ],
+      "slots": {
+        "testNamesJa": {
+          "required": true,
+          "source": "input",
+          "description": "시험명(줄바꿈 구분)"
+        },
+        "testConditionJa": {
+          "required": false,
+          "source": "input",
+          "description": "시험 조건"
+        },
+        "institutionJa": {
+          "required": true,
+          "source": "input",
+          "description": "시험기관"
+        },
+        "dateJa": {
+          "required": true,
+          "source": "input",
+          "description": "시험 시점"
+        },
+        "sampleSizeJa": {
+          "required": true,
+          "source": "input",
+          "description": "n수"
+        },
+        "disclaimerJa": {
+          "required": true,
+          "source": "code",
+          "description": "すべての方に刺激が起こらないというわけではありません"
+        }
+      },
+      "mustInclude": [
+        "부인 문구 동반"
+      ],
+      "mustNotInclude": [
+        "시험 5필드 미입력 시 블록 생성"
+      ],
+      "rubric": [
+        "A1",
+        "A2",
+        "E4"
+      ]
+    },
+    {
+      "id": "point-list",
+      "code": "B13",
+      "nameKo": "POINT 나열",
+      "nameJa": "POINT",
+      "role": "핵심 소구 3~5개를 순번화한다. 전 템플릿 필수.",
+      "renderKind": "text",
+      "necessity": "required",
+      "requires": [],
+      "slots": {
+        "sectionLabel": {
+          "required": false,
+          "source": "code",
+          "description": "POINT",
+          "default": "POINT"
+        },
+        "pointsJa": {
+          "required": true,
+          "source": "llm",
+          "description": "POINT 항목 3~5개(제목|본문|각주 형식, 줄바꿈 구분). 제목 열은 소구점 자체를 쓴다 — \"POINT1\" 같은 번호 라벨은 코드가 배지로 자동으로 붙이므로 절대 넣지 않는다."
+        }
+      },
+      "mustInclude": [
+        "필요 시 POINT별 개별 각주"
+      ],
+      "mustNotInclude": [
+        "효능 단정"
+      ],
+      "rubric": [
+        "C3",
+        "E3"
+      ]
+    },
+    {
+      "id": "spec-panel",
+      "code": "B14",
+      "nameKo": "스펙 수치 패널",
+      "nameJa": "スペックパネル",
+      "role": "SPF/PA·내수성 등 정량 스펙. suncare 의 첫 소구.",
+      "renderKind": "text",
+      "necessity": "required",
+      "requires": [
+        "specs"
+      ],
+      "slots": {
+        "specRows": {
+          "required": true,
+          "source": "input",
+          "description": "스펙 라벨·값 행"
+        },
+        "highlightJa": {
+          "required": false,
+          "source": "llm",
+          "description": "강조 문구"
+        },
+        "footnoteJa": {
+          "required": false,
+          "source": "input",
+          "description": "스펙 조건 각주"
+        }
+      },
+      "mustInclude": [
+        "실제 표시 허가 수치만"
+      ],
+      "mustNotInclude": [
+        "미검증 SPF·내수성 등급 생성"
+      ],
+      "rubric": [
+        "E1"
+      ]
+    },
+    {
+      "id": "usage-scene",
+      "code": "B15",
+      "nameKo": "사용 씬",
+      "nameJa": "使用シーン",
+      "role": "사용 맥락을 제시한다.",
+      "renderKind": "hybrid",
+      "necessity": "optional",
+      "requires": [],
+      "promptTemplate": "A bright Japanese lifestyle band showing the usage context of a beauty product: {{sceneDescription}}. Mood: {{moodKeywords}}. Natural light, airy composition, product not necessarily visible. Keep the lower third calm for vector text. No people's faces, no text.",
+      "slots": {
+        "scenesJa": {
+          "required": true,
+          "source": "llm",
+          "description": "씬 라벨(줄바꿈 구분)"
+        },
+        "sceneNoteJa": {
+          "required": false,
+          "source": "llm",
+          "description": "재도포 등 안내"
+        },
+        "sceneDescription": {
+          "required": true,
+          "source": "llm",
+          "description": "배경 연출(영문)"
+        }
+      },
+      "mustInclude": [
+        "씬에 맞는 재도포 안내"
+      ],
+      "mustNotInclude": [
+        "씬을 효능 보증으로 연결"
+      ],
+      "rubric": [
+        "E1"
+      ],
+      "productPresence": "source"
+    },
+    {
+      "id": "free-from-badges",
+      "code": "B16",
+      "nameKo": "무첨가·프리 처방",
+      "nameJa": "無添加・フリー処方",
+      "role": "'뺀 것'으로 안심을 만든다. 무엇을 뺐는지 반드시 명시한다.",
+      "renderKind": "text",
+      "necessity": "optional",
+      "requires": [
+        "freeOf"
+      ],
+      "slots": {
+        "headlineJa": {
+          "required": false,
+          "source": "llm",
+          "description": "무첨가 헤드라인"
+        },
+        "freeFromJa": {
+          "required": true,
+          "source": "input",
+          "description": "무첨가 항목(줄바꿈 구분)"
+        },
+        "footnoteJa": {
+          "required": false,
+          "source": "code",
+          "description": "무첨가 범위 각주"
+        }
+      },
+      "mustInclude": [
+        "실제 미배합 성분만"
+      ],
+      "mustNotInclude": [
+        "「無添加」 단독 표기"
+      ],
+      "rubric": [
+        "B1",
+        "B2"
+      ]
+    },
+    {
+      "id": "color-chip-grid",
+      "code": "B17",
+      "nameKo": "컬러 칩 그리드",
+      "nameJa": "カラーチップ",
+      "role": "전 색상을 번호·색명으로 보여준다. makeup 의 서명 블록.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "option",
+      "requires": [
+        "options.color>=2"
+      ],
+      "slots": {
+        "headlineJa": {
+          "required": true,
+          "source": "llm",
+          "description": "컬러 소구 헤드라인"
+        },
+        "colorRows": {
+          "required": true,
+          "source": "input",
+          "description": "번호·색명(JA/EN)·색상값"
+        }
+      },
+      "mustInclude": [
+        "색명 JA/EN 병기 + 번호"
+      ],
+      "mustNotInclude": [
+        "사실이 아닌 NEW·Best 배지"
+      ],
+      "rubric": [
+        "E2"
+      ]
+    },
+    {
+      "id": "color-chart-matrix",
+      "code": "B18",
+      "nameKo": "컬러 차트 매트릭스",
+      "nameJa": "カラーチャート",
+      "role": "Light/Dark × Warm/Cool 4분면으로 색을 배치한다.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "option",
+      "requires": [
+        "options.color>=6"
+      ],
+      "slots": {
+        "axisLabelsJa": {
+          "required": true,
+          "source": "code",
+          "description": "Light/Warm/Cool/Dark"
+        },
+        "placements": {
+          "required": true,
+          "source": "llm",
+          "description": "색 번호·좌표"
+        }
+      },
+      "mustInclude": [
+        "실제 색상값 기반 배치"
+      ],
+      "mustNotInclude": [],
+      "rubric": [
+        "E2"
+      ]
+    },
+    {
+      "id": "personal-color-look",
+      "code": "B19",
+      "nameKo": "퍼스널컬러 룩 제안",
+      "nameJa": "パーソナルカラー提案",
+      "role": "ブルベ/イエベ 진단 프레임으로 색을 추천한다.",
+      "renderKind": "hybrid",
+      "necessity": "conditional",
+      "layer": "option",
+      "requires": [
+        "options.color>=2",
+        "modelConsent"
+      ],
+      "promptTemplate": "An editorial Japanese makeup look band using the supplied brand-owned model cut exactly as provided. Do not alter the face. {{lookDescription}} Mood: {{moodKeywords}}. Leave a calm side column for vector text. No text in the image.",
+      "slots": {
+        "looksJa": {
+          "required": true,
+          "source": "llm",
+          "description": "색번호|퍼스널컬러|무드카피. \"LOOK 1\" 같은 번호 라벨은 코드가 배지로 자동으로 붙이므로 넣지 않는다."
+        },
+        "lookDescription": {
+          "required": true,
+          "source": "llm",
+          "description": "연출(영문)"
+        }
+      },
+      "mustInclude": [
+        "「オススメ」 수준 표현(단정 회피)"
+      ],
+      "mustNotInclude": [
+        "퍼스널컬러 진단 결과 보증",
+        "임의 인물 합성"
+      ],
+      "rubric": [
+        "E2"
+      ],
+      "productPresence": "none"
+    },
+    {
+      "id": "lineup-compare-chart",
+      "code": "B20",
+      "nameKo": "라인업 비교 차트",
+      "nameJa": "ラインナップ比較",
+      "role": "옵션별 특성을 스케일로 비교한다.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "option",
+      "requires": [
+        "options.nonColor>=2"
+      ],
+      "slots": {
+        "axesJa": {
+          "required": true,
+          "source": "llm",
+          "description": "비교 축(줄바꿈 구분)"
+        },
+        "itemRows": {
+          "required": true,
+          "source": "input",
+          "description": "옵션명·점수"
+        },
+        "benchmarkFootnoteJa": {
+          "required": true,
+          "source": "code",
+          "description": "＊比較基準"
+        },
+        "effectFootnoteJa": {
+          "required": false,
+          "source": "code",
+          "description": "※メイクアップ効果による"
+        }
+      },
+      "mustInclude": [
+        "비교 기준 각주"
+      ],
+      "mustNotInclude": [
+        "타사 제품 비교(比較広告)"
+      ],
+      "rubric": [
+        "E1",
+        "C3"
+      ]
+    },
+    {
+      "id": "swatch-demo",
+      "code": "B21",
+      "nameKo": "발색·텍스처 시연",
+      "nameJa": "発色・テクスチャー",
+      "role": "도포컷·스와치로 질감과 발색을 보여준다.",
+      "renderKind": "ai-visual",
+      "necessity": "conditional",
+      "layer": "option",
+      "requires": [
+        "options.color>=2"
+      ],
+      "promptTemplate": "A clean Japanese cosmetics swatch band: {{swatchDescription}} on a {{surfaceColor}} surface, soft top light, macro texture detail, orderly repeating layout with even spacing. Mood: {{moodKeywords}}. No text, no labels.",
+      "slots": {
+        "swatchDescription": {
+          "required": true,
+          "source": "llm",
+          "description": "스와치 연출(영문)"
+        },
+        "demoNoteJa": {
+          "required": true,
+          "source": "code",
+          "description": "※画像はイメージです"
+        }
+      },
+      "mustInclude": [
+        "※画像はイメージです"
+      ],
+      "mustNotInclude": [
+        "실사 Before/After 피부 개선 시연"
+      ],
+      "rubric": [
+        "E2"
+      ],
+      "productPresence": "source"
+    },
+    {
+      "id": "how-to-use",
+      "code": "B22",
+      "nameKo": "사용법 STEP",
+      "nameJa": "使い方STEP",
+      "role": "사용 순서·적량·타이밍을 구체적으로 안내한다.",
+      "renderKind": "text",
+      "necessity": "optional",
+      "requires": [
+        "howToSteps"
+      ],
+      "slots": {
+        "sectionLabel": {
+          "required": false,
+          "source": "code",
+          "description": "HOW TO USE",
+          "default": "HOW TO USE"
+        },
+        "stepsJa": {
+          "required": true,
+          "source": "input",
+          "description": "STEP 본문(줄바꿈 구분). \"STEP 1\" 같은 번호 라벨은 코드가 배지로 자동으로 붙이므로 넣지 않는다."
+        },
+        "amountJa": {
+          "required": false,
+          "source": "llm",
+          "description": "적량(さくらんぼ大 등)"
+        },
+        "timingJa": {
+          "required": false,
+          "source": "llm",
+          "description": "사용 타이밍"
+        }
+      },
+      "mustInclude": [
+        "적량·타이밍 구체 표기"
+      ],
+      "mustNotInclude": [],
+      "rubric": [
+        "E3"
+      ]
+    },
+    {
+      "id": "brand-story",
+      "code": "B23",
+      "nameKo": "브랜드 스토리·컨셉",
+      "nameJa": "ブランドストーリー",
+      "role": "세계관·개발 배경으로 프리미엄 인식을 만든다.",
+      "renderKind": "hybrid",
+      "necessity": "optional",
+      "requires": [],
+      "promptTemplate": "A premium Japanese brand-story band: {{storyVisual}}. Mood: {{moodKeywords}}. Cinematic soft light, restrained palette, generous negative space on the {{copyZone}} side for vector type. No text, no logos.",
+      "slots": {
+        "conceptTitleJa": {
+          "required": true,
+          "source": "llm",
+          "description": "컨셉 제목"
+        },
+        "storyBodyJa": {
+          "required": true,
+          "source": "llm",
+          "description": "브랜드 서사 본문"
+        },
+        "storyVisual": {
+          "required": true,
+          "source": "llm",
+          "description": "연출(영문)"
+        },
+        "copyZone": {
+          "required": false,
+          "source": "llm",
+          "description": "left | right",
+          "default": "left"
+        }
+      },
+      "mustInclude": [],
+      "mustNotInclude": [
+        "개발자·전문가 의견 창작"
+      ],
+      "rubric": [],
+      "productPresence": "none"
+    },
+    {
+      "id": "texture-shot",
+      "code": "B24",
+      "nameKo": "텍스처·질감 컷",
+      "nameJa": "テクスチャーカット",
+      "role": "제형 감각을 전달한다.",
+      "renderKind": "hybrid",
+      "necessity": "optional",
+      "requires": [],
+      "promptTemplate": "A macro Japanese cosmetics texture band showing {{textureDescription}} of the supplied product. Mood: {{moodKeywords}}. Soft top light, shallow depth of field, {{surfaceColor}} surface, calm empty area for vector text. No text.",
+      "slots": {
+        "textureCopyJa": {
+          "required": false,
+          "source": "llm",
+          "description": "제형 카피"
+        },
+        "textureDescription": {
+          "required": true,
+          "source": "llm",
+          "description": "제형 묘사(영문)"
+        }
+      },
+      "mustInclude": [
+        "실제 제형과 일치"
+      ],
+      "mustNotInclude": [
+        "광택·점도 과장"
+      ],
+      "rubric": [],
+      "productPresence": "source"
+    },
+    {
+      "id": "customer-review",
+      "code": "B25",
+      "nameKo": "리뷰·구매자 목소리",
+      "nameJa": "お客様の声",
+      "role": "실사용 증명. 실제 리뷰 원문만 쓴다.",
+      "renderKind": "text",
+      "necessity": "conditional",
+      "layer": "proof",
+      "requires": [
+        "reviews"
+      ],
+      "slots": {
+        "reviewRows": {
+          "required": true,
+          "source": "input",
+          "description": "리뷰 원문·평점·연령대"
+        },
+        "reviewSourceJa": {
+          "required": true,
+          "source": "input",
+          "description": "출처"
+        },
+        "reviewCountJa": {
+          "required": false,
+          "source": "input",
+          "description": "리뷰 수"
+        }
+      },
+      "mustInclude": [
+        "실제 리뷰 원문만"
+      ],
+      "mustNotInclude": [
+        "AI 생성 후기·체험담(스테마 규제·우량오인)"
+      ],
+      "rubric": [
+        "A4"
+      ]
+    },
+    {
+      "id": "product-spec-table",
+      "code": "B26",
+      "nameKo": "제품 스펙표",
+      "nameJa": "商品仕様",
+      "role": "내용량·전성분·구분·판매원. 약기법 표시 의무 영역. 전 템플릿 필수.",
+      "renderKind": "text",
+      "necessity": "required",
+      "requires": [
+        "spec.volume",
+        "spec.category",
+        "spec.manufacturer"
+      ],
+      "slots": {
+        "specRows": {
+          "required": true,
+          "source": "input",
+          "description": "라벨·값 행(원문 고정)"
+        },
+        "fullIngredientsJa": {
+          "required": true,
+          "source": "input",
+          "description": "전성분(원문 고정)"
+        }
+      },
+      "mustInclude": [
+        "区分(化粧品/医薬部外品) 정확 표기",
+        "全成分 전량"
+      ],
+      "mustNotInclude": [
+        "코드·LLM에 의한 재가공·추론"
+      ],
+      "rubric": [
+        "A3"
+      ]
+    },
+    {
+      "id": "footnote-block",
+      "code": "B27",
+      "nameKo": "각주 모음",
+      "nameJa": "注釈",
+      "role": "본문의 모든 ※·＊ 마커를 한 곳에서 해소한다. 전 템플릿 필수, 항상 마지막.",
+      "renderKind": "text",
+      "necessity": "required",
+      "requires": [],
+      "slots": {
+        "footnoteRows": {
+          "required": true,
+          "source": "code",
+          "description": "마커·본문(앞선 블록에서 수집)"
+        },
+        "cautionsJa": {
+          "required": false,
+          "source": "input",
+          "description": "주의사항"
+        }
+      },
+      "mustInclude": [
+        "본문의 모든 마커가 여기서 해소(고아 각주 0)",
+        "打消し表示는 본문 대비 최소 크기 이상"
+      ],
+      "mustNotInclude": [],
+      "rubric": [
+        "A2",
+        "C3"
+      ]
+    }
+  ],
+  "conditionalLayers": {
+    "promo": {
+      "when": "promo 입력이 있고 플랫폼이 amazon-jp 가 아닐 때",
+      "insertAt": "head",
+      "blocks": [
+        "mall-promo-banner",
+        "set-offer-table"
+      ],
+      "note": "A+ 콘텐츠는 가격·프로모션·긴박 문구·타 소매 언급이 규정상 금지다. 실측상 프로모 위치는 p1 45%·p2 30%로 앞머리에 고정된다."
+    },
+    "proof": {
+      "when": "실적 3필드 또는 시험 5필드가 전부 있을 때(그룹별로 판정)",
+      "insertAt": "head",
+      "blocks": [
+        "ranking-stack",
+        "cumulative-sales"
+      ],
+      "note": "근거가 없으면 블록이 없는 것이 기본값이다. 그룹 단위로 게이트한다."
+    },
+    "option": {
+      "when": "옵션이 2개 이상일 때. 축(color/size/set/variant)에 따라 블록이 갈린다",
+      "insertAt": "body",
+      "blocks": [
+        "color-chip-grid",
+        "color-chart-matrix",
+        "personal-color-look",
+        "lineup-compare-chart",
+        "swatch-demo"
+      ],
+      "note": "색상축 2개 이상 → 칩 그리드 / 6개 이상 → 차트 매트릭스 추가 / 비색상축 2개 이상 → 라인업 비교."
+    }
+  },
+  "templates": [
+    {
+      "id": "D1",
+      "slug": "problem-solution-story",
+      "nameKo": "문제해결 서사형",
+      "nameJa": "悩み解決ストーリー型",
+      "description": "문제 제기로 합의를 만들고 원인·기전으로 해결을 설명하는 일본식 근거 축적형 서사.",
+      "bestFor": "고민이 뚜렷한 스킨케어·클렌징",
+      "dominantCategories": [
+        "skincare",
+        "cleansing"
+      ],
+      "platformFit": [
+        "rakuten-official",
+        "rakuten-reseller",
+        "qoo10",
+        "amazon-jp"
+      ],
+      "blockSequence": [
+        "hero-product",
+        "problem-hook",
+        "cause-structure",
+        "before-after-diagram",
+        "mechanism-explainer",
+        "test-evidence-label",
+        "point-list",
+        "texture-shot",
+        "how-to-use",
+        "product-spec-table",
+        "footnote-block"
+      ],
+      "signatureBlocks": [
+        "problem-hook",
+        "mechanism-explainer"
+      ]
+    },
+    {
+      "id": "D2",
+      "slug": "ingredient-evidence",
+      "nameKo": "성분 근거형",
+      "nameJa": "成分エビデンス型",
+      "description": "문제 제기 없이 성분명·농도·시험 근거로 바로 진입하는 기능성 소구.",
+      "bestFor": "농도·등급을 내세우는 기능성 세럼",
+      "dominantCategories": [
+        "skincare"
+      ],
+      "platformFit": [
+        "rakuten-official",
+        "amazon-jp",
+        "qoo10"
+      ],
+      "blockSequence": [
+        "hero-product",
+        "ingredient-card",
+        "mechanism-explainer",
+        "quant-data-graph",
+        "test-evidence-label",
+        "free-from-badges",
+        "point-list",
+        "how-to-use",
+        "product-spec-table",
+        "footnote-block"
+      ],
+      "signatureBlocks": [
+        "ingredient-card",
+        "quant-data-graph"
+      ]
+    },
+    {
+      "id": "D3",
+      "slug": "spec-scene-trust",
+      "nameKo": "스펙·씬 신뢰형",
+      "nameJa": "スペック・シーン型",
+      "description": "정량 스펙을 첫 화면에 세우고 사용 씬과 시험 근거로 신뢰를 쌓는다.",
+      "bestFor": "SPF·내수성 등 스펙이 구매 이유인 선케어",
+      "dominantCategories": [
+        "suncare"
+      ],
+      "platformFit": [
+        "rakuten-official",
+        "rakuten-reseller",
+        "qoo10",
+        "amazon-jp"
+      ],
+      "blockSequence": [
+        "hero-product",
+        "spec-panel",
+        "problem-hook",
+        "point-list",
+        "usage-scene",
+        "test-evidence-label",
+        "free-from-badges",
+        "texture-shot",
+        "product-spec-table",
+        "footnote-block"
+      ],
+      "signatureBlocks": [
+        "spec-panel",
+        "usage-scene"
+      ]
+    },
+    {
+      "id": "D4",
+      "slug": "color-variation",
+      "nameKo": "컬러 배리에이션형",
+      "nameJa": "カラーバリエーション型",
+      "description": "전 색상 제시 → 컬러 차트 → 퍼스널컬러 제안으로 색 선택을 돕는다.",
+      "bestFor": "색상이 여러 개인 색조",
+      "dominantCategories": [
+        "makeup"
+      ],
+      "platformFit": [
+        "qoo10",
+        "rakuten-official",
+        "rakuten-reseller"
+      ],
+      "blockSequence": [
+        "color-chip-grid",
+        "hero-product",
+        "color-chart-matrix",
+        "personal-color-look",
+        "swatch-demo",
+        "point-list",
+        "ingredient-card",
+        "product-spec-table",
+        "footnote-block"
+      ],
+      "signatureBlocks": [
+        "color-chip-grid"
+      ]
+    },
+    {
+      "id": "D5",
+      "slug": "gentle-convenience",
+      "nameKo": "저자극·편의형",
+      "nameJa": "やさしさ・時短型",
+      "description": "부담 없음·시간 절약을 코어로, 무첨가와 저자극 근거로 안심을 만든다.",
+      "bestFor": "클렌징·민감 피부 소구",
+      "dominantCategories": [
+        "cleansing"
+      ],
+      "platformFit": [
+        "rakuten-official",
+        "amazon-jp",
+        "qoo10"
+      ],
+      "blockSequence": [
+        "hero-product",
+        "problem-hook",
+        "point-list",
+        "free-from-badges",
+        "test-evidence-label",
+        "how-to-use",
+        "texture-shot",
+        "product-spec-table",
+        "footnote-block"
+      ],
+      "signatureBlocks": [
+        "point-list",
+        "free-from-badges"
+      ]
+    },
+    {
+      "id": "D6",
+      "slug": "brand-premium",
+      "nameKo": "브랜드 프리미엄형",
+      "nameJa": "ブランドプレミアム型",
+      "description": "브랜드 서사가 페이지를 지배한다. 배지·수치보다 세계관이 앞선다.",
+      "bestFor": "고가 라인·기프트 세트",
+      "dominantCategories": [
+        "skincare",
+        "cleansing"
+      ],
+      "platformFit": [
+        "rakuten-official",
+        "amazon-jp"
+      ],
+      "blockSequence": [
+        "brand-story",
+        "hero-product",
+        "mechanism-explainer",
+        "ingredient-card",
+        "texture-shot",
+        "how-to-use",
+        "customer-review",
+        "product-spec-table",
+        "footnote-block"
+      ],
+      "signatureBlocks": [
+        "brand-story"
+      ]
+    }
+  ],
+  "selectionGuide": {
+    "byCategory": {
+      "skincare": [
+        "D1",
+        "D2",
+        "D6"
+      ],
+      "suncare": [
+        "D3",
+        "D2"
+      ],
+      "makeup": [
+        "D4",
+        "D1"
+      ],
+      "cleansing": [
+        "D5",
+        "D1",
+        "D6"
+      ],
+      "haircare": [
+        "D1",
+        "D2"
+      ],
+      "etc": [
+        "D1"
+      ]
+    },
+    "byPlatform": {
+      "rakuten-official": [
+        "D1",
+        "D2",
+        "D3",
+        "D6"
+      ],
+      "rakuten-reseller": [
+        "D1",
+        "D3",
+        "D4"
+      ],
+      "qoo10": [
+        "D4",
+        "D1",
+        "D3"
+      ],
+      "amazon-jp": [
+        "D2",
+        "D3",
+        "D5"
+      ]
+    },
+    "tieBreakRules": [
+      "문제 제기가 성분보다 앞서면 D1, 성분·농도가 첫 소구면 D2.",
+      "기전 도해로 해결을 설명하면 D1, 「부담 없음·시간 절약」이 코어면 D5.",
+      "수치 스펙(SPF/PA·耐水性)이 첫 화면이면 D3, 성분명·농도가 첫 화면이면 D2.",
+      "색상 옵션이 2개 이상이고 색이 구매 이유면 무조건 D4.",
+      "브랜드 서사가 히어로보다 앞서고 배지·수치가 최소면 D6.",
+      "모두 애매하면 카테고리 기본값: skincare→D1 / suncare→D3 / makeup→D4 / cleansing→D5."
+    ]
+  }
+}

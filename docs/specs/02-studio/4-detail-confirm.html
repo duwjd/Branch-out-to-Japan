@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>② 마케팅 스튜디오 · 4. 블록 구성 확인</title>
+<!--
+  비배포 · 기획 검토용 인터랙티브 프로토타입.
+  정본: 02-studio-detail-ui-기획서.md # 2. 블록 구성 확인 (CONFIRM-01~05)
+  썸네일에 없던 단계. 빠진 블록과 사유를 접지 않고 노출하는 것이 이 화면의 존재 이유다.
+  셸(사이드바·브랜드 스위처)은 1-home.html 과 동일 마크업을 재사용한다 — ⓪ MAIN-01 정본.
+  요소 id 는 캡처 스크립트가 참조하므로 임의로 바꾸지 않는다.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<link rel="stylesheet" href="wireframe.css" />
+</head>
+<body>
+
+<div class="wf-strip">
+  <div class="wf-strip-in">
+    <span class="tag">② 마케팅 스튜디오 · 상세페이지 프로토타입</span>
+    <a href="index.html">플로우(index)</a>
+    <a href="1-home.html">1 썸네일 홈</a>
+    <a href="2-result.html">2 썸네일 결과</a>
+    <a href="3-detail-home.html">3 상세 홈</a>
+    <a href="4-detail-confirm.html"  class="on">4 블록 확인</a>
+    <a href="5-detail-result.html">5 상세 결과</a>
+    <a href="02-studio-detail-ui-기획서.md">기획서 ↗</a>
+    <span class="ex">비배포 · 기획 검토용</span>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- 전역 내비(사이드바) — ⓪ 00-main과 동일 셸 (MAIN-01) -->
+  <aside class="app-side" aria-label="전역 내비게이션">
+    <!-- 사이드바 접기/펼치기 토글 (아이콘 레일) -->
+    <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <div style="position:relative">
+      <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
+        style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
+        <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#B96C00">하</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:block;font-size:13px;font-weight:700;color:#202124;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">하루온 HARUON</span>
+          <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">스킨케어 / <span lang="ja">スキンケア</span></span>
+        </span>
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="swMenu" role="listbox" aria-label="브랜드 프로필 전환" class="sw-menu"
+        style="display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+        <div class="sw-item" role="option" aria-selected="true" style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px">
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#B96C00">하</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#202124">하루온 HARUON</span><span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61)">현재 브랜드</span></span>
+          <span style="color:#00875A;font-size:13px;font-weight:800">✓</span>
+        </div>
+        <button type="button" class="sw-item" role="option" aria-selected="false" aria-disabled="true" title="브랜드 전환 데모는 홈 프로토타입에서 제공"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default">
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#E2F3E9,#BFE3CE);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#00875A">글</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#9CA0A8">글로우리프</span><span style="display:block;font-size:10.5px;color:#B6B8BF">전환 데모는 홈에서</span></span>
+        </button>
+        <div style="height:1px;background:#EBEBEB;margin:6px 4px"></div>
+          <!-- MAIN-01b′ · 브랜드 추가 (2026-07-22 (미정) 해제 · 전 화면 동일 동작) -->
+          <button type="button" class="sw-item ab-open"
+            style="display:flex;width:100%;align-items:center;gap:8px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer;color:#D93636;font-size:12.5px;font-weight:700">
+            <span aria-hidden="true" style="flex:none;display:inline-flex;width:22px;height:22px;border-radius:7px;border:1px dashed rgba(255,100,100,.55);align-items:center;justify-content:center;font-size:13px;line-height:1">＋</span>
+            브랜드 추가</button>
+      </div>
+    </div>
+    <nav class="side-nav" aria-label="주요 메뉴">
+      <a href="../00-main/1-home.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        홈</a>
+      <a href="../01-report/1-input.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        진단 리포트</a>
+      <a href="3-detail-home.html" class="on" aria-current="page">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>
+        마케팅 스튜디오</a>
+      <a href="../04-operations/3-brand.html">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        운영</a>
+    </nav>
+    <span class="side-gap"></span>
+    <div class="side-foot">
+      <div style="position:relative">
+        <button type="button" id="avBtn" aria-haspopup="menu" aria-expanded="false" aria-label="계정 메뉴"
+          style="display:flex;width:100%;align-items:center;gap:9px;padding:7px 8px;border:none;border-radius:10px;background:transparent;font-family:inherit;cursor:pointer;text-align:left" class="sw-item">
+          <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:12.5px;font-weight:700;color:#202124;line-height:1.25">박민정</span>
+            <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">minjeong@haruon.kr</span>
+          </span>
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+        </button>
+        <div id="avMenu" role="menu" class="sw-menu" style="display:none;position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+          <a href="../03-account/2-mypage.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">마이페이지</a>
+          <a href="../03-account/1-login.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">로그아웃</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <main class="app-main" style="padding-bottom:120px">
+    <div style="margin:0 auto;max-width:768px;padding:32px 24px 0">
+      <header>
+        <p style="margin:0;font-size:12.5px;font-weight:800;color:#FF6464">마케팅 스튜디오</p>
+        <h1 style="margin:6px 0 0;font-size:25px;font-weight:800;line-height:1.25;color:#202124">상세페이지 만들기</h1>
+        
+      </header>
+      <div class="mod-tabs" role="tablist" aria-label="스튜디오 모듈" style="display:flex;gap:2px;border-bottom:1px solid #EBEBEB;margin-top:26px">
+        <a href="1-home.html" role="tab" aria-selected="false" style="padding:10px 14px;font-size:13.5px;font-weight:600;color:rgba(55,56,60,0.61);text-decoration:none">썸네일</a>
+        <span role="tab" aria-selected="true" style="margin-bottom:-1px;border-bottom:2px solid #FF6464;padding:10px 14px;font-size:13.5px;font-weight:800;color:#D93636">상세페이지</span>
+        <span role="tab" aria-selected="false" aria-disabled="true" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;font-size:13.5px;font-weight:600;color:#B6B8BF">인스타 피드 <span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#EFEFF1;padding:0 7px;font-size:10px;font-weight:800;color:#9CA0A8">준비 중</span></span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:22px">
+        <h2 style="margin:0;font-size:17px;font-weight:800;color:#202124">블록 구성 확인</h2>
+        <a href="3-detail-home.html" style="font-size:12.5px;font-weight:600;color:#D93636">입력으로 돌아가기</a>
+      </div>
+      <p style="margin:6px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">약 3분 걸립니다 · 블록 15개 (이미지 생성 4개) · 출력 폭 1200px</p>
+      <p style="margin:8px 0 0;border-radius:9px;background:#F2F2F4;padding:9px 11px;font-size:11.5px;line-height:1.7;color:rgba(55,56,60,0.61)">라쿠텐은 이미지 1장당 3840px·2MB 제한이라, 분할본을 R-Cabinet에 올립니다.</p>
+      <ol id="seqList" style="margin:18px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">1</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">몰 프로모 배너</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">2</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">세트·수량 오퍼표</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">3</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">랭킹·수상 스택</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">4</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">누적 판매·리뷰 수</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">5</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">히어로 제품컷·캐치카피</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span></span><span style="font-size:11px;color:#B6B8BF">필수</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">6</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">문제 제기·공감</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span></span><span style="font-size:11px;color:#B6B8BF">필수</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">7</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">원인 구조화</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">8</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">비교 도해</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">9</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">기전 도해</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">10</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">시험·근거 라벨</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">11</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">POINT 나열</b></span><span style="font-size:11px;color:#B6B8BF">필수</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">12</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">텍스처·질감 컷</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">13</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">사용법 STEP</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">14</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">제품 스펙표</b></span><span style="font-size:11px;color:#B6B8BF">필수</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
+      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">15</span>
+      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">각주 모음</b></span><span style="font-size:11px;color:#B6B8BF">필수</span></li></ol>
+      <section style="margin-top:26px">
+        <h3 style="margin:0;font-size:13.5px;font-weight:800;color:#202124">빠진 블록 4개</h3>
+        <p style="margin:5px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">근거가 없으면 그 블록을 넣지 않는 것이 기본 동작입니다. 입력을 채우면 다시 들어갑니다.</p>
+        <ul id="exclList" style="margin:11px 0 0;padding:0;list-style:none"><li style="border:1px solid rgba(112,115,124,0.14);border-radius:10px;background:#F7F7F8;padding:12px 15px;margin-top:7px">
+      <p style="margin:0;font-size:12.5px;font-weight:700;color:#414245">컬러 칩 그리드</p>
+      <p style="margin:4px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">색상 옵션이 2개 미만입니다.</p><p style="margin:5px 0 0;font-size:11.5px;color:#D93636">필요한 입력: 옵션 정보</p></li><li style="border:1px solid rgba(112,115,124,0.14);border-radius:10px;background:#F7F7F8;padding:12px 15px;margin-top:7px">
+      <p style="margin:0;font-size:12.5px;font-weight:700;color:#414245">컬러 차트 매트릭스</p>
+      <p style="margin:4px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">색상 옵션이 6개 미만이라 차트 대신 칩만 넣었습니다.</p></li><li style="border:1px solid rgba(112,115,124,0.14);border-radius:10px;background:#F7F7F8;padding:12px 15px;margin-top:7px">
+      <p style="margin:0;font-size:12.5px;font-weight:700;color:#414245">발색·텍스처 시연</p>
+      <p style="margin:4px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">색상 옵션이 2개 미만입니다.</p><p style="margin:5px 0 0;font-size:11.5px;color:#D93636">필요한 입력: 옵션 정보</p></li><li style="border:1px solid rgba(112,115,124,0.14);border-radius:10px;background:#F7F7F8;padding:12px 15px;margin-top:7px">
+      <p style="margin:0;font-size:12.5px;font-weight:700;color:#414245">라인업 비교 차트</p>
+      <p style="margin:4px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">비교할 라인업 옵션이 2개 미만입니다.</p><p style="margin:5px 0 0;font-size:11.5px;color:#D93636">필요한 입력: 옵션 정보</p></li></ul>
+      </section>
+    </div>
+  </main>
+</div>
+
+  <div style="position:fixed;left:248px;right:0;bottom:0;z-index:40;border-top:1px solid #EBEBEB;background:rgba(255,255,255,.95);padding:15px 24px">
+    <div style="margin:0 auto;max-width:768px">
+      <span style="display:flex;height:46px;align-items:center;justify-content:center;border-radius:11px;background:#FF6464;font-size:14px;font-weight:800;color:#fff">상세페이지 생성 (블록 15개)</span>
+      <p style="margin:9px 0 0;text-align:center;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">생성 버튼이 실행 직전 게이트 지점입니다 — 비회원이면 여기서 로그인 모달.</p>
+    </div>
+  </div>
+
+</body>
+</html>

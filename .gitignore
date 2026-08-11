@@ -68,3 +68,9 @@ next-env.d.ts
 
 # humanize-korean 윤문 작업 폴더 (런타임 산출물)
 /_workspace/
+
+# 크롤러·OCR이 파괴적 갱신 전에 남기는 안전 백업 — 로컬 전용(원본은 git 이력에 있다)
+data/processed/*.bak-*
+
+# Excel 임시 잠금 파일
+~$*

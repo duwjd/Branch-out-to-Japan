@@ -21,8 +21,9 @@ const IMAGE_SUBDIR = 'raw/product-thumbnails/qoo10';
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-// Qoo10 뷰티 랭킹 페이지. ※ Qoo10 랭킹은 상위 노출 상품만 렌더(나머지는 탭 XHR)라
-//   한 페이지당 20~30개 수준. 고품질이나 수량 제한적 → 페르소나 채널 레퍼런스 샘플.
+// Qoo10 뷰티 랭킹 페이지(g=2 = ビューティー・コスメ).
+// 실측(2026-08-10): 스크롤 14회 후 아이템 링크 200건 회수 — 타일 기반 추출로 바꾼 뒤의 수치다.
+// 뷰티 서브카테고리는 Bestsellers 링크로 노출되지 않아(최상위 그룹 g=0~16만) g=2 로 충분하다.
 const PAGES = [
   { category: 'beauty', url: 'https://www.qoo10.jp/gmkt.inc/Bestsellers/?g=2&global_yn=N' },
   { category: 'beauty', url: 'https://www.qoo10.jp/gmkt.inc/Bestsellers/?g=2' },
@@ -56,18 +57,37 @@ async function autoScroll(page, rounds = 12) {
   }
 }
 
-/** 현재 페이지에서 상품 이미지+상품명 추출(카테고리 탭 등 노이즈 제외). */
+/**
+ * 현재 페이지에서 상품 이미지+상품명+아이템 URL 추출.
+ *
+ * 타일(`div.item`) 기준으로 훑는다 — 구 버전은 `img[src*=gd.image-qoo10.jp]`에서 시작해
+ * `img.closest('a')`로 링크를 되짚었는데, 이미지와 링크가 형제 노드인 타일에서는 href가
+ * 비어 상세 크롤 시드로 못 쓰였다(그래서 16건에 그쳤다). 아이템 링크에서 시작하면
+ * 같은 페이지에서 200건이 잡힌다.
+ * id 는 기존 레코드와의 호환을 위해 계속 이미지 URL에서 뽑는다(상품코드 아님).
+ */
 function extractOnPage(page) {
   return page.evaluate(() => {
     const rows = [];
-    for (const img of document.querySelectorAll('img')) {
-      const src = img.currentSrc || img.src || '';
+    const seenHref = new Set();
+    for (const a of document.querySelectorAll('a[href*="/item/"]')) {
+      const href = a.href.split('?')[0];
+      if (seenHref.has(href)) continue;
+      seenHref.add(href);
+      const tile = a.closest('div.item, li, [class*="prd"], td') || a;
+      const img = tile.querySelector('img');
+      if (!img) continue;
+      // Qoo10은 gd_src 에 실제 URL을 담고 src 에는 로딩 플레이스홀더를 넣는다.
+      // 실측(2026-08-10): 200 타일 중 180개가 미로드 상태 — gd_src 를 먼저 봐야 한다.
+      const src = img.getAttribute('gd_src')
+        || img.getAttribute('data-original')
+        || img.currentSrc
+        || img.src
+        || '';
       if (!/gd\.image-qoo10\.jp/.test(src)) continue;
-      const name = (img.alt || '').trim().replace(/\s+/g, ' ');
-      if (name.length < 4) continue; // 카테고리 아이콘 등 제외
-      const a = img.closest('a');
-      const href = a?.href || '';
-      if (/Bestsellers\/\?g=\d+$/.test(href)) continue; // 카테고리 탭 썸네일 제외
+      // 상품명은 이미지 alt 가 가장 온전하다(타일 텍스트는 가격·배지가 섞인다)
+      const name = (img.alt || a.textContent || '').trim().replace(/\s+/g, ' ');
+      if (name.length < 4) continue;
       rows.push({ src, name, href });
     }
     return rows;

@@ -39,6 +39,8 @@
 | `/app/report/[id]` | 처리 로딩(폴링) + 8블록 뷰 + 슬라이드 내보내기 버튼 | ① M3 (슬라이드 버튼 M4) | `report-wireframe` |
 | `/app/studio/thumbnail` | 스튜디오 홈 = 썸네일 생성(홈=생성 · 갤러리 없음) | ② 주간 | `specs/02-studio/1-home.html` |
 | `/app/studio/thumbnail/[assetId]` | 생성 결과 상세(생성중 상태로 시작 → 결과) | ② 주간 | `specs/02-studio/2-result.html` |
+| `/app/studio/detail` | 상세페이지 생성 퍼널 + 블록 구성 확인(한 페이지 2단계) | ② 2026-08-10 | `specs/02-studio/3-detail-home.html` · `4-detail-confirm.html` |
+| `/app/studio/detail/[assetId]` | 상세페이지 결과(블록 n/N 진행률 → 결합본·분할본·블록 재생성) | ② 2026-08-10 | `specs/02-studio/5-detail-result.html` |
 | `/app/library` | 자산 라이브러리(보관·재열람 정본 · 타입 탭 · 조회 전용) | ③ 주간 | `specs/04-operations/1-home.html` |
 | `/app/library/[assetId]` | 자산 상세(썸네일 열람·다운로드·해설 / 리포트 요약) | ③ 주간 | `specs/04-operations/2-detail.html` |
 | `/app/brand` | 브랜드 관리(브랜드 킷 — `BrandProfile` 편집 정본 · 일본향 용어집·톤) | ③ 주간 | `specs/04-operations/3-brand.html` |

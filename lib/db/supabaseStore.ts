@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from './supabaseClient';
 import type {
+  AssetBlockRecord,
   AuthTokenRecord,
   BrandProfileRecord,
   DiagnosisRequestRecord,
@@ -158,7 +159,7 @@ function toBrandProfileRecord(row: BrandProfileRow): BrandProfileRecord {
 interface GeneratedAssetRow {
   id: string;
   brand_profile_id: string | null;
-  kind: 'thumbnail';
+  kind: GeneratedAssetRecord['kind'];
   style_category: string;
   style_name: string;
   platform: string;
@@ -175,8 +176,53 @@ interface GeneratedAssetRow {
   model_consent: boolean | null;
   promo_input: GeneratedAssetRecord['promoInput'];
   brand_name_snapshot: string;
+  detail_input: GeneratedAssetRecord['detailInput'];
+  block_total: number | null;
+  block_done: number | null;
+  slice_paths: string[] | null;
   created_at: string;
   updated_at: string;
+}
+
+/** asset_blocks 행 — 상세페이지 블록 1개 */
+interface AssetBlockRow {
+  id: string;
+  asset_id: string;
+  seq: number;
+  block_type: string;
+  render_kind: string;
+  status: AssetBlockRecord['status'];
+  error: string | null;
+  slots: Record<string, string> | null;
+  prompt_used: string | null;
+  visual_path: string | null;
+  image_path: string | null;
+  height: number | null;
+  version: number;
+  history: AssetBlockRecord['history'] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+function toBlockRecord(row: AssetBlockRow): AssetBlockRecord {
+  return {
+    id: row.id,
+    assetId: row.asset_id,
+    seq: row.seq,
+    blockType: row.block_type,
+    renderKind: row.render_kind,
+    status: row.status,
+    error: row.error,
+    slots: row.slots ?? {},
+    promptUsed: row.prompt_used,
+    visualPath: row.visual_path,
+    imagePath: row.image_path,
+    height: row.height,
+    version: row.version,
+    history: row.history ?? [],
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 function toAssetRecord(row: GeneratedAssetRow): GeneratedAssetRecord {
@@ -198,6 +244,10 @@ function toAssetRecord(row: GeneratedAssetRow): GeneratedAssetRecord {
     proof: row.proof,
     modelImagePath: row.model_image_path ?? null,
     modelConsent: row.model_consent ?? false,
+    detailInput: row.detail_input ?? null,
+    blockTotal: row.block_total ?? 0,
+    blockDone: row.block_done ?? 0,
+    slicePaths: row.slice_paths ?? [],
     promoInput: row.promo_input ?? null,
     brandNameSnapshot: row.brand_name_snapshot,
     createdAt: row.created_at,
@@ -481,6 +531,10 @@ export function createSupabaseStore(): Store {
           model_consent: input.modelConsent,
           promo_input: input.promoInput,
           brand_name_snapshot: input.brandNameSnapshot,
+          detail_input: input.detailInput,
+          block_total: input.blockTotal,
+          block_done: input.blockDone,
+          slice_paths: input.slicePaths,
         })
         .select()
         .single<GeneratedAssetRow>();
@@ -502,8 +556,81 @@ export function createSupabaseStore(): Store {
       if (patch.promptUsed !== undefined) row.prompt_used = patch.promptUsed;
       if (patch.gateResult !== undefined) row.gate_result = patch.gateResult;
       if (patch.explanationJson !== undefined) row.explanation_json = patch.explanationJson;
+      if (patch.blockTotal !== undefined) row.block_total = patch.blockTotal;
+      if (patch.blockDone !== undefined) row.block_done = patch.blockDone;
+      if (patch.slicePaths !== undefined) row.slice_paths = patch.slicePaths;
       const result = await client.from('generated_assets').update(row).eq('id', id);
       if (result.error) throw new Error(`supabase updateAsset 실패: ${result.error.message}`);
+    },
+
+    async createBlocks(assetId, blocks) {
+      if (blocks.length === 0) return [];
+      const result = await client
+        .from('asset_blocks')
+        .insert(
+          blocks.map((b) => ({
+            asset_id: assetId,
+            seq: b.seq,
+            block_type: b.blockType,
+            render_kind: b.renderKind,
+            status: b.status,
+            error: b.error,
+            slots: b.slots,
+            prompt_used: b.promptUsed,
+            visual_path: b.visualPath,
+            image_path: b.imagePath,
+            height: b.height,
+            version: b.version,
+            history: b.history,
+          })),
+        )
+        .select()
+        .returns<AssetBlockRow[]>();
+      return must(result, 'createBlocks').map(toBlockRecord).sort((a, b) => a.seq - b.seq);
+    },
+
+    async listBlocks(assetId) {
+      const result = await client
+        .from('asset_blocks')
+        .select()
+        .eq('asset_id', assetId)
+        .order('seq', { ascending: true })
+        .returns<AssetBlockRow[]>();
+      return must(result, 'listBlocks').map(toBlockRecord);
+    },
+
+    async getBlock(blockId) {
+      const result = await client.from('asset_blocks').select().eq('id', blockId).maybeSingle<AssetBlockRow>();
+      if (result.error) throw new Error(`supabase getBlock 실패: ${result.error.message}`);
+      return result.data ? toBlockRecord(result.data) : null;
+    },
+
+    async updateBlock(blockId, patch) {
+      const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      if (patch.seq !== undefined) row.seq = patch.seq;
+      if (patch.status !== undefined) row.status = patch.status;
+      if (patch.error !== undefined) row.error = patch.error;
+      if (patch.slots !== undefined) row.slots = patch.slots;
+      if (patch.promptUsed !== undefined) row.prompt_used = patch.promptUsed;
+      if (patch.visualPath !== undefined) row.visual_path = patch.visualPath;
+      if (patch.imagePath !== undefined) row.image_path = patch.imagePath;
+      if (patch.height !== undefined) row.height = patch.height;
+      if (patch.version !== undefined) row.version = patch.version;
+      if (patch.history !== undefined) row.history = patch.history;
+      const result = await client.from('asset_blocks').update(row).eq('id', blockId);
+      if (result.error) throw new Error(`supabase updateBlock 실패: ${result.error.message}`);
+    },
+
+    async incrementBlockDone(assetId) {
+      // 블록이 동시에 완료되므로 read-modify-write 로는 카운터가 유실된다 → DB 함수로 원자 증가.
+      // 함수가 없는 환경(구 스키마)에서는 읽고-쓰기로 폴백한다(단일 워커라 실사용상 안전).
+      const rpc = await client.rpc('increment_block_done', { p_asset_id: assetId });
+      if (!rpc.error) return;
+      const cur = await client.from('generated_assets').select('block_done').eq('id', assetId).maybeSingle<{ block_done: number | null }>();
+      if (cur.error) throw new Error(`supabase incrementBlockDone 실패: ${cur.error.message}`);
+      const next = (cur.data?.block_done ?? 0) + 1;
+      const upd = await client.from('generated_assets').update({ block_done: next }).eq('id', assetId);
+      if (upd.error) throw new Error(`supabase incrementBlockDone 실패: ${upd.error.message}`);
     },
 
     async listAssets(brandProfileId: string) {

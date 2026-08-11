@@ -22,3 +22,17 @@ export const STUDIO_STAGE_LABELS: Record<string, string> = {
   generate: '썸네일 생성 중',
   gate: '검수 게이트 확인 중',
 };
+
+/**
+ * 상세페이지 생성 단계 → 고객어(② DETAIL RESULT-D06).
+ * 썸네일과 달리 blocks 단계가 길어 진행률(blockDone/blockTotal)을 함께 표시한다.
+ */
+export const DETAIL_STAGE_LABELS: Record<string, string> = {
+  analyze: '원본·브랜드 자산 분석 중',
+  plan: '상세페이지 구성 설계 중',
+  copy: '일본 고객 관점으로 카피 재설계 중',
+  blocks: '블록 이미지 생성 중',
+  compose: '세로로 이어붙이는 중',
+  slice: '몰 업로드용 분할 중',
+  gate: '검수 게이트 확인 중',
+};

@@ -39,7 +39,12 @@ const FILE_ID_RE = /^[a-z]+-[0-9a-f-]{36}\.(png|jpe?g|webp|pdf)$/;
  * 파일을 저장하고 fileId를 반환한다. 사용자 입력(브랜드명 등)은 파일명에 넣지 않는다 —
  * 다운로드 파일명은 클라이언트 download 속성 몫(RESULT-04).
  */
-export async function saveFile(buf: Buffer, ext: StoredFileExt, prefix: 'orig' | 'thumb' | 'doc' | 'model' | 'product'): Promise<string> {
+export async function saveFile(
+  buf: Buffer,
+  ext: StoredFileExt,
+  // 'blk'·'slice'·'detail'은 ② 상세페이지 산출물 — 블록 PNG / 몰 분할본 / 결합본
+  prefix: 'orig' | 'thumb' | 'doc' | 'model' | 'product' | 'blk' | 'slice' | 'detail',
+): Promise<string> {
   const fileId = `${prefix}-${randomUUID()}.${ext}`;
   if (hasSupabaseEnv()) {
     const { error } = await getSupabaseClient()

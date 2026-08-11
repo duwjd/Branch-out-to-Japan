@@ -14,7 +14,7 @@ import { IconBox } from '@/components/ui/icons';
  * 디자인 정본: docs/specs/04-operations/1-home.html
  */
 
-type Tab = 'report' | 'thumbnail';
+type Tab = 'report' | 'thumbnail' | 'detail';
 
 /** 시즌 트랙 좌표 — 7월 1일=0% · 12월 31일=100%(근사). 오늘이 속한 하반기 사이클 연도를 쓴다 */
 function seasonYear(now: Date): number {
@@ -137,13 +137,19 @@ function SeasonStrip({ dday }: { dday: number }) {
 function ThumbnailCard({ asset }: { asset: GeneratedAssetRecord }) {
   const platformLabel = PLATFORM_LABELS[asset.platform as Platform] ?? asset.platform;
   const src = asset.imagePath ? `/api/files/${asset.imagePath}` : `/api/files/${asset.originalImagePath}`;
+  // 상세페이지는 블록 재생성·분할 다운로드가 있는 전용 결과 화면으로 보낸다
+  const href = asset.kind === 'detail' ? `/app/studio/detail/${asset.id}` : `/app/library/${asset.id}`;
   return (
     <Link
-      href={`/app/library/${asset.id}`}
+      href={href}
       className="group block overflow-hidden rounded-2xl border border-card-border bg-canvas shadow-card transition-[border-color,box-shadow] hover:border-coral hover:shadow-2"
     >
       <span className="relative block aspect-square overflow-hidden">
-        <ThumbPreview src={src} alt={`${asset.styleName}으로 재설계된 ${asset.brandNameSnapshot} 일본향 썸네일`} />
+        <ThumbPreview
+          src={src}
+          alt={`${asset.styleName}으로 재설계된 ${asset.brandNameSnapshot} 일본향 ${asset.kind === 'detail' ? '상세페이지' : '썸네일'}`}
+          anchor={asset.kind === 'detail' ? 'top' : 'center'}
+        />
         <span
           aria-hidden
           className="absolute inset-0 flex items-center justify-center bg-[rgba(32,33,36,0.44)] opacity-0 transition-opacity group-hover:opacity-100"
@@ -223,7 +229,7 @@ function GeneratingTile({ href, stageLabel, subLabel }: { href: string; stageLab
 
 export default async function LibraryPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { tab } = await searchParams;
-  const activeTab: Tab = tab === 'thumbnail' ? 'thumbnail' : 'report';
+  const activeTab: Tab = tab === 'thumbnail' ? 'thumbnail' : tab === 'detail' ? 'detail' : 'report';
 
   const store = await getStore();
   const brandId = await getActiveBrandId();
@@ -235,19 +241,25 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
   // 실패물은 자산이 아니다(LIB-05) — 발행분 + 진행중만
   const reportCards = requests.filter((r) => r.status === 'published');
   const reportInProgress = requests.filter((r) => r.status === 'submitted' || r.status === 'processing');
-  const thumbnailCards = assets.filter((a) => a.status === 'done');
-  const thumbnailInProgress = assets.filter((a) => a.status === 'generating');
+  // 자산은 kind 로 나눈다 — 상세페이지는 결합본이 image_path 라 카드 렌더가 썸네일과 같다
+  const thumbnailCards = assets.filter((a) => a.kind !== 'detail' && a.status === 'done');
+  const thumbnailInProgress = assets.filter((a) => a.kind !== 'detail' && a.status === 'generating');
+  const detailCards = assets.filter((a) => a.kind === 'detail' && a.status === 'done');
+  const detailInProgress = assets.filter((a) => a.kind === 'detail' && a.status === 'generating');
 
   const isEmpty =
-    reportCards.length + reportInProgress.length + thumbnailCards.length + thumbnailInProgress.length === 0;
+    reportCards.length + reportInProgress.length + thumbnailCards.length + thumbnailInProgress.length
+      + detailCards.length + detailInProgress.length === 0;
   const hasReport = reportCards.length > 0;
   const dday = dDay(NEXT_MEGAWARI.date);
 
   const TABS: { key: Tab; label: string; count: number; inProgress: number }[] = [
     { key: 'report', label: '진단 리포트', count: reportCards.length, inProgress: reportInProgress.length },
     { key: 'thumbnail', label: '썸네일', count: thumbnailCards.length, inProgress: thumbnailInProgress.length },
+    { key: 'detail', label: '상세페이지', count: detailCards.length, inProgress: detailInProgress.length },
   ];
-  const activeCount = activeTab === 'report' ? reportCards.length : thumbnailCards.length;
+  const activeCount =
+    activeTab === 'report' ? reportCards.length : activeTab === 'detail' ? detailCards.length : thumbnailCards.length;
 
   return (
     <main className="animate-fade-up">
@@ -354,6 +366,30 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
                       생성한 썸네일이 없습니다.{' '}
                       <Link href="/app/studio/thumbnail" className="text-coral-strong underline">
                         스튜디오에서 첫 썸네일을 만들 수 있습니다
+                      </Link>
+                    </p>
+                  )}
+                </>
+              )}
+
+              {activeTab === 'detail' && (
+                <>
+                  {detailInProgress.map((a) => (
+                    <GeneratingTile
+                      key={a.id}
+                      href={`/app/studio/detail/${a.id}`}
+                      stageLabel={a.blockTotal > 0 ? `블록 ${a.blockDone}/${a.blockTotal}` : '생성 중…'}
+                      subLabel={a.styleName}
+                    />
+                  ))}
+                  {detailCards.map((a) => (
+                    <ThumbnailCard key={a.id} asset={a} />
+                  ))}
+                  {detailCards.length + detailInProgress.length === 0 && (
+                    <p className="col-span-full py-8 text-[13.5px] text-ink-mute">
+                      생성한 상세페이지가 없습니다.{' '}
+                      <Link href="/app/studio/detail" className="text-coral-strong underline">
+                        스튜디오에서 첫 상세페이지를 만들 수 있습니다
                       </Link>
                     </p>
                   )}

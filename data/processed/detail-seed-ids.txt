@@ -1,0 +1,21 @@
+# 상세페이지 의도 표집 시드 — rakuten
+# 생성: detail-seeds.mjs --per-cell 3
+# 셀 = 카테고리 | 프로모 유무 | 옵션 유무. 한 줄 1 id, `#`은 주석.
+# 못 채운 셀: 없음
+
+rakuten_shuuemura_shu10049-2	# cleansing|no-promo|no-option
+rakuten_rakuten24-cosmetics_4971710561395	# cleansing|no-promo|no-option
+rakuten_129-ink_ink90-3	# cleansing|no-promo|option
+rakuten_attenir_166013	# cleansing|promo|option
+rakuten_luire_placge1000	# cleansing|promo|option
+rakuten_fujikobrand_4589474243862	# makeup|no-promo|no-option
+rakuten_rakuten24_4909978180119	# skincare|no-promo|no-option
+rakuten_orbis-shop_r4908064090110	# skincare|no-promo|no-option
+rakuten_wowmed_skinbaby-bihaku01	# skincare|no-promo|option
+rakuten_torriden-official_skincare5set	# skincare|promo|option
+rakuten_fancl-shop_3044-21	# suncare|no-promo|no-option
+rakuten_at-life_103-4901301298706	# suncare|no-promo|no-option
+rakuten_fujifilm-h_16833942	# suncare|no-promo|option
+rakuten_osharewalker_hfn0254	# suncare|no-promo|option
+rakuten_sweetmimistore_compass1721206426	# suncare|no-promo|option
+rakuten_macchialabel_118423	# suncare|promo|option
