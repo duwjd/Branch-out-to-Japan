@@ -59,7 +59,7 @@ export default async function DashboardPage() {
       .map((r) => ({ kind: 'report' as const, id: r.id, name: reportName(r) })),
     ...assets
       .filter((a) => a.status === 'generating')
-      .map((a) => ({ kind: 'thumbnail' as const, id: a.id, name: assetName(a) })),
+      .map((a) => ({ kind: a.kind, id: a.id, name: assetName(a) })),
   ];
 
   const firstVisit = publishedRequests.length === 0 && doneAssets.length === 0 && jobs.length === 0;
@@ -81,8 +81,8 @@ export default async function DashboardPage() {
     }),
     ...doneAssets.map((a) => ({
       key: `a-${a.id}`,
-      kind: 'thumbnail' as const,
-      href: `/app/library/${a.id}`,
+      kind: a.kind,
+      href: a.kind === 'detail' ? `/app/studio/detail/${a.id}` : `/app/library/${a.id}`,
       name: assetName(a),
       date: fmtDate(a.createdAt),
       sort: a.createdAt,

@@ -1,0 +1,2519 @@
+{
+  "generatedFrom": "data/processed/detail-ocr.jsonl",
+  "sourceRows": 1000,
+  "productCount": 84,
+  "noiseImages": 38,
+  "bySource": {
+    "rakuten": 56,
+    "qoo10": 17,
+    "amazon": 11
+  },
+  "blockFrequency": [
+    {
+      "blockType": "B03",
+      "slug": "hero-product",
+      "nameKo": "히어로 제품컷·캐치카피",
+      "count": 192,
+      "products": 66,
+      "productShare": 0.786
+    },
+    {
+      "blockType": "B01",
+      "slug": "mall-promo-banner",
+      "nameKo": "몰 프로모 배너",
+      "count": 88,
+      "products": 42,
+      "productShare": 0.5
+    },
+    {
+      "blockType": "B13",
+      "slug": "point-list",
+      "nameKo": "POINT 나열",
+      "count": 86,
+      "products": 39,
+      "productShare": 0.464
+    },
+    {
+      "blockType": "B17",
+      "slug": "color-chip-grid",
+      "nameKo": "컬러 칩 그리드",
+      "count": 72,
+      "products": 17,
+      "productShare": 0.202
+    },
+    {
+      "blockType": "B24",
+      "slug": "texture-shot",
+      "nameKo": "텍스처·질감 컷",
+      "count": 70,
+      "products": 21,
+      "productShare": 0.25
+    },
+    {
+      "blockType": "B22",
+      "slug": "how-to-use",
+      "nameKo": "사용법 STEP",
+      "count": 52,
+      "products": 31,
+      "productShare": 0.369
+    },
+    {
+      "blockType": "B23",
+      "slug": "brand-story",
+      "nameKo": "브랜드 스토리·컨셉",
+      "count": 43,
+      "products": 28,
+      "productShare": 0.333
+    },
+    {
+      "blockType": "B04",
+      "slug": "ranking-stack",
+      "nameKo": "랭킹·수상 스택",
+      "count": 40,
+      "products": 27,
+      "productShare": 0.321
+    },
+    {
+      "blockType": "B09",
+      "slug": "mechanism-explainer",
+      "nameKo": "기전 도해",
+      "count": 34,
+      "products": 20,
+      "productShare": 0.238
+    },
+    {
+      "blockType": "B15",
+      "slug": "usage-scene",
+      "nameKo": "사용 씬",
+      "count": 31,
+      "products": 15,
+      "productShare": 0.179
+    },
+    {
+      "blockType": "B02",
+      "slug": "set-offer-table",
+      "nameKo": "세트·수량 오퍼표",
+      "count": 29,
+      "products": 18,
+      "productShare": 0.214
+    },
+    {
+      "blockType": "B21",
+      "slug": "swatch-demo",
+      "nameKo": "발색·텍스처 시연",
+      "count": 24,
+      "products": 11,
+      "productShare": 0.131
+    },
+    {
+      "blockType": "B06",
+      "slug": "problem-hook",
+      "nameKo": "문제 제기·공감",
+      "count": 21,
+      "products": 18,
+      "productShare": 0.214
+    },
+    {
+      "blockType": "B11",
+      "slug": "quant-data-graph",
+      "nameKo": "정량 데이터·그래프",
+      "count": 21,
+      "products": 13,
+      "productShare": 0.155
+    },
+    {
+      "blockType": "B20",
+      "slug": "lineup-compare-chart",
+      "nameKo": "라인업 비교 차트",
+      "count": 21,
+      "products": 16,
+      "productShare": 0.19
+    },
+    {
+      "blockType": "B25",
+      "slug": "customer-review",
+      "nameKo": "리뷰·구매자 목소리",
+      "count": 20,
+      "products": 15,
+      "productShare": 0.179
+    },
+    {
+      "blockType": "B10",
+      "slug": "ingredient-card",
+      "nameKo": "성분 카드",
+      "count": 19,
+      "products": 15,
+      "productShare": 0.179
+    },
+    {
+      "blockType": "B18",
+      "slug": "color-chart-matrix",
+      "nameKo": "컬러 차트 매트릭스",
+      "count": 17,
+      "products": 11,
+      "productShare": 0.131
+    },
+    {
+      "blockType": "B16",
+      "slug": "free-from-badges",
+      "nameKo": "무첨가·프리 처방",
+      "count": 14,
+      "products": 13,
+      "productShare": 0.155
+    },
+    {
+      "blockType": "B08",
+      "slug": "before-after-diagram",
+      "nameKo": "비교 도해",
+      "count": 13,
+      "products": 12,
+      "productShare": 0.143
+    },
+    {
+      "blockType": "B14",
+      "slug": "spec-panel",
+      "nameKo": "스펙 수치 패널",
+      "count": 10,
+      "products": 8,
+      "productShare": 0.095
+    },
+    {
+      "blockType": "B19",
+      "slug": "personal-color-look",
+      "nameKo": "퍼스널컬러 룩 제안",
+      "count": 10,
+      "products": 5,
+      "productShare": 0.06
+    },
+    {
+      "blockType": "B26",
+      "slug": "product-spec-table",
+      "nameKo": "제품 스펙표",
+      "count": 10,
+      "products": 5,
+      "productShare": 0.06
+    },
+    {
+      "blockType": "B27",
+      "slug": "footnote-block",
+      "nameKo": "각주 모음",
+      "count": 7,
+      "products": 7,
+      "productShare": 0.083
+    },
+    {
+      "blockType": "B05",
+      "slug": "cumulative-sales",
+      "nameKo": "누적 판매·리뷰 수",
+      "count": 6,
+      "products": 6,
+      "productShare": 0.071
+    },
+    {
+      "blockType": "B07",
+      "slug": "cause-structure",
+      "nameKo": "원인 구조화",
+      "count": 6,
+      "products": 5,
+      "productShare": 0.06
+    },
+    {
+      "blockType": "B12",
+      "slug": "test-evidence-label",
+      "nameKo": "시험·근거 라벨",
+      "count": 6,
+      "products": 4,
+      "productShare": 0.048
+    }
+  ],
+  "positionProfile": {
+    "B04": {
+      "head": 0.825,
+      "body": 0.1,
+      "tail": 0.075
+    },
+    "B03": {
+      "head": 0.427,
+      "body": 0.276,
+      "tail": 0.297
+    },
+    "B20": {
+      "head": 0.143,
+      "body": 0.476,
+      "tail": 0.381
+    },
+    "B23": {
+      "head": 0.349,
+      "body": 0.186,
+      "tail": 0.465
+    },
+    "B06": {
+      "head": 0.524,
+      "body": 0.429,
+      "tail": 0.048
+    },
+    "B24": {
+      "head": 0.329,
+      "body": 0.357,
+      "tail": 0.314
+    },
+    "B10": {
+      "head": 0.105,
+      "body": 0.684,
+      "tail": 0.211
+    },
+    "B22": {
+      "head": 0.173,
+      "body": 0.25,
+      "tail": 0.577
+    },
+    "B01": {
+      "head": 0.58,
+      "body": 0.08,
+      "tail": 0.341
+    },
+    "B02": {
+      "head": 0.31,
+      "body": 0.241,
+      "tail": 0.448
+    },
+    "B17": {
+      "head": 0.333,
+      "body": 0.333,
+      "tail": 0.333
+    },
+    "B19": {
+      "head": 0.4,
+      "body": 0.5,
+      "tail": 0.1
+    },
+    "B18": {
+      "head": 0.235,
+      "body": 0.353,
+      "tail": 0.412
+    },
+    "B13": {
+      "head": 0.256,
+      "body": 0.453,
+      "tail": 0.291
+    },
+    "B15": {
+      "head": 0.097,
+      "body": 0.452,
+      "tail": 0.452
+    },
+    "B11": {
+      "head": 0.429,
+      "body": 0.238,
+      "tail": 0.333
+    },
+    "B14": {
+      "head": 0.3,
+      "body": 0.4,
+      "tail": 0.3
+    },
+    "B12": {
+      "head": 0,
+      "body": 0.833,
+      "tail": 0.167
+    },
+    "B09": {
+      "head": 0.412,
+      "body": 0.471,
+      "tail": 0.118
+    },
+    "B05": {
+      "head": 0.667,
+      "body": 0,
+      "tail": 0.333
+    },
+    "B16": {
+      "head": 0.214,
+      "body": 0.5,
+      "tail": 0.286
+    },
+    "B08": {
+      "head": 0.385,
+      "body": 0.385,
+      "tail": 0.231
+    },
+    "B26": {
+      "head": 0,
+      "body": 0,
+      "tail": 1
+    },
+    "B25": {
+      "head": 0.5,
+      "body": 0.25,
+      "tail": 0.25
+    },
+    "B07": {
+      "head": 0.667,
+      "body": 0.333,
+      "tail": 0
+    },
+    "B27": {
+      "head": 0,
+      "body": 0.143,
+      "tail": 0.857
+    },
+    "B21": {
+      "head": 0.25,
+      "body": 0.333,
+      "tail": 0.417
+    }
+  },
+  "categoryProfile": {
+    "B01": {
+      "skincare": 26,
+      "suncare": 25,
+      "cleansing": 19,
+      "makeup": 18
+    },
+    "B02": {
+      "cleansing": 12,
+      "skincare": 8,
+      "suncare": 4,
+      "makeup": 3,
+      "beauty": 2
+    },
+    "B03": {
+      "skincare": 66,
+      "beauty": 44,
+      "makeup": 34,
+      "suncare": 25,
+      "cleansing": 23
+    },
+    "B04": {
+      "suncare": 14,
+      "cleansing": 11,
+      "skincare": 8,
+      "makeup": 7
+    },
+    "B05": {
+      "skincare": 3,
+      "suncare": 2,
+      "cleansing": 1
+    },
+    "B06": {
+      "skincare": 11,
+      "suncare": 5,
+      "makeup": 3,
+      "cleansing": 2
+    },
+    "B07": {
+      "skincare": 3,
+      "cleansing": 2,
+      "suncare": 1
+    },
+    "B08": {
+      "skincare": 5,
+      "suncare": 4,
+      "cleansing": 2,
+      "makeup": 2
+    },
+    "B09": {
+      "skincare": 19,
+      "suncare": 9,
+      "cleansing": 5,
+      "makeup": 1
+    },
+    "B10": {
+      "skincare": 9,
+      "cleansing": 5,
+      "suncare": 3,
+      "makeup": 2
+    },
+    "B11": {
+      "suncare": 9,
+      "cleansing": 7,
+      "skincare": 3,
+      "makeup": 2
+    },
+    "B12": {
+      "suncare": 3,
+      "skincare": 2,
+      "makeup": 1
+    },
+    "B13": {
+      "suncare": 36,
+      "skincare": 19,
+      "makeup": 18,
+      "cleansing": 13
+    },
+    "B14": {
+      "suncare": 10
+    },
+    "B15": {
+      "suncare": 17,
+      "makeup": 10,
+      "skincare": 3,
+      "cleansing": 1
+    },
+    "B16": {
+      "skincare": 7,
+      "suncare": 4,
+      "cleansing": 3
+    },
+    "B17": {
+      "makeup": 63,
+      "suncare": 5,
+      "beauty": 4
+    },
+    "B18": {
+      "makeup": 16,
+      "suncare": 1
+    },
+    "B19": {
+      "makeup": 10
+    },
+    "B20": {
+      "suncare": 9,
+      "skincare": 6,
+      "cleansing": 5,
+      "makeup": 1
+    },
+    "B21": {
+      "makeup": 18,
+      "beauty": 6
+    },
+    "B22": {
+      "skincare": 26,
+      "cleansing": 12,
+      "makeup": 9,
+      "suncare": 5
+    },
+    "B23": {
+      "skincare": 14,
+      "cleansing": 13,
+      "makeup": 11,
+      "suncare": 5
+    },
+    "B24": {
+      "beauty": 52,
+      "skincare": 7,
+      "makeup": 6,
+      "cleansing": 3,
+      "suncare": 2
+    },
+    "B25": {
+      "skincare": 7,
+      "cleansing": 5,
+      "suncare": 5,
+      "makeup": 3
+    },
+    "B26": {
+      "cleansing": 5,
+      "makeup": 2,
+      "skincare": 2,
+      "suncare": 1
+    },
+    "B27": {
+      "suncare": 3,
+      "makeup": 2,
+      "cleansing": 1,
+      "skincare": 1
+    }
+  },
+  "layerCoverage": {
+    "productTotal": 84,
+    "promoByDom": 73,
+    "promoByBlock": 46,
+    "optionByDom": 0,
+    "optionByBlock": 36,
+    "colorByBlock": 18,
+    "proofByBlock": 38
+  },
+  "legalFlagFrequency": [
+    {
+      "flag": "efficacy-claim",
+      "count": 332
+    },
+    {
+      "flag": "superlative",
+      "count": 147
+    },
+    {
+      "flag": "before-after",
+      "count": 100
+    },
+    {
+      "flag": "comparative-ad",
+      "count": 22
+    },
+    {
+      "flag": "double-price",
+      "count": 16
+    }
+  ],
+  "sequencesByProduct": [
+    {
+      "parentId": "amazon_B092493V7B",
+      "productName": "[公式] TROIAREUKE (トロイアルケ) ACSEN オイルカット クレンジング 300ml 保湿 ジェル オイルフリー メイク落とし 化粧落とし 洗顔 韓国 毛穴 角質ケア 角栓 黒ずみ 敏感肌 乾燥肌 サロン エステ",
+      "category": "cleansing",
+      "source": "amazon",
+      "imageCount": 2,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B23",
+        "B23"
+      ]
+    },
+    {
+      "parentId": "amazon_B09NCR26ZP",
+      "productName": "ALLIE(アリィー)クロノビューティ ジェルUＶ EX<ミニ> SPF50+ PA++++【日焼け止め】【顔&からだ用】 40グラム",
+      "category": "suncare",
+      "source": "amazon",
+      "imageCount": 3,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B13",
+        "B13",
+        "B13"
+      ]
+    },
+    {
+      "parentId": "amazon_B09SNPM585",
+      "productName": "オルビス(ORBIS)フォートーンズスタイリングアイズ ピンクサンセット(アイシャドウ) 1個 (x 1)",
+      "category": "makeup",
+      "source": "amazon",
+      "imageCount": 6,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B21",
+        "B21",
+        "B21",
+        "B21",
+        "B21",
+        "B21"
+      ]
+    },
+    {
+      "parentId": "amazon_B0BB21SXWW",
+      "productName": "【Dinto公式】ブラーグローイリップティント 206 グラティア/Gratia 韓国コスメ ツヤ感 高発色 透明感 保湿 落ちにくい",
+      "category": "makeup",
+      "source": "amazon",
+      "imageCount": 6,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B13",
+        "B13",
+        "B17",
+        "B17",
+        "B17",
+        "B18"
+      ]
+    },
+    {
+      "parentId": "amazon_B0BY8NVDX5",
+      "productName": "Laka (ラカ) フルーティーグラムティント #103 ハミング ㅣ 果実カラーティント ツヤ感 高発色 長時間キープ",
+      "category": "makeup",
+      "source": "amazon",
+      "imageCount": 8,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B17",
+        "B17",
+        "B17",
+        "B17",
+        "B21",
+        "B03",
+        "B21",
+        "B21"
+      ]
+    },
+    {
+      "parentId": "amazon_B0DB88DM6R",
+      "productName": "【いい香りで深呼吸】 N organic Basic 化粧水 (約2ヶ月分) バランシングローション 保湿力 ハリ 乾燥肌 敏感肌 肌荒れ 柑橘系の香り 100ml エヌオーガニック",
+      "category": "skincare",
+      "source": "amazon",
+      "imageCount": 12,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B22",
+        "B08",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B13",
+        "B15",
+        "B13"
+      ]
+    },
+    {
+      "parentId": "amazon_B0DBGZ5M5T",
+      "productName": "N organic Basic ビタミンC美容液 (約2ヶ月分) コンディショニングVCエッセンス 保湿力 ハリ 乾燥肌 敏感肌 肌荒れ 柑橘系の香り 30g エヌオーガニック",
+      "category": "skincare",
+      "source": "amazon",
+      "imageCount": 12,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B22",
+        "B08",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B13",
+        "B24",
+        "B13"
+      ]
+    },
+    {
+      "parentId": "amazon_B0DHXRCC7J",
+      "productName": "wakemake(ウェイクメイク) ソフトブラーリングアイパレット04 ラベンダブラーリング 16色 マット ラメ グリッター 韓国コスメ 日常 アイシャドウパレット アイシャドウ 自然な発色 初心者向け",
+      "category": "makeup",
+      "source": "amazon",
+      "imageCount": 19,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B15",
+        "B19",
+        "B19",
+        "B18",
+        "B17",
+        "B19",
+        "B17",
+        "B19",
+        "B17",
+        "B15",
+        "B15",
+        "B19",
+        "B19",
+        "B17",
+        "B27",
+        "B21",
+        "B13",
+        "B22",
+        "B06"
+      ]
+    },
+    {
+      "parentId": "amazon_B0F98RS1TC",
+      "productName": "【Amazon.co.jp限定】N organic クレンジングジェル 特別セット【パワーアップ乳液ミニサイズ付き】 スウィートシトラスの香り nオーガニック",
+      "category": "cleansing",
+      "source": "amazon",
+      "imageCount": 12,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B22",
+        "B08",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B13",
+        "B24",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "amazon_B0GLF7CT8D",
+      "productName": "【新・2本5役の時短ケア】 N organic Basic スキンケアセット（化粧水 新乳液） (約2ヶ月分) 保湿 肌荒れ 透明感 赤CICA 柑橘系の香り エヌオーガニック",
+      "category": "skincare",
+      "source": "amazon",
+      "imageCount": 12,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B22",
+        "B08",
+        "B03",
+        "B03",
+        "B03",
+        "B09",
+        "B03",
+        "B03",
+        "B13",
+        "B24",
+        "B13"
+      ]
+    },
+    {
+      "parentId": "amazon_B0GXV272VC",
+      "productName": "[Arecom] 【つけた瞬間ひんやり】 アームカバー uvカット 冷感 UPF50+ 腕カバー レディース メンズ 日焼け防止 夏 紫外線対策 ひんやり ロング丈 接触冷感 吸汗速乾 薄手 無地 両腕 左右セット 腕 カバー アームウォーマー 運転用 自転車 活動 スポーツ 登山 男女兼用",
+      "category": "suncare",
+      "source": "amazon",
+      "imageCount": 7,
+      "hasPromo": false,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B14",
+        "B09",
+        "B14",
+        "B13",
+        "B15",
+        "B13",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_7748686960",
+      "productName": "(1箱2枚) TOPARDS トパーズ マンスリー [topards-1month][PI]*",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 7,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": []
+    },
+    {
+      "parentId": "qoo10_8363073214",
+      "productName": "新色追加！【脱色 5回分】イージーブロウトーンチェンジャー / イージーブロウムードチェンジャー / ブリーチ / 眉毛脱色",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 5,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_8364373308",
+      "productName": "【GIFTマウスパッド】インスパイアスキニーブロウカラ 12色 / 眉マスカラ",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 14,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24"
+      ]
+    },
+    {
+      "parentId": "qoo10_8365227596",
+      "productName": "【えみ姉 Pick・先着GIFT付】ブースタープロX2 / 美顔器",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 3,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B02",
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_8365798343",
+      "productName": "[限定GIFT] トランスルーセントセットパウダー 全4種 脂性肌/乾燥肌/テカリ/保湿パウダー/パウダー",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 11,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24"
+      ]
+    },
+    {
+      "parentId": "qoo10_8366671829",
+      "productName": "【7/10以降順次発送】グリシルグリシン3.0ポアセラム 30ml",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 4,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03",
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_8373100937",
+      "productName": "高濃度原液 配合 個包装フェイスマスク 30枚セット フェイスパック パック アゼライン酸 レチノール グルタチオン PDRN",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 10,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_8373507125",
+      "productName": "【Qoo10先行発売】ハグレイヤーチーク / 毛穴ぼかしチーク / 高品質ハグブラシ付き / 全7色",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 7,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03",
+        "B03",
+        "B24",
+        "B03",
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_8386573439",
+      "productName": "【GIFT付】【保湿UV】ヒアルロン酸 水分トーンアップ日焼け止め50ml 2種 SPF50+PA++++ / UVケア×保湿×トーンアップ【公式】",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 2,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_8412039272",
+      "productName": "【1箱】【最安値挑戦】水光カラコン せかいのふるーりー ワンデー 10枚入 度あり 度なし 14.2mm パリ ソウル ニューヨーク 東京 渋谷 歌舞伎町",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 6,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B21",
+        "B17",
+        "B21",
+        "B17",
+        "B17",
+        "B17"
+      ]
+    },
+    {
+      "parentId": "qoo10_8425697003",
+      "productName": "#ビジュ維持ファンデ/崩れない仕上がり/スキンレイヤー フィットファンデーション全8色",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 8,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03",
+        "B03",
+        "B24",
+        "B03",
+        "B03",
+        "B03",
+        "B24"
+      ]
+    },
+    {
+      "parentId": "qoo10_8425697006",
+      "productName": "【公式】KELP BIOME スカルプクーリング シャンプー＆トリートメント セット(500g＋200ml)／頭皮ケア／ダメージ補修／抜け毛・枝毛ケア／ミネラル配合／フローラルグリーンティーの香り",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 4,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03",
+        "B02",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_8425703477",
+      "productName": "【リニュアル】【NOニオイ】ザ・ビタミンC23セラム 2世代(20g) / 生ビタミンC / 純粋ビタミンC / 透明感のある肌 / 無香料 / RX / 美容液",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 1,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_8425750724",
+      "productName": "【公式】【選べる1+1】レチナールBEST組み合わせセット",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 4,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03",
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "qoo10_8425782967",
+      "productName": "！お得な２個構成！【エントロピー公式】チャームティント 1+1 /グローリップ/マットリップ キーリング型リップ／鞄に付けられる",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 20,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B21",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B21",
+        "B24"
+      ]
+    },
+    {
+      "parentId": "qoo10_8425863684",
+      "productName": "【新作】[Oiad公式]振って使うパウダーミクシングウォーターティント 水彩かリップ ナチュラル 血色感 持続力 落ちない",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 8,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B24",
+        "B21",
+        "B21"
+      ]
+    },
+    {
+      "parentId": "qoo10_8426035974",
+      "productName": "8/1新発売！【公式】レチナールショットタイトニングデュアルクリーム50ml 攻めのレチナール × 守りのパンテノールWケア！",
+      "category": "beauty",
+      "source": "qoo10",
+      "imageCount": 1,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_129-ink_ink90-3",
+      "productName": "クレンジングバーム クレイ 無香料 3個セット 毛穴ケア 黒ずみ 角栓 W洗顔不要 セラミド メイク落とし 洗顔 ×3 約150日分 ｜ink.LiT インクリット （ink. インク） 楽天ベストコスメ殿堂入り",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 23,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B16",
+        "B01",
+        "B23",
+        "B23",
+        "B13",
+        "B22",
+        "B07",
+        "B09",
+        "B20",
+        "B09",
+        "B10",
+        "B10",
+        "B16",
+        "B11",
+        "B13",
+        "B23",
+        "B25",
+        "B25",
+        "B05",
+        "B22",
+        "B13",
+        "B27"
+      ]
+    },
+    {
+      "parentId": "rakuten_aisei-pharmacy_10bkuvccr001",
+      "productName": "＼マラソン限定20％OFFクーポン／【楽天ランキング1位!】ノンケミカル 日焼け止め 敏感肌 白浮きしない 白くならない ベタつかない SPF50+ PA++++ 紫外線 吸収剤 フリー トーンアップ 化粧 下地 無香料 セラミド UVケア カット 軽い 保湿 顔 用 KuSu 日焼け止めクリーム 40g",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 20,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01",
+        "B13",
+        "B04",
+        "B16",
+        "B25",
+        "B05",
+        "B25",
+        "B03",
+        "B13",
+        "B13",
+        "B08",
+        "B13",
+        "B13",
+        "B04",
+        "B22",
+        "B27",
+        "B01",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_anuajapan_anua00023",
+      "productName": "★20%OFFクーポンあり★＼ドクダミリニューアル新発売／【Anua公式】【自然由来トナー単品 250ml（全4種）】ドクダミ 桃 ライス シラカバ 化粧水 ローション 輸液 美容液 ニキビ 皮脂 肌キメ 韓国コスメ アヌア",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 16,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B01",
+        "B04",
+        "B04",
+        "B20",
+        "B06",
+        "B13",
+        "B09",
+        "B03",
+        "B13",
+        "B12",
+        "B24",
+        "B22",
+        "B13",
+        "B13",
+        "B13"
+      ]
+    },
+    {
+      "parentId": "rakuten_arianakosume_4909978147105-ra",
+      "productName": "【各種選べる】資生堂 アネッサ パーフェクトUV 日焼け止め SPF50+ PA++++ 〔スキンケアミルクNA／マイルドミルクNA／デイセラムN／ブライトニングUV ジェルNA ／パーフェクトUVジェルNB〕 マイルドジェル SPF35 PA+++ リニューアル 送料無料",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 8,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B04",
+        "B03",
+        "B20",
+        "B20",
+        "B20",
+        "B01",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_asiabnc_gcg",
+      "productName": "★クーポン利用で店内全品20％オフ【ロムアンド公式】グラスティングカラーグロス 全21色 rom&nd official romand glasting color gloss ロムアンド ティント リップ グロス 新作 韓国メイク 韓国コスメ ロムアンド公式ショップ",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 18,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B02",
+        "B03",
+        "B13",
+        "B17",
+        "B03",
+        "B23",
+        "B25",
+        "B21",
+        "B21",
+        "B17",
+        "B24",
+        "B18",
+        "B21",
+        "B17",
+        "B17",
+        "B17",
+        "B17"
+      ]
+    },
+    {
+      "parentId": "rakuten_at-life_103-4901301298706",
+      "productName": "花王 ニベアUV ニベアサン ウォータージェル SPF50 詰替え 125g SPF50／PA＋＋＋（4901301298706）※パッケージ変更の場合あり 日焼け止め",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 1,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": []
+    },
+    {
+      "parentId": "rakuten_attenir_166011",
+      "productName": "【ポイント5倍！〜7月11日1:59】スキンクリア クレンズ オイル 175mL (4種) 【アテニア 公式】[ クレンジング クレンジングオイル 毛穴 W洗顔不要 オイルクレンジング メイク落とし 化粧落とし スキンケア 角栓 ]",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 7,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B25",
+        "B07",
+        "B24",
+        "B22",
+        "B11",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_attenir_166013",
+      "productName": "大容量【ポイント10倍！〜7月11日1:59】スキンクリア クレンズ オイル 350mL 大容量 ボトル / つめかえ用 (4種) [ クレンジング クレンジングオイル メイク落とし 毛穴 くすみ エイジングケア 洗顔 角栓 角質 皮脂 詰め替え ダブル洗顔不要 アテニア 公式 ]",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 8,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B04",
+        "B11",
+        "B03",
+        "B13",
+        "B24",
+        "B22",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_aurelie-tokyo_alcl01",
+      "productName": "【マラソン★10%OFFクーポン】モイストオイル クレンジングウォーター【MEGUMI開発】Aurelie (オレリー) クレンジング オイル メイク落とし 化粧落とし リムーバー しっとり 毛穴 洗顔 スキンケア まつエク 毛穴ケア マツエク 毛穴汚れ 植物性幹細胞",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 24,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B04",
+        "B04",
+        "B03",
+        "B06",
+        "B23",
+        "B09",
+        "B23",
+        "B13",
+        "B10",
+        "B10",
+        "B16",
+        "B02",
+        "B22",
+        "B22",
+        "B02",
+        "B02",
+        "B26",
+        "B26",
+        "B26",
+        "B26",
+        "B26"
+      ]
+    },
+    {
+      "parentId": "rakuten_citrus-shop_cos-frunflynn-glowtint1",
+      "productName": "【フルンフリン公式】シャインユー グロウティント ティントリップ リップグロス ティントルージュ 濡れツヤ ジューシー 落ちにくい 落ちない イエベ ブルベ ヴィーガン ピンク ローズ ブラウン レッド イエロー テラコッタ プチプラ おすすめ 人気 frunflynn タイコスメ",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 19,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B25",
+        "B25",
+        "B03",
+        "B24",
+        "B18",
+        "B21",
+        "B09",
+        "B24",
+        "B17",
+        "B23",
+        "B17",
+        "B17",
+        "B27",
+        "B01",
+        "B01",
+        "B01",
+        "B17",
+        "B02",
+        "B17"
+      ]
+    },
+    {
+      "parentId": "rakuten_clinique_106905",
+      "productName": "【ポイント10倍｜7/4 0:00-7/12 23:59】クリニーク イーブン ベター ブライト エッセンス ローション CLINIQUE | ブライトニング化粧水 ギフト イーブンベター 化粧水 スキンケア 女性 プレゼント デパコス 乾燥 保湿",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 11,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B22",
+        "B22",
+        "B22",
+        "B22",
+        "B03",
+        "B03",
+        "B20",
+        "B23",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_cliojapan_10000647",
+      "productName": "＼韓コスクーポン20％OFF／★NEW★ムード グロイ ティント (全27色)【PERIPERA（ペリペラ）公式】リップ リップティント リップグロウ 水膜ちゅるリップ ちゅる桃リップ スティック 韓国コスメ うるツヤ リップグロス ピーチ 保湿 縦ジワ",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 16,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03",
+        "B17",
+        "B21",
+        "B17",
+        "B18",
+        "B18",
+        "B17",
+        "B18",
+        "B17",
+        "B13",
+        "B17",
+        "B18",
+        "B15",
+        "B22",
+        "B23"
+      ]
+    },
+    {
+      "parentId": "rakuten_dalba_10000072",
+      "productName": "【7日限定、グリーン1+1チャンス！】クーポン適用後MAX26%OFF！【 d'Alba ( ダルバ ) 公式 】【 選べる ウォータフル 日焼け止め 6種 SPF50+ PA++++ 50ml 】 日焼け止め UV 紫外線 混合 くすみ 化粧下地 ベース メイク 低刺激 美容",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 22,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B11",
+        "B18",
+        "B11",
+        "B13",
+        "B13",
+        "B13",
+        "B13",
+        "B13",
+        "B10",
+        "B04",
+        "B13",
+        "B13",
+        "B03",
+        "B13",
+        "B13",
+        "B11",
+        "B13",
+        "B13",
+        "B14"
+      ]
+    },
+    {
+      "parentId": "rakuten_excitech_kikimate-001",
+      "productName": "クレンジング 【5冠達成】 kikimate キキメイト クレンジングジェル メイク落とし w洗顔不要 毛穴黒ずみ 化粧落とし 敏感肌 乾燥肌 クレンジング・洗顔 ジェル シトラス ダブル洗顔不要 毛穴ケア 洗顔 毛穴 開き 天然由来 オーガニック",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 16,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B03",
+        "B04",
+        "B06",
+        "B13",
+        "B13",
+        "B13",
+        "B23",
+        "B20",
+        "B15",
+        "B01",
+        "B02",
+        "B02",
+        "B02"
+      ]
+    },
+    {
+      "parentId": "rakuten_fancl-shop_3762-21",
+      "productName": "エンリッチプラス 化粧液 医薬部外品 化粧水 保湿 敏感肌 ファンケル 公式 乾燥肌 エイジングケア ハリ シワ対策 シワ対策 毛穴ケア ナイアシンアミド 無添加 肌荒れ防ぐ しっとり",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 19,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01",
+        "B03",
+        "B25",
+        "B16",
+        "B23",
+        "B09",
+        "B22",
+        "B13",
+        "B02",
+        "B20",
+        "B03",
+        "B23",
+        "B23",
+        "B23",
+        "B01",
+        "B26"
+      ]
+    },
+    {
+      "parentId": "rakuten_fineday_id-03",
+      "productName": "【クーポン利用で20%OFF !】idio イディオ 北海道PDRN ローション 化粧水 高保湿 CICA セラミド ナイアシンアミド 敏感肌 乾燥肌 日本製 150ml",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 14,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B03",
+        "B09",
+        "B05",
+        "B03",
+        "B04",
+        "B06",
+        "B03",
+        "B03",
+        "B10",
+        "B03",
+        "B16",
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_fujifilm-h_16503511",
+      "productName": "アスタリフト アドバンスドローション 130mL レフィル 【FUJIFILM 公式】| 化粧水 コラーゲン 乾燥肌 保湿 高保湿 保湿化粧水 ハリ エイジング つや 乾燥 うるおい しっとり スキンケア コスメ アスタキサンチン 詰め替え 詰替 詰替え 付け替え用",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 17,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B06",
+        "B07",
+        "B09",
+        "B03",
+        "B09",
+        "B09",
+        "B12",
+        "B15",
+        "B22",
+        "B22",
+        "B25",
+        "B23",
+        "B09",
+        "B05",
+        "B23"
+      ]
+    },
+    {
+      "parentId": "rakuten_fujifilm-h_16833942",
+      "productName": "アスタリフト D-UVシールド トーンアップ（全2色）30g [SPF50+ / PA++++]【FUJIFILM 公式】| 日焼け止め 化粧下地 毛穴カバー 保湿 uv 毛穴 下地 uv下地 敏感肌 uvケア 日焼止め 日焼けどめ UV化粧下地 ASTALIFT",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 15,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B04",
+        "B09",
+        "B11",
+        "B09",
+        "B08",
+        "B08",
+        "B09",
+        "B13",
+        "B13",
+        "B09",
+        "B22",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_fujikobrand_4589474243862",
+      "productName": "[Fujiko公式] フジコ ニュアンスラップティント リップティント リップグロス ルージュ 口紅 ウォーターティント 縦ジワカバー ネコポス対象 花束以外 [かならぼ／kanalabo]",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 16,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B03",
+        "B04",
+        "B03",
+        "B13",
+        "B03",
+        "B13",
+        "B03",
+        "B17",
+        "B17",
+        "B17",
+        "B17",
+        "B17",
+        "B17",
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_fujikobrand_mayutint-adv",
+      "productName": "イベント期間限定 送料無料 今だけ眉テンプレートシール付 [Fujiko公式] フジコ 眉ティントADV (リニューアル) アイブロウ アイブロー 眉マスカラ 眉ティント 眉毛ティント 落ちにくい 消えにくい ウォータープルーフ 花束以外 [かならぼ／kanalabo] 【omake2026】",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 17,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B03",
+        "B03",
+        "B03",
+        "B23",
+        "B23",
+        "B13",
+        "B13",
+        "B13",
+        "B13",
+        "B13",
+        "B17",
+        "B17",
+        "B17",
+        "B17",
+        "B22",
+        "B22"
+      ]
+    },
+    {
+      "parentId": "rakuten_hanajirushi_10001008-set",
+      "productName": "★5倍ポイント+5％オフ★【楽天1位獲得】【公式】花印® 化粧水 大容量 ローション はとむぎ化粧水 スキンコンディショナー ハトムギ化粧水 500ml 敏感肌 しっとりタイプ角質ケア 肌荒れ 敏感肌 メンズにも",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 16,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B25",
+        "B03",
+        "B06",
+        "B10",
+        "B13",
+        "B15",
+        "B16",
+        "B25",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_hincejapan_raw_glow_2404",
+      "productName": "ギフト特典★＼最大30%OFFクーポン配布 7月11日(土) 09:59まで／【hince公式】ロウグロウジェルティント / リップ / ティント / グロス / ヒンス",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 17,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B17",
+        "B03",
+        "B23",
+        "B17",
+        "B19",
+        "B17",
+        "B13",
+        "B13",
+        "B17",
+        "B17",
+        "B18",
+        "B18",
+        "B17",
+        "B11",
+        "B18",
+        "B23"
+      ]
+    },
+    {
+      "parentId": "rakuten_hiragana1_na-24",
+      "productName": "（7/3～★P10倍～最大30％OFFクーポン）NANOA 肌に優しい クレンジングミルク 敏感肌 やさしい クレンジング 保湿 潤い ( 150mL ) ヒト幹細胞 エクソソーム ミルク W洗顔不要 メイク落とし スキンケア 低刺激 うるおい アルガンオイル 肌 化粧落とし 30代 40代 50代",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 15,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B03",
+        "B01",
+        "B01",
+        "B01",
+        "B01",
+        "B03",
+        "B01",
+        "B01",
+        "B03",
+        "B01",
+        "B23",
+        "B08",
+        "B10",
+        "B20"
+      ]
+    },
+    {
+      "parentId": "rakuten_import-garden_null-sunscreen",
+      "productName": "【今だけP10倍!】楽天1位！累計2万本 日焼け止め メンズ 白くならない ベタつかない SPF50+ PA++++ NULL ウォータープルーフ ( 顔 ＆からだ用) 【水/汗 に強い サーフィン 海 スポーツ ゴルフ 釣り アウトドア に 】日焼け止めクリーム 男性用 40g 伸びがいい 無香料 敏感肌",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 12,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B04",
+        "B14",
+        "B03",
+        "B06",
+        "B13",
+        "B15",
+        "B10",
+        "B16",
+        "B15",
+        "B02",
+        "B25"
+      ]
+    },
+    {
+      "parentId": "rakuten_kiso_kiso-k49",
+      "productName": "【37％OFF】《濃度アップ》KISO CARE 純粋レチノール0.1% 配合 化粧水 キソ REショットローション 120ml 国産 ビタミンA ヒアルロン酸 CICA シカ ツボクサ ピュアレチノール パルミチン酸レチノール レチノイルヒアルロン酸 送料無料",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 20,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01",
+        "B01",
+        "B01",
+        "B03",
+        "B03",
+        "B06",
+        "B13",
+        "B10",
+        "B10",
+        "B09",
+        "B24",
+        "B16",
+        "B23",
+        "B22",
+        "B22",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_larocheposay_l00255",
+      "productName": "ポイント最大19倍★楽天お買い物マラソン 7/4 20:00~ 7/11 01:59★【公式】UVイデア XL プロテクショントーンアップ ホワイト/ローズ+/クリア/ティント/BIG ［ 日焼け止め 化粧下地 日焼け対策 UVケア SPF 50+ 乳液 くすみ 乾燥肌 正規品 ラ ロッシュ ポゼ ダーマコスメ ］",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 12,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B02",
+        "B04",
+        "B03",
+        "B03",
+        "B06",
+        "B22",
+        "B15",
+        "B04",
+        "B11",
+        "B22"
+      ]
+    },
+    {
+      "parentId": "rakuten_lilycosme_4909978147105-ra",
+      "productName": "【各種選べる】資生堂 アネッサ パーフェクトUV 日焼け止め SPF50+ PA++++ 〔スキンケアミルクNA／マイルドミルクNA／デイセラムN／ブライトニングUV ジェルNA ／パーフェクトUVジェルNB〕 マイルドジェル SPF35 PA+++ リニューアル 送料無料",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 7,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B03",
+        "B20",
+        "B20",
+        "B20",
+        "B01",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_ludia_rom-l-01",
+      "productName": "新色追加!!! 韓国コスメ リップ ティント ROMAND ロムアンド リップ ティント 33色 ザ ジューシー ラスティング ティント rom&nd マスクにつかない口紅",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 5,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01",
+        "B23",
+        "B20",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_macchialabel_118423",
+      "productName": "★10％OFFクーポン 11日9:59まで★【 公式 マキアレイベル 】 サンプロテクトUVジェル50＋ （30mL / 120mL）│ SPF50＋/PA++++ 日焼け止め UVジェル 顔 身体 低刺激 石鹸で落とせる ブルーライトカット クレンジング不要",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 3,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B02",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_macchialabel_300252",
+      "productName": "★10％OFFクーポン 11日9:59まで★【 公式 マキアレイベル 】薬用マイクロバブルローション | 医薬部外品 化粧水 高浸透 ファインバブル 30代 40代 50代 ナイアシンアミド つめかえボトル 美白 乾燥 肌荒れ",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 20,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B02",
+        "B03",
+        "B03",
+        "B11",
+        "B08",
+        "B06",
+        "B06",
+        "B09",
+        "B10",
+        "B24",
+        "B16",
+        "B22",
+        "B27",
+        "B01",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_manyo-official_ma127",
+      "productName": "【400mL大容量】 ピュアクレンジングオイル まとめ買いでお得！【manyo公式】クレンジングオイル メイク落とし 毛穴 黒ずみ 敏感肌 ダブル洗顔不要 大容量 落ち しっとり 保湿 マニョ manyo 魔女工場",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 13,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B25",
+        "B13",
+        "B11",
+        "B11",
+        "B11",
+        "B11",
+        "B13",
+        "B03",
+        "B20",
+        "B03",
+        "B22"
+      ]
+    },
+    {
+      "parentId": "rakuten_milktouchjapan_jft001_ad",
+      "productName": "＼韓コスクーポンで20%OFF+送料無料／【 milktouch 公式 】【 ゼリーフィット ティンティッド グロウ ティント ( 全16色 ) 】リップ ティント 発色 密着 落ちない 長時間キープ 花雨グロス ミルクタッチ",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 19,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01",
+        "B01",
+        "B01",
+        "B17",
+        "B04",
+        "B17",
+        "B19",
+        "B03",
+        "B23",
+        "B18",
+        "B17",
+        "B13",
+        "B03",
+        "B03",
+        "B17",
+        "B03",
+        "B23",
+        "B15"
+      ]
+    },
+    {
+      "parentId": "rakuten_naturalcosmetic_10002019",
+      "productName": "【7/13 09:59までクーポン利用で20％オフ】日焼けどめミルク ベイシックモイスチャーUVミルク 30g 【 SPF50 ・ PA++++ 】[ 日焼けどめ スキンケア 保湿 無添加 ウォータープルーフ 日焼け 首 ボディ 日焼け対策 UVケア 乳液 日焼け止め ]",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 13,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B03",
+        "B25",
+        "B06",
+        "B13",
+        "B09",
+        "B14",
+        "B13",
+        "B10",
+        "B16",
+        "B13",
+        "B22"
+      ]
+    },
+    {
+      "parentId": "rakuten_norganic_nr-set-01",
+      "productName": "＼SALE期間P最大10倍／【公式】 N organic Basic バランシング ローション ミルク VCエッセンス 単品 セット | 化粧水 乳液 美容液 スキンケア スキンケアセット 化粧品 保湿 乾燥 敏感肌 | nオーガニック エヌオーガニック",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 17,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01",
+        "B01",
+        "B01",
+        "B03",
+        "B03",
+        "B01",
+        "B23",
+        "B03",
+        "B24",
+        "B13",
+        "B09",
+        "B13",
+        "B22",
+        "B11",
+        "B02",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_oiadjapan_liptique",
+      "productName": "[Oiad公式] 24時間持続！リップティーク10色 飲み会リップ 落ちないリップ リップタトゥー リップティント 唇 発色力 持続力 メイク 韓国コスメ ギフト",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 17,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B03",
+        "B17",
+        "B17",
+        "B22",
+        "B23",
+        "B18",
+        "B17",
+        "B18",
+        "B12",
+        "B21",
+        "B15",
+        "B08",
+        "B03",
+        "B10",
+        "B22",
+        "B22"
+      ]
+    },
+    {
+      "parentId": "rakuten_omegacreation_omega-kcos41",
+      "productName": "【正規品】12色 ペリぺラ PERIPERA インクムードグロイティント Ink Mood Glowy Tint 色持ち グラデ ぷるぷる デイリー ツヤ持続 粘膜リップ 色落ちしずらい ツヤ ティント 高発色 グロス",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 16,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B17",
+        "B17",
+        "B03",
+        "B17",
+        "B21",
+        "B03",
+        "B15",
+        "B24",
+        "B21",
+        "B17",
+        "B17",
+        "B15",
+        "B18",
+        "B19",
+        "B17",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_orbis-shop_o0087",
+      "productName": "オルビス ザ クレンジング オイル ボトル入り 詰め替え メイク落ち メイク落とし 毛穴ケア 毛穴 毛穴汚れ 化粧落ち 化粧落とし クレンジング クレンジングオイル 洗顔 美容液 ユードット オルビス ORBIS 公式店",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 6,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B02",
+        "B02",
+        "B02",
+        "B02",
+        "B02",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_orbis-shop_r4908064090110",
+      "productName": "オルビス ユードット エッセンスローション ボトル入り 180mL 化粧水 くすみ ハリの低下美白 乾燥 保湿 スキンケア エイジングケア 医薬部外品 ユードット ORBIS 公式",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 12,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B23",
+        "B09",
+        "B09",
+        "B13",
+        "B22",
+        "B09",
+        "B02",
+        "B23",
+        "B22",
+        "B22",
+        "B22",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_osharewalker_hfn0254",
+      "productName": "UVカット カーディガン レディース サマーニット トップス 五分袖 【選べる全12色】 紫外線対策 羽織 シアー 二の腕カバー 体型カバー 大きいサイズ ゆったり 薄手 シワになりにくい 春 夏 黒 オシャレウォーカー※メール便可※【10】",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 24,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B17",
+        "B03",
+        "B15",
+        "B24",
+        "B13",
+        "B15",
+        "B13",
+        "B17",
+        "B17",
+        "B15",
+        "B15",
+        "B15",
+        "B15",
+        "B15",
+        "B15",
+        "B03",
+        "B15",
+        "B15",
+        "B24",
+        "B17",
+        "B27",
+        "B01",
+        "B20",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_rakuten24_4909978180119",
+      "productName": "アクアレーベル トリートメントローション ブライトニング しっとり(170ml)【アクアレーベル(AQUALABEL)】[保湿化粧水 透明感サポート しっとり仕上げ]",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 2,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B26"
+      ]
+    },
+    {
+      "parentId": "rakuten_revlon_10000472",
+      "productName": "【限定価格】【公式】レブロン ジェリー ティント リップ セラム SP お試し価格 日本企画 ティントリップ 2.4g 全8色 粘膜リップ リップカラー うるつや 保湿 ツヤ ぷるぷる うるおい 潤い 美容成分",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 5,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B13",
+        "B17",
+        "B18",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_shuuemura_shu10049-2",
+      "productName": "【公式】アルティム8∞ スブリム ビューティ クレンジング オイルn シュウウエムラクレンジング クレンジング 150ml 洗顔 メイク落とし 毛穴 洗顔料 スキンケア 化粧落とし shu uemura 正規品 公式ショップ デパコス 母の日",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 8,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B03",
+        "B04",
+        "B09",
+        "B09",
+        "B22",
+        "B22",
+        "B23"
+      ]
+    },
+    {
+      "parentId": "rakuten_shuuemura_shu30001jp",
+      "productName": "【ポイント10倍 7/4(土) 20:00～7/11(土) 1:59まで】アルティム8∞ ベストセラーキット / ブライト クレンジングオイル キット | シュウウエムラクレンジング 楽天市場店限定 洗顔 メイク落とし 毛穴 洗顔料 スキンケア 美容 化粧落とし 正規品 送料無料 楽天ベストコスメ",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 7,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B02",
+        "B04",
+        "B20",
+        "B22",
+        "B22",
+        "B23"
+      ]
+    },
+    {
+      "parentId": "rakuten_sk-ii_ftk",
+      "productName": "【公式】ピテラ ベスト コレクション トライアルキット/ ピテラ ユース エッセンシャル セット(リニュー エディション) / ピテラインフィニットオーラキット | SK-2 / SK-II（エスケーツー） 正規品 送料無料",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 2,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_skin1004-official_1003092971",
+      "productName": "＼20%OFFクーポン★韓コス祭り ~7/11 9:59★／【ヒアルーシカ ウォーターフィット サンセラム 50ml 】日焼け止め UV 紫外線 敏感肌 UVケア くすみ 化粧下地 SKIN1004",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 14,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B02",
+        "B03",
+        "B03",
+        "B02",
+        "B01",
+        "B03",
+        "B14",
+        "B03",
+        "B23",
+        "B20",
+        "B23",
+        "B26"
+      ]
+    },
+    {
+      "parentId": "rakuten_sweetmimistore_compass1721206426",
+      "productName": "＼期間限定／2組セット アームカバー 冷感 UVカット 率99％ アイスシルク レディース uv メンズ 吸汗速乾 袖カバー ひんやり クール アームウォーマー カバー フィット 接触冷感 通気性 腕カバー スポーツ フリーサイズ 紫外線 日焼け対策",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 24,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B01",
+        "B03",
+        "B13",
+        "B01",
+        "B11",
+        "B04",
+        "B25",
+        "B09",
+        "B13",
+        "B13",
+        "B09",
+        "B03",
+        "B13",
+        "B11",
+        "B13",
+        "B15",
+        "B08",
+        "B17",
+        "B14",
+        "B15",
+        "B15",
+        "B15"
+      ]
+    },
+    {
+      "parentId": "rakuten_the-beautopia_20094-025",
+      "productName": "【公式】 ラブミータッチ シルキーUVミルク spf50+ PA++++ 50g日焼け止め 紫外線吸収剤不使用 ノンケミカル スキンケア 乳幼児試験済み UVカット セラミド 紫外線防止 上原恵理 Dr.BEAUTOPIA",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 17,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01",
+        "B03",
+        "B04",
+        "B05",
+        "B07",
+        "B06",
+        "B14",
+        "B16",
+        "B13",
+        "B22",
+        "B22",
+        "B27",
+        "B23",
+        "B04",
+        "B03"
+      ]
+    },
+    {
+      "parentId": "rakuten_tirtir_waterism_lipseries",
+      "productName": "★20％OFF クーポン付き★ ＼条件達成＆抽選で50名様に10,000ポイントまで！／【TIRTIR公式】ウォーターリズムリップシリーズ 4種 リップバーム 4色 / ティント 20色 / プランパー / バーム 9色 口紅 / 韓国コスメ / 落ちない口紅 / 潤う / ツヤ / 保湿",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 18,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B17",
+        "B03",
+        "B17",
+        "B17",
+        "B03",
+        "B17",
+        "B03",
+        "B08",
+        "B17",
+        "B19",
+        "B17",
+        "B15",
+        "B13",
+        "B26",
+        "B03",
+        "B10",
+        "B26"
+      ]
+    },
+    {
+      "parentId": "rakuten_tokitomecosme_4909978147105-1",
+      "productName": "資生堂 アネッサ パーフェクトUV スキンケアミルク NA 60mL SPF50+ PA++++ ANESSA 日焼け止め 乳液 日焼け止め 日やけ止め UVケア 送料無料",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 5,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B03",
+        "B13",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_torriden-official_10000047",
+      "productName": "★韓コス祭り20%OFFクーポン7月4日～11日★《選べるサンケア4種》【日本公式販売店】 Torriden トリデン ダイブイン マイルドサンクリーム ウォータリーモイスチャー サンセラム サンスティック 日焼け止め SPF50+ PA++++ ヒアルロン酸 水分 韓国コスメ UV 紫外線 夏 対策",
+      "category": "suncare",
+      "source": "rakuten",
+      "imageCount": 24,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01",
+        "B01",
+        "B01",
+        "B01",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B20",
+        "B06",
+        "B06",
+        "B11",
+        "B14",
+        "B12",
+        "B12",
+        "B23",
+        "B03",
+        "B23",
+        "B09",
+        "B14",
+        "B11",
+        "B11",
+        "B12"
+      ]
+    },
+    {
+      "parentId": "rakuten_tsurunishi_905b07g9r2zp6",
+      "productName": "【期間限定】最大半額クーポン有！7/4 20:00~7/11 09:59まで！【公式】オルナオーガニック【楽天ランキング1位】クレンジングオイル クレンジング メイク落とし「 お風呂場 でもOK 化粧落とし 洗顔料 」「 コラーゲン ヒアルロン酸 ビタミンC誘導体 配合 」200ml",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 3,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B01",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_tvert_352",
+      "productName": "【ポイント最大14倍＆クーポン最大500円OFF★ 7/4 20:00~7/11 01:59】【送料無料】化粧水 グリシルグリシン 6% アゼライン酸誘導体 プレ化粧水 楽天ベストコスメ2024 毛穴 テカリ 皮脂 エイジングケア 選べる 2タイプ トゥベール トゥヴェール バランシングGAローション",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 22,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B04",
+        "B04",
+        "B03",
+        "B20",
+        "B23",
+        "B06",
+        "B24",
+        "B10",
+        "B20",
+        "B22",
+        "B22",
+        "B01",
+        "B03",
+        "B03",
+        "B03",
+        "B01",
+        "B01",
+        "B02",
+        "B02",
+        "B02"
+      ]
+    },
+    {
+      "parentId": "rakuten_uchino-towelandbath_8808f762",
+      "productName": "【UCHINO公式店】ウチノ クイックドライ「ティント」 フェイスタオル｜内野 タオル 速乾 抗菌 防臭 吸水 部屋干し 柔らか やわらか 軽い フェースタオル プレゼント ギフト 誕生日",
+      "category": "makeup",
+      "source": "rakuten",
+      "imageCount": 11,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B04",
+        "B04",
+        "B03",
+        "B24",
+        "B24",
+        "B06",
+        "B03",
+        "B01",
+        "B01",
+        "B13"
+      ]
+    },
+    {
+      "parentId": "rakuten_velus_pm-bgc",
+      "productName": "6/23限定★衝撃の2500円OFF★3,960円⇒1,460円★総合1位★PILIEMO【ピリモ】クレンジング クレンジングジェル クレンジング W洗顔不要 ダブル洗顔不要 メイク落とし 化粧落とし 保湿 美容液 毛穴黒ずみ 敏感肌 乾燥肌 洗顔 毛穴ケア 毛穴 開き バブルジェルクレンジング",
+      "category": "cleansing",
+      "source": "rakuten",
+      "imageCount": 13,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B01",
+        "B23",
+        "B23",
+        "B04",
+        "B01",
+        "B04",
+        "B03",
+        "B04",
+        "B13",
+        "B13",
+        "B25",
+        "B01",
+        "B01"
+      ]
+    },
+    {
+      "parentId": "rakuten_vi-grow_10000006",
+      "productName": "【7/9まで★MAX20％クーポン】乾燥肌・エイジングケア ヒト幹細胞 エクソソーム 化粧水 リビオン レックスローション 150ml 保湿化粧水 化粧品 人幹細胞 ナイアシンアミド くすみ 毛穴ケア シミ対策 シワ改善 浸透 無添加 美白 ヒト型セラミド 40代 50代 60代 美容",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 23,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B10",
+        "B05",
+        "B25",
+        "B04",
+        "B11",
+        "B25",
+        "B06",
+        "B07",
+        "B07",
+        "B06",
+        "B03",
+        "B09",
+        "B08",
+        "B10",
+        "B09",
+        "B16",
+        "B23",
+        "B22",
+        "B02",
+        "B01",
+        "B22",
+        "B22",
+        "B22"
+      ]
+    },
+    {
+      "parentId": "rakuten_wowmed_skinbaby-bihaku01",
+      "productName": "美白美容液 トラネキサム酸 ビタミンC 美白 美容液 大容量 50ml シミ シミ対策 保湿 無添加 美容液 しみ そばかす くすみ ニキビ ニキビ跡 色素沈着 対策 ヒアルロン酸 コラーゲン 顔 ボディ 目元 ハリツヤ 30代 40代 50代 60代 医薬部外品 スキンベビー",
+      "category": "skincare",
+      "source": "rakuten",
+      "imageCount": 17,
+      "hasPromo": true,
+      "optionCount": 0,
+      "optionAxis": null,
+      "sequence": [
+        "B13",
+        "B23",
+        "B06",
+        "B09",
+        "B09",
+        "B09",
+        "B10",
+        "B13",
+        "B16",
+        "B22",
+        "B25",
+        "B20",
+        "B03",
+        "B03",
+        "B03",
+        "B03",
+        "B03"
+      ]
+    }
+  ]
+}

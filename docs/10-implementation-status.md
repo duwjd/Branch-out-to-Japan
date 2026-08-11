@@ -34,6 +34,7 @@
 | 앱 셸 | ✅ `components/app/AppShell.tsx` 사이드바(3축 내비 + 운영 하위 아코디언 + 계정 행 + 매칭 상태 배지) · `/app` → `/app/library` 리다이렉트 · 기존 리포트 2화면 셸 안에서 리그레션 없음(E2E 확인) |
 | 파일 저장 | ✅ 로컬 `.data/files/{prefix}-{uuid}.{ext}` + `GET /api/files/[id]` 서빙 — 스토어에는 fileId만. Supabase Storage 전환 시 `lib/files/storage.ts` 내부만 교체 |
 | ② 썸네일 생성 | ✅ 생성 퍼널(`/app/studio/thumbnail` — 드롭존·플랫폼 칩·템플릿 8종 실측 그리드·실적 아코디언·sticky 제출) → **콜⑥ studioCopy**(Claude 비전 1콜: 분석+카피 재설계+슬롯) → 결정적 조립(`buildPrompt` + proof 게이트 + 가격 슬롯 강제 공란, 단위테스트 7건) → **OpenAI `images.edit`**(모델·품질 env 주입 — `input_fidelity`는 지원 모델에만 조건부, gpt-image-2는 항상 고정밀 처리라 미지원·불필요) → `.data/files/` 저장 → 결과 상세(`[assetId]` 2.5초 폴링: 생성중→done 게이트 배지·재설계 해설·다운로드→failed 프리필 재시도) |
+| **② 상세페이지 생성** | ✅ **2026-08-10 신규.** 생성 퍼널(`/app/studio/detail` — 이미지 1~10장·상품종류·템플릿 6종·제품 스펙·조건 입력) → **블록 구성 확인 단계**(빠진 블록과 사유를 접지 않고 노출) → **콜⑦ detailCopy**(Claude 비전 1콜로 전 블록 슬롯) → 결정적 조립(`planBlocks` 게이트 + 각주 레지스트리, 단위테스트 20건) → **하이브리드 렌더**(gpt-image-2 배경컷 ≤4장 동시성 4 + satori 벡터 문자) → **sharp 세로 결합 + 몰 규격 분할** → 결과 상세(블록 n/N 진행률·블록별 재생성·결합본/분할본 2종). 실 LLM E2E 통과(약 130~155초/건). **2026-08-11 배포 대응 완료** — 제출 전 프리플라이트(마이그레이션·폰트·키·Storage 미비를 사유+조치와 함께 차단) · 저장 부피 건당 12.4MB→3.09MB · 폰트 트레이싱 빌드 검증. 운영 절차는 [[11-deploy-spec]] §3-1 · [deploy-runbook](deploy-runbook.md) §6-A |
 | ② 목 모드 | ✅ `OPENAI_API_KEY` 없거나 `IMAGE_MODE=mock` → 실측 샘플 PNG 픽스처(콜⑥은 `LLM_MODE` 목 규칙 그대로) — 키 전무 상태로 전체 플로우 확인 가능. 모델 ID는 실검증으로 `gpt-image-2` 확정(2026-07-21, 스펙 §6-Q1 해소 — `OPENAI_IMAGE_MODEL`로 오버라이드 가능), **팩 §5 골든 픽스처 실검증은 잔여** |
 | ③ 자산 라이브러리 | ✅ `/app/library` 타입 탭 [진단 리포트\|썸네일] + 시즌 제안 카드(정적 상수) + 생성중 타일 + 빈 상태 — 재조회 전용(실시간 폴링 없음, 새로고침 반영) · `/app/library/[assetId]` 썸네일/리포트 요약 2모드(생성중은 폴링 화면으로 리다이렉트) |
 | ③ 브랜드 관리 | ✅ `/app/brand` 4섹션(프로필·제품·채널·브랜드 킷) `GET·PUT /api/brand` + 상세페이지 문서 업로드(`POST /api/brand/doc`) · 킷 수정 불소급 캡션 · 생성 시 `brandNameSnapshot` 물질화 확인 |
@@ -59,6 +60,11 @@ npm run typecheck    # 타입 검사
 npm run test         # 집계 결정성 테스트 (tsc 컴파일 → node --test)
 npm run report:cli    # 화면 없이 ① 파이프라인만 (cica 픽스처)
 npm run thumbnail:cli # 화면 없이 ② 썸네일 파이프라인만 (--style A~H · --platform · --proof)
+npm run detail:cli    # 화면 없이 ② 상세페이지 파이프라인만
+                      #   목 모드: npm run detail:cli
+                      #   실 모드: npm run detail:cli -- --image <제품컷> --category skincare --platform rakuten-official
+                      #   재검증(이미지 비용 0): 위 명령에 --reuse-visuals
+                      #   산출: .data/detail-cli/{master.jpg, slice-NN.jpg, block-NN-*.png, plan.json}
 npm run aggregate     # 코퍼스 갱신 시 사전집계 재생성
 ```
 
@@ -145,3 +151,4 @@ supabase/schema.sql               # 테이블 3종 + RLS · `reports.overall_sco
 - 2026-07-16 갱신: **[삭제] 검수 단계** — `/admin/review`·검수 API 2종·`signReport`/`rejectReport`/`listByStatus`·검수 3필드 제거, 상태 머신 4개로 축소, 파이프라인 성공 = 발행. 랜딩 FAQ의 서명 약속 카피 교체. **[추가] 보고용 슬라이드 내보내기**(스펙 §10). **[신규 한계] 3b 면책의 대가물 부재**(🔴).
 - 2026-07-24 갱신: **[추가] 배포 준비(P0 6건)** — 파일 저장 Supabase Storage 전환(`lib/files/storage.ts` + `lib/db/supabaseClient.ts` 공유 헬퍼, 로컬 폴백 유지) · `AUTH_MAIL_MODE=devlink`(운영 인증 링크 화면 노출 — 가입 차단 해소) · `next.config.ts` outputFileTracingIncludes(`data/processed/**`·목 샘플 — 서버리스 ENOENT 방지) · report/thumbnail `maxDuration=300` · `engines.node 22.x` · 폴링 스테일 잡 가드. 호스팅 확정 Vercel Hobby + Supabase Free — 정본 [[11-deploy-spec]] · [[decisions/2026-07-24-호스팅-배포-결정]]. **한계 #7(잡 실행 모델) 해소**, #2(Supabase 전환)는 인프라 세팅만 잔여.
 - 2026-07-24 **[개선] 인증 배포 가드 강화**: 배포본 이메일 가입/로그인 무동작 대응(원인=배포 env 미설정의 침묵 실패). `lib/db/store.ts` 프로덕션 Supabase env 누락 시 파일 폴백 대신 **명시적 throw**(빌드 페이즈 제외) · `mailer.ts`·`sessionToken.ts` 운영 **error 로그 승격**(`AUTH_MAIL_MODE`·`AUTH_SECRET` 미설정) · `GET /api/report`에 `misconfigured` 플래그(`hasSupabaseEnv` 기반, throw 회피) · `supabase/schema.sql` 상단 주석 함정(users 없음 오도) 교정. **typecheck 0오류 · 테스트 52/52**. 필수 env 3종 설정은 운영자 수동([[deploy-runbook]] §8·§1-B). [[11-deploy-spec]] §7·§8 갱신.
+- 2026-08-11 ② 상세페이지 **결함 2건 수정 + 배포 대응**. [결함] 번호 배지 이중 표기(`CASE1`·`POINT1` — 팩 슬롯 설명 + 렌더 직전 `stripAutoLabel` 이중 방어) · 한 페이지에 서로 다른 제품이 섞이는 문제(AI 블록별 `productPresence` 를 팩이 소유 — 호출부 3곳 하드코딩 제거). 재생성으로 둘 다 확인. [정정] 8/10에 기록한 제품 라벨 열화(`GEL`→`GA`)는 원본 미대조 오기 — 원본이 처음부터 `GA` 였고 두 번의 실행 모두 자단위 보존됨. [배포] 프리플라이트·저장 포맷·트레이싱 정밀화.

@@ -101,7 +101,8 @@ export default async function AssetDetailPage({ params }: { params: Promise<{ as
 function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
   const platformLabel = PLATFORM_LABELS[asset.platform as Platform] ?? asset.platform;
   const downloadName = `${asset.brandNameSnapshot}-${asset.styleName}-${platformLabel}.png`;
-  const gateItems = asset.gateResult?.checks.map((c) => ({ label: c.label, pass: asset.gateResult!.passed })) ?? [];
+  // 항목별 pass 를 쓴다 — 전체 passed 를 그대로 쓰면 한 항목이 걸렸을 때 통과한 항목까지 ✕ 로 보인다
+  const gateItems = asset.gateResult?.checks.map((c) => ({ label: c.label, pass: c.pass !== false })) ?? [];
 
   return (
     <DetailShell>
