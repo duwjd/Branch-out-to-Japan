@@ -168,7 +168,8 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
       setSwOpen(false);
       return;
     }
-    const onForm = pathname === '/app/report/new' || pathname === '/app/studio/thumbnail';
+    const onForm =
+      pathname === '/app/report/new' || pathname === '/app/studio/thumbnail' || pathname === '/app/studio/detail';
     if (onForm && !window.confirm('브랜드를 바꾸면 작성 중인 브랜드 관련 입력(프리필·제품컷 등)이 초기화됩니다. 계속할까요?')) {
       return;
     }

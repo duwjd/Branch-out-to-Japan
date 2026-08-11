@@ -11,10 +11,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { IconChevronDown, IconChevronUp } from '@/components/ui/icons';
 import { REPORT_STAGE_LABELS, REPORT_STAGE_STEPS, reportStageIndex } from '@/lib/stageLabels';
-import { STUDIO_STAGE_LABELS } from '@/lib/studio/platform';
+import { DETAIL_STAGE_LABELS, STUDIO_STAGE_LABELS } from '@/lib/studio/platform';
 
 export interface DashboardJob {
-  kind: 'report' | 'thumbnail';
+  kind: 'report' | 'thumbnail' | 'detail';
   id: string;
   /** 패널 표시명 — "공식샵 신뢰 배지형 · 라쿠텐 공식샵" */
   name: string;
@@ -23,14 +23,28 @@ export interface DashboardJob {
 interface TrackedJob extends DashboardJob {
   stage: string | null;
   state: 'running' | 'done' | 'failed';
+  /** 상세페이지 전용 — 블록 단위 진행률("블록 7/14") */
+  blockTotal?: number;
+  blockDone?: number;
 }
 
 const STUDIO_STAGE_KEYS = ['analyze', 'assemble', 'generate', 'gate'];
+const DETAIL_STAGE_KEYS = ['analyze', 'plan', 'copy', 'blocks', 'compose', 'slice', 'gate'];
 
 /** 잡 종류별 진행률(0~1) */
 function progressOf(job: TrackedJob): number {
   if (job.state !== 'running') return 1;
   if (job.kind === 'report') return (reportStageIndex(job.stage) + 0.5) / REPORT_STAGE_STEPS.length;
+  if (job.kind === 'detail') {
+    const keys = DETAIL_STAGE_KEYS;
+    const idx = job.stage ? keys.indexOf(job.stage) : -1;
+    const base = (idx === -1 ? 0 : idx) / keys.length;
+    // blocks 단계는 길어서 블록 진행률로 그 구간을 채운다
+    if (job.stage === 'blocks' && job.blockTotal) {
+      return base + ((job.blockDone ?? 0) / job.blockTotal) * (1 / keys.length);
+    }
+    return base + 0.5 / keys.length;
+  }
   const idx = job.stage ? STUDIO_STAGE_KEYS.indexOf(job.stage) : -1;
   return ((idx === -1 ? 0 : idx) + 0.5) / STUDIO_STAGE_KEYS.length;
 }
@@ -38,6 +52,12 @@ function progressOf(job: TrackedJob): number {
 /** 잡 종류별 현재 단계 라벨 */
 function stageLabelOf(job: TrackedJob): string {
   if (!job.stage) return '대기 중';
+  if (job.kind === 'detail') {
+    const label = DETAIL_STAGE_LABELS[job.stage] ?? job.stage;
+    return job.stage === 'blocks' && job.blockTotal
+      ? `${label} (${job.blockDone ?? 0}/${job.blockTotal})`
+      : label;
+  }
   const map = job.kind === 'report' ? REPORT_STAGE_LABELS : STUDIO_STAGE_LABELS;
   return map[job.stage] ?? job.stage;
 }
@@ -60,17 +80,27 @@ export function JobPanel({ jobs }: { jobs: DashboardJob[] }) {
           .filter((j) => j.state === 'running')
           .map(async (job) => {
             try {
-              const url = job.kind === 'report' ? `/api/report/${job.id}/status` : `/api/studio/thumbnail/${job.id}`;
+              const url =
+                job.kind === 'report'
+                  ? `/api/report/${job.id}/status`
+                  : job.kind === 'detail'
+                    ? `/api/studio/detail/${job.id}`
+                    : `/api/studio/thumbnail/${job.id}`;
               const res = await fetch(url, { cache: 'no-store' });
               if (!res.ok) return { id: job.id, stage: job.stage, state: 'running' as const };
-              const data = (await res.json()) as { status: string; stage: string | null };
+              const data = (await res.json()) as {
+                status: string;
+                stage: string | null;
+                blockTotal?: number;
+                blockDone?: number;
+              };
               const state =
                 data.status === 'published' || data.status === 'done'
                   ? ('done' as const)
                   : data.status === 'failed'
                     ? ('failed' as const)
                     : ('running' as const);
-              return { id: job.id, stage: data.stage, state };
+              return { id: job.id, stage: data.stage, state, blockTotal: data.blockTotal, blockDone: data.blockDone };
             } catch {
               return { id: job.id, stage: job.stage, state: 'running' as const };
             }
@@ -80,7 +110,8 @@ export function JobPanel({ jobs }: { jobs: DashboardJob[] }) {
       setTracked((prev) =>
         prev.map((job) => {
           const u = updates.find((x) => x.id === job.id);
-          return u ? { ...job, stage: u.stage, state: u.state } : job;
+          // 상세페이지는 블록 진행률까지 옮겨야 "블록 7/14" 라벨이 갱신된다
+          return u ? { ...job, stage: u.stage, state: u.state, blockTotal: u.blockTotal, blockDone: u.blockDone } : job;
         }),
       );
       // 서버 컴포넌트(최근 자산·KPI) 갱신

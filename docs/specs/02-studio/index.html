@@ -32,6 +32,9 @@
     <a href="index.html" class="on">플로우(index)</a>
     <a href="1-home.html">1 홈(생성)</a>
     <a href="2-result.html">2 결과</a>
+    <a href="3-detail-home.html">3 상세 홈</a>
+    <a href="4-detail-confirm.html">4 블록 확인</a>
+    <a href="5-detail-result.html">5 상세 결과</a>
     <a href="02-studio-ui-기획서.md">기획서 ↗</a>
     <span class="ex">비배포 · 기획 검토용</span>
   </div>
@@ -89,6 +92,32 @@
       </a>
     </div>
     <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">생성중에도 다른 화면으로 이동할 수 있고 처리는 계속됩니다. 화면을 떠난 뒤의 진행 확인은 ⓪ 메인 진행 중 작업 패널이 맡습니다(2026-07-22 홈 최근 생성 스트립 삭제). 결과 화면의 검토용 상태 스위처로 결과/생성중/실패를 바로 볼 수 있습니다.</p>
+  </section>
+
+  <!-- ── 상세페이지 플로우 (2026-08-10 추가) ──────────────────────── -->
+  <section style="margin-top:40px">
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">상세페이지 플로우 — 생성 전에 구성을 확인시킨다</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">썸네일과 달리 중간에 <b>블록 구성 확인</b> 단계가 있습니다. 시퀀스가 10~16블록이라 무엇이 들어가는지 모른 채 생성하면 건당 약 2분·$0.4가 헛돌기 때문입니다. 확인 단계는 별도 라우트가 아니라 같은 페이지의 2단계라서, 되돌아가도 업로드한 파일을 다시 받지 않습니다. 정본은 <a href="02-studio-detail-ui-기획서.md">02-studio-detail-ui-기획서.md</a>.</p>
+    <div class="rwrap" style="display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center;gap:8px">
+      <a class="flow-node" href="3-detail-home.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">3 · 상세 홈(입력)</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">상세페이지 만들기</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">이미지 1~10장 + 상품 종류 + 템플릿 6종 + 제품 스펙(표시 의무) + 근거·프로모·옵션 조건 입력.</p>
+      </a>
+      <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
+      <a class="flow-node" href="4-detail-confirm.html">
+        <span style="font-size:11.5px;font-weight:800;color:#B96C00;letter-spacing:.04em">4 · 블록 구성 확인</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">들어갈 것 · 빠진 것</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">시퀀스 타임라인 + <b>빠진 블록의 사유</b>를 접지 않고 노출. 선택 블록은 여기서 끌 수 있습니다.</p>
+      </a>
+      <span aria-hidden="true" class="arrow-cell" style="text-align:center;color:#B6B8BF;font-size:20px">→</span>
+      <a class="flow-node" href="5-detail-result.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">5 · 결과</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;font-weight:700;color:#202124">생성 결과 상세</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">생성중은 "블록 n/N" 진행률로 시작. 완료 시 <b>결합본 1장 + 몰 업로드용 분할본 N장</b> 2종과 블록별 재생성.</p>
+      </a>
+    </div>
+    <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">라쿠텐 R-Cabinet은 이미지 1장당 3840px·2MB 제한이라 "이어붙인 긴 1장"은 업로드가 물리적으로 불가능합니다. 결합본은 확인·승인·공유용이고 몰에 올라가는 실체는 분할본입니다 — 결과 화면이 이 관계를 한 줄로 말합니다.</p>
   </section>
 
   <!-- ── 보관·재열람은 별도 노드 ──────────────────────── -->

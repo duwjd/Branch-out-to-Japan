@@ -49,6 +49,11 @@ export async function createThumbnailAsset(input: ThumbnailJobInput): Promise<Ge
     modelConsent: input.modelConsent,
     promoInput: input.promoInput,
     brandNameSnapshot: input.brandName,
+    // 상세페이지 전용 필드 — 썸네일 자산에서는 비어 있다
+    detailInput: null,
+    blockTotal: 0,
+    blockDone: 0,
+    slicePaths: [],
   });
 }
 

@@ -105,7 +105,8 @@ export type GeneratedAssetStatus = 'generating' | 'done' | 'failed';
 /** 검수 게이트 v1 — 구조적 보증 기록(비전 자동검수 없음, 09 §4b M6) */
 export interface GateResult {
   passed: boolean;
-  checks: { key: string; label: string; note: string }[];
+  /** pass 생략 = 통과(기존 썸네일 게이트 호환). 명시적 false 만 화면에 ✕ 로 뜬다 */
+  checks: { key: string; label: string; note: string; pass?: boolean }[];
 }
 
 /** 콜⑥ studioCopy 산출 — RESULT-02·03 / DETAIL-02 해설 렌더 계약(08 §4.7) */
@@ -137,11 +138,79 @@ export interface PromoInput {
   footnote: string;            // ※각주(선택)
 }
 
+/** 상세페이지 상품 카테고리 — 무드 프로파일·템플릿 선택의 축(② DETAIL-03) */
+export type DetailProductCategory = 'skincare' | 'suncare' | 'makeup' | 'cleansing' | 'haircare' | 'etc';
+
+/** 옵션 축 — 색상이면 컬러 블록, 그 외면 라인업 비교 블록이 붙는다 */
+export type DetailOptionAxis = 'color' | 'size' | 'set' | 'variant';
+
+/**
+ * 상세페이지 생성 입력(② DETAIL-02~06d) — 시퀀스 결정에 쓰이는 **사실**들.
+ * LLM이 아니라 사용자·브랜드가 제공하며, 근거가 비면 해당 블록이 통째로 빠진다.
+ * spec 은 약기법 표시 의무 영역이라 원문 그대로 저장하고 재가공하지 않는다.
+ */
+export interface DetailInput {
+  productCategory: DetailProductCategory;
+  /** 업로드 원본 fileId(위→아래 순서, 1~10장) — 첫 장이 제품 대표컷, 나머지는 KR 상세 원본 */
+  sourceImagePaths: string[];
+  /** 확인 화면에서 사용자가 끈 블록. 필수 블록은 끌 수 없다 */
+  disabledBlocks: string[];
+  spec: { volume: string; category: string; manufacturer: string; origin: string; fullIngredients: string };
+  ingredients: { name: string; percent: string; purpose: string }[];
+  freeOf: string[];
+  specs: { label: string; value: string }[];
+  howToSteps: string[];
+  options: { axis: DetailOptionAxis; name: string; swatchHex?: string; sku?: string }[];
+  cautions: string[];
+  proof: ThumbnailProof | null;
+  sales: { count: string; period: string; reviewCount?: string; rating?: string } | null;
+  test: { name: string; condition: string; institution: string; date: string; sampleSize: string } | null;
+  reviews: { text: string; rating: string; age: string }[];
+  promo: PromoInput | null;
+  modelConsent: boolean;
+}
+
+/** 블록 상태 — 자산 상태와 별개로 블록별로 진행·실패가 기록된다 */
+export type AssetBlockStatus = 'pending' | 'generating' | 'done' | 'failed' | 'skipped';
+
+/**
+ * 상세페이지 블록 1개(② asset_blocks).
+ * jsonb 컬럼이 아니라 **행 단위**인 이유: AI 블록이 동시에 완료되므로 read-modify-write 로는
+ * lost update 가 나고, 파일 스토어 구현에서는 원자적 부분 갱신이 불가능하다.
+ */
+export interface AssetBlockRecord {
+  id: string;
+  assetId: string;
+  /** 세로 순서(0부터). 재정렬은 이 값만 갱신 */
+  seq: number;
+  /** 블록 타입(팩 blockCatalog.id) */
+  blockType: string;
+  /** 'text' | 'ai-visual' | 'hybrid' */
+  renderKind: string;
+  status: AssetBlockStatus;
+  error: string | null;
+  /** 게이트를 통과해 확정된 슬롯 */
+  slots: Record<string, string>;
+  /** ai-visual·hybrid 만 */
+  promptUsed: string | null;
+  /** AI 배경컷 fileId — 카피만 바꿔 재생성할 때 재사용 */
+  visualPath: string | null;
+  /** 최종 블록 PNG fileId */
+  imagePath: string | null;
+  /** 센티넬로 실측한 블록 높이(px) — 결합 시 오프셋 계산 */
+  height: number | null;
+  version: number;
+  /** 되돌리기용 이전 버전 기록 */
+  history: { version: number; imagePath: string | null; visualPath: string | null; at: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface GeneratedAssetRecord {
   id: string;
   /** 소속 브랜드(제출 시점 활성 브랜드 스냅샷) */
   brandProfileId: string;
-  kind: 'thumbnail';
+  kind: 'thumbnail' | 'detail';
   /** 내부 스타일 ID A~H — 화면 비노출(라벨 정책), 표시는 styleName */
   styleCategory: string;
   styleName: string;
@@ -161,6 +230,14 @@ export interface GeneratedAssetRecord {
   promoInput: PromoInput | null;   // G 프로모 입력(G 아니면 null)
   /** 제출 시점 브랜드명 물질화 — 킷 수정 불소급(tierInput 스냅샷 원칙과 동일) */
   brandNameSnapshot: string;
+  // ── kind='detail' 전용 ────────────────────────────────────────────────
+  /** 상세페이지 입력 스냅샷(kind='detail' 아니면 null) */
+  detailInput: DetailInput | null;
+  /** 블록 진행률 — 비정규화 카운터라 블록 배열 없이도 화면이 "3/12"를 그릴 수 있다 */
+  blockTotal: number;
+  blockDone: number;
+  /** 몰 업로드용 분할 fileId 목록(결합본은 imagePath 재사용) */
+  slicePaths: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -300,11 +377,33 @@ export interface Store {
     patch: Partial<
       Pick<
         GeneratedAssetRecord,
-        'status' | 'stage' | 'error' | 'imagePath' | 'promptUsed' | 'gateResult' | 'explanationJson'
+        | 'status' | 'stage' | 'error' | 'imagePath' | 'promptUsed' | 'gateResult' | 'explanationJson'
+        | 'blockTotal' | 'blockDone' | 'slicePaths'
       >
     >,
   ): Promise<void>;
   listAssets(brandProfileId: string): Promise<GeneratedAssetRecord[]>;
+
+  // ── ② 상세페이지 블록(asset_blocks) ────────────────────────────────────
+  /** 시퀀스 확정 직후 블록 행을 일괄 생성한다(seq 순서 그대로) */
+  createBlocks(
+    assetId: string,
+    blocks: Omit<AssetBlockRecord, 'id' | 'assetId' | 'createdAt' | 'updatedAt'>[],
+  ): Promise<AssetBlockRecord[]>;
+  /** seq 오름차순 */
+  listBlocks(assetId: string): Promise<AssetBlockRecord[]>;
+  getBlock(blockId: string): Promise<AssetBlockRecord | null>;
+  updateBlock(
+    blockId: string,
+    patch: Partial<
+      Pick<
+        AssetBlockRecord,
+        'seq' | 'status' | 'error' | 'slots' | 'promptUsed' | 'visualPath' | 'imagePath' | 'height' | 'version' | 'history'
+      >
+    >,
+  ): Promise<void>;
+  /** 완료 블록 수를 원자적으로 1 증가시킨다 — 동시 완료에서도 카운터가 유실되지 않는다 */
+  incrementBlockDone(assetId: string): Promise<void>;
   createMatchRequest(
     input: Omit<MatchRequestRecord, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
   ): Promise<MatchRequestRecord>;

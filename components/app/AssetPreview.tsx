@@ -30,8 +30,18 @@ export function ReportCoverPreview({ score }: { score: number | null }) {
   );
 }
 
-/** 생성 썸네일 프리뷰 — 로드 전에도 자리를 잡아 레이아웃 점프를 막는다 */
-export function ThumbPreview({ src, alt }: { src: string; alt: string }) {
+/**
+ * 생성 자산 프리뷰 — 로드 전에도 자리를 잡아 레이아웃 점프를 막는다.
+ * anchor='top' 은 세로로 아주 긴 상세페이지용 — 정사각 카드에 가운데를 맞추면
+ * 페이지 중간의 의미 없는 구간이 보이므로 히어로가 있는 위쪽을 보여준다.
+ */
+export function ThumbPreview({ src, alt, anchor = 'center' }: { src: string; alt: string; anchor?: 'center' | 'top' }) {
   // eslint-disable-next-line @next/next/no-img-element -- /api/files 동적 서빙(허용 목록 밖)
-  return <img src={src} alt={alt} className="absolute inset-0 h-full w-full bg-n-150 object-cover" />;
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`absolute inset-0 h-full w-full bg-n-150 object-cover ${anchor === 'top' ? 'object-top' : ''}`}
+    />
+  );
 }

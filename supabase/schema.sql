@@ -318,3 +318,50 @@ create index if not exists idx_brands_user on brand_profiles(user_id);
 -- 서버(service role)만 접근하므로 RLS는 켜두고 정책 없이 둔다(anon 접근 차단).
 alter table users enable row level security;
 alter table auth_tokens enable row level security;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 2026-08-10 · ② 마케팅 스튜디오 — 상세페이지 만들기
+--   generated_assets 델타 + asset_blocks 신규. 멱등(재실행 안전).
+--   설계 근거: docs/specs/02-detail-converter-spec.md
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- kind 에 'detail' 이 추가된다(text 컬럼이라 DDL 불필요).
+-- image_path 는 상세페이지에서 **결합본(master JPEG) fileId** 로 재사용한다
+-- → 라이브러리·다운로드 경로가 썸네일과 같은 코드를 그대로 쓴다.
+alter table generated_assets add column if not exists detail_input jsonb;
+alter table generated_assets add column if not exists block_total int not null default 0;
+alter table generated_assets add column if not exists block_done  int not null default 0;
+-- 몰 업로드용 분할 fileId 목록. 라쿠텐 R-Cabinet 이 1장당 3840px·2MB 제한이라
+-- 결합본만으로는 업로드가 불가능하다 — 분할본이 실제 업로드 대상이다.
+alter table generated_assets add column if not exists slice_paths jsonb not null default '[]'::jsonb;
+
+-- 상세페이지 블록 — jsonb 컬럼이 아니라 행 단위인 이유:
+-- AI 블록이 동시에 완료되므로 read-modify-write 로는 lost update 가 발생한다.
+create table if not exists asset_blocks (
+  id uuid primary key default gen_random_uuid(),
+  asset_id uuid not null references generated_assets(id) on delete cascade,
+  seq int not null,                       -- 세로 순서(0부터)
+  block_type text not null,               -- 팩 blockCatalog.id
+  render_kind text not null,              -- text | ai-visual | hybrid
+  status text not null default 'pending', -- pending|generating|done|failed|skipped
+  error text,
+  slots jsonb not null default '{}'::jsonb,
+  prompt_used text,
+  visual_path text,                       -- AI 배경컷 fileId(카피만 바꿀 때 재사용)
+  image_path text,                        -- 최종 블록 PNG fileId
+  height int,                             -- 센티넬 실측 높이(결합 오프셋)
+  version int not null default 1,
+  history jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists idx_blocks_asset on asset_blocks(asset_id, seq);
+
+-- 완료 카운터 원자 증가 — 블록이 동시에 끝나도 진행률이 유실되지 않는다.
+create or replace function increment_block_done(p_asset_id uuid)
+returns void language sql as $$
+  update generated_assets set block_done = block_done + 1, updated_at = now() where id = p_asset_id;
+$$;
+
+-- 서버(service role)만 접근하므로 RLS는 켜두고 정책 없이 둔다(anon 접근 차단).
+alter table asset_blocks enable row level security;

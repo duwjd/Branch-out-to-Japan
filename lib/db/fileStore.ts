@@ -8,6 +8,7 @@ import { readFile, writeFile, appendFile } from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type {
+  AssetBlockRecord,
   AuthTokenRecord,
   BrandProfileRecord,
   DiagnosisRequestRecord,
@@ -33,6 +34,7 @@ const BRAND_PROFILE_LEGACY = path.join(DATA_DIR, 'brand-profile.json');
 /** 신규 복수 브랜드 파일(배열) */
 const BRAND_PROFILES = path.join(DATA_DIR, 'brand-profiles.json');
 const ASSETS = path.join(DATA_DIR, 'generated-assets.json');
+const ASSET_BLOCKS = path.join(DATA_DIR, 'asset-blocks.json');
 const MATCH_REQUESTS = path.join(DATA_DIR, 'match-requests.json');
 const LEADS = path.join(DATA_DIR, 'leads.json');
 const TRACK_EVENTS = path.join(DATA_DIR, 'track-events.json');
@@ -260,6 +262,60 @@ export function createFileStore(): Store {
         return all
           .filter((a) => brandOf(a) === brandProfileId)
           .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      });
+    },
+
+    // ── ② 상세페이지 블록 ────────────────────────────────────────────────
+    // serialized() 큐가 read-modify-write 를 직렬화하므로 dev 단일 프로세스에서는
+    // 동시 완료로 인한 lost update 가 발생하지 않는다(운영은 Supabase 행 단위).
+    createBlocks(assetId, blocks) {
+      return serialized(async () => {
+        const now = new Date().toISOString();
+        const created: AssetBlockRecord[] = blocks.map((b) => ({
+          ...b,
+          id: randomUUID(),
+          assetId,
+          createdAt: now,
+          updatedAt: now,
+        }));
+        const all = await readJson<AssetBlockRecord[]>(ASSET_BLOCKS, []);
+        all.push(...created);
+        await writeJson(ASSET_BLOCKS, all);
+        return created.sort((a, b) => a.seq - b.seq);
+      });
+    },
+
+    listBlocks(assetId) {
+      return serialized(async () => {
+        const all = await readJson<AssetBlockRecord[]>(ASSET_BLOCKS, []);
+        return all.filter((b) => b.assetId === assetId).sort((a, b) => a.seq - b.seq);
+      });
+    },
+
+    getBlock(blockId) {
+      return serialized(async () => {
+        const all = await readJson<AssetBlockRecord[]>(ASSET_BLOCKS, []);
+        return all.find((b) => b.id === blockId) ?? null;
+      });
+    },
+
+    updateBlock(blockId, patch) {
+      return serialized(async () => {
+        const all = await readJson<AssetBlockRecord[]>(ASSET_BLOCKS, []);
+        const idx = all.findIndex((b) => b.id === blockId);
+        if (idx < 0) return;
+        all[idx] = { ...all[idx], ...patch, updatedAt: new Date().toISOString() };
+        await writeJson(ASSET_BLOCKS, all);
+      });
+    },
+
+    incrementBlockDone(assetId) {
+      return serialized(async () => {
+        const all = await readJson<GeneratedAssetRecord[]>(ASSETS, []);
+        const idx = all.findIndex((a) => a.id === assetId);
+        if (idx < 0) return;
+        all[idx] = { ...all[idx], blockDone: (all[idx].blockDone ?? 0) + 1, updatedAt: new Date().toISOString() };
+        await writeJson(ASSETS, all);
       });
     },
 
