@@ -8,6 +8,7 @@
  * 그래서 검수 게이트의 "오탈자 없음"이 프롬프트 부탁이 아니라 **구조적 사실**이 된다.
  */
 
+import sharp from 'sharp';
 import { getStore, type AssetBlockRecord, type DetailInput, type GateResult, type GeneratedAssetRecord } from '../db/store';
 import { readStoredFile, saveFile } from '../files/storage';
 import { persistBlockImage, persistVisual } from '../studio/detail/persist';
@@ -81,17 +82,29 @@ export async function createDetailAsset(input: DetailJobInput): Promise<Generate
   });
 }
 
+/**
+ * 비전 입력 장변 상한(px) — 이 이상은 모델이 어차피 내부에서 줄인다.
+ * 원본(장당 최대 10MB)을 그대로 보내면 base64 로 1.33배가 되어, 10장이면 프롬프트 바디가
+ * 100MB를 넘는다. 업로드 대역과 첫 토큰까지의 시간이 거기서 다 나간다.
+ */
+const VISION_MAX_EDGE = 1568;
+
 /** 첨부 이미지들을 LLM 비전 입력 형태로 읽는다(최대 10장 — client.ts 계약). */
 async function loadVisionImages(paths: string[]) {
-  const out: { mediaType: 'image/png' | 'image/jpeg' | 'image/webp'; dataBase64: string }[] = [];
-  for (const p of paths.slice(0, 10)) {
-    const f = await readStoredFile(p);
-    if (!f) continue;
-    out.push({
-      mediaType: f.contentType as 'image/png' | 'image/jpeg' | 'image/webp',
-      dataBase64: f.buf.toString('base64'),
-    });
-  }
+  // 저장소 왕복 10회를 직렬로 기다리지 않는다 — 순서는 Promise.all 이 보존한다
+  const files = await Promise.all(paths.slice(0, 10).map((p) => readStoredFile(p)));
+  const out = await Promise.all(
+    files
+      .filter((f): f is NonNullable<typeof f> => f !== null)
+      .map(async (f) => {
+        // 장변만 줄인다(비율 유지). withoutEnlargement 로 작은 이미지는 그대로 둔다.
+        const buf = await sharp(f.buf)
+          .resize({ width: VISION_MAX_EDGE, height: VISION_MAX_EDGE, fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 82 })
+          .toBuffer();
+        return { mediaType: 'image/jpeg' as const, dataBase64: buf.toString('base64') };
+      }),
+  );
   if (out.length === 0) throw new Error('첨부 이미지를 찾을 수 없습니다.');
   return out;
 }

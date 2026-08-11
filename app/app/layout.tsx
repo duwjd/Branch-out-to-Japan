@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSessionState, PROVIDER_LABELS } from '@/lib/server/session';
 import { getStore, type BrandProfileRecord } from '@/lib/db/store';
-import { getActiveBrand } from '@/lib/server/activeBrand';
+import { getActiveBrand, listMyBrands } from '@/lib/server/activeBrand';
 import { AppShell, type BrandSwitcherItem } from '@/components/app/AppShell';
 
 /**
@@ -17,22 +17,25 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const session = 'session' in state ? state.session : null; // 게스트 = null(통과)
 
   const store = await getStore();
+  // listMyBrands·getActiveBrand 는 요청 단위 메모라(activeBrand.ts) 목록 조회는 실제로 1회다
   const [brandList, activeBrand] = await Promise.all([
-    session ? store.listBrandProfiles(session.user.id) : Promise.resolve<BrandProfileRecord[]>([]),
+    session ? listMyBrands(session.user.id) : Promise.resolve<BrandProfileRecord[]>([]),
     getActiveBrand(),
   ]);
   const activeBrandId = activeBrand?.id ?? null;
 
-  // 스위처 각 행의 브랜드별 카운트(MAIN-01b) — 브랜드 수가 적어 브랜드당 스코핑 조회
+  // 스위처 각 행의 브랜드별 카운트(MAIN-01b) — 개수만 세는 전용 조회.
+  // listReports/listAssets 로 세면 브랜드마다 전체 행(리포트 본문·상세페이지 입력 스냅샷)을
+  // 끌어와 페이지 이동마다 비용이 붙는다(자산이 쌓일수록 선형 증가).
   const brands: BrandSwitcherItem[] = await Promise.all(
     brandList.map(async (b) => {
-      const [reports, assets] = await Promise.all([store.listReports(b.id), store.listAssets(b.id)]);
+      const counts = await store.getBrandCounts(b.id);
       return {
         id: b.id,
         name: b.brandName,
         category: b.category,
-        reportCount: reports.filter((r) => r.publishedAt !== null).length,
-        thumbnailCount: assets.filter((a) => a.status === 'done').length,
+        reportCount: counts.publishedReports,
+        thumbnailCount: counts.doneAssets,
       };
     }),
   );

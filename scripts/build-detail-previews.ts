@@ -51,6 +51,9 @@ const PRODUCT_SHOT = path.join(process.cwd(), 'docs/specs/02-studio/assets/sampl
 
 /** 카드 이미지 폭(2x). 카드는 296 CSS px 로 표시하고, 「전체 보기」가 같은 파일을 그대로 쓴다. */
 const PREVIEW_WIDTH = 592;
+/** 카드 썸네일 치수(2x DPR 기준) — 화면 카드는 74×168 CSS px */
+const CARD_W = 148;
+const CARD_H = 336;
 const BRAND = 'HARUON';
 
 /**
@@ -230,15 +233,27 @@ async function main() {
     const { master, width, height, blocks, aiCalls } = await buildOne(c, product, force);
     totalCalls += aiCalls;
 
-    // 전체 세로 스트립 1장으로 카드·모달을 겸한다 — 크롭본을 따로 두면 둘이 어긋난다
+    // 전체 세로 스트립 — 확대 모달(TemplateZoom)이 쓴다
     const webp = await sharp(master).resize({ width: PREVIEW_WIDTH }).webp({ quality: 78 }).toBuffer();
     const outPath = path.join(OUT_DIR, `preview-${c.id}.webp`);
     writeFileSync(outPath, webp);
     totalBytes += webp.length;
 
+    // 카드용 상단 크롭 — 같은 master 에서 함께 굽는다(따로 만들면 둘이 어긋난다).
+    // 카드는 74×168 CSS px 로 상단만 보여주는데, 전체 스트립은 592×5087 급이라
+    // 300만 픽셀을 디코드해서 1만 2천 픽셀만 그리게 된다.
+    const card = await sharp(master)
+      .extract({ left: 0, top: 0, width, height: Math.min(Math.round((width * CARD_H) / CARD_W), height) })
+      .resize({ width: CARD_W })
+      .webp({ quality: 80 })
+      .toBuffer();
+    writeFileSync(path.join(OUT_DIR, `preview-${c.id}-card.webp`), card);
+    totalBytes += card.length;
+
     const kb = (webp.length / 1024).toFixed(0);
     console.log(
-      `  ${width}x${height} → ${PREVIEW_WIDTH}x${Math.round((height * PREVIEW_WIDTH) / width)} · ${kb}KB · ` +
+      `  ${width}x${height} → ${PREVIEW_WIDTH}x${Math.round((height * PREVIEW_WIDTH) / width)} · ${kb}KB ` +
+        `(카드 ${(card.length / 1024).toFixed(0)}KB) · ` +
         `블록 ${blocks}개 · 이미지 콜 ${aiCalls}회 · ${((Date.now() - t0) / 1000).toFixed(1)}s`,
     );
     if (webp.length > 300 * 1024) console.log('  ⚠ 300KB 예산 초과 — PREVIEW_WIDTH 를 480 으로 낮추는 것을 검토하세요.');

@@ -23,6 +23,7 @@ import {
 import { IconChevronDown, IconChevronUp, IconUpload } from '@/components/ui/icons';
 import { LoginGateModal } from '@/components/auth/LoginGateModal';
 import { useLoginGate } from '@/components/auth/useLoginGate';
+import { bytesUrl } from '@/lib/files/downloadUrl';
 
 interface StyleCard {
   id: string;
@@ -154,7 +155,7 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
   /** URL 이미지를 File로 가져온다 — 프리필(RESULT-05·06) 전용 */
   const loadFromUrl = useCallback(
     async (url: string, name: string) => {
-      const res = await fetch(url);
+      const res = await fetch(bytesUrl(url));
       if (!res.ok) return;
       const blob = await res.blob();
       acceptFile(new File([blob], name, { type: blob.type }));
@@ -538,7 +539,7 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                 >
                   <span className="relative block aspect-square overflow-hidden rounded-[8px] border border-hairline">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.previewSrc} alt={`${s.nameKo} 실측 참고 컷`} className="h-full w-full object-cover" />
+                    <img src={s.previewSrc} alt={`${s.nameKo} 실측 참고 컷`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     {(isRecommended || isDimmed) && (
                       <span
                         className={`absolute top-1.5 left-1.5 z-1 inline-flex h-5 items-center rounded-full px-2 text-[10.5px] font-bold ${

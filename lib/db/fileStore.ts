@@ -4,7 +4,7 @@
  */
 
 import { mkdirSync, existsSync } from 'node:fs';
-import { readFile, writeFile, appendFile } from 'node:fs/promises';
+import { readFile, writeFile, appendFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type {
@@ -13,10 +13,12 @@ import type {
   BrandProfileRecord,
   DiagnosisRequestRecord,
   GeneratedAssetRecord,
+  GeneratedAssetSummary,
   LeadRecord,
   MatchRequestRecord,
   ProductRecord,
   ReportRecord,
+  ReportSummary,
   Store,
   TrackEventRecord,
   UserRecord,
@@ -42,6 +44,23 @@ const PRODUCTS = path.join(DATA_DIR, 'products.json');
 const USERS = path.join(DATA_DIR, 'users.json');
 const AUTH_TOKENS = path.join(DATA_DIR, 'auth-tokens.json');
 
+/**
+ * 전체 레코드 → 목록용 요약. 파일 스토어는 컬럼 선택이 없으므로 읽은 뒤 잘라낸다.
+ * (Supabase 구현은 애초에 무거운 컬럼을 SELECT 하지 않는다 — supabaseStore.ts)
+ * 화면이 요약 필드만 쓰도록 강제하는 게 목적이라 파일 스토어도 같은 타입을 반환한다.
+ */
+function toAssetSummary(a: GeneratedAssetRecord): GeneratedAssetSummary {
+  const { detailInput, explanationJson, gateResult, proof, promoInput, promptUsed, slicePaths, ...summary } = a;
+  void detailInput, explanationJson, gateResult, proof, promoInput, promptUsed, slicePaths;
+  return summary;
+}
+
+function toReportSummary(r: ReportRecord): ReportSummary {
+  const { blocksJson, ...summary } = r;
+  void blocksJson;
+  return summary;
+}
+
 /** 구 데이터(brandProfileId 없음)를 레거시 브랜드에 귀속시키는 스코핑 키 */
 function brandOf(record: { brandProfileId?: string }): string {
   return record.brandProfileId ?? LEGACY_BRAND_ID;
@@ -52,7 +71,14 @@ function ownerOf(record: { userId?: string }): string {
   return record.userId ?? LEGACY_USER_ID;
 }
 
-/** 파일 IO를 순차화하는 초간단 큐(경합 방지) */
+/**
+ * 쓰기(read-modify-write)를 순차화하는 초간단 큐 — lost update 방지.
+ *
+ * ⚠ **읽기는 이 큐에 넣지 않는다**(→ concurrent). 읽기까지 넣으면 큐가 프로세스 전역
+ * 단일 병목이 되어, 상세페이지 생성 1건(detailJob 의 store 호출 29회 + 블록마다
+ * incrementBlockDone)이 도는 동안 /app 의 모든 페이지 렌더가 그 뒤에 줄을 선다.
+ * 레이아웃의 Promise.all 도 여기서 무력화됐었다.
+ */
 let chain: Promise<unknown> = Promise.resolve();
 function serialized<T>(fn: () => Promise<T>): Promise<T> {
   const next = chain.then(fn, fn);
@@ -60,19 +86,36 @@ function serialized<T>(fn: () => Promise<T>): Promise<T> {
   return next;
 }
 
+/**
+ * 순수 조회 — 큐를 통과하지 않고 즉시 실행한다. writeJson 이 원자적 교체(rename)라
+ * 부분 기록된 파일을 읽을 일이 없으므로, 읽기는 항상 직전에 커밋된 온전한 스냅샷을 본다.
+ */
+function concurrent<T>(fn: () => Promise<T>): Promise<T> {
+  return fn();
+}
+
 async function readJson<T>(file: string, fallback: T): Promise<T> {
   if (!existsSync(file)) return fallback;
   return JSON.parse(await readFile(file, 'utf8')) as T;
 }
 
+/**
+ * 원자적 쓰기 — 임시 파일에 쓴 뒤 rename 으로 교체한다.
+ * writeFile 직접 호출은 truncate 후 기록이라, 큐 밖에서 도는 읽기가 반쪽짜리 JSON을 만나
+ * JSON.parse 가 터질 수 있다. rename 은 같은 파일시스템에서 원자적이라 그 창이 없다.
+ */
 async function writeJson(file: string, data: unknown): Promise<void> {
-  await writeFile(file, JSON.stringify(data, null, 2), 'utf8');
+  const tmp = `${file}.tmp-${randomUUID()}`;
+  await writeFile(tmp, JSON.stringify(data, null, 2), 'utf8');
+  await rename(tmp, file);
 }
 
 /**
  * 브랜드 배열 읽기 — 신규 파일이 없으면 구 싱글턴을 배열로 마이그레이션한다.
  * 마이그레이션 브랜드는 id를 그대로 두므로(=LEGACY_BRAND_ID) 구 요청·자산의
- * brandProfileId 없음이 이 브랜드로 자연 귀속된다. serialized() 블록 안에서만 호출.
+ * brandProfileId 없음이 이 브랜드로 자연 귀속된다.
+ * 마이그레이션 기록은 큐 밖(concurrent)에서도 일어날 수 있으나, 같은 내용을 원자적 rename 으로
+ * 교체하는 1회성 동작이라 동시에 겹쳐도 결과가 같다.
  */
 async function readBrands(): Promise<BrandProfileRecord[]> {
   const arr = await readJson<BrandProfileRecord[] | null>(BRAND_PROFILES, null);
@@ -112,7 +155,7 @@ export function createFileStore(): Store {
     },
 
     getRequest(id) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<DiagnosisRequestRecord[]>(REQUESTS, []);
         return all.find((r) => r.id === id) ?? null;
       });
@@ -139,7 +182,7 @@ export function createFileStore(): Store {
     },
 
     getReport(requestId) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<ReportRecord[]>(REPORTS, []);
         return all.find((r) => r.requestId === requestId) ?? null;
       });
@@ -155,7 +198,7 @@ export function createFileStore(): Store {
     // ── 스프린트 2 ───────────────────────────────────────────────────────────
 
     listRequests(brandProfileId: string) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<DiagnosisRequestRecord[]>(REQUESTS, []);
         return all
           .filter((r) => brandOf(r) === brandProfileId)
@@ -164,16 +207,31 @@ export function createFileStore(): Store {
     },
 
     listReports(brandProfileId: string) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<ReportRecord[]>(REPORTS, []);
         return all
           .filter((r) => brandOf(r) === brandProfileId)
-          .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+          .map(toReportSummary);
+      });
+    },
+
+    /** 파일 스토어에는 카운트 쿼리가 없으므로 읽어서 센다 — 큐 밖이라 다른 요청을 막지 않는다 */
+    getBrandCounts(brandProfileId: string) {
+      return concurrent(async () => {
+        const [reports, assets] = await Promise.all([
+          readJson<ReportRecord[]>(REPORTS, []),
+          readJson<GeneratedAssetRecord[]>(ASSETS, []),
+        ]);
+        return {
+          publishedReports: reports.filter((r) => brandOf(r) === brandProfileId && r.publishedAt !== null).length,
+          doneAssets: assets.filter((a) => brandOf(a) === brandProfileId && a.status === 'done').length,
+        };
       });
     },
 
     listBrandProfiles(userId: string) {
-      return serialized(async () => {
+      return concurrent(async () => {
         // 구 브랜드(userId 없음)는 ownerOf가 demo-user로 귀속 — .data/brand-profiles.json은 재기록하지 않는다
         const all = await readBrands();
         return all
@@ -183,7 +241,7 @@ export function createFileStore(): Store {
     },
 
     getBrandProfile(id: string) {
-      return serialized(async () => (await readBrands()).find((b) => b.id === id) ?? null);
+      return concurrent(async () => (await readBrands()).find((b) => b.id === id) ?? null);
     },
 
     createBrandProfile(input) {
@@ -240,7 +298,7 @@ export function createFileStore(): Store {
     },
 
     getAsset(id) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<GeneratedAssetRecord[]>(ASSETS, []);
         return all.find((a) => a.id === id) ?? null;
       });
@@ -256,12 +314,32 @@ export function createFileStore(): Store {
       });
     },
 
+    getAssetStatus(id: string) {
+      return concurrent(async () => {
+        const all = await readJson<GeneratedAssetRecord[]>(ASSETS, []);
+        const a = all.find((x) => x.id === id);
+        if (!a) return null;
+        return {
+          id: a.id,
+          brandProfileId: brandOf(a),
+          kind: a.kind,
+          status: a.status,
+          stage: a.stage,
+          error: a.error,
+          blockTotal: a.blockTotal ?? 0,
+          blockDone: a.blockDone ?? 0,
+          updatedAt: a.updatedAt,
+        };
+      });
+    },
+
     listAssets(brandProfileId: string) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<GeneratedAssetRecord[]>(ASSETS, []);
         return all
           .filter((a) => brandOf(a) === brandProfileId)
-          .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+          .map(toAssetSummary);
       });
     },
 
@@ -286,14 +364,24 @@ export function createFileStore(): Store {
     },
 
     listBlocks(assetId) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<AssetBlockRecord[]>(ASSET_BLOCKS, []);
         return all.filter((b) => b.assetId === assetId).sort((a, b) => a.seq - b.seq);
       });
     },
 
+    listBlockStatuses(assetId) {
+      return concurrent(async () => {
+        const all = await readJson<AssetBlockRecord[]>(ASSET_BLOCKS, []);
+        return all
+          .filter((b) => b.assetId === assetId)
+          .sort((a, b) => a.seq - b.seq)
+          .map((b) => ({ id: b.id, status: b.status, version: b.version }));
+      });
+    },
+
     getBlock(blockId) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<AssetBlockRecord[]>(ASSET_BLOCKS, []);
         return all.find((b) => b.id === blockId) ?? null;
       });
@@ -337,7 +425,7 @@ export function createFileStore(): Store {
     },
 
     getActiveMatchRequest(brandProfileId: string) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<MatchRequestRecord[]>(MATCH_REQUESTS, []);
         return (
           all
@@ -371,7 +459,7 @@ export function createFileStore(): Store {
     },
 
     listLeads() {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<LeadRecord[]>(LEADS, []);
         return [...all].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       });
@@ -388,7 +476,7 @@ export function createFileStore(): Store {
     },
 
     listTrackEvents() {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<TrackEventRecord[]>(TRACK_EVENTS, []);
         return [...all].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       });
@@ -396,7 +484,7 @@ export function createFileStore(): Store {
 
     // ── 제품 자산(BRAND-03) ──────────────────────────────────────────────────
     listProducts(brandProfileId: string) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<ProductRecord[]>(PRODUCTS, []);
         return all
           .filter((pr) => brandOf(pr) === brandProfileId)
@@ -405,7 +493,7 @@ export function createFileStore(): Store {
     },
 
     getProduct(id: string) {
-      return serialized(async () => (await readJson<ProductRecord[]>(PRODUCTS, [])).find((pr) => pr.id === id) ?? null);
+      return concurrent(async () => (await readJson<ProductRecord[]>(PRODUCTS, [])).find((pr) => pr.id === id) ?? null);
     },
 
     createProduct(input) {
@@ -438,11 +526,11 @@ export function createFileStore(): Store {
 
     // ── 유저·인증 토큰(실 인증 — 08 §6 USER) ──────────────────────────────────
     getUserById(id: string) {
-      return serialized(async () => (await readJson<UserRecord[]>(USERS, [])).find((u) => u.id === id) ?? null);
+      return concurrent(async () => (await readJson<UserRecord[]>(USERS, [])).find((u) => u.id === id) ?? null);
     },
 
     getUserByEmail(email: string) {
-      return serialized(async () => {
+      return concurrent(async () => {
         const norm = email.toLowerCase();
         return (await readJson<UserRecord[]>(USERS, [])).find((u) => u.email === norm) ?? null;
       });
@@ -502,7 +590,7 @@ export function createFileStore(): Store {
     },
 
     getLatestAuthToken(userId: string, kind: 'verify' | 'reset') {
-      return serialized(async () => {
+      return concurrent(async () => {
         const all = await readJson<AuthTokenRecord[]>(AUTH_TOKENS, []);
         return (
           all

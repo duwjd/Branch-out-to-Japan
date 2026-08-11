@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getStore } from '@/lib/db/store';
 import { getActiveBrandId } from '@/lib/server/activeBrand';
-import type { DiagnosisRequestRecord, GeneratedAssetRecord } from '@/lib/db/store';
+import type { DiagnosisRequestRecord, GeneratedAssetSummary } from '@/lib/db/store';
 import { PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
 import { NEXT_MEGAWARI, dDay } from '@/lib/season';
 import { ReportCoverPreview, ThumbPreview } from '@/components/app/AssetPreview';
@@ -134,7 +134,7 @@ function SeasonStrip({ dday }: { dday: number }) {
 }
 
 /** 썸네일 자산 카드(LIB-04a) */
-function ThumbnailCard({ asset }: { asset: GeneratedAssetRecord }) {
+function ThumbnailCard({ asset }: { asset: GeneratedAssetSummary }) {
   const platformLabel = PLATFORM_LABELS[asset.platform as Platform] ?? asset.platform;
   const src = asset.imagePath ? `/api/files/${asset.imagePath}` : `/api/files/${asset.originalImagePath}`;
   // 상세페이지는 블록 재생성·분할 다운로드가 있는 전용 결과 화면으로 보낸다

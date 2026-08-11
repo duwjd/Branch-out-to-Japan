@@ -11,6 +11,7 @@
  * getSessionState()는 게스트/만료 구분이 필요한 레이아웃용.
  */
 
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { getStore, type UserRecord } from '../db/store';
 import { verifySession } from './sessionToken';
@@ -81,7 +82,7 @@ function toSessionUser(user: UserRecord): SessionUser {
  * 2) 레거시 소셜 쿠키(provider명) → demo-user 조회(없으면 DEMO_USER 폴백)로 세션 반환(항상 유효)
  * 3) 그 외 → null
  */
-async function resolveSession(value: string): Promise<Session | null> {
+async function resolveSessionUncached(value: string): Promise<Session | null> {
   if (value.startsWith('v1.')) {
     const payload = verifySession(value);
     if (!payload) return null;
@@ -97,6 +98,15 @@ async function resolveSession(value: string): Promise<Session | null> {
   }
   return null;
 }
+
+/**
+ * 쿠키값 → 세션 해석(요청 단위 메모).
+ *
+ * 왜 캐시하나: 한 번의 페이지 렌더에서 /app 레이아웃·페이지 본문·활성 브랜드 해석이 각각
+ * getSession()/getSessionState()를 부르면 같은 쿠키로 getUserById 를 그만큼 반복한다.
+ * react cache 는 **요청 스코프**라 요청 간에 세션이 새지 않는다(전역 캐시가 아니다).
+ */
+const resolveSession = cache(resolveSessionUncached);
 
 /** 현재 세션 조회 — 쿠키 없음/무효는 모두 null(게스트·만료 구분이 필요하면 getSessionState) */
 export async function getSession(): Promise<Session | null> {

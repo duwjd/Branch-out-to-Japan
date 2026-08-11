@@ -41,8 +41,10 @@ interface TemplateCard {
   /** 추천 배지 판정에 쓴다 — 플랫폼만 보면 라쿠텐에서 6장 전부에 배지가 붙는다 */
   dominantCategories: string[];
   sequencePreview: string[];
-  /** `npm run detail:previews` 산출물. 없으면 카드가 블록 목록만 보여준다 */
+  /** `npm run detail:previews` 산출물(전체 세로 스트립) — 확대 모달용. 없으면 카드가 블록 목록만 보여준다 */
   previewSrc: string | null;
+  /** 같은 산출물의 카드용 상단 크롭본(148×336) — 그리드는 이걸 쓴다 */
+  cardSrc: string | null;
 }
 
 interface PlanBlock {
@@ -132,28 +134,50 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   const selected = useMemo(() => templates.find((t) => t.id === templateId) ?? null, [templates, templateId]);
   const amazonSelected = platform === 'amazon-jp';
 
+  /**
+   * 미리보기 blob URL 교체 — 이전 URL을 revoke 한다.
+   * 매번 전체를 재생성하면서 revoke 하지 않으면 파일을 추가·삭제할 때마다 원본 크기만큼
+   * blob 이 브라우저에 쌓인다(10MB × 10장 기준으로 금방 눈에 띈다).
+   */
+  const replacePreviews = useCallback((next: File[]) => {
+    setPreviews((prev) => {
+      for (const url of prev) URL.revokeObjectURL(url);
+      return next.map((f) => URL.createObjectURL(f));
+    });
+  }, []);
+
   const acceptFiles = useCallback((incoming: FileList | null) => {
     if (!incoming) return;
     const next = [...files, ...Array.from(incoming)].slice(0, MAX_IMAGES);
     setFiles(next);
-    setPreviews(next.map((f) => URL.createObjectURL(f)));
+    replacePreviews(next);
     setError(null);
-  }, [files]);
+  }, [files, replacePreviews]);
 
   const removeFile = (idx: number) => {
     const next = files.filter((_, i) => i !== idx);
     setFiles(next);
-    setPreviews(next.map((f) => URL.createObjectURL(f)));
+    replacePreviews(next);
   };
 
-  /** 폼 → FormData. 미리보기와 제출이 같은 필드를 보낸다(서버가 같은 파서를 쓴다). */
+  /**
+   * 폼 → FormData. 미리보기와 제출이 같은 필드를 보낸다(서버가 같은 파서를 쓴다).
+   *
+   * `withImages: false` 는 구성 미리보기(plan)용 — 파일 바이트 대신 메타(형식·크기)만 보낸다.
+   * plan 라우트는 이미지를 저장하지도 읽지도 않고 개수·형식·크기만 쓰는데, 예전에는 블록 배지를
+   * 한 번 토글할 때마다 원본 전체(최대 10장 × 10MB)를 다시 올리고 서버가 버렸다.
+   */
   const buildFormData = useCallback(
-    (opts?: { withTranslation?: boolean }): FormData | null => {
+    (opts?: { withTranslation?: boolean; withImages?: boolean }): FormData | null => {
       const el = formRef.current;
       if (!el) return null;
       const fd = new FormData(el);
       fd.delete('images');
-      for (const f of files) fd.append('images', f);
+      if (opts?.withImages === false) {
+        fd.set('imageMeta', JSON.stringify(files.map((f) => ({ type: f.type, size: f.size }))));
+      } else {
+        for (const f of files) fd.append('images', f);
+      }
       fd.set('platform', platform);
       fd.set('productCategory', category);
       fd.set('templateId', templateId);
@@ -172,7 +196,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   /** 1단계 → 확인 단계. 서버가 계산한 구성을 그대로 보여준다(화면이 따로 추론하지 않는다). */
   const handlePreview = async () => {
     // 입력이 바뀌었을 수 있으므로 캐시를 보내지 않는다 — 서버가 새로 번역한다
-    const fd = buildFormData();
+    const fd = buildFormData({ withImages: false });
     if (!fd) return;
     setBusy(true);
     setError(null);
@@ -243,7 +267,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   // 확인 단계에서 블록을 껐다 켜면 서버 계산을 다시 받아야 한다.
   // 변환 결과는 함께 보내 재번역을 막는다 — 블록 on/off 는 입력을 바꾸지 않는다.
   const refreshPlan = async () => {
-    const fd = buildFormData({ withTranslation: true });
+    const fd = buildFormData({ withTranslation: true, withImages: false });
     if (!fd) return;
     const res = await fetch('/api/studio/detail/plan', { method: 'POST', body: fd });
     if (!res.ok) return;
@@ -409,7 +433,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                       aria-pressed={active}
                       className={`${cardClass} flex w-full gap-3.5 p-4 text-left transition ${active ? 'border-coral ring-2 ring-coral/25' : 'hover:border-input-border'}`}
                     >
-                      <TemplatePreview src={t.previewSrc} nameKo={t.nameKo} />
+                      <TemplatePreview src={t.cardSrc ?? t.previewSrc} nameKo={t.nameKo} />
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-2">
                           <span className="text-sm font-bold text-ink">{t.nameKo}</span>

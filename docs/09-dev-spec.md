@@ -52,6 +52,10 @@
 
 **서버 경계(스프린트 2분 · 2026-07-21):** 목 세션 `POST /api/auth/login`(provider → httpOnly 쿠키 1개) · `POST /api/auth/logout` — 인증 가드는 `app/app/layout.tsx` 서버 레이아웃 1곳(middleware 없음). **스펙 개편(2026-07-23): 비로그인 `/app` 열람 허용(전역 리다이렉트 제거) + 리포트·썸네일 생성·브랜드 등록 액션에서만 로그인 유도 — 구현 시 가드를 액션 경계(생성·등록 API 401 → 프론트 게이트 모달)로 이동. 실 구현 잔여.** 파일 `POST 업로드는 각 기능 라우트의 FormData` · `GET /api/files/[id]`(로컬 `.data/files/` 서빙 — fileId만 노출, 경로 탈출 검증). ② 썸네일 `POST /api/studio/thumbnail`(FormData: 원본 이미지·플랫폼·템플릿·실적 3필드 → 잡 킥오프, `after()`) · `GET /api/studio/thumbnail`(모드 메타 + 최근 자산 — dev 배지·홈 스트립) · `GET /api/studio/thumbnail/[id]`(폴링 겸 결과 — status 전용 라우트 분리하지 않음). ③ 브랜드 `GET·PUT /api/brand` + `POST /api/brand/doc`(상세페이지 문서 업로드) · 매칭 `GET·POST·DELETE /api/matching`.
 
+**서버 경계(② 상세페이지 · 2026-08-11 성능 개정):** 구성 미리보기 `POST /api/studio/detail/plan`(FormData — **이미지 바이트를 받지 않는다.** 개수·형식·크기만 쓰므로 화면은 `imageMeta` JSON만 보낸다. 옛 클라이언트의 파일 첨부도 폴백으로 받는다) · 제출 `POST /api/studio/detail`(FormData 실파일 → Storage 업로드는 `Promise.all` 병렬 → 잡 킥오프 `after()`) · **진행 폴링 `GET /api/studio/detail/[id]/status`**(진행률·`revision` 지문만 — 화면은 지문이 바뀔 때만 전문 라우트를 다시 부른다) · 결과 전문 `GET /api/studio/detail/[id]` · 블록 재생성 `POST /api/studio/detail/[id]/blocks/[blockId]`.
+
+> **폴링 규약(2026-08-11):** 진행 표시는 **상태 전용 라우트**만 친다(`report/[id]/status` · `studio/detail/[id]/status`). 간격은 2.5초 고정이 아니라 백오프(2.5→5→10→15초) — 상세페이지는 실측 155초짜리 작업이라 고정 2.5초는 과했다. 결과물 전문을 폴링 응답으로 돌려주지 않는다.
+
 ## 3. 모듈 구조
 
 ```
@@ -229,6 +233,7 @@ middleware.ts / User 엔티티·실 OAuth·이메일 인증·비회원 열람 �
 ---
 
 ## 변경 이력
+- 2026-08-11 **성능 개정 — 상세페이지 도입 후 전 페이지 체감 저하 해소**. 원인은 상세페이지 기능 자체가 아니라 **기존 구조적 비효율에 상세페이지 데이터가 얹혀 임계점을 넘은 것**이었다. **[추가]** §2 ② 상세페이지 서버 경계 + 폴링 규약 · `GET /api/studio/detail/[id]/status` · `Store.getBrandCounts`(개수 전용) · `Store.getAssetStatus`·`listBlockStatuses`(폴링 전용) · `GeneratedAssetSummary`·`ReportSummary`(목록용 타입 — 무거운 jsonb 제외) · `lib/files/downloadUrl.ts`. **[변경]** `app/app/layout.tsx` 요청당 스토어 왕복 `5+2N` → `3+N`(세션·브랜드목록을 `react.cache` 로 요청 단위 메모 · 카운트는 count 쿼리) · `next.config.ts` `outputFileTracingIncludes` 키를 `"/**"` 단일에서 **라우트 스코프**로(JP 폰트 9.2MB + 샘플 7.4MB 가 함수 47개 전부 → 상세/썸네일 7개) · `POST /api/studio/detail/plan` 이미지 바이트 미수신(토글당 최대 100MB → 수 KB) · 폴링 2.5초 고정 → 백오프 + 상태 전용 라우트 · `GET /api/files/[id]` Supabase 모드에서 서명 URL 302(함수 전량 버퍼링 제거 · `?download=1` 은 종전 바이트 응답) · `fileStore` 읽기를 직렬화 큐 밖으로 + 쓰기 원자적 교체(rename) · 비전 입력 이미지 장변 1568px 다운스케일 · 템플릿 카드용 상단 크롭본(`preview-D*-card.webp`, 597KB → 26KB).
 - 2026-07-23 **온보딩·빈 상태·홈 위젯 코드화 스펙**. **[추가]** §4c **M11**(시즌 이벤트·`POST /api/brand` create·`BrandOnboarding`·4단계 가이드·`HomeWidgets` MAIN-10~12·스튜디오 빈 상태·리포트 프리필·셸 "홈" 정합). **[변경]** §2 라우트 맵 `/app`(리다이렉트 → 홈 상태 변형 · 와이어프레임 = `specs/00-main/1-home.html`)·`/onboarding`(보류를 `/app` no-brand firstRun이 대체) · 하지 말 것의 "⓪ 대시보드"에 2차 M11 해소 주석. 정본 = `specs/00-main/01-onboarding-ui-기획서.md`.
 - 2026-07-21 **스프린트 2 개발 스펙 확정**(사용자 결정 → [[decisions/DECISIONS]] 2026-07-21 스프린트 2 행). **[추가]** §4b 마일스톤 M5~M9(② 실생성 + ③ 운영 + 계정) · §2 라우트 `/app/account`·`/app`(리다이렉트)·스프린트 2 서버 경계(목 세션·파일 서빙·스튜디오·브랜드·매칭 API) · §3 `lib/studio`·`lib/files`·`lib/server/session`·`AppShell`·`run-thumbnail.ts`. **[변경]** §1 인증 = 목 세션 잠정·파일 = 로컬 우선(Supabase Storage 전환 경계 유지) · 시크릿 키 4종 추가(`IMAGE_MODE`·`OPENAI_IMAGE_MODEL`·`OPENAI_IMAGE_QUALITY`) · `/login` 정본 = `specs/03-account`.
 - 2026-07-21 **②·③ IA 개편 반영**([[07-ia]] §5 · `specs/02-studio`·`specs/04-operations` UI 기획서). **[변경]** §2 라우트 맵 `/app/studio/thumbnail` = 스튜디오 홈(홈=생성 · 기존 "썸네일 변환기" 갤러리 허브 폐지) · 와이어프레임 정본을 specs 프로토타입으로 갱신. **[추가]** `/app/studio/thumbnail/[assetId]` 생성 결과 상세(생성중 상태로 시작) · `/app/library/[assetId]` 자산 상세(카드 클릭 시 축 이동 제거 — 재열람 정본).

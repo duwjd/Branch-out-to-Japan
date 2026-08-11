@@ -34,6 +34,10 @@ export function ReportCoverPreview({ score }: { score: number | null }) {
  * 생성 자산 프리뷰 — 로드 전에도 자리를 잡아 레이아웃 점프를 막는다.
  * anchor='top' 은 세로로 아주 긴 상세페이지용 — 정사각 카드에 가운데를 맞추면
  * 페이지 중간의 의미 없는 구간이 보이므로 히어로가 있는 위쪽을 보여준다.
+ *
+ * ⚠ 여기서 로드하는 건 생성 원본이다(상세페이지 결합본은 세로 수천 px · 수백 KB).
+ * 라이브러리 그리드는 카드가 여러 장이라, lazy 없이 전부 즉시 로드하면 브라우저의
+ * 오리진당 동시 연결(6개)을 이미지가 다 차지해 화면 전환 요청이 뒤로 밀린다.
  */
 export function ThumbPreview({ src, alt, anchor = 'center' }: { src: string; alt: string; anchor?: 'center' | 'top' }) {
   // eslint-disable-next-line @next/next/no-img-element -- /api/files 동적 서빙(허용 목록 밖)
@@ -41,6 +45,8 @@ export function ThumbPreview({ src, alt, anchor = 'center' }: { src: string; alt
     <img
       src={src}
       alt={alt}
+      loading="lazy"
+      decoding="async"
       className={`absolute inset-0 h-full w-full bg-n-150 object-cover ${anchor === 'top' ? 'object-top' : ''}`}
     />
   );

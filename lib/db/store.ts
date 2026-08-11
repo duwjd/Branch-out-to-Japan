@@ -255,6 +255,53 @@ export interface GeneratedAssetRecord {
   updatedAt: string;
 }
 
+/**
+ * 목록용 자산 요약 — 카드·배지가 실제로 쓰는 필드만. 무거운 jsonb(detailInput·explanationJson·
+ * gateResult·proof·promoInput·slicePaths)와 promptUsed 는 **빠져 있다**.
+ *
+ * 왜 별도 타입인가: `listAssets`가 전체 행을 끌어오면 상세페이지 자산이 쌓일수록 목록 화면 비용이
+ * 선형 증가한다(detailInput 은 sourceKo 원문 18슬롯 + brandKit 스냅샷을 통째로 안는다).
+ * 상세 화면은 `getAsset(id)`로 전체 레코드를 따로 받는다.
+ */
+export type GeneratedAssetSummary = Omit<
+  GeneratedAssetRecord,
+  'detailInput' | 'explanationJson' | 'gateResult' | 'proof' | 'promoInput' | 'promptUsed' | 'slicePaths'
+>;
+
+/** 목록용 리포트 요약 — 9블록 본문(blocksJson)이 빠져 있다. 본문은 getReport(requestId)로 받는다 */
+export type ReportSummary = Omit<ReportRecord, 'blocksJson'>;
+
+/**
+ * 폴링용 자산 상태 스냅샷 — 진행률 표시와 소유 가드에 필요한 최소 필드만.
+ * 2.5초마다 도는 경로라 전체 레코드(detailInput·explanationJson·gateResult)를 실으면 안 된다.
+ */
+export interface AssetStatusSnapshot {
+  id: string;
+  brandProfileId: string;
+  kind: GeneratedAssetRecord['kind'];
+  status: GeneratedAssetStatus;
+  stage: string | null;
+  error: string | null;
+  blockTotal: number;
+  blockDone: number;
+  updatedAt: string;
+}
+
+/** 폴링용 블록 상태 — 변경 감지(재생성 완료 등)에 필요한 최소 필드만 */
+export interface BlockStatusSnapshot {
+  id: string;
+  status: AssetBlockStatus;
+  version: number;
+}
+
+/** 브랜드 스위처·마이페이지 배지용 카운트 — 행을 끌어오지 않고 개수만 센다 */
+export interface BrandCounts {
+  /** 발행 완료 리포트 수(publishedAt !== null) */
+  publishedReports: number;
+  /** 완성 자산 수(status === 'done') */
+  doneAssets: number;
+}
+
 /** 제품 이미지 — fileId + 대표 여부(BRAND-03b). 첫 장이 자동 대표, 대표 삭제 시 첫 장 승계 */
 export interface ProductImage {
   fileId: string;
@@ -382,7 +429,13 @@ export interface Store {
   // ── 스프린트 2 (최신순 목록 조회는 라이브러리·매칭 카운트·마이페이지가 사용)
   //    목록·활성 매칭은 브랜드별 스코핑 — 구 데이터(brandProfileId 없음)는 LEGACY_BRAND_ID로 귀속
   listRequests(brandProfileId: string): Promise<DiagnosisRequestRecord[]>;
-  listReports(brandProfileId: string): Promise<ReportRecord[]>;
+  /** 목록용 리포트(최신순) — 9블록 본문 제외. 본문이 필요하면 getReport(requestId) */
+  listReports(brandProfileId: string): Promise<ReportSummary[]>;
+  /**
+   * 브랜드 배지 카운트 — 행을 끌어오지 않고 개수만 센다(스위처 MAIN-01b · 마이페이지).
+   * listReports/listAssets 로 세면 브랜드 수 × 전체 행이라 페이지 이동마다 비용이 붙는다.
+   */
+  getBrandCounts(brandProfileId: string): Promise<BrandCounts>;
   createAsset(input: Omit<GeneratedAssetRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<GeneratedAssetRecord>;
   getAsset(id: string): Promise<GeneratedAssetRecord | null>;
   updateAsset(
@@ -395,7 +448,10 @@ export interface Store {
       >
     >,
   ): Promise<void>;
-  listAssets(brandProfileId: string): Promise<GeneratedAssetRecord[]>;
+  /** 목록용 자산(최신순) — 무거운 jsonb 제외. 전체 레코드가 필요하면 getAsset(id) */
+  listAssets(brandProfileId: string): Promise<GeneratedAssetSummary[]>;
+  /** 폴링용 상태 스냅샷 — 진행률·소유 가드 필드만. 2.5초 주기 경로 전용 */
+  getAssetStatus(id: string): Promise<AssetStatusSnapshot | null>;
 
   // ── ② 상세페이지 블록(asset_blocks) ────────────────────────────────────
   /** 시퀀스 확정 직후 블록 행을 일괄 생성한다(seq 순서 그대로) */
@@ -405,6 +461,8 @@ export interface Store {
   ): Promise<AssetBlockRecord[]>;
   /** seq 오름차순 */
   listBlocks(assetId: string): Promise<AssetBlockRecord[]>;
+  /** 폴링용 블록 상태 목록 — slots·history 없이 변경 감지 필드만 */
+  listBlockStatuses(assetId: string): Promise<BlockStatusSnapshot[]>;
   getBlock(blockId: string): Promise<AssetBlockRecord | null>;
   updateBlock(
     blockId: string,

@@ -58,6 +58,29 @@ export async function saveFile(
   return fileId;
 }
 
+/**
+ * 서명 URL 유효 기간(초) — 브라우저 캐시 수명과 별개로, 링크가 새어도 곧 만료되게 한다.
+ * 결과 화면에서 열어 둔 이미지가 도중에 깨지지 않을 만큼은 길어야 한다.
+ */
+const SIGNED_URL_TTL_SEC = 60 * 60;
+
+/**
+ * fileId → Supabase Storage 서명 URL. 로컬 폴백 모드(파일 스토어)나 실패 시 null.
+ *
+ * 왜 필요한가: private 버킷 파일을 서버리스 함수가 통째로 메모리에 내려받아 재서빙하면
+ * (readStoredFile → Response) 이미지 1장마다 함수 실행 + Supabase 왕복 + 전량 버퍼링이 붙고,
+ * 응답이 `private` 캐시라 CDN도 못 탄다. 서명 URL로 넘기면 Storage CDN이 직접 준다.
+ */
+export async function getSignedFileUrl(fileId: string): Promise<string | null> {
+  if (!FILE_ID_RE.test(fileId)) return null;
+  if (!hasSupabaseEnv()) return null;
+  const { data, error } = await getSupabaseClient()
+    .storage.from(BUCKET)
+    .createSignedUrl(fileId, SIGNED_URL_TTL_SEC);
+  if (error || !data?.signedUrl) return null;
+  return data.signedUrl;
+}
+
 /** fileId로 파일을 읽는다 — 없거나 형식이 틀리면 null */
 export async function readStoredFile(fileId: string): Promise<{ buf: Buffer; contentType: string } | null> {
   if (!FILE_ID_RE.test(fileId)) return null;

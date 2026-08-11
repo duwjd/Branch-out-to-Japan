@@ -195,7 +195,7 @@ export function parseDetailForm(form: FormData, sourceImagePaths: string[]): Par
 }
 
 /** 업로드 파일 유효성 — 저장 전에 검사한다. */
-export function validateImages(files: File[]): string | null {
+export function validateImages(files: UploadMeta[]): string | null {
   if (files.length === 0) return '제품 이미지를 올려 주세요.';
   if (files.length > MAX_SOURCE_IMAGES) return `이미지는 최대 ${MAX_SOURCE_IMAGES}장까지 올릴 수 있습니다.`;
   for (const f of files) {
@@ -203,4 +203,39 @@ export function validateImages(files: File[]): string | null {
     if (f.size > MAX_UPLOAD_BYTES) return '10MB 이하 이미지만 업로드할 수 있습니다.';
   }
   return null;
+}
+
+/**
+ * 업로드 메타(형식·크기)만 — 검증에 필요한 건 이 둘과 개수뿐이다. `File`이 구조적으로 만족한다.
+ * 구성 미리보기(plan)는 바이트가 필요 없어 이 형태만 받는다.
+ */
+export interface UploadMeta {
+  type: string;
+  size: number;
+}
+
+/**
+ * hidden 필드 `imageMeta` 파싱 — 구성 미리보기에서 파일 바이트 대신 오는 메타 목록.
+ *
+ * 왜 필요한가: plan 라우트는 이미지를 저장하지도 읽지도 않고 **개수만** 쓰는데,
+ * 예전에는 블록 배지를 토글할 때마다 원본 파일 전체(최대 10장 × 10MB)를 다시 올렸다.
+ * 형태가 어긋나면 null — 호출부가 실제 파일로 폴백한다.
+ */
+export function parseImageMeta(form: FormData): UploadMeta[] | null {
+  const raw = text(form, 'imageMeta');
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+    const out: UploadMeta[] = [];
+    for (const e of parsed) {
+      if (!e || typeof e !== 'object') return null;
+      const r = e as { type?: unknown; size?: unknown };
+      if (typeof r.type !== 'string' || typeof r.size !== 'number') return null;
+      out.push({ type: r.type, size: r.size });
+    }
+    return out;
+  } catch {
+    return null;
+  }
 }

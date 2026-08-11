@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getSession, PROVIDER_LABELS } from '@/lib/server/session';
-import { getActiveBrand } from '@/lib/server/activeBrand';
+import { getActiveBrand, listMyBrands } from '@/lib/server/activeBrand';
 import { getStore } from '@/lib/db/store';
 import { buttonClass, cardClass, StatusBadge } from '@/components/ui/primitives';
 import { IconCard } from '@/components/ui/icons';
@@ -21,26 +21,23 @@ export default async function AccountPage() {
   if (!session) redirect('/login');
 
   const store = await getStore();
-  const [profile, brandList] = await Promise.all([
-    getActiveBrand(),
-    store.listBrandProfiles(session.user.id),
-  ]);
+  const [profile, brandList] = await Promise.all([getActiveBrand(), listMyBrands(session.user.id)]);
   const [requests, assets] = profile
     ? await Promise.all([store.listRequests(profile.id), store.listAssets(profile.id)])
     : [[], []];
   const reportCount = requests.filter((r) => r.status === 'published').length;
   const thumbnailCount = assets.filter((a) => a.status === 'done').length;
 
-  // MYPAGE-06 브랜드 목록 — 브랜드별 카운트(복수 브랜드)
+  // MYPAGE-06 브랜드 목록 — 브랜드별 카운트(복수 브랜드). 개수만 세는 전용 조회(레이아웃과 동일 이유)
   const brands = await Promise.all(
     brandList.map(async (b) => {
-      const [reps, ass] = await Promise.all([store.listReports(b.id), store.listAssets(b.id)]);
+      const counts = await store.getBrandCounts(b.id);
       return {
         id: b.id,
         name: b.brandName,
         category: b.category,
-        reportCount: reps.filter((r) => r.publishedAt !== null).length,
-        thumbnailCount: ass.filter((a) => a.status === 'done').length,
+        reportCount: counts.publishedReports,
+        thumbnailCount: counts.doneAssets,
       };
     }),
   );

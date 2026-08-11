@@ -13,6 +13,7 @@ import type { ExplanationJson, GateResult, GeneratedAssetStatus, PromoInput, Thu
 import { EmptyState, Skeleton, StatusBadge, buttonClass, cardClass } from '@/components/ui/primitives';
 import { GateBadges, StageList } from '@/components/ui/progress';
 import { IconChevronDown, IconChevronUp } from '@/components/ui/icons';
+import { bytesUrl } from '@/lib/files/downloadUrl';
 
 interface AssetPayload {
   id: string;
@@ -104,7 +105,7 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
   /** 다운로드(RESULT-04) — 파일명 "{브랜드명}-{스타일 평문}-{플랫폼}[-demo].png". 목 모드는 데모 표기 전파 */
   async function handleDownload() {
     if (!asset?.imageUrl) return;
-    const res = await fetch(asset.imageUrl);
+    const res = await fetch(bytesUrl(asset.imageUrl));
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

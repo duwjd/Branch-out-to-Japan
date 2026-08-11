@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getStore } from '@/lib/db/store';
 import { getActiveBrand } from '@/lib/server/activeBrand';
-import type { DiagnosisRequestRecord, GeneratedAssetRecord, ReportRecord } from '@/lib/db/store';
+import type { DiagnosisRequestRecord, GeneratedAssetSummary, ReportSummary } from '@/lib/db/store';
 import { PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
 import { NEXT_MEGAWARI, dDay, upcomingEvents } from '@/lib/season';
 import { ReportCoverPreview, ThumbPreview } from '@/components/app/AssetPreview';
@@ -30,7 +30,7 @@ function reportName(req: DiagnosisRequestRecord): string {
 }
 
 /** 자산 표시명 — "공식샵 신뢰 배지형 · 라쿠텐 공식샵" */
-function assetName(a: GeneratedAssetRecord): string {
+function assetName(a: GeneratedAssetSummary): string {
   return `${a.styleName} · ${PLATFORM_LABELS[a.platform as Platform] ?? a.platform}`;
 }
 
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
     store.listAssets(brandProfile.id),
   ]);
 
-  const reportByRequest = new Map<string, ReportRecord>(reports.map((r) => [r.requestId, r]));
+  const reportByRequest = new Map<string, ReportSummary>(reports.map((r) => [r.requestId, r]));
   const publishedRequests = requests.filter((r) => r.status === 'published' && reportByRequest.has(r.id));
   const doneAssets = assets.filter((a) => a.status === 'done');
   const latestPublished = publishedRequests[0] ?? null;

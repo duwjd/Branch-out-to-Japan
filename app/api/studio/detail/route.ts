@@ -9,7 +9,7 @@ import { getSession } from '@/lib/server/session';
 import { getActiveBrand, getActiveBrandId } from '@/lib/server/activeBrand';
 import { createDetailAsset, runDetailJob } from '@/lib/server/detailJob';
 import { parseDetailForm, validateImages } from '@/lib/server/detailForm';
-import { saveFile, extForMime } from '@/lib/files/storage';
+import { saveFile, extForMime, type StoredFileExt } from '@/lib/files/storage';
 import { getStore } from '@/lib/db/store';
 import { currentLlmMode } from '@/lib/engine/llm/client';
 import { currentImageMode, imageModel } from '@/lib/studio/imageGen';
@@ -62,13 +62,18 @@ export async function POST(request: Request): Promise<NextResponse> {
     modelImagePath = await saveFile(Buffer.from(await modelImage.arrayBuffer()), ext, 'model');
   }
 
-  // 업로드 순서가 곧 상세페이지 위→아래 순서다
-  const sourceImagePaths: string[] = [];
+  // 형식은 저장 전에 전부 확인한다 — 뒤쪽 파일이 잘못돼 중간에 실패하면 앞의 저장분이 고아가 된다
+  const exts: StoredFileExt[] = [];
   for (const f of files) {
     const ext = extForMime(f.type);
     if (!ext || ext === 'pdf') return NextResponse.json({ error: '지원하지 않는 이미지 형식입니다.' }, { status: 400 });
-    sourceImagePaths.push(await saveFile(Buffer.from(await f.arrayBuffer()), ext, 'orig'));
+    exts.push(ext);
   }
+  // 업로드 순서가 곧 상세페이지 위→아래 순서다(Promise.all 은 순서를 보존한다).
+  // 직렬로 올리면 10장에 Storage 왕복 10회가 그대로 201 응답 앞에 쌓인다.
+  const sourceImagePaths = await Promise.all(
+    files.map(async (f, i) => saveFile(Buffer.from(await f.arrayBuffer()), exts[i], 'orig')),
+  );
 
   const parsed = parseDetailForm(form, sourceImagePaths);
   if ('error' in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });

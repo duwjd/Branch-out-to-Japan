@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { BrandProfileRecord, ReportRecord } from '@/lib/db/store';
+import type { BrandProfileRecord, ReportSummary } from '@/lib/db/store';
 import type { RubricGroup } from '@/lib/engine/types';
 import { POSITIONING_TAGS } from '@/lib/engine/rules/positioning';
 import type { UpcomingEvent } from '@/lib/season';
@@ -125,7 +125,7 @@ export function ReportSummaryWidget({
   name,
   date,
 }: {
-  report: ReportRecord;
+  report: ReportSummary;
   requestId: string;
   name: string;
   date: string;
