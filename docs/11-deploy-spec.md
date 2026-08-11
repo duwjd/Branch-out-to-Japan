@@ -39,15 +39,39 @@ Supabase Free
 | 항목 | Supabase Free | 비고 |
 |---|---|---|
 | DB | 500MB | 리포트 JSON 수백 건 규모엔 여유 |
-| Storage | 1GB · 파일당 50MB | 앱 업로드 제한 10MB(HOME-02)와 호환 |
+| Storage | 1GB · 파일당 50MB | 앱 업로드 제한 10MB(HOME-02)와 호환. **상세페이지가 최대 소비처** — 아래 표 참조 |
 | Egress | 5GB/월 | 이미지 서빙이 `/api/files/[id]` 경유(함수 대역폭도 소모) — UT 규모 OK |
 | **자동 pause** | **7일 무활동 시 프로젝트 일시정지** | 데이터 보존되나 수동 restore 필요. **UT 직전(7/30~31) 접속 확인**(§6) |
 
 ## 3. 실행 모델 — `after()` + maxDuration 300 (큐 미도입)
 
-- 진단 파이프라인(콜⓪ 비전 + ①②③ 병렬 + ④) ≈ 2~3분, 썸네일(카피 1콜 + 이미지 1콜) ≈ 1~2분, 슬라이드 동기 ~20초 — **전부 300초 예산 안**. 08 §6.2의 큐 fallback("지연 길어지면 도입")은 발동 조건 미충족 → 실행 모델 무변경, 프런트 폴링 구조 그대로.
-- `export const maxDuration = 300` 명시: `app/api/report/route.ts` · `app/api/studio/thumbnail/route.ts`. 슬라이드는 기존 60 유지.
+- 진단 파이프라인(콜⓪ 비전 + ①②③ 병렬 + ④) ≈ 2~3분, 썸네일(카피 1콜 + 이미지 1콜) ≈ 1~2분, **상세페이지(카피 1콜 + 배경컷 최대 4콜 동시성 4 + satori 15블록 + sharp 결합·분할) ≈ 130~155초**(실측 2026-08-11), 슬라이드 동기 ~20초 — **전부 300초 예산 안**. 08 §6.2의 큐 fallback("지연 길어지면 도입")은 발동 조건 미충족 → 실행 모델 무변경, 프런트 폴링 구조 그대로.
+- `export const maxDuration = 300` 명시: `app/api/report/route.ts` · `app/api/studio/thumbnail/route.ts` · `app/api/studio/detail/route.ts` · `app/api/studio/detail/[id]/blocks/[blockId]/route.ts`. 슬라이드는 기존 60 유지.
+- **상세페이지는 순차 실행이 불가능하다.** 배경컷 1장이 40~90초라 4장을 순차로 돌리면 그것만으로 예산을 넘긴다 — `IMAGE_CONCURRENCY = 4` 와 `MAX_AI_BLOCKS = 4` 가 예산 안에 묶어두는 장치이므로 임의로 올리지 않는다.
 - **스테일 잡 가드**(2026-07-24 구현): 함수가 300초에서 죽으면 비터미널 상태가 영구 고착 → 폴링 라우트가 `updatedAt` 10분 초과 + 비터미널이면 `failed`로 전환(`app/api/report/[id]/status/route.ts` · `app/api/studio/thumbnail/[id]/route.ts`). 사용자는 재시도 안내를 받는다.
+
+### 3-1. ② 상세페이지 만들기 — 배포 전제 3가지
+
+이 기능만 추가로 요구하는 것이 있다. 하나라도 빠지면 **생성 자체가 막힌다**(막는 주체는 `lib/server/detailReadiness.ts`).
+
+| 전제 | 왜 필요한가 | 안 되면 |
+|---|---|---|
+| **DB 마이그레이션 적용** — `supabase/schema.sql` 의 `2026-08-10 · ② 마케팅 스튜디오` 블록 | `asset_blocks` 테이블 + `generated_assets` 4컬럼. 블록이 동시에 끝나므로 jsonb 한 컬럼으로는 lost update 가 난다 | 카피·이미지 콜을 다 태운 뒤 저장 단계에서 실패 → 그래서 **제출 전에 차단**한다 |
+| **JP 폰트가 배포본에 실릴 것** — `next.config.ts` 의 `outputFileTracingIncludes` 에 `./app/fonts/jp/**` | satori 에 Buffer 로 직접 넘기는 fs 동적 경로라 트레이싱이 자동으로 못 잡는다 | satori 가 `fonts.googleapis.com` 을 런타임 fetch → 실패 시 전 글자가 두부(□) |
+| **Storage 버킷 `files`** | 블록·분할본·결합본이 전부 여기로 간다 | 업로드 예외로 잡 실패 |
+
+> `outputFileTracingIncludes` 의 `data/processed` 는 **글롭이 아니라 런타임에 읽는 5개 파일만** 나열한다. `data/processed/**` 로 두면 분석용 원자료(`detail-ocr.jsonl` 1.8MB · `product-catalog.jsonl` 2.1MB 등)까지 22개 함수 전부에 실린다. 런타임 데이터 파일을 새로 추가하면 여기에도 추가해야 한다.
+
+**Storage 소비량(실측 2026-08-11 · 15블록·배경컷 4장 기준)**
+
+| 산출물 | 저장 포맷 | 건당 |
+|---|---|---|
+| AI 배경컷 4장(카피만 재생성할 때 재사용) | JPEG q90 | 0.42MB |
+| 블록 이미지 15개 | 텍스트 블록 PNG · 사진 블록 JPEG q95 | 1.23MB |
+| 결합본 + 몰 업로드용 분할본 9장 | JPEG q88 | 1.44MB |
+| **합계** | | **3.09MB → 1GB 에 약 330건** |
+
+텍스트 블록만 PNG로 남기는 이유는 벡터 글자가 전부인 이미지라 JPEG 링잉이 글자 가장자리에 바로 보이기 때문이고, 애초에 작다(23~74KB). 전부 PNG로 두면 건당 12.4MB(1GB에 82건)라 UT 3일을 못 버틴다. 포맷 결정은 `lib/studio/detail/persist.ts` 한 곳에 있다.
 
 ## 4. 환경변수 정본 (Vercel 대시보드 → Settings → Environment Variables)
 
@@ -71,6 +95,7 @@ Supabase Free
 **A. 코드 (완료 — 이 스펙과 같은 PR)**: Storage 전환·devlink 플래그·파일 트레이싱·maxDuration·engines·스테일 가드 → PR `deploy` → `main`.
 
 **B. 인프라 (사용자 수동 — 계정·API 키 소유자)**
+0. **이미 배포된 프로젝트에 상세페이지를 얹는 경우 — 마이그레이션 먼저.** Supabase → SQL Editor 에서 `supabase/schema.sql` 의 `2026-08-10 · ② 마케팅 스튜디오 — 상세페이지 만들기` 블록을 실행한다(전체 재실행 아님, 델타만 · 멱등이라 반복 실행 안전). 런북 §6의 "스키마 먼저, 코드 나중" 순서를 지킨다.
 1. **Supabase**: [setup-supabase.md](setup-supabase.md) 1~2단계(프로젝트 생성 · schema.sql 실행) + **4단계(Storage private 버킷 `files` 생성)** → Settings→API에서 키 3종 확보.
 2. **Vercel**: 가입(GitHub 계정) → Add New… → Project → `duwjd/Branch-out-to-Japan` Import → Framework Preset `Next.js`(자동 감지) 그대로 Deploy.
 3. **환경변수**: §4 표 전체를 Vercel 대시보드에 입력 → Redeploy.
@@ -88,7 +113,8 @@ Supabase Free
 4. 진단 생성 — 텍스트 모드 1회 + 이미지 업로드 모드 1회 → 폴링 ~3분 내 `published` → 8블록 뷰 열람
 5. 슬라이드 HTML 다운로드(`GET /api/report/[id]/slides`)
 6. 썸네일 생성 → 결과 화면 Before/After 이미지 표시(`/api/files/[id]` 200)
-7. Supabase 대시보드 — Table Editor에 행 실재, Storage `files` 버킷에 파일 실재
+6-1. **상세페이지** — `GET /api/studio/detail` 의 `readiness.ready === true` 확인(false면 `checks` 의 `fix` 문구 그대로 따라간다) → `/app/studio/detail` 진입 시 붉은 경고 배너가 **없어야** 한다 → 제품컷 1장 + 템플릿 선택 → 블록 구성 확인 화면에서 제외 블록 사유 노출 → 생성 → 2~3분 내 결합본 표시 + 분할본 다운로드. **일본어가 두부(□)로 나오면 폰트 트레이싱 실패**(§3-1)
+7. Supabase 대시보드 — Table Editor에 행 실재(`asset_blocks` 포함), Storage `files` 버킷에 파일 실재
 8. **UT 직전(7/30~31)**: 프로덕션 접속(→ pause 예방·해제) + Vercel Usage 대시보드 점검
 
 ## 7. 한도 초과 · 장애 대응
@@ -98,7 +124,13 @@ Supabase Free
 | 진단이 `processing` 고착 → 10분 후 `failed` | 함수 300초 초과(파이프라인 지연) 또는 Fluid off(60초) | Fluid on 확인(§5-B4) → 재발 시 로그에서 콜별 소요 확인, 큐 도입 검토(08 §6.2 대안) |
 | `/api/report`가 `storeKind:"file"` 또는 `misconfigured:true` | Supabase env 3종 미설정·오타 | §4 재확인 후 Redeploy |
 | **가입/로그인이 500** (프로덕션) | Supabase env 미설정 → 저장 팩토리가 명시적 throw(파일 폴백 차단, `lib/db/store.ts`) | Vercel **로그**에 "Supabase 환경변수 미설정…" 메시지 확인 → §4 설정 후 Redeploy |
+| 가입 500 + 로그 `Invalid path specified in request URL` | `NEXT_PUBLIC_SUPABASE_URL` 형식 오류(끝슬래시·공백·개행·대시보드 URL·경로 포함) | 값을 `https://<ref>.supabase.co`로 교정(§4) → Redeploy. 코드는 끝슬래시·공백 자동 정리(`lib/db/supabaseClient.ts`) |
 | 업로드·이미지 표시 실패 | Storage 버킷 `files` 미생성 / 이름 불일치 | setup-supabase.md 4단계 |
+| **상세페이지 생성 버튼이 눌리지 않음 + 붉은 배너** | 프리플라이트가 막은 것 — 배너에 원인과 조치가 적혀 있다 | 배너의 "고치는 법" 그대로. 대부분 **마이그레이션 미적용**(§3-1) 또는 Supabase env 미설정 |
+| 상세페이지 POST 가 **503** + `readiness` 응답 | 위와 같은 원인(폼을 우회해 직접 호출한 경우) | 응답 `readiness.checks` 의 `fix` 참조 |
+| 상세페이지 **일본어가 전부 두부(□)** | `app/fonts/jp/*.otf` 가 배포본에 없음(트레이싱 누락 또는 미커밋) | §3-1 · `next.config.ts` 확인 후 Redeploy. 프리플라이트 `fonts` 항목이 먼저 잡아준다 |
+| 상세페이지가 `blocks` 단계에서 고착 → 10분 후 `failed` | 배경컷 콜 지연으로 300초 초과 또는 Fluid off | Fluid on 확인(§5-B4). `MAX_AI_BLOCKS`·`IMAGE_CONCURRENCY`(각 4)를 올리지 않았는지 확인 |
+| Supabase Storage 용량 경고 | 상세페이지가 건당 약 3MB 를 쓴다(§3-1) | 오래된 자산 정리(§8 백로그의 Storage 정리 잡) |
 | 가입 완료 화면에 **인증 링크가 없음** → 로그인 403 | `AUTH_MAIL_MODE` 미설정(실메일 미구현이라 링크 억제 시 아무도 인증 불가) | Vercel **로그**에 "인증 링크 미노출(운영)…" error 확인 → §4에서 `AUTH_MAIL_MODE=devlink` 설정 후 Redeploy |
 | Supabase "project paused" | 7일 무활동 | 대시보드에서 Restore(수 분) — UT 직전 접속으로 예방 |
 | 대역폭·빌드 한도 경고 | Hobby 100GB 초과 등 | Vercel Usage 확인 — UT 규모에서 도달 시 원인(대용량 이미지 반복 서빙) 먼저 제거 |
@@ -116,3 +148,5 @@ Supabase Free
 ## 변경 이력
 - 2026-07-24 신규 작성: 호스팅 확정(Vercel Hobby + Supabase Free — [[decisions/2026-07-24-호스팅-배포-결정]])에 따른 배포 스펙 정본. P0 코드 6건(Storage 전환·devlink·트레이싱·maxDuration·engines·스테일 가드)과 같은 PR.
 - 2026-07-24 **인증 배포 가드 강화**: 배포본 이메일 가입/로그인 무동작(원인=Supabase env·`AUTH_MAIL_MODE` 미설정) 대응. **[코드]** 저장 팩토리 프로덕션 명시적 throw(침묵 파일 폴백 차단) · mailer/sessionToken 운영 error 로그 승격 · `/api/report` `misconfigured` 플래그 · `supabase/schema.sql` 상단 주석 함정(users 없음 오도) 교정. **[문서]** §7 트러블슈팅 3행 갱신 · §8 가드 항목 완료 표시. 필수 env(§4)는 코드 변경 아님 — 운영자가 Vercel에 설정(런북 §1-B).
+- 2026-07-24 **URL 형식 방어**(실장애 후속): 배포본 가입 500(로그 `Invalid path specified in request URL`) 원인 = `NEXT_PUBLIC_SUPABASE_URL` 끝슬래시/공백. **[코드]** `lib/db/supabaseClient.ts`가 URL 앞뒤 공백·끝슬래시 자동 제거 + 비표준 형식 경고. **[문서]** 런북 §8-1b · §7 트러블슈팅 1행 추가.
+- 2026-08-11 **② 상세페이지 만들기 배포 대응**: §3 실행모델에 상세 파이프라인 실측(130~155초)·동시성 하드캡 근거 추가 · **§3-1 신설**(배포 전제 3가지 — 마이그레이션·JP 폰트 트레이싱·Storage 버킷, Storage 소비량 실측표). **[코드]** 제출 전 프리플라이트(`lib/server/detailReadiness.ts` — 마이그레이션·폰트·키·Storage 미비를 한국어 사유+조치와 함께 차단, 폼 배너 + POST 503) · 저장 포맷 분리(`lib/studio/detail/persist.ts` — 건당 12.4MB→3.09MB, 1GB 기준 82건→331건) · 트레이싱 정밀화(`data/processed/**` → 런타임 5개 파일, 함수당 약 4MB 감축). **[운영]** §5-B0 마이그레이션 선행 단계 · §6-1 스모크 · §7 트러블슈팅 5행.
