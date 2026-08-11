@@ -39,6 +39,35 @@ export async function appendRecords(records) {
 }
 
 /**
+ * 조건에 맞는 레코드를 카탈로그에서 제거하고, 제거된 id 집합을 돌려준다.
+ * 수집기 필터를 바꾼 뒤 재수집할 때 쓴다 — 구 레코드를 남겨두면 같은 `_d{n}` 번호가
+ * 서로 다른 이미지를 가리키게 되어 sequenceIndex 가 어긋난다.
+ * 덮어쓰기 전 `.bak-{timestamp}` 백업을 남긴다.
+ * @param {(record: object) => boolean} shouldDrop 제거할 레코드면 true
+ * @returns {Promise<{dropped: Set<string>, backupPath: string|null}>}
+ */
+export async function dropRecords(shouldDrop) {
+  if (!existsSync(CATALOG_PATH)) return { dropped: new Set(), backupPath: null };
+  const text = await readFile(CATALOG_PATH, 'utf8');
+  const kept = [];
+  const dropped = new Set();
+  for (const line of text.split('\n')) {
+    if (!line.trim()) continue;
+    let r;
+    try { r = JSON.parse(line); } catch { kept.push(line); continue; } // 손상 라인은 보존
+    if (shouldDrop(r)) dropped.add(r.id);
+    else kept.push(line);
+  }
+  if (dropped.size === 0) return { dropped, backupPath: null };
+
+  const backupPath = `${CATALOG_PATH}.bak-${Date.now()}`;
+  await writeFile(backupPath, text, 'utf8');
+  await writeFile(CATALOG_PATH, kept.join('\n') + '\n', 'utf8');
+  logger.info('카탈로그 레코드 제거', { dropped: dropped.size, kept: kept.length, backup: path.basename(backupPath) });
+  return { dropped, backupPath };
+}
+
+/**
  * record.imageUrl 을 data/{record.localPath} 로 저장. 실패는 경고만.
  * @param {{id:string, imageUrl:string, localPath:string}} record
  * @returns {Promise<boolean>}

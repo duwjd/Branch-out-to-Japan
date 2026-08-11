@@ -1,0 +1,17 @@
+# 상세페이지 의도 표집 시드 — qoo10
+# 생성: detail-seeds.mjs --per-cell 3
+# 셀 = 카테고리 | 프로모 유무 | 옵션 유무. 한 줄 1 id, `#`은 주석.
+# 못 채운 셀: 없음
+
+qoo10_8365227596	# beauty|no-promo|no-option
+qoo10_8370478649	# beauty|no-promo|no-option
+qoo10_8366671829	# beauty|no-promo|no-option
+qoo10_8365798343	# beauty|no-promo|option
+qoo10_8373507125	# beauty|no-promo|option
+qoo10_8365212734	# beauty|no-promo|option
+qoo10_8424997903	# beauty|promo|no-option
+qoo10_8424997403	# beauty|promo|no-option
+qoo10_8355042719	# beauty|promo|no-option
+qoo10_8418534466	# beauty|promo|option
+qoo10_8425762723	# beauty|promo|option
+qoo10_8425763465	# beauty|promo|option

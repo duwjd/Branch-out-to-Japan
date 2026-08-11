@@ -1,0 +1,32 @@
+# 상세페이지 의도 표집 시드 — amazon
+# 생성: detail-seeds.mjs --per-cell 3
+# 셀 = 카테고리 | 프로모 유무 | 옵션 유무. 한 줄 1 id, `#`은 주석.
+# 못 채운 셀: cleansing|promo|no-option, makeup|promo|no-option, suncare|promo|no-option
+
+amazon_B0FL6GK1W8	# cleansing|no-promo|no-option
+amazon_B092493V7B	# cleansing|no-promo|no-option
+amazon_B0032DFTFI	# cleansing|no-promo|no-option
+amazon_B0F98RS1TC	# cleansing|no-promo|option
+amazon_B0DBLRTKVB	# cleansing|no-promo|option
+amazon_B0DT3VWDJN	# cleansing|no-promo|option
+amazon_B0DVC6ZFN8	# cleansing|promo|no-option
+amazon_B0BY8NVDX5	# makeup|no-promo|no-option
+amazon_B0BB21SXWW	# makeup|no-promo|no-option
+amazon_B0GWZ3JZPN	# makeup|no-promo|no-option
+amazon_B0DHXRCC7J	# makeup|no-promo|option
+amazon_B09SNPM585	# makeup|no-promo|option
+amazon_B0FRG6PST4	# makeup|no-promo|option
+amazon_B0F4CY83NZ	# makeup|promo|no-option
+amazon_B0DB88DM6R	# skincare|no-promo|no-option
+amazon_B0DBGZ5M5T	# skincare|no-promo|no-option
+amazon_B0C537YZWL	# skincare|no-promo|no-option
+amazon_B0GLF7CT8D	# skincare|no-promo|option
+amazon_B079R21K9J	# skincare|no-promo|option
+amazon_B0BL33S71B	# skincare|no-promo|option
+amazon_B0DQ9N3VXR	# suncare|no-promo|no-option
+amazon_B09NCR26ZP	# suncare|no-promo|no-option
+amazon_B0D19RLK3J	# suncare|no-promo|no-option
+amazon_B09LQMKD1D	# suncare|no-promo|option
+amazon_B0GXV272VC	# suncare|no-promo|option
+amazon_B0C1SD7QK3	# suncare|no-promo|option
+amazon_B079X4XGZH	# suncare|promo|no-option
