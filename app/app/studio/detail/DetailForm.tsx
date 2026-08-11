@@ -10,7 +10,7 @@
  * 클라이언트 검증은 서버(lib/server/detailForm)와 동일 규칙 이중 적용.
  */
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PLATFORMS, PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
@@ -25,6 +25,8 @@ import {
   fieldLabelClass,
   inputClass,
 } from '@/components/ui/primitives';
+// 순수 함수 잎 노드(node:fs 미사용) — 확인 패널이 서버와 **같은 검사**를 즉시 돌린다
+import { verifyTranslation, type TranslatedField } from '@/lib/studio/detail/translate';
 import { IconChevronDown, IconChevronUp, IconUpload } from '@/components/ui/icons';
 import { LoginGateModal } from '@/components/auth/LoginGateModal';
 import { useLoginGate } from '@/components/auth/useLoginGate';
@@ -36,7 +38,11 @@ interface TemplateCard {
   description: string;
   bestFor: string;
   platformFit: string[];
+  /** 추천 배지 판정에 쓴다 — 플랫폼만 보면 라쿠텐에서 6장 전부에 배지가 붙는다 */
+  dominantCategories: string[];
   sequencePreview: string[];
+  /** `npm run detail:previews` 산출물. 없으면 카드가 블록 목록만 보여준다 */
+  previewSrc: string | null;
 }
 
 interface PlanBlock {
@@ -65,6 +71,11 @@ interface PlanResult {
   output: { width: number; sliceHeight: number; note: string };
   blocks: PlanBlock[];
   excluded: PlanExcluded[];
+  /** 한글 입력이 없으면 null — 그때는 변환 패널 자체가 뜨지 않는다 */
+  translation: { fields: TranslatedField[]; artDirectionEn: string } | null;
+  translationError: string | null;
+  /** 한글은 있는데 비회원이라 변환을 미룬 상태(유료 콜은 로그인 뒤로) */
+  translationNeedsLogin: boolean;
 }
 
 const CATEGORIES: { id: string; label: string }[] = [
@@ -110,9 +121,13 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   const [openPromo, setOpenPromo] = useState(false);
 
   const [plan, setPlan] = useState<PlanResult | null>(null);
+  // 변환 결과는 plan 과 따로 둔다 — 사용자가 패널에서 고친 값이 여기 쌓이고, 그대로 제출된다
+  const [translation, setTranslation] = useState<TranslatedField[]>([]);
   const [disabled, setDisabled] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** 템플릿 프리뷰 확대 — 카드는 상단만 보여주므로 전체를 볼 길이 있어야 한다 */
+  const [zoom, setZoom] = useState<TemplateCard | null>(null);
 
   const selected = useMemo(() => templates.find((t) => t.id === templateId) ?? null, [templates, templateId]);
   const amazonSelected = platform === 'amazon-jp';
@@ -132,22 +147,31 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   };
 
   /** 폼 → FormData. 미리보기와 제출이 같은 필드를 보낸다(서버가 같은 파서를 쓴다). */
-  const buildFormData = useCallback((): FormData | null => {
-    const el = formRef.current;
-    if (!el) return null;
-    const fd = new FormData(el);
-    fd.delete('images');
-    for (const f of files) fd.append('images', f);
-    fd.set('platform', platform);
-    fd.set('productCategory', category);
-    fd.set('templateId', templateId);
-    fd.set('optionAxis', optionAxis);
-    fd.set('disabledBlocks', [...disabled].join(','));
-    return fd;
-  }, [files, platform, category, templateId, optionAxis, disabled]);
+  const buildFormData = useCallback(
+    (opts?: { withTranslation?: boolean }): FormData | null => {
+      const el = formRef.current;
+      if (!el) return null;
+      const fd = new FormData(el);
+      fd.delete('images');
+      for (const f of files) fd.append('images', f);
+      fd.set('platform', platform);
+      fd.set('productCategory', category);
+      fd.set('templateId', templateId);
+      fd.set('optionAxis', optionAxis);
+      fd.set('disabledBlocks', [...disabled].join(','));
+      // 원문(kr)을 함께 보낸다 — 서버가 현재 입력과 대조해, 입력이 바뀌었으면 캐시를 버리고
+      // 다시 번역한다. 이게 없으면 숫자 없는 필드에서 엉뚱한 일본어가 조용히 들어간다.
+      if (opts?.withTranslation && translation.length > 0) {
+        fd.set('translationJson', JSON.stringify(translation.map((t) => ({ path: t.path, kr: t.kr, ja: t.ja }))));
+      }
+      return fd;
+    },
+    [files, platform, category, templateId, optionAxis, disabled, translation],
+  );
 
   /** 1단계 → 확인 단계. 서버가 계산한 구성을 그대로 보여준다(화면이 따로 추론하지 않는다). */
   const handlePreview = async () => {
+    // 입력이 바뀌었을 수 있으므로 캐시를 보내지 않는다 — 서버가 새로 번역한다
     const fd = buildFormData();
     if (!fd) return;
     setBusy(true);
@@ -159,7 +183,9 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
         setError(data.error ?? '구성을 확인하지 못했습니다.');
         return;
       }
-      setPlan(data as PlanResult);
+      const next = data as PlanResult;
+      setPlan(next);
+      setTranslation(next.translation?.fields ?? []);
       setStep('confirm');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
@@ -170,7 +196,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   };
 
   const handleSubmit = useCallback(async () => {
-    const fd = buildFormData();
+    const fd = buildFormData({ withTranslation: true });
     if (!fd) return;
     setBusy(true);
     setError(null);
@@ -214,12 +240,16 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     setDisabled(next);
   };
 
-  // 확인 단계에서 블록을 껐다 켜면 서버 계산을 다시 받아야 한다
+  // 확인 단계에서 블록을 껐다 켜면 서버 계산을 다시 받아야 한다.
+  // 변환 결과는 함께 보내 재번역을 막는다 — 블록 on/off 는 입력을 바꾸지 않는다.
   const refreshPlan = async () => {
-    const fd = buildFormData();
+    const fd = buildFormData({ withTranslation: true });
     if (!fd) return;
     const res = await fetch('/api/studio/detail/plan', { method: 'POST', body: fd });
-    if (res.ok) setPlan((await res.json()) as PlanResult);
+    if (!res.ok) return;
+    const next = (await res.json()) as PlanResult;
+    setPlan(next);
+    if (next.translation) setTranslation(next.translation.fields);
   };
 
   return (
@@ -267,6 +297,14 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           <ConfirmStep
             plan={plan}
             disabled={disabled}
+            translation={translation}
+            onEditTranslation={(path, ja) =>
+              setTranslation((prev) =>
+                // 서버가 제출 때 쓰는 것과 **같은 함수**로 즉시 재검사한다 —
+                // 화면의 경고와 서버의 채택 여부가 갈리면 사용자가 고칠 수 없다
+                prev.map((t) => (t.path === path ? { ...verifyTranslation(t, ja), via: t.via } : t)),
+              )
+            }
             onToggle={async (b) => {
               toggleBlock(b);
               // 상태 반영 후 서버 재계산 — setState 배치를 피하려 다음 틱에 호출
@@ -349,40 +387,68 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-04 템플릿 */}
-          <SectionCard step={3} title="템플릿" pill="required" desc="상세페이지는 순서가 핵심입니다. 카드의 블록 흐름을 보고 고르세요.">
+          <SectionCard
+            step={3}
+            title="템플릿"
+            pill="required"
+            desc="상세페이지는 순서가 핵심입니다. 미리보기는 이 템플릿을 실제로 돌려 만든 결과입니다."
+          >
             <ul className="grid gap-3 sm:grid-cols-2">
               {templates.map((t) => {
                 const active = t.id === templateId;
-                const fits = platform !== 'unset' && t.platformFit.includes(platform);
+                // 플랫폼만 보면 라쿠텐에서 6장 전부에 배지가 붙어 아무것도 구분하지 못한다
+                const fits =
+                  platform !== 'unset' && t.platformFit.includes(platform) && t.dominantCategories.includes(category);
                 return (
-                  <li key={t.id}>
+                  // 확대 버튼은 선택 버튼 **바깥**에 둔다 — 버튼 안에 버튼을 넣으면 유효하지 않은
+                  // 마크업이고, 스크린리더가 두 조작을 하나로 읽는다
+                  <li key={t.id} className="relative">
                     <button
                       type="button"
                       onClick={() => setTemplateId(t.id)}
                       aria-pressed={active}
-                      className={`${cardClass} w-full p-4 text-left transition ${active ? 'border-coral ring-2 ring-coral/25' : 'hover:border-input-border'}`}
+                      className={`${cardClass} flex w-full gap-3.5 p-4 text-left transition ${active ? 'border-coral ring-2 ring-coral/25' : 'hover:border-input-border'}`}
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-ink">{t.nameKo}</span>
-                        {fits && <StatusBadge tone="ok">추천</StatusBadge>}
-                      </div>
-                      <p className="mt-1.5 text-xs leading-relaxed text-ink-mute [text-wrap:pretty]">{t.description}</p>
-                      <ol className="mt-3 space-y-1">
-                        {t.sequencePreview.slice(0, 6).map((b, i) => (
-                          <li key={`${t.id}-${i}`} className="flex items-center gap-1.5 text-[11px] text-ink-mute">
-                            <span className="h-1 w-1 rounded-full bg-coral" aria-hidden />
-                            {b}
-                          </li>
-                        ))}
-                        {t.sequencePreview.length > 6 && (
-                          <li className="text-[11px] text-ink-faint">외 {t.sequencePreview.length - 6}개</li>
-                        )}
-                      </ol>
+                      <TemplatePreview src={t.previewSrc} nameKo={t.nameKo} />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-ink">{t.nameKo}</span>
+                          {fits && <StatusBadge tone="ok">추천</StatusBadge>}
+                        </span>
+                        <span className="mt-1.5 block text-xs leading-relaxed text-ink-mute [text-wrap:pretty]">
+                          {t.description}
+                        </span>
+                        <span className="mt-2 block text-[11px] text-ink-faint">블록 {t.sequencePreview.length}개</span>
+                        <span className="mt-2 block space-y-1">
+                          {t.sequencePreview.slice(0, 3).map((b, i) => (
+                            <span key={`${t.id}-${i}`} className="flex items-center gap-1.5 text-[11px] text-ink-mute">
+                              <span className="h-1 w-1 shrink-0 rounded-full bg-coral" aria-hidden />
+                              {b}
+                            </span>
+                          ))}
+                          {t.sequencePreview.length > 3 && (
+                            <span className="block text-[11px] text-ink-faint">외 {t.sequencePreview.length - 3}개</span>
+                          )}
+                        </span>
+                      </span>
                     </button>
+                    {t.previewSrc && (
+                      <button
+                        type="button"
+                        onClick={() => setZoom(t)}
+                        className="absolute bottom-5 left-5 rounded-full bg-ink/75 px-2 py-[3px] text-[10px] font-bold text-white backdrop-blur transition hover:bg-ink"
+                      >
+                        전체 보기
+                      </button>
+                    )}
                   </li>
                 );
               })}
             </ul>
+            <p className="mt-3 text-[11px] leading-relaxed text-ink-faint [text-wrap:pretty]">
+              미리보기는 데모 입력으로 실제 생성한 결과이고, 제품컷은 실존 제품이 아닌 가상 브랜드용 이미지입니다. 실제
+              산출물은 입력하신 내용과 이미지로 만들어집니다.
+            </p>
           </SectionCard>
 
           {/* DETAIL-05 제품 스펙 */}
@@ -390,7 +456,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
             step={4}
             title="제품 스펙"
             pill="required"
-            desc="표시 의무 항목입니다. 입력하신 원문을 그대로 넣습니다 — 저희가 고쳐 쓰지 않습니다."
+            desc="표시 의무 항목입니다. 내용을 고쳐 쓰지 않고, 한국어로 입력하시면 일본 표기로만 바꿔 넣습니다 — 바꾼 결과는 다음 단계에서 확인·수정하실 수 있습니다."
           >
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
@@ -510,10 +576,16 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           {/* DETAIL-07 추가 요청 */}
           <SectionCard step={6} title="추가 요청" desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다.">
             <textarea name="note" rows={2} className={inputClass} placeholder="예: 전체적으로 더 밝고 화사하게" />
+            <p className="mt-2 text-xs leading-relaxed text-ink-faint [text-wrap:pretty]">
+              한국어로 쓰셔도 됩니다 — 이미지 생성 모델에는 영어로 바꿔 전달합니다.
+            </p>
           </SectionCard>
 
           <p className="mt-4 rounded-lg bg-coral-tint px-4 py-3 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
             번역이 아니라 <b>일본 고객 관점의 메시지 재설계</b>입니다. 근거를 입력하지 않은 배지·가격·수치는 만들지 않습니다.
+            <br />
+            입력은 <b>한국어로 하셔도 됩니다.</b> 사실 정보(성분·스펙·주의사항 등)는 일본 표기로 바꿔 넣고, 바꾼 결과를 다음
+            단계에서 보여 드립니다. 수치·가격은 원문 그대로 유지합니다.
           </p>
         </form>
       </div>
@@ -558,7 +630,79 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
         </div>
       </div>
       <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
+      <TemplateZoom template={zoom} onClose={() => setZoom(null)} />
     </main>
+  );
+}
+
+/**
+ * 템플릿 카드의 프리뷰 스트립.
+ * 상세페이지는 세로로 아주 긴 이미지라(폭 대비 10배 이상) 카드에서는 상단만 보여주고 아래를
+ * 페이드로 끊는다 — "여기서 계속 이어진다"는 감각을 주면서 카드 높이를 통제한다.
+ * 명시 치수를 넣어 로드 전에도 자리를 차지하게 한다(CLS 0).
+ */
+function TemplatePreview({ src, nameKo }: { src: string | null; nameKo: string }) {
+  const [failed, setFailed] = useState(false);
+  // 프리뷰가 아직 안 구워졌거나 로드에 실패하면 블록 목록만으로 폴백한다
+  if (!src || failed) return null;
+  return (
+    <span className="relative block h-[168px] w-[74px] shrink-0 overflow-hidden rounded-md border border-hairline bg-n-50">
+      {/* 치수를 명시하지 않는 이유: 상세페이지는 템플릿마다 총 높이가 달라 정직한 값을 쓸 수 없다.
+          대신 감싼 span 이 74×168 로 고정돼 있어 로드 전후 레이아웃이 움직이지 않는다(CLS 0). */}
+      <img
+        src={src}
+        alt={`${nameKo} 생성 결과 미리보기`}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(true)}
+        className="h-auto w-full align-top"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-canvas to-transparent"
+      />
+    </span>
+  );
+}
+
+/** 프리뷰 전체 보기 — 카드가 상단만 보여주므로 전체 흐름을 확인할 자리가 필요하다. */
+function TemplateZoom({ template, onClose }: { template: TemplateCard | null; onClose: () => void }) {
+  useEffect(() => {
+    if (!template) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [template, onClose]);
+
+  if (!template?.previewSrc) return null;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${template.nameKo} 미리보기`}
+      className="fixed inset-0 z-50 flex flex-col bg-ink/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div className="flex shrink-0 items-center justify-between gap-3 px-6 py-4">
+        <p className="text-sm font-bold text-white">{template.nameKo} · 생성 결과 미리보기</p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-full bg-white/15 px-3 py-1.5 text-[13px] font-medium text-white transition hover:bg-white/25"
+        >
+          닫기
+        </button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8">
+        <img
+          src={template.previewSrc}
+          alt={`${template.nameKo} 생성 결과 전체`}
+          className="mx-auto block w-full max-w-[296px] rounded-lg"
+        />
+      </div>
+    </div>
   );
 }
 
@@ -596,6 +740,148 @@ function ReadinessNotice({ readiness }: { readiness: DetailReadiness }) {
   );
 }
 
+/**
+ * CONFIRM-06 일본어 변환 확인 — 한국어로 입력한 항목을 생성 **전에** 눈으로 확인한다.
+ *
+ * 왜 확인 단계가 필요한가: 이 값들은 카피가 아니라 **근거**(가격·성분·시험·표시 의무)이고,
+ * 렌더러가 자단위로 그대로 그린다. 자동 변환만 믿고 넘기면 사용자는 결과물을 보고서야 안다.
+ * 특히 区分·全成分은 표시 의무 항목이라 기본 펼침으로 둔다.
+ *
+ * 한글 입력이 없으면 이 패널은 아예 뜨지 않는다(콜도 없다).
+ */
+function TranslationPanel({
+  fields,
+  error,
+  needsLogin,
+  onEdit,
+}: {
+  fields: TranslatedField[];
+  error: string | null;
+  needsLogin: boolean;
+  onEdit: (path: string, ja: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  if (needsLogin) {
+    return (
+      <section className={`${cardClass} mt-5 border-l-2 border-l-amber-text p-5`}>
+        <div className="flex items-center gap-2">
+          <StatusBadge tone="warn">로그인 후 확인</StatusBadge>
+          <h3 className="text-sm font-bold text-ink">한국어로 입력하신 항목이 있습니다</h3>
+        </div>
+        <p className="mt-2 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+          일본 표기로 바꿔서 넣습니다. 바꾼 결과를 미리 확인·수정하시려면 로그인해 주세요. 로그인하지 않고 생성하면 변환은
+          그대로 적용되지만 검토 단계를 건너뛰게 됩니다.
+        </p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section role="alert" className={`${cardClass} mt-5 border-l-2 border-l-danger p-5`}>
+        <div className="flex items-center gap-2">
+          <StatusBadge tone="danger">변환 실패</StatusBadge>
+          <h3 className="text-sm font-bold text-ink">한국어 입력을 일본어로 바꾸지 못했습니다</h3>
+        </div>
+        <p className="mt-2 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+          이대로 생성하면 한국어가 남은 항목의 블록이 만들어지지 않습니다. 잠시 후 다시 시도하시거나, 해당 항목을 일본어로 직접
+          입력해 주세요.
+        </p>
+      </section>
+    );
+  }
+  if (fields.length === 0) return null;
+
+  const failed = fields.filter((f) => !f.ok);
+  const regulated = fields.filter((f) => f.kind === 'regulated');
+  // 표시 의무 항목과 실패 항목은 접혀 있으면 안 된다 — 접힌 채 넘어가면 확인 단계가 무의미하다
+  const alwaysOpen = [...failed, ...regulated.filter((f) => f.ok)];
+  const rest = fields.filter((f) => !alwaysOpen.includes(f));
+
+  return (
+    <section className={`${cardClass} mt-5 p-5`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="text-sm font-bold text-ink">일본어 변환 확인</h3>
+        {failed.length > 0 ? (
+          <StatusBadge tone="danger">확인 필요 {failed.length}</StatusBadge>
+        ) : (
+          <StatusBadge tone="ok">{fields.length}개 변환됨</StatusBadge>
+        )}
+      </div>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+        한국어로 입력하신 항목을 일본 표기로 바꿨습니다. 수치·가격은 원문과 같은지 자동으로 대조했고, 아래에서 직접 고치실 수
+        있습니다.
+      </p>
+
+      {alwaysOpen.length > 0 && (
+        <ul className="mt-4 flex flex-col gap-3">
+          {alwaysOpen.map((f) => (
+            <TranslationRow key={f.path} field={f} onEdit={onEdit} />
+          ))}
+        </ul>
+      )}
+
+      {rest.length > 0 && (
+        <>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            className="mt-4 flex items-center gap-1.5 text-[13px] font-medium text-coral-strong underline-offset-2 hover:underline"
+          >
+            나머지 {rest.length}개 {open ? '접기' : '펼쳐서 확인하기'}
+            {open ? <IconChevronUp className="h-4 w-4" /> : <IconChevronDown className="h-4 w-4" />}
+          </button>
+          {open && (
+            <ul className="mt-3 flex flex-col gap-3">
+              {rest.map((f) => (
+                <TranslationRow key={f.path} field={f} onEdit={onEdit} />
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+/** 변환 1건 — 원문(읽기 전용) 위에 변환값(편집 가능). 상태는 색·글자·배지 3중으로 표기한다. */
+function TranslationRow({ field, onEdit }: { field: TranslatedField; onEdit: (path: string, ja: string) => void }) {
+  const inputId = `tr-${field.path.replace(/[^\w-]/g, '-')}`;
+  return (
+    <li className={`rounded-lg border px-4 py-3 ${field.ok ? 'border-card-border bg-n-50' : 'border-danger bg-danger-bg'}`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[13px] font-semibold text-ink-body">{field.label}</span>
+        {field.kind === 'regulated' && <StatusBadge tone="warn">표시 의무 — 반드시 확인</StatusBadge>}
+        {field.kind === 'artDirection' && <StatusBadge tone="off">이미지 지시 · 영어</StatusBadge>}
+        {field.via === 'glossary' && <StatusBadge tone="ok">브랜드 등록 표기</StatusBadge>}
+        {!field.ok && <StatusBadge tone="danger">확인 필요</StatusBadge>}
+      </div>
+      <p className="mt-1.5 text-xs leading-relaxed text-ink-faint">
+        <span className="font-medium">원문</span> {field.kr}
+      </p>
+      <label htmlFor={inputId} className="sr-only">
+        {field.label} 일본어 변환값
+      </label>
+      <input
+        id={inputId}
+        type="text"
+        value={field.ja}
+        onChange={(e) => onEdit(field.path, e.target.value)}
+        className={`${inputClass} mt-1.5`}
+        aria-invalid={!field.ok}
+        aria-describedby={field.problem ? `${inputId}-problem` : undefined}
+      />
+      {field.problem && (
+        <p id={`${inputId}-problem`} className="mt-1.5 text-xs leading-relaxed text-danger-text [text-wrap:pretty]">
+          {field.problem}
+        </p>
+      )}
+    </li>
+  );
+}
+
 /** 접이식 섹션 — 선택 입력 그룹을 접어 첫 화면의 인지 부하를 줄인다 */
 function Accordion({
   open,
@@ -628,11 +914,15 @@ function Accordion({
 function ConfirmStep({
   plan,
   disabled,
+  translation,
+  onEditTranslation,
   onToggle,
   onBack,
 }: {
   plan: PlanResult;
   disabled: Set<string>;
+  translation: TranslatedField[];
+  onEditTranslation: (path: string, ja: string) => void;
   onToggle: (b: PlanBlock) => void;
   onBack: () => void;
 }) {
@@ -649,6 +939,13 @@ function ConfirmStep({
         약 {minutes}분 걸립니다 · 블록 {plan.blocks.length}개 (이미지 생성 {plan.aiBlockCount}개) · 출력 폭 {plan.output.width}px
       </p>
       <p className="mt-2 rounded-lg bg-n-50 px-3 py-2 text-xs leading-relaxed text-ink-mute">{plan.output.note}</p>
+
+      <TranslationPanel
+        fields={translation}
+        error={plan.translationError}
+        needsLogin={plan.translationNeedsLogin}
+        onEdit={onEditTranslation}
+      />
 
       <ol className="mt-5 space-y-2">
         {plan.blocks.map((b, i) => {

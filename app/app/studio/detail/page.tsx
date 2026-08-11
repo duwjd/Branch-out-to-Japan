@@ -10,8 +10,22 @@ import { DetailForm } from './DetailForm';
 
 export const metadata = { title: '상세페이지 만들기 · 마케팅 스튜디오 | KGLOW' };
 
+/**
+ * 템플릿 카드 프리뷰 — `npm run detail:previews` 가 **실제 파이프라인으로** 구운 결과물이다.
+ * 팩(detail-style-prompts.json)은 데이터만 갖고, 정적 경로는 화면이 소유한다
+ * (썸네일 PREVIEW_BY_STYLE 과 같은 관례).
+ */
+const PREVIEW_BY_TEMPLATE: Record<string, string> = {
+  D1: '/detail-templates/preview-D1.webp',
+  D2: '/detail-templates/preview-D2.webp',
+  D3: '/detail-templates/preview-D3.webp',
+  D4: '/detail-templates/preview-D4.webp',
+  D5: '/detail-templates/preview-D5.webp',
+  D6: '/detail-templates/preview-D6.webp',
+};
+
 export default async function DetailStudioPage() {
-  const templates = templateUiMetas();
+  const templates = templateUiMetas().map((t) => ({ ...t, previewSrc: PREVIEW_BY_TEMPLATE[t.id] ?? null }));
   // 준비가 안 된 서버에서 폼을 다 채운 뒤 503을 만나지 않도록, 진입 시점에 미리 알린다
   const readiness = await checkDetailReadiness();
   return (

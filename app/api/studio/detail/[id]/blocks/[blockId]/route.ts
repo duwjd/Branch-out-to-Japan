@@ -10,6 +10,7 @@ import { getStore } from '@/lib/db/store';
 import { getSession } from '@/lib/server/session';
 import { sessionOwnsBrand } from '@/lib/server/ownership';
 import { recomposeDetail, regenerateBlock, type RegenerateMode } from '@/lib/server/detailJob';
+import { hasHangul } from '@/lib/studio/detail/translate';
 import { logger } from '@/lib/logger';
 
 export const maxDuration = 300;
@@ -45,6 +46,19 @@ export async function PATCH(
   for (const [k, v] of Object.entries(body.slots)) {
     if (k in ctx.block.slots) merged[k] = String(v);
   }
+
+  // 한글은 렌더 폰트가 그리지 못한다 — 여기서 막지 않으면 safeText 예외로 500이 나고
+  // 사용자는 "서버 오류"만 보게 된다. 무엇이 문제인지 알려주고 저장 전에 되돌린다.
+  const hangulKeys = Object.entries(merged)
+    .filter(([, v]) => hasHangul(v))
+    .map(([k]) => k);
+  if (hangulKeys.length > 0) {
+    return NextResponse.json(
+      { error: `일본어로 입력해 주세요. 한글이 남아 있는 항목: ${hangulKeys.join(', ')} — 렌더 폰트가 한글을 그리지 못해 블록이 만들어지지 않습니다.` },
+      { status: 400 },
+    );
+  }
+
   await ctx.store.updateBlock(blockId, { slots: merged });
 
   try {

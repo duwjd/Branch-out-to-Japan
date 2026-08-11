@@ -110,8 +110,17 @@
       </div>
       <div style="display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:28px;margin-top:20px">
         <div>
-          <div style="max-height:520px;overflow:hidden;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff">
-            <div style="height:520px;background:linear-gradient(#FFF8F8,#F7F7F8 40%,#fff)"></div>
+          <!-- RESULT-D03 · 결합본 미리보기.
+               [슬라이드형 ⇄ 밴드 리듬형] 토글이 이번 개정의 근거를 그대로 보여준다. -->
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px">
+            <div class="wf-modes" role="group" aria-label="미리보기 모드">
+              <button type="button" id="modeSlide" aria-pressed="false">슬라이드형(현행)</button>
+              <button type="button" id="modeBand" aria-pressed="true">밴드 리듬형(개정)</button>
+            </div>
+            <span id="modeNote" style="flex:1;min-width:140px;font-size:11px;line-height:1.6;color:rgba(55,56,60,0.61)"></span>
+          </div>
+          <div style="border:1px solid rgba(112,115,124,0.14);border-radius:12px;overflow:hidden;background:#fff">
+            <div id="pagePreview" class="wf-page"></div>
           </div>
           <div style="margin-top:13px;display:grid;gap:8px">
             <span style="display:flex;height:40px;align-items:center;justify-content:center;border-radius:10px;background:#FF6464;font-size:13px;font-weight:800;color:#fff">결합본 1장 내려받기</span>
@@ -126,43 +135,253 @@
           </section>
           <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;padding:20px">
             <h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">검수 게이트</h2>
-            <ul style="margin:11px 0 0;padding:0;list-style:none"><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">오탈자·유령 글자 없음</b> — 모든 문자를 벡터 폰트로 렌더 — AI 이미지 생성이 글자에 개입하지 않는다</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">제품 형상·라벨 유지</b> — 제품이 서는 블록은 업로드 원본을 편집 모드로 쓰고, 그 외 블록은 용기를 아예 그리지 않아 한 페이지에 다른 제품이 섞이지 않습니다</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">무단 배지·수치 없음</b> — 근거 미충족 블록 4개를 시퀀스에서 제외(코드 게이트)</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">각주 정합(고아 각주 0)</b> — 본문의 모든 ※마커가 각주 블록에서 해소됨</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">가격·특전 입력값 그대로</b> — 입력한 가격·특전 문자열만 반영(통상가 취소선은 실적 확인 시에만)</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">스펙표·전성분 원문 그대로</b> — 区分·全成分은 입력 원문을 자단위로 렌더</li></ul>
+            <ul style="margin:11px 0 0;padding:0;list-style:none"><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">오탈자·유령 글자 없음</b> — 모든 문자를 벡터 폰트로 렌더 — AI 이미지 생성이 글자에 개입하지 않는다</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">제품 형상·라벨 유지</b> — 제품이 서는 블록은 업로드 원본을 편집 모드로 쓰고, 그 외 블록은 용기를 아예 그리지 않아 한 페이지에 다른 제품이 섞이지 않습니다</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">무단 배지·수치 없음</b> — 근거 미충족 블록 4개를 시퀀스에서 제외(코드 게이트)</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">각주 정합(고아 각주 0)</b> — 본문의 모든 ※마커가 각주 블록에서 해소됨</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">가격·특전 입력값 그대로</b> — 입력한 가격·특전 문자열만 반영(통상가 취소선은 실적 확인 시에만)</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">스펙표·전성분 원문 그대로</b> — 区分·全成分은 입력 원문을 자단위로 렌더</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">브랜드 금지 표현 미사용</b> — 브랜드 관리에 등록한 금지 표현과 동의어가 어느 슬롯에도 쓰이지 않았습니다. 법적 게이트가 아니라 브랜드 규칙이라, 위반해도 생성을 막지 않고 어느 블록인지만 여기 남깁니다</li><li style="margin-top:7px;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"><b style="color:#414245">보조 이미지 출처</b> — 텍스트 블록에 얹은 보조 이미지는 이번에 생성한 배경컷과 제품 대표컷만 씁니다. 한국 상세페이지 원본은 한글이 박혀 있어 코드가 영구 차단합니다</li></ul>
           </section>
           <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;padding:20px">
-            <h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">블록 15개</h2>
+            <h2 id="blockCount" style="margin:0;font-size:14.5px;font-weight:800;color:#202124">블록</h2>
             <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">마음에 들지 않는 블록만 다시 만들 수 있습니다. 문자만 있는 블록은 무료로 즉시 다시 그려집니다.</p>
-            <ol id="blockList" style="margin:11px 0 0;padding:0;list-style:none"><li style="display:flex;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;padding:11px;margin-top:9px">
-      <span style="flex:none;width:88px;height:58px;border-radius:6px;background:#F2F2F4"></span>
-      <span style="flex:1">
-        <span style="display:flex;align-items:center;gap:7px"><b style="font-size:12.5px;color:#202124">몰 프로모 배너</b></span>
-        <span style="display:block;margin-top:7px"></span>
-      </span></li><li style="display:flex;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;padding:11px;margin-top:9px">
-      <span style="flex:none;width:88px;height:58px;border-radius:6px;background:#F2F2F4"></span>
-      <span style="flex:1">
-        <span style="display:flex;align-items:center;gap:7px"><b style="font-size:12.5px;color:#202124">히어로 제품컷·캐치카피</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span><span style="font-size:10.5px;color:#B6B8BF">v2</span></span>
-        <span style="display:block;margin-top:7px"><span style="font-size:11.5px;font-weight:700;color:#D93636">이미지만 다시</span><span style="margin-left:12px;font-size:11.5px;color:rgba(55,56,60,0.61)">이전 버전으로</span></span>
-      </span></li><li style="display:flex;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;padding:11px;margin-top:9px">
-      <span style="flex:none;width:88px;height:58px;border-radius:6px;background:#F2F2F4"></span>
-      <span style="flex:1">
-        <span style="display:flex;align-items:center;gap:7px"><b style="font-size:12.5px;color:#202124">문제 제기·공감</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span></span>
-        <span style="display:block;margin-top:7px"><span style="font-size:11.5px;font-weight:700;color:#D93636">이미지만 다시</span></span>
-      </span></li><li style="display:flex;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;padding:11px;margin-top:9px">
-      <span style="flex:none;width:88px;height:58px;border-radius:6px;background:#F2F2F4"></span>
-      <span style="flex:1">
-        <span style="display:flex;align-items:center;gap:7px"><b style="font-size:12.5px;color:#202124">기전 도해</b></span>
-        <span style="display:block;margin-top:7px"></span>
-      </span></li><li style="display:flex;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;padding:11px;margin-top:9px">
-      <span style="flex:none;width:88px;height:58px;border-radius:6px;background:#F2F2F4"></span>
-      <span style="flex:1">
-        <span style="display:flex;align-items:center;gap:7px"><b style="font-size:12.5px;color:#202124">제품 스펙표</b></span>
-        <span style="display:block;margin-top:7px"></span>
-      </span></li><li style="margin-top:9px;font-size:11.5px;color:#B6B8BF">… 외 10개</li></ol>
+            <ol id="blockList" style="margin:11px 0 0;padding:0;list-style:none"></ol>
           </section>
         </div>
       </div>
     </div>
   </main>
 </div>
+
+<script src="detail-proto.js"></script>
+<script>
+/**
+ * RESULT-D03 · 결합본 미리보기.
+ *
+ * 이 화면의 목적은 "예쁜 목업"이 아니라 **개정 근거의 실물 대조**다.
+ *   slide 모드 = 현행 렌더러(전부 흰 배경 · 균일 패딩 72px · 사진 위 흰 라운드 카드 · 높이 1500 고정)
+ *   band  모드 = 개정안(톤 교대 · 풀블리드 사진 + 하단 스크림 · 디스플레이 타이포 · 높이 3프리셋)
+ * 같은 블록 시퀀스·같은 카피를 두 렌더러에 태워, 차이가 스크롤만으로 읽히게 한다.
+ */
+(function () {
+  'use strict';
+  var S = KG.load();
+  var el = function (id) { return document.getElementById(id); };
+  var mode = 'band';
+
+  /** 블록별 데모 카피 — 골든 픽스처(HARUON 스킨케어)의 문자열을 그대로 옮겼다. */
+  var COPY = {
+    'mall-promo-banner': { eyebrow: 'CAMPAIGN', big: '20%OFF', title: 'エントリーでポイント10倍', note: '※クーポンは予告なく終了する場合があります' },
+    'set-offer-table':   { eyebrow: 'SET OFFER', title: '2本セット', rows: [['通常価格', '￥7,200'], ['販売価格', '￥5,760'], ['特典', 'ミニサイズ1本']] },
+    'hero-product':      { eyebrow: '医薬部外品', title: '乾燥くり返す肌へ、\n夜のうるおい設計', sub: 'CICAアンプル 30mL' },
+    'ranking-stack':     { eyebrow: 'RANKING', big: '1位', title: '楽天 美容液ジャンル', note: '※2026年7月14日〜20日 集計' },
+    'cumulative-sales':  { eyebrow: 'THANKS', big: '163,991個', title: '累計出荷', rows: [['集計期間', '2024.03〜2026.06'], ['レビュー', '8,412件']] },
+    'problem-hook':      { eyebrow: '', title: 'こんなお悩み\nありませんか？', bullets: ['朝はしっとり、夕方には粉ふき', '化粧のりが日によって違う', '季節の変わり目にゆらぐ'] },
+    'cause-structure':   { eyebrow: 'CAUSE', title: '乾燥がくり返す理由', items: [['CASE1', 'うるおいを抱える力の低下'], ['CASE2', '外部刺激によるバリア負担']] },
+    'before-after-diagram': { eyebrow: '', title: '', diagram: ['うるおい不足の肌', 'うるおいで満たした肌'], note: '※イラストはイメージです' },
+    'mechanism-explainer': { eyebrow: 'MECHANISM', title: '3ステップのうるおい設計', items: [['STEP1', '角層のすみずみまでなじませる'], ['STEP2', 'うるおいを抱えこむ'], ['STEP3', 'やわらかな感触を保つ']] },
+    'ingredient-card':   { eyebrow: 'INGREDIENT', title: '選びぬいた3つの成分', rows: [['ナイアシンアミド', '2%　整肌成分'], ['ツボクサエキス', '整肌成分'], ['セラミドNP', 'エモリエント成分']] },
+    'quant-data-graph':  { eyebrow: 'DATA', title: '塗布後の角層水分量', graph: [['塗布前', 32], ['2週間後', 68], ['4週間後', 92]], note: '※効能評価試験済み n=32' },
+    'test-evidence-label': { eyebrow: 'EVIDENCE', chips: ['効能評価試験済み', 'アレルギーテスト済み'], rows: [['実施機関', '第三者機関'], ['対象人数', '32名']] },
+    'point-list':        { eyebrow: 'POINT', items: [['POINT1', 'べたつかない、軽い使用感'], ['POINT2', '朝晩どちらでも使える'], ['POINT3', '香料・着色料 無添加']] },
+    'spec-panel':        { eyebrow: 'SPEC', big: 'SPF50+', title: 'PA++++　耐水性★★', note: '※パッケージ表示に基づく' },
+    'usage-scene':       { eyebrow: 'SCENE', chips: ['朝のスキンケア', '夜のスペシャルケア'], title: '毎日のリズムに' },
+    'free-from-badges':  { eyebrow: 'FREE FROM', chips: ['合成香料', '着色料', 'パラベン', '鉱物油'] },
+    'color-chip-grid':   { eyebrow: 'COLOR', title: '全10色', swatches: true },
+    'color-chart-matrix': { eyebrow: 'CHART', title: '明度・彩度マップ', swatches: true },
+    'personal-color-look': { eyebrow: 'LOOK', title: 'パーソナルカラー別' },
+    'lineup-compare-chart': { eyebrow: 'LINEUP', rows: [['ライト', 'さっぱり'], ['リッチ', 'しっとり']] },
+    'swatch-demo':       { eyebrow: '', note: '※画像はイメージです' },
+    'how-to-use':        { eyebrow: 'HOW TO USE', items: [['STEP1', '洗顔後、化粧水で整えます'], ['STEP2', '適量を顔全体になじませます']] },
+    'brand-story':       { eyebrow: '', title: '肌のリズムに\n寄りそう', sub: 'HARUON' },
+    'texture-shot':      { eyebrow: '', title: 'とろけるような\nテクスチャー' },
+    'customer-review':   { eyebrow: 'VOICE', title: '購入者の声', body: '「朝までしっとりが続きます」', note: '※個人の感想です' },
+    'product-spec-table': { eyebrow: '', title: '商品情報', rows: [['内容量', '30mL'], ['区分', '化粧品'], ['販売元', '株式会社ハルオン'], ['原産国', '韓国']] },
+    'footnote-block':    { eyebrow: '', notes: ['※1 効能評価試験済み。効果には個人差があります', '※2 角層まで', '※3 2026年7月 自社調べ'] }
+  };
+
+  function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function nl(t) { return esc(t).replace(/\n/g, '<br />'); }
+
+  /** 사진 밴드 — 실제 배경컷 자리. 모드에 따라 문법이 완전히 갈린다. */
+  function photoBand(b, th, c) {
+    var h = mode === 'band' ? ({ hero: 300, band: 230, strip: 150 })[b.heightPreset] : 230;
+    var bg = 'linear-gradient(135deg,' + KG.mixWhite(th.accent, 0.6) + ',' + KG.mixWhite(th.accent, 0.12) + ')';
+    var art = '<span aria-hidden="true" style="position:absolute;right:16%;top:50%;transform:translateY(-50%);width:' +
+      Math.round(h * 0.30) + 'px;height:' + Math.round(h * 0.62) + 'px;border-radius:' + Math.round(h * 0.08) +
+      'px;background:rgba(255,255,255,.55);box-shadow:0 8px 24px rgba(0,0,0,.10)"></span>';
+
+    if (mode === 'slide') {
+      // 현행 — 전면 흰 스크림 0.12 + 사진 위 흰 라운드 카드(OverlayCard)
+      return '<div class="wf-photo" style="height:' + h + 'px;background:' + bg + '">' + art +
+        '<span aria-hidden="true" style="position:absolute;inset:0;background:rgba(255,255,255,.12)"></span>' +
+        // 실제 OverlayCard 비율(maxWidth 640 / 캔버스 1200 = 53%)을 그대로 옮긴다.
+        // width:100% 가 없으면 카드가 flex 아이템으로 수축해 글자가 3~4자마다 꺾인다 —
+        // 현행 렌더러를 실제보다 나쁘게 보이게 하므로 대조가 공정하지 않다.
+        '<div style="position:relative;width:100%;padding:20px"><div style="max-width:53%;background:rgba(255,255,255,.92);border-radius:9px;padding:14px 16px">' +
+          (c.eyebrow ? '<div style="font-size:8.5px;font-weight:800;letter-spacing:2px;color:#FF6464">' + esc(c.eyebrow) + '</div>' : '') +
+          '<div style="margin-top:5px;font-size:18px;font-weight:800;line-height:1.35;color:#202124">' + nl(c.title || '') + '</div>' +
+          (c.sub ? '<div style="margin-top:6px;font-size:10px;color:#414245">' + esc(c.sub) + '</div>' : '') +
+        '</div></div></div>';
+    }
+    // 개정 — 사진은 손상 없이 두고 하단 62% 에만 그라디언트, 흰 글자를 사진에 직접 얹는다
+    var sc = KG.SCRIM;
+    return '<div class="wf-photo" style="height:' + h + 'px;background:' + bg + '">' + art +
+      (b.placement === 'none' ? '' :
+        '<span aria-hidden="true" class="wf-scrim" style="height:' + Math.round(h * sc.ratio) +
+        'px;background:linear-gradient(to top,rgba(' + sc.color + ',' + sc.strength + ') 0%,rgba(' + sc.color + ',' +
+        (sc.strength * 0.55).toFixed(2) + ') 45%,rgba(' + sc.color + ',0) 100%)"></span>') +
+      '<div style="position:relative;width:100%;padding:0 18px 16px">' +
+        (c.eyebrow ? '<div style="font-size:8.5px;font-weight:800;letter-spacing:2px;color:rgba(255,255,255,.82)">' + esc(c.eyebrow) + '</div>' : '') +
+        (c.title ? '<div style="margin-top:5px;font-size:19px;font-weight:800;line-height:1.28;color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.35)">' + nl(c.title) + '</div>' : '') +
+        (c.sub ? '<div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,.86)">' + esc(c.sub) + '</div>' : '') +
+        (c.note ? '<div style="margin-top:6px;font-size:8.5px;color:rgba(255,255,255,.72)">' + esc(c.note) + '</div>' : '') +
+      '</div></div>';
+  }
+
+  /** 텍스트 밴드. */
+  function textBand(b, th, c) {
+    var sf = mode === 'band' ? KG.surfaceFor(b.tone, th) : KG.surfaceFor('paper', th);
+    var pad = mode === 'band'
+      ? ({ compact: '14px 18px', normal: '22px 18px', spacious: '30px 18px' })[b.density]
+      : '22px 18px'; // 현행은 어느 블록이든 같은 여백
+    var s = '<div class="wf-band" style="background:' + sf.bg + '">';
+    if (mode === 'band' && b.chapter) {
+      s += '<span aria-hidden="true" class="wf-rail" style="background:' + sf.fill + '"></span>';
+    }
+    var indent = (mode === 'band' && b.chapter) ? 'padding-left:34px;' : '';  // 레일(18) + 폭(3) + 여백(13)
+    s += '<div class="wf-band-in" style="padding:' + pad + ';' + indent + '">';
+
+    if (mode === 'band' && b.chapter) {
+      s += '<div style="font-size:8.5px;font-weight:800;letter-spacing:1.5px;color:' + sf.accent + '">' +
+           String(b.chapter.index).padStart(2, '0') + ' / ' + String(b.chapter.total).padStart(2, '0') +
+           (c.eyebrow ? '　' + esc(c.eyebrow) : '') + '</div>';
+    } else if (c.eyebrow) {
+      s += '<div style="font-size:8.5px;font-weight:800;letter-spacing:2px;color:' + sf.accent + '">' + esc(c.eyebrow) + '</div>';
+    }
+
+    // 디스플레이 타이포 — 숫자는 코드 소유 슬롯이라 AI 콜 0·법적 리스크 0
+    if (c.big) {
+      s += mode === 'band'
+        ? '<div class="wf-display" style="margin-top:6px;color:' + sf.ink + '">' + esc(c.big) + '</div>'
+        : '<div style="margin-top:6px;font-size:17px;font-weight:800;color:' + sf.ink + '">' + esc(c.big) + '</div>';
+    }
+    if (c.title) s += '<div style="margin-top:6px;font-size:14px;font-weight:800;line-height:1.4;color:' + sf.ink + '">' + nl(c.title) + '</div>';
+    if (c.body) s += '<div style="margin-top:7px;font-size:11px;line-height:1.75;color:' + sf.body + ';max-width:78%">' + esc(c.body) + '</div>';
+
+    (c.bullets || []).forEach(function (t) {
+      s += '<div style="display:flex;align-items:center;gap:8px;margin-top:7px"><span aria-hidden="true" style="flex:none;width:5px;height:5px;border-radius:99px;background:' +
+           sf.fill + '"></span><span style="font-size:11px;color:' + sf.body + '">' + esc(t) + '</span></div>';
+    });
+    (c.items || []).forEach(function (r) {
+      s += '<div style="display:flex;gap:9px;margin-top:9px"><span style="flex:none;min-width:44px;height:19px;display:inline-flex;align-items:center;justify-content:center;border-radius:99px;background:' +
+           (mode === 'band' ? sf.card : th.accentTint) + ';color:' + sf.accent + ';font-size:8.5px;font-weight:800">' + esc(r[0]) +
+           '</span><span style="font-size:11px;line-height:1.6;color:' + sf.body + '">' + esc(r[1]) + '</span></div>';
+    });
+    if (c.chips) {
+      s += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px">';
+      c.chips.forEach(function (t) {
+        s += '<span style="display:inline-flex;height:22px;align-items:center;border:1px solid ' + sf.fill +
+             ';border-radius:99px;padding:0 10px;font-size:9.5px;font-weight:700;color:' + sf.accent + '">' + esc(t) + '</span>';
+      });
+      s += '</div>';
+    }
+    if (c.rows) {
+      s += '<div style="margin-top:10px;border-top:1.5px solid ' + sf.ink + '">';
+      c.rows.forEach(function (r) {
+        s += '<div style="display:flex;padding:7px 0;border-bottom:1px solid ' + sf.rule + '">' +
+             '<span style="width:34%;font-size:10px;color:' + sf.mute + '">' + esc(r[0]) + '</span>' +
+             '<span style="flex:1;font-size:10px;color:' + sf.ink + '">' + esc(r[1]) + '</span></div>';
+      });
+      s += '</div>';
+    }
+    if (c.graph) {
+      var max = Math.max.apply(null, c.graph.map(function (g) { return g[1]; }));
+      c.graph.forEach(function (g) {
+        s += '<div style="display:flex;align-items:center;gap:8px;margin-top:8px">' +
+             '<span style="width:52px;font-size:9.5px;color:' + sf.mute + '">' + esc(g[0]) + '</span>' +
+             '<span style="flex:1;height:12px;border-radius:6px;background:' + sf.rule + '"><span style="display:block;height:12px;border-radius:6px;width:' +
+             Math.round(g[1] / max * 100) + '%;background:' + sf.fill + '"></span></span>' +
+             '<span style="width:34px;text-align:right;font-size:' + (mode === 'band' ? '15px' : '11px') +
+             ';font-weight:800;color:' + sf.ink + '">' + g[1] + '</span></div>';
+      });
+    }
+    if (c.swatches) {
+      s += '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px">';
+      for (var i = 0; i < 10; i++) {
+        s += '<span aria-hidden="true" style="width:22px;height:22px;border-radius:99px;background:hsl(' + (i * 34) + ' 52% 62%)"></span>';
+      }
+      s += '</div>';
+    }
+    if (c.diagram) {
+      s += '<div style="display:flex;gap:10px;margin-top:8px">';
+      c.diagram.forEach(function (t, i) {
+        s += '<span style="flex:1;text-align:center;font-size:10.5px;font-weight:800;color:' + (i ? sf.accent : sf.mute) + '">' + esc(t) + '</span>';
+      });
+      s += '</div>';
+    }
+    (c.notes || []).forEach(function (t) {
+      s += '<div style="margin-top:5px;font-size:8.5px;line-height:1.6;color:' + sf.mute + '">' + esc(t) + '</div>';
+    });
+    if (c.note && !c.big) s += '<div style="margin-top:8px;font-size:8.5px;color:' + sf.mute + '">' + esc(c.note) + '</div>';
+    if (c.note && c.big) s += '<div style="margin-top:8px;font-size:8.5px;color:' + sf.mute + '">' + esc(c.note) + '</div>';
+
+    s += '</div>';
+    // 이음새 노치 — 다음 밴드 색. 블록 안에서 완결된다(결합이 맞대기라 겹칠 수 없다)
+    if (mode === 'band' && b.seam === 'notch' && b.nextTone) {
+      s += '<span aria-hidden="true" class="wf-notch" style="background:' + KG.surfaceFor(b.nextTone, th).bg + '"></span>';
+    }
+    return s + '</div>';
+  }
+
+  function render() {
+    var th = KG.resolveTheme(S.theme, S.category);
+    document.documentElement.style.setProperty('--th-accent', th.accent);
+    document.documentElement.style.setProperty('--th-tint', th.accentTint);
+
+    var layout = KG.planLayout(KG.sequenceFor(S));
+    el('pagePreview').innerHTML = layout.map(function (b) {
+      var c = COPY[b.id] || {};
+      return b.def.renderKind !== 'text' ? photoBand(b, th, c) : textBand(b, th, c);
+    }).join('');
+
+    el('modeSlide').setAttribute('aria-pressed', mode === 'slide' ? 'true' : 'false');
+    el('modeBand').setAttribute('aria-pressed', mode === 'band' ? 'true' : 'false');
+    el('modeNote').textContent = mode === 'band'
+      ? '톤 ' + KG.toneSummary(layout) + ' · 사진은 풀블리드 + 하단 스크림 · 높이 3프리셋'
+      : '전부 흰 배경 · 어느 블록이든 같은 여백 · 사진 위 흰 카드 · 높이 1500px 고정';
+
+    el('blockCount').textContent = '블록 ' + layout.length + '개';
+    var ol = el('blockList');
+    ol.textContent = '';
+    layout.forEach(function (b) {
+      var sf = KG.surfaceFor(b.tone, th);
+      var li = document.createElement('li');
+      li.style.cssText = 'display:flex;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:10px;padding:11px;margin-top:9px';
+      li.innerHTML =
+        '<span aria-hidden="true" style="flex:none;width:60px;height:58px;border-radius:6px;overflow:hidden;border:1px solid #EBEBEB;background:' +
+          (b.def.renderKind !== 'text'
+            ? 'linear-gradient(135deg,' + KG.mixWhite(th.accent, 0.6) + ',' + KG.mixWhite(th.accent, 0.12) + ')'
+            : sf.bg) + '"></span>' +
+        '<span style="flex:1;min-width:0">' +
+          '<span style="display:flex;flex-wrap:wrap;align-items:center;gap:6px">' +
+            '<b style="font-size:12.5px;color:#202124">' + b.def.nameKo + '</b>' +
+            (b.def.renderKind !== 'text'
+              ? '<span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span>'
+              : '') +
+            '<span class="wf-tone"><i style="background:' + sf.bg + '"></i>' + KG.TONE_LABEL[b.tone] + '</span>' +
+            '<span class="wf-h">' + (b.heightPreset ? b.heightPreset + ' ' : '') + b.height.toLocaleString() + 'px</span>' +
+          '</span>' +
+          '<span style="display:block;margin-top:7px">' +
+            (b.def.renderKind !== 'text'
+              ? '<span style="font-size:11.5px;font-weight:700;color:#D93636">이미지만 다시</span><span style="margin-left:12px;font-size:11.5px;color:rgba(55,56,60,0.61)">이전 버전으로</span>'
+              : '<span style="font-size:11.5px;color:rgba(55,56,60,0.61)">문자만 있는 블록 — 무료로 즉시 다시 그려집니다</span>') +
+          '</span>' +
+        '</span>';
+      ol.appendChild(li);
+    });
+  }
+
+  el('modeSlide').addEventListener('click', function () { mode = 'slide'; render(); });
+  el('modeBand').addEventListener('click', function () { mode = 'band'; render(); });
+  render();
+})();
+</script>
 
 </body>
 </html>

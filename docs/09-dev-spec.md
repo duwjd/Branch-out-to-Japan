@@ -87,7 +87,12 @@ scripts/
   aggregate/            # 사전집계 스크립트 (08 §8-D3, 신규)
   run-report.mjs        # 엔진 CLI 러너 — 화면 없이 입력 텍스트 → blocksJson 산출
   run-thumbnail.ts      # ② 엔진 CLI 러너 (스프린트 2) — 화면 없이 목/실 파이프라인 검증
+  run-detail.ts         # ② 상세페이지 CLI 러너 (`npm run detail:cli`) — 1회 실행 = 템플릿 1개
+  make-mock-product.ts  # 프리뷰용 가공 제품컷 1장 (`npm run detail:mockproduct`, 1회성·산출물 커밋)
+  build-detail-previews.ts # 템플릿 카드 프리뷰 6장 (`npm run detail:previews`) → public/detail-templates/
 ```
+
+> `detail:previews` 는 **실 파이프라인 산출물**이라 템플릿 정의·블록 렌더 트리를 바꾸면 다시 구워야 한다. 두 키가 모두 필요하고, 전체 1회에 gpt-image-2 약 18콜 + Claude 6콜이 든다. 중간물은 `.data/detail-previews/` 에 캐시되므로 `--force` 없이 재실행하면 이미지 콜이 0이다. 자산 규약은 `docs/specs/02-studio/assets/README.md`.
 
 ## 4. ① 리포트 스프린트 마일스톤 (7/11~17 · 엔진 우선)
 

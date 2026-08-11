@@ -14,6 +14,14 @@ import { getStore } from '@/lib/db/store';
 import { currentLlmMode } from '@/lib/engine/llm/client';
 import { currentImageMode, imageModel } from '@/lib/studio/imageGen';
 import { blockingReason, checkDetailReadiness } from '@/lib/server/detailReadiness';
+import {
+  applyTranslations,
+  collectTranslatable,
+  sourceSnapshot,
+  verifyClientTranslation,
+  type TranslatedField,
+} from '@/lib/studio/detail/translate';
+import { runInputTranslate } from '@/lib/studio/detail/translateCall';
 import { logger } from '@/lib/logger';
 
 // after() 상세 잡(카피 1콜 + 이미지 최대 4콜 + 렌더·결합)이 이 예산 안에서 실행된다(11 §3)
@@ -65,14 +73,52 @@ export async function POST(request: Request): Promise<NextResponse> {
   const parsed = parseDetailForm(form, sourceImagePaths);
   if ('error' in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
+  // ── 입력 언어 변환 적용 ──────────────────────────────────────────────────
+  // 확인 화면이 보낸 값이 있으면 그걸 쓰되 **서버 기준으로 다시 검증**한다(클라이언트가 보낸
+  // 원문은 믿지 않는다). 값이 없는데 한글이 남아 있으면 여기서 다시 변환한다 —
+  // 폼을 거치지 않고 API를 직접 치는 경로에서도 블록이 조용히 사라지지 않게 하는 방어다.
+  let detailInput = parsed.detailInput;
+  let artDirectionEn = '';
+  let translated: TranslatedField[] = [];
+  if (collectTranslatable(parsed.detailInput, parsed.note).length > 0) {
+    const cached = parsed.clientTranslation
+      ? verifyClientTranslation(parsed.detailInput, parsed.note, parsed.clientTranslation)
+      : null;
+    if (cached?.complete) {
+      translated = cached.fields;
+      artDirectionEn = cached.artDirectionEn;
+    } else {
+      try {
+        const result = await runInputTranslate({ input: parsed.detailInput, note: parsed.note, brandKit: brand.brandKit });
+        translated = result.fields;
+        artDirectionEn = result.artDirectionEn;
+      } catch (err) {
+        // 변환이 죽어도 생성은 막지 않는다 — 한국어가 남은 블록만 빠지고 게이트가 그 사실을 남긴다
+        logger.warn('입력 언어 변환 실패 — 원문으로 진행', { reason: String((err as Error)?.message ?? err) });
+      }
+    }
+  }
+  if (translated.length > 0) {
+    detailInput = applyTranslations(parsed.detailInput, translated);
+    detailInput.sourceKo = sourceSnapshot(translated);
+    detailInput.brandKit = brand.brandKit;
+    const failures = translated.filter((f) => !f.ok);
+    if (failures.length > 0) {
+      detailInput.translationIssues = failures.map((f) => ({ path: f.path, label: f.label, problem: f.problem ?? '' }));
+    }
+  }
+  if (artDirectionEn) detailInput.artDirectionEn = artDirectionEn;
+
   const record = await createDetailAsset({
     brandProfileId: brand.id,
     brandName: brand.brandName,
     sourceImagePaths,
     platform: parsed.platform,
     templateId: parsed.templateId,
-    detailInput: { ...parsed.detailInput, modelConsent: parsed.detailInput.modelConsent && Boolean(modelImagePath) },
+    detailInput: { ...detailInput, modelConsent: detailInput.modelConsent && Boolean(modelImagePath) },
     disabledBlocks: parsed.disabledBlocks,
+    // promptUsed 에는 **한국어 원문**을 남긴다 — 화면이 사용자 입력을 그대로 되비추는 자리다.
+    // 이미지 프롬프트에 실리는 영어 변환분은 detailInput.artDirectionEn 이 따로 들고 간다.
     note: parsed.note,
     modelImagePath,
   });
@@ -81,6 +127,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     templateId: parsed.templateId,
     platform: parsed.platform,
     images: files.length,
+    translatedFields: translated.filter((f) => f.ok).length,
+    translationFailures: translated.filter((f) => !f.ok).length,
   });
 
   after(async () => {

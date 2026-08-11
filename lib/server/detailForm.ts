@@ -24,6 +24,33 @@ export interface ParsedDetailForm {
   note: string;
   detailInput: DetailInput;
   disabledBlocks: BlockType[];
+  /**
+   * 확인 화면이 돌려보낸 일본어 변환값(`{path, kr, ja}` 목록).
+   * 여기서는 형태만 검사하고 **채택하지 않는다** — 원문 대조·숫자 검사·한글 잔존 검사는
+   * 서버가 파싱한 입력 기준으로 다시 해야 하므로 호출부가 `verifyClientTranslation` 을 태운다.
+   */
+  clientTranslation: { path: string; kr: string; ja: string }[] | null;
+}
+
+/** hidden 필드 `translationJson` 파싱 — 형태가 어긋나면 없는 것으로 본다(서버가 재번역한다). */
+function parseTranslationJson(form: FormData): { path: string; kr: string; ja: string }[] | null {
+  const raw = text(form, 'translationJson');
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+    const out: { path: string; kr: string; ja: string }[] = [];
+    for (const e of parsed) {
+      if (!e || typeof e !== 'object') continue;
+      const r = e as { path?: unknown; kr?: unknown; ja?: unknown };
+      if (typeof r.path === 'string' && typeof r.kr === 'string' && typeof r.ja === 'string') {
+        out.push({ path: r.path, kr: r.kr, ja: r.ja });
+      }
+    }
+    return out.length > 0 ? out : null;
+  } catch {
+    return null;
+  }
 }
 
 function text(form: FormData, key: string): string {
@@ -157,7 +184,14 @@ export function parseDetailForm(form: FormData, sourceImagePaths: string[]): Par
     modelConsent: text(form, 'modelConsent') === 'true',
   };
 
-  return { templateId: templateId as TemplateId, platform, note: text(form, 'note'), detailInput, disabledBlocks };
+  return {
+    templateId: templateId as TemplateId,
+    platform,
+    note: text(form, 'note'),
+    detailInput,
+    disabledBlocks,
+    clientTranslation: parseTranslationJson(form),
+  };
 }
 
 /** 업로드 파일 유효성 — 저장 전에 검사한다. */

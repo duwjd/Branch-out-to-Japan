@@ -159,6 +159,11 @@ export interface TemplateUiMeta {
   description: string;
   bestFor: string;
   platformFit: Platform[];
+  /**
+   * 이 템플릿이 노리는 상품 종류. 카드의 「추천」 배지가 **플랫폼만** 보면
+   * 라쿠텐에서 6장 전부에 배지가 붙어 아무것도 구분하지 못한다 — 카테고리와 함께 봐야 한다.
+   */
+  dominantCategories: ProductCategory[];
   /** 카드에 그릴 미니 블록 시퀀스(한국어 블록명) */
   sequencePreview: string[];
 }
@@ -171,6 +176,7 @@ export function templateUiMetas(): TemplateUiMeta[] {
     description: t.description,
     bestFor: t.bestFor,
     platformFit: t.platformFit,
+    dominantCategories: t.dominantCategories,
     sequencePreview: t.blockSequence.map((b) => getBlock(b).nameKo),
   }));
 }

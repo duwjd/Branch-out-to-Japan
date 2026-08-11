@@ -482,3 +482,83 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 .ab-input:focus { outline: none; border: 1.5px solid #70737c; }
 select.ab-input { cursor: pointer; }
 .ab-err { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--danger-text); }
+
+/* ════════════════════════════════════════════════════════════════════
+   ② 상세페이지 개정 (2026-08-11) — 테마·미니어처·밴드 리듬
+   정본: 02-studio-detail-ui-기획서.md DETAIL-04/04b · RESULT-D03
+   상태색은 여기서도 "색 + 글자 + 기호" 3중 표기 방침을 지킨다.
+   --th-* 는 화면 스크립트가 해석된 테마로 채운다(기본값은 코랄 = 미설정 상태).
+   ════════════════════════════════════════════════════════════════════ */
+:root { --th-accent: #ff6464; --th-strong: #d93636; --th-tint: #fff8f8; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* 업로드 — 드래그 중 강조 */
+#dropzone { transition: border-color .15s, background .15s; }
+#dropzone.over { border-color: var(--th-accent); background: var(--th-tint); }
+
+.wf-shot { position: relative; line-height: 0; }
+.wf-shot img { width: 76px; height: 76px; object-fit: cover; border-radius: 9px; border: 1px solid var(--card-border); background: var(--n-150); }
+.wf-shot.primary img { border-color: var(--th-accent); box-shadow: 0 0 0 2px rgba(0, 0, 0, .04); }
+.wf-shot-n { position: absolute; left: 4px; top: 4px; border-radius: 4px; background: rgba(32, 33, 36, .7); padding: 0 5px; font-size: 10px; font-weight: 800; color: #fff; line-height: 16px; }
+.wf-shot-tag { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 0 0 8px 8px; background: rgba(32, 33, 36, .78); font-size: 9.5px; font-weight: 800; color: #fff; text-align: center; line-height: 15px; }
+
+.wf-sample { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--input-border); border-radius: 9px; background: var(--canvas); padding: 5px 10px 5px 5px; font-family: inherit; font-size: 11.5px; font-weight: 700; color: var(--ink-body); cursor: pointer; }
+.wf-sample:hover { border-color: var(--th-accent); }
+.wf-sample img { border-radius: 6px; }
+
+/* 칩(테마 컬러·무드) — 선택은 색만이 아니라 ✓ 기호로도 표시한다 */
+.wf-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; border-radius: 9999px; border: 1px solid var(--input-border); background: var(--canvas); padding: 0 12px; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--ink-body); cursor: pointer; }
+.wf-chip:hover { border-color: #70737c; }
+.wf-chip.on { border-color: var(--ink); background: var(--n-100); color: var(--ink); }
+.wf-chip-dot { width: 13px; height: 13px; border-radius: 9999px; border: 1px solid rgba(0, 0, 0, .12); flex: none; }
+
+.wf-contrast { display: inline-flex; align-items: center; height: 24px; border-radius: 9999px; padding: 0 10px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.wf-contrast.ok { background: var(--green-bg); color: var(--green-text); }
+.wf-contrast.warn { background: var(--amber-bg); color: var(--amber-text); }
+
+/* 템플릿 카드 — 미니어처(좌) + 텍스트(우). 이미지가 없으면 텍스트만으로도 성립한다 */
+.wf-tpl { display: flex; gap: 11px; width: 100%; text-align: left; border: 1px solid var(--card-border); border-radius: 14px; background: var(--canvas); padding: 12px; font-family: inherit; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.wf-tpl:hover { border-color: var(--input-border); }
+.wf-tpl.on { border-color: var(--th-accent); box-shadow: 0 0 0 3px rgba(0, 0, 0, .05); }
+.wf-mini { flex: none; width: 74px; height: 168px; overflow: hidden; border-radius: 7px; border: 1px solid var(--hairline); background: #fff; -webkit-mask-image: linear-gradient(#000 76%, transparent); mask-image: linear-gradient(#000 76%, transparent); }
+.wf-mini svg { width: 100%; height: auto; display: block; }
+.wf-tpl-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.wf-tpl-head { display: flex; align-items: center; gap: 6px; }
+.wf-tpl-head b { font-size: 12.5px; color: var(--ink); }
+.wf-tpl-desc { display: block; margin-top: 5px; font-size: 11px; line-height: 1.6; color: var(--ink-mute); }
+.wf-tpl-meta { display: block; margin-top: 5px; font-size: 10.5px; font-weight: 700; color: var(--ink-faint); }
+.wf-tpl-seq { margin: 7px 0 0; padding: 0; list-style: none; }
+.wf-tpl-seq li { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 10.5px; color: var(--ink-mute); }
+.wf-tpl-seq li.more { color: var(--ink-faint); padding-left: 9px; }
+.wf-tpl-dot { width: 4px; height: 4px; border-radius: 9999px; background: var(--th-accent); flex: none; }
+.wf-badge { display: inline-flex; height: 18px; align-items: center; border-radius: 9999px; padding: 0 6px; font-size: 9.5px; font-weight: 800; background: var(--n-150); color: var(--ink-mute); }
+.wf-badge.ok { background: var(--green-bg); color: var(--green-text); }
+.wf-badge.warn { background: var(--amber-bg); color: var(--amber-text); }
+.wf-badge.danger { background: var(--danger-bg); color: var(--danger-text); }
+
+/* 밴드 톤 배지 — 색만으로 구분하지 않도록 한글 라벨을 함께 쓴다 */
+.wf-tone { display: inline-flex; align-items: center; gap: 4px; height: 18px; border-radius: 9999px; padding: 0 7px; font-size: 9.5px; font-weight: 800; border: 1px solid var(--hairline); background: var(--canvas); color: var(--ink-mute); white-space: nowrap; }
+.wf-tone i { width: 8px; height: 8px; border-radius: 2px; border: 1px solid rgba(0, 0, 0, .14); flex: none; }
+.wf-h { display: inline-flex; align-items: center; height: 18px; border-radius: 9999px; padding: 0 7px; font-size: 9.5px; font-weight: 800; background: var(--n-150); color: var(--ink-mute); white-space: nowrap; }
+
+/* 결과 미리보기 — 결합본 자리에 실제 밴드 리듬을 그린다 */
+.wf-modes { display: inline-flex; gap: 2px; border: 1px solid var(--input-border); border-radius: 9px; padding: 2px; background: var(--canvas); }
+.wf-modes button { border: none; border-radius: 7px; background: transparent; padding: 6px 11px; font-family: inherit; font-size: 11.5px; font-weight: 700; color: var(--ink-mute); cursor: pointer; }
+.wf-modes button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.wf-page { height: 520px; overflow-y: auto; overscroll-behavior: contain; background: #fff; }
+.wf-band { position: relative; overflow: hidden; }
+.wf-band-in { padding: 20px 18px; }
+.wf-rail { position: absolute; left: 18px; top: 20px; bottom: 20px; width: 3px; border-radius: 2px; }
+.wf-notch { position: absolute; left: 50%; bottom: 0; width: 16px; height: 7px; transform: translateX(-50%); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.wf-photo { position: relative; display: flex; align-items: flex-end; }
+.wf-scrim { position: absolute; left: 0; right: 0; bottom: 0; }
+.wf-display { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+
+@media (max-width: 760px) {
+  .wf-tpl { flex-direction: column; }
+  .wf-mini { width: 100%; height: 92px; }
+}

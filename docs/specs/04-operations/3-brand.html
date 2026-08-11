@@ -269,6 +269,31 @@
           </div>
         </section>
 
+        <!-- BRAND-11 · 생성물 테마 (2026-08-11 신설 · 조회) — 연필 → BRAND-11d 편집 모달
+             이 브랜드로 만드는 상세페이지·썸네일의 **기본** 색·무드다. 생성 시 건별로 덮어쓸 수 있고,
+             생성 시점 값이 자산에 스냅샷되므로 여기를 나중에 바꿔도 발행된 자산은 흔들리지 않는다. -->
+        <section class="kit-card" aria-labelledby="thTitleB" style="margin-top:20px">
+          <div class="kit-head">
+            <div style="flex:1;min-width:0">
+              <h2 id="thTitleB" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">생성물 테마</h2>
+              <p class="kit-desc">상세페이지·썸네일 <b>결과물</b>에 쓰는 색과 분위기입니다. KGLOW 화면 색과는 무관합니다.</p>
+            </div>
+            <button type="button" id="thEdit" class="kit-edit" aria-label="생성물 테마 수정">
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            </button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:14px">
+            <span id="thbSwatch" aria-hidden="true" style="flex:none;width:44px;height:44px;border-radius:12px;border:1px solid rgba(0,0,0,.08)"></span>
+            <span style="flex:1;min-width:170px">
+              <b id="thbName" style="display:block;font-size:13.5px;color:#202124">—</b>
+              <span id="thbSource" style="display:block;margin-top:2px;font-size:12px;color:rgba(55,56,60,0.61)">—</span>
+            </span>
+            <span id="thbContrast" class="wf-contrast" role="status">—</span>
+          </div>
+          <div id="thbPreview" style="margin-top:14px;border:1px solid #EBEBEB;border-radius:11px;overflow:hidden"></div>
+          <p style="margin:10px 0 0;font-size:11.5px;line-height:1.7;color:rgba(55,56,60,0.61)">테마를 정하지 않으면 생성할 때 <b>업로드한 제품컷에서 색을 뽑아</b> 씁니다. 여기서 정해 두면 그 값이 기본이 됩니다.</p>
+        </section>
+
         <!-- BRAND-10 · 브랜드 삭제 (위험 액션 — 다른 섹션과 시각적으로 분리) -->
         <section aria-labelledby="dangerTitle" style="margin-top:20px;padding-top:22px;border-top:1px solid #EBEBEB">
           <h2 id="dangerTitle" style="margin:0;font-size:14px;font-weight:800;letter-spacing:-0.01em;color:#202124">브랜드 삭제</h2>
@@ -404,6 +429,39 @@
       <button type="button" id="chCancel" class="hbtn hbtn-secondary" style="height:42px;padding:0 16px;border-radius:10px">취소</button>
       <button type="button" id="chSave" class="h-primary" disabled
         style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:default;opacity:.5">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAND-11d · 생성물 테마 편집 모달 (2026-08-11 신설 · 모달 단위 즉시 저장 — 이 화면의 기존 관례) -->
+<div id="thModal" class="modal-scrim" style="display:none">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="thmTitle">
+    <h2 id="thmTitle" class="modal-title" style="font-size:17px">생성물 테마 수정</h2>
+    <p style="margin:8px 0 0;font-size:12.5px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">수정해도 이미 발행된 자산은 바뀌지 않습니다 — 다음 생성부터 반영됩니다. 생성할 때 건별로 덮어쓸 수도 있습니다.</p>
+
+    <h3 style="margin:18px 0 0;font-size:13px;font-weight:700;color:#202124">제품 이미지에서 뽑기</h3>
+    <p style="margin:5px 0 0;font-size:11.5px;color:#B6B8BF">등록된 제품 대표컷의 지배색을 찾습니다. 색만 쓰고 이미지는 저장하지 않습니다.</p>
+    <div id="thmSamples" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:9px"></div>
+    <p id="thmEvidence" style="margin:8px 0 0;font-size:11.5px;color:rgba(55,56,60,0.61)"></p>
+
+    <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">테마 컬러</h3>
+    <div id="thmPalette" role="radiogroup" aria-label="테마 컬러" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:9px"></div>
+    <label style="display:inline-flex;align-items:center;gap:8px;margin-top:10px;font-size:11.5px;font-weight:700;color:#414245">
+      직접 입력
+      <input type="color" id="thmColor" value="#8a7f76" style="width:36px;height:28px;border:1px solid rgba(112,115,124,0.28);border-radius:7px;background:#fff;padding:2px;cursor:pointer" />
+      <input type="text" id="thmHex" value="#8a7f76" spellcheck="false" aria-label="테마 컬러 hex" style="width:92px;border:1px solid rgba(112,115,124,0.28);border-radius:7px;padding:6px 8px;font-family:inherit;font-size:11.5px;color:#414245" />
+    </label>
+
+    <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">무드</h3>
+    <div id="thmMood" role="radiogroup" aria-label="무드" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:9px"></div>
+
+    <h3 style="margin:20px 0 0;font-size:13px;font-weight:700;color:#202124">미리보기</h3>
+    <div id="thmPreview" style="margin-top:9px;border:1px solid #EBEBEB;border-radius:11px;overflow:hidden"></div>
+    <p id="thmContrastNote" style="margin:8px 0 0;font-size:11.5px;line-height:1.7;color:rgba(55,56,60,0.61)"></p>
+
+    <div style="margin-top:22px;display:flex;justify-content:flex-end;gap:9px">
+      <button type="button" id="thmCancel" class="hbtn hbtn-secondary" style="height:42px;padding:0 16px;border-radius:10px">취소</button>
+      <button type="button" id="thmSave" class="h-primary" style="height:42px;padding:0 18px;border-radius:10px">저장</button>
     </div>
   </div>
 </div>
@@ -1671,6 +1729,166 @@
     apply(c);
     try { localStorage.setItem(KEY, c ? '1' : '0'); } catch (e) {}
   });
+})();
+</script>
+
+<script src="../02-studio/detail-proto.js"></script>
+<script>
+/**
+ * BRAND-11 · 생성물 테마 (2026-08-11 신설).
+ * 색 추출·파생·대비 판정은 전부 detail-proto.js 가 한다 — 스튜디오 생성 폼과 **같은 함수**를 쓰므로
+ * 여기서 본 미리보기와 실제 산출물이 어긋나지 않는다.
+ */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = 'kglow.brand.theme';
+
+  function load() {
+    try {
+      var v = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (v) return v;
+    } catch (e) { /* 프라이빗 모드 등 */ }
+    return { source: 'auto', paletteId: 'neutral-greige', customAccent: '', moodId: 'minimal-clean', extracted: '', from: '', coverage: 0 };
+  }
+  var saved = load(), draft = null;
+
+  var EYEBROW = { 'point-list': 'POINT', 'cumulative-sales': 'THANKS', 'product-spec-table': 'PRODUCT INFO' };
+
+  /** 카드·모달이 공유하는 미니 프리뷰 — 밴드 톤 4종을 한 줄로 보여준다. */
+  function preview(node, th) {
+    var seq = ['hero-product', 'point-list', 'cumulative-sales', 'product-spec-table'];
+    node.innerHTML = KG.planLayout(seq).map(function (b) {
+      var sf = KG.surfaceFor(b.tone, th);
+      if (b.def.renderKind !== 'text') {
+        return '<div style="height:44px;background:linear-gradient(135deg,' + KG.mixWhite(th.accent, 0.6) + ',' +
+          KG.mixWhite(th.accent, 0.12) + ');position:relative">' +
+          '<span aria-hidden="true" style="position:absolute;left:0;right:0;bottom:0;height:60%;background:linear-gradient(to top,rgba(18,18,20,.9),rgba(18,18,20,0))"></span>' +
+          '<span style="position:absolute;left:10px;bottom:7px;font-size:10px;font-weight:800;color:#fff">見出しテキスト</span></div>';
+      }
+      return '<div style="background:' + sf.bg + ';padding:9px 10px">' +
+        '<span style="display:block;font-size:7.5px;font-weight:800;letter-spacing:1.5px;color:' + sf.accent + '">' + (EYEBROW[b.id] || 'SECTION') + '</span>' +
+        '<span style="display:block;margin-top:3px;font-size:11px;font-weight:800;color:' + sf.ink + '">日本語の見出し</span>' +
+        '<span style="display:block;margin-top:2px;font-size:9px;color:' + sf.body + '">本文テキストのサンプルです。</span>' +
+        '<span style="display:block;margin-top:5px;height:5px;border-radius:3px;width:62%;background:' + sf.fill + '"></span></div>';
+    }).join('');
+  }
+
+  function label(t, bt) {
+    return bt.source === 'custom' ? '직접 입력한 색'
+         : bt.source === 'palette' ? KG.paletteById(bt.paletteId).labelKo + ' 프리셋'
+         : bt.from ? '제품컷에서 추출 · ' + bt.from
+         : '아직 정하지 않음 — 생성할 때 제품컷에서 뽑습니다';
+  }
+
+  function renderCard() {
+    var th = KG.resolveTheme(saved, 'skincare');
+    $('thbSwatch').style.background = th.accent;
+    $('thbName').textContent = th.accent.toUpperCase() + ' · ' + th.moodLabel;
+    $('thbSource').textContent = label(th, saved);
+    var pass = th.bodyContrast >= 4.5 && th.onAccentContrast >= 4.5 && th.fillContrast >= 1.6;
+    $('thbContrast').textContent = (pass ? '○ ' : '△ ') + '본문 대비 ' + th.bodyContrast.toFixed(1) + ':1';
+    $('thbContrast').className = 'wf-contrast' + (pass ? ' ok' : ' warn');
+    preview($('thbPreview'), th);
+  }
+
+  function chip(text, active, onClick, dot) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', active ? 'true' : 'false');
+    b.className = 'wf-chip' + (active ? ' on' : '');
+    if (dot) {
+      var s = document.createElement('span');
+      s.className = 'wf-chip-dot';
+      s.style.background = dot;
+      s.setAttribute('aria-hidden', 'true');
+      b.appendChild(s);
+    }
+    b.appendChild(document.createTextNode((active ? '✓ ' : '') + text));
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function renderModal() {
+    var th = KG.resolveTheme(draft, 'skincare');
+
+    var pal = $('thmPalette');
+    pal.textContent = '';
+    KG.PALETTES.forEach(function (p) {
+      pal.appendChild(chip(p.labelKo, draft.source === 'palette' && draft.paletteId === p.id, function () {
+        draft.source = 'palette'; draft.paletteId = p.id; renderModal();
+      }, p.accent));
+    });
+
+    var mr = $('thmMood');
+    mr.textContent = '';
+    KG.MOODS.forEach(function (m) {
+      mr.appendChild(chip(m.labelKo, draft.moodId === m.id, function () { draft.moodId = m.id; renderModal(); }));
+    });
+
+    $('thmColor').value = th.accent;
+    if (document.activeElement !== $('thmHex')) $('thmHex').value = th.accent;
+    $('thmEvidence').textContent = draft.from
+      ? draft.from + '의 지배색 ' + (draft.extracted || '').toUpperCase() + ' · 유효 픽셀 ' + Math.round((draft.coverage || 0) * 100) + '%'
+      : '';
+    preview($('thmPreview'), th);
+    $('thmContrastNote').textContent =
+      '본문 대비 ' + th.bodyContrast.toFixed(1) + ':1 · 강조 밴드 글자 ' + th.onAccentContrast.toFixed(1) +
+      ':1 · 채움 ' + th.fillContrast.toFixed(1) + ':1 — 연한 색을 골라도 텍스트에는 자동으로 진한 색을 씁니다.';
+  }
+
+  function renderSamples() {
+    var row = $('thmSamples');
+    row.textContent = '';
+    KG.SAMPLE_SHOTS.forEach(function (s) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'wf-sample';
+      var cv = KG.drawSampleShot(s.id);
+      b.innerHTML = '<img src="' + cv.toDataURL() + '" alt="" width="30" height="30" />' + s.labelKo;
+      b.addEventListener('click', function () {
+        var r = KG.extractAccent(cv, 'skincare');
+        draft.source = 'auto';
+        draft.extracted = r.accent;
+        draft.moodId = r.moodId;
+        draft.from = s.labelKo;
+        draft.coverage = r.coverage;
+        renderModal();
+      });
+      row.appendChild(b);
+    });
+  }
+
+  function open() {
+    draft = JSON.parse(JSON.stringify(saved));
+    renderSamples();
+    renderModal();
+    $('thModal').style.display = 'flex';
+    $('thmCancel').focus();
+  }
+  function close() { $('thModal').style.display = 'none'; $('thEdit').focus(); }
+
+  $('thEdit').addEventListener('click', open);
+  $('thmCancel').addEventListener('click', close);
+  $('thmSave').addEventListener('click', function () {
+    saved = draft;
+    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* 무시 */ }
+    renderCard();
+    close();
+  });
+  $('thModal').addEventListener('click', function (e) { if (e.target === $('thModal')) close(); });
+  $('thmColor').addEventListener('input', function (e) { draft.source = 'custom'; draft.customAccent = e.target.value; renderModal(); });
+  $('thmHex').addEventListener('input', function (e) {
+    var hex = KG.normalizeHex(e.target.value);
+    if (!hex) return;
+    draft.source = 'custom'; draft.customAccent = hex; renderModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && $('thModal').style.display === 'flex') close();
+  });
+
+  renderCard();
 })();
 </script>
 </body>

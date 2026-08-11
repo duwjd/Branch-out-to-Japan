@@ -118,39 +118,34 @@
         <h2 style="margin:0;font-size:17px;font-weight:800;color:#202124">블록 구성 확인</h2>
         <a href="3-detail-home.html" style="font-size:12.5px;font-weight:600;color:#D93636">입력으로 돌아가기</a>
       </div>
-      <p style="margin:6px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">약 3분 걸립니다 · 블록 15개 (이미지 생성 4개) · 출력 폭 1200px</p>
+      <!-- CONFIRM-01 · 요약 줄 — 테마와 밴드 톤 구성을 여기서 처음 확인한다 -->
+      <p id="summaryLine" style="margin:6px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)"></p>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 14px">
+        <span id="cfSwatch" aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:8px;border:1px solid rgba(0,0,0,.08)"></span>
+        <span style="flex:1;min-width:150px">
+          <b id="cfTheme" style="display:block;font-size:12.5px;color:#202124">—</b>
+          <span id="cfTones" style="display:block;margin-top:2px;font-size:11.5px;color:rgba(55,56,60,0.61)">—</span>
+        </span>
+        <a href="3-detail-home.html#themeSection" style="flex:none;font-size:11.5px;font-weight:700;color:#D93636;text-decoration:none">테마 바꾸기</a>
+      </div>
       <p style="margin:8px 0 0;border-radius:9px;background:#F2F2F4;padding:9px 11px;font-size:11.5px;line-height:1.7;color:rgba(55,56,60,0.61)">라쿠텐은 이미지 1장당 3840px·2MB 제한이라, 분할본을 R-Cabinet에 올립니다.</p>
-      <ol id="seqList" style="margin:18px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">1</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">몰 프로모 배너</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">2</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">세트·수량 오퍼표</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">3</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">랭킹·수상 스택</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">4</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">누적 판매·리뷰 수</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">5</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">히어로 제품컷·캐치카피</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span></span><span style="font-size:11px;color:#B6B8BF">필수</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">6</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">문제 제기·공감</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span></span><span style="font-size:11px;color:#B6B8BF">필수</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">7</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">원인 구조화</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">8</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">비교 도해</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">9</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">기전 도해</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">10</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">시험·근거 라벨</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">11</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">POINT 나열</b></span><span style="font-size:11px;color:#B6B8BF">필수</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">12</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">텍스처·질감 컷</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">13</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">사용법 STEP</b></span><span style="font-size:12px;font-weight:700;color:#D93636">빼기</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">14</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">제품 스펙표</b></span><span style="font-size:11px;color:#B6B8BF">필수</span></li><li style="display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px">
-      <span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">15</span>
-      <span style="flex:1;display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">각주 모음</b></span><span style="font-size:11px;color:#B6B8BF">필수</span></li></ol>
+      <!-- CONFIRM-06 · 일본어 변환 확인 (2026-08-11 2차 개정 신설)
+           한국어로 입력한 사실 필드를 생성 **전에** 눈으로 확인하는 자리다. 이 값들은 카피가 아니라
+           근거(가격·성분·시험·표시 의무)이고 렌더러가 자단위로 그린다. 자동 변환만 믿고 넘기면
+           사용자는 결과물을 보고서야 안다. 한글 입력이 없으면 이 카드는 아예 뜨지 않는다. -->
+      <section id="trPanel" style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:16px 18px">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+          <h3 style="margin:0;font-size:13.5px;font-weight:800;color:#202124">일본어 변환 확인</h3>
+          <span id="trBadge" class="wf-badge">—</span>
+        </div>
+        <p style="margin:6px 0 0;font-size:12px;line-height:1.7;color:rgba(55,56,60,0.61)">한국어로 입력하신 항목을 일본 표기로 바꿨습니다. 수치·가격은 원문과 같은지 자동으로 대조했고, 아래에서 직접 고치실 수 있습니다.</p>
+        <ul id="trList" style="margin:12px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px"></ul>
+        <button type="button" id="trMore" style="margin-top:11px;border:0;background:none;padding:0;font-family:inherit;font-size:12px;font-weight:700;color:#D93636;cursor:pointer">나머지 펼쳐서 확인하기</button>
+      </section>
+
+      <p style="margin:14px 0 0;font-size:11.5px;line-height:1.7;color:rgba(55,56,60,0.61)">밴드 톤은 <b>순서 전체를 보고</b> 정해집니다 — 블록을 빼면 남은 블록의 톤이 다시 계산됩니다.</p>
+      <ol id="seqList" style="margin:10px 0 0;padding:0;list-style:none"></ol>
+      <div id="restoreRow" style="display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:12px"></div>
       <section style="margin-top:26px">
         <h3 style="margin:0;font-size:13.5px;font-weight:800;color:#202124">빠진 블록 4개</h3>
         <p style="margin:5px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">근거가 없으면 그 블록을 넣지 않는 것이 기본 동작입니다. 입력을 채우면 다시 들어갑니다.</p>
@@ -170,10 +165,181 @@
 
   <div style="position:fixed;left:248px;right:0;bottom:0;z-index:40;border-top:1px solid #EBEBEB;background:rgba(255,255,255,.95);padding:15px 24px">
     <div style="margin:0 auto;max-width:768px">
-      <span style="display:flex;height:46px;align-items:center;justify-content:center;border-radius:11px;background:#FF6464;font-size:14px;font-weight:800;color:#fff">상세페이지 생성 (블록 15개)</span>
+      <a href="5-detail-result.html" id="cfCta" style="display:flex;height:46px;align-items:center;justify-content:center;border-radius:11px;background:#FF6464;font-size:14px;font-weight:800;color:#fff;text-decoration:none">상세페이지 생성</a>
       <p style="margin:9px 0 0;text-align:center;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">생성 버튼이 실행 직전 게이트 지점입니다 — 비회원이면 여기서 로그인 모달.</p>
     </div>
   </div>
+
+<script src="detail-proto.js"></script>
+<script>
+/**
+ * CONFIRM-01·02 인터랙션.
+ * 톤·높이는 화면이 추론하지 않는다 — 블록을 뺄 때마다 남은 시퀀스 전체를 KG.planLayout 에
+ * 다시 넣어 받은 결과를 그린다(실제 구현에서 서버 미리보기를 재호출하는 자리와 같다).
+ */
+(function () {
+  'use strict';
+  var S = KG.load();
+  var el = function (id) { return document.getElementById(id); };
+
+  function toneBadge(tone, th) {
+    var sf = KG.surfaceFor(tone, th);
+    return '<span class="wf-tone"><i style="background:' + sf.bg + '"></i>' + KG.TONE_LABEL[tone] + '</span>';
+  }
+
+  function render() {
+    var th = KG.resolveTheme(S.theme, S.category);
+    document.documentElement.style.setProperty('--th-accent', th.accent);
+    document.documentElement.style.setProperty('--th-tint', th.accentTint);
+
+    var seq = KG.sequenceFor(S);
+    var layout = KG.planLayout(seq);
+    var aiCount = layout.filter(function (b) { return b.def.renderKind !== 'text'; }).length;
+    var total = KG.totalHeight(layout);
+    var slices = Math.ceil(total / 1500);
+
+    el('summaryLine').textContent =
+      '약 ' + (2 + Math.round(aiCount * 0.5)) + '분 걸립니다 · 블록 ' + seq.length + '개 (이미지 생성 ' + aiCount +
+      '개) · 출력 폭 1200px · 총 ' + total.toLocaleString() + 'px → 분할 ' + slices + '장';
+    el('cfSwatch').style.background = th.accent;
+    el('cfTheme').textContent = th.accent.toUpperCase() + ' · ' + th.moodLabel;
+    el('cfTones').textContent = '밴드 톤 ' + KG.toneSummary(layout);
+    el('cfCta').textContent = '상세페이지 생성 (블록 ' + seq.length + '개)';
+
+    var ol = el('seqList');
+    ol.textContent = '';
+    layout.forEach(function (b, i) {
+      var li = document.createElement('li');
+      li.style.cssText = 'display:flex;align-items:center;gap:11px;border:1px solid rgba(112,115,124,0.14);border-radius:12px;background:#fff;padding:11px 15px;margin-top:7px';
+      var required = b.def.necessity === 'required';
+      li.innerHTML =
+        '<span style="width:22px;text-align:center;font-size:11px;font-weight:800;color:#B6B8BF">' + (i + 1) + '</span>' +
+        '<span style="flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:6px">' +
+          '<b style="font-size:13px;color:#202124">' + b.def.nameKo + '</b>' +
+          (b.chapter ? '<span class="wf-h">챕터 ' + b.chapter.index + '/' + b.chapter.total + '</span>' : '') +
+          (b.def.renderKind !== 'text'
+            ? '<span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF6E5;padding:0 7px;font-size:10px;font-weight:800;color:#B96C00">이미지 생성</span>'
+            : '') +
+          toneBadge(b.tone, th) +
+          '<span class="wf-h">' + (b.heightPreset ? b.heightPreset + ' ' : '') + b.height.toLocaleString() + 'px</span>' +
+          (b.placement === 'scrim-bottom' ? '<span class="wf-h">풀블리드</span>' : '') +
+        '</span>';
+
+      var act = document.createElement('span');
+      if (required) {
+        act.style.cssText = 'font-size:11px;color:#B6B8BF';
+        act.textContent = '필수';
+      } else {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.style.cssText = 'border:none;background:transparent;font-family:inherit;font-size:12px;font-weight:700;color:#D93636;cursor:pointer;padding:0';
+        btn.textContent = '빼기';
+        btn.addEventListener('click', function () {
+          S.disabled = S.disabled.concat([b.id]);
+          KG.save(S);
+          render();
+        });
+        act.appendChild(btn);
+      }
+      li.appendChild(act);
+      ol.appendChild(li);
+    });
+
+    // 뺀 블록 되돌리기 — 접지 않고 노출한다(이 화면의 존재 이유)
+    var back = el('restoreRow');
+    back.textContent = '';
+    if (S.disabled.length) {
+      back.insertAdjacentHTML('beforeend',
+        '<span style="font-size:11.5px;font-weight:700;color:#414245">뺀 블록 ' + S.disabled.length + '개</span>');
+      S.disabled.forEach(function (id) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'wf-chip';
+        b.textContent = '＋ ' + KG.BLOCKS[id].nameKo;
+        b.addEventListener('click', function () {
+          S.disabled = S.disabled.filter(function (x) { return x !== id; });
+          KG.save(S);
+          render();
+        });
+        back.appendChild(b);
+      });
+    }
+  }
+
+  /* ── CONFIRM-06 일본어 변환 확인 ─────────────────────────────────────────
+     실패분과 표시 의무 항목(区分·全成分)은 **접지 않는다.** 접힌 채 넘어가면 확인 단계가 무의미하다.
+     편집하면 KG.verifyTranslation() 이 즉시 다시 돈다 — 서버가 제출 때 쓰는 것과 같은 함수라
+     화면의 경고와 서버의 채택 여부가 갈리지 않는다. ─────────────────────────────── */
+  var TR = KG.DEMO_TRANSLATION.map(function (f) { return f; });
+  var trOpen = false;
+
+  function trRow(f) {
+    var li = document.createElement('li');
+    li.style.cssText = 'border:1px solid ' + (f.ok ? 'rgba(112,115,124,0.14)' : '#F0483C') +
+      ';border-radius:11px;background:' + (f.ok ? '#F7F7F8' : '#FDF0EF') + ';padding:11px 13px';
+
+    var head = '<span style="font-size:12px;font-weight:700;color:#414245">' + f.label + '</span>';
+    if (f.kind === 'regulated') head += '<span class="wf-badge warn">표시 의무 — 반드시 확인</span>';
+    if (f.kind === 'artDirection') head += '<span class="wf-badge">이미지 지시 · 영어</span>';
+    if (f.via === 'glossary') head += '<span class="wf-badge ok">브랜드 등록 표기</span>';
+    if (f.via === 'kubun') head += '<span class="wf-badge ok">매핑표로 확정</span>';
+    if (!f.ok) head += '<span class="wf-badge danger">확인 필요</span>';
+
+    li.insertAdjacentHTML('beforeend',
+      '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px">' + head + '</div>' +
+      '<p style="margin:5px 0 0;font-size:11px;line-height:1.7;color:#B6B8BF"><b style="font-weight:700">원문</b> ' + f.kr + '</p>');
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.value = f.ja;
+    input.setAttribute('aria-label', f.label + ' 일본어 변환값');
+    input.setAttribute('aria-invalid', f.ok ? 'false' : 'true');
+    input.style.cssText = 'display:block;width:100%;box-sizing:border-box;margin-top:6px;border:1px solid rgba(112,115,124,0.28);border-radius:9px;background:#fff;padding:8px 10px;font-family:inherit;font-size:12px;color:#414245';
+    input.addEventListener('input', function () {
+      var next = KG.verifyTranslation(f, input.value);
+      var i = TR.indexOf(f);
+      if (i !== -1) TR[i] = next;
+      renderTranslation();
+    });
+    li.appendChild(input);
+
+    if (f.problem) {
+      li.insertAdjacentHTML('beforeend',
+        '<p style="margin:6px 0 0;font-size:11px;line-height:1.7;color:#C6362C">' + f.problem + '</p>');
+    }
+    return li;
+  }
+
+  function renderTranslation() {
+    var panel = el('trPanel');
+    // 한글 입력이 없으면 이 카드는 아예 뜨지 않는다(콜도 0회다)
+    if (!TR.length) { panel.style.display = 'none'; return; }
+
+    var failed = TR.filter(function (f) { return !f.ok; });
+    var badge = el('trBadge');
+    badge.className = 'wf-badge ' + (failed.length ? 'danger' : 'ok');
+    badge.textContent = failed.length ? '확인 필요 ' + failed.length : TR.length + '개 변환됨';
+
+    var always = TR.filter(function (f) { return !f.ok || f.kind === 'regulated'; });
+    var rest = TR.filter(function (f) { return always.indexOf(f) === -1; });
+
+    var list = el('trList');
+    list.textContent = '';
+    always.forEach(function (f) { list.appendChild(trRow(f)); });
+    if (trOpen) rest.forEach(function (f) { list.appendChild(trRow(f)); });
+
+    var more = el('trMore');
+    more.style.display = rest.length ? 'block' : 'none';
+    more.textContent = trOpen ? '나머지 ' + rest.length + '개 접기' : '나머지 ' + rest.length + '개 펼쳐서 확인하기';
+    more.setAttribute('aria-expanded', trOpen ? 'true' : 'false');
+  }
+
+  el('trMore').addEventListener('click', function () { trOpen = !trOpen; renderTranslation(); });
+
+  render();
+  renderTranslation();
+})();
+</script>
 
 </body>
 </html>

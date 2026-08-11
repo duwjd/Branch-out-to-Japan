@@ -117,10 +117,27 @@
       <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
         <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">1</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">원본 이미지</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF0F0;padding:0 7px;font-size:10px;font-weight:800;color:#D93636">필수</span></div>
         <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">제품컷 1장은 필수입니다. 한국 상세페이지 원본을 위→아래 순서로 함께 올리면 갭 진단에 씁니다. 최대 10장.</p>
-        <div style="margin-top:14px"><div id="dropzone" style="border:1px dashed rgba(112,115,124,0.28);border-radius:12px;padding:26px;text-align:center">
-      <span style="display:inline-flex;height:38px;align-items:center;gap:6px;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:0 14px;font-size:12.5px;font-weight:700;color:#414245">이미지 선택</span>
-      <p style="margin:9px 0 0;font-size:11.5px;color:rgba(55,56,60,0.61)">JPG · PNG · WebP · 10MB 이하</p></div>
-    <div style="display:flex;gap:10px;margin-top:14px"><div style="position:relative;width:76px;height:76px;border:1px solid rgba(112,115,124,0.14);border-radius:9px;background:#F2F2F4"><span style="position:absolute;left:4px;top:4px;border-radius:4px;background:rgba(32,33,36,.7);padding:0 5px;font-size:10px;font-weight:800;color:#fff">1</span></div><div style="position:relative;width:76px;height:76px;border:1px solid rgba(112,115,124,0.14);border-radius:9px;background:#F2F2F4"><span style="position:absolute;left:4px;top:4px;border-radius:4px;background:rgba(32,33,36,.7);padding:0 5px;font-size:10px;font-weight:800;color:#fff">2</span></div><div style="position:relative;width:76px;height:76px;border:1px solid rgba(112,115,124,0.14);border-radius:9px;background:#F2F2F4"><span style="position:absolute;left:4px;top:4px;border-radius:4px;background:rgba(32,33,36,.7);padding:0 5px;font-size:10px;font-weight:800;color:#fff">3</span></div></div></div>
+        <div style="margin-top:14px">
+          <input id="fileInput" type="file" accept="image/*" multiple class="sr-only" />
+          <div id="dropzone" style="border:1px dashed rgba(112,115,124,0.28);border-radius:12px;padding:26px;text-align:center">
+            <button type="button" id="pickBtn" style="display:inline-flex;height:38px;align-items:center;gap:6px;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:0 14px;font-size:12.5px;font-weight:700;color:#414245;background:#fff;font-family:inherit;cursor:pointer">이미지 선택</button>
+            <p style="margin:9px 0 0;font-size:11.5px;color:rgba(55,56,60,0.61)">JPG · PNG · WebP · 10MB 이하 — 첫 장이 제품 대표컷입니다</p>
+          </div>
+          <p style="margin:11px 0 6px;font-size:11.5px;font-weight:700;color:#414245">이미지가 없으면 <span style="font-weight:600;color:rgba(55,56,60,0.61)">데모 제품컷으로 해보세요</span></p>
+          <div id="sampleRow" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+          <ul id="shotList" style="display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0;padding:0;list-style:none"></ul>
+          <!-- DETAIL-02b · 추출 결과. 색이 어디서 왔는지 화면이 말한다 -->
+          <div id="extractCard" hidden style="margin-top:14px;border-radius:11px;background:#F7F7F8;padding:13px 15px">
+            <div style="display:flex;align-items:center;gap:11px">
+              <span id="exSwatch" aria-hidden="true" style="flex:none;width:34px;height:34px;border-radius:9px;border:1px solid rgba(0,0,0,.08)"></span>
+              <span style="flex:1;min-width:0">
+                <b style="display:block;font-size:12.5px;color:#202124">제품컷에서 뽑은 브랜드 색</b>
+                <span id="exMeta" style="display:block;margin-top:2px;font-size:11.5px;color:rgba(55,56,60,0.61)"></span>
+              </span>
+              <a href="#themeSection" style="flex:none;font-size:11.5px;font-weight:700;color:#D93636;text-decoration:none">바꾸기</a>
+            </div>
+          </div>
+        </div>
       </section>
       <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
         <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">2</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">상품 종류 · 타깃 플랫폼</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF0F0;padding:0 7px;font-size:10px;font-weight:800;color:#D93636">필수</span></div>
@@ -130,35 +147,53 @@
       <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
         <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">3</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">템플릿</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF0F0;padding:0 7px;font-size:10px;font-weight:800;color:#D93636">필수</span></div>
         <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">상세페이지는 순서가 핵심입니다. 카드의 블록 흐름을 보고 고르세요.</p>
-        <div style="margin-top:14px"><div id="tplGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:11px"><div style="border:1px solid #FF6464;box-shadow:0 0 0 3px rgba(255,100,100,.18);border-radius:14px;background:#fff;padding:14px">
-      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">문제해결 서사형</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#EAF9F3;padding:0 7px;font-size:10px;font-weight:800;color:#00875A">추천</span></div>
-      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">고민을 먼저 합의시키고 원인·기전으로 해결을 설명한다.</p>
-      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>문제 제기</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>원인 구조화</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>비교 도해</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>기전 도해</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>시험 근거</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
-    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
-      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">성분 근거형</b><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#EAF9F3;padding:0 7px;font-size:10px;font-weight:800;color:#00875A">추천</span></div>
-      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">문제 제기 없이 성분명·농도·시험 근거로 바로 진입한다.</p>
-      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>성분 카드</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>기전 도해</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>정량 그래프</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>시험 근거</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>무첨가</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
-    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
-      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">스펙·씬 신뢰형</b></div>
-      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">정량 스펙을 첫 화면에 세우고 사용 씬으로 신뢰를 쌓는다.</p>
-      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>스펙 패널</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>니즈 제기</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>POINT</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>사용 씬</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>시험 근거</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
-    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
-      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">컬러 배리에이션형</b></div>
-      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">전 색상 → 컬러 차트 → 퍼스널컬러로 색 선택을 돕는다.</p>
-      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>컬러 칩</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>컬러 차트</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>퍼스널컬러</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>발색 시연</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>POINT</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
-    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
-      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">저자극·편의형</b></div>
-      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">부담 없음·시간 절약을 코어로 무첨가·저자극 근거를 붙인다.</p>
-      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>문제 제기</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>POINT</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>무첨가</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>시험 근거</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>사용법</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
-    </div><div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;background:#fff;padding:14px">
-      <div style="display:flex;align-items:center;gap:7px"><b style="font-size:13px;color:#202124">브랜드 프리미엄형</b></div>
-      <p style="margin:6px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">브랜드 서사가 페이지를 지배한다. 배지·수치는 최소.</p>
-      <ol style="margin:10px 0 0;padding:0;list-style:none"><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>브랜드 스토리</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>히어로</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>기전 도해</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>성분 카드</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>텍스처</li><li style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(55,56,60,0.61);margin-top:4px"><span style="width:4px;height:4px;border-radius:999px;background:#FF6464"></span>사용법</li><li style="margin-top:4px;font-size:11px;color:#B6B8BF">외 5개</li></ol>
-    </div></div></div>
+        <div style="margin-top:14px">
+          <div id="tplGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:11px"></div>
+          <p style="margin:11px 0 0;font-size:11.5px;line-height:1.7;color:rgba(55,56,60,0.61)">미리보기는 <b>블록 순서를 그대로 그린 구성도</b>입니다 — 실제 문구·사진은 입력하신 내용과 아래 테마로 생성됩니다.</p>
+        </div>
+      </section>
+      <!-- DETAIL-04b · 테마 (신설) — 기본값은 제품컷에서 뽑은 색, 여기서 이번 건만 덮어쓴다 -->
+      <section id="themeSection" style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">4</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">테마</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#EFEFF1;padding:0 7px;font-size:10px;font-weight:800;color:#70737C">이번 건만</span></div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">생성물의 색과 분위기입니다. 기본값은 브랜드 관리에 저장된 테마이고, 없으면 제품컷에서 뽑습니다. 여기서 바꿔도 <b>브랜드 설정은 그대로</b>입니다.</p>
+
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px">
+          <span id="thSwatch" aria-hidden="true" style="flex:none;width:40px;height:40px;border-radius:11px;border:1px solid rgba(0,0,0,.08)"></span>
+          <span style="flex:1;min-width:180px">
+            <b id="thTitle" style="display:block;font-size:13px;color:#202124">—</b>
+            <span id="thSource" style="display:block;margin-top:2px;font-size:11.5px;color:rgba(55,56,60,0.61)">—</span>
+          </span>
+          <span id="thContrast" class="wf-contrast" role="status">—</span>
+          <button type="button" id="thReset" style="flex:none;border:1px solid rgba(112,115,124,0.28);border-radius:9px;background:#fff;padding:7px 11px;font-family:inherit;font-size:11.5px;font-weight:700;color:#414245;cursor:pointer">제품컷 색으로 되돌리기</button>
+        </div>
+
+        <p style="margin:16px 0 7px;font-size:11.5px;font-weight:700;color:#414245">테마 컬러</p>
+        <div id="paletteRow" role="radiogroup" aria-label="테마 컬러" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+        <label style="display:inline-flex;align-items:center;gap:8px;margin-top:9px;font-size:11.5px;font-weight:700;color:#414245">
+          직접 입력
+          <input type="color" id="customColor" value="#e8556e" style="width:36px;height:28px;border:1px solid rgba(112,115,124,0.28);border-radius:7px;background:#fff;padding:2px;cursor:pointer" />
+          <input type="text" id="customHex" value="#e8556e" spellcheck="false" aria-label="테마 컬러 hex" style="width:88px;border:1px solid rgba(112,115,124,0.28);border-radius:7px;padding:6px 8px;font-family:inherit;font-size:11.5px;color:#414245" />
+        </label>
+
+        <p style="margin:16px 0 7px;font-size:11.5px;font-weight:700;color:#414245">무드 <span style="font-weight:600;color:rgba(55,56,60,0.61)">— 배경컷 연출 프롬프트로 들어갑니다</span></p>
+        <div id="moodRow" role="radiogroup" aria-label="무드" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+
+        <div style="margin-top:16px;border-top:1px solid #EBEBEB;padding-top:14px">
+          <p style="margin:0 0 8px;font-size:11.5px;font-weight:700;color:#414245">테마 적용 미리보기 <span style="font-weight:600;color:rgba(55,56,60,0.61)">— 고른 템플릿에 이 색을 입히면</span></p>
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <span id="themeMini" class="wf-mini" style="flex:none"></span>
+            <p style="margin:0;font-size:11.5px;line-height:1.7;color:rgba(55,56,60,0.61)">위 템플릿 카드는 <b>실제로 생성한 결과물</b>이라 테마를 바꿔도 다시 칠해지지 않습니다. 색이 어떻게 적용되는지는 이 도식으로 확인하세요.</p>
+          </div>
+        </div>
+
+        <details style="margin-top:14px;border-top:1px solid #EBEBEB;padding-top:12px">
+          <summary style="font-size:11.5px;font-weight:700;color:#414245;cursor:pointer">이 테마가 이미지 생성 프롬프트에 어떻게 들어가는지 보기</summary>
+          <pre id="promptPeek" style="margin:9px 0 0;border-radius:9px;background:#F7F7F8;padding:11px 13px;font-size:11px;line-height:1.7;color:#414245;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace"></pre>
+        </details>
       </section>
       <section style="margin-top:16px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04);padding:20px">
         <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:6px;background:#FFF0F0;font-size:11px;font-weight:800;color:#D93636">4</span><h2 style="margin:0;font-size:14.5px;font-weight:800;color:#202124">제품 스펙</h2><span style="display:inline-flex;height:19px;align-items:center;border-radius:999px;background:#FFF0F0;padding:0 7px;font-size:10px;font-weight:800;color:#D93636">필수</span></div>
-        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">표시 의무 항목입니다. 입력하신 원문을 그대로 넣습니다 — 저희가 고쳐 쓰지 않습니다.</p>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">표시 의무 항목입니다. 내용을 고쳐 쓰지 않고, <b>한국어로 입력하시면 일본 표기로만</b> 바꿔 넣습니다. 바꾼 결과는 다음 단계에서 확인·수정하실 수 있습니다.</p>
         <div style="margin-top:14px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:11px"><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">内容量</span>
       <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">30mL</span></label><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">区分</span>
       <span style="display:block;border:1px solid rgba(112,115,124,0.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#B6B8BF">化粧品 / 医薬部外品</span></label><label style="display:block"><span style="display:block;margin-bottom:5px;font-size:11.5px;font-weight:700;color:#414245">販売元</span>
@@ -200,10 +235,290 @@
 
   <div style="position:fixed;left:248px;right:0;bottom:0;z-index:40;border-top:1px solid #EBEBEB;background:rgba(255,255,255,.95);padding:15px 24px">
     <div style="margin:0 auto;max-width:768px">
-      <span style="display:flex;height:46px;align-items:center;justify-content:center;border-radius:11px;background:#FF6464;font-size:14px;font-weight:800;color:#fff">블록 구성 확인</span>
-      <p style="margin:9px 0 0;text-align:center;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">이미지와 템플릿을 고르면 구성을 미리 볼 수 있어요.</p>
+      <a href="4-detail-confirm.html" id="goConfirm" style="display:flex;height:46px;align-items:center;justify-content:center;border-radius:11px;background:#FF6464;font-size:14px;font-weight:800;color:#fff;text-decoration:none">블록 구성 확인</a>
+      <p id="ctaNote" style="margin:9px 0 0;text-align:center;font-size:12.5px;line-height:1.7;color:rgba(55,56,60,0.61)">이미지와 템플릿을 고르면 구성을 미리 볼 수 있어요.</p>
     </div>
   </div>
+
+<script src="detail-proto.js"></script>
+<script>
+/**
+ * DETAIL-02·04·04b 인터랙션.
+ * 화면은 추론하지 않는다 — 시퀀스·톤·색은 전부 detail-proto.js(=엔진 스펙)가 정하고
+ * 여기서는 그 결과를 그리기만 한다. 실제 구현에서 서버 미리보기를 호출하는 자리와 같다.
+ */
+(function () {
+  'use strict';
+  var S = KG.load();
+
+  var el = function (id) { return document.getElementById(id); };
+  var tplGrid = el('tplGrid'), paletteRow = el('paletteRow'), moodRow = el('moodRow');
+  var sampleRow = el('sampleRow'), shotList = el('shotList'), fileInput = el('fileInput');
+
+  /** 현재 상태로 해석된 테마. 모든 렌더가 이 값 하나를 본다. */
+  function theme() { return KG.resolveTheme(S.theme, S.category); }
+
+  /* ── 칩 공용 ─────────────────────────────────────────────────────────── */
+  function chip(label, active, onClick, swatchColor) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', active ? 'true' : 'false');
+    b.className = 'wf-chip' + (active ? ' on' : '');
+    if (swatchColor) {
+      var sw = document.createElement('span');
+      sw.className = 'wf-chip-dot';
+      sw.style.background = swatchColor;
+      sw.setAttribute('aria-hidden', 'true');
+      b.appendChild(sw);
+    }
+    // 색만으로 구분하지 않는다 — 선택 상태에 체크 기호를 병기(CVD 방침)
+    b.appendChild(document.createTextNode((active ? '✓ ' : '') + label));
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  /** 방향키로 라디오 그룹을 순회한다. */
+  function wireRoving(row) {
+    row.addEventListener('keydown', function (e) {
+      if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].indexOf(e.key) === -1) return;
+      var items = Array.prototype.slice.call(row.querySelectorAll('button'));
+      var i = items.indexOf(document.activeElement);
+      if (i === -1) return;
+      e.preventDefault();
+      var d = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1;
+      items[(i + d + items.length) % items.length].focus();
+    });
+  }
+
+  /* ── DETAIL-04 템플릿 카드 ─────────────────────────────────────────────
+     2026-08-11 2차 개정 — 카드 프리뷰가 **실제 생성물**이다.
+     1차 개정에서는 blockSequence 로 그린 도식을 썼는데, 도식은 "무엇이 몇 번째로 오는가"만
+     말하고 "그래서 어떻게 보이는가"는 말하지 못한다. 지금은 `npm run detail:previews` 가
+     실 파이프라인으로 구운 public/detail-templates/preview-D*.webp 를 쓴다.
+
+     ⚠ 실제 이미지라 **테마를 바꿔도 다시 칠해지지 않는다.** 테마의 실시간 반영은
+     아래 DETAIL-04b 의 「테마 적용 미리보기」가 담당한다(그쪽은 여전히 시퀀스에서 그린다).
+     프리뷰 파일이 없으면(프로토를 클론 직후 열었을 때) 도식으로 폴백한다. ───────────── */
+  function renderTemplates() {
+    var th = theme();
+    tplGrid.textContent = '';
+    KG.TEMPLATES.forEach(function (t) {
+      var active = t.id === S.templateId;
+      // 추천 = 상품 종류 + 플랫폼 둘 다 맞을 때만. 플랫폼만 보면 라쿠텐에서 6장 전부 추천이 붙어
+      // 배지가 아무것도 구분하지 못한다(팩 selectionGuide.byCategory 와 같은 판정축을 쓴다).
+      var fits = t.categories.indexOf(S.category) !== -1 && t.platformFit.indexOf(S.platform) !== -1;
+      var seq = KG.sequenceFor({ platform: S.platform, templateId: t.id, disabled: [] });
+      var layout = KG.planLayout(seq);
+      // 목록은 **템플릿 고유 시퀀스**를 보여준다 — 앞머리의 프로모·실적 레이어는 조건부이고
+      // 6장 모두 같아서, 그걸 보여주면 카드가 서로 구분되지 않는다.
+      var own = KG.planLayout(t.seq);
+
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'wf-tpl' + (active ? ' on' : '');
+      card.setAttribute('aria-pressed', active ? 'true' : 'false');
+
+      var mini = document.createElement('span');
+      mini.className = 'wf-mini';
+      var img = document.createElement('img');
+      img.src = '../../../public/detail-templates/preview-' + t.id + '.webp';
+      img.alt = t.nameKo + ' 생성 결과 미리보기';
+      img.loading = 'lazy';
+      img.style.cssText = 'width:100%;height:auto;display:block';
+      // 프리뷰가 아직 안 구워졌으면 도식으로 폴백한다 — 카드가 깨지지 않게
+      img.onerror = function () { mini.innerHTML = KG.miniature(t.seq, th, { maxHeight: 300 }); };
+      mini.appendChild(img);
+
+      var body = document.createElement('span');
+      body.className = 'wf-tpl-body';
+      body.innerHTML =
+        '<span class="wf-tpl-head"><b>' + t.nameKo + '</b>' +
+        (fits ? '<span class="wf-badge ok">추천</span>' : '') + '</span>' +
+        '<span class="wf-tpl-desc">' + t.description + '</span>' +
+        '<span class="wf-tpl-meta">블록 ' + seq.length + '개 · 이미지 생성 ' +
+        layout.filter(function (b) { return b.def.renderKind !== 'text'; }).length + '개</span>';
+
+      var ol = document.createElement('ol');
+      ol.className = 'wf-tpl-seq';
+      own.slice(0, 4).forEach(function (b) {
+        var li = document.createElement('li');
+        li.innerHTML = '<span class="wf-tpl-dot" aria-hidden="true"></span>' + b.def.nameKo;
+        ol.appendChild(li);
+      });
+      if (seq.length > 4) {
+        var more = document.createElement('li');
+        more.className = 'more';
+        more.textContent = '외 ' + (seq.length - 4) + '개';
+        ol.appendChild(more);
+      }
+      body.appendChild(ol);
+
+      card.appendChild(mini);
+      card.appendChild(body);
+      card.addEventListener('click', function () { S.templateId = t.id; commit(); });
+      tplGrid.appendChild(card);
+    });
+  }
+
+  /* ── DETAIL-04b 테마 ─────────────────────────────────────────────────── */
+  function renderTheme() {
+    var th = theme();
+    document.documentElement.style.setProperty('--th-accent', th.accent);
+    document.documentElement.style.setProperty('--th-strong', th.accentStrong);
+    document.documentElement.style.setProperty('--th-tint', th.accentTint);
+
+    el('thSwatch').style.background = th.accent;
+    var srcLabel = S.theme.source === 'custom' ? '직접 입력'
+                 : S.theme.source === 'palette' ? KG.paletteById(S.theme.paletteId).labelKo + ' 프리셋'
+                 : S.extractedFrom ? '제품컷에서 추출 · ' + S.extractedFrom
+                 : '아직 제품컷이 없어 상품 종류 기본색을 씁니다';
+    el('thTitle').textContent = th.accent.toUpperCase() + ' · ' + th.moodLabel;
+    el('thSource').textContent = srcLabel;
+
+    var c = el('thContrast');
+    var pass = th.bodyContrast >= 4.5 && th.onAccentContrast >= 4.5 && th.fillContrast >= 1.6;
+    c.textContent = (pass ? '○ ' : '△ ') + '본문 대비 ' + th.bodyContrast.toFixed(1) + ':1 · 강조 밴드 ' + th.onAccentContrast.toFixed(1) + ':1';
+    c.className = 'wf-contrast' + (pass ? ' ok' : ' warn');
+
+    paletteRow.textContent = '';
+    KG.PALETTES.forEach(function (p) {
+      var active = S.theme.source === 'palette' && S.theme.paletteId === p.id;
+      paletteRow.appendChild(chip(p.labelKo, active, function () {
+        S.theme.source = 'palette'; S.theme.paletteId = p.id; commit();
+      }, p.accent));
+    });
+
+    moodRow.textContent = '';
+    KG.MOODS.forEach(function (m) {
+      moodRow.appendChild(chip(m.labelKo, S.theme.moodId === m.id, function () {
+        S.theme.moodId = m.id; commit();
+      }));
+    });
+
+    el('customColor').value = th.accent;
+    if (document.activeElement !== el('customHex')) el('customHex').value = th.accent;
+    el('thReset').disabled = S.theme.source === 'auto';
+    el('thReset').style.opacity = S.theme.source === 'auto' ? '0.45' : '1';
+
+    // 테마의 실시간 반영은 여기서 보여준다 — 템플릿 카드는 실제 생성물이라 다시 칠해지지 않는다
+    el('themeMini').innerHTML = KG.miniature(KG.templateById(S.templateId).seq, th, { maxHeight: 300 });
+
+    // 실제 buildBlockPrompt() 가 조립하는 문자열과 같은 자리에 같은 값이 들어간다
+    el('promptPeek').textContent =
+      '…the supplied product upright in the right third of the frame, on a soft ' + th.surface + ' surface.\n' +
+      'Mood: ' + th.moodKeywords + '.\n' +
+      'Accent: ' + (S.theme.source === 'palette' ? KG.paletteById(S.theme.paletteId).nameEn : 'brand accent') +
+      ' (' + th.accent + ').\n\nStrict requirements:\n' +
+      '- No text, letters, kana, kanji, hangul, numbers, captions, labels, logos, badges, or watermarks anywhere in the image.\n' +
+      '- Keep the bottom 35% of the frame simple, low-detail, and free of the main subject — a dark gradient and Japanese vector text are composited there.';
+  }
+
+  /* ── DETAIL-02 업로드·추출 ───────────────────────────────────────────── */
+  var shots = []; // { src, label, isPrimary }
+
+  function applyExtraction(source, label) {
+    var r = KG.extractAccent(source, S.category);
+    S.theme.extracted = r.accent;
+    S.theme.moodId = r.moodId;
+    S.theme.source = 'auto';
+    S.extractedFrom = label;
+    S.coverage = r.coverage;
+
+    var card = el('extractCard');
+    card.hidden = false;
+    el('exSwatch').style.background = r.accent;
+    el('exMeta').textContent = r.ok
+      ? label + '의 지배색 ' + r.accent.toUpperCase() + ' · 유효 픽셀 ' + Math.round(r.coverage * 100) + '% · 무드 ' + KG.moodById(r.moodId).labelKo
+      : '유효 픽셀이 ' + Math.round(r.coverage * 100) + '%뿐이라 상품 종류 기본 팔레트로 대체했습니다';
+    commit();
+  }
+
+  function renderShots() {
+    shotList.textContent = '';
+    shots.forEach(function (s, i) {
+      var li = document.createElement('li');
+      li.className = 'wf-shot' + (i === 0 ? ' primary' : '');
+      li.innerHTML = '<img src="' + s.src + '" alt="업로드 ' + (i + 1) + '" width="76" height="76" />' +
+        '<span class="wf-shot-n">' + (i + 1) + '</span>' +
+        (i === 0 ? '<span class="wf-shot-tag">색 추출</span>' : '');
+      shotList.appendChild(li);
+    });
+    el('ctaNote').textContent = shots.length
+      ? '블록 ' + KG.sequenceFor(S).length + '개 구성으로 넘어갑니다.'
+      : '이미지와 템플릿을 고르면 구성을 미리 볼 수 있어요.';
+  }
+
+  /**
+   * 색 추출은 **첫 장(제품 대표컷)에서만** 한다.
+   * 2번째 장부터는 한국 상세페이지 원본이라 한국어 UI 색(빨강 세일 배너 등)이 섞여 결과를 오염시킨다.
+   */
+  function acceptFiles(files) {
+    Array.prototype.slice.call(files).slice(0, 10 - shots.length).forEach(function (f, k) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var first = shots.length === 0;
+        shots.push({ src: reader.result, label: f.name });
+        renderShots();
+        if (!first) return;
+        var img = new Image();
+        img.onload = function () { applyExtraction(img, f.name); };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+
+  function renderSamples() {
+    KG.SAMPLE_SHOTS.forEach(function (s) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'wf-sample';
+      var cv = KG.drawSampleShot(s.id);
+      b.innerHTML = '<img src="' + cv.toDataURL() + '" alt="" width="30" height="30" />' + s.labelKo;
+      b.addEventListener('click', function () {
+        shots = [{ src: cv.toDataURL(), label: s.labelKo }];
+        renderShots();
+        applyExtraction(cv, s.labelKo);
+      });
+      sampleRow.appendChild(b);
+    });
+  }
+
+  /* ── 커밋 — 상태 저장 후 전체 재렌더. 단일 경로로 유지해 화면 간 불일치를 막는다 ── */
+  function commit() {
+    KG.save(S);
+    renderTemplates();
+    renderTheme();
+    renderShots();
+  }
+
+  el('pickBtn').addEventListener('click', function () { fileInput.click(); });
+  fileInput.addEventListener('change', function (e) { acceptFiles(e.target.files); e.target.value = ''; });
+  el('dropzone').addEventListener('dragover', function (e) { e.preventDefault(); el('dropzone').classList.add('over'); });
+  el('dropzone').addEventListener('dragleave', function () { el('dropzone').classList.remove('over'); });
+  el('dropzone').addEventListener('drop', function (e) {
+    e.preventDefault();
+    el('dropzone').classList.remove('over');
+    acceptFiles(e.dataTransfer.files);
+  });
+
+  el('customColor').addEventListener('input', function (e) {
+    S.theme.source = 'custom'; S.theme.customAccent = e.target.value; commit();
+  });
+  el('customHex').addEventListener('input', function (e) {
+    var hex = KG.normalizeHex(e.target.value);
+    if (!hex) return;
+    S.theme.source = 'custom'; S.theme.customAccent = hex; commit();
+  });
+  el('thReset').addEventListener('click', function () { S.theme.source = 'auto'; commit(); });
+
+  wireRoving(paletteRow);
+  wireRoving(moodRow);
+  renderSamples();
+  commit();
+})();
+</script>
 
 </body>
 </html>

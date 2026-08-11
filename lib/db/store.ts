@@ -168,6 +168,19 @@ export interface DetailInput {
   reviews: { text: string; rating: string; age: string }[];
   promo: PromoInput | null;
   modelConsent: boolean;
+
+  // ── 콜⑧ inputTranslate 스냅샷 (08 §4.8) ────────────────────────────────────
+  // 전부 optional 이다. regenerateBlock 이 **구 자산의 detail_input 을 그대로** 읽으므로,
+  // required 로 두면 이 기능 이전에 만든 자산의 블록 재생성이 죽는다.
+
+  /** 변환 전 한국어 원문(감사·되돌리기). 위 필드들에는 이미 일본어가 들어가 있다 */
+  sourceKo?: { path: string; kr: string }[];
+  /** 「추가 요청」의 영어 변환 — AI 배경컷 프롬프트에 들어간다(한국어 원문은 promptUsed 가 보관) */
+  artDirectionEn?: string;
+  /** 생성 시점의 브랜드킷 스냅샷 — 브랜드 프로필을 나중에 바꿔도 블록 재생성이 흔들리지 않는다 */
+  brandKit?: BrandKit;
+  /** 변환에 실패해 한국어가 남은 필드(게이트 기록용) */
+  translationIssues?: { path: string; label: string; problem: string }[];
 }
 
 /** 블록 상태 — 자산 상태와 별개로 블록별로 진행·실패가 기록된다 */
