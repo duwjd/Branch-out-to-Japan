@@ -3,7 +3,7 @@
 > 브랜드 톤 확정: **스티비(Stibee) 팔레트 기반**. 상세 스펙은 [DESIGN.md](DESIGN.md), 브랜드 레퍼런스는 [references/stibee-design.md](references/stibee-design.md).
 > 원본(source of truth)은 **Figma 변수/스타일**이며, 이 문서는 그 스냅샷이다. 구현 시 Tailwind 설정에 반영한다.
 >
-> **로고는 예외 (2026-07-16).** 서비스명 **KGLOW**의 로고는 네이비 `#22304F` + 코랄 구체 그라디언트를 쓰지만, 이는 **로고 전용 고정색**이고 아래 토큰과 무관하다. UI의 브랜드색은 그대로 `coral/base #ff6464`이며 로고 색을 토큰으로 승격하지 않는다. 자산·규칙: [brand/logo/README.md](brand/logo/README.md).
+> **로고는 예외 (2026-08-14 갱신).** 서비스명 **YOAKE**의 로고는 **아직 미확정**이고 후보마다 색이 다르지만(현행 KGLOW 자산의 네이비 `#22304F`, 후보들의 코랄 계열), 어느 쪽이든 **로고 전용 고정색**이라 아래 토큰과 무관하다. UI의 브랜드색은 그대로 `coral/base #ff6464`이며 로고 색을 토큰으로 승격하지 않는다. 후보 현황·색 실측값: [brand/logo/README.md](brand/logo/README.md).
 
 ## Figma 원본
 - 파일: `2조 생존자들` (fileKey `C3FYvw7rhJrrHK4HgCZzBt`)

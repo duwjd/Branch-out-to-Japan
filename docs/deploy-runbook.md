@@ -1,6 +1,6 @@
 # 배포 운영 가이드 (Deploy Runbook)
 
-> **무엇**: KGLOW를 실제로 배포·업데이트·복구하는 **손에 잡히는 절차서**.
+> **무엇**: YOAKE를 실제로 배포·업데이트·복구하는 **손에 잡히는 절차서**.
 > **관계**: 설계·근거·한도는 [[11-deploy-spec]](정본), Supabase 셋업 상세는 [setup-supabase.md](setup-supabase.md), 이 문서는 "그래서 뭘 클릭하나"를 다룬다.
 > **호스팅**: Vercel Hobby(앱) + Supabase Free(DB·파일). 결정 [[decisions/2026-07-24-호스팅-배포-결정]].
 > **최초 배포 성공**: 2026-07-24.
