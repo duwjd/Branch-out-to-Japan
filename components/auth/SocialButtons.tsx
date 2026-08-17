@@ -14,7 +14,7 @@ import type { AuthProvider } from '@/lib/server/session';
 import { Toast } from '@/components/ui/Toast';
 import { IconSpinner } from '@/components/ui/icons';
 
-const RECENT_KEY = 'kglow-recent-login';
+const RECENT_KEY = 'yoake-recent-login';
 
 /** 카카오 말풍선 심볼 */
 function KakaoSymbol() {

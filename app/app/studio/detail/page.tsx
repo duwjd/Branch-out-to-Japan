@@ -8,7 +8,7 @@ import { templateUiMetas } from '@/lib/studio/detail/blockPack';
 import { checkDetailReadiness } from '@/lib/server/detailReadiness';
 import { DetailForm } from './DetailForm';
 
-export const metadata = { title: '상세페이지 만들기 · 마케팅 스튜디오 | KGLOW' };
+export const metadata = { title: '상세페이지 만들기 · 마케팅 스튜디오 | YOAKE' };
 
 /**
  * 템플릿 프리뷰 — `npm run detail:previews` 가 **실제 파이프라인으로** 구운 결과물이다.

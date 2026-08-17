@@ -52,7 +52,7 @@
     <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
-    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"><img class="wm-mark" src="../../../design/brand/logo/yoake-mark.svg" alt="" aria-hidden="true"></a>
     <div style="position:relative">
       <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
         style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
@@ -133,7 +133,7 @@
 
       <!-- BRAND-01 · 상단 영역 (조회 화면에 primary 없음 — primary는 각 편집 모달의 「저장」) -->
       <div>
-        <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 운영</p>
+        <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">YOAKE 운영</p>
         <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">브랜드 관리</h1>
         <p style="margin:14px 0 0;max-width:640px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">여기 저장한 브랜드 킷이 진단과 썸네일 생성의 입력이 됩니다. 한 번 정리하면 다시 입력하지 않습니다.</p>
       </div>
@@ -276,7 +276,7 @@
           <div class="kit-head">
             <div style="flex:1;min-width:0">
               <h2 id="thTitleB" style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:#202124">생성물 테마</h2>
-              <p class="kit-desc">상세페이지·썸네일 <b>결과물</b>에 쓰는 색과 분위기입니다. KGLOW 화면 색과는 무관합니다.</p>
+              <p class="kit-desc">상세페이지·썸네일 <b>결과물</b>에 쓰는 색과 분위기입니다. YOAKE 화면 색과는 무관합니다.</p>
             </div>
             <button type="button" id="thEdit" class="kit-edit" aria-label="생성물 테마 수정">
               <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
@@ -1471,7 +1471,7 @@
   /* ══════════ 하위 메뉴 매칭 배지 (LIB-07 — 4-matching sessionStorage 연동) ══════════ */
   (function () {
     var m = null;
-    try { m = JSON.parse(sessionStorage.getItem('kglow_ops_match') || 'null'); } catch (e) {}
+    try { m = JSON.parse(sessionStorage.getItem('yoake_ops_match') || 'null'); } catch (e) {}
     if (!m) return;
     var badge = $('matchBadge');
     if (m.status === 'proposal') { badge.className = 'side-badge b-ok'; badge.textContent = '제안 2 ○'; }
@@ -1543,9 +1543,9 @@
   /* ══════════ 브랜드 추가 착지 (⓪ MAIN-01b′-3) — 새 브랜드는 빈 킷 상태로 도착 ══════════ */
   (function () {
     var added = null;
-    try { added = JSON.parse(sessionStorage.getItem('kglow_brand_added') || 'null'); } catch (e) {}
+    try { added = JSON.parse(sessionStorage.getItem('yoake_brand_added') || 'null'); } catch (e) {}
     if (!added) return;
-    sessionStorage.removeItem('kglow_brand_added');
+    sessionStorage.removeItem('yoake_brand_added');
     apply(true);                                   // BRAND-07 빈 상태로 시작
     state.profile.name = added.name;
     state.profile.cat = added.cat || '스킨케어';
@@ -1704,7 +1704,7 @@
     b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
     // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
     try {
-      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+      sessionStorage.setItem('yoake_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
     } catch (err) {}
     setTimeout(function () { location.href = BRAND_PAGE; }, 500);
   };
@@ -1716,7 +1716,7 @@
   var side = document.querySelector('.app-side');
   var btn = side && side.querySelector('.side-collapse');
   if (!side || !btn) return;
-  var KEY = 'kglow_sidebar_collapsed';
+  var KEY = 'yoake_sidebar_collapsed';
   function apply(c) {
     side.setAttribute('data-collapsed', String(c));
     btn.setAttribute('aria-expanded', String(!c));
@@ -1742,7 +1742,7 @@
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
-  var KEY = 'kglow.brand.theme';
+  var KEY = 'yoake.brand.theme';
 
   function load() {
     try {

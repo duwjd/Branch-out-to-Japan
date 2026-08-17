@@ -189,7 +189,7 @@ export function BrandForm({
         {/* 상단 영역(BRAND-01) — primary는 하단 저장 바의 「저장」 1개 */}
         <header>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">KGLOW 운영</p>
+            <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">YOAKE 운영</p>
             {storeKind === 'file' && <StatusBadge tone="off">로컬 저장(dev)</StatusBadge>}
           </div>
           <h1 className="mt-2.5 text-[30px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">

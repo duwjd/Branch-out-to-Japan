@@ -53,7 +53,7 @@ export function VerifyEmailCard({ token }: { token: string | null }) {
     return (
       <div className="mt-5">
         <p className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">이메일 인증 완료</p>
-        <p className="mt-2 text-[13px] leading-relaxed text-ink-mute">이제 로그인하여 KGLOW를 시작할 수 있어요.</p>
+        <p className="mt-2 text-[13px] leading-relaxed text-ink-mute">이제 로그인하여 YOAKE를 시작할 수 있어요.</p>
         <Link href="/login" className={buttonClass('primary', 'lg', 'mt-5 w-full')}>
           로그인하러 가기
         </Link>

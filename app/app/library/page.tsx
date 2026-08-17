@@ -266,7 +266,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
       <div className="mx-auto max-w-[1120px] px-6 pt-11 pb-24 max-sm:px-5">
         {/* 상단 영역(LIB-01) — primary 없음(화면 primary는 제안 카드 1개) */}
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">KGLOW 운영</p>
+          <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">YOAKE 운영</p>
           {store.kind() === 'file' && <StatusBadge tone="off">로컬 저장(dev)</StatusBadge>}
         </div>
         <h1 className="mt-2.5 text-[30px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">

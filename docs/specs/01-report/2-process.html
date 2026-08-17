@@ -7,7 +7,7 @@
 <!--
   비배포 · 기획 검토용 인터랙티브 프로토타입.
   정본: 01-report-ui-기획서.md # 2. 진단 처리 (PROCESS-00~03, 2026-07-22 개정)
-  Claude Design "KGLOW 진단 리포트 v2" 의 처리 화면을 바닐라로 이식.
+  Claude Design "YOAKE 진단 리포트 v2" 의 처리 화면을 바닐라로 이식.
   단계 라벨은 고객 언어로 표기(내부 단계 키는 코드 계약 — 화면 비노출).
   extract(이미지에서 문구 읽기)는 이미지 업로드 시에만 도는 첫 단계 — 이 데모는 항상 표시.
   콜② 감사 실패 · 콜⓪ 이미지 추출 실패는 전체 실패(PROCESS-02) — 여기선 성공 플로우만 시연.
@@ -38,7 +38,7 @@
     <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
-    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"><img class="wm-mark" src="../../../design/brand/logo/yoake-mark.svg" alt="" aria-hidden="true"></a>
     <div style="position:relative">
       <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
         style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
@@ -151,8 +151,8 @@
   var doneRow = document.getElementById('doneRow');
 
   // 입력 폼에서 제출로 넘어왔는지(자동 이동 여부) 판별
-  var cameFromFlow = sessionStorage.getItem('kglow_flow') === '1';
-  sessionStorage.removeItem('kglow_flow');
+  var cameFromFlow = sessionStorage.getItem('yoake_flow') === '1';
+  sessionStorage.removeItem('yoake_flow');
 
   var rows = STAGES.map(function (label) {
     var row = document.createElement('div');
@@ -347,7 +347,7 @@
     b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
     // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
     try {
-      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+      sessionStorage.setItem('yoake_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
     } catch (err) {}
     setTimeout(function () { location.href = BRAND_PAGE; }, 500);
   };
@@ -359,7 +359,7 @@
   var side = document.querySelector('.app-side');
   var btn = side && side.querySelector('.side-collapse');
   if (!side || !btn) return;
-  var KEY = 'kglow_sidebar_collapsed';
+  var KEY = 'yoake_sidebar_collapsed';
   function apply(c) {
     side.setAttribute('data-collapsed', String(c));
     btn.setAttribute('aria-expanded', String(!c));

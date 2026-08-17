@@ -206,8 +206,8 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
       setPickedFileId(null);
       void loadProducts();
     };
-    window.addEventListener('kglow:brand-switched', onSwitch);
-    return () => window.removeEventListener('kglow:brand-switched', onSwitch);
+    window.addEventListener('yoake:brand-switched', onSwitch);
+    return () => window.removeEventListener('yoake:brand-switched', onSwitch);
   }, [loadProducts]);
 
   // 진입 시 브랜드 제품 자산 로드(HOME-02 피커 소스)
@@ -312,7 +312,7 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
         {/* 페이지 헤더(HOME-01a) */}
         <header>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">KGLOW 마케팅 스튜디오</p>
+            <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">YOAKE 마케팅 스튜디오</p>
             <div className="flex gap-1.5">
               {meta?.storeKind === 'file' && <StatusBadge tone="off">로컬 저장(dev)</StatusBadge>}
               {meta && (meta.llmMode === 'mock' || meta.imageMode === 'mock') && <StatusBadge tone="off">목 모드(dev)</StatusBadge>}

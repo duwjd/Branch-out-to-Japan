@@ -843,7 +843,7 @@
    * 8. 화면 간 상태 공유 — 3에서 고른 테마가 4·5에 그대로 이어진다.
    * ───────────────────────────────────────────────────────────────────────── */
 
-  var KEY = 'kglow.detail.proto';
+  var KEY = 'yoake.detail.proto';
 
   KG.defaultState = function () {
     return {

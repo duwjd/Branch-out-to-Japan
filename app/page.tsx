@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { KglowLogo } from '@/components/brand/Logo';
+import { YoakeLogo } from '@/components/brand/Logo';
 
 /**
  * 랜딩(메인) 페이지 — 기능 검증 빌드.
@@ -59,9 +59,9 @@ export default function LandingPage() {
       {/* 1 Header */}
       <header className="sticky top-0 z-10 border-b border-hairline bg-canvas/90 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <Link href="/" aria-label="KGLOW 홈">
+          <Link href="/" aria-label="YOAKE 홈">
             {/* 로고에 Japan Growth Studio 서브카피가 포함돼 뷰박스가 높아짐 → 워드마크 크기 유지 위해 32px */}
-            <KglowLogo height={32} />
+            <YoakeLogo height={32} />
           </Link>
           <nav aria-label="주요 메뉴" className="flex items-center gap-4 text-sm">
             <a href="#service" className="text-ink-mute hover:text-ink">서비스</a>
@@ -275,7 +275,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-hairline">
         <div className="mx-auto max-w-4xl px-6 py-8 text-sm text-ink-mute">
-          KGLOW — 기능 검증 빌드. 디자인은 확정 후 교체됩니다.
+          YOAKE — 기능 검증 빌드. 디자인은 확정 후 교체됩니다.
         </div>
       </footer>
     </main>

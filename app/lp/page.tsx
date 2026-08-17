@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { KglowLogo } from '@/components/brand/Logo';
+import { YoakeLogo } from '@/components/brand/Logo';
 import { PILOT_OFFER, formatKrw } from '@/lib/lead';
 import { PageView } from './PageView';
 import { TrackedCta } from './TrackedCta';
@@ -20,7 +20,7 @@ import { BeforeAfterShowcase } from './BeforeAfterShowcase';
 const YOUTUBE_VIDEO_ID = '';
 
 export const metadata: Metadata = {
-  title: '일본 Qoo10에서 안 팔릴 때 — 상세페이지, 일본 고객 관점으로 진단 | KGLOW',
+  title: '일본 Qoo10에서 안 팔릴 때 — 상세페이지, 일본 고객 관점으로 진단 | YOAKE',
   description:
     '번역은 끝냈는데 일본에서 안 팔린다면? 薬機法 표현·리뷰(口コミ)·랭킹 정체 문제를 일본 고객 관점에서 진단합니다. 진단 리포트 30만원 정가, 지금 파일럿 참여 시 무료.',
 };
@@ -81,8 +81,8 @@ export default function LpPage() {
       {/* 헤더 */}
       <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/85 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <Link href="/lp" aria-label="KGLOW 홈" className="rounded-md focus-visible:outline-2 focus-visible:outline-coral">
-            <KglowLogo height={30} />
+          <Link href="/lp" aria-label="YOAKE 홈" className="rounded-md focus-visible:outline-2 focus-visible:outline-coral">
+            <YoakeLogo height={30} />
           </Link>
           <TrackedCta
             cta="header-consult"
@@ -137,7 +137,7 @@ export default function LpPage() {
                 <div className="aspect-video w-full overflow-hidden rounded-card border border-card-border bg-black shadow-2">
                   <iframe
                     src={`https://www.youtube-nocookie.com/embed/${YOUTUBE_VIDEO_ID}`}
-                    title="KGLOW 소개 영상"
+                    title="YOAKE 소개 영상"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="h-full w-full"
@@ -366,8 +366,8 @@ export default function LpPage() {
 
       <footer className="border-t border-hairline bg-canvas">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4 px-6 py-8">
-          <KglowLogo height={22} />
-          <p className="text-[13px] text-ink-mute">KGLOW — 파일럿 모집 중인 검증 페이지입니다.</p>
+          <YoakeLogo height={22} />
+          <p className="text-[13px] text-ink-mute">YOAKE — 파일럿 모집 중인 검증 페이지입니다.</p>
         </div>
       </footer>
     </main>

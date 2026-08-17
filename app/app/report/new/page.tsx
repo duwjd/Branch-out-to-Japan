@@ -126,8 +126,8 @@ export default function ReportNewPage() {
     loadBrandPrefill(false);
     // 브랜드 전환 시 브랜드 종속 필드만 새 브랜드로 교체(MAIN-01b″)
     const onSwitch = () => loadBrandPrefill(true);
-    window.addEventListener('kglow:brand-switched', onSwitch);
-    return () => window.removeEventListener('kglow:brand-switched', onSwitch);
+    window.addEventListener('yoake:brand-switched', onSwitch);
+    return () => window.removeEventListener('yoake:brand-switched', onSwitch);
   }, [loadBrandPrefill]);
 
   /** 포지셔닝 칩 토글 — 최대 개수를 넘기면 무시 */
@@ -248,7 +248,7 @@ export default function ReportNewPage() {
   return (
     <main className="animate-fade-up">
       <div className="mx-auto max-w-[768px] px-6 pt-14 pb-24">
-        <p className="text-xs font-extrabold tracking-wide text-coral-strong">KGLOW 진단 리포트</p>
+        <p className="text-xs font-extrabold tracking-wide text-coral-strong">YOAKE 진단 리포트</p>
         <h1 className="mt-2.5 text-[30px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">
           일본 시장 진입 진단 리포트
         </h1>

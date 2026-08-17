@@ -1214,7 +1214,7 @@ export function ReportView({ blocks: b, slideExportSlot }: ReportViewProps) {
       </div>
 
       <p className="mt-9 text-center text-[11.5px] leading-relaxed text-ink-faint">
-        KGLOW · 진단 리포트 — 화면 속 점수·판정·일본어 카피는 이 진단의 실제 산출 결과입니다.
+        YOAKE · 진단 리포트 — 화면 속 점수·판정·일본어 카피는 이 진단의 실제 산출 결과입니다.
       </p>
     </div>
   );

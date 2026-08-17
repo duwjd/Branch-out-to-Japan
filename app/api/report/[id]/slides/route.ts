@@ -18,7 +18,7 @@ export const maxDuration = 60;
 /** 파일명에 못 쓰는 문자를 제거한다(경로 분리자·제어문자·헤더 인젝션 방지) */
 function safeFileName(brandName: string): string {
   const base = brandName.replace(/[^\p{L}\p{N}\-_]/gu, '').slice(0, 40);
-  return `${base || 'KGLOW'}-일본진출진단-보고용.html`;
+  return `${base || 'YOAKE'}-일본진출진단-보고용.html`;
 }
 
 export async function GET(

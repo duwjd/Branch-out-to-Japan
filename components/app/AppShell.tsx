@@ -12,7 +12,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { KglowLogo } from '@/components/brand/Logo';
+import { YoakeLogo, YoakeMark } from '@/components/brand/Logo';
 import { AddBrandModal } from '@/components/app/AddBrandModal';
 import { StatusBadge, buttonClass, type BadgeTone } from '@/components/ui/primitives';
 import {
@@ -70,7 +70,7 @@ const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
 /** ≥lg 접힘(아이콘 레일)에서 숨길 라벨·텍스트. 라벨은 DOM에 유지하고 시각만 숨겨 모바일 스택은 무영향 */
 const HIDE_ON_RAIL = 'lg:group-data-[collapsed=true]:hidden';
 /** 접힘 상태 지속 키 */
-const COLLAPSE_KEY = 'kglow:sidebar-collapsed';
+const COLLAPSE_KEY = 'yoake:sidebar-collapsed';
 
 /** 3축 내비 항목 클래스 — 접힘 시 아이콘만 가운데 정렬 */
 function navClass(active: boolean): string {
@@ -160,7 +160,7 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
   /**
    * 활성 브랜드 전환(MAIN-01b·MAIN-01b″) — 쿠키 갱신 후 셸·본문 재조회.
    * 입력 폼 화면(리포트 입력·스튜디오)에서는 브랜드 종속 입력이 초기화되므로 전환 전 확인한다
-   * (취소 시 원 브랜드 유지). 조회 전용 화면은 확인 없이 즉시 전환. 폼은 `kglow:brand-switched`
+   * (취소 시 원 브랜드 유지). 조회 전용 화면은 확인 없이 즉시 전환. 폼은 `yoake:brand-switched`
    * 이벤트로 브랜드 종속 필드만 리셋하고 브랜드 무관 입력은 유지한다. 진행 중 잡은 제출 시점 브랜드 귀속.
    */
   async function switchBrand(id: string) {
@@ -177,7 +177,7 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
     try {
       await fetch(`/api/brand/${id}`, { method: 'POST' });
       setSwOpen(false);
-      window.dispatchEvent(new CustomEvent('kglow:brand-switched'));
+      window.dispatchEvent(new CustomEvent('yoake:brand-switched'));
       router.refresh();
     } finally {
       setSwitching(null);
@@ -427,20 +427,18 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
           <IconChevronLeft className="transition-transform lg:group-data-[collapsed=true]:rotate-180" />
         </button>
 
-        {/* 1a · 워드마크 — 접힘 시 네이비 "K" 마크로 축약(로고 전용색) */}
+        {/* 1a · 로고 — 접힘 시 일출 마크만 남긴다(정사각 자리 정본 자산) */}
         <Link
           href="/app"
-          aria-label="KGLOW 홈"
+          aria-label="YOAKE 홈"
           className="block px-2.5 pt-1 pb-4 lg:group-data-[collapsed=true]:px-0 lg:group-data-[collapsed=true]:text-center"
         >
-          <KglowLogo className={`h-[22px] w-auto ${HIDE_ON_RAIL}`} uid="shell-logo" />
-          <span
+          <YoakeLogo className={`h-[22px] w-auto ${HIDE_ON_RAIL}`} uid="shell-logo" />
+          <YoakeMark
             aria-hidden
-            className="hidden text-[19px] font-extrabold lg:group-data-[collapsed=true]:inline"
-            style={{ color: '#22304F' }}
-          >
-            K
-          </span>
+            className="hidden h-[26px] w-[26px] lg:group-data-[collapsed=true]:inline-block"
+            uid="shell-mark"
+          />
         </Link>
         {brandSwitcher}
         {nav}

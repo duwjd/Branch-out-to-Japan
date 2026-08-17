@@ -9,7 +9,7 @@ export function ReportCoverPreview({ score }: { score: number | null }) {
   return (
     <span aria-hidden className="absolute inset-0 block bg-canvas">
       <span className="absolute top-[12%] left-[8%] text-[9px] font-extrabold tracking-[0.04em] text-coral-strong">
-        KGLOW 진단 리포트
+        YOAKE 진단 리포트
       </span>
       {score !== null ? (
         <span className="tnum absolute top-[26%] left-[8%] text-[30px] font-extrabold tracking-[-0.02em] text-ink">

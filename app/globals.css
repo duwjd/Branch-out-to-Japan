@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ════════════════════════════════════════════════════════════════════
-   KGLOW 디자인 토큰 — docs/specs 각 섹션의 wireframe.css 정본을 Tailwind v4 @theme으로 이식.
+   YOAKE 디자인 토큰 — docs/specs 각 섹션의 wireframe.css 정본을 Tailwind v4 @theme으로 이식.
    토큰 정본: design/DESIGN.md (스티비 coral).
    coral #ff6464 = 기본 CTA·강조(large/bold 전용) · coral-strong #d93636 = hover/링크/소형 텍스트.
    상태색은 색+글자+기호(✕/△/○) 3중 표기와 함께만 쓴다(CVD 검증).
@@ -23,7 +23,7 @@
   --color-ink-faint: #b6b8bf;           /* /100·각주·화살표 */
 
   /* 브랜드 */
-  --color-navy: #22304f;                /* 워드마크 전용 — UI 토큰으로 승격 금지 */
+  --color-logo-ink: #182333;            /* 로고 레터마크 전용 — UI 토큰으로 승격 금지 */
   --color-coral: #ff6464;               /* primary CTA·강조 */
   --color-coral-strong: #d93636;        /* hover/pressed·링크·eyebrow */
   --color-coral-tint: #fff8f8;          /* 칩-on·필수 배지·강조 배경 */

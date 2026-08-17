@@ -8,7 +8,7 @@
   비배포 · 기획 검토용 인터랙티브 프로토타입.
   정본: 01-report-ui-기획서.md # 1. 진단 입력 (INPUT-00~05, 2026-07-22 개정)
         입력 모델 ../01-report-spec.md §3 v7 (이미지 업로드 1급화 · URL 입력 삭제)
-  Claude Design "KGLOW 진단 리포트 v2" 입력 화면을 바닐라로 이식.
+  Claude Design "YOAKE 진단 리포트 v2" 입력 화면을 바닐라로 이식.
   게이팅: 텍스트는 50자 하드게이트 / 200자 소프트 품질선.
           이미지는 폼 단계 게이트 미발동 — 형식·용량·장수만 폼에서 안내하고,
           글자 판독 여부는 추출 후 파이프라인에서 판정(PROCESS-02 출구).
@@ -45,7 +45,7 @@
     <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
-    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"><img class="wm-mark" src="../../../design/brand/logo/yoake-mark.svg" alt="" aria-hidden="true"></a>
     <div style="position:relative">
       <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
         style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
@@ -118,7 +118,7 @@
       <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:18px">
         <button type="button" id="fillExample" class="hbtn hbtn-secondary h-soft">예시 채우기 — HARUON</button>
       </div>
-      <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 진단 리포트</p>
+      <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">YOAKE 진단 리포트</p>
       <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">일본 시장 진입 진단 리포트</h1>
       <p style="margin:14px 0 0;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">브랜드가 무엇을 지향하는지 알려주시면 일본 고객 관점으로 페르소나·USP를 다시 설계해 드립니다. 상세페이지 콘텐츠까지 넣으면 <span lang="ja">薬機法</span> 전수 감사·일본 문법 점수·재작성이 열립니다.</p>
 
@@ -476,8 +476,8 @@
     sb.textContent = '제출 중…';
     sb.style.cursor = 'default';
     try {
-      sessionStorage.setItem('kglow_flow', '1');
-      sessionStorage.setItem('kglow_demo', JSON.stringify({
+      sessionStorage.setItem('yoake_flow', '1');
+      sessionStorage.setItem('yoake_demo', JSON.stringify({
         brand: bName.value.trim(),
         productName: $('t-product').value.trim()
       }));
@@ -638,7 +638,7 @@
     b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
     // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
     try {
-      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+      sessionStorage.setItem('yoake_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
     } catch (err) {}
     setTimeout(function () { location.href = BRAND_PAGE; }, 500);
   };
@@ -663,7 +663,7 @@
   var side = document.querySelector('.app-side');
   var btn = side && side.querySelector('.side-collapse');
   if (!side || !btn) return;
-  var KEY = 'kglow_sidebar_collapsed';
+  var KEY = 'yoake_sidebar_collapsed';
   function apply(c) {
     side.setAttribute('data-collapsed', String(c));
     btn.setAttribute('aria-expanded', String(!c));

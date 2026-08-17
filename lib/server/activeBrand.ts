@@ -9,7 +9,7 @@ import { cookies } from 'next/headers';
 import { getSession } from './session';
 import { getStore, type BrandProfileRecord } from '../db/store';
 
-export const BRAND_COOKIE = 'kglow_brand';
+export const BRAND_COOKIE = 'yoake_brand';
 
 /**
  * 내 브랜드 목록(요청 단위 메모) — 레이아웃과 getActiveBrand()가 같은 목록을 각각 조회하던 중복을 없앤다.

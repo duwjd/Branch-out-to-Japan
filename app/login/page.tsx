@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getSession } from '@/lib/server/session';
-import { KglowLogo } from '@/components/brand/Logo';
+import { YoakeLogo } from '@/components/brand/Logo';
 import { cardClass } from '@/components/ui/primitives';
 import { LoginCard } from './LoginCard';
 
@@ -23,8 +23,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       )}
 
       <section aria-label="로그인" className={cardClass('w-full max-w-[400px] animate-fade-up p-8 text-center')}>
-        <KglowLogo className="mx-auto h-[22px] w-auto" uid="login-logo" />
-        <h1 className="mt-[18px] text-[22px] font-extrabold tracking-[-0.02em] text-ink">KGLOW 시작하기</h1>
+        <YoakeLogo className="mx-auto h-[22px] w-auto" uid="login-logo" />
+        <h1 className="mt-[18px] text-[22px] font-extrabold tracking-[-0.02em] text-ink">YOAKE 시작하기</h1>
         <p className="mt-2 text-[13.5px] leading-relaxed text-ink-mute">
           일본 고객 관점의 진단과 콘텐츠 제작,
           <br />

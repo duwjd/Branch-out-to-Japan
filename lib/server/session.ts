@@ -16,7 +16,7 @@ import { cookies } from 'next/headers';
 import { getStore, type UserRecord } from '../db/store';
 import { verifySession } from './sessionToken';
 
-export const SESSION_COOKIE = 'kglow_session';
+export const SESSION_COOKIE = 'yoake_session';
 
 /** 세션 지속 기간 — 30일(remember=true 쿠키의 maxAge, 서명 exp도 동일 기준) */
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
@@ -46,7 +46,7 @@ export interface SessionUser {
 export const DEMO_USER: SessionUser = {
   id: 'demo-user',
   name: '데모 사용자',
-  email: 'demo@kglow.example',
+  email: 'demo@yoake.example',
   joinedAt: '2026-07-21',
 };
 

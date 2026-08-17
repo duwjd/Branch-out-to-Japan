@@ -22,7 +22,7 @@ function fullInput(over: Partial<DetailInput> = {}): DetailInput {
     productCategory: 'skincare',
     sourceImagePaths: [],
     disabledBlocks: [],
-    spec: { volume: '30mL', category: '化粧品', manufacturer: '株式会社KGLOW', origin: '韓国', fullIngredients: '水、BG、グリセリン' },
+    spec: { volume: '30mL', category: '化粧品', manufacturer: '株式会社YOAKE', origin: '韓国', fullIngredients: '水、BG、グリセリン' },
     ingredients: [{ name: 'グリシルグリシン', percent: '6%', purpose: '整肌成分' }],
     freeOf: ['合成香料', '鉱物油'],
     specs: [{ label: 'SPF', value: '50+' }],
