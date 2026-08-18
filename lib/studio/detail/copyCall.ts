@@ -58,11 +58,11 @@ const DETAIL_COPY_SCHEMA = {
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['slotKey', 'ja', 'krIntent', 'rationale', 'footnote'],
+        required: ['slotKey', 'ja', 'krSource', 'rationale', 'footnote'],
         properties: {
           slotKey: { type: 'string' },
           ja: { type: 'string' },
-          krIntent: { type: 'string' },
+          krSource: { type: 'string' },
           rationale: { type: 'string' },
           footnote: { type: 'string' },
         },
@@ -182,7 +182,7 @@ export async function runDetailCopy(opts: DetailCopyOptions): Promise<DetailCopy
     `1. isKoreanDetailInput — 첨부가 한국어 오버레이가 있는 상세페이지인지 판정.`,
     `2. krElementMap — 첨부 속 KR 요소를 유지·정제/재설계/제거로 분류하고 근거를 한 줄씩.`,
     `3. blocks — 위 슬롯 명세대로. 여러 항목이 들어가는 슬롯은 줄바꿈(\\n)으로 구분하고, "제목|본문" 형식이 명시된 슬롯은 세로줄(|)로 나눈다.`,
-    `4. copySlots — 주요 일본어 카피 슬롯에 대해 JP 카피/KR 원문·의도/재설계 근거/각주(없으면 빈 문자열).`,
+    `4. copySlots — 주요 일본어 카피 슬롯에 대해 ja(재설계한 일본어 카피) / krSource(그 카피가 대체하는 한국어 원문 그대로. 대응 문구가 없으면 원본 의도를 한 줄로) / rationale(재설계 근거) / footnote(없으면 빈 문자열).`,
     `5. narrativeReason — 왜 이 구성이 이 제품·플랫폼에 맞는지 1~2문장(한국어, 화면 해설용).`,
     `[주의] 일본어 카피에 한글·이모지·간체자를 절대 섞지 마라 — 렌더 폰트가 그리지 못해 생성이 실패한다.`,
   ].join('\n\n');

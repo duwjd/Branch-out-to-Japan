@@ -183,7 +183,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
 
   if (notFound) {
     return (
-      <main className="mx-auto max-w-[768px] px-6 py-16 text-center">
+      <main className="mx-auto max-w-[1280px] px-8 py-16 text-center">
         <h1 className="text-lg font-bold text-ink">상세페이지를 찾을 수 없습니다.</h1>
         <Link href="/app/studio/detail" className={`${buttonClass('secondary', 'md')} mt-5`}>
           상세페이지 만들기로
@@ -194,7 +194,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
 
   if (!asset) {
     return (
-      <main className="mx-auto max-w-[768px] px-6 py-16">
+      <main className="mx-auto max-w-[1280px] px-8 py-16">
         <IndetBar />
       </main>
     );
@@ -207,7 +207,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
   if (asset.status === 'generating') {
     const pct = asset.blockTotal > 0 ? Math.round((asset.blockDone / asset.blockTotal) * 100) : 0;
     return (
-      <main className="mx-auto max-w-[768px] px-6 py-10">
+      <main className="mx-auto max-w-[1280px] px-8 py-10">
         <h1 className="text-[22px] font-bold text-ink">상세페이지를 만들고 있어요</h1>
         <p className="mt-2 text-sm leading-relaxed text-ink-mute">
           {asset.stage ? (DETAIL_STAGE_LABELS[asset.stage] ?? '처리 중') : '처리 중'}
@@ -248,7 +248,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
   // ── 실패 ─────────────────────────────────────────────────────────────
   if (asset.status === 'failed') {
     return (
-      <main className="mx-auto max-w-[768px] px-6 py-10">
+      <main className="mx-auto max-w-[1280px] px-8 py-10">
         <div className={`${cardClass} border-danger/30 bg-danger-bg p-6`}>
           <h1 className="text-lg font-bold text-danger-text">생성하지 못했습니다</h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-body [text-wrap:pretty]">{asset.error ?? '알 수 없는 오류'}</p>
@@ -265,7 +265,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
   // 완료됐지만 사유가 달린 블록 = 배경컷 없이 문자만으로 나간 블록
   const degradedBlocks = asset.blocks.filter((b) => b.status === 'done' && b.error);
   return (
-    <main className="mx-auto max-w-[1120px] px-6 py-10">
+    <main className="mx-auto max-w-[1280px] px-8 py-10">
       <header className="flex flex-wrap items-center gap-3">
         <h1 className="text-[22px] font-bold text-ink">{asset.styleName}</h1>
         {asset.imageMode === 'mock' && <StatusBadge tone="warn">데모 모드</StatusBadge>}

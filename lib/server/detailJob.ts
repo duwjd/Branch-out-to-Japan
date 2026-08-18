@@ -299,6 +299,9 @@ export async function runDetailJob(assetId: string): Promise<void> {
     await store.updateAsset(assetId, {
       explanationJson: {
         styleReason: copy.narrativeReason,
+        // 제품명·원본 요약은 썸네일 결과 화면 전용 필드다 — 상세페이지 화면은 쓰지 않아 비운다
+        productName: '',
+        beforeSummary: '',
         copySlots: copy.copySlots,
         krElementMap: copy.krElementMap,
       },

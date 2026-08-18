@@ -120,7 +120,7 @@ export default async function DashboardPage() {
               </>
             ),
             desc: '프로모션 강조형 썸네일이 메가와리 표준 문법입니다. 세트·특전 소구를 일본 구매 관례어로 재설계합니다.',
-            primary: { href: '/app/studio/thumbnail', label: '스튜디오에서 준비하기 →' },
+            primary: { href: '/app/studio', label: '스튜디오에서 준비하기 →' },
             secondary: { href: '/app/library', label: '자산 라이브러리' } as { href: string; label: string } | null,
           }
         : {
@@ -148,7 +148,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[960px] px-8 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pb-24 max-sm:px-5">
         {firstVisit ? (
           /* ── MAIN-06 · 첫 방문 셋업 가이드(4단계) ────────── */
           <div className="pt-16">

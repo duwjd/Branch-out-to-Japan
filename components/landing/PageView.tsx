@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { sendTrack } from './track';
+import { sendTrack } from '@/components/landing/track';
 
 /**
  * 마운트 시 1회 pageview 이벤트를 전송한다. 화면에는 아무것도 렌더하지 않는다.

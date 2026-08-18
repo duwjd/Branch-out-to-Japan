@@ -15,9 +15,12 @@ export const PLATFORM_LABELS: Record<Platform, string> = {
 
 export const PLATFORMS = Object.keys(PLATFORM_LABELS) as Platform[];
 
-/** 생성중 단계 → 고객어(② RESULT-06 5종 축약 — analyze가 분석+카피 재설계를 겸한다) */
+/**
+ * 생성중 단계 → 고객어(② RESULT-06). analyze 는 분석과 카피 재설계를 겸하지만,
+ * 라벨에는 "분석"만 남긴다 — 재설계 중이라는 사실은 결과 화면 코랄 서브라인이 말한다.
+ */
 export const STUDIO_STAGE_LABELS: Record<string, string> = {
-  analyze: '원본 분석 · 일본 고객 관점으로 카피 재설계 중',
+  analyze: '원본 이미지를 분석하는 중',
   assemble: '프롬프트 조립 중',
   generate: '썸네일 생성 중',
   gate: '검수 게이트 확인 중',

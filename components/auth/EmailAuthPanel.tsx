@@ -21,13 +21,6 @@ type Screen =
   | { kind: 'verify'; variant: 'sent' | 'needed'; email: string; devLink: string | null }
   | { kind: 'forgotSent'; devLink: string | null };
 
-interface EmailAuthPanelProps {
-  /** 로그인 성공 콜백(게이트는 "모달 닫고 재개"를 넘긴다). 없으면 /app으로 이동 */
-  onAuthed?: () => void;
-  /** 게이트 모달용 — 상단 여백을 줄인다 */
-  compact?: boolean;
-}
-
 /** 탭 버튼 클래스 — 세그먼트 컨트롤(선택 시 흰 배경 + 카드 그림자) */
 function tabClass(on: boolean): string {
   return [
@@ -36,7 +29,7 @@ function tabClass(on: boolean): string {
   ].join(' ');
 }
 
-export function EmailAuthPanel({ onAuthed, compact = false }: EmailAuthPanelProps) {
+export function EmailAuthPanel() {
   const router = useRouter();
   const [screen, setScreen] = useState<Screen>({ kind: 'login' });
 
@@ -61,12 +54,8 @@ export function EmailAuthPanel({ onAuthed, compact = false }: EmailAuthPanelProp
   const [forgotError, setForgotError] = useState<string | null>(null);
   const [forgotBusy, setForgotBusy] = useState(false);
 
-  /** 로그인 성공 착지 — 게이트는 onAuthed로 재개를 넘긴다 */
+  /** 로그인 성공 착지 — 곧바로 서비스 메인으로 */
   function handleAuthed() {
-    if (onAuthed) {
-      onAuthed();
-      return;
-    }
     router.replace('/app');
     router.refresh();
   }
@@ -203,7 +192,7 @@ export function EmailAuthPanel({ onAuthed, compact = false }: EmailAuthPanelProp
   const showTabs = screen.kind === 'login' || screen.kind === 'signup';
 
   return (
-    <div className={compact ? 'mt-4' : 'mt-6'}>
+    <div className="mt-6">
       {showTabs && (
         <div role="tablist" aria-label="이메일 로그인·회원가입" className="flex gap-1 rounded-[10px] bg-n-100 p-1">
           <button type="button" role="tab" aria-selected={screen.kind === 'login'} onClick={() => goTab('login')} className={tabClass(screen.kind === 'login')}>

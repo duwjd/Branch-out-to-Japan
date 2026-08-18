@@ -28,8 +28,7 @@ import {
 // 순수 함수 잎 노드(node:fs 미사용) — 확인 패널이 서버와 **같은 검사**를 즉시 돌린다
 import { verifyTranslation, type TranslatedField } from '@/lib/studio/detail/translate';
 import { IconChevronDown, IconChevronUp, IconUpload } from '@/components/ui/icons';
-import { LoginGateModal } from '@/components/auth/LoginGateModal';
-import { useLoginGate } from '@/components/auth/useLoginGate';
+import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 
 interface TemplateCard {
   id: string;
@@ -107,7 +106,6 @@ const MAX_IMAGES = 10;
 
 export function DetailForm({ templates, readiness }: { templates: TemplateCard[]; readiness: DetailReadiness }) {
   const router = useRouter();
-  const { gateOpen, openGate, closeGate, onAuthedGate } = useLoginGate();
   const formRef = useRef<HTMLFormElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -228,7 +226,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       const res = await fetch('/api/studio/detail', { method: 'POST', body: fd });
       if (res.status === 401) {
         setBusy(false);
-        openGate(handleSubmit);
+        router.replace(EXPIRED_LOGIN_PATH); // 세션 만료 — 서비스 안에는 로그인 동선이 없다
         return;
       }
       const data = await res.json();
@@ -242,7 +240,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     } finally {
       setBusy(false);
     }
-  }, [buildFormData, openGate, router]);
+  }, [buildFormData, router]);
 
   // 제출 가능 조건 — 서버와 같은 규칙
   let guidance = '이미지와 템플릿을 고르면 구성을 미리 볼 수 있어요.';
@@ -278,42 +276,19 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
   return (
     <main className="pb-32">
-      <div className="mx-auto max-w-[768px] px-6 pt-8">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] max-sm:px-5">
         <header>
-          <p className="text-[13px] font-semibold text-coral">마케팅 스튜디오</p>
-          <h1 className="mt-1.5 text-[26px] font-bold leading-tight text-ink">상세페이지 만들기</h1>
+          <Link
+            href="/app/studio"
+            className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-ink-mute no-underline transition-colors hover:text-ink"
+          >
+            <span aria-hidden>←</span> 마케팅 스튜디오
+          </Link>
+          <h1 className="mt-3 text-[26px] font-bold leading-tight text-ink">상세페이지 만들기</h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-mute [text-wrap:pretty]">
             블록을 하나씩 만들어 세로로 이어 붙입니다. 글자는 전부 폰트로 그리므로 일본어가 깨지지 않습니다.
           </p>
         </header>
-
-        {/* 모듈 탭(DETAIL-01) */}
-        <div role="tablist" aria-label="스튜디오 모듈" className="mt-7 flex gap-0.5 border-b border-hairline">
-          <Link
-            href="/app/studio/thumbnail"
-            role="tab"
-            aria-selected="false"
-            className="px-3.5 py-2.5 text-sm font-medium text-ink-mute hover:text-ink"
-          >
-            썸네일
-          </Link>
-          <button
-            type="button"
-            role="tab"
-            aria-selected="true"
-            className="-mb-px border-b-2 border-coral px-3.5 py-2.5 text-sm font-bold text-coral-strong"
-          >
-            상세페이지
-          </button>
-          <span
-            role="tab"
-            aria-selected="false"
-            aria-disabled="true"
-            className="flex cursor-default items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium text-ink-faint"
-          >
-            인스타 피드 <StatusBadge tone="off">준비 중</StatusBadge>
-          </span>
-        </div>
 
         <ReadinessNotice readiness={readiness} />
 
@@ -616,7 +591,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
       {/* 하단 sticky 액션 바 */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-canvas/95 px-6 py-4 backdrop-blur left-0 lg:left-sidebar">
-        <div className="mx-auto max-w-[768px]">
+        <div className="mx-auto max-w-[1280px]">
           {step === 'form' ? (
             <>
               <button
@@ -653,7 +628,6 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           )}
         </div>
       </div>
-      <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
       <TemplateZoom template={zoom} onClose={() => setZoom(null)} />
     </main>
   );

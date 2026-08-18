@@ -106,7 +106,7 @@ export function MatchingView({
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[760px] px-6 pt-9 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
         {/* 상단 안내(MATCH-01) */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">YOAKE 운영</p>

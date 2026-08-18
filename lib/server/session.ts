@@ -1,14 +1,17 @@
 /**
  * 서명 세션(실 인증 코어 M2) — httpOnly 쿠키 1개에 HMAC 서명 토큰(sessionToken.ts)을 담는다.
  *
- * 쿠키 상태 규칙(M3 레이아웃이 이 3분기에 의존한다):
- * - 쿠키 없음        = 게스트(비로그인 열람 허용 대상)      → getSessionState() { guest:true }
- * - 쿠키 있으나 무효 = 서명 실패·만료·유저 없음(=만료로 취급) → { expired:true } (→ /login?expired=1)
- * - 유효 서명 세션   = 정상 로그인                          → { session }
+ * 쿠키 상태 규칙(/app 레이아웃이 이 3분기에 의존한다):
+ * - 쿠키 없음        = 비로그인                              → getSessionState() { guest:true } → /login
+ * - 쿠키 있으나 무효 = 서명 실패·만료·유저 없음(=만료로 취급) → { expired:true } → /login?expired=1
+ * - 유효 서명 세션   = 정상 로그인                            → { session }
  * 레거시 소셜 쿠키(값=provider명, M1 이전 dev 쿠키)는 과도기 동안 유효 세션으로 취급한다(무중단).
  *
+ * 2026-08-18 플로우 개편으로 `guest`는 "열람 허용"이 아니라 "진입 불가"가 됐다. 그래도 3분기를
+ * 유지하는 이유는 착지 화면이 다르기 때문이다 — 만료만 "다시 로그인해 주세요" 배너를 띄운다.
+ *
  * 가드는 /app 레이아웃 1곳(middleware 없음). getSession()은 기존 소비자용(세션 or null),
- * getSessionState()는 게스트/만료 구분이 필요한 레이아웃용.
+ * getSessionState()는 비로그인/만료 구분이 필요한 레이아웃용.
  */
 
 import { cache } from 'react';
@@ -108,7 +111,7 @@ async function resolveSessionUncached(value: string): Promise<Session | null> {
  */
 const resolveSession = cache(resolveSessionUncached);
 
-/** 현재 세션 조회 — 쿠키 없음/무효는 모두 null(게스트·만료 구분이 필요하면 getSessionState) */
+/** 현재 세션 조회 — 쿠키 없음/무효는 모두 null(비로그인·만료 구분이 필요하면 getSessionState) */
 export async function getSession(): Promise<Session | null> {
   const jar = await cookies();
   const value = jar.get(SESSION_COOKIE)?.value;
@@ -117,7 +120,7 @@ export async function getSession(): Promise<Session | null> {
 }
 
 /**
- * 세션 상태 조회 — 레이아웃이 게스트(열람 허용)와 만료(→로그인 유도)를 구분하기 위한 3분기.
+ * 세션 상태 조회 — 레이아웃이 비로그인(→/login)과 만료(→/login?expired=1)를 구분하기 위한 3분기.
  * 쿠키 없음 → guest / 해석 성공 → session / 쿠키는 있으나 무효 → expired.
  */
 export async function getSessionState(): Promise<

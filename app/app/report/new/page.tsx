@@ -16,8 +16,7 @@ import {
   POSITIONING_TAGS_MIN,
 } from '@/lib/engine/rules/positioning';
 import { SectionCard, StatusBadge, buttonClass, chipClass, fieldLabelClass, inputClass, textareaClass } from '@/components/ui/primitives';
-import { LoginGateModal } from '@/components/auth/LoginGateModal';
-import { useLoginGate } from '@/components/auth/useLoginGate';
+import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 
 const CATEGORIES = [
   { value: 'skincare', label: '스킨케어 / スキンケア' },
@@ -70,7 +69,6 @@ export default function ReportNewPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { gateOpen, openGate, closeGate, onAuthedGate } = useLoginGate();
   const [meta, setMeta] = useState<{ storeKind: string; llmMode: string } | null>(null);
   // 브랜드 프로필에서 이어받은 필드가 있으면 캡션 노출(온보딩 도입 · INPUT-02·05)
   const [prefilled, setPrefilled] = useState(false);
@@ -124,10 +122,6 @@ export default function ReportNewPage() {
 
   useEffect(() => {
     loadBrandPrefill(false);
-    // 브랜드 전환 시 브랜드 종속 필드만 새 브랜드로 교체(MAIN-01b″)
-    const onSwitch = () => loadBrandPrefill(true);
-    window.addEventListener('yoake:brand-switched', onSwitch);
-    return () => window.removeEventListener('yoake:brand-switched', onSwitch);
   }, [loadBrandPrefill]);
 
   /** 포지셔닝 칩 토글 — 최대 개수를 넘기면 무시 */
@@ -204,7 +198,7 @@ export default function ReportNewPage() {
   const contentOk = !hardGateBlocked;
   const canSubmit = brandReady && contentOk && !submitting;
 
-  /** 리포트 생성 요청(파라미터 없는 재시도 함수) — 401이면 게이트를 열고 로그인 후 자동 재개 */
+  /** 리포트 생성 요청 — 401(세션 만료)이면 로그인 화면으로 보낸다 */
   async function doSubmit() {
     setSubmitting(true);
     setError(null);
@@ -226,7 +220,7 @@ export default function ReportNewPage() {
       const res = await fetch('/api/report', { method: 'POST', body: form });
       if (res.status === 401) {
         setSubmitting(false);
-        openGate(doSubmit); // 게스트 리포트 생성 주 게이트(이미지 FormData는 state에 그대로 살아 재개 시 재구성)
+        router.replace(EXPIRED_LOGIN_PATH); // 세션 만료 — 서비스 안에는 로그인 동선이 없다
         return;
       }
       const data = await res.json();
@@ -247,7 +241,7 @@ export default function ReportNewPage() {
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[768px] px-6 pt-14 pb-24">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
         <p className="text-xs font-extrabold tracking-wide text-coral-strong">YOAKE 진단 리포트</p>
         <h1 className="mt-2.5 text-[30px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">
           일본 시장 진입 진단 리포트
@@ -568,7 +562,6 @@ export default function ReportNewPage() {
           </div>
         </form>
       </div>
-      <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
     </main>
   );
 }

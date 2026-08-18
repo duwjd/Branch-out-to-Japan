@@ -13,6 +13,10 @@ import { mockStudioCopy } from './fixtures';
 export interface StudioCopyResult {
   /** 입력이 오버레이 있는 프로모 썸네일인가 — ⑤ 조립 시 cleanup 프리펜드 판단 */
   isPromoInput: boolean;
+  /** 결과 화면 헤드라인의 제품명 — 이미지에서 읽히는 값만. 못 읽으면 빈 문자열(화면이 브랜드명으로 폴백) */
+  productName: string;
+  /** 원본(Before) 한 줄 진단 — 한국 원본이 무엇에 기대 설득하고 있었는지 */
+  beforeSummary: string;
   styleReason: string;
   /** 스타일 textSlots 채움 값(배지·가격 슬롯 제외 — 코드 소유) */
   slotValues: { key: string; value: string }[];
@@ -23,9 +27,11 @@ export interface StudioCopyResult {
 const STUDIO_COPY_SCHEMA = {
   type: 'object',
   additionalProperties: false,
-  required: ['isPromoInput', 'styleReason', 'slotValues', 'copySlots', 'krElementMap'],
+  required: ['isPromoInput', 'productName', 'beforeSummary', 'styleReason', 'slotValues', 'copySlots', 'krElementMap'],
   properties: {
     isPromoInput: { type: 'boolean' },
+    productName: { type: 'string' },
+    beforeSummary: { type: 'string' },
     styleReason: { type: 'string' },
     slotValues: {
       type: 'array',
@@ -41,11 +47,11 @@ const STUDIO_COPY_SCHEMA = {
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['slotKey', 'ja', 'krIntent', 'rationale', 'footnote'],
+        required: ['slotKey', 'ja', 'krSource', 'rationale', 'footnote'],
         properties: {
           slotKey: { type: 'string' },
           ja: { type: 'string' },
-          krIntent: { type: 'string' },
+          krSource: { type: 'string' },
           rationale: { type: 'string' },
           footnote: { type: 'string' },
         },
@@ -88,6 +94,30 @@ function slotSpecLines(styleId: StyleId): { lines: string; requiredKeys: string[
   return { lines, requiredKeys };
 }
 
+/**
+ * 응답 검증 — 화면이 대체할 수 없는 것만 재시도로 되돌린다(재시도는 총 1회뿐).
+ * productName 은 비어도 통과시킨다 — 안 읽히는 이름을 지어내는 것보다 브랜드명 폴백이 낫다.
+ * @param data 콜⑥ 응답
+ * @param requiredKeys 스타일 정의상 반드시 채워야 하는 슬롯 키
+ * @returns 교정 지시 문자열(문제 있음) 또는 null(통과)
+ */
+export function validateStudioCopy(data: StudioCopyResult, requiredKeys: string[]): string | null {
+  const got = new Set(data.slotValues.map((s) => s.key));
+  const missing = requiredKeys.filter((k) => !got.has(k) || !data.slotValues.find((s) => s.key === k)?.value.trim());
+  if (missing.length) return `필수 슬롯 누락/공란: [${missing.join(',')}] — 슬롯 정의대로 전부 채워라.`;
+
+  if (!data.beforeSummary.trim()) {
+    return 'beforeSummary가 비었다 — 한국 원본이 무엇에 기대 설득하고 있었는지 2~3문장으로 채워라.';
+  }
+  const brokenSlots = data.copySlots
+    .filter((slot) => !slot.ja.trim() || !slot.krSource.trim() || !slot.rationale.trim())
+    .map((slot) => slot.slotKey);
+  if (brokenSlots.length) {
+    return `카피 해설 누락/공란: [${brokenSlots.join(',')}] — ja·krSource·rationale 은 화면에 그대로 노출되므로 전부 채워라.`;
+  }
+  return null;
+}
+
 /** 콜⑥ 실행 — 목 모드는 결정적 픽스처(runStructuredCall이 판단) */
 export async function runStudioCopy(opts: StudioCopyOptions): Promise<StudioCopyResult> {
   const style = getStyle(opts.styleId);
@@ -102,8 +132,10 @@ export async function runStudioCopy(opts: StudioCopyOptions): Promise<StudioCopy
     `1. isPromoInput — 입력이 오버레이(카피·뱃지·가격·테두리) 있는 프로모 썸네일인지 판정.`,
     `2. krElementMap — 이미지 속 KR 요소를 유지·정제/재설계/제거로 분류하고 근거를 한 줄씩.`,
     `3. slotValues — 위 슬롯 정의대로. lang=ja 슬롯은 번역이 아니라 의도 재설계(고민 어휘·관례어), lang=en 슬롯은 이미지 관찰에 근거한 영어 구도·비주얼 지시.`,
-    `4. copySlots — lang=ja 카피 슬롯 각각에 대해 JP 카피/KR 원문·의도/재설계 근거/각주(없으면 빈 문자열).`,
+    `4. copySlots — lang=ja 카피 슬롯 각각에 대해 ja(재설계한 일본어 카피) / krSource(그 카피가 대체하는 이미지 속 한국어 문구를 글자 그대로. 대응하는 문구가 없으면 원본 의도를 한 줄로) / rationale(재설계 근거) / footnote(없으면 빈 문자열).`,
     `5. styleReason — 왜 이 문법이 이 제품·플랫폼에 맞는지 1~2문장(화면 해설용, 한국어).`,
+    `6. productName — 이미지의 패키지·라벨에서 읽히는 제품명. 읽히지 않으면 빈 문자열(추정·창작 금지).`,
+    `7. beforeSummary — 한국 원본이 무엇에 기대 설득하고 있었는지 2~3문장(한국어). 결과 화면의 원본 요약 문단에 그대로 들어간다.`,
   ].join('\n\n');
 
   return runStructuredCall<StudioCopyResult>({
@@ -115,11 +147,6 @@ export async function runStudioCopy(opts: StudioCopyOptions): Promise<StudioCopy
     image: opts.image,
     mockData: mockStudioCopy(opts.styleId, opts.brandName),
     onLog: opts.onLog,
-    validate: (data) => {
-      const got = new Set(data.slotValues.map((s) => s.key));
-      const missing = requiredKeys.filter((k) => !got.has(k) || !data.slotValues.find((s) => s.key === k)?.value.trim());
-      if (missing.length) return `필수 슬롯 누락/공란: [${missing.join(',')}] — 슬롯 정의대로 전부 채워라.`;
-      return null;
-    },
+    validate: (data) => validateStudioCopy(data, requiredKeys),
   });
 }
