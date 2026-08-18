@@ -276,7 +276,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
   return (
     <main className="pb-32">
-      <div className="mx-auto max-w-[768px] px-6 pt-8">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] max-sm:px-5">
         <header>
           <Link
             href="/app/studio"
@@ -591,7 +591,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
       {/* 하단 sticky 액션 바 */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-canvas/95 px-6 py-4 backdrop-blur left-0 lg:left-sidebar">
-        <div className="mx-auto max-w-[768px]">
+        <div className="mx-auto max-w-[1280px]">
           {step === 'form' ? (
             <>
               <button

@@ -148,7 +148,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[960px] px-8 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pb-24 max-sm:px-5">
         {firstVisit ? (
           /* ── MAIN-06 · 첫 방문 셋업 가이드(4단계) ────────── */
           <div className="pt-16">

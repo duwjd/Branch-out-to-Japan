@@ -241,7 +241,7 @@ export default function ReportNewPage() {
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[768px] px-6 pt-14 pb-24">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
         <p className="text-xs font-extrabold tracking-wide text-coral-strong">YOAKE 진단 리포트</p>
         <h1 className="mt-2.5 text-[30px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">
           일본 시장 진입 진단 리포트

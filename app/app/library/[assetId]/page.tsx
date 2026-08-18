@@ -246,7 +246,7 @@ function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
 function DetailShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[1120px] px-6 pt-11 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
         <BackNav />
         {children}
       </div>

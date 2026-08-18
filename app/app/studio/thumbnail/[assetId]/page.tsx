@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { PLATFORM_LABELS, STUDIO_STAGE_LABELS, type Platform } from '@/lib/studio/platform';
 import type { ExplanationJson, GateResult, GeneratedAssetStatus, PromoInput, ThumbnailProof } from '@/lib/db/store';
 import { EmptyState, StatusBadge, buttonClass, cardClass } from '@/components/ui/primitives';
+import { ContentBadge, StudioPageHeading, StudioSection, studioButtonClass } from '@/components/app/studioUi';
 import { GateBadges, IndetBar, StageList } from '@/components/ui/progress';
 import { IconAlertTriangle, IconCheck, IconChevronDown, IconChevronUp, IconDownload } from '@/components/ui/icons';
 import { bytesUrl } from '@/lib/files/downloadUrl';
@@ -98,19 +99,19 @@ function failureCopy(error: string | null): string {
 /** 카피 해설 카드 1장 — 일본어 카피 / 대응 한국어 원문 / 재설계 근거 (+ 각주가 있으면 한 줄 더) */
 function AfterCard({ slot }: { slot: ExplanationJson['copySlots'][number] }) {
   return (
-    <li className="rounded-[12px] border border-hairline bg-n-50 p-4">
-      <p lang="ja" className="text-[15px] leading-[1.5] font-extrabold text-ink [text-wrap:pretty]">
+    <li className="flex flex-col gap-2.5 rounded-[12px] border border-coral bg-canvas p-7 max-sm:p-5">
+      <p lang="ja" className="text-[16px] leading-[1.5] font-semibold text-ink [text-wrap:pretty]">
         {slot.ja}
       </p>
-      {slot.krSource && <p className="mt-1.5 text-[13px] leading-[1.6] text-ink-mute">{slot.krSource}</p>}
+      {slot.krSource && <p className="text-[14px] leading-[1.6] text-ink [text-wrap:pretty]">{slot.krSource}</p>}
       {slot.rationale && (
-        <p className="mt-2.5 flex gap-2 text-[12.5px] leading-[1.7] text-ink-body">
-          <IconCheck size={16} className="mt-0.5 flex-none text-coral-strong" />
+        <p className="flex gap-2.5 text-[12px] leading-[1.5] text-ink-mute">
+          <IconCheck size={18} className="mt-px flex-none text-coral" />
           <span className="[text-wrap:pretty]">{slot.rationale}</span>
         </p>
       )}
       {slot.footnote && (
-        <p lang="ja" className="mt-2 border-t border-hairline pt-2 text-[11.5px] text-ink-faint">
+        <p lang="ja" className="border-t border-hairline pt-2.5 text-[12px] leading-[1.5] text-ink-faint">
           {slot.footnote}
         </p>
       )}
@@ -172,7 +173,7 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
   if (notFound) {
     return (
       <main className="animate-fade-up">
-        <div className="mx-auto max-w-[640px] px-6 py-16">
+        <div className="mx-auto max-w-[1280px] px-8 py-16">
           <EmptyState
             title="썸네일을 찾을 수 없습니다"
             desc="주소의 자산 번호를 확인해 주세요. 스튜디오에서 다시 열어볼 수 있습니다."
@@ -194,8 +195,8 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[1280px] px-8 pt-11 pb-24 max-sm:px-5">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-8 px-8 pt-[72px] pb-32 max-sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Link
             href="/app/studio/thumbnail"
             className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-ink-mute no-underline transition-colors hover:text-ink"
@@ -250,72 +251,75 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
           </div>
         )}
 
-        {/* ── 실패(RESULT-06b) ─────────────────────────────────────────── */}
+        {/* ── 실패(Figma 1:12134 · 1:12219) ────────────────────────────── */}
         {asset?.status === 'failed' && (
-          <div className={cardClass('mx-auto max-w-[1280px] p-8 max-sm:p-6')}>
-            <h1 className="text-lg font-extrabold tracking-[-0.01em] text-ink">이미지 생성 실패</h1>
-
-            <div className="mt-6 flex gap-4 rounded-[14px] border border-danger/35 bg-danger-bg/50 p-5">
-              <span
-                aria-hidden
-                className="flex h-12 w-12 flex-none items-center justify-center rounded-[12px] bg-danger-bg text-danger-text"
-              >
-                <IconAlertTriangle />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-bold text-danger-text">썸네일을 만들지 못했습니다</p>
-                <p className="mt-1.5 text-[13px] leading-[1.7] text-ink-body [text-wrap:pretty]">
-                  {failureCopy(asset.error)}
-                </p>
+          <>
+            <StudioPageHeading
+              title="썸네일 생성 결과"
+              descTone="mute"
+              desc="한국 썸네일 또는 제품 단독컷 1장을 올려 주세요. 제품이 선명하고 가려지지 않아야 하며, 카피·뱃지가 있는 프로모 썸네일이어도 됩니다."
+            />
+            <StudioSection title="이미지 생성 실패">
+              {/* Error Splash — 코랄 틴트 위에 원형 아이콘 + 사유 두 줄 */}
+              <div className="flex items-center gap-4 rounded-[20px] bg-coral-tint p-5">
+                <span
+                  aria-hidden
+                  className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-[rgba(255,84,73,0.12)] text-coral-strong"
+                >
+                  <IconAlertTriangle />
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <p className="text-[18px] font-bold text-coral-strong">썸네일 생성 실패</p>
+                  <p className="text-[13px] leading-[1.5] text-cool-50 [text-wrap:pretty]">{failureCopy(asset.error)}</p>
+                </div>
               </div>
-            </div>
 
-            <div className="mt-6 flex gap-4 max-sm:flex-col">
-              <Link
-                href={`/app/studio/thumbnail?from=${asset.id}&style=${asset.styleCategory}`}
-                className={buttonClass('primary', 'md', 'flex-1 no-underline')}
-              >
-                같은 조건으로 다시 시도
-              </Link>
-              <Link href={`/app/studio/thumbnail?from=${asset.id}`} className={buttonClass('secondary', 'md', 'flex-1 no-underline')}>
-                다른 템플릿으로 만들기
-              </Link>
-            </div>
+              <div className="flex gap-6 max-sm:flex-col">
+                <Link
+                  href={`/app/studio/thumbnail?from=${asset.id}&style=${asset.styleCategory}`}
+                  className="inline-flex flex-1 items-center justify-center rounded-[8px] bg-coral px-[22px] py-[13px] text-[15px] font-semibold text-white no-underline transition-colors hover:bg-coral-strong"
+                >
+                  다시 시도
+                </Link>
+                <Link
+                  href="/app/studio"
+                  className="inline-flex flex-1 items-center justify-center rounded-[8px] border border-coral bg-canvas px-[22px] py-[13px] text-[15px] font-semibold text-coral-strong no-underline transition-colors hover:bg-coral-tint"
+                >
+                  메인페이지
+                </Link>
+              </div>
 
-            {asset.error && (
-              <details className="mt-5 border-t border-hairline pt-4">
-                <summary className="cursor-pointer text-[12px] font-semibold text-ink-mute">기술 정보 보기</summary>
-                <p className="mt-2 text-[12px] leading-relaxed break-words text-ink-faint">{asset.error}</p>
-              </details>
-            )}
-          </div>
+              {asset.error && (
+                <details className="border-t border-hairline pt-4">
+                  <summary className="cursor-pointer text-[12px] font-semibold text-ink-mute">기술 정보 보기</summary>
+                  <p className="mt-2 text-[12px] leading-relaxed break-words text-ink-faint">{asset.error}</p>
+                </details>
+              )}
+            </StudioSection>
+          </>
         )}
 
         {/* ── 완료(RESULT-01~05) ───────────────────────────────────────── */}
         {asset?.status === 'done' && asset.imageUrl && (
           <>
-            <header>
-              <h1 className="text-[30px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink">썸네일 생성 결과</h1>
-              <p className="mt-3 text-[15px] leading-[1.7] text-ink-body [text-wrap:pretty]">
-                한국 썸네일을 그대로 옮기지 않았습니다. 아래에서 어떤 문구를 왜 바꿨는지 확인해 보세요.
-              </p>
-            </header>
+            <StudioPageHeading
+              title="썸네일 생성 결과"
+              descTone="mute"
+              desc="한국 썸네일을 그대로 옮기지 않았습니다. 아래에서 어떤 문구를 왜 바꿨는지 확인해 보세요."
+            />
 
             {/* 목 모드 이미지 고지(RESULT-01) — 작은 배지로 흘리지 않고 상단 배너로 명시 */}
             {asset.imageMode === 'mock' && (
-              <div role="note" className="mt-6 rounded-[10px] border border-amber bg-amber-bg px-4 py-3 text-[12.5px] leading-relaxed text-amber-text">
+              <div role="note" className="rounded-[10px] border border-amber bg-amber-bg px-4 py-3 text-[12.5px] leading-relaxed text-amber-text">
                 <b className="font-bold">데모 이미지입니다.</b> 올린 제품컷이 반영되지 않은 샘플이며 다운로드 파일명에 <code>-demo</code>가 붙습니다. 이미지 API를 연결하면 실제 생성이 동작합니다.
               </div>
             )}
 
-            <section className={cardClass('mt-6 p-8 max-sm:p-5')}>
-              <h2 className="text-lg font-extrabold tracking-[-0.01em] text-ink">생성된 이미지</h2>
-              <p className="mt-1.5 text-[13.5px] leading-[1.7] text-ink-mute [text-wrap:pretty]">
-                {hasPlatform ? `${platformLabel} 기준 ` : ''}
-                {asset.styleName} 문법으로 재설계한 결과입니다. 원본은 왼쪽 아래에서 비교할 수 있어요.
-              </p>
-
-              <div className="mt-7 grid gap-8 lg:grid-cols-[minmax(0,667px)_minmax(0,523px)]">
+            <StudioSection
+              title="생성된 이미지"
+              desc={`${hasPlatform ? `${platformLabel} 기준 ` : ''}${asset.styleName} 문법으로 재설계한 결과입니다. 원본은 왼쪽 아래에서 비교할 수 있어요.`}
+            >
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,667px)_minmax(0,523px)]">
                 {/* 좌 — 생성 이미지 + 원본 대조 */}
                 <div>
                   <div className="relative aspect-square overflow-hidden rounded-card border border-card-border bg-n-200 shadow-card">
@@ -359,33 +363,30 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
                 </div>
 
                 {/* 우 — 제품명 → 원본 요약 → 카피 해설 → 다운로드 */}
-                <div className="flex flex-col">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h3 className="text-[22px] leading-[1.35] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">
-                      {explanation?.productName || asset.brandNameSnapshot}
-                    </h3>
+                <div className="flex flex-col gap-[17px]">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-1">
+                      <h3 className="text-2xl leading-[1.4] font-bold text-ink [text-wrap:pretty]">
+                        {explanation?.productName || asset.brandNameSnapshot}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <ContentBadge tone="violet">{asset.styleName}</ContentBadge>
+                        <span className="text-[12.5px] text-ink-mute">
+                          {hasPlatform ? `${platformLabel} · ` : ''}
+                          {asset.createdAt.slice(0, 10)}
+                        </span>
+                        {asset.llmMode === 'mock' && <StatusBadge tone="warn">데모 해설 · 실제 진단이 아닙니다</StatusBadge>}
+                      </div>
+                    </div>
+                    {explanation?.beforeSummary && (
+                      <p className="text-[14px] leading-[1.6] text-[#666] [text-wrap:pretty]">{explanation.beforeSummary}</p>
+                    )}
                   </div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex h-6 items-center rounded-full border border-coral/35 bg-coral-tint px-2.5 text-xs font-bold text-coral-strong">
-                      {asset.styleName}
-                    </span>
-                    <span className="text-[12.5px] text-ink-mute">
-                      {hasPlatform ? `${platformLabel} · ` : ''}
-                      {asset.createdAt.slice(0, 10)}
-                    </span>
-                    {asset.llmMode === 'mock' && <StatusBadge tone="warn">데모 해설 · 실제 진단이 아닙니다</StatusBadge>}
-                  </div>
-
-                  {explanation?.beforeSummary && (
-                    <p className="mt-4 text-[13.5px] leading-[1.75] text-ink-body [text-wrap:pretty]">
-                      {explanation.beforeSummary}
-                    </p>
-                  )}
 
                   {explanation && explanation.copySlots.length > 0 && (
-                    <section className="mt-5 rounded-card border border-card-border bg-canvas p-5">
-                      <h4 className="text-[15px] font-extrabold text-ink">카피 해설</h4>
-                      <ul className="mt-3 flex list-none flex-col gap-3">
+                    <section className="flex flex-col gap-[13px] rounded-[12px] bg-n-100 p-5">
+                      <h4 className="text-[16px] leading-[1.5] font-semibold text-ink">카피 해설</h4>
+                      <ul className="flex list-none flex-col gap-[13px]">
                         {explanation.copySlots.map((slot) => (
                           <AfterCard key={slot.slotKey} slot={slot} />
                         ))}
@@ -395,26 +396,28 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
 
                   <div className="mt-6 flex-1" aria-hidden />
 
-                  <button type="button" onClick={() => void handleDownload()} className={buttonClass('primary', 'lg', 'w-full')}>
-                    <IconDownload size={17} />
-                    이미지 다운로드 (PNG · 1024×1024)
-                  </button>
-                  <p className="mt-2.5 text-[12px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-                    AI 생성 이미지는 제안·데모용입니다. 실제 게시에 쓸 제품 본체 컷은 브랜드 실촬영을 권장합니다.
-                  </p>
-                  <Link
-                    href={`/app/studio/thumbnail?from=${asset.id}`}
-                    className="mt-3 text-[13px] font-semibold text-coral-strong hover:underline"
-                  >
-                    같은 이미지로 다른 템플릿 만들기 →
-                  </Link>
+                  <div className="flex flex-col gap-2.5">
+                    <button type="button" onClick={() => void handleDownload()} className={studioButtonClass('primary', 'w-full')}>
+                      <IconDownload size={18} />
+                      이미지 다운로드
+                    </button>
+                    <p className="text-[12px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+                      AI 생성 이미지는 제안·데모용입니다. 실제 게시에 쓸 제품 본체 컷은 브랜드 실촬영을 권장합니다.
+                    </p>
+                    <Link
+                      href={`/app/studio/thumbnail?from=${asset.id}`}
+                      className="text-[13px] font-semibold text-coral-strong hover:underline"
+                    >
+                      같은 이미지로 다른 템플릿 만들기 →
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </section>
+            </StudioSection>
 
             {/* 자세한 재설계 근거 — 기본 접힘(점진적 공개). 원본 요소 처리 표 + 배지 고지 */}
             {explanation && (
-              <section className={cardClass('mt-4 overflow-hidden')}>
+              <section className={cardClass('overflow-hidden')}>
                 <button
                   type="button"
                   aria-expanded={detailOpen}

@@ -26,6 +26,46 @@ export const HERO = {
   secondaryCta: '서비스 자세히 보기',
 } as const;
 
+/**
+ * Hero 목업(Figma `Hero_Visual` 1:1726) 문구 — 입력 → 진단 → 제작 3패널.
+ * 실제 화면을 축소해 보여 주는 예시라, 여기 값이 제품 화면의 라벨과 어긋나면 약속이 어긋난다.
+ * 값은 Figma 원문 그대로 옮겼고, 임의로 바꾸지 않는다.
+ */
+export const HERO_VISUAL = {
+  /** 목업 전체의 대체 텍스트 — 장식이 아니라 흐름 설명이라 스크린리더에도 남긴다 */
+  summary: '입력한 한국어 카피와 보유 근거가 진단 리포트를 거쳐 채널별 썸네일과 상세페이지 카피로 이어지는 흐름 예시입니다.',
+  input: {
+    label: '입력',
+    chips: ['스킨케어', '앰플'],
+    copyLabel: '한국어 카피',
+    copyValue: '산뜻하게 48시간 촉촉',
+    evidenceLabel: '보유 근거',
+    evidence: ['보습 시험 결과 (2024)', '성분 시험 성적서'],
+    addLabel: '+ 자료 연결',
+  },
+  diagnose: {
+    label: '진단 리포트',
+    status: '조건부',
+    sourceLabel: '원문 · 위험 요소',
+    /** 위험 표현만 코랄-레드로 끊어 보여 주는 3조각(Figma의 span 분할 그대로) */
+    source: { head: '산뜻하게', risk: ' 48시', tail: '간 촉촉' },
+    checkLabel: '확인이 필요한 항목',
+    checks: ['48시간 보습 시험이 있는가?', '시험 조건이 광고 표현과 일치하는가?'],
+    altLabel: '근거가 없을 때의 대체 표현',
+    alt: ['乾燥に負けない、', 'なめらかうるおい肌へ'],
+    reasonLabel: '변경 이유',
+    reason: '48시간 수치의 근거가 확인되지 않아 수치를 제외했습니다.',
+  },
+  output: {
+    label: '마케팅 스튜디오',
+    status: '플랜 선택',
+    channels: ['Qoo10', '아마존JP', '자사몰', '라쿠텐 공식샵', '라쿠텐 리셀러', '기타'],
+    detailLabel: '상세페이지 상단',
+    detail: ['乾燥した肌に、', 'うるおいを与える'],
+    note: '사용한 근거와 변경 이유가 함께 표시됩니다.',
+  },
+} as const;
+
 export const PROBLEM = {
   heading: '번역 이후에도, 두 번 막힙니다.',
   lead: '자연스러운 일본어 번역만으로는 표현 근거와 채널별 제작 문제를 함께 해결하기 어렵습니다.',
@@ -33,11 +73,15 @@ export const PROBLEM = {
     {
       eyebrow: 'Claim & Evidence Gap',
       title: '주장·근거 공백',
+      illustration: 'gap-evidence',
+      illustrationWidth: 171,
       body: '번역은 끝났지만 어떤 표현을 유지하고 무엇을 수정해야 하는지, 어떤 시험과 자료가 필요한지 설명하기 어렵습니다.',
     },
     {
       eyebrow: 'Channel Creative Gap',
       title: '채널 크리에이티브 공백',
+      illustration: 'gap-channel',
+      illustrationWidth: 126,
       body: '진단 결과를 받은 뒤에도 목표 채널에 맞는 썸네일과 상세페이지를 제작사에 다시 요청하고 반복해서 수정해야 합니다.',
     },
   ],
@@ -47,9 +91,25 @@ export const PROBLEM = {
 export const CORE_FLOW = {
   heading: '진단에서 제작까지, 하나의 흐름',
   steps: [
-    { no: '01', title: 'Diagnose', body: '카피와 근거를 검토 가능한 상태로 정리합니다.', ready: true },
-    { no: '02', title: 'Create', body: '진단 결과를 채널별 썸네일과 상세페이지에 반영합니다.', ready: true },
-    { no: '03', title: 'Connect', body: '일본 현지 실행 파트너와 연결합니다.', ready: false, badge: 'MVP 이후' },
+    {
+      no: '01',
+      title: 'Diagnose',
+      body: '카피와 근거를 검토 가능한 상태로 정리합니다.',
+      ready: true,
+    },
+    {
+      no: '02',
+      title: 'Create',
+      body: '진단 결과를 채널별 썸네일과 상세페이지에 반영합니다.',
+      ready: true,
+    },
+    {
+      no: '03',
+      title: 'Connect',
+      body: '일본 현지 실행 파트너와 연결합니다.',
+      ready: false,
+      badge: 'MVP 이후',
+    },
   ],
   note: '01 Diagnose와 02 Create는 현재 MVP입니다. 03 Connect는 MVP 검증 이후 제공을 검토하는 확장 서비스로, 지금 사용할 수 있는 기능이 아닙니다.',
 } as const;
@@ -67,6 +127,24 @@ export const SERVICE_DIAGNOSE = {
     '유통사와 전문가에게 공유할 수 있는 리포트',
   ],
   pull: '점수만 보여주는 것이 아니라, 무엇을 왜 바꿔야 하는지 함께 제공합니다.',
+  /** 우측 미리보기 카드(Figma UI_DiagnoseResult 1:1889) — 리포트 한 건을 축약해 옮긴 예시 */
+  preview: {
+    title: '진단 리포트 · 주장 01',
+    status: '고위험 · 확인 필요',
+    sourceLabel: '입력 · 한국어 원문',
+    /** 위험 표현만 끊어 보여 주는 3조각 */
+    source: { head: '산뜻하게 ', risk: '48시간', tail: ' 촉촉' },
+    sourceNote: '감지된 위험 요소 · 시간 수치 표현과 사용감 표현의 근거 확인 필요',
+    altLabel: '대체 표현 (일본어)',
+    alts: ['乾燥した肌に、うるおいを与える', '乾燥に負けない、なめらかうるおい肌へ'],
+    evidenceLabel: '필요한 추가 증빙',
+    evidence: ['48시간 보습 효능평가 시험 결과', '시험 조건과 광고 표현의 대응 관계', '사용감 표현의 근거와 문맥'],
+    reasonLabel: '변경 이유',
+    reason:
+      '48시간 수치 주장의 근거가 입력되지 않아 수치를 제외하고, 사용감 중심 표현으로 대체했습니다. 이 표현 역시 제품 정보와 광고 전체를 기준으로 최종 검토가 필요합니다.',
+    metaLabel: '관련 기준 · 판단 근거',
+    metaChips: ['적용 규칙 버전', '원문·수정안 비교', '검토 이력 3건'],
+  },
 } as const;
 
 export const SERVICE_CREATE = {
@@ -83,6 +161,30 @@ export const SERVICE_CREATE = {
   ],
   pull: ['진단 리포트가 파일로 끝나지 않고,', '검토 결과가 실제 크리에이티브에 반영됩니다.'],
   note: '지원 채널은 확정된 범위만 표기합니다. 화면의 채널은 예시 표기입니다.',
+  /** 좌측 미리보기 카드(Figma UI_Studio 1:1935) — 생성 결과 화면을 축약해 옮긴 예시 */
+  preview: {
+    title: '마케팅 스튜디오 · 생성 결과',
+    status: '검토 가능',
+    channelLabel: '목표 채널',
+    channels: ['Qoo10', '아마존JP', '라쿠텐 공식샵', '라쿠텐 리셀러', '자사몰', '기타'],
+    thumbLabel: '썸네일 3안',
+    thumbs: [
+      { ja: '乾いた肌にうるおいを与える', name: '캐치카피+성분 비주얼형', shot: 'studio-thumb-1' },
+      { ja: 'プレゼントセット', name: '프로모션 강조형', shot: 'studio-thumb-2' },
+      { ja: '乾燥に負けない、なめらかうるおい肌へ', name: '모델+카피형', shot: 'studio-thumb-3' },
+    ],
+    detailLabel: '상세페이지 상단 구간',
+    detailJa: ['乾燥が気になる肌へ、', 'うるおいを角質層まで'],
+    detailNote: '진단 리포트 주장 01의 근거와 연결됨',
+    beforeAfter: [
+      { label: '수정 전 · 원문', value: '산뜻하게 48시간 촉촉', lang: 'ko' },
+      {
+        label: '수정 후 · 반영안',
+        value: '乾いた肌に、うるおいを与える',
+        lang: 'ja',
+      },
+    ],
+  },
 } as const;
 
 export const PRODUCT_EXAMPLE = {
@@ -97,6 +199,7 @@ export const PRODUCT_EXAMPLE = {
   },
   diagnose: {
     label: 'DIAGNOSE · 진단',
+    status: '조건부',
     items: [
       "'2025 OLIVE YOUNG AWARDS TREND' 배지 제거",
       "핑크 원형 '수분 미백' 텍스트 배지 재설계",
@@ -105,7 +208,8 @@ export const PRODUCT_EXAMPLE = {
     ],
     altLabel: '대체 표현 예시',
     alts: ['リフィル企画', 'セット価格'],
-    reason: '변경 이유 · 순위와 미백 효능 주장은 근거가 확인되지 않아 수치·최상급 표현을 빼고, 세트 구성 사실만 남겨 재설계했습니다.',
+    reason:
+      '변경 이유 · 순위와 미백 효능 주장은 근거가 확인되지 않아 수치·최상급 표현을 빼고, 세트 구성 사실만 남겨 재설계했습니다.',
   },
   create: {
     label: 'CREATE · 제작',
@@ -122,11 +226,31 @@ export const PRODUCT_EXAMPLE = {
 export const WORKFLOW = {
   heading: '자료를 연결하면, 진단에서 제작까지 이어집니다.',
   steps: [
-    { no: '01', title: '브랜드·제품 정보 등록', body: '브랜드와 제품, 목표 채널, 현재 사용 중인 카피를 입력합니다.' },
-    { no: '02', title: '카피·근거 자료 연결', body: '시험자료, 조사자료, 제품 설명과 일본 승인·신고 정보를 연결합니다.' },
-    { no: '03', title: '진단 리포트 확인', body: '표현 상태와 대체안, 필요한 증빙과 변경 이유를 확인합니다.' },
-    { no: '04', title: '마케팅 스튜디오 제작', body: '목표 채널을 선택하고 썸네일 또는 상세페이지를 생성합니다.' },
-    { no: '05', title: '검토·수정·내보내기', body: '근거와 변경 이력이 포함된 결과를 검토하고 팀 또는 외부 파트너와 공유합니다.' },
+    {
+      no: '01',
+      title: '브랜드·제품 정보 등록',
+      body: '브랜드와 제품, 목표 채널, 현재 사용 중인 카피를 입력합니다.',
+    },
+    {
+      no: '02',
+      title: '카피·근거 자료 연결',
+      body: '시험자료, 조사자료, 제품 설명과 일본 승인·신고 정보를 연결합니다.',
+    },
+    {
+      no: '03',
+      title: '진단 리포트 확인',
+      body: '표현 상태와 대체안, 필요한 증빙과 변경 이유를 확인합니다.',
+    },
+    {
+      no: '04',
+      title: '마케팅 스튜디오 제작',
+      body: '목표 채널을 선택하고 썸네일 또는 상세페이지를 생성합니다.',
+    },
+    {
+      no: '05',
+      title: '검토·수정·내보내기',
+      body: '근거와 변경 이력이 포함된 결과를 검토하고 팀 또는 외부 파트너와 공유합니다.',
+    },
   ],
   note: '전문가 검토가 필요한 범위와 파일럿 제공 범위는 신청 후 개별 안내합니다.',
 } as const;
@@ -145,15 +269,55 @@ export const FUTURE = {
     '실제 수정·승인·반려 결과의 재연결',
   ],
   note: '파트너 및 채널 후보를 소개하는 서비스이며 광고 집행이나 유통 계약을 대행하지 않습니다. 제공 시점과 범위는 확정되는 대로 안내합니다.',
+  /**
+   * 우측 미리보기 카드(Figma UI_PartnerMatch 1:2162) — 아직 만들지 않은 화면의 예고다.
+   * 채널명을 `채널 A · 채널 B`로 두는 것은 ChannelChip 규칙(지원 확정 전에는 일반 표기)을 따른 것이다.
+   */
+  preview: {
+    title: '파트너·채널 후보 소개',
+    badge: 'Coming Next',
+    conditionLabel: '브랜드 조건',
+    conditions: [
+      { k: '제품 카테고리', v: '스킨케어 · 크림' },
+      { k: '목표 채널', v: '채널 A · 채널 B' },
+      { k: '예산 범위', v: '미입력' },
+      { k: '준비 상태', v: '진단 리포트 1건 · 제작 소재 3건' },
+    ],
+    candidateLabel: '소개 가능한 후보 (예시)',
+    candidates: [
+      {
+        title: '마케팅 파트너 후보',
+        desc: '광고 · SNS · 인플루언서 운영',
+        state: '소개 예정',
+      },
+      {
+        title: '유통 채널 후보',
+        desc: '제품 카테고리 기준 채널 유형',
+        state: '소개 예정',
+      },
+    ],
+  },
 } as const;
 
 export const TRUST = {
   heading: '판단 근거를 남기고, 최종 검토를 돕습니다.',
   cards: [
-    { title: '근거 연결', body: '어떤 문장이 어떤 시험·조사 자료에 연결되는지 확인할 수 있습니다.' },
-    { title: '변경 이유', body: '왜 수치와 배지를 제외하거나 문장을 수정했는지 기록합니다.' },
-    { title: '버전 이력', body: '실제로 검토하고 사용한 카피와 제작물의 변경 이력을 보관합니다.' },
-    { title: '전문가 전환', body: '고위험 표현은 필요한 경우 전문가 검토 단계로 전환할 수 있습니다.' },
+    {
+      title: '근거 연결',
+      body: '어떤 문장이 어떤 시험·조사 자료에 연결되는지 확인할 수 있습니다.',
+    },
+    {
+      title: '변경 이유',
+      body: '왜 수치와 배지를 제외하거나 문장을 수정했는지 기록합니다.',
+    },
+    {
+      title: '버전 이력',
+      body: '실제로 검토하고 사용한 카피와 제작물의 변경 이력을 보관합니다.',
+    },
+    {
+      title: '전문가 전환',
+      body: '고위험 표현은 필요한 경우 전문가 검토 단계로 전환할 수 있습니다.',
+    },
   ],
   disclosureLabel: '필수 고지',
   disclosure:

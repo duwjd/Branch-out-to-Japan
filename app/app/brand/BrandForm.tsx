@@ -135,7 +135,7 @@ export function BrandForm({
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[760px] px-6 pt-11 pb-28 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-28 max-sm:px-5">
         {/* 상단 영역(BRAND-01) — primary는 하단 저장 바의 「저장」 1개 */}
         <header>
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -493,7 +493,7 @@ export function BrandForm({
 
       {/* 저장 바(BRAND-06) — 화면 유일 primary */}
       <div className="fixed inset-x-0 bottom-0 left-0 z-40 border-t border-hairline bg-canvas/95 px-6 py-3.5 backdrop-blur lg:left-sidebar">
-        <div className="mx-auto flex max-w-[760px] flex-wrap items-center gap-3.5">
+        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-3.5">
           <p role="status" className={`text-[12.5px] font-bold ${saveMsgClass}`}>
             {error ? `✕ ${error}` : savedMsg ? `○ ${savedMsg}` : !canSave ? '브랜드명·카테고리·포지셔닝 1개 이상이 필요합니다' : ''}
           </p>

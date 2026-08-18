@@ -66,7 +66,7 @@ export function BrandOnboarding() {
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[560px] px-8 pt-14 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
         <div className="text-center">
           <span className="inline-flex h-7 items-center rounded-full border border-coral/30 bg-coral-tint px-[13px] text-xs font-bold text-coral-strong">
             시작하기

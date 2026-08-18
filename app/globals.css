@@ -46,6 +46,14 @@
   --color-green-text: #00875a;
   --color-green-bg: #eaf9f3;
 
+  /* 스튜디오 화면(Figma 2026-08 실측) — 몽타주 계열 중립/라벨 토큰 */
+  --color-line-neutral: rgba(112, 115, 124, 0.16);
+  --color-fill-normal: rgba(112, 115, 124, 0.08);
+  --color-label-neutral: rgba(46, 47, 51, 0.88);
+  --color-label-assistive: rgba(55, 56, 60, 0.28);
+  --color-cool-50: #70737c;
+  --color-violet: #8364ff;
+
   /* 선 · 중립 */
   --color-card-border: rgba(112, 115, 124, 0.14);
   --color-input-border: rgba(112, 115, 124, 0.28);

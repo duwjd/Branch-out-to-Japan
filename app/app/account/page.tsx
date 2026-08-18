@@ -30,7 +30,7 @@ export default async function AccountPage() {
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[720px] px-8 pt-10 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
         <h1 className="text-[22px] font-extrabold tracking-[-0.02em] text-ink">마이페이지</h1>
         <p className="mt-1.5 text-[13px] text-ink-mute">계정과 구독 플랜, 결제 정보를 확인합니다.</p>
 

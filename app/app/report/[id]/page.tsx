@@ -185,7 +185,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
     const b = payload.report.blocksJson;
     return (
       <main className="animate-fade-up">
-        <div className="mx-auto max-w-[960px] px-6 pt-9 pb-24">
+        <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
           <p className="mb-4">
             <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">← 새 진단</Link>
           </p>

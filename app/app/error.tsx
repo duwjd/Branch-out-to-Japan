@@ -3,7 +3,7 @@
 /** /app 세그먼트 오류 화면(MAIN-08) — ✕ 기호 + 재시도. 셸은 레이아웃이 유지한다. */
 export default function AppError({ reset }: { error: Error; reset: () => void }) {
   return (
-    <main className="mx-auto max-w-[960px] px-8 pb-24">
+    <main className="mx-auto max-w-[1280px] px-8 pb-24">
       <div className="mt-[88px] rounded-card border border-card-border bg-canvas px-8 py-16 text-center shadow-card">
         <span
           aria-hidden

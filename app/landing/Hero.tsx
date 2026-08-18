@@ -1,13 +1,11 @@
 /**
- * Hero — 눈썹 → H1 2줄 → 리드 2줄 → 태그 3 → CTA 2.
- * Figma의 Hero_Visual(입력→진단→제작 목업)은 원본이 원격 SVG 자산이라 이 환경에서 내려받지 못했다.
- * 목업을 임의로 다시 그리면 실제 화면과 다른 약속을 하게 되므로, 아래 ProductExample 섹션이
- * 같은 이야기를 텍스트와 실제 문구로 대신한다.
+ * Hero — 눈썹 → H1 2줄 → 리드 2줄 → 태그 3 → CTA 2 → Hero_Visual(입력→진단→제작 목업).
  */
 
 import { HERO } from './content';
 import { LpChip, LpEyebrow, LpSection, lpButtonClass } from './primitives';
 import { TrackedCta } from '@/components/landing/TrackedCta';
+import { HeroVisual } from './HeroVisual';
 
 export function Hero() {
   return (
@@ -50,6 +48,10 @@ export function Hero() {
             {HERO.secondaryCta}
           </a>
         </div>
+      </div>
+
+      <div className="relative mx-auto mt-0 w-full max-w-[1200px]">
+        <HeroVisual />
       </div>
     </LpSection>
   );
