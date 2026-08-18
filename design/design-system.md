@@ -1,9 +1,32 @@
-# 디자인 시스템 (확정 · Stibee Coral 기반)
+# 디자인 시스템 (확정 · YOAKE 단일 팔레트)
 
-> 브랜드 톤 확정: **스티비(Stibee) 팔레트 기반**. 상세 스펙은 [DESIGN.md](DESIGN.md), 브랜드 레퍼런스는 [references/stibee-design.md](references/stibee-design.md).
-> 원본(source of truth)은 **Figma 변수/스타일**이며, 이 문서는 그 스냅샷이다. 구현 시 Tailwind 설정에 반영한다.
+> **⚠ 팔레트 전환 (2026-08-18).** 로고·랜딩·앱 셸이 **하나의 팔레트**로 통일됐다. 브랜드 원색은 로고의
+> 일출 코랄 `#ff6f61`, 바탕 `#faf8f5`, 선 `#e9e7e3`, 잉크 `#182333`이다. 구 **스티비 coral
+> `#ff6464`·`#d93636`·`#fff8f8`은 폐기**됐으므로 아래 "컬러 — Primitives" 표는 **이력**이다.
+> 현행 값은 아래 "컬러 — 현행(YOAKE Web)" 표와 `app/globals.css`를 본다.
+> 근거: [../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md](../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md).
 >
-> **로고는 예외 (2026-08-18 갱신).** 서비스명 **YOAKE**의 로고는 잉크 `#182333` + 코랄 일출 그라디언트(`#FF6F61`→`#FF9B70`)를 쓰지만, 이는 **로고 전용 고정색**이고 아래 토큰과 무관하다. UI의 브랜드색은 그대로 `coral/base #ff6464`이며 로고 색을 토큰으로 승격하지 않는다. 자산·규칙: [brand/logo/README.md](brand/logo/README.md).
+> 팔레트 정본은 **Figma `YOAKE Web` 컬렉션**, 토큰 정본은 `app/globals.css`다. 상세 스펙은 [DESIGN.md](DESIGN.md).
+> 로고 자산·규칙: [brand/logo/README.md](brand/logo/README.md) — 로고 색은 이제 UI 팔레트와 같은 값이다.
+
+## 컬러 — 현행 (YOAKE Web · 정본)
+| 역할 | 토큰(Figma) | Tailwind | 값 |
+|---|---|---|---|
+| 브랜드/CTA | `color/brand/coral` | `coral` | `#ff6f61` |
+| 브랜드 hover·링크·소형 텍스트 | (코드 파생) | `coral-strong` | `#c44439` |
+| 브랜드 틴트 | `color/brand/coral-tint` | `coral-tint` | `#fff1ee` |
+| 배경(앱 바탕) | `color/bg/warm-white` | `page` | `#faf8f5` |
+| 배경(카드·입력) | `color/bg/white` | `canvas` | `#ffffff` |
+| 선 | `color/border/soft` | `card-border`·`input-border`·`hairline` | `#e9e7e3` |
+| 잉크(제목) | `color/text/primary` | `ink` | `#182333` |
+| 잉크(본문) | `color/text/body` | `ink-body` | `#3d4655` |
+| 잉크(보조) | `color/text/secondary` | `ink-mute` | `#6e7686` |
+| 반경 | `radius/card`·`button`·`pill` | `rounded-card` | `14` · `10` · `999` |
+
+> `coral-strong`은 Figma 컬렉션에 대응 변수가 없다. `#ff6f61`이 흰 배경 2.73:1로 소형 텍스트 AA에
+> 미달해, 같은 hue(5°)에서 코드가 파생한 값이다(흰 4.96:1 · tint 4.50:1).
+
+## 컬러 — Primitives (이력 · 구 스티비 팔레트, 사용 금지)
 
 ## Figma 원본
 - 파일: `2조 생존자들` (fileKey `C3FYvw7rhJrrHK4HgCZzBt`)
@@ -78,4 +101,5 @@
 - 자세한 감사·경위: [audit-refined-landing-ds.md](audit-refined-landing-ds.md), [DESIGN.md](DESIGN.md) §5–6.
 
 ## 접근성 기준
-- 색 대비 WCAG AA 이상(코랄 `#ff6464` 위 흰 글자, 작은 텍스트/링크는 `coral/strong #d93636`), 포커스 가시화, 시맨틱 태그.
+- 색 대비 WCAG AA 이상, 포커스 가시화, 시맨틱 태그.
+- **코랄 `#ff6f61`은 소형 텍스트에 단독으로 쓸 수 없다** — 흰 배경 2.73:1로 AA 미달이다. 큰 글씨·CTA 배경(위에 흰 글자)에만 쓰고, 링크·14px 이하 라벨·`coral-tint` 위 텍스트는 `coral-strong #c44439`(흰 4.96:1 · tint 4.50:1)를 쓴다.

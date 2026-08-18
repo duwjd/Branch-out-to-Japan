@@ -307,7 +307,7 @@ onAccent     = bestOn(accentBand)
 | `plum` | 플럼 | `#8e4f6e` | deep plum |
 | `luxe-charcoal` | 럭스 차콜 | `#3a3f4a` | charcoal slate |
 
-`#ff6464`(YOAKE 코랄)는 **팔레트 목록에 넣지 않는다.** 고객이 우연히 우리 색을 고르는 것과 우리가 강요하는 것은 다르다 — 필요하면 `rose-coral` 이 그 자리를 대신한다.
+`#ff6f61`(YOAKE 코랄, 2026-08-18 팔레트 통일 이후의 브랜드 원색)은 **팔레트 목록에 넣지 않는다.** 구 `#ff6464`도 마찬가지다. 고객이 우연히 우리 색을 고르는 것과 우리가 강요하는 것은 다르다 — 필요하면 `rose-coral` 이 그 자리를 대신한다.
 
 **무드 8종** — `minimal-clean` · `clinical` · `natural` · `luxury` · `fresh` · `pastel` · `bold-editorial` · `warm-daily`.
 각 무드의 영문 `keywords` 는 카테고리 keywords 를 **대체하지 않고 뒤에 잇는다**. 카테고리 키워드는 상품에 맞는 장면 문법(선케어의 `water droplets, summer air`)이라 브랜드 무드가 지워선 안 된다.

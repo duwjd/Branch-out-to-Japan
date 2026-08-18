@@ -46,10 +46,15 @@ import { YoakeLogo, YoakeMark } from '@/components/brand/Logo';
 - [SVG/YOAKE_Logo_semicircle.svg](SVG/YOAKE_Logo_semicircle.svg) — 2026-08-14 발표 장표에 쓴 중간 락업. 현행 [yoake-logo.svg](yoake-logo.svg)가 대체했다.
 - [logo.ai](logo.ai) · `1x/` · `2x/` · [logo_test_yoake.png](logo_test_yoake.png) · [logo_test_agaru.png](logo_test_agaru.png) · [logo_test_noboru.png](logo_test_noboru.png) — 계단형 방향의 작업 파일. 미채택.
 
-## 3. 색 — **로고 전용 고정색**
+## 3. 색 — **로고 자산 고정색 (UI 팔레트와 동일 계열)**
 
-> ⚠ 아래 값은 **로고에만** 쓴다. 디자인 시스템의 브랜드색은 여전히 스티비 코랄 `#ff6464`이고,
-> CTA·칩·아이콘버튼은 그대로 `#ff6464`를 쓴다 (`design/design-system.md`). 로고 색을 UI 토큰으로 승격하지 않는다.
+> **2026-08-18 개정.** 구 규칙("로고 색을 UI 토큰으로 승격하지 않는다")은 폐기됐다. 앱·랜딩·로고가
+> **하나의 팔레트**를 쓰며, 로고의 해 `#FF6F61`은 UI 브랜드색 `--color-coral`, 잉크 `#182333`은
+> `--color-ink`와 같은 값이다 (`design/design-system.md` · `app/globals.css`).
+> 근거: [../../../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md](../../../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md).
+>
+> 값이 여기 따로 적혀 있는 이유는 **로고가 테마·컨텍스트에 따라 변하면 안 되는 자산**이기 때문이지,
+> UI와 다른 색이어서가 아니다. 로고에는 아래 값을 고정으로 쓴다.
 
 | 역할 | 값 |
 |---|---|

@@ -4,7 +4,7 @@ name: Wanted
 country: KR
 category: productivity
 homepage: "https://www.wanted.co.kr"
-primary_color: "#ff6464"
+primary_color: "#ff6f61"
 logo:
   type: favicon
   slug: "https://www.google.com/s2/favicons?domain=wanted.co.kr&sz=256"
@@ -19,9 +19,9 @@ tokens:
   source: prose-derived
   extracted: "2026-06-09"
   colors:
-    primary: "#ff6464"
-    primary-tint: "#fff8f8"
-    primary-strong: "#d93636"
+    primary: "#ff6f61"
+    primary-tint: "#fff1ee"
+    primary-strong: "#c44439"
     brand-black: "#14191e"
     accent-orange: "#ff5c00"
     accent-pink: "#ff8eff"
@@ -65,15 +65,18 @@ tokens:
   components_harvested: true
 ---
 
-> **⚠ 문서 성격 (2026-07-13 갱신).** 이 문서는 원티드 Montage 레퍼런스를 **시드**로 시작했다. 그러나 **본 서비스 디자인 시스템은 스티비(Stibee) coral `#ff6464` 기반으로 확정**되었다. 확정 토큰·컴포넌트의 스냅샷은 아래 **§0 Figma 구현 현황**과 [design-system.md](design-system.md)이다. §1–§15에 남아 있는 원티드 브랜드 서사(**Wanted Blue `#0066FF`**·JobCard·합격보상금·Wanted Sans·페르소나 등)는 **시드 레퍼런스 잔재**로, 본 서비스에는 적용하지 않는다 — 브랜드 원색은 blue가 아니라 **coral**이다. (frontmatter의 `primary_color: #ff6464`, §5 그리드, §7 Do/Don't는 이미 coral 기준.)
+> **⚠ 팔레트 전환 (2026-08-18).** 본 서비스 팔레트는 **로고·랜딩·앱 셸이 공유하는 단일 팔레트**로 통일됐다 — 브랜드 원색 `#ff6f61`(로고 일출 코랄), 바탕 `#faf8f5`, 선 `#e9e7e3`, 잉크 `#182333`. 팔레트 정본은 Figma **YOAKE Web** 컬렉션, 토큰 정본은 `app/globals.css`다. 이전의 **스티비 coral `#ff6464`·`#d93636`·`#fff8f8`은 폐기**됐으니 아래 본문에 남은 그 값들은 이력으로만 읽는다. 근거: [../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md](../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md).
+>
+> **⚠ 문서 성격 (2026-07-13 갱신).** 이 문서는 원티드 Montage 레퍼런스를 **시드**로 시작했다. 그러나 **본 서비스 디자인 시스템은 자체 coral 기반으로 확정**되었다. 확정 토큰·컴포넌트의 스냅샷은 아래 **§0 Figma 구현 현황**과 [design-system.md](design-system.md)이다. §1–§15에 남아 있는 원티드 브랜드 서사(**Wanted Blue `#0066FF`**·JobCard·합격보상금·Wanted Sans·페르소나 등)는 **시드 레퍼런스 잔재**로, 본 서비스에는 적용하지 않는다 — 브랜드 원색은 blue가 아니라 **coral**이다. (frontmatter의 `primary_color: #ff6464`, §5 그리드, §7 Do/Don't는 이미 coral 기준.)
 
-> **로고 잉크는 위 경고의 예외다 (2026-08-18 갱신).** 서비스명 **YOAKE** 로고의 잉크 `#182333`은 시드 잔재인 Wanted Blue와 무관한 **로고 전용 고정색**이므로 코랄로 리스킨하지 않는다. UI 토큰은 그대로 coral. 자산·규칙: [brand/logo/README.md](brand/logo/README.md).
+> **로고 잉크 = UI 잉크 (2026-08-18 개정).** 서비스명 **YOAKE** 로고의 잉크 `#182333`은 시드 잔재인 Wanted Blue와 무관하다. 팔레트 통일 이후 이 값은 **UI 잉크 토큰 `--color-ink`와 같은 값**이다 — 더 이상 "로고 전용"이 아니다(구 규칙 "로고 색을 UI 토큰으로 승격하지 않는다"는 폐기). 자산·규칙: [brand/logo/README.md](brand/logo/README.md).
 
 ## 0. Figma 구현 현황 (확정)
 
 ### Figma 원본 (source of truth)
 - 파일: `2조 생존자들` — fileKey `C3FYvw7rhJrrHK4HgCZzBt`
-- 변수 계층: `1. Primitives`(원색) → `2. Semantic`(역할) → `3. Scale`(space·radius). 브랜드 원색 `coral/base #ff6464`, hover `coral/strong #d93636`, 틴트 `coral/tint #fff8f8`.
+- 변수 계층: `1. Primitives`(원색) → `2. Semantic`(역할) → `3. Scale`(space·radius) — **구 스티비 컬렉션(이력)**.
+- **현행 팔레트 정본: `YOAKE Web` 컬렉션** — `color/brand/coral #ff6f61`, `coral-tint #fff1ee`, `color/bg/warm-white #faf8f5`, `color/border/soft #e9e7e3`, `color/text/primary #182333`, `radius/card 14` · `radius/button 10` · `radius/pill 999`. 코드의 소형 텍스트용 `coral-strong #c44439`는 이 컬렉션에 대응 변수가 없어 코드에서 파생한 값이다(AA 확보용).
 - 로컬 컴포넌트·스타일 페이지: **Components (Local · Stibee)**
 
 ### 로컬 메인 컴포넌트
@@ -129,7 +132,7 @@ The signature surface is the **JobCard** — a 12px-radius white container holdi
 ### Primary (Brand)
 - **Wanted Blue** (`#0066FF`): PANTONE 2195 C. The only interaction color. Sign-up CTAs, apply buttons, link text, focus rings, selection highlights. Verified against `brandcenter` and live `rgb(0, 102, 255)` on `회원가입/로그인` button.
 - **Wanted Black** (`#14191E`): Brand-center secondary. Logo lockup on light backgrounds, marketing typography. Distinct from UI heading color `#202124`.
-- **Primary Strong** (`#D93636`): Hover / pressed / active coral, and contrast support for small interactive text (text links, small labels on light) where `#FF6464` would fail AA. Clears WCAG AA with white text (≈4.6:1). **Not for default CTA backgrounds** — the default CTA / primary button uses `primary` (`#FF6464`); reserve `#D93636` for hover, pressed, active, and focus/contrast support. Kept distinct from `error` (`#F0483C`), which is validation / destructive only.
+- **Primary Strong** (`#C44439`, 2026-08-18 갱신 — 구 `#D93636`): Hover / pressed / active coral, and contrast support for small interactive text (text links, small labels on light) where `#FF6F61` would fail AA (2.73:1 on white). Clears WCAG AA on white (4.96:1), on `coral-tint` (4.50:1), and on `warm-white` (4.68:1). **Not for default CTA backgrounds** — the default CTA / primary button uses `primary` (`#FF6F61`); reserve `#C44439` for hover, pressed, active, small text, and focus/contrast support. Kept distinct from `error` (`#F0483C`), which is validation / destructive only.
 
 ### Brand Accent (Marketing Only)
 - **Orange** (`#FF5C00`): Brand accent — promotional banners, brand campaigns. Never on functional UI.
@@ -422,7 +425,7 @@ Detailed input variants (text/number/textarea/search) live in the `@wanteddev/wd
 - Use translucent secondary text (`rgba(55, 56, 60, 0.61)`) for metadata — it adapts to surface automatically
 
 ### Don't
-- Don't use any color outside the coral family (`#FF6464` / `#D93636`) for interaction — even the marketing accents (`#00ADFF` sky, `#8364FF` violet) are decorative only
+- Don't use any color outside the coral family (`#FF6F61` / `#C44439`) for interaction — even the marketing accents (`#00ADFF` sky, `#8364FF` violet) are decorative only
 - Don't put shadows on cards at rest — Wanted uses gutter separation, not elevation
 - Don't mix brand black `#14191E` and UI heading `#202124` on the same screen — pick the surface (marketing vs product)
 - Don't use Wanted Sans on dense UI (job listings, forms) — it's a display face, Pretendard handles density better
@@ -520,7 +523,7 @@ What Wanted refuses: urgency marketing, salary obfuscation, recruiter spam tone.
 
 1. **One screen, one decision.** Job feed shows job cards. Job detail shows one job. Apply flow shows one form. No "promoted alongside organic" mixed-intent screens that blur user goals.
 2. **Salary is sacred.** Every job posting surfaces a salary range or `회사 내규` disclosure — never hidden, never "ask in interview." The grid layout is built to make salary visible without clicking through.
-3. **Coral is the brand action color.** `#FF6464` (`primary`) is the default CTA / primary button / large emphasis; `#D93636` (`primary-strong`) handles hover / pressed / active and small-text contrast — not the default CTA background, and kept distinct from `error` `#F0483C` (validation only). Marketing illustrations may use the accent palette (orange/pink/sky/violet), but the product UI is monochromatic coral.
+3. **Coral is the brand action color.** `#FF6F61` (`primary`) is the default CTA / primary button / large emphasis; `#C44439` (`primary-strong`) handles hover / pressed / active and small-text contrast — not the default CTA background, and kept distinct from `error` `#F0483C` (validation only). Marketing illustrations may use the accent palette (orange/pink/sky/violet), but the product UI is monochromatic coral.
 4. **The card is the brand.** JobCard's 12px radius, 4:3 thumbnail, bottom-left logo crop, and bookmark-top-right placement are the strongest visual signature. Other surfaces should reference its rhythm, not invent new ones.
 5. **Korean-first, English-parity.** Wanted serves a Korean-primary audience with global ambitions. UI strings are written in Korean first; English translations preserve sentence structure, not literal word order.
 6. **Density follows context.** Job feed is dense (4×N grid). Job detail is spacious (single column, large vertical rhythm). The deeper the user goes, the more breathing room they get.

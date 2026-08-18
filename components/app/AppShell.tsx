@@ -146,7 +146,7 @@ export function AppShell({ user, brand, matchBadge, children }: ShellProps) {
       href="/app/brand"
       aria-label={brand ? `${brand.name} 브랜드 정보` : '브랜드 등록하기'}
       aria-current={brandActive ? 'page' : undefined}
-      className={`flex w-full items-center gap-2 rounded-[11px] border bg-canvas px-2.5 py-2 text-left no-underline transition-colors hover:border-coral lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:px-0 ${
+      className={`flex w-full items-center gap-2 rounded-card border bg-canvas px-2.5 py-2 text-left no-underline transition-colors hover:border-coral lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:px-0 ${
         brandActive ? 'border-coral bg-coral-tint' : 'border-input-border'
       }`}
     >

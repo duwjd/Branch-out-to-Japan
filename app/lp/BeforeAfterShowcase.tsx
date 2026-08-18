@@ -102,7 +102,7 @@ export function BeforeAfterShowcase() {
           </div>
 
           {/* After */}
-          <div className="rounded-card border border-coral/30 bg-coral-tint p-6 shadow-[0_10px_30px_-12px_rgba(255,100,100,0.35)]">
+          <div className="rounded-card border border-coral/30 bg-coral-tint p-6 shadow-[0_10px_30px_-12px_rgba(255,111,97,0.35)]">
             <p className="text-[12px] font-bold uppercase tracking-wide text-coral-strong">After · 재설계</p>
             <p lang="ja" className="mt-3 text-[17px] font-medium leading-relaxed text-ink">
               {row.after}

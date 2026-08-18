@@ -207,7 +207,7 @@ function RadarChart({ groupScores }: { groupScores: Record<RubricGroup, number> 
         return <line key={i} x1={cx} y1={cy} x2={x} y2={y} className="stroke-n-200" strokeWidth={1} />;
       })}
       <polygon points={refPolygon} fill="none" className="stroke-ink-faint" strokeWidth={1.5} strokeDasharray="4 4" />
-      <polygon points={valuePolygon} fill="rgba(255,100,100,.22)" className="stroke-coral" strokeWidth={2} strokeLinejoin="round" />
+      <polygon points={valuePolygon} fill="rgba(255,111,97,.22)" className="stroke-coral" strokeWidth={2} strokeLinejoin="round" />
       {GROUP_ORDER.map((g, i) => {
         const [x, y] = pointAt(i, (maxR * (groupScores[g] ?? 0)) / 100);
         return <circle key={g} cx={x} cy={y} r={3} className="fill-coral" />;

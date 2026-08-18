@@ -6,9 +6,12 @@
 @source "../components";
 
 /* ════════════════════════════════════════════════════════════════════
-   YOAKE 디자인 토큰 — docs/specs 각 섹션의 wireframe.css 정본을 Tailwind v4 @theme으로 이식.
-   토큰 정본: design/DESIGN.md (스티비 coral).
-   coral #ff6464 = 기본 CTA·강조(large/bold 전용) · coral-strong #d93636 = hover/링크/소형 텍스트.
+   YOAKE 디자인 토큰 — 앱 셸(/app)과 랜딩(/)이 하나의 팔레트를 공유한다.
+   팔레트 정본: Figma "YOAKE Web" 컬렉션 · 문서 정본: design/DESIGN.md.
+   근거: docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md (구 스티비 coral #ff6464 폐기).
+   coral #ff6f61 = 기본 CTA·강조(large/bold 전용) · coral-strong #c44439 = hover/링크/소형 텍스트.
+     ⚠ #ff6f61은 흰 배경 대비 2.73:1로 소형 텍스트 AA 미달이다. 링크·14px 이하 라벨·
+       coral-tint 위 텍스트는 반드시 coral-strong(#c44439, 흰 4.96:1 · tint 4.50:1)을 쓴다.
    상태색은 색+글자+기호(✕/△/○) 3중 표기와 함께만 쓴다(CVD 검증).
    ════════════════════════════════════════════════════════════════════ */
 
@@ -19,19 +22,24 @@
     "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", "Malgun Gothic",
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
 
-  /* 표면 · 잉크 */
-  --color-page: #f7f7f8;
-  --color-canvas: #ffffff;
-  --color-ink: #202124;                 /* 제목·강조 숫자 */
-  --color-ink-body: #414245;            /* 본문 */
-  --color-ink-mute: rgba(55, 56, 60, 0.61); /* 캡션·보조 */
-  --color-ink-faint: #b6b8bf;           /* /100·각주·화살표 */
+  /* 표면 · 잉크 — Figma YOAKE Web bg/*, text/* */
+  --color-page: #faf8f5;                /* bg/warm-white — 앱 바탕 */
+  --color-canvas: #ffffff;              /* bg/white — 카드·입력 표면 */
+  --color-ink: #182333;                 /* text/primary — 제목·강조 숫자 */
+  --color-ink-body: #3d4655;            /* text/body — 본문 */
+  --color-ink-mute: #6e7686;            /* text/secondary — 캡션·보조 */
+  --color-ink-tertiary: #78818f;        /* text/tertiary — 플레이스홀더 */
+  --color-ink-faint: #b1b6be;           /* /100·각주·화살표. 팔레트의 중립 hue에서
+                                           구 #b6b8bf의 명도를 유지해 파생(대비 2.04:1).
+                                           더 진한 단계는 --color-ink-tertiary */
 
-  /* 브랜드 */
-  --color-logo-ink: #182333;            /* 로고 레터마크 전용 — UI 토큰으로 승격 금지 */
-  --color-coral: #ff6464;               /* primary CTA·강조 */
-  --color-coral-strong: #d93636;        /* hover/pressed·링크·eyebrow */
-  --color-coral-tint: #fff8f8;          /* 칩-on·필수 배지·강조 배경 */
+  /* 브랜드 — 로고 팔레트와 UI 팔레트를 통일(2026-08-18). 구 스티비 coral 폐기 */
+  --color-logo-ink: #182333;            /* 로고 레터마크. 이제 --color-ink와 같은 값이다 */
+  --color-coral: #ff6f61;               /* brand/coral — primary CTA·강조(large/bold 전용) */
+  --color-coral-strong: #c44439;        /* hover/pressed·링크·소형 텍스트. 팔레트와 같은
+                                           hue(5°)에서 AA를 만족하도록 파생 — 랜딩 팔레트에는
+                                           AA를 넘는 코랄이 없어 새로 정의했다 */
+  --color-coral-tint: #fff1ee;          /* brand/coral-tint — 칩-on·필수 배지·강조 배경 */
   --color-bar-mid: #ff9c9c;
   --color-bar-light: #ffc4c4;
 
@@ -54,34 +62,35 @@
   --color-cool-50: #70737c;
   --color-violet: #8364ff;
 
-  /* 선 · 중립 */
-  --color-card-border: rgba(112, 115, 124, 0.14);
-  --color-input-border: rgba(112, 115, 124, 0.28);
-  --color-hairline: #ebebeb;
-  --color-n-50: #fafafb;
-  --color-n-100: #f6f6f6;
-  --color-n-150: #f1f1f3;
-  --color-n-200: #ececef;
+  /* 선 · 중립 — 팔레트의 웜 뉴트럴로 통일(구 쿨 그레이 rgba 폐기) */
+  --color-card-border: #e9e7e3;         /* border/soft */
+  --color-input-border: #e9e7e3;        /* border/soft — Figma 시안에서 카드와 같은 선을 쓴다 */
+  --color-hairline: #e9e7e3;            /* border/soft — 구분선 */
+  --color-n-50: #faf8f5;                /* bg/warm-white */
+  --color-n-100: #f4f2ee;               /* future/dim — hover 배경 */
+  --color-n-150: #f2f1ed;               /* bg/panel */
+  --color-n-200: #e9e7e3;               /* border/soft */
 
   /* 그림자 */
   --shadow-card: 0 1px 3px rgba(16, 18, 20, 0.04);
   --shadow-nav: 0 4px 14px rgba(16, 18, 20, 0.06);
   --shadow-2: 0 12px 32px rgba(16, 18, 20, 0.1);
 
-  /* ── 랜딩(/) 전용 토큰 — Figma LP 2026-08. 앱 셸(/app)에서는 쓰지 않는다 ──
-     앱 UI 브랜드색은 그대로 coral #ff6464다(CLAUDE.md). 여기 lp-coral #ff6f61은
-     랜딩 한정 표면색으로, 로고 색을 UI 토큰으로 승격한 것이 아니다. */
-  --color-lp-coral: #ff6f61;
-  --color-lp-coral-tint: #fff1ee;
-  --color-lp-ink: #182333;
-  --color-lp-body: #3d4655;
-  --color-lp-muted: #6e7686;
-  --color-lp-faint: #78818f;
-  --color-lp-surface: #faf8f5;
-  --color-lp-panel: #f2f1ed;
-  --color-lp-dim: #f4f2ee;
-  --color-lp-line: #e9e7e3;
-  --color-lp-line-strong: #c9cdd4;
+  /* ── lp-* — 랜딩 코드 호환용 별칭 (2026-08-18부터 "랜딩 전용"이 아니다) ──
+     앱 셸이 같은 팔레트로 통일되면서 lp-*와 앱 토큰은 같은 색을 가리킨다. 아래는
+     기존 랜딩 코드(322곳)를 건드리지 않으려고 남긴 별칭이므로, 신규 코드에서는
+     앱 토큰(coral·ink·card-border …)을 쓴다. 역할이 겹치지 않는 것만 실제 값을 갖는다. */
+  --color-lp-coral: var(--color-coral);
+  --color-lp-coral-tint: var(--color-coral-tint);
+  --color-lp-ink: var(--color-ink);
+  --color-lp-body: var(--color-ink-body);
+  --color-lp-muted: var(--color-ink-mute);
+  --color-lp-faint: var(--color-ink-tertiary);
+  --color-lp-surface: var(--color-page);
+  --color-lp-panel: var(--color-n-150);
+  --color-lp-dim: var(--color-n-100);
+  --color-lp-line: var(--color-card-border);
+  --color-lp-line-strong: #c9cdd4;      /* border/strong — 앱에 대응 토큰 없음 */
   --color-lp-on-navy-muted: #c3cad6;
   /* 랜딩 판정 상태색 — 앱의 green/amber/danger와 별개다(랜딩은 채도를 낮춰 쓴다) */
   --color-lp-review: #2d8c6b;
@@ -114,8 +123,8 @@
   --text-lp-sm--line-height: 1.7;
   --text-lp-sm--letter-spacing: -0.005em;
 
-  /* 반경 · 치수 */
-  --radius-card: 18px;
+  /* 반경 · 치수 — Figma radius/card 14 · radius/button 10 */
+  --radius-card: 14px;
   --spacing-sidebar: 248px;
 
   /* 모션 — motion-fast 150ms · ease-standard */
@@ -152,8 +161,8 @@
 
 /* 딥링크 도착 강조(REPORT-16) — Top3·해결 칩으로 진단 탭 앵커에 도착 시 2초 코랄 플래시 */
 @keyframes hlFlash {
-  0%   { box-shadow: 0 0 0 0 rgba(255, 100, 100, 0.0); background-color: rgba(255, 100, 100, 0.14); }
-  100% { box-shadow: 0 0 0 3px rgba(255, 100, 100, 0.0); background-color: transparent; }
+  0%   { box-shadow: 0 0 0 0 transparent; background-color: color-mix(in srgb, var(--color-coral) 14%, transparent); }
+  100% { box-shadow: 0 0 0 3px transparent; background-color: transparent; }
 }
 .hl-flash { animation: hlFlash 2s ease-out; border-radius: 12px; }
 @media (prefers-reduced-motion: reduce) { .hl-flash { animation: none; } }
@@ -169,7 +178,7 @@ body {
 }
 
 input::placeholder,
-textarea::placeholder { color: #a6a8b0; }
+textarea::placeholder { color: var(--color-ink-tertiary); }
 
 /* 접근성: 키보드 포커스 링 (마우스 클릭엔 안 뜸) */
 :focus-visible {
@@ -191,7 +200,7 @@ h1, h2, h3 { text-wrap: balance; }
 /* 본문 상단 중앙 코랄 글로우 — .app-main 전용 */
 @utility main-glow {
   background-color: var(--color-page);
-  background-image: radial-gradient(1100px 420px at 50% -80px, rgba(255, 100, 100, 0.05), transparent);
+  background-image: radial-gradient(1100px 420px at 50% -80px, color-mix(in srgb, var(--color-coral) 5%, transparent), transparent);
   background-repeat: no-repeat;
 }
 

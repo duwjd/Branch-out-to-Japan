@@ -13,7 +13,11 @@
   - **`ClaimOps`는 서비스 카테고리가 아니다.** 주장 분류·근거 연결·위험 상태·대체 표현·변경 이유·규정 버전·승인 이력을 담당하는 **내부 진단 엔진**을 가리킬 때만 보조적으로 쓴다("ClaimOps 기반 진단 엔진" · "주장·근거 진단 체계"). "YOAKE는 ClaimOps 서비스다", "최종 상품은 ClaimOps다"라고 정의하지 않는다.
 - 로고 정본은 `design/brand/logo/` — **규칙은 `design/brand/logo/README.md`를 읽고 따른다**(변형·여백·최소 크기·금지 사항).
   - 코드에서는 SVG를 직접 import하지 말고 `components/brand/Logo.tsx`의 `YoakeLogo` · `YoakeMark`를 쓴다.
-  - 로고 색(잉크 `#182333`, 코랄 일출 그라디언트 `#FF6F61`→`#FF9B70`)은 **로고 전용 고정색**이다. 디자인 시스템 브랜드색은 그대로 스티비 coral `#ff6464`이고 CTA·칩·아이콘버튼은 계속 `#ff6464`를 쓴다 — 로고 색을 UI 토큰으로 승격하지 않는다.
+  - **팔레트는 로고·랜딩·앱 셸이 하나다 (확정 2026-08-18, 구 스티비 coral 폐기).** 브랜드 원색은 로고의 코랄 일출에서 온 `#ff6f61`이고, CTA·칩·아이콘버튼이 이 색을 쓴다. 배경은 웜 화이트 `#faf8f5`, 선은 `#e9e7e3`, 잉크는 로고와 같은 `#182333`이다. 근거: `docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md`.
+    - ~~"로고 색을 UI 토큰으로 승격하지 않는다"~~ 규칙은 위 결정으로 **폐기**됐다. 스티비 coral `#ff6464`·`#d93636`·`#fff8f8`은 신규 산출물에 쓰지 않는다.
+    - **단, `#ff6f61`은 흰 배경 대비 2.73:1로 소형 텍스트 AA에 미달한다.** 링크·14px 이하 라벨·coral-tint 위 텍스트는 반드시 `coral-strong #c44439`(흰 4.96:1)를 쓴다. 큰 글씨·CTA 배경에만 `#ff6f61`을 쓴다.
+    - 색은 항상 토큰으로 참조한다(`bg-coral`·`text-ink-body` …). Tailwind 임의값(`bg-[#ff6f61]`)으로 하드코딩하지 않는다. 토큰 정본은 `app/globals.css`, 팔레트 정본은 Figma **YOAKE Web** 컬렉션이다.
+    - 미통일 잔여: 진단 판정 상태색(green/amber/danger ↔ lp-review/conditional/risk)과 생성물 템플릿(`lib/studio/detail/templates.tsx`·`lib/engine/rules/slides.ts`)은 아직 구 팔레트다 — 별도 결정 대상.
 
 ## 한 줄 정의
 **YOAKE** — 한국 뷰티 브랜드의 **카피와 근거를 진단**하고, 그 결과를 **일본 채널에 맞는 썸네일·상세페이지로 전환**하며, 이후 **현지 마케팅 회사·유통 채널 연결**까지 확장하는 **K-Beauty Japan Growth Studio**.
