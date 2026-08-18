@@ -9,6 +9,7 @@ import { ReportCoverPreview } from '@/components/app/AssetPreview';
 import { AxisChip, EmptyState, buttonClass, cardClass } from '@/components/ui/primitives';
 import { GateBadges } from '@/components/ui/progress';
 import { IconBox } from '@/components/ui/icons';
+import { normalizeExplanation } from '@/lib/studio/explanation';
 
 /**
  * ③ 자산 상세(DETAIL-00~07) — 자산 1건 재열람. 조회 전용(재생성·편집 없음).
@@ -99,6 +100,8 @@ export default async function AssetDetailPage({ params }: { params: Promise<{ as
 
 /** 썸네일 모드(DETAIL-02) */
 function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
+  // 계약이 바뀌기 전에 저장된 해설도 현재 모양으로 맞춘다(마이그레이션 없음)
+  const explanation = normalizeExplanation(asset.explanationJson);
   const platformLabel = PLATFORM_LABELS[asset.platform as Platform] ?? asset.platform;
   const downloadName = `${asset.brandNameSnapshot}-${asset.styleName}-${platformLabel}.png`;
   // 항목별 pass 를 쓴다 — 전체 passed 를 그대로 쓰면 한 항목이 걸렸을 때 통과한 항목까지 ✕ 로 보인다
@@ -152,28 +155,28 @@ function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
             </span>
           </div>
 
-          {asset.explanationJson && (
+          {explanation && (
             <>
               <section className={cardClass('mt-6 p-5 sm:p-6')}>
                 <h2 className="text-[15px] font-bold text-ink">왜 이 스타일인가</h2>
                 <p className="mt-2.5 text-[13.5px] leading-[1.75] text-ink-body [text-wrap:pretty]">
-                  {asset.explanationJson.styleReason}
+                  {explanation.styleReason}
                 </p>
               </section>
 
               <section className={cardClass('mt-3.5 p-5 sm:p-6')}>
                 <h2 className="text-[15px] font-bold text-ink">카피는 이렇게 재설계됐다</h2>
-                {asset.explanationJson.copySlots.length > 0 ? (
+                {explanation.copySlots.length > 0 ? (
                   <div className="mt-2.5 space-y-2.5">
-                    {asset.explanationJson.copySlots.map((slot) => (
+                    {explanation.copySlots.map((slot) => (
                       <div key={slot.slotKey} className="rounded-lg bg-n-50 p-3.5">
-                        {slot.krIntent && (
+                        {slot.krSource && (
                           <p className="text-xs font-semibold text-ink-mute line-through decoration-ink-mute/40">
-                            {slot.krIntent}
+                            {slot.krSource}
                           </p>
                         )}
                         <p lang="ja" className="mt-1.5 text-sm font-extrabold text-ink">
-                          {slot.krIntent && (
+                          {slot.krSource && (
                             <span aria-hidden className="mr-1 font-bold text-coral-strong">
                               →
                             </span>
@@ -196,7 +199,7 @@ function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
                 )}
               </section>
 
-              {asset.explanationJson.krElementMap.length > 0 && (
+              {explanation.krElementMap.length > 0 && (
                 <details className={cardClass('mt-3.5 p-5 sm:p-6')}>
                   <summary className="cursor-pointer text-[15px] font-bold text-ink marker:text-ink-faint">
                     무엇을 바꿨나
@@ -210,7 +213,7 @@ function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {asset.explanationJson.krElementMap.map((row, i) => {
+                      {explanation.krElementMap.map((row, i) => {
                         const style = ACTION_STYLE[row.action];
                         return (
                           <tr key={i} className="border-b border-n-150 align-top last:border-b-0">
@@ -243,7 +246,7 @@ function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
 function DetailShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[1120px] px-6 pt-11 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
         <BackNav />
         {children}
       </div>

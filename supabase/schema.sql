@@ -297,7 +297,7 @@ create index if not exists idx_auth_tokens_user on auth_tokens(user_id, kind);
 
 -- 0) 레거시 귀속용 데모 유저 보장 — user_id 백필·FK보다 먼저여야 FK가 성립한다
 insert into users (id, email, name, email_verified)
-  select 'demo-user', 'demo@kglow.example', '데모 사용자', true
+  select 'demo-user', 'demo@yoake.example', '데모 사용자', true
   where not exists (select 1 from users where id = 'demo-user');
 
 -- 1) 브랜드 프로필에 user_id 추가 + 구 브랜드를 데모 유저에 귀속

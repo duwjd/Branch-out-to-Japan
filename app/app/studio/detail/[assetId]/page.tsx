@@ -11,6 +11,7 @@ import { DETAIL_STAGE_LABELS, PLATFORM_LABELS } from '@/lib/studio/platform';
 import { SectionCard, StatusBadge, buttonClass, cardClass } from '@/components/ui/primitives';
 import { GateBadges, IndetBar } from '@/components/ui/progress';
 import { IconDownload } from '@/components/ui/icons';
+import { bytesUrl } from '@/lib/files/downloadUrl';
 
 interface BlockView {
   id: string;
@@ -52,44 +53,99 @@ interface DetailAssetView {
   blocks: BlockView[];
 }
 
-const POLL_MS = 2500;
+/**
+ * 폴링 간격 — 첫 응답은 빠르게, 변화가 없으면 점점 늘린다(상한 15초).
+ * 상세페이지 생성은 실측 155초짜리라 2.5초 고정은 과했다.
+ */
+const POLL_STEPS_MS = [2_500, 2_500, 5_000, 5_000, 10_000, 15_000];
+
+interface DetailStatusView {
+  status: string;
+  blockBusy: boolean;
+  /** 내용 변경 지문 — 바뀌었을 때만 전체 payload를 다시 받는다 */
+  revision: string;
+}
 
 export default function DetailResultPage({ params }: { params: Promise<{ assetId: string }> }) {
   const { assetId } = use(params);
   const [asset, setAsset] = useState<DetailAssetView | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [busyBlock, setBusyBlock] = useState<string | null>(null);
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** 마지막으로 전체 payload를 받아온 시점의 지문 */
+  const revision = useRef<string | null>(null);
+  /** 연속 무변화 횟수 — 백오프 단계 */
+  const quiet = useRef(0);
 
-  const poll = useCallback(async () => {
+  /** 결과물 전문 조회 — 지문이 바뀌었을 때와 최초 진입에서만 부른다 */
+  const loadFull = useCallback(async () => {
     const res = await fetch(`/api/studio/detail/${assetId}`);
     if (res.status === 404) {
       setNotFound(true);
-      if (timer.current) clearInterval(timer.current);
       return;
     }
     if (!res.ok) return;
-    const data = (await res.json()) as DetailAssetView;
-    setAsset(data);
-    // 블록 재생성 중일 수 있으므로 자산이 done 이어도 블록이 generating 이면 계속 폴링한다
-    const blockBusy = data.blocks.some((b) => b.status === 'generating');
-    if (data.status !== 'generating' && !blockBusy && timer.current) {
-      clearInterval(timer.current);
-      timer.current = null;
-    }
+    setAsset((await res.json()) as DetailAssetView);
   }, [assetId]);
 
-  useEffect(() => {
-    void poll();
-    timer.current = setInterval(() => void poll(), POLL_MS);
-    return () => {
-      if (timer.current) clearInterval(timer.current);
+  /**
+   * 상태만 확인하고, 바뀐 게 있을 때만 전문을 다시 받는다.
+   * 예전에는 2.5초마다 결과물 전문(블록 카피·gateResult·explanationJson·입력 스냅샷)을
+   * 통째로 재전송했다 — 진행률 4개 필드를 얻으려고.
+   */
+  const poll = useCallback(async () => {
+    const res = await fetch(`/api/studio/detail/${assetId}/status`, { cache: 'no-store' });
+    if (res.status === 404) {
+      setNotFound(true);
+      return false;
+    }
+    if (!res.ok) return true; // 일시 오류 — 계속 폴링
+    const st = (await res.json()) as DetailStatusView;
+    if (st.revision !== revision.current) {
+      revision.current = st.revision;
+      quiet.current = 0;
+      await loadFull();
+    } else {
+      quiet.current += 1;
+    }
+    // 블록 재생성 중일 수 있으므로 자산이 done 이어도 블록이 generating 이면 계속 폴링한다
+    return st.status === 'generating' || st.blockBusy;
+  }, [assetId, loadFull]);
+
+  /**
+   * 폴링 루프 — 계속할지는 poll() 의 반환값이 정한다.
+   * looping 플래그로 루프가 하나만 돌게 한다: timer 만 보면 poll() 을 await 하는 동안
+   * timer 가 비어 있어, 그 사이 ensurePolling() 이 불리면 루프가 둘로 갈라진다.
+   */
+  const looping = useRef(false);
+  const schedule = useCallback(() => {
+    if (looping.current) return;
+    looping.current = true;
+    const run = async () => {
+      timer.current = null;
+      const again = await poll();
+      if (!again) {
+        looping.current = false;
+        return;
+      }
+      timer.current = setTimeout(() => void run(), POLL_STEPS_MS[Math.min(quiet.current, POLL_STEPS_MS.length - 1)]);
     };
+    void run();
   }, [poll]);
+
+  useEffect(() => {
+    schedule();
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = null;
+      looping.current = false;
+    };
+  }, [schedule]);
 
   /** 폴링이 멈춘 뒤 액션을 하면 다시 켠다 */
   const ensurePolling = () => {
-    if (!timer.current) timer.current = setInterval(() => void poll(), POLL_MS);
+    quiet.current = 0;
+    schedule();
   };
 
   const regenerate = async (block: BlockView, mode: 'visual' | 'both') => {
@@ -100,8 +156,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
       body: JSON.stringify({ action: 'regenerate', mode }),
     });
     setBusyBlock(null);
-    ensurePolling();
-    void poll();
+    ensurePolling(); // 즉시 1회 확인 후 백오프 루프 재개
   };
 
   const revert = async (block: BlockView) => {
@@ -112,11 +167,11 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
       body: JSON.stringify({ action: 'revert' }),
     });
     setBusyBlock(null);
-    void poll();
+    ensurePolling();
   };
 
   const download = async (url: string, name: string) => {
-    const res = await fetch(url);
+    const res = await fetch(bytesUrl(url));
     const blob = await res.blob();
     const href = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -128,7 +183,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
 
   if (notFound) {
     return (
-      <main className="mx-auto max-w-[768px] px-6 py-16 text-center">
+      <main className="mx-auto max-w-[1280px] px-8 py-16 text-center">
         <h1 className="text-lg font-bold text-ink">상세페이지를 찾을 수 없습니다.</h1>
         <Link href="/app/studio/detail" className={`${buttonClass('secondary', 'md')} mt-5`}>
           상세페이지 만들기로
@@ -139,7 +194,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
 
   if (!asset) {
     return (
-      <main className="mx-auto max-w-[768px] px-6 py-16">
+      <main className="mx-auto max-w-[1280px] px-8 py-16">
         <IndetBar />
       </main>
     );
@@ -152,7 +207,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
   if (asset.status === 'generating') {
     const pct = asset.blockTotal > 0 ? Math.round((asset.blockDone / asset.blockTotal) * 100) : 0;
     return (
-      <main className="mx-auto max-w-[768px] px-6 py-10">
+      <main className="mx-auto max-w-[1280px] px-8 py-10">
         <h1 className="text-[22px] font-bold text-ink">상세페이지를 만들고 있어요</h1>
         <p className="mt-2 text-sm leading-relaxed text-ink-mute">
           {asset.stage ? (DETAIL_STAGE_LABELS[asset.stage] ?? '처리 중') : '처리 중'}
@@ -193,7 +248,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
   // ── 실패 ─────────────────────────────────────────────────────────────
   if (asset.status === 'failed') {
     return (
-      <main className="mx-auto max-w-[768px] px-6 py-10">
+      <main className="mx-auto max-w-[1280px] px-8 py-10">
         <div className={`${cardClass} border-danger/30 bg-danger-bg p-6`}>
           <h1 className="text-lg font-bold text-danger-text">생성하지 못했습니다</h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-body [text-wrap:pretty]">{asset.error ?? '알 수 없는 오류'}</p>
@@ -210,7 +265,7 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
   // 완료됐지만 사유가 달린 블록 = 배경컷 없이 문자만으로 나간 블록
   const degradedBlocks = asset.blocks.filter((b) => b.status === 'done' && b.error);
   return (
-    <main className="mx-auto max-w-[1120px] px-6 py-10">
+    <main className="mx-auto max-w-[1280px] px-8 py-10">
       <header className="flex flex-wrap items-center gap-3">
         <h1 className="text-[22px] font-bold text-ink">{asset.styleName}</h1>
         {asset.imageMode === 'mock' && <StatusBadge tone="warn">데모 모드</StatusBadge>}
@@ -300,7 +355,13 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
                   <div className="flex items-start gap-3">
                     {b.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element -- 동적 fileId 서빙
-                      <img src={b.imageUrl} alt={b.nameKo} className="h-16 w-24 shrink-0 rounded border border-hairline object-cover object-top" />
+                      <img
+                        src={b.imageUrl}
+                        alt={b.nameKo}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-16 w-24 shrink-0 rounded border border-hairline object-cover object-top"
+                      />
                     ) : (
                       <div className="h-16 w-24 shrink-0 rounded bg-n-100" />
                     )}

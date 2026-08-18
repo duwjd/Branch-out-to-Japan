@@ -41,30 +41,29 @@ const isProduction = (): boolean => process.env.NODE_ENV === 'production';
 
 /** 점검 결과 캐시 — 폼 진입마다 Supabase를 두 번씩 두드리지 않기 위해. 실패는 캐시하지 않는다. */
 const CACHE_MS = 30_000;
-let cached: { at: number; value: DetailReadiness } | null = null;
+/** 준비 미완 상태의 캐시 수명 — 복구를 빨리 반영해야 하므로 성공 캐시보다 짧다 */
+const FAILED_CACHE_MS = 5_000;
+
+let cached: { at: number; ttl: number; value: DetailReadiness } | null = null;
 
 /**
  * 상세페이지 생성이 가능한 상태인지 점검한다.
  * @param force 캐시를 무시하고 다시 점검한다(제출 직전 경로에서 사용)
  */
 export async function checkDetailReadiness(force = false): Promise<DetailReadiness> {
-  if (!force && cached && Date.now() - cached.at < CACHE_MS) return cached.value;
+  if (!force && cached && Date.now() - cached.at < cached.ttl) return cached.value;
 
-  const checks: ReadinessCheck[] = [
-    await checkStore(),
-    await checkSchema(),
-    await checkStorage(),
-    checkFonts(),
-    checkLlm(),
-    checkImage(),
-  ];
+  // 원격 점검 3종은 서로 독립이다 — 직렬로 기다리면 폼 진입·제출 앞에 왕복 3회가 그대로 쌓인다
+  const [store, schema, storage] = await Promise.all([checkStore(), checkSchema(), checkStorage()]);
+  const checks: ReadinessCheck[] = [store, schema, storage, checkFonts(), checkLlm(), checkImage()];
 
   const value: DetailReadiness = {
     ready: checks.every((c) => c.ok || c.level !== 'blocked'),
     checks,
   };
-  if (value.ready) cached = { at: Date.now(), value };
-  else cached = null;
+  // 실패 상태도 짧게 캐시한다 — 준비 미완 서버에서 폼 진입·제출·조회가 매번 왕복 3회를 새로 내던
+  // 문제를 막는다. 복구를 오래 못 알아채면 곤란하므로 성공보다 훨씬 짧은 수명을 준다.
+  cached = { at: Date.now(), ttl: value.ready ? CACHE_MS : FAILED_CACHE_MS, value };
   return value;
 }
 

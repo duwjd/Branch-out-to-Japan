@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { sendTrack } from './track';
+import { sendTrack } from '@/components/landing/track';
 
 /** 기본 CTA 스타일 — 코랄 primary(app/page.tsx 관례: bg-[#FF6464]/hover:bg-[#D93636]) */
 const DEFAULT_CLASS =

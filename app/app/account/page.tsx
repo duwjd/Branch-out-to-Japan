@@ -8,11 +8,11 @@ import { IconCard } from '@/components/ui/icons';
 import { LogoutButton } from './LogoutButton';
 import { PlanChangeButton, WithdrawButton } from './AccountActions';
 import { PasswordChange } from './PasswordChange';
-import { MypageBrands } from './MypageBrands';
 
 /**
  * 마이페이지(docs/specs/03-account/2-mypage.html MYPAGE-00~09) — 계정 정보 ·
  * 구독 플랜(무료 · 실데이터) · 플랜 비교 · 결제(목업) · 브랜드 프로필 · 계정 관리.
+ * 2026-08-18: 계정당 브랜드 1개 전제로 바뀌어 브랜드 목록·추가·전환 UI를 없앴다.
  * 앱 셸은 app/app/layout.tsx가 렌더한다 — 이 페이지는 컬럼 본문만 담당한다.
  * 결제·구독 엔티티는 미구현이므로 표시 계약만(전부 목업 — 커머셜 연동 미정).
  */
@@ -21,33 +21,16 @@ export default async function AccountPage() {
   if (!session) redirect('/login');
 
   const store = await getStore();
-  const [profile, brandList] = await Promise.all([
-    getActiveBrand(),
-    store.listBrandProfiles(session.user.id),
-  ]);
+  const profile = await getActiveBrand();
   const [requests, assets] = profile
     ? await Promise.all([store.listRequests(profile.id), store.listAssets(profile.id)])
     : [[], []];
   const reportCount = requests.filter((r) => r.status === 'published').length;
   const thumbnailCount = assets.filter((a) => a.status === 'done').length;
 
-  // MYPAGE-06 브랜드 목록 — 브랜드별 카운트(복수 브랜드)
-  const brands = await Promise.all(
-    brandList.map(async (b) => {
-      const [reps, ass] = await Promise.all([store.listReports(b.id), store.listAssets(b.id)]);
-      return {
-        id: b.id,
-        name: b.brandName,
-        category: b.category,
-        reportCount: reps.filter((r) => r.publishedAt !== null).length,
-        thumbnailCount: ass.filter((a) => a.status === 'done').length,
-      };
-    }),
-  );
-
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[720px] px-8 pt-10 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
         <h1 className="text-[22px] font-extrabold tracking-[-0.02em] text-ink">마이페이지</h1>
         <p className="mt-1.5 text-[13px] text-ink-mute">계정과 구독 플랜, 결제 정보를 확인합니다.</p>
 
@@ -201,24 +184,34 @@ export default async function AccountPage() {
           </div>
         </section>
 
-        {/* MYPAGE-06 · 브랜드 프로필(복수 · 조회 요약만 — 편집 정본은 /app/brand) */}
+        {/* MYPAGE-06 · 브랜드 프로필(계정당 1개 · 조회 요약만 — 편집 정본은 /app/brand) */}
         <section aria-labelledby="brand-title" className="mt-8">
           <h2 id="brand-title" className="text-[15px] font-extrabold tracking-[-0.01em] text-ink">
             브랜드 프로필
           </h2>
           <div className={cardClass('mt-3 overflow-hidden')}>
-            {brands.length > 0 ? (
-              <MypageBrands brands={brands} activeBrandId={profile?.id ?? null} />
-            ) : (
-              <>
-                <div className="flex flex-wrap items-center gap-3 p-4 sm:px-5">
-                  <p className="flex-1 text-[13px] text-ink-mute">아직 등록된 브랜드가 없습니다.</p>
+            <div className="flex flex-wrap items-center gap-3 p-4 sm:px-5">
+              {profile ? (
+                <>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[13.5px] font-bold text-ink">{profile.brandName}</span>
+                    <span className="block text-[12px] text-ink-mute">
+                      리포트 {reportCount} · 생성물 {thumbnailCount}
+                    </span>
+                  </span>
+                  <Link href="/app/brand" className={buttonClass('secondary', 'sm', 'flex-none no-underline')}>
+                    브랜드 정보 수정
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="flex-1 text-[13px] text-ink-mute">아직 브랜드를 등록하지 않았습니다.</p>
                   <Link href="/app" className={buttonClass('secondary', 'sm', 'flex-none no-underline')}>
                     등록하기
                   </Link>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
         </section>
 

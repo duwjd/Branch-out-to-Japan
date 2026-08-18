@@ -59,7 +59,7 @@
     <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
-    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"><img class="wm-mark" src="../../../design/brand/logo/yoake-mark.svg" alt="" aria-hidden="true"></a>
     <div style="position:relative">
       <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
         style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
@@ -209,7 +209,7 @@
   function reportCoverBig(tpl, score) {
     var isScore = tpl === 'score';
     return '<span style="position:absolute;inset:0;background:#fff"></span>' +
-      '<span style="position:absolute;left:9%;top:8%;font-size:15px;font-weight:800;letter-spacing:.04em;color:#D93636">KGLOW 진단 리포트</span>' +
+      '<span style="position:absolute;left:9%;top:8%;font-size:15px;font-weight:800;letter-spacing:.04em;color:#D93636">YOAKE 진단 리포트</span>' +
       (isScore
         ? '<span class="tnum" style="position:absolute;left:9%;top:24%;font-size:60px;font-weight:800;letter-spacing:-0.02em;color:#202124">' + score + '<span style="font-size:20px;font-weight:600;color:#B6B8BF">/100</span></span>'
         : '<span style="position:absolute;left:9%;top:26%;font-size:22px;font-weight:800;color:#202124">브랜드 진단<span style="display:block;margin-top:8px;font-size:13px;font-weight:600;color:#B6B8BF">종합점수 없음 · brand 모드</span></span>') +
@@ -363,7 +363,7 @@
 /** 하위 메뉴 매칭 배지 (LIB-07) — 4-matching sessionStorage 연동 · 조회만 */
 (function () {
   var m = null;
-  try { m = JSON.parse(sessionStorage.getItem('kglow_ops_match') || 'null'); } catch (e) {}
+  try { m = JSON.parse(sessionStorage.getItem('yoake_ops_match') || 'null'); } catch (e) {}
   if (!m) return;
   var badge = document.getElementById('matchBadge');
   if (m.status === 'proposal') { badge.className = 'side-badge b-ok'; badge.textContent = '제안 2 ○'; }
@@ -504,7 +504,7 @@
     b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
     // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
     try {
-      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+      sessionStorage.setItem('yoake_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
     } catch (err) {}
     setTimeout(function () { location.href = BRAND_PAGE; }, 500);
   };
@@ -516,7 +516,7 @@
   var side = document.querySelector('.app-side');
   var btn = side && side.querySelector('.side-collapse');
   if (!side || !btn) return;
-  var KEY = 'kglow_sidebar_collapsed';
+  var KEY = 'yoake_sidebar_collapsed';
   function apply(c) {
     side.setAttribute('data-collapsed', String(c));
     btn.setAttribute('aria-expanded', String(!c));

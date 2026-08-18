@@ -35,7 +35,7 @@ test('uncoveredGlyphs — 한글·이모지는 미커버로 잡아낸다', () =>
 });
 
 test('normalizeForFont — 서브셋이 놓치기 쉬운 표기를 안전하게 치환', () => {
-  assert.equal(normalizeForFont('㈱KGLOW'), '(株)KGLOW');
+  assert.equal(normalizeForFont('㈱YOAKE'), '(株)YOAKE');
   assert.equal(normalizeForFont('①洗顔 ②化粧水'), '1.洗顔 2.化粧水');
   assert.equal(normalizeForFont('うるおい🎉'), 'うるおい');
   // 정규화 결과는 반드시 커버 범위 안이어야 한다

@@ -12,10 +12,12 @@ import type {
   BrandProfileRecord,
   DiagnosisRequestRecord,
   GeneratedAssetRecord,
+  GeneratedAssetSummary,
   LeadRecord,
   MatchRequestRecord,
   ProductRecord,
   ReportRecord,
+  ReportSummary,
   Store,
   TrackEventRecord,
   UserRecord,
@@ -58,6 +60,26 @@ function toRequestRecord(row: RequestRow): DiagnosisRequestRecord {
     error: row.error,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+/**
+ * 목록용 리포트 컬럼 — `blocks_json`(9블록 본문)을 뺀다. 라이브러리·홈 카드는 점수·발행일만 쓴다.
+ * 컬럼을 추가할 땐 ReportSummaryRow 와 함께 고친다(둘이 어긋나면 런타임에 undefined 가 샌다).
+ */
+const REPORT_SUMMARY_COLUMNS = 'request_id, brand_profile_id, overall_score, group_scores, top3, published_at, created_at';
+
+type ReportSummaryRow = Omit<ReportRow, 'blocks_json'>;
+
+function toReportSummary(row: ReportSummaryRow): ReportSummary {
+  return {
+    requestId: row.request_id,
+    brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
+    overallScore: row.overall_score,
+    groupScores: row.group_scores,
+    top3: row.top3,
+    publishedAt: row.published_at,
+    createdAt: row.created_at,
   };
 }
 
@@ -220,6 +242,44 @@ function toBlockRecord(row: AssetBlockRow): AssetBlockRecord {
     height: row.height,
     version: row.version,
     history: row.history ?? [],
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+/**
+ * 목록용 자산 컬럼 — 무거운 jsonb(detail_input·explanation_json·gate_result·proof·promo_input)와
+ * prompt_used·slice_paths 를 뺀다. 카드가 쓰는 건 표시명·상태·이미지·진행률뿐이다.
+ * 컬럼을 추가할 땐 GeneratedAssetSummaryRow 와 함께 고친다.
+ */
+const ASSET_SUMMARY_COLUMNS =
+  'id, brand_profile_id, kind, style_category, style_name, platform, status, stage, error, ' +
+  'original_image_path, image_path, model_image_path, model_consent, brand_name_snapshot, ' +
+  'block_total, block_done, created_at, updated_at';
+
+type GeneratedAssetSummaryRow = Omit<
+  GeneratedAssetRow,
+  'detail_input' | 'explanation_json' | 'gate_result' | 'proof' | 'promo_input' | 'prompt_used' | 'slice_paths'
+>;
+
+function toAssetSummary(row: GeneratedAssetSummaryRow): GeneratedAssetSummary {
+  return {
+    id: row.id,
+    brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
+    kind: row.kind,
+    styleCategory: row.style_category,
+    styleName: row.style_name,
+    platform: row.platform,
+    status: row.status,
+    stage: row.stage,
+    error: row.error,
+    originalImagePath: row.original_image_path,
+    imagePath: row.image_path,
+    modelImagePath: row.model_image_path ?? null,
+    modelConsent: row.model_consent ?? false,
+    blockTotal: row.block_total ?? 0,
+    blockDone: row.block_done ?? 0,
+    brandNameSnapshot: row.brand_name_snapshot,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -451,11 +511,11 @@ export function createSupabaseStore(): Store {
     async listReports(brandProfileId: string) {
       const result = await client
         .from('reports')
-        .select()
+        .select(REPORT_SUMMARY_COLUMNS)
         .eq('brand_profile_id', brandProfileId)
         .order('created_at', { ascending: false })
-        .returns<ReportRow[]>();
-      return must(result, 'listReports').map(toReportRecord);
+        .returns<ReportSummaryRow[]>();
+      return must(result, 'listReports').map(toReportSummary);
     },
 
     async listBrandProfiles(userId: string) {
@@ -599,6 +659,17 @@ export function createSupabaseStore(): Store {
       return must(result, 'listBlocks').map(toBlockRecord);
     },
 
+    /** 폴링 전용 — slots·history·prompt_used 없이 변경 감지 필드만 */
+    async listBlockStatuses(assetId) {
+      const result = await client
+        .from('asset_blocks')
+        .select('id, status, version')
+        .eq('asset_id', assetId)
+        .order('seq', { ascending: true })
+        .returns<Pick<AssetBlockRow, 'id' | 'status' | 'version'>[]>();
+      return must(result, 'listBlockStatuses').map((r) => ({ id: r.id, status: r.status, version: r.version }));
+    },
+
     async getBlock(blockId) {
       const result = await client.from('asset_blocks').select().eq('id', blockId).maybeSingle<AssetBlockRow>();
       if (result.error) throw new Error(`supabase getBlock 실패: ${result.error.message}`);
@@ -633,14 +704,40 @@ export function createSupabaseStore(): Store {
       if (upd.error) throw new Error(`supabase incrementBlockDone 실패: ${upd.error.message}`);
     },
 
+    /** 폴링 전용 — 진행률·소유 가드 필드만 SELECT (2.5초 주기라 행 크기가 그대로 대역폭이 된다) */
+    async getAssetStatus(id: string) {
+      const result = await client
+        .from('generated_assets')
+        .select('id, brand_profile_id, kind, status, stage, error, block_total, block_done, updated_at')
+        .eq('id', id)
+        .maybeSingle<Pick<
+          GeneratedAssetRow,
+          'id' | 'brand_profile_id' | 'kind' | 'status' | 'stage' | 'error' | 'block_total' | 'block_done' | 'updated_at'
+        >>();
+      if (result.error) throw new Error(`supabase getAssetStatus 실패: ${result.error.message}`);
+      const row = result.data;
+      if (!row) return null;
+      return {
+        id: row.id,
+        brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
+        kind: row.kind,
+        status: row.status,
+        stage: row.stage,
+        error: row.error,
+        blockTotal: row.block_total ?? 0,
+        blockDone: row.block_done ?? 0,
+        updatedAt: row.updated_at,
+      };
+    },
+
     async listAssets(brandProfileId: string) {
       const result = await client
         .from('generated_assets')
-        .select()
+        .select(ASSET_SUMMARY_COLUMNS)
         .eq('brand_profile_id', brandProfileId)
         .order('created_at', { ascending: false })
-        .returns<GeneratedAssetRow[]>();
-      return must(result, 'listAssets').map(toAssetRecord);
+        .returns<GeneratedAssetSummaryRow[]>();
+      return must(result, 'listAssets').map(toAssetSummary);
     },
 
     async createMatchRequest(input) {

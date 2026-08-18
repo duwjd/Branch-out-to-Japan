@@ -11,6 +11,7 @@ import { currentLlmMode } from '@/lib/engine/llm/client';
 import { currentImageMode } from '@/lib/studio/imageGen';
 import { blockDisplayMeta } from '@/lib/server/detailJob';
 import { logger } from '@/lib/logger';
+import { normalizeExplanation } from '@/lib/studio/explanation';
 
 // after() 잡이 함수 타임아웃 등으로 죽으면 generating이 영구 고착된다 — 폴링 시점에 실패 전환(11 §3)
 const STALE_JOB_MS = 10 * 60 * 1000;
@@ -41,6 +42,8 @@ export async function GET(
 
   return NextResponse.json({
     ...asset,
+    // 계약이 바뀌기 전에 저장된 해설도 현재 모양으로 맞춰 내려보낸다(마이그레이션 없음)
+    explanationJson: normalizeExplanation(asset.explanationJson),
     storeKind: store.kind(),
     imageMode: currentImageMode(),
     llmMode: currentLlmMode(),

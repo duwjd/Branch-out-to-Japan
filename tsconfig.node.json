@@ -11,6 +11,14 @@
     "isolatedModules": false
   },
   "//include": "상세페이지 렌더 트리는 .tsx(JSX)라 CLI·테스트 컴파일 대상에 함께 넣는다.",
-  "include": ["lib/**/*.ts", "lib/**/*.tsx", "scripts/run-report.ts", "scripts/run-thumbnail.ts", "scripts/run-detail.ts"],
+  "include": [
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
+    "scripts/run-report.ts",
+    "scripts/run-thumbnail.ts",
+    "scripts/run-detail.ts",
+    "scripts/make-mock-product.ts",
+    "scripts/build-detail-previews.ts"
+  ],
   "exclude": ["node_modules", "app", "components"]
 }

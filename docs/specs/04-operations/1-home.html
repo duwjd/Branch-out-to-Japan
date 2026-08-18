@@ -12,10 +12,10 @@
   사이드바 "운영" 하위 메뉴(자산 라이브러리·브랜드 관리·기업 매칭)는 아코디언 —
     운영 4개 화면에서 동일 마크업. 수정 시 1-home·2-detail·3-brand·4-matching 동시 반영(LIB-00).
   시즌 스트립은 조회 전용 — 예약·발행 기능 없음(예약 발행툴 = 금지 포지션).
-  ② 2-create 제출 → sessionStorage(kglow_studio_job) → 썸네일 탭 맨 앞 생성중 타일.
-    ※ kglow_studio_job 은 읽기만 한다. removeItem 하지 X — 소비 주체는 ② 스튜디오 홈이며,
+  ② 2-create 제출 → sessionStorage(yoake_studio_job) → 썸네일 탭 맨 앞 생성중 타일.
+    ※ yoake_studio_job 은 읽기만 한다. removeItem 하지 X — 소비 주체는 ② 스튜디오 홈이며,
       여기서 지우면 ② 데모가 깨진다.
-  4-matching 제출 → sessionStorage(kglow_ops_match) → 하위 메뉴 "기업 매칭" 상태 배지(LIB-07 개편).
+  4-matching 제출 → sessionStorage(yoake_ops_match) → 하위 메뉴 "기업 매칭" 상태 배지(LIB-07 개편).
   검토 스트립의 상태 스위처(빈/기본/생성중)는 프로토타입 검토 전용 — 제품 UI 아님.
     매칭 검토중/제안 토글은 4-matching 스위처로 이동(LIB-10).
   화면 속 썸네일·리포트 표지는 전부 CSS 목업(가상 브랜드 HARUON) — 실제 산출물이 아니다.
@@ -53,7 +53,7 @@
     <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
-    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"><img class="wm-mark" src="../../../design/brand/logo/yoake-mark.svg" alt="" aria-hidden="true"></a>
     <div style="position:relative">
       <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
         style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
@@ -134,7 +134,7 @@
 
       <!-- LIB-01 · 상단 영역 (primary 없음 — 화면 primary는 제안 카드 1개) -->
       <div>
-        <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 운영</p>
+        <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">YOAKE 운영</p>
         <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">브랜드 자산 라이브러리</h1>
         <p style="margin:14px 0 0;max-width:640px;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty">진단 리포트와 생성 썸네일이 브랜드 단위로 모입니다. 여기서 만들지 않습니다 — 다시 꺼내 보고 다음 시즌을 준비하는 화면입니다.</p>
       </div>
@@ -229,7 +229,7 @@
 /**
  * 자산 라이브러리 로직 (LIB-02~08) — 자산 통합 그리드 렌더 · 축 필터 · 생성중 타일 ·
  * 시즌 제안 카드 전환 · 매칭 엔트리 카드 상태.
- * 상태 소스: 검토용 스위처(강제) > sessionStorage(kglow_studio_job·kglow_ops_match) > 기본.
+ * 상태 소스: 검토용 스위처(강제) > sessionStorage(yoake_studio_job·yoake_ops_match) > 기본.
  */
 (function () {
   var STAGES = ['원본 분석 중', '일본 고객 관점으로 카피 재설계 중', '프롬프트 조립 중', '썸네일 생성 중', '검수 게이트 확인 중'];
@@ -278,7 +278,7 @@
   function reportMock(tpl) {
     var score = tpl === 'score';
     return '<span style="position:absolute;inset:0;background:#fff"></span>' +
-      '<span style="position:absolute;left:9%;top:10%;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#D93636">KGLOW 진단 리포트</span>' +
+      '<span style="position:absolute;left:9%;top:10%;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#D93636">YOAKE 진단 리포트</span>' +
       (score
         ? '<span class="tnum" style="position:absolute;left:9%;top:22%;font-size:34px;font-weight:800;letter-spacing:-0.02em;color:#202124">18<span style="font-size:14px;font-weight:600;color:#B6B8BF">/100</span></span>'
         : '<span style="position:absolute;left:9%;top:24%;font-size:14px;font-weight:800;color:#202124">브랜드 진단<span style="display:block;margin-top:4px;font-size:10px;font-weight:600;color:#B6B8BF">종합점수 없음 · brand 모드</span></span>') +
@@ -495,7 +495,7 @@
       i += 1;
       if (i >= STAGES.length) {
         clearInterval(timer);
-        // kglow_studio_job 은 지우지 않는다 — 소비 주체는 ② 스튜디오 홈 (head 주석 참조)
+        // yoake_studio_job 은 지우지 않는다 — 소비 주체는 ② 스튜디오 홈 (head 주석 참조)
         state.doneAsset = { id: 'new', kind: 'thumb', tpl: job.tpl || 'official', name: job.tplName || '공식샵 신뢰 배지형', meta: (job.platformName || '라쿠텐 공식샵') + ' · 방금 전', days: 0, href: '2-detail.html?asset=a1' };
         state.view = 'default';
         render(state.tab === 'thumb'); // 완료 토스트 출력 X — 완료 확인 동선은 각 축 홈 몫 (LIB-05)
@@ -520,11 +520,11 @@
     };
   });
   function readMatch() {
-    try { return JSON.parse(sessionStorage.getItem('kglow_ops_match') || 'null'); } catch (e) { return null; }
+    try { return JSON.parse(sessionStorage.getItem('yoake_ops_match') || 'null'); } catch (e) { return null; }
   }
   $('periodSel').onchange = function () { state.period = this.value; render(); };
   var job = null;
-  try { job = JSON.parse(sessionStorage.getItem('kglow_studio_job') || 'null'); } catch (e) {}
+  try { job = JSON.parse(sessionStorage.getItem('yoake_studio_job') || 'null'); } catch (e) {}
   state.match = readMatch();
   if (job) { runJob(job); } else { state.view = 'default'; render(); }
 })();
@@ -675,7 +675,7 @@
     b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
     // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
     try {
-      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+      sessionStorage.setItem('yoake_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
     } catch (err) {}
     setTimeout(function () { location.href = BRAND_PAGE; }, 500);
   };
@@ -687,7 +687,7 @@
   var side = document.querySelector('.app-side');
   var btn = side && side.querySelector('.side-collapse');
   if (!side || !btn) return;
-  var KEY = 'kglow_sidebar_collapsed';
+  var KEY = 'yoake_sidebar_collapsed';
   function apply(c) {
     side.setAttribute('data-collapsed', String(c));
     btn.setAttribute('aria-expanded', String(!c));

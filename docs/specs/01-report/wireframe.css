@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════════════
    ① 진단 리포트 프로토타입 · 공용 스타일 (v2 / HIFI 이식)
-   비배포 · 기획 검토용. Claude Design "KGLOW 진단 리포트 v2" 를
+   비배포 · 기획 검토용. Claude Design "YOAKE 진단 리포트 v2" 를
    바닐라 HTML/CSS/JS 인터랙티브 프로토타입으로 이식한 것.
 
    방침: v2는 인라인 스타일 기반이라 화면 마크업은 v2의 인라인 스타일을
@@ -24,7 +24,7 @@
   --ink-faint: #b6b8bf;       /* /100·각주·화살표 */
 
   /* 브랜드 */
-  --navy: #22304f;            /* 워드마크 전용 */
+  --logo-ink: #182333;            /* 로고 레터마크 전용 */
   --coral: #ff6464;           /* primary CTA·강조 */
   --coral-strong: #d93636;    /* hover/pressed·링크·eyebrow */
   --coral-tint: #fff8f8;      /* 칩-on·필수 배지·강조 배경 */
@@ -143,8 +143,9 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   border-bottom: 1px solid rgba(112, 115, 124, 0.12);
 }
 .app-header-in { max-width: 1120px; margin: 0 auto; height: 60px; padding: 0 24px; display: flex; align-items: center; gap: 14px; }
-.app-wordmark { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--navy); }
-.app-wordmark span { color: var(--coral); }
+.app-wordmark { display: block; line-height: 0; }
+.app-wordmark .wm-full { display: block; height: 22px; width: auto; }
+.app-wordmark .wm-mark { display: none; }
 .app-divider { width: 1px; height: 16px; background: var(--hairline); }
 .app-crumb { font-size: 13px; font-weight: 600; color: var(--ink-mute); }
 .hbtn { height: 34px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
@@ -261,10 +262,10 @@ input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   .app-side[data-collapsed="true"] .side-collapse { align-self: center; }
   .app-side[data-collapsed="true"] .side-collapse svg { transform: rotate(180deg); }
 
-  /* 워드마크 → K 마크 (텍스트 노드는 font-size:0 로 지우고 ::before 로 대체) */
-  .app-side[data-collapsed="true"] .app-wordmark { font-size: 0; text-align: center; padding: 4px 0 16px; }
-  .app-side[data-collapsed="true"] .app-wordmark::before { content: "K"; font-size: 19px; font-weight: 800; color: var(--navy); }
-  .app-side[data-collapsed="true"] .app-wordmark span { display: none; }
+  /* 가로형 로고 → 일출 마크 (정사각 레일 자리) */
+  .app-side[data-collapsed="true"] .app-wordmark { text-align: center; padding: 4px 0 16px; }
+  .app-side[data-collapsed="true"] .app-wordmark .wm-full { display: none; }
+  .app-side[data-collapsed="true"] .app-wordmark .wm-mark { display: inline-block; width: 26px; height: 26px; }
 
   /* 3축 내비 → 아이콘만 (라벨은 텍스트 노드라 font-size:0) */
   .app-side[data-collapsed="true"] .side-nav a { font-size: 0; gap: 0; padding: 0; justify-content: center; }

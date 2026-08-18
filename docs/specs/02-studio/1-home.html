@@ -52,7 +52,7 @@
     <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
-    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"><img class="wm-mark" src="../../../design/brand/logo/yoake-mark.svg" alt="" aria-hidden="true"></a>
     <div style="position:relative">
       <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
         style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
@@ -125,7 +125,7 @@
 
       <!-- HOME-01a · 헤더 (CTA 버튼 없음 — 화면 자체가 생성 퍼널) -->
       <div style="max-width:640px">
-        <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">KGLOW 마케팅 스튜디오</p>
+        <p style="margin:0;font-size:13px;font-weight:700;color:#D93636;letter-spacing:.02em">YOAKE 마케팅 스튜디오</p>
         <h1 style="margin:10px 0 0;font-size:30px;font-weight:800;line-height:1.3;letter-spacing:-0.02em;color:#202124;text-wrap:pretty">일본향 썸네일 스튜디오</h1>
         <p style="margin:14px 0 0;font-size:15px;line-height:1.7;color:#414245;text-wrap:pretty;word-break:keep-all">한국 썸네일을 그대로 옮기지 않습니다. 일본 고객이 신뢰하는 썸네일 문법 8종으로, 카피의 의도부터 재설계합니다.</p>
       </div>
@@ -525,7 +525,7 @@
 <script>
 /**
  * 썸네일 생성 폼 로직 (HOME-02~06 · 구 CREATE-02~06 그대로 승계) — 업로드 · 플랫폼 추천 · 템플릿 게이트 · 제출.
- * 제출 시 잡을 sessionStorage(kglow_studio_job)에 저장하고 2-result.html?state=generating 으로 이동한다
+ * 제출 시 잡을 sessionStorage(yoake_studio_job)에 저장하고 2-result.html?state=generating 으로 이동한다
  * (기존: 홈 복귀 → 생성중 타일. 개편 후: 결과 화면이 생성중 상태로 시작).
  */
 (function () {
@@ -916,7 +916,7 @@
     sb.style.cursor = 'default';
     var p = pf();
     try {
-      sessionStorage.setItem('kglow_studio_job', JSON.stringify({
+      sessionStorage.setItem('yoake_studio_job', JSON.stringify({
         tpl: state.tpl,
         tplName: TPL[state.tpl].name,
         platform: state.platform,
@@ -1091,7 +1091,7 @@
     b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
     // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
     try {
-      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+      sessionStorage.setItem('yoake_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
     } catch (err) {}
     setTimeout(function () { location.href = BRAND_PAGE; }, 500);
   };
@@ -1117,7 +1117,7 @@
   var side = document.querySelector('.app-side');
   var btn = side && side.querySelector('.side-collapse');
   if (!side || !btn) return;
-  var KEY = 'kglow_sidebar_collapsed';
+  var KEY = 'yoake_sidebar_collapsed';
   function apply(c) {
     side.setAttribute('data-collapsed', String(c));
     btn.setAttribute('aria-expanded', String(!c));

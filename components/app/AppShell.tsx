@@ -4,7 +4,9 @@
  * 앱 셸 — 좌측 사이드바(펼침 248px · 접힘 64px 아이콘 레일) + 본문(상단 중앙 코랄 글로우).
  * 디자인 정본: docs/specs/00-main/1-home.html MAIN-01 (2026-07-24 개정 — 성숙도 배지·KPI 위젯·
  * 품의용 PDF를 사이드바에서 제거하고 접기/펼치기 아이콘 레일을 추가).
- * 구성: (접기 토글) → 워드마크 → 브랜드 스위처 → 3축 내비(운영 하위 아코디언) → 계정 행.
+ * 구성: (접기 토글) → 워드마크 → 브랜드 행 → 3축 내비(운영 하위 아코디언) → 계정 행.
+ * 2026-08-18 개편: 계정당 브랜드 1개 전제로 브랜드 스위처·추가를 없앴고, /app 이하는 로그인
+ * 필수라 게스트 CTA도 없앴다(로그인은 랜딩에서만).
  * 접힘은 ≥lg(1024px)에서만 적용되고 상태는 localStorage로 페이지 간 유지된다.
  * 1024px 미만에서는 사이드바가 상단 블록으로 접히며 접기 토글은 자동 no-op(숨김)이다.
  */
@@ -12,12 +14,10 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { KglowLogo } from '@/components/brand/Logo';
-import { AddBrandModal } from '@/components/app/AddBrandModal';
-import { StatusBadge, buttonClass, type BadgeTone } from '@/components/ui/primitives';
+import { YoakeLogo, YoakeMark } from '@/components/brand/Logo';
+import { StatusBadge, type BadgeTone } from '@/components/ui/primitives';
 import {
   IconBox,
-  IconChevronDown,
   IconChevronLeft,
   IconChevronUp,
   IconDoc,
@@ -25,22 +25,11 @@ import {
   IconImage,
 } from '@/components/ui/icons';
 
-/** 스위처 한 줄 — 브랜드 + 브랜드별 자산 카운트(MAIN-01b) */
-export interface BrandSwitcherItem {
-  id: string;
-  name: string;
-  category: string;
-  reportCount: number;
-  thumbnailCount: number;
-}
-
 interface ShellProps {
-  /** 로그인 세션 유저 — 게스트(비로그인 열람)면 null(계정 행 대신 로그인 CTA) */
-  user: { name: string; email: string; providerLabel: string } | null;
-  /** 전 브랜드(스위처 목록) — 하나도 없으면 빈 배열(no-brand) */
-  brands: BrandSwitcherItem[];
-  /** 활성 브랜드 id — 스위처 현재 선택. 브랜드 없으면 null */
-  activeBrandId: string | null;
+  /** 로그인 세션 유저 — /app 이하는 로그인 필수라 항상 존재한다 */
+  user: { name: string; email: string; providerLabel: string };
+  /** 이 계정의 브랜드 1건 — 아직 등록 전이면 null(온보딩 상태) */
+  brand: { name: string; category: string } | null;
   /** 기업 매칭 상태 배지(LIB-07) — null이면 미신청(배지 없음). 성숙도 배지가 아닌 라이브 상태 배지 */
   matchBadge: { label: string; tone: 'amber' | 'green' | 'neutral' } | null;
   children: React.ReactNode;
@@ -70,7 +59,7 @@ const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
 /** ≥lg 접힘(아이콘 레일)에서 숨길 라벨·텍스트. 라벨은 DOM에 유지하고 시각만 숨겨 모바일 스택은 무영향 */
 const HIDE_ON_RAIL = 'lg:group-data-[collapsed=true]:hidden';
 /** 접힘 상태 지속 키 */
-const COLLAPSE_KEY = 'kglow:sidebar-collapsed';
+const COLLAPSE_KEY = 'yoake:sidebar-collapsed';
 
 /** 3축 내비 항목 클래스 — 접힘 시 아이콘만 가운데 정렬 */
 function navClass(active: boolean): string {
@@ -89,19 +78,13 @@ function subClass(active: boolean): string {
   ].join(' ');
 }
 
-export function AppShell({ user, brands, activeBrandId, matchBadge, children }: ShellProps) {
+export function AppShell({ user, brand, matchBadge, children }: ShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
-  const [swOpen, setSwOpen] = useState(false);
   const [avOpen, setAvOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [switching, setSwitching] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(false);
-  const swRef = useRef<HTMLDivElement>(null);
   const avRef = useRef<HTMLDivElement>(null);
-
-  const activeBrand = brands.find((b) => b.id === activeBrandId) ?? null;
 
   const dashActive = pathname === '/app';
   const reportActive = pathname.startsWith('/app/report');
@@ -124,16 +107,12 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
 
   /* 드롭다운: 바깥 클릭·Esc 닫힘 */
   useEffect(() => {
-    if (!swOpen && !avOpen) return;
+    if (!avOpen) return;
     function onDown(e: MouseEvent) {
-      if (swOpen && !swRef.current?.contains(e.target as Node)) setSwOpen(false);
-      if (avOpen && !avRef.current?.contains(e.target as Node)) setAvOpen(false);
+      if (!avRef.current?.contains(e.target as Node)) setAvOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        setSwOpen(false);
-        setAvOpen(false);
-      }
+      if (e.key === 'Escape') setAvOpen(false);
     }
     document.addEventListener('mousedown', onDown);
     document.addEventListener('keydown', onKey);
@@ -141,11 +120,10 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('keydown', onKey);
     };
-  }, [swOpen, avOpen]);
+  }, [avOpen]);
 
   /* 경로가 바뀌면 드롭다운 닫기 */
   useEffect(() => {
-    setSwOpen(false);
     setAvOpen(false);
   }, [pathname]);
 
@@ -157,137 +135,46 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
     router.refresh();
   }
 
-  /**
-   * 활성 브랜드 전환(MAIN-01b·MAIN-01b″) — 쿠키 갱신 후 셸·본문 재조회.
-   * 입력 폼 화면(리포트 입력·스튜디오)에서는 브랜드 종속 입력이 초기화되므로 전환 전 확인한다
-   * (취소 시 원 브랜드 유지). 조회 전용 화면은 확인 없이 즉시 전환. 폼은 `kglow:brand-switched`
-   * 이벤트로 브랜드 종속 필드만 리셋하고 브랜드 무관 입력은 유지한다. 진행 중 잡은 제출 시점 브랜드 귀속.
-   */
-  async function switchBrand(id: string) {
-    if (id === activeBrandId) {
-      setSwOpen(false);
-      return;
-    }
-    const onForm =
-      pathname === '/app/report/new' || pathname === '/app/studio/thumbnail' || pathname === '/app/studio/detail';
-    if (onForm && !window.confirm('브랜드를 바꾸면 작성 중인 브랜드 관련 입력(프리필·제품컷 등)이 초기화됩니다. 계속할까요?')) {
-      return;
-    }
-    setSwitching(id);
-    try {
-      await fetch(`/api/brand/${id}`, { method: 'POST' });
-      setSwOpen(false);
-      window.dispatchEvent(new CustomEvent('kglow:brand-switched'));
-      router.refresh();
-    } finally {
-      setSwitching(null);
-    }
-  }
-
-  const brandName = activeBrand?.name ?? '브랜드 미설정';
-  const brandCat = activeBrand ? CATEGORY_LABELS[activeBrand.category] : undefined;
+  const brandName = brand?.name ?? '브랜드 미설정';
+  const brandCat = brand ? CATEGORY_LABELS[brand.category] : undefined;
   const brandInitial = brandName.slice(0, 1);
+  const brandActive = pathname.startsWith('/app/brand');
 
-  /* ── 1b · 브랜드 프로필 스위처(복수 · MAIN-01b) ─────────── */
-  const brandSwitcher = (
-    <div ref={swRef} className="relative">
-      <button
-        type="button"
-        aria-haspopup="listbox"
-        aria-expanded={swOpen}
-        aria-label="브랜드 프로필 전환"
-        onClick={() => setSwOpen((v) => !v)}
-        className={`flex w-full cursor-pointer items-center gap-2 rounded-[11px] border bg-canvas px-2.5 py-2 text-left transition-colors hover:border-coral lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:px-0 ${
-          swOpen ? 'border-coral bg-coral-tint' : 'border-input-border'
-        }`}
+  /* ── 1b · 브랜드 행 — 계정당 1개라 전환이 없다. 눌러서 브랜드 정보로 이동 ─── */
+  const brandRow = (
+    <Link
+      href="/app/brand"
+      aria-label={brand ? `${brand.name} 브랜드 정보` : '브랜드 등록하기'}
+      aria-current={brandActive ? 'page' : undefined}
+      className={`flex w-full items-center gap-2 rounded-[11px] border bg-canvas px-2.5 py-2 text-left no-underline transition-colors hover:border-coral lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:px-0 ${
+        brandActive ? 'border-coral bg-coral-tint' : 'border-input-border'
+      }`}
+    >
+      <span
+        aria-hidden
+        className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-lg bg-linear-135 from-[#ffe9df] to-[#ffcfb8] text-[11px] font-extrabold text-amber-text"
       >
-        <span
-          aria-hidden
-          className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-lg bg-linear-135 from-[#ffe9df] to-[#ffcfb8] text-[11px] font-extrabold text-amber-text"
-        >
-          {brandInitial}
-        </span>
-        <span className={`min-w-0 flex-1 ${HIDE_ON_RAIL}`}>
-          <span className="block truncate text-[13px] leading-tight font-bold text-ink">{brandName}</span>
-          <span className="block truncate text-[10.5px] leading-tight text-ink-mute">
-            {activeBrand ? (
-              <>
-                {brandCat?.kr ?? activeBrand.category}
-                {brandCat && (
-                  <>
-                    {' / '}
-                    <span lang="ja">{brandCat.ja}</span>
-                  </>
-                )}
-              </>
-            ) : (
-              '브랜드 관리에서 등록'
-            )}
-          </span>
-        </span>
-        <IconChevronDown className={`flex-none text-[#70737c] ${HIDE_ON_RAIL}`} />
-      </button>
-      {swOpen && (
-        <div
-          role="listbox"
-          aria-label="브랜드 프로필 전환"
-          className="absolute inset-x-0 top-[calc(100%+6px)] z-70 max-h-[320px] overflow-y-auto rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in lg:group-data-[collapsed=true]:right-auto lg:group-data-[collapsed=true]:min-w-[232px]"
-        >
-          {brands.length === 0 && (
-            <p className="px-2.5 py-2 text-[11.5px] text-ink-mute">등록된 브랜드가 없습니다.</p>
+        {brandInitial}
+      </span>
+      <span className={`min-w-0 flex-1 ${HIDE_ON_RAIL}`}>
+        <span className="block truncate text-[13px] leading-tight font-bold text-ink">{brandName}</span>
+        <span className="block truncate text-[10.5px] leading-tight text-ink-mute">
+          {brand ? (
+            <>
+              {brandCat?.kr ?? brand.category}
+              {brandCat && (
+                <>
+                  {' / '}
+                  <span lang="ja">{brandCat.ja}</span>
+                </>
+              )}
+            </>
+          ) : (
+            '브랜드를 먼저 등록해 주세요'
           )}
-          {brands.map((b) => {
-            const selected = b.id === activeBrandId;
-            return (
-              <button
-                key={b.id}
-                type="button"
-                role="option"
-                aria-selected={selected}
-                disabled={switching !== null}
-                onClick={() => void switchBrand(b.id)}
-                className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors disabled:opacity-60 ${
-                  selected ? '' : 'cursor-pointer hover:bg-n-50'
-                }`}
-              >
-                <span
-                  aria-hidden
-                  className="inline-flex h-[22px] w-[22px] flex-none items-center justify-center rounded-[7px] bg-linear-135 from-[#ffe9df] to-[#ffcfb8] text-[10px] font-extrabold text-amber-text"
-                >
-                  {b.name.slice(0, 1)}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[12.5px] font-bold text-ink">{b.name}</span>
-                  <span className="block text-[10.5px] text-ink-mute">
-                    리포트 {b.reportCount} · 썸네일 {b.thumbnailCount}
-                  </span>
-                </span>
-                {switching === b.id ? (
-                  <span aria-hidden className="text-[10px] text-ink-faint">
-                    전환 중…
-                  </span>
-                ) : selected ? (
-                  <span aria-hidden className="text-[13px] font-extrabold text-green-text">
-                    ✓
-                  </span>
-                ) : null}
-              </button>
-            );
-          })}
-          <div aria-hidden className="mx-1 my-1.5 h-px bg-hairline" />
-          <button
-            type="button"
-            onClick={() => {
-              setSwOpen(false);
-              setAddOpen(true);
-            }}
-            className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-coral-strong transition-colors hover:bg-coral-tint"
-          >
-            ＋ 브랜드 추가
-          </button>
-        </div>
-      )}
-    </div>
+        </span>
+      </span>
+    </Link>
   );
 
   /* ── 1c · 3축 내비 (성숙도 배지 제거 · 2026-07-24) ─────── */
@@ -301,7 +188,7 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
         <IconDoc className={reportActive ? 'text-coral-strong' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>진단 리포트</span>
       </Link>
-      <Link href="/app/studio/thumbnail" className={navClass(studioActive)} aria-current={studioActive ? 'page' : undefined}>
+      <Link href="/app/studio" className={navClass(studioActive)} aria-current={studioActive ? 'page' : undefined}>
         <IconImage className={studioActive ? 'text-coral-strong' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>마케팅 스튜디오</span>
       </Link>
@@ -337,74 +224,55 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
   /* ── 1e · 계정 (사이드바 최하단 · 품의 PDF는 2026-07-24 제거) ─── */
   const sideFoot = (
     <div className="mt-3 border-t border-hairline pt-3">
-      {user ? (
-        <div ref={avRef} className="relative">
-          <button
-            type="button"
-            aria-haspopup="menu"
-            aria-expanded={avOpen}
-            aria-label="계정 메뉴"
-            onClick={() => setAvOpen((v) => !v)}
-            className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-2 py-[7px] text-left transition-colors hover:bg-n-50 lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:px-0"
+      <div ref={avRef} className="relative">
+        <button
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded={avOpen}
+          aria-label="계정 메뉴"
+          onClick={() => setAvOpen((v) => !v)}
+          className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-2 py-[7px] text-left transition-colors hover:bg-n-50 lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:px-0"
+        >
+          <span
+            aria-hidden
+            className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full border border-coral/35 bg-coral-tint text-xs font-extrabold text-coral-strong"
           >
-            <span
-              aria-hidden
-              className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full border border-coral/35 bg-coral-tint text-xs font-extrabold text-coral-strong"
-            >
-              {user.name.slice(0, 1)}
-            </span>
-            <span className={`min-w-0 flex-1 ${HIDE_ON_RAIL}`}>
-              <span className="block truncate text-[12.5px] leading-tight font-bold text-ink">{user.name}</span>
-              <span className="block truncate text-[10.5px] leading-tight text-ink-mute">{user.email}</span>
-            </span>
-            <IconChevronUp className={`flex-none text-ink-faint ${HIDE_ON_RAIL}`} />
-          </button>
-          {avOpen && (
-            <div
-              role="menu"
-              className="absolute inset-x-0 bottom-[calc(100%+6px)] z-70 rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in lg:group-data-[collapsed=true]:right-auto lg:group-data-[collapsed=true]:min-w-[200px]"
-            >
-              <Link
-                href="/app/account"
-                role="menuitem"
-                aria-current={pathname.startsWith('/app/account') ? 'page' : undefined}
-                className={`block w-full rounded-lg px-2.5 py-2 text-left text-[12.5px] font-semibold no-underline transition-colors ${
-                  pathname.startsWith('/app/account') ? 'bg-coral-tint text-coral-strong' : 'text-ink-body hover:bg-n-50'
-                }`}
-              >
-                마이페이지
-              </Link>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => void handleLogout()}
-                disabled={busy}
-                className="block w-full cursor-pointer rounded-lg px-2.5 py-2 text-left text-[12.5px] font-semibold text-ink-body transition-colors hover:bg-n-50 disabled:opacity-50"
-              >
-                {busy ? '로그아웃 중…' : '로그아웃'}
-              </button>
-            </div>
-          )}
-          <p className="sr-only">{user.providerLabel} 연결됨</p>
-        </div>
-      ) : (
-        /* 게스트(비로그인 열람) — 계정 행 대신 로그인 CTA(GATE 밖 상시 진입점). 접힘 시 → 아이콘 버튼 */
-        <div>
-          <Link
-            href="/login"
-            aria-label="로그인 / 회원가입"
-            className={buttonClass('primary', 'md', 'w-full no-underline lg:group-data-[collapsed=true]:px-0')}
+            {user.name.slice(0, 1)}
+          </span>
+          <span className={`min-w-0 flex-1 ${HIDE_ON_RAIL}`}>
+            <span className="block truncate text-[12.5px] leading-tight font-bold text-ink">{user.name}</span>
+            <span className="block truncate text-[10.5px] leading-tight text-ink-mute">{user.email}</span>
+          </span>
+          <IconChevronUp className={`flex-none text-ink-faint ${HIDE_ON_RAIL}`} />
+        </button>
+        {avOpen && (
+          <div
+            role="menu"
+            className="absolute inset-x-0 bottom-[calc(100%+6px)] z-70 rounded-xl border border-card-border bg-canvas p-1.5 shadow-2 animate-drop-in lg:group-data-[collapsed=true]:right-auto lg:group-data-[collapsed=true]:min-w-[200px]"
           >
-            <span className={HIDE_ON_RAIL}>로그인 / 회원가입</span>
-            <span aria-hidden className="hidden text-base font-extrabold lg:group-data-[collapsed=true]:inline">
-              →
-            </span>
-          </Link>
-          <p className={`mt-2 text-[11px] leading-relaxed text-ink-mute ${HIDE_ON_RAIL}`}>
-            로그인하면 진단·생성 결과가 저장됩니다.
-          </p>
-        </div>
-      )}
+            <Link
+              href="/app/account"
+              role="menuitem"
+              aria-current={pathname.startsWith('/app/account') ? 'page' : undefined}
+              className={`block w-full rounded-lg px-2.5 py-2 text-left text-[12.5px] font-semibold no-underline transition-colors ${
+                pathname.startsWith('/app/account') ? 'bg-coral-tint text-coral-strong' : 'text-ink-body hover:bg-n-50'
+              }`}
+            >
+              마이페이지
+            </Link>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => void handleLogout()}
+              disabled={busy}
+              className="block w-full cursor-pointer rounded-lg px-2.5 py-2 text-left text-[12.5px] font-semibold text-ink-body transition-colors hover:bg-n-50 disabled:opacity-50"
+            >
+              {busy ? '로그아웃 중…' : '로그아웃'}
+            </button>
+          </div>
+        )}
+        <p className="sr-only">{user.providerLabel} 연결됨</p>
+      </div>
     </div>
   );
 
@@ -427,22 +295,20 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
           <IconChevronLeft className="transition-transform lg:group-data-[collapsed=true]:rotate-180" />
         </button>
 
-        {/* 1a · 워드마크 — 접힘 시 네이비 "K" 마크로 축약(로고 전용색) */}
+        {/* 1a · 로고 — 접힘 시 일출 마크만 남긴다(정사각 자리 정본 자산) */}
         <Link
           href="/app"
-          aria-label="KGLOW 홈"
+          aria-label="YOAKE 홈"
           className="block px-2.5 pt-1 pb-4 lg:group-data-[collapsed=true]:px-0 lg:group-data-[collapsed=true]:text-center"
         >
-          <KglowLogo className={`h-[22px] w-auto ${HIDE_ON_RAIL}`} uid="shell-logo" />
-          <span
+          <YoakeLogo className={`h-[22px] w-auto ${HIDE_ON_RAIL}`} uid="shell-logo" />
+          <YoakeMark
             aria-hidden
-            className="hidden text-[19px] font-extrabold lg:group-data-[collapsed=true]:inline"
-            style={{ color: '#22304F' }}
-          >
-            K
-          </span>
+            className="hidden h-[26px] w-[26px] lg:group-data-[collapsed=true]:inline-block"
+            uid="shell-mark"
+          />
         </Link>
-        {brandSwitcher}
+        {brandRow}
         {nav}
         <span className="flex-1 max-lg:hidden" aria-hidden />
         {sideFoot}
@@ -450,9 +316,6 @@ export function AppShell({ user, brands, activeBrandId, matchBadge, children }: 
 
       {/* 본문 — 상단 중앙 코랄 글로우 */}
       <div className="main-glow min-w-0 flex-1">{children}</div>
-
-      {/* MAIN-01b′ 브랜드 추가 모달(스위처 진입) — 성공 시 ③ 브랜드 관리로 착지 */}
-      <AddBrandModal open={addOpen} onClose={() => setAddOpen(false)} />
     </div>
   );
 }
