@@ -47,9 +47,9 @@ export function chipClass(on: boolean): string {
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const BUTTON_VARIANT_CLASS: Record<ButtonVariant, string> = {
-  primary: 'bg-coral text-white hover:bg-coral-hover active:bg-coral-pressed disabled:hover:bg-coral',
-  secondary: 'border border-border-strong bg-canvas text-ink hover:bg-n-150 active:bg-n-200',
-  ghost: 'bg-transparent text-ink-body hover:bg-n-150',
+  primary: 'bg-coral text-white hover:bg-coral-strong disabled:hover:bg-coral',
+  secondary: 'border border-input-border bg-canvas text-ink-body hover:bg-n-100',
+  ghost: 'bg-transparent text-ink-body hover:bg-n-100',
   danger: 'bg-danger text-white hover:bg-danger-text',
 };
 
@@ -150,16 +150,14 @@ export function EmptyState({
   );
 }
 
-/** 공용 폼 컨트롤 클래스 — 포커스는 코랄 보더 + 글로우(LP_Components 시트) */
-const FIELD_FOCUS = 'focus:border-coral focus:shadow-[0_0_0_3px_var(--color-coral-glow)] focus:outline-none';
-
+/** 공용 폼 컨트롤 클래스 */
 export const inputClass =
-  `h-10 w-full rounded-field border border-input-border bg-canvas px-3 text-[13.5px] text-ink placeholder:text-ink-faint ${FIELD_FOCUS}`;
+  'h-10 w-full rounded-[10px] border border-input-border bg-canvas px-3 text-[13.5px] text-ink placeholder:text-[#a6a8b0] focus:border-[#70737c] focus:outline-none focus-visible:outline-2 focus-visible:outline-coral';
 
 export const textareaClass =
-  `w-full resize-y rounded-field border border-input-border bg-canvas px-3 py-2.5 text-[13.5px] leading-relaxed text-ink placeholder:text-ink-faint ${FIELD_FOCUS}`;
+  'w-full resize-y rounded-[10px] border border-input-border bg-canvas px-3 py-2.5 text-[13.5px] leading-relaxed text-ink placeholder:text-[#a6a8b0] focus:border-[#70737c] focus:outline-none focus-visible:outline-2 focus-visible:outline-coral';
 
 export const selectClass =
-  `h-10 rounded-field border border-input-border bg-canvas px-3 text-[13.5px] font-semibold text-ink ${FIELD_FOCUS}`;
+  'h-10 rounded-[10px] border border-input-border bg-canvas px-3 text-[13.5px] font-semibold text-ink focus:border-[#70737c] focus:outline-none';
 
 export const fieldLabelClass = 'mb-1.5 block text-[12.5px] font-bold text-ink';

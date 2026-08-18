@@ -1,12 +1,9 @@
 @import "tailwindcss";
 
 /* ════════════════════════════════════════════════════════════════════
-   YOAKE 디자인 토큰 — 정본: design/references/LP_Components.svg (일출 코랄 시트).
-   스펙 추출: design/lp-components-spec.md · 결정: docs/decisions/2026-08-18-일출코랄-DS전환.md
-
-   브랜드는 로고의 일출 코랄 #FF6F61. 표면은 웜 크림, 잉크는 쿨 네이비.
-   ▸ *-text 토큰은 소형 텍스트 AA(4.5:1)용으로 어둡게 파생한 값이다.
-     면(버튼·도트·보더·아이콘)은 시트 원색을, 글자는 *-text 를 쓴다.
+   YOAKE 디자인 토큰 — docs/specs 각 섹션의 wireframe.css 정본을 Tailwind v4 @theme으로 이식.
+   토큰 정본: design/DESIGN.md (스티비 coral).
+   coral #ff6464 = 기본 CTA·강조(large/bold 전용) · coral-strong #d93636 = hover/링크/소형 텍스트.
    상태색은 색+글자+기호(✕/△/○) 3중 표기와 함께만 쓴다(CVD 검증).
    ════════════════════════════════════════════════════════════════════ */
 
@@ -17,60 +14,49 @@
     "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", "Malgun Gothic",
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
 
-  /* 표면 · 잉크 — 웜 크림 / 쿨 네이비 */
-  --color-page: #faf8f5;                /* 페이지 캔버스(크림) */
-  --color-canvas: #ffffff;              /* 카드·인풋·헤더(scrolled) */
-  --color-ink: #182333;                 /* 제목·강조 숫자 (= 로고 잉크) */
-  --color-ink-body: #3d4655;            /* 본문 */
-  --color-ink-mute: #6e7686;            /* 캡션·섹션 라벨·caret */
-  --color-ink-faint: #78818f;           /* placeholder·각주·disabled */
-  --color-ink-on-dark: #c3cad6;         /* 잉크 배경(푸터) 위 보조 텍스트 */
+  /* 표면 · 잉크 */
+  --color-page: #f7f7f8;
+  --color-canvas: #ffffff;
+  --color-ink: #202124;                 /* 제목·강조 숫자 */
+  --color-ink-body: #414245;            /* 본문 */
+  --color-ink-mute: rgba(55, 56, 60, 0.61); /* 캡션·보조 */
+  --color-ink-faint: #b6b8bf;           /* /100·각주·화살표 */
 
-  /* 브랜드 — 일출 코랄 */
-  --color-logo-ink: #182333;            /* 로고 레터마크 (= --color-ink) */
-  --color-coral: #ff6f61;               /* primary CTA·칩 선택·아이콘 (면) */
-  --color-coral-hover: #f0594b;         /* hover */
-  --color-coral-pressed: #db4c3f;       /* pressed */
-  --color-coral-text: #c93f2e;          /* 링크·eyebrow 등 소형 텍스트 (AA 4.7:1) */
-  --color-coral-strong: #c93f2e;        /* 하위호환 별칭 → coral-text */
-  --color-coral-tint: #fff2f0;          /* 칩-on·필수 배지·강조 배경 */
-  --color-coral-glow: rgba(255, 111, 97, 0.24); /* 포커스 글로우 */
-  --color-sunrise-end: #ff9b70;         /* 로고 그라디언트 종점 (로고 전용) */
-  --color-bar-mid: #ff9b70;
-  --color-bar-light: #ffc7b3;
+  /* 브랜드 */
+  --color-logo-ink: #182333;            /* 로고 레터마크 전용 — UI 토큰으로 승격 금지 */
+  --color-coral: #ff6464;               /* primary CTA·강조 */
+  --color-coral-strong: #d93636;        /* hover/pressed·링크·eyebrow */
+  --color-coral-tint: #fff8f8;          /* 칩-on·필수 배지·강조 배경 */
+  --color-bar-mid: #ff9c9c;
+  --color-bar-light: #ffc4c4;
 
-  /* 판정 상태색 (색+글자+기호와 함께만) — 면은 원색, 글자는 *-text */
-  --color-danger: #d94848;
-  --color-danger-text: #c13a3a;
-  --color-danger-bg: #fbeded;
-  --color-amber: #e39a22;
-  --color-amber-text: #8f6412;
-  --color-amber-bg: #fdf3e4;
-  --color-green: #2d8c6b;
-  --color-green-text: #26775b;
-  --color-green-bg: #e8f4f0;
+  /* 판정 상태색 (색+글자+기호와 함께만) */
+  --color-danger: #f0483c;
+  --color-danger-text: #c6362c;
+  --color-danger-bg: #fdf0ef;
+  --color-amber: #ffab00;
+  --color-amber-text: #b96c00;
+  --color-amber-bg: #fff6e5;
+  --color-green: #00b97c;
+  --color-green-text: #00875a;
+  --color-green-bg: #eaf9f3;
 
-  /* 선 · 중립 (웜) */
-  --color-card-border: #e9e7e3;
-  --color-input-border: #e9e7e3;
-  --color-border-strong: #c9cdd4;       /* Secondary 버튼·체크박스 보더 */
-  --color-hairline: #e9e7e3;
-  --color-n-50: #faf8f5;
-  --color-n-100: #f4f2ee;
-  --color-n-150: #f2f1ed;
-  --color-n-200: #e9e7e3;
+  /* 선 · 중립 */
+  --color-card-border: rgba(112, 115, 124, 0.14);
+  --color-input-border: rgba(112, 115, 124, 0.28);
+  --color-hairline: #ebebeb;
+  --color-n-50: #fafafb;
+  --color-n-100: #f6f6f6;
+  --color-n-150: #f1f1f3;
+  --color-n-200: #ececef;
 
   /* 그림자 */
   --shadow-card: 0 1px 3px rgba(16, 18, 20, 0.04);
   --shadow-nav: 0 4px 14px rgba(16, 18, 20, 0.06);
   --shadow-2: 0 12px 32px rgba(16, 18, 20, 0.1);
 
-  /* 반경 · 치수 — 시트 실측(radius 5/8/10/12/14) */
-  --radius-check: 5px;                  /* Checkbox */
-  --radius-field: 8px;                  /* TextInput·Select·헤더 CTA */
-  --radius-btn: 10px;                   /* Button */
-  --radius-panel: 12px;                 /* FAQ·SuccessMessage */
-  --radius-card: 14px;                  /* ServiceCard·WorkflowStep */
+  /* 반경 · 치수 */
+  --radius-card: 18px;
   --spacing-sidebar: 248px;
 
   /* 모션 — motion-fast 150ms · ease-standard */
@@ -102,8 +88,8 @@
 
 /* 딥링크 도착 강조(REPORT-16) — Top3·해결 칩으로 진단 탭 앵커에 도착 시 2초 코랄 플래시 */
 @keyframes hlFlash {
-  0%   { box-shadow: 0 0 0 0 rgba(255, 111, 97, 0.0); background-color: rgba(255, 111, 97, 0.16); }
-  100% { box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.0); background-color: transparent; }
+  0%   { box-shadow: 0 0 0 0 rgba(255, 100, 100, 0.0); background-color: rgba(255, 100, 100, 0.14); }
+  100% { box-shadow: 0 0 0 3px rgba(255, 100, 100, 0.0); background-color: transparent; }
 }
 .hl-flash { animation: hlFlash 2s ease-out; border-radius: 12px; }
 @media (prefers-reduced-motion: reduce) { .hl-flash { animation: none; } }
@@ -119,12 +105,12 @@ body {
 }
 
 input::placeholder,
-textarea::placeholder { color: var(--color-ink-faint); }
+textarea::placeholder { color: #a6a8b0; }
 
 /* 접근성: 키보드 포커스 링 (마우스 클릭엔 안 뜸) */
 :focus-visible {
-  outline: 3px solid var(--color-coral);
-  outline-offset: 1px;
+  outline: 2px solid var(--color-coral);
+  outline-offset: 2px;
   border-radius: 6px;
 }
 
@@ -141,7 +127,7 @@ h1, h2, h3 { text-wrap: balance; }
 /* 본문 상단 중앙 코랄 글로우 — .app-main 전용 */
 @utility main-glow {
   background-color: var(--color-page);
-  background-image: radial-gradient(1100px 420px at 50% -80px, rgba(255, 111, 97, 0.06), transparent);
+  background-image: radial-gradient(1100px 420px at 50% -80px, rgba(255, 100, 100, 0.05), transparent);
   background-repeat: no-repeat;
 }
 
