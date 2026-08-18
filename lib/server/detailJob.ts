@@ -21,17 +21,28 @@ import {
   createFootnoteRegistry,
   getBlock,
   getTemplate,
+  imagePriority,
   planBlocks,
   usesProductSource,
   type BlockPlanResult,
   type TemplateId,
 } from '../studio/detail/blockPack';
+import { JOB_BUDGET_MS, fitImageBudget } from '../studio/detail/budget';
 import { composeDetail } from '../studio/detail/compose';
 import { runDetailCopy } from '../studio/detail/copyCall';
-import { BlockVisualError, generateBlockVisual } from '../studio/detail/imageGen';
+import { runCopyHumanize, type HumanizeResult } from '../studio/detail/humanizeCall';
+import { BlockVisualError, IMAGE_TIMEOUT_MS, generateBlockVisual } from '../studio/detail/imageGen';
 import { limit } from '../studio/detail/limit';
 import { IMAGE_CONCURRENCY, outputProfile, type BlockType, type RenderKind } from '../studio/detail/output';
 import { renderBlock } from '../studio/detail/render';
+import {
+  buildRenderPlan,
+  promptContextOf,
+  renderContextOf,
+  visualHeightOf,
+} from '../studio/detail/renderContext';
+import { toneSummary } from '../studio/detail/rhythm';
+import { analyzeSafeArea, type CopyPlacement } from '../studio/detail/safeArea';
 import { blockContent } from '../studio/detail/templates';
 import { hasHangul } from '../studio/detail/translate';
 import { runInputTranslate } from '../studio/detail/translateCall';
@@ -195,6 +206,27 @@ function detailGateResult(
           : `${translated.length}개 변환 · ${issues.length}개 실패 — ${issues.map((i) => i.label).join(' · ')}. 실패분은 한국어 원문이 남아 해당 블록이 빠졌을 수 있습니다.`,
     });
   }
+  // 일본어 문체 윤문(콜⑨) 기록 — **비차단 등급**이다. 법적 게이트가 아니라 문체 규칙이라
+  // `brandKitApplied` 와 같은 등급으로 두고 passed 판정에는 넣지 않는다.
+  const humanizeIssues = input?.humanizeIssues ?? [];
+  if (input?.humanizeSkipped || humanizeIssues.length > 0) {
+    checks.push({
+      key: 'jpCopyNaturalness',
+      label: '일본어 문체 윤문',
+      note: input?.humanizeSkipped
+        ? `${input.humanizeSkipped} 카피 내용에는 영향이 없습니다.`
+        : `${humanizeIssues.length}개 항목은 검사에 걸려 윤문 전 문장을 그대로 씁니다 — ${humanizeIssues
+            .map((i) => `${i.blockId}.${i.key}(${i.reason})`)
+            .join(' · ')}`,
+    });
+  } else if (input?.theme) {
+    // theme 스냅샷이 있으면 이 파이프라인을 탄 자산이다 — 윤문이 조용히 통과했다는 뜻
+    checks.push({
+      key: 'jpCopyNaturalness',
+      label: '일본어 문체 윤문',
+      note: '모든 일본어 카피에 AI 티 루브릭을 적용했고, 숫자·※각주 마커·금지 표현 검사를 전부 통과했습니다.',
+    });
+  }
   if (input?.brandKit && (input.brandKit.productNamesJa.length > 0 || input.brandKit.forbiddenTerms.length > 0)) {
     checks.push({
       key: 'brandKitApplied',
@@ -240,6 +272,10 @@ export async function runDetailJob(assetId: string): Promise<void> {
     return;
   }
 
+  // 벽시계 마감. maxDuration=300 은 Vercel Hobby 플랫폼 상한이라 올릴 수 없으므로(11 §2),
+  // 예산을 늘리는 대신 **가진 예산을 결정적으로 쓴다**(budget.ts).
+  const deadline = Date.now() + JOB_BUDGET_MS;
+
   try {
     const platform = asset.platform as Platform;
     const templateId = asset.styleCategory as TemplateId;
@@ -253,6 +289,18 @@ export async function runDetailJob(assetId: string): Promise<void> {
     const plan = planBlocks(input, platform, templateId, input.disabledBlocks as BlockType[]);
     if (plan.blocks.length === 0) throw new Error('생성할 블록이 없습니다. 입력을 확인해 주세요.');
     await store.updateAsset(assetId, { blockTotal: plan.blocks.length, blockDone: 0 });
+
+    // ── layout: 밴드 톤·높이·간격(§2-6). 결정적 · LLM 미개입 ──────────────
+    // 재생성 경로도 같은 함수를 같은 순서에 적용해 색·톤이 흔들리지 않게 한다.
+    const rp = buildRenderPlan(input, platform, templateId);
+    logger.info('밴드 리듬 확정', {
+      assetId,
+      templateId,
+      blocks: rp.layout.length,
+      tones: toneSummary(rp.layout),
+      accent: rp.theme.accent,
+      themeSource: rp.theme.source,
+    });
 
     // ── copy: 콜⑦ 로 전 블록 슬롯을 한 번에 채운다 ───────────────────────
     await store.updateAsset(assetId, { stage: 'copy' });
@@ -270,13 +318,41 @@ export async function runDetailJob(assetId: string): Promise<void> {
       onLog: (entry) => store.saveLlmLog(null, entry),
     });
 
-    // ── 슬롯 확정(법적 게이트) + 블록 행 생성 ────────────────────────────
+    // ── 콜⑨ copyHumanize: 일본어 카피의 문체를 다듬는다 ──────────────────
+    // assembleBlockSlots **이전에** 돈다 — 코드 소유 값(가격·실적·시험·전성분)이 섞이기 전이라
+    // 윤문이 그 값들에 아예 닿지 않는다. 실패해도 잡을 죽이지 않고 원문으로 진행한다.
     const llmByBlock = new Map(
       copy.blocks.map((b) => [b.blockId, Object.fromEntries(b.slots.map((s) => [s.key, s.value]))]),
     );
+    const humanized: HumanizeResult = await runCopyHumanize({
+      blocks: plan.blocks,
+      slotsBySeq: plan.blocks.map((p) => llmByBlock.get(p.blockId) ?? {}),
+      input,
+      brandKit: input.brandKit,
+      onLog: (entry) => store.saveLlmLog(null, entry),
+    });
+
+    // ── 슬롯 확정(법적 게이트) + 블록 행 생성 ────────────────────────────
     const reg = createFootnoteRegistry();
-    const slotsBySeq = plan.blocks.map((p) => assembleBlockSlots(p, llmByBlock.get(p.blockId) ?? {}, input, reg));
+    const slotsBySeq = plan.blocks.map((p) =>
+      assembleBlockSlots(p, humanized.slotsByBlock[p.blockId] ?? llmByBlock.get(p.blockId) ?? {}, input, reg),
+    );
     const footnote = checkFootnoteIntegrity(slotsBySeq, reg);
+
+    // 테마·윤문 결과를 자산에 스냅샷한다(신규 컬럼 0개 — 전부 detail_input jsonb).
+    // regenerateBlock 이 읽는 유일한 입력이라 이것만으로 재생성 일관성이 확보된다.
+    const finalInput: DetailInput = {
+      ...input,
+      theme: rp.theme as unknown as Record<string, unknown>,
+      humanizeIssues: humanized.verdicts
+        .filter((v) => !v.adopted)
+        .map((v) => ({ blockId: v.blockId, key: v.key, reason: v.rejectedReason ?? '검사 실패' })),
+      ...(humanized.skippedReason ? { humanizeSkipped: humanized.skippedReason } : {}),
+    };
+    await store.updateAsset(assetId, { detailInput: finalInput });
+    // ⚠ `asset` 은 잡 시작 시점의 스냅샷이라 위 갱신이 반영돼 있지 않다.
+    //   게이트에 그대로 넘기면 jpCopyNaturalness 가 **영원히 나타나지 않는다.**
+    const gateAsset: GeneratedAssetRecord = { ...asset, detailInput: finalInput };
 
     const created = await store.createBlocks(
       assetId,
@@ -312,11 +388,39 @@ export async function runDetailJob(assetId: string): Promise<void> {
     const original = await readStoredFile(asset.originalImagePath);
     const gate = limit(IMAGE_CONCURRENCY);
 
+    // ── 마감 예산 배분 ──────────────────────────────────────────────
+    // 앞단(콜⑧·⑦·⑨)이 예상보다 끌었으면 여기서 알아채고 줄인다. 그냥 진행하면 함수가 300초에서
+    // 통째로 죽어 **모든 블록이** 스테일 가드로 실패한다 — 사진 몇 장을 포기하는 것보다 나쁘다.
+    const budget = fitImageBudget(
+      created
+        .filter((r) => (r.renderKind as RenderKind) !== 'text')
+        .map((r) => ({
+          blockId: r.blockType as BlockType,
+          priority: imagePriority(r.blockType as BlockType, input.productCategory, templateId),
+          seq: r.seq,
+        })),
+      deadline - Date.now(),
+      IMAGE_CONCURRENCY,
+      IMAGE_TIMEOUT_MS,
+    );
+    const budgetDropReason = new Map(budget.drop.map((d) => [d.blockId, d.reason]));
+    logger.info('이미지 예산 배분', {
+      assetId,
+      keep: budget.keep.length,
+      drop: budget.drop.length,
+      waves: budget.waves,
+      perImageTimeoutMs: budget.perImageTimeoutMs,
+      remainingMs: deadline - Date.now(),
+    });
+
+    const bandBySeq = new Map(rp.layout.map((b) => [b.seq, b]));
+
     const rendered = await Promise.all(
       created.map(async (row) => {
         const slots = row.slots;
         const kind = row.renderKind as RenderKind;
         const blockId = row.blockType as BlockType;
+        const band = bandBySeq.get(row.seq);
         await store.updateBlock(row.id, { status: 'generating' });
         try {
           let visual: Buffer | undefined;
@@ -325,8 +429,22 @@ export async function runDetailJob(assetId: string): Promise<void> {
           /** 배경컷 없이 텍스트만으로 만든 경우의 사유(화면에 그대로 노출) */
           let degraded: string | null = null;
 
-          if (kind !== 'text') {
-            const prompt = buildBlockPrompt(blockId, slots, input.productCategory, copy.isKoreanDetailInput, note);
+          /** 카피를 앉힐 실측 여백. 배경컷이 생겼을 때만 잰다 */
+          let placement: CopyPlacement | undefined;
+
+          const budgetDrop = budgetDropReason.get(blockId);
+          if (kind !== 'text' && budgetDrop) {
+            // ai-visual 은 이미지가 곧 내용이라 배경 없이 남길 게 없다 — 실패로 기록해
+            // 사용자가 그 블록만 다시 만들게 한다(생성 실패 경로와 같은 처리).
+            if (kind === 'ai-visual') throw new Error(budgetDrop);
+            degraded = budgetDrop;
+            logger.warn('이미지 예산 초과 — 텍스트 전용으로 강등', { assetId, blockType: row.blockType });
+          } else if (kind !== 'text') {
+            const prompt = buildBlockPrompt(
+              blockId,
+              slots,
+              promptContextOf(rp, input, copy.isKoreanDetailInput, note),
+            );
             promptUsed = prompt;
             // 제품이 등장하는 블록만 원본을 편집 모드로 넘긴다(라벨 보존). 목록은 팩이 소유한다
             const usesProduct = usesProductSource(blockId);
@@ -338,10 +456,15 @@ export async function runDetailJob(assetId: string): Promise<void> {
                   blockNameKo: getBlock(blockId).nameKo,
                   source: usesProduct ? original?.buf : undefined,
                   sourceMediaType: usesProduct ? original?.contentType : undefined,
+                  timeoutMs: budget.perImageTimeoutMs,
                 }),
               );
               visual = gen.buf;
               visualPath = await persistVisual(gen.buf);
+              // 생성된 사진을 실제로 재서 제품이 없는 여백을 찾는다(§4b).
+              // 위치를 고정하지 않는 게 핵심 — 하단 고정도 제품이 하단인 컷에서 그대로 가린다.
+              placement = await analyzeSafeArea(gen.buf);
+              logger.info('카피 배치 실측', { assetId, blockType: row.blockType, reason: placement.reason });
             } catch (err) {
               const message = err instanceof BlockVisualError ? err.userMessage : String((err as Error)?.message ?? err);
               // ai-visual 은 이미지가 곧 내용이라 남길 게 없다 — 여기서 던져 아래 catch 가 failed 로 기록한다.
@@ -358,21 +481,32 @@ export async function runDetailJob(assetId: string): Promise<void> {
             }
           }
 
-          const content = blockContent(blockId, slots, {
-            brandName: asset.brandNameSnapshot,
-            hasBackground: Boolean(visual),
-          });
+          const content = blockContent(
+            blockId,
+            slots,
+            renderContextOf({
+              band,
+              theme: rp.theme,
+              templateId,
+              brandName: asset.brandNameSnapshot,
+              hasBackground: Boolean(visual),
+              placement,
+            }),
+          );
           const out = await renderBlock({
             content,
             background: visual,
             backgroundMediaType: 'image/png',
-            scrimOpacity: visual ? 0.12 : undefined,
+            placement,
+            visualHeight: visualHeightOf(band),
           });
           const imagePath = await persistBlockImage(out.png, kind);
+          // 여백을 못 찾아 강스크림으로 간 경우는 사용자가 알아야 한다(조용히 가리지 않는다)
+          const placementNote = placement && placement.confidence === 0 ? placement.reason : null;
           await store.updateBlock(row.id, {
             status: 'done',
             // 강등된 블록은 done 이지만 사유를 남긴다 — 화면이 "배경컷 없이 생성됨"으로 구분해 보여준다
-            error: degraded,
+            error: degraded ?? placementNote,
             imagePath,
             visualPath,
             promptUsed,
@@ -419,7 +553,7 @@ export async function runDetailJob(assetId: string): Promise<void> {
       stage: null,
       imagePath: masterPath,
       slicePaths,
-      gateResult: detailGateResult(asset, plan, footnote, composed.truncated, dropped, degradedNames, footnoteBlockMissing),
+      gateResult: detailGateResult(gateAsset, plan, footnote, composed.truncated, dropped, degradedNames, footnoteBlockMissing),
     });
 
     logger.info('상세페이지 잡 완료', {
@@ -490,6 +624,11 @@ export async function regenerateBlock(
   const kind = row.renderKind as RenderKind;
   await store.updateBlock(blockId, { status: 'generating' });
 
+  // 시퀀스·리듬·테마를 **최초 생성과 같은 함수로 다시 접는다.** 그래야 이 블록만 다시 만들어도
+  // 톤·높이·색이 페이지의 나머지와 어긋나지 않는다(§2-6). 테마는 자산에 스냅샷된 값을 읽는다.
+  const rp = buildRenderPlan(input, asset.platform as Platform, asset.styleCategory as TemplateId);
+  const band = rp.layout.find((b) => b.seq === row.seq) ?? rp.layout.find((b) => b.blockId === blockType);
+
   try {
     let visualBuf: Buffer | undefined;
     let visualMediaType = 'image/png';
@@ -512,7 +651,7 @@ export async function regenerateBlock(
         });
         artNote = t.artDirectionEn;
       }
-      const prompt = buildBlockPrompt(blockType, row.slots, input.productCategory, true, artNote);
+      const prompt = buildBlockPrompt(blockType, row.slots, promptContextOf(rp, input, true, artNote));
       promptUsed = prompt;
       const usesProduct = usesProductSource(blockType);
       const gen = await generateBlockVisual({
@@ -533,15 +672,27 @@ export async function regenerateBlock(
       if (f) visualMediaType = f.contentType;
     }
 
-    const content = blockContent(blockType, row.slots, {
-      brandName: asset.brandNameSnapshot,
-      hasBackground: Boolean(visualBuf),
-    });
+    // 배경컷을 재사용하든 새로 만들든 **그 이미지**를 재서 여백을 찾는다 — 카피만 바뀌어도
+    // 글자 길이가 달라지므로 배치를 그때그때 다시 정하는 게 맞다.
+    const placement = visualBuf ? await analyzeSafeArea(visualBuf) : undefined;
+    const content = blockContent(
+      blockType,
+      row.slots,
+      renderContextOf({
+        band,
+        theme: rp.theme,
+        templateId: asset.styleCategory as TemplateId,
+        brandName: asset.brandNameSnapshot,
+        hasBackground: Boolean(visualBuf),
+        placement,
+      }),
+    );
     const out = await renderBlock({
       content,
       background: visualBuf,
       backgroundMediaType: visualMediaType,
-      scrimOpacity: visualBuf ? 0.12 : undefined,
+      placement,
+      visualHeight: visualHeightOf(band),
     });
     const imagePath = await persistBlockImage(out.png, kind);
 

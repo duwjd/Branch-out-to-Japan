@@ -206,7 +206,7 @@ export function JobPanel({ jobs }: { jobs: DashboardJob[] }) {
           aria-expanded={!collapsed}
           aria-label={collapsed ? '진행 패널 펼치기' : '진행 패널 접기'}
           onClick={() => setCollapsed((v) => !v)}
-          className="inline-flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-[7px] text-[#70737c] transition-colors hover:bg-n-100"
+          className="inline-flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-[7px] text-ink-mute transition-colors hover:bg-n-100"
         >
           {collapsed ? <IconChevronUp size={13} /> : <IconChevronDown size={13} />}
         </button>
@@ -216,7 +216,7 @@ export function JobPanel({ jobs }: { jobs: DashboardJob[] }) {
           {tracked.map((job) =>
             job.state === 'running' ? (
               <div key={job.id} className="flex items-center gap-[11px] px-3.5 py-3">
-                <span aria-hidden className="relative h-10 w-10 flex-none overflow-hidden rounded-[9px] bg-linear-180 from-[#ecedf0] to-[#e2e4e9]">
+                <span aria-hidden className="relative h-10 w-10 flex-none overflow-hidden rounded-[9px] bg-linear-180 from-n-150 to-n-200">
                   <span className="absolute inset-0 bg-[linear-gradient(100deg,transparent_20%,rgba(255,255,255,0.75)_50%,transparent_80%)] bg-size-[300px_100%] bg-no-repeat animate-shimmer" />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -266,7 +266,7 @@ export function JobPanel({ jobs }: { jobs: DashboardJob[] }) {
                         ? `/app/studio/detail/${job.id}`
                         : `/app/studio/thumbnail/${job.id}`
                   }
-                  className="inline-flex h-[30px] flex-none items-center rounded-lg bg-coral px-[11px] text-xs font-bold text-white no-underline transition-colors hover:bg-coral-strong"
+                  className="inline-flex h-[30px] flex-none items-center rounded-lg bg-coral px-[11px] text-xs font-bold text-white no-underline transition-colors hover:bg-coral-hover"
                 >
                   보러 가기 →
                 </Link>

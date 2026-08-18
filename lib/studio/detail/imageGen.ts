@@ -23,13 +23,15 @@ const FALLBACK_SIZE = '1024x1024';
  * 그 잡의 **모든** 블록이 스테일 가드로 죽는다 — 한 블록만 포기하는 게 낫다.
  * 실측 40~90초라 120초면 정상 호출을 자르지 않는다.
  */
-const IMAGE_TIMEOUT_MS = 120_000;
+export const IMAGE_TIMEOUT_MS = 120_000;
 
 /**
  * SDK 자동 재시도 횟수(429·5xx·연결 오류 대상, 지수 백오프).
  * 2를 넘기지 않는 이유: 재시도 1회가 최대 120초라 300초 예산을 쉽게 넘긴다.
- * 그래서 여기서 못 살린 실패는 **잡을 죽이지 않고 블록을 강등**하고(detailJob),
+ * 여기서 못 살린 실패는 **잡을 죽이지 않고 블록을 강등**하고(detailJob),
  * 사용자가 결과 화면에서 그 블록만 다시 만들게 한다.
+ * 동시성이 6으로 올라가면서(2026-08-18) 429 확률이 올랐지만, 이 백오프와 강등 경로가
+ * 그대로 봉쇄 장치가 되므로 신규 코드는 필요 없다 — 한 장이 죽어도 잡은 살아 있다.
  */
 const IMAGE_MAX_RETRIES = 2;
 
@@ -156,6 +158,11 @@ export interface GenerateBlockVisualOptions {
   /** 원본 제품컷 — 제품이 등장하는 블록에만 넘긴다(라벨 보존) */
   source?: Buffer;
   sourceMediaType?: string;
+  /**
+   * 이 호출 1건의 상한(ms). 잡의 남은 시간이 IMAGE_TIMEOUT_MS 보다 짧을 때 budget.ts 가 넘긴다.
+   * 생략하면 클라이언트 기본값(IMAGE_TIMEOUT_MS)을 쓴다.
+   */
+  timeoutMs?: number;
 }
 
 export interface GeneratedVisual {
@@ -202,10 +209,13 @@ export async function generateBlockVisual(opts: GenerateBlockVisualOptions): Pro
     params.image = await toFile(opts.source, `source.${mediaType === 'image/png' ? 'png' : 'jpg'}`, { type: mediaType });
   }
 
+  // 요청별 timeout — 클라이언트는 프로세스당 1개라 기본값을 바꿀 수 없다.
+  // 잡의 남은 예산이 짧으면 이 값이 내려와, 한 콜이 매달려 예산을 통째로 먹는 일을 막는다.
+  const reqOpts = opts.timeoutMs ? { timeout: opts.timeoutMs } : undefined;
   const call = async (): Promise<OpenAI.ImagesResponse> =>
     (useEdit
-      ? await getClient().images.edit(params as unknown as OpenAI.Images.ImageEditParams)
-      : await getClient().images.generate(params as unknown as OpenAI.Images.ImageGenerateParams)) as OpenAI.ImagesResponse;
+      ? await getClient().images.edit(params as unknown as OpenAI.Images.ImageEditParams, reqOpts)
+      : await getClient().images.generate(params as unknown as OpenAI.Images.ImageGenerateParams, reqOpts)) as OpenAI.ImagesResponse;
 
   const label = opts.blockNameKo ?? opts.blockType;
   let res: OpenAI.ImagesResponse;

@@ -16,7 +16,7 @@ export default function AppError({ reset }: { error: Error; reset: () => void })
         <button
           type="button"
           onClick={reset}
-          className="mt-5 inline-flex h-10 cursor-pointer items-center rounded-[10px] bg-coral px-5 text-[13.5px] font-bold text-white transition-colors hover:bg-coral-strong"
+          className="mt-5 inline-flex h-10 cursor-pointer items-center rounded-[10px] bg-coral px-5 text-[13.5px] font-bold text-white transition-colors hover:bg-coral-hover"
         >
           다시 시도
         </button>

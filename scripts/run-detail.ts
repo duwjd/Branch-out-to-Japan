@@ -32,6 +32,14 @@ import { currentLlmMode } from '../lib/engine/llm/client';
 import { composeDetail } from '../lib/studio/detail/compose';
 import { IMAGE_CONCURRENCY, outputProfile, type BlockType } from '../lib/studio/detail/output';
 import { renderBlock } from '../lib/studio/detail/render';
+import {
+  buildRenderPlan,
+  promptContextOf,
+  renderContextOf,
+  visualHeightOf,
+} from '../lib/studio/detail/renderContext';
+import { analyzeSafeArea, type CopyPlacement } from '../lib/studio/detail/safeArea';
+import { toneSummary } from '../lib/studio/detail/rhythm';
 import { blockContent } from '../lib/studio/detail/templates';
 import type { Platform } from '../lib/studio/platform';
 
@@ -116,6 +124,9 @@ async function main() {
   mkdirSync(OUT_DIR, { recursive: true });
 
   const plan = planBlocks(input, args.platform, args.template);
+  // 밴드 리듬·테마도 잡 러너와 같은 함수로 확정한다 — 안 하면 프리뷰 카드와 산출물이 어긋난다
+  const rp = buildRenderPlan(input, args.platform, plan.templateId);
+  console.log(`밴드 리듬: ${toneSummary(rp.layout)} · accent ${rp.theme.accent}`);
   console.log(`템플릿 ${plan.templateId} · 블록 ${plan.blocks.length}개 · AI 블록 ${plan.aiBlockCount}개`);
   console.log('포함:', plan.blocks.map((b) => `${b.code} ${b.nameKo}`).join(' → '));
   if (plan.excluded.length) {
@@ -174,7 +185,7 @@ async function main() {
             return;
           }
           const i = plan.blocks.indexOf(b);
-          const prompt = buildBlockPrompt(b.blockId, slotsBySeq[i], input.productCategory, Boolean(productBuf));
+          const prompt = buildBlockPrompt(b.blockId, slotsBySeq[i], promptContextOf(rp, input, Boolean(productBuf)));
           const usesProduct = usesProductSource(b.blockId as BlockType);
           const gen = await generateBlockVisual({
             prompt,
@@ -196,8 +207,28 @@ async function main() {
   for (let i = 0; i < plan.blocks.length; i++) {
     const b = plan.blocks[i];
     const bg = visuals.get(b.blockId);
-    const content = blockContent(b.blockId, slotsBySeq[i], { brandName: args.brand, hasBackground: Boolean(bg) });
-    const out = await renderBlock({ content, background: bg, backgroundMediaType: 'image/png', scrimOpacity: bg ? 0.12 : undefined });
+    // 잡 러너와 같은 경로를 탄다 — 배경컷을 실제로 재서 제품이 없는 여백에 카피를 앉힌다
+    const band = rp.layout.find((x) => x.seq === b.seq);
+    const placement: CopyPlacement | undefined = bg ? await analyzeSafeArea(bg) : undefined;
+    const content = blockContent(
+      b.blockId,
+      slotsBySeq[i],
+      renderContextOf({
+        band,
+        theme: rp.theme,
+        templateId: rp.templateId,
+        brandName: args.brand,
+        hasBackground: Boolean(bg),
+        placement,
+      }),
+    );
+    const out = await renderBlock({
+      content,
+      background: bg,
+      backgroundMediaType: 'image/png',
+      placement,
+      visualHeight: visualHeightOf(band),
+    });
     rendered.push(out);
     writeFileSync(path.join(OUT_DIR, `block-${String(i).padStart(2, '0')}-${b.blockId}.png`), out.png);
   }

@@ -25,7 +25,7 @@ export function ReportCoverPreview({ score }: { score: number | null }) {
       <span className="absolute top-[62%] right-[40%] left-[8%] h-[5px] rounded-[3px] bg-n-150" />
       <span className="absolute top-[73%] right-[26%] left-[8%] h-[5px] rounded-[3px] bg-n-150" />
       <span className="absolute top-[84%] right-[52%] left-[8%] h-[5px] rounded-[3px] bg-n-150" />
-      <span className="absolute top-[12%] right-[8%] aspect-square w-[22%] rotate-45 rounded-full border-[3px] border-[#ffe2e2] border-t-coral" />
+      <span className="absolute top-[12%] right-[8%] aspect-square w-[22%] rotate-45 rounded-full border-[3px] border-coral/20 border-t-coral" />
     </span>
   );
 }

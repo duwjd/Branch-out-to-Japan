@@ -15,20 +15,20 @@ import { slideKeysFor } from '../types';
 
 /** design/DESIGN.md 코랄 시스템 — 로고색이 아니라 DS 토큰 */
 const T = {
-  primary: '#ff6464',
-  primaryStrong: '#d93636',
-  tint: '#fff8f8',
-  ink: '#202124',
-  body: '#414245',
-  mute: '#5f6165',
-  line: '#e4e7ec',
+  primary: '#ff6f61',
+  primaryStrong: '#c93f2e',
+  tint: '#fff1ee',
+  ink: '#182333',
+  body: '#3d4655',
+  mute: '#6e7686',
+  line: '#e9e7e3',
   canvas: '#ffffff',
-  error: '#b3271d',
-  errorBg: '#fdeceb',
-  warn: '#7a5200',
-  warnBg: '#fff6e5',
-  safe: '#036c4a',
-  safeBg: '#e6f7f0',
+  error: '#c13a3a',
+  errorBg: '#fbeded',
+  warn: '#8f6412',
+  warnBg: '#fdf3e4',
+  safe: '#26775b',
+  safeBg: '#e8f4f0',
 } as const;
 
 const GROUP_LABELS: Record<RubricGroup, string> = {
@@ -295,7 +295,7 @@ h2{font-size:clamp(20px,2.6vw,34px);font-weight:800;letter-spacing:-.02em;line-h
 .bars{margin-top:20px;display:flex;flex-direction:column;gap:9px}
 .bar{display:flex;align-items:center;gap:12px;font-size:12.5px}
 .bar .lb{width:112px;flex-shrink:0;font-weight:600}
-.bar .tr{flex:1;height:9px;background:#f2f3f5;border-radius:999px;overflow:hidden}
+.bar .tr{flex:1;height:9px;background:#f2f1ed;border-radius:999px;overflow:hidden}
 .bar .tr i{display:block;height:100%;background:${T.primary};border-radius:999px}
 .bar .pc{width:42px;text-align:right;font-variant-numeric:tabular-nums;color:${T.mute}}
 .top3{margin-top:8px;padding-left:18px;font-size:13px;color:${T.body};line-height:1.75}
@@ -311,7 +311,7 @@ h2{font-size:clamp(20px,2.6vw,34px);font-weight:800;letter-spacing:-.02em;line-h
 .quote p{font-size:14px;margin-top:7px;color:${T.ink}}
 .quote .alt{font-size:13px;color:${T.safe};background:${T.safeBg};border-radius:6px;padding:8px 10px;margin-top:8px}
 .t{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:12px}
-.t th{text-align:left;font-size:11px;color:${T.mute};font-weight:700;border-bottom:1px solid #cfd4dc;padding:7px 8px}
+.t th{text-align:left;font-size:11px;color:${T.mute};font-weight:700;border-bottom:1px solid #c9cdd4;padding:7px 8px}
 .t td{padding:8px;border-bottom:1px solid ${T.line};vertical-align:top;color:${T.body}}
 .t td.ok{color:${T.safe};font-weight:700}
 .t td.ng{color:${T.error};font-weight:700}
@@ -320,9 +320,9 @@ h2{font-size:clamp(20px,2.6vw,34px);font-weight:800;letter-spacing:-.02em;line-h
 .ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
 .ba>div{border-radius:10px;padding:14px}
 .ba .k{font-size:10.5px;font-weight:700;letter-spacing:.04em}
-.ba .be{background:#f6f6f6}
+.ba .be{background:#f4f2ee}
 .ba .be .k{color:${T.error}}
-.ba .be p{text-decoration:line-through;text-decoration-color:#b6bac1;color:${T.mute};font-size:13.5px;margin-top:6px}
+.ba .be p{text-decoration:line-through;text-decoration-color:#78818f;color:${T.mute};font-size:13.5px;margin-top:6px}
 .ba .af{background:${T.tint}}
 .ba .af .k{color:${T.safe}}
 .ba .af p{font-size:14px;font-weight:600;margin-top:6px}

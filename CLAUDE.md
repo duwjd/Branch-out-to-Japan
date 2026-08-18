@@ -13,7 +13,10 @@
   - **`ClaimOps`는 서비스 카테고리가 아니다.** 주장 분류·근거 연결·위험 상태·대체 표현·변경 이유·규정 버전·승인 이력을 담당하는 **내부 진단 엔진**을 가리킬 때만 보조적으로 쓴다("ClaimOps 기반 진단 엔진" · "주장·근거 진단 체계"). "YOAKE는 ClaimOps 서비스다", "최종 상품은 ClaimOps다"라고 정의하지 않는다. 로고·서비스명 옆에 붙이지 않는다.
 - 로고 정본은 `design/brand/logo/` — **규칙은 `design/brand/logo/README.md`를 읽고 따른다**(변형·여백·최소 크기·금지 사항).
   - 코드에서는 SVG를 직접 import하지 말고 `components/brand/Logo.tsx`의 `YoakeLogo` · `YoakeMark`를 쓴다.
-  - 로고 색(잉크 `#182333`, 코랄 일출 그라디언트 `#FF6F61`→`#FF9B70`)은 **로고 전용 고정색**이다. 디자인 시스템 브랜드색은 그대로 스티비 coral `#ff6464`이고 CTA·칩·아이콘버튼은 계속 `#ff6464`를 쓴다 — 로고 색을 UI 토큰으로 승격하지 않는다.
+  - 로고 색과 UI 브랜드색은 **같다**(2026-08-18 전환, 근거 `docs/decisions/2026-08-18-일출코랄-DS전환.md`). 잉크 `#182333` = `--color-ink`, 일출 코랄 `#FF6F61` = `--color-coral`. 구 스티비 coral `#ff6464`·`#d93636`은 폐기 — 신규 산출물에 남아 있으면 교정한다.
+    - 예외: **일출 그라디언트**(`#FF6F61`→`#FF9B70`)는 로고 심볼 전용이다. UI 면에는 단색 `#FF6F61`만 쓴다.
+    - **면과 글자를 나눈다.** 면(버튼 배경·도트·아이콘)은 `coral`, 소형 텍스트·링크는 `coral-strong`(`#C93F2E`). 원색은 크림 위 2.6:1이라 글자색으로 쓰지 않는다. hover는 `coral-hover`, pressed는 `coral-pressed`.
+    - 디자인 시스템 정본은 `design/references/LP_Components.svg`, 실측 스펙은 `design/lp-components-spec.md`.
 
 ## 한 줄 정의
 **YOAKE** — 한국 뷰티 브랜드의 **카피와 근거를 진단**하고, 그 결과를 **일본 채널에 맞는 썸네일·상세페이지로 전환**하며, 이후 **현지 마케팅 회사·유통 채널 연결**까지 확장하는 **K-Beauty Japan Growth Studio**.

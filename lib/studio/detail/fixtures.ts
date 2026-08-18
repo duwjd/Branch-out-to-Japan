@@ -7,7 +7,7 @@
  */
 
 import type { BlockType } from './output';
-import type { ProductCategory } from './blockPack';
+import { getBlock, shotGrammarFor, type ProductCategory } from './blockPack';
 
 /** 카테고리별 데모 카피 축 — 무드가 상품 종류에 따라 달라진다는 요구를 목 모드에서도 지킨다. */
 const AXIS: Record<ProductCategory, { concern: string; benefit: string; scene: string; texture: string }> = {
@@ -18,6 +18,17 @@ const AXIS: Record<ProductCategory, { concern: string; benefit: string; scene: s
   haircare: { concern: '髪のパサつき', benefit: '指通りのよい髪へ', scene: 'バスタイム', texture: 'とろけるトリートメント' },
   etc: { concern: '肌の揺らぎ', benefit: '心地よい使用感', scene: '毎日のケア', texture: '軽やかなテクスチャー' },
 };
+
+/**
+ * 목 모드의 연출 슬롯은 **팩 `shotGrammar` 에서 읽는다**(v1.3.0).
+ * 여기 하드코딩하면 목과 실경로가 서로 다른 연출을 보게 되고, 그러면
+ * `detail:cli` · `detail:previews` 로 아무리 눈으로 확인해도 실제 품질을 알 수 없다.
+ * @param blockId 블록 식별자 — 자기 shotType 으로 문법을 조회한다
+ * @param category 상품 카테고리
+ */
+function mockStaging(blockId: BlockType, category: ProductCategory): string {
+  return shotGrammarFor(category, getBlock(blockId).shotType);
+}
 
 /**
  * 블록별 LLM 슬롯 목 값. source:'llm' 슬롯만 채운다 —
@@ -33,14 +44,14 @@ export function mockLlmSlots(blockId: BlockType, category: ProductCategory, bran
         catchCopyJa: `${a.concern}が気になる方へ`,
         subCopyJa: `${a.benefit}。毎日続けやすい設計にしました。`,
         heroPlacement: 'right',
-        backgroundVisual: 'a calm studio backdrop with soft gradient and gentle contact shadow',
+        backgroundVisual: mockStaging('hero-product', category),
       };
     case 'problem-hook':
       return {
         hookQuestionJa: 'こんなお悩みありませんか？',
         painPointsJa: [`${a.concern}が続いている`, '朝のメイクのりが安定しない', '季節の変わり目に揺らぎやすい'].join('\n'),
         empathyCopyJa: 'その原因は、ひとつではないかもしれません。',
-        sceneDescription: 'a quiet morning bathroom counter with soft daylight',
+        sceneDescription: mockStaging('problem-hook', category),
         copyZone: 'left',
       };
     case 'cause-structure':
@@ -57,7 +68,7 @@ export function mockLlmSlots(blockId: BlockType, category: ProductCategory, bran
       return {
         leftLabelJa: 'うるおいが届いていない肌',
         rightLabelJa: 'うるおいが届いている肌',
-        diagramDescription: 'two simplified skin cross-sections side by side',
+        diagramDescription: mockStaging('before-after-diagram', category),
       };
     case 'mechanism-explainer':
       return {
@@ -86,7 +97,7 @@ export function mockLlmSlots(blockId: BlockType, category: ProductCategory, bran
       return {
         scenesJa: a.scene.split('・').join('\n'),
         sceneNoteJa: '汗をかいたあとはこまめに塗り直してください。',
-        sceneDescription: 'bright outdoor lifestyle scene with natural light',
+        sceneDescription: mockStaging('usage-scene', category),
       };
     case 'free-from-badges':
       return { headlineJa: '肌へのやさしさを考えた処方' };
@@ -95,7 +106,7 @@ export function mockLlmSlots(blockId: BlockType, category: ProductCategory, bran
     case 'personal-color-look':
       return {
         looksJa: ['01|ブルベ冬におすすめ|クリアで澄んだ印象に', '02|イエベ秋におすすめ|やわらかく落ち着いた印象に'].join('\n'),
-        lookDescription: 'editorial beauty look using the supplied brand model cut',
+        lookDescription: mockStaging('personal-color-look', category),
       };
     case 'lineup-compare-chart':
       return { axesJa: ['うるおい', '軽さ', '香り'].join('\n') };
@@ -105,13 +116,13 @@ export function mockLlmSlots(blockId: BlockType, category: ProductCategory, bran
       return {
         conceptTitleJa: '毎日の肌に、無理のない選択を',
         storyBodyJa: `${brandName}は、続けられることを設計の起点に置いています。`,
-        storyVisual: 'cinematic still life with restrained palette and soft light',
+        storyVisual: mockStaging('brand-story', category),
         copyZone: 'left',
       };
     case 'texture-shot':
-      return { textureCopyJa: a.texture, textureDescription: `macro shot of ${a.texture}` };
+      return { textureCopyJa: a.texture, textureDescription: mockStaging('texture-shot', category) };
     case 'swatch-demo':
-      return { swatchDescription: 'orderly cosmetic swatches on a clean surface' };
+      return { swatchDescription: mockStaging('swatch-demo', category) };
     default:
       return {};
   }

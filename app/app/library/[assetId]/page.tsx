@@ -73,7 +73,7 @@ export default async function AssetDetailPage({ params }: { params: Promise<{ as
                     <span className="font-semibold text-ink-faint">/100</span>
                   </span>
                 ) : (
-                  <span className="text-sm font-bold text-[#9ca0a8]">종합 점수 없음 · brand 모드</span>
+                  <span className="text-sm font-bold text-ink-faint">종합 점수 없음 · brand 모드</span>
                 )}
               </p>
             </div>

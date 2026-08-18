@@ -210,13 +210,21 @@ export function ReportSummaryWidget({
   );
 }
 
-/** MAIN-12 · 다가오는 이벤트 위젯(전폭 스트립) — 조회 전용. 예약·발행·알림 없음(금지 포지션) */
-export function UpcomingEventsWidget({ events }: { events: UpcomingEvent[] }) {
+/**
+ * MAIN-12 · 다가오는 이벤트 위젯 — 조회 전용. 예약·발행·알림 없음(금지 포지션).
+ *
+ * `banner` 슬롯: 같은 카드 위쪽에 다음 단계 밴드(MAIN-03)를 얹는다. 2026-08-18 홈 개편에서
+ * 메가와리 D-day 배너와 시즌 목록이 화면 양 끝으로 떨어져 있어 같은 시즌 이야기가 두 번 나오는
+ * 것처럼 읽혔다 — 한 카드로 붙여 "지금 할 일 → 앞으로의 시즌" 한 덩어리로 읽히게 한다.
+ */
+export function UpcomingEventsWidget({ events, banner }: { events: UpcomingEvent[]; banner?: React.ReactNode }) {
   // 가장 임박한 카운트다운 1건만 코랄 강조(진행 중은 amber라 대상 아님 — MAIN-12)
   const nearId = events.find((e) => !e.inProgress)?.id;
 
   return (
-    <section className={cardClass('p-6')} aria-labelledby="w12t">
+    <div className={cardClass('overflow-hidden')}>
+      {banner && <div className="border-b border-coral/25 bg-coral-tint/55 p-6 max-sm:p-5">{banner}</div>}
+      <section className="p-6 max-sm:p-5" aria-labelledby="w12t">
       <div className="flex flex-wrap items-baseline gap-2">
         <h2 id="w12t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
           다가오는 이벤트
@@ -250,6 +258,7 @@ export function UpcomingEventsWidget({ events }: { events: UpcomingEvent[] }) {
         })}
       </ul>
       <p className="mt-3 text-[11.5px] text-ink-faint">일정 예약 도구가 아니에요. 지금 무엇을 준비할지 보는 캘린더입니다.</p>
-    </section>
+      </section>
+    </div>
   );
 }
