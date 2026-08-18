@@ -21,9 +21,8 @@ import {
   inputClass,
 } from '@/components/ui/primitives';
 import { IconChevronDown, IconChevronUp, IconUpload } from '@/components/ui/icons';
-import { LoginGateModal } from '@/components/auth/LoginGateModal';
-import { useLoginGate } from '@/components/auth/useLoginGate';
 import { bytesUrl } from '@/lib/files/downloadUrl';
+import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 
 interface StyleCard {
   id: string;
@@ -75,7 +74,6 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
   const [isDragOver, setIsDragOver] = useState(false);
   const [platform, setPlatform] = useState<Platform>('unset');
   const [styleId, setStyleId] = useState<string | null>(null);
-  const [proofOpen, setProofOpen] = useState(false);
   const [proof, setProof] = useState({ rankTitle: '', genre: '', aggregationDate: '' });
   // F 모델컷(HOME-02b) — 브랜드 종속. G 프로모 입력(HOME-05b) — 브랜드 무관
   const [modelFile, setModelFile] = useState<File | null>(null);
@@ -99,7 +97,6 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [meta, setMeta] = useState<StudioMeta | null>(null);
-  const { gateOpen, openGate, closeGate, onAuthedGate } = useLoginGate();
 
   /** 파일 채택 — 포맷·용량 검증(HOME-02c) 후 미리보기 치환 */
   const acceptFile = useCallback((f: File) => {
@@ -185,31 +182,6 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 브랜드 전환 시 제품컷(브랜드 종속) 초기화 — 플랫폼·템플릿·실적은 유지(MAIN-01b″)
-  useEffect(() => {
-    const onSwitch = () => {
-      setFile(null);
-      setPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
-      setFileError(null);
-      // 모델컷도 브랜드 종속 — 초기화(프로모·실적·플랫폼·템플릿은 유지)
-      setModelFile(null);
-      setModelPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
-      setModelConsent(false);
-      setModelFileError(null);
-      // 제품 자산은 브랜드별 — 새 브랜드 것으로 다시 불러오고 선택 해제
-      setPickedFileId(null);
-      void loadProducts();
-    };
-    window.addEventListener('yoake:brand-switched', onSwitch);
-    return () => window.removeEventListener('yoake:brand-switched', onSwitch);
-  }, [loadProducts]);
-
   // 진입 시 브랜드 제품 자산 로드(HOME-02 피커 소스)
   useEffect(() => {
     void loadProducts();
@@ -294,7 +266,7 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
       const res = await fetch('/api/studio/thumbnail', { method: 'POST', body: form });
       if (res.status === 401) {
         setSubmitting(false);
-        openGate(handleSubmit); // handleSubmit은 파라미터 없이 상태에서 재구성 — 로그인 후 자동 재개
+        router.replace(EXPIRED_LOGIN_PATH); // 세션 만료 — 서비스 안에는 로그인 동선이 없다
         return;
       }
       if (!res.ok) throw new Error((await res.json()).error ?? `HTTP ${res.status}`);
@@ -309,59 +281,36 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
   return (
     <main className="animate-fade-up">
       <div className="mx-auto max-w-[768px] px-8 pb-32 max-sm:px-5">
-        {/* 페이지 헤더(HOME-01a) */}
+        {/* 페이지 헤더(HOME-01a) — 스튜디오 메뉴에서 들어온다 */}
         <header>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">YOAKE 마케팅 스튜디오</p>
+          <Link
+            href="/app/studio"
+            className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-ink-mute no-underline transition-colors hover:text-ink"
+          >
+            <span aria-hidden>←</span> 마케팅 스튜디오
+          </Link>
+          <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
             <div className="flex gap-1.5">
               {meta?.storeKind === 'file' && <StatusBadge tone="off">로컬 저장(dev)</StatusBadge>}
               {meta && (meta.llmMode === 'mock' || meta.imageMode === 'mock') && <StatusBadge tone="off">목 모드(dev)</StatusBadge>}
             </div>
           </div>
           <h1 className="mt-2.5 text-[30px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">
-            일본향 썸네일 스튜디오
+            썸네일 만들기
           </h1>
           <p className="mt-3.5 text-[15px] leading-[1.7] text-ink-body [text-wrap:pretty]">
-            한국 썸네일을 그대로 옮기지 않습니다. 일본 고객이 신뢰하는 썸네일 문법 8종으로, 카피의 의도부터 재설계합니다.
+            한국 썸네일을 그대로 옮기지 않습니다. 일본 고객이 신뢰하는 썸네일 문법 8종으로 카피 의도부터 재설계합니다.
           </p>
         </header>
-
-        {/* 모듈 탭(HOME-01b) */}
-        <div role="tablist" aria-label="스튜디오 모듈" className="mt-7 flex gap-0.5 border-b border-hairline">
-          <button
-            type="button"
-            role="tab"
-            aria-selected="true"
-            className="-mb-px border-b-2 border-coral px-3.5 py-2.5 text-sm font-bold text-coral-strong"
-          >
-            썸네일
-          </button>
-          <Link
-            href="/app/studio/detail"
-            role="tab"
-            aria-selected="false"
-            className="px-3.5 py-2.5 text-sm font-medium text-ink-mute hover:text-ink"
-          >
-            상세페이지
-          </Link>
-          <span
-            role="tab"
-            aria-selected="false"
-            aria-disabled="true"
-            className="flex cursor-default items-center gap-1.5 px-3.5 py-2.5 text-sm font-medium text-ink-faint"
-          >
-            인스타 피드 <StatusBadge tone="off">준비 중</StatusBadge>
-          </span>
-        </div>
 
         {/* 원본 이미지(HOME-02) */}
         <SectionCard
           step={1}
-          title="원본 이미지"
+          title="이미지 업로드"
           pill="필수 · 1장"
           pillTone="required"
           className="mt-8"
-          desc="한국 썸네일 또는 제품 단독컷 1장을 올려 주세요. 제품이 선명하고 가려지지 않아야 하며, 카피·뱃지가 있는 프로모 썸네일이어도 됩니다."
+          desc="한국 썸네일이나 제품 단독컷 1장을 올려 주세요. 제품이 선명하고 가려지지 않으면 됩니다. 카피·배지가 얹힌 프로모 썸네일이어도 괜찮아요."
         >
           <input
             ref={fileInputRef}
@@ -445,12 +394,13 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                 <img src={previewUrl} alt="업로드한 원본 이미지 미리보기" className="h-full w-full object-cover" />
               </div>
               <div className="min-w-[220px] flex-1">
-                <p className="text-[13.5px] font-bold break-all text-ink">
+                <p className="text-[12px] font-bold text-ink-mute">업로드한 이미지</p>
+                <p className="mt-1 text-[13.5px] font-bold break-all text-ink">
                   {file?.name}{' '}
                   <span className="font-medium text-ink-mute">{file ? `· ${(file.size / 1024 / 1024).toFixed(1)}MB` : ''}</span>
                 </p>
                 <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-                  프로모 썸네일이면 기존 한국어 오버레이(카피·뱃지·테두리)는 걷어내고, 일본 문법으로 재설계합니다.
+                  프로모 썸네일이면 기존 한국어 오버레이(카피·뱃지·테두리)는 걷어내고 일본 문법으로 재설계합니다.
                 </p>
                 <button type="button" onClick={() => fileInputRef.current?.click()} className={buttonClass('secondary', 'sm', 'mt-3')}>
                   이미지 교체
@@ -479,7 +429,7 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
             >
               <IconUpload size={34} className="text-ink-faint" />
               <p className="text-[14.5px] font-semibold text-ink-body">
-                이미지를 끌어다 놓거나 <span className="text-coral-strong">클릭해서 선택</span>
+                이미지를 끌어다 놓거나 <span className="text-coral-strong">클릭하여 업로드</span>
               </p>
               <p className="text-[12.5px] leading-relaxed text-ink-mute">JPG · PNG · WebP / 10MB 이하 / 권장 1024px 이상 정방형</p>
             </button>
@@ -491,35 +441,27 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
           )}
         </SectionCard>
 
-        {/* 타깃 플랫폼(HOME-03) */}
-        <SectionCard
-          step={2}
-          title="타깃 플랫폼"
-          pill="선택"
-          pillTone="optional"
-          className="mt-5"
-          desc="올릴 플랫폼을 고르면 그 플랫폼 문법에 맞는 템플릿을 추천해 드립니다. 규정에 어긋나는 조합은 표시만 하고 선택은 막지 않습니다."
-        >
-          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="타깃 플랫폼">
-            {PLATFORMS.map((p) => (
-              <button key={p} type="button" role="radio" aria-checked={platform === p} onClick={() => setPlatform(p)} className={chipClass(platform === p)}>
-                {PLATFORM_LABELS[p]}
-              </button>
-            ))}
-          </div>
-        </SectionCard>
-
         {/* 템플릿 선택(HOME-04) */}
         <SectionCard
-          step={3}
+          step={2}
           title="템플릿"
           pill="필수 · 1개"
           pillTone="required"
           className="mt-5"
-          desc="라쿠텐·아마존JP·Qoo10 실측 썸네일 120장에서 역설계한 일본 썸네일 문법 8종입니다. 카드 이미지는 각 문법의 실측 참고 컷이며, 생성 결과가 아닙니다."
+          desc="라쿠텐·아마존JP·Qoo10 실측 썸네일 120장에서 역설계한 일본 썸네일 문법 8종입니다. 올릴 플랫폼을 먼저 고르면 그 플랫폼 문법에 맞는 템플릿부터 보여 드립니다. 카드 이미지는 실측 참고 컷이며 생성 결과가 아닙니다."
         >
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" role="radiogroup" aria-label="템플릿 8종">
-            {styles.map((s) => {
+          {/* 플랫폼 필터 — 고른 플랫폼의 문법에 맞는 템플릿을 앞세운다(HOME-03) */}
+          <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="타깃 플랫폼">
+            {PLATFORMS.map((p) => (
+              <button key={p} type="button" role="radio" aria-checked={platform === p} onClick={() => setPlatform(p)} className={chipClass(platform === p)}>
+                {/* 필터 줄에서만 '전체'로 읽는다 — 저장값(unset)의 표시 라벨('미정')은 결과 화면 몫이다 */}
+                {p === 'unset' ? '전체' : PLATFORM_LABELS[p]}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4" role="radiogroup" aria-label="템플릿 8종">
+            {styles.map((s, styleIdx) => {
               const isRecommended = recommended.includes(s.id);
               const isDimmed = platform !== 'unset' && !isRecommended;
               const isSelected = styleId === s.id;
@@ -529,11 +471,10 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                   type="button"
                   role="radio"
                   aria-checked={isSelected}
-                  onClick={() => {
-                    setStyleId(s.id);
-                    if (s.needsProof) setProofOpen(true); // 수상 스택형 → 실적 영역 자동 펼침(HOME-04a)
-                  }}
-                  className={`relative flex flex-col rounded-xl border p-2.5 text-left transition-colors ${
+                  onClick={() => setStyleId(s.id)}
+                  /* 카드가 순서대로 들어온다 — 마운트 1회뿐이라 선택할 때 다시 뜨지 않는다 */
+                  style={{ animationDelay: `${styleIdx * 40}ms` }}
+                  className={`relative flex animate-tile-in flex-col rounded-xl border p-2.5 text-left transition-colors ${
                     isSelected ? 'border-[1.5px] border-coral bg-coral-tint' : 'border-card-border bg-canvas hover:border-coral'
                   } ${isDimmed ? 'opacity-60 grayscale-[.4] hover:opacity-100 hover:grayscale-0 focus-visible:opacity-100 focus-visible:grayscale-0' : ''}`}
                 >
@@ -587,80 +528,52 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
           )}
         </SectionCard>
 
-        {/* 모델컷(HOME-02b) — 모델+카피형(F) 선택 시만. 필수 1장 + 사용 권한 동의 */}
-        {selected?.needsModel && (
-          <SectionCard
-            title="모델컷"
-            pill="필수 · 1장 + 동의"
-            pillTone="required"
-            className="mt-5"
-            desc="브랜드가 보유·촬영한 모델컷을 올려 주세요. 업로드한 모델컷을 그대로 쓰며, 얼굴을 새로 만들지 않습니다."
-          >
-            <input
-              ref={modelInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="sr-only"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) acceptModelFile(f);
-              }}
-            />
-            {modelPreviewUrl ? (
-              <div className="flex flex-wrap items-start gap-4">
-                <div className="h-[160px] w-[160px] flex-none overflow-hidden rounded-xl border border-card-border bg-canvas">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={modelPreviewUrl} alt="업로드한 모델컷 미리보기" className="h-full w-full object-cover" />
-                </div>
-                <div className="min-w-[220px] flex-1">
-                  <p className="text-[13.5px] font-bold break-all text-ink">
-                    {modelFile?.name}{' '}
-                    <span className="font-medium text-ink-mute">
-                      {modelFile ? `· ${(modelFile.size / 1024 / 1024).toFixed(1)}MB` : ''}
-                    </span>
-                  </p>
-                  <button type="button" onClick={() => modelInputRef.current?.click()} className={buttonClass('secondary', 'sm', 'mt-3')}>
-                    모델컷 교체
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                aria-label="모델컷 업로드"
-                onClick={() => modelInputRef.current?.click()}
-                className="flex min-h-[160px] w-full flex-col items-center justify-center gap-2 rounded-[14px] border-[1.5px] border-dashed border-input-border bg-n-50 p-6 text-center transition-colors hover:border-coral hover:bg-coral-tint"
-              >
-                <IconUpload size={28} className="text-ink-faint" />
-                <p className="text-[13.5px] font-semibold text-ink-body">
-                  모델컷을 <span className="text-coral-strong">클릭해서 선택</span>
-                </p>
-                <p className="text-[12px] text-ink-mute">JPG · PNG · WebP / 10MB 이하</p>
-              </button>
-            )}
-            {modelFileError && (
-              <p role="alert" className="mt-2.5 text-[12.5px] font-semibold text-danger-text">
-                {modelFileError}
-              </p>
-            )}
-            <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-[10px] border border-input-border bg-n-50 p-3.5">
-              <input
-                type="checkbox"
-                checked={modelConsent}
-                onChange={(e) => setModelConsent(e.target.checked)}
-                className="mt-0.5 h-4 w-4 flex-none accent-coral"
-              />
-              <span className="text-[12.5px] leading-relaxed text-ink-body">
-                <b className="font-bold text-ink">모델 사용 권한에 동의합니다.</b> 업로드한 모델컷을 이 브랜드의 썸네일 생성에 쓸 권한이 있습니다. 미체크 시 생성할 수 없습니다.
-              </span>
-            </label>
-          </SectionCard>
-        )}
+        {/* 랭킹·수상 실적(HOME-05) — Figma 순서상 템플릿 다음. 근거가 있어야 배지가 붙는다 */}
+        <SectionCard
+          step={3}
+          title="랭킹·수상 실적"
+          pill={selected?.needsProof ? '필수 — 수상 실적 스택형' : '있으면 입력'}
+          pillTone={selected?.needsProof ? 'required' : 'optional'}
+          className="mt-5"
+          desc="근거가 없으면 배지는 만들지 않습니다. 이게 기본값이에요. 실적명·부문·집계일이 모두 있어야 배지 한 개가 들어갑니다."
+        >
+          <div className="grid gap-3.5 sm:grid-cols-3">
+            {(
+              [
+                ['rankTitle', '실적명', '楽天ランキング1位'],
+                ['genre', '부문·장르', '日焼け止め'],
+                ['aggregationDate', '집계일·기간', '2026/6/14更新 [集計日6/13]'],
+              ] as const
+            ).map(([key, label, placeholder]) => (
+              <label key={key} className={fieldLabelClass}>
+                {label}
+                <input
+                  type="text"
+                  lang="ja"
+                  value={proof[key]}
+                  placeholder={placeholder}
+                  onChange={(e) => setProof((prev) => ({ ...prev, [key]: e.target.value }))}
+                  className={`mt-1.5 ${inputClass}`}
+                />
+              </label>
+            ))}
+          </div>
+          {!proofComplete && (proof.rankTitle || proof.genre || proof.aggregationDate) && (
+            <p className="mt-3 text-[12.5px] font-semibold text-amber-text">실적명·부문·집계일이 모두 있어야 배지가 들어갑니다.</p>
+          )}
+          <p className="mt-3 text-[12px] leading-relaxed text-ink-mute">
+            입력한 사실 그대로만 그립니다. 근거 없는 랭킹·수상 배지는 경품표시법 리스크가 있어 아예 만들지 않습니다.
+          </p>
+        </SectionCard>
 
-        {/* 프로모션 입력(HOME-05b) — 프로모션 강조형(G) 선택 시만. 세트명·판매가 필수 + 이중가격 게이트 */}
-        {selected?.needsPromo && (
+        {/*
+          프로모션(HOME-05b) — 화면에서는 자리를 늘 지킨다(무엇을 넣을 수 있는지 먼저 보이게).
+          다만 값을 실제로 쓰는 건 프로모션 강조형(G)뿐이라, 다른 템플릿에서는 입력 대신 그 사실을 말한다.
+        */}
+        {selected?.needsPromo ? (
           <SectionCard
-            title="프로모션 입력"
+            step={4}
+            title="프로모션"
             pill="필수 · 세트명·판매가"
             pillTone="required"
             className="mt-5"
@@ -765,67 +678,94 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
               </p>
             )}
           </SectionCard>
+        ) : (
+          <SectionCard step={4} title="프로모션" pill="선택 안 함" pillTone="optional" className="mt-5">
+            <p className="text-[13px] leading-[1.7] text-ink-mute">
+              {selected
+                ? `${selected.nameKo}은 가격·특전을 이미지에 넣지 않는 문법입니다. 세트가·증정을 강조하려면 프로모션 강조형을 골라 주세요.`
+                : '프로모션 강조형 템플릿을 고르면 세트명·판매가·증정을 여기에 입력할 수 있습니다.'}
+            </p>
+          </SectionCard>
         )}
 
-        {/* 실적 배지(HOME-05) — 접이식 */}
-        <section className={cardClass('mt-5 overflow-hidden')}>
-          <button
-            type="button"
-            aria-expanded={proofOpen}
-            onClick={() => setProofOpen((v) => !v)}
-            className="flex w-full flex-wrap items-center gap-2.5 px-6 py-5 text-left sm:px-8"
+        {/* 모델컷(HOME-02b) — 프로모션과 같은 원칙. 실제로 쓰는 건 모델+카피형(F)뿐이다 */}
+        {selected?.needsModel ? (
+          <SectionCard
+            step={5}
+            title="모델컷"
+            pill="필수 · 1장 + 동의"
+            pillTone="required"
+            className="mt-5"
+            desc="브랜드가 보유·촬영한 모델컷을 올려 주세요. 업로드한 모델컷을 그대로 쓰며, 얼굴을 새로 만들지 않습니다."
           >
-            <span
-              aria-hidden
-              className="inline-flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full border border-coral/35 bg-coral-tint text-[11.5px] font-extrabold text-coral-strong"
-            >
-              4
-            </span>
-            <h2 className="text-[16px] font-bold text-ink">랭킹·수상 실적이 있다면 추가하세요</h2>
-            {selected?.needsProof && (
-              <span className="inline-flex h-[19px] items-center rounded-full bg-coral-tint px-[7px] text-[10px] font-bold text-coral-strong">
-                필수 — 수상 실적 스택형
-              </span>
-            )}
-            <span aria-hidden className="ml-auto text-ink-faint">
-              {proofOpen ? <IconChevronUp /> : <IconChevronDown />}
-            </span>
-            <span className="basis-full text-[12.5px] leading-relaxed text-ink-mute">
-              근거가 없으면 배지는 생성되지 않습니다. 이것이 기본값입니다.
-            </span>
-          </button>
-          {proofOpen && (
-            <div className="border-t border-hairline px-6 pt-5 pb-7 sm:px-8">
-              <div className="grid gap-3.5 sm:grid-cols-3">
-                {(
-                  [
-                    ['rankTitle', '실적명', '楽天ランキング1位'],
-                    ['genre', '부문·장르', '日焼け止め'],
-                    ['aggregationDate', '집계일·기간', '2026/6/14更新 [集計日6/13]'],
-                  ] as const
-                ).map(([key, label, placeholder]) => (
-                  <label key={key} className={fieldLabelClass}>
-                    {label}
-                    <input
-                      type="text"
-                      lang="ja"
-                      value={proof[key]}
-                      placeholder={placeholder}
-                      onChange={(e) => setProof((prev) => ({ ...prev, [key]: e.target.value }))}
-                      className={`mt-1.5 ${inputClass}`}
-                    />
-                  </label>
-                ))}
+            <input
+              ref={modelInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="sr-only"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) acceptModelFile(f);
+              }}
+            />
+            {modelPreviewUrl ? (
+              <div className="flex flex-wrap items-start gap-4">
+                <div className="h-[160px] w-[160px] flex-none overflow-hidden rounded-xl border border-card-border bg-canvas">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={modelPreviewUrl} alt="업로드한 모델컷 미리보기" className="h-full w-full object-cover" />
+                </div>
+                <div className="min-w-[220px] flex-1">
+                  <p className="text-[13.5px] font-bold break-all text-ink">
+                    {modelFile?.name}{' '}
+                    <span className="font-medium text-ink-mute">
+                      {modelFile ? `· ${(modelFile.size / 1024 / 1024).toFixed(1)}MB` : ''}
+                    </span>
+                  </p>
+                  <button type="button" onClick={() => modelInputRef.current?.click()} className={buttonClass('secondary', 'sm', 'mt-3')}>
+                    모델컷 교체
+                  </button>
+                </div>
               </div>
-              {!proofComplete && (proof.rankTitle || proof.genre || proof.aggregationDate) && (
-                <p className="mt-3 text-[12.5px] font-semibold text-amber-text">실적명·부문·집계일이 모두 있어야 배지가 들어갑니다.</p>
-              )}
-              <p className="mt-3 text-[12px] leading-relaxed text-ink-mute">
-                입력한 사실 그대로만 렌더됩니다. 근거 없는 랭킹·수상 배지는 경품표시법 리스크가 있어 생성 자체가 되지 않습니다.
+            ) : (
+              <button
+                type="button"
+                aria-label="모델컷 업로드"
+                onClick={() => modelInputRef.current?.click()}
+                className="flex min-h-[160px] w-full flex-col items-center justify-center gap-2 rounded-[14px] border-[1.5px] border-dashed border-input-border bg-n-50 p-6 text-center transition-colors hover:border-coral hover:bg-coral-tint"
+              >
+                <IconUpload size={28} className="text-ink-faint" />
+                <p className="text-[13.5px] font-semibold text-ink-body">
+                  모델컷을 <span className="text-coral-strong">클릭해서 선택</span>
+                </p>
+                <p className="text-[12px] text-ink-mute">JPG · PNG · WebP / 10MB 이하</p>
+              </button>
+            )}
+            {modelFileError && (
+              <p role="alert" className="mt-2.5 text-[12.5px] font-semibold text-danger-text">
+                {modelFileError}
               </p>
-            </div>
-          )}
-        </section>
+            )}
+            <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-[10px] border border-input-border bg-n-50 p-3.5">
+              <input
+                type="checkbox"
+                checked={modelConsent}
+                onChange={(e) => setModelConsent(e.target.checked)}
+                className="mt-0.5 h-4 w-4 flex-none accent-coral"
+              />
+              <span className="text-[12.5px] leading-relaxed text-ink-body">
+                <b className="font-bold text-ink">모델 사용 권한에 동의합니다.</b> 올린 모델컷을 이 브랜드의 썸네일 생성에 쓸 권한이 있습니다. 체크하지 않으면 만들 수 없습니다.
+              </span>
+            </label>
+          </SectionCard>
+        ) : (
+          <SectionCard step={5} title="모델컷" pill="선택 안 함" pillTone="optional" className="mt-5">
+            <p className="text-[13px] leading-[1.7] text-ink-mute">
+              {selected
+                ? `${selected.nameKo}은 모델컷을 쓰지 않는 문법입니다. 모델을 앞세우려면 모델+카피형을 골라 주세요.`
+                : '모델+카피형 템플릿을 고르면 브랜드가 촬영한 모델컷을 여기에 올릴 수 있습니다.'}
+            </p>
+          </SectionCard>
+        )}
 
         {/* 재설계 고지(HOME-06a) */}
         <div className="mt-6 rounded-card border border-coral/35 bg-coral-tint p-5">
@@ -931,7 +871,6 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
           )}
         </div>
       </div>
-      <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
     </main>
   );
 }

@@ -83,14 +83,35 @@ export function mockStudioCopy(styleId: StyleId, brandName: string): StudioCopyR
   return {
     isPromoInput: true,
     styleReason: `${style.nameKo} — ${style.bestFor.split(',')[0]} 문법에 맞춰 일본 고객이 훑는 신뢰 요소를 우선 배치했습니다.`,
+    productName: `${brandName} 톤업 선케어 SPF50+ 50ml`,
+    beforeSummary:
+      '원본은 성분이나 사용감보다 「1위」·「쿨톤 치트키」 같은 순위·밈 카피와 형광 배지에 기대 시선을 끌고 있었습니다. 한국 고객에게는 익숙한 문법이지만, 일본 고객은 같은 화면에서 무엇이 근거인지를 먼저 찾습니다.',
     slotValues: mockSlotValues(styleId, brandName),
+    // 결과 화면은 카드 N장을 그린다 — 목 데이터가 1장뿐이면 간격·각주 행·마지막 카드 처리를 볼 수 없다
     copySlots: [
       {
         slotKey: 'catchCopyJa',
         ja: '白浮きしない、透け感トーンアップUV',
-        krIntent: '「쿨톤 치트키」 — 하얗게 들뜨지 않는 톤업이라는 의도',
-        rationale: '밈 어휘를 직역하지 않고 일본 고민 어휘 「白浮き」(코퍼스 실측)와 관례어 「トーンアップUV」로 재설계',
+        krSource: '쿨톤 치트키 톤업 선크림',
+        rationale:
+          '밈 어휘를 직역하지 않고 일본 고민 어휘 「白浮き」(코퍼스 실측)와 관례어 「トーンアップUV」로 재설계했습니다.',
         footnote: '※メーキャップ効果による',
+      },
+      {
+        slotKey: 'featureChipJa',
+        ja: '敏感肌でも使える低刺激処方',
+        krSource: '민감 피부도 쓸 수 있는 저자극 처방',
+        rationale:
+          '적합 대상을 일본 뷰티 고빈도 고민어 「敏感肌」로 옮기고, 화장품 등급에서 허용되는 저자극 소구 범위 안으로 조정했습니다.',
+        footnote: '',
+      },
+      {
+        slotKey: 'footnoteJa',
+        ja: 'SPF50+ / PA++++',
+        krSource: '자외선 차단 지수 SPF50+ PA++++',
+        rationale:
+          '지수는 표시 의무 항목이라 원문 그대로 옮기고, 「최강」 같은 최상급 수식은 근거가 입력에 없어 뺐습니다.',
+        footnote: '',
       },
     ],
     krElementMap: [

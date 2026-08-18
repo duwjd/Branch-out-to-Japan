@@ -7,3 +7,10 @@
 export function isEmailish(value: string): boolean {
   return /.+@.+\..+/.test(value.trim());
 }
+
+/**
+ * 세션 만료 착지 경로(2026-08-18) — 서비스 내부에 로그인 모달이 없어졌으므로,
+ * 제출 중 401을 만나면 로그인 화면으로 보내 다시 들어오게 한다.
+ * `expired=1`이 붙으면 로그인 화면이 "다시 로그인해 주세요" 안내를 띄운다.
+ */
+export const EXPIRED_LOGIN_PATH = '/login?expired=1';

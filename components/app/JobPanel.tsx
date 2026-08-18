@@ -244,18 +244,28 @@ export function JobPanel({ jobs }: { jobs: DashboardJob[] }) {
                   <span className="block text-[12.5px] font-bold text-ink">
                     {job.state === 'done'
                       ? job.kind === 'report'
-                        ? '리포트가 발행되었습니다'
-                        : '썸네일이 완성되었습니다'
+                        ? '리포트가 나왔습니다'
+                        : job.kind === 'detail'
+                          ? '상세페이지가 완성됐습니다'
+                          : '썸네일이 완성됐습니다'
                       : job.kind === 'report'
-                        ? '리포트 생성에 실패했습니다'
-                        : '썸네일 생성에 실패했습니다'}
+                        ? '리포트를 만들지 못했습니다'
+                        : job.kind === 'detail'
+                          ? '상세페이지를 만들지 못했습니다'
+                          : '썸네일을 만들지 못했습니다'}
                   </span>
                   <span className="mt-[3px] block truncate text-[11.5px] text-ink-mute">
                     {job.state === 'done' && job.kind === 'thumbnail' ? '검수 게이트 통과 · 최근 자산에 추가됨' : job.name}
                   </span>
                 </span>
                 <Link
-                  href={job.kind === 'report' ? `/app/report/${job.id}` : `/app/studio/thumbnail/${job.id}`}
+                  href={
+                    job.kind === 'report'
+                      ? `/app/report/${job.id}`
+                      : job.kind === 'detail'
+                        ? `/app/studio/detail/${job.id}`
+                        : `/app/studio/thumbnail/${job.id}`
+                  }
                   className="inline-flex h-[30px] flex-none items-center rounded-lg bg-coral px-[11px] text-xs font-bold text-white no-underline transition-colors hover:bg-coral-strong"
                 >
                   보러 가기 →

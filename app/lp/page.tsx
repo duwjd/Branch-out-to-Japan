@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { YoakeLogo } from '@/components/brand/Logo';
 import { PILOT_OFFER, formatKrw } from '@/lib/lead';
-import { PageView } from './PageView';
-import { TrackedCta } from './TrackedCta';
+import { PageView } from '@/components/landing/PageView';
+import { TrackedCta } from '@/components/landing/TrackedCta';
 import { LeadForm } from './LeadForm';
-import { ScrollProgress } from './ScrollProgress';
-import { Reveal } from './Reveal';
+import { ScrollProgress } from '@/components/landing/ScrollProgress';
+import { Reveal } from '@/components/landing/Reveal';
 import { BeforeAfterShowcase } from './BeforeAfterShowcase';
 
 /**

@@ -518,25 +518,6 @@ export function createSupabaseStore(): Store {
       return must(result, 'listReports').map(toReportSummary);
     },
 
-    /** 카운트 2건을 병렬 head 쿼리로 — 본문 전송 0바이트 */
-    async getBrandCounts(brandProfileId: string) {
-      const [reports, assets] = await Promise.all([
-        client
-          .from('reports')
-          .select('request_id', { count: 'exact', head: true })
-          .eq('brand_profile_id', brandProfileId)
-          .not('published_at', 'is', null),
-        client
-          .from('generated_assets')
-          .select('id', { count: 'exact', head: true })
-          .eq('brand_profile_id', brandProfileId)
-          .eq('status', 'done'),
-      ]);
-      if (reports.error) throw new Error(`supabase getBrandCounts(reports) 실패: ${reports.error.message}`);
-      if (assets.error) throw new Error(`supabase getBrandCounts(assets) 실패: ${assets.error.message}`);
-      return { publishedReports: reports.count ?? 0, doneAssets: assets.count ?? 0 };
-    },
-
     async listBrandProfiles(userId: string) {
       const result = await client
         .from('brand_profiles')

@@ -111,11 +111,13 @@ export async function POST(request: Request): Promise<NextResponse> {
     : '미상';
 
   const store = await getStore();
+  // 계정당 브랜드 1개(2026-08-18) — 이미 있으면 새로 만들지 않고 편집(PUT)으로 유도한다
   const existing = await store.listBrandProfiles(session.user.id);
-  // 같은 브랜드명 중복 방지(MAIN-01b′ 검증) — 유저별 스코핑, 대소문자·공백 무시
-  const norm = (s: string) => s.trim().toLowerCase();
-  if (existing.some((b) => norm(b.brandName) === norm(brandName))) {
-    return NextResponse.json({ error: '이미 등록한 브랜드명입니다.' }, { status: 409 });
+  if (existing.length > 0) {
+    return NextResponse.json(
+      { error: '이미 등록한 브랜드가 있습니다. 브랜드 정보에서 수정해 주세요.' },
+      { status: 409 },
+    );
   }
 
   const profile = await store.createBrandProfile({

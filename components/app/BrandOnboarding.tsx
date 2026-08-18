@@ -10,8 +10,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { buttonClass, cardClass, chipClass, fieldLabelClass, inputClass, selectClass } from '@/components/ui/primitives';
-import { LoginGateModal } from '@/components/auth/LoginGateModal';
-import { useLoginGate } from '@/components/auth/useLoginGate';
+import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 
 /** 카테고리 정본 — 리포트 입력폼과 동일(한/일 병기) */
 const CATEGORIES = [
@@ -31,7 +30,6 @@ export function BrandOnboarding() {
   const [productClass, setProductClass] = useState<string>('화장품');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { gateOpen, openGate, closeGate, onAuthedGate } = useLoginGate();
 
   const canSubmit = brandName.trim().length > 0 && category !== '' && !submitting;
 
@@ -47,7 +45,7 @@ export function BrandOnboarding() {
       });
       if (res.status === 401) {
         setSubmitting(false);
-        openGate(doSubmit); // 게스트 첫 브랜드 캡처의 주 게이트(ONBOARD-02)
+        router.replace(EXPIRED_LOGIN_PATH); // 세션 만료 — 서비스 안에는 로그인 동선이 없다
         return;
       }
       const data = await res.json();
@@ -152,7 +150,6 @@ export function BrandOnboarding() {
           </p>
         </form>
       </div>
-      <LoginGateModal open={gateOpen} onClose={closeGate} onAuthed={onAuthedGate} />
     </main>
   );
 }

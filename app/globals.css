@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* 소스 스캔 경로 명시 — 자동 탐지가 app/landing 같은 새 하위 디렉터리를 놓치는 일이 있어
+   앱 코드가 있는 두 뿌리를 직접 지정한다(Tailwind v4 @source). */
+@source "../app";
+@source "../components";
+
 /* ════════════════════════════════════════════════════════════════════
    YOAKE 디자인 토큰 — docs/specs 각 섹션의 wireframe.css 정본을 Tailwind v4 @theme으로 이식.
    토큰 정본: design/DESIGN.md (스티비 coral).
@@ -55,6 +60,52 @@
   --shadow-nav: 0 4px 14px rgba(16, 18, 20, 0.06);
   --shadow-2: 0 12px 32px rgba(16, 18, 20, 0.1);
 
+  /* ── 랜딩(/) 전용 토큰 — Figma LP 2026-08. 앱 셸(/app)에서는 쓰지 않는다 ──
+     앱 UI 브랜드색은 그대로 coral #ff6464다(CLAUDE.md). 여기 lp-coral #ff6f61은
+     랜딩 한정 표면색으로, 로고 색을 UI 토큰으로 승격한 것이 아니다. */
+  --color-lp-coral: #ff6f61;
+  --color-lp-coral-tint: #fff1ee;
+  --color-lp-ink: #182333;
+  --color-lp-body: #3d4655;
+  --color-lp-muted: #6e7686;
+  --color-lp-faint: #78818f;
+  --color-lp-surface: #faf8f5;
+  --color-lp-panel: #f2f1ed;
+  --color-lp-dim: #f4f2ee;
+  --color-lp-line: #e9e7e3;
+  --color-lp-line-strong: #c9cdd4;
+  --color-lp-on-navy-muted: #c3cad6;
+  /* 랜딩 판정 상태색 — 앱의 green/amber/danger와 별개다(랜딩은 채도를 낮춰 쓴다) */
+  --color-lp-review: #2d8c6b;
+  --color-lp-review-tint: #e8f4f0;
+  --color-lp-conditional: #e39a22;
+  --color-lp-conditional-tint: #fdf3e4;
+  --color-lp-risk: #d94848;
+  --color-lp-risk-tint: #fbeded;
+
+  /* 랜딩 타입 스케일 — 크기와 함께 행간·자간을 항상 같이 준다(Pretendard 메트릭) */
+  --text-lp-h1: 58px;
+  --text-lp-h1--line-height: 1.26;
+  --text-lp-h1--letter-spacing: -0.02em;
+  --text-lp-h2: 42px;
+  --text-lp-h2--line-height: 1.32;
+  --text-lp-h2--letter-spacing: -0.02em;
+  --text-lp-h3: 26px;
+  --text-lp-h3--line-height: 1.42;
+  --text-lp-h3--letter-spacing: -0.01em;
+  --text-lp-h4: 20px;
+  --text-lp-h4--line-height: 1.45;
+  --text-lp-h4--letter-spacing: -0.01em;
+  --text-lp-lead: 19px;
+  --text-lp-lead--line-height: 1.72;
+  --text-lp-lead--letter-spacing: -0.005em;
+  --text-lp-body: 17px;
+  --text-lp-body--line-height: 1.75;
+  --text-lp-body--letter-spacing: -0.005em;
+  --text-lp-sm: 16px;
+  --text-lp-sm--line-height: 1.7;
+  --text-lp-sm--letter-spacing: -0.005em;
+
   /* 반경 · 치수 */
   --radius-card: 18px;
   --spacing-sidebar: 248px;
@@ -70,6 +121,10 @@
   --animate-soft-pulse: softPulse 1.6s ease-in-out infinite;
   --animate-indet: indet 1.4s ease-in-out infinite;
   --animate-shimmer: shimmer 1.6s linear infinite;
+  /* 생성중 미리보기 위를 지나가는 사선 하이라이트(RESULT-06a).
+     shimmer(배경 위치 ±420px)를 쓰지 않는 이유: 298px 정사각 안에서는 하이라이트가
+     거의 이동하지 않아 깜빡임으로 읽힌다. transform 이동은 크기와 무관하고 합성 레이어로 돈다. */
+  --animate-sweep: sweep 2.4s var(--ease-standard) infinite;
 }
 
 /* ── 키프레임 (wireframe.css 계승) ─────────────────────── */
@@ -81,6 +136,7 @@
 @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 @keyframes shimmer { 0% { background-position: -420px 0; } 100% { background-position: 420px 0; } }
+@keyframes sweep { 0% { transform: translateX(-160%) skewX(-12deg); } 100% { transform: translateX(360%) skewX(-12deg); } }
 @keyframes tileIn { 0% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes toastIn { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes dropIn { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: translateY(0); } }

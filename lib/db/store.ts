@@ -109,10 +109,20 @@ export interface GateResult {
   checks: { key: string; label: string; note: string; pass?: boolean }[];
 }
 
-/** 콜⑥ studioCopy 산출 — RESULT-02·03 / DETAIL-02 해설 렌더 계약(08 §4.7) */
+/**
+ * 콜⑥ studioCopy 산출 — RESULT-02·03 / DETAIL-02 해설 렌더 계약(08 §4.7).
+ * 2026-08-18 결과 화면 개편으로 3가지가 붙었다 — 화면이 그리는 순서 그대로다:
+ * 제품명 → 원본 한 줄 진단(beforeSummary) → 카피 해설 카드(일본어 / 대응 한국어 원문 / 근거).
+ */
 export interface ExplanationJson {
+  /** 왜 이 문법이 이 제품·플랫폼에 맞는지(1~2문장) */
   styleReason: string;
-  copySlots: { slotKey: string; ja: string; krIntent: string; rationale: string; footnote: string }[];
+  /** 결과 헤드라인의 제품명 — 원본 이미지에 인쇄돼 읽히는 값만. 못 읽으면 빈 문자열 */
+  productName: string;
+  /** 원본(Before) 한 줄 진단 — 한국 원본이 무엇에 기대고 있었는지 */
+  beforeSummary: string;
+  /** 카피 해설 카드 — ja(일본어) / krSource(대응 한국어 원문) / rationale(재설계 근거) / footnote(※각주) */
+  copySlots: { slotKey: string; ja: string; krSource: string; rationale: string; footnote: string }[];
   krElementMap: { element: string; action: '유지·정제' | '재설계' | '제거'; reason: string }[];
 }
 
@@ -294,14 +304,6 @@ export interface BlockStatusSnapshot {
   version: number;
 }
 
-/** 브랜드 스위처·마이페이지 배지용 카운트 — 행을 끌어오지 않고 개수만 센다 */
-export interface BrandCounts {
-  /** 발행 완료 리포트 수(publishedAt !== null) */
-  publishedReports: number;
-  /** 완성 자산 수(status === 'done') */
-  doneAssets: number;
-}
-
 /** 제품 이미지 — fileId + 대표 여부(BRAND-03b). 첫 장이 자동 대표, 대표 삭제 시 첫 장 승계 */
 export interface ProductImage {
   fileId: string;
@@ -431,11 +433,6 @@ export interface Store {
   listRequests(brandProfileId: string): Promise<DiagnosisRequestRecord[]>;
   /** 목록용 리포트(최신순) — 9블록 본문 제외. 본문이 필요하면 getReport(requestId) */
   listReports(brandProfileId: string): Promise<ReportSummary[]>;
-  /**
-   * 브랜드 배지 카운트 — 행을 끌어오지 않고 개수만 센다(스위처 MAIN-01b · 마이페이지).
-   * listReports/listAssets 로 세면 브랜드 수 × 전체 행이라 페이지 이동마다 비용이 붙는다.
-   */
-  getBrandCounts(brandProfileId: string): Promise<BrandCounts>;
   createAsset(input: Omit<GeneratedAssetRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<GeneratedAssetRecord>;
   getAsset(id: string): Promise<GeneratedAssetRecord | null>;
   updateAsset(

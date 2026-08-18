@@ -216,20 +216,6 @@ export function createFileStore(): Store {
       });
     },
 
-    /** 파일 스토어에는 카운트 쿼리가 없으므로 읽어서 센다 — 큐 밖이라 다른 요청을 막지 않는다 */
-    getBrandCounts(brandProfileId: string) {
-      return concurrent(async () => {
-        const [reports, assets] = await Promise.all([
-          readJson<ReportRecord[]>(REPORTS, []),
-          readJson<GeneratedAssetRecord[]>(ASSETS, []),
-        ]);
-        return {
-          publishedReports: reports.filter((r) => brandOf(r) === brandProfileId && r.publishedAt !== null).length,
-          doneAssets: assets.filter((a) => brandOf(a) === brandProfileId && a.status === 'done').length,
-        };
-      });
-    },
-
     listBrandProfiles(userId: string) {
       return concurrent(async () => {
         // 구 브랜드(userId 없음)는 ownerOf가 demo-user로 귀속 — .data/brand-profiles.json은 재기록하지 않는다
