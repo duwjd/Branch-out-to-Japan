@@ -11,16 +11,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { buttonClass, cardClass, chipClass, fieldLabelClass, inputClass, selectClass } from '@/components/ui/primitives';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
-import { CATEGORY_LABELS, type Category } from '@/lib/engine/types';
+import { BRAND_PRODUCT_CLASSES, CATEGORY_LABELS, type Category } from '@/lib/engine/types';
 
 /** 카테고리 — 라벨 정본은 lib/engine/types CATEGORY_LABELS(한국어 단독). 같은 값을 두 벌 두지 않는다 */
 const CATEGORIES = (Object.keys(CATEGORY_LABELS) as Category[]).map((value) => ({
   value,
   label: CATEGORY_LABELS[value],
 }));
-
-/** 제품분류 — 브랜드 도메인 4종(store BrandProductClass) */
-const PRODUCT_CLASSES = ['화장품', '의약외품', '건강식품', '미상'] as const;
 
 export function BrandOnboarding() {
   const router = useRouter();
@@ -116,7 +113,7 @@ export function BrandOnboarding() {
 
           <div className="mt-5">
             <label htmlFor="obClass" className={fieldLabelClass}>
-              제품분류 <span className="font-normal text-ink-mute">(선택)</span>
+              제품분류
             </label>
             <select
               id="obClass"
@@ -124,7 +121,7 @@ export function BrandOnboarding() {
               onChange={(e) => setProductClass(e.target.value)}
               className={`${selectClass} w-full`}
             >
-              {PRODUCT_CLASSES.map((p) => (
+              {BRAND_PRODUCT_CLASSES.map((p) => (
                 <option key={p} value={p}>
                   {p}
                 </option>

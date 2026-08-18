@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { POSITIONING_TAGS, POSITIONING_TAGS_MAX } from '@/lib/engine/rules/positioning';
 import { CATEGORY_LABELS, type Category } from '@/lib/engine/types';
 import type { BrandProductClass, BrandProfileRecord } from '@/lib/db/store';
+import { BRAND_PRODUCT_CLASSES } from '@/lib/engine/types';
 import { ProductManager } from './ProductManager';
 import {
   SectionCard,
@@ -25,7 +26,7 @@ import {
 import { IconDoc } from '@/components/ui/icons';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 
-const PRODUCT_CLASSES: BrandProductClass[] = ['화장품', '의약외품', '건강식품', '미상'];
+
 const JP_CHANNELS = [
   { value: 'qoo10', label: 'Qoo10' },
   { value: 'rakuten', label: '라쿠텐' },
@@ -199,7 +200,7 @@ export function BrandForm({
                     onChange={(e) => setProductClass(e.target.value as BrandProductClass)}
                     className={`${selectClass} w-full`}
                   >
-                    {PRODUCT_CLASSES.map((c) => (
+                    {BRAND_PRODUCT_CLASSES.map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
