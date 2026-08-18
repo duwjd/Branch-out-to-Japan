@@ -11,7 +11,10 @@
   - `Japan Growth Studio`는 **이름이 아니라 카테고리 서술어**로만 남는다("YOAKE — 일본향 메시지 설계가 내장된 Japan Growth Studio"). 단독으로 서비스명처럼 쓰지 않는다.
 - 로고 정본은 `design/brand/logo/` — **규칙은 `design/brand/logo/README.md`를 읽고 따른다**(변형·여백·최소 크기·금지 사항).
   - 코드에서는 SVG를 직접 import하지 말고 `components/brand/Logo.tsx`의 `YoakeLogo` · `YoakeMark`를 쓴다.
-  - 로고 색(잉크 `#182333`, 코랄 일출 그라디언트 `#FF6F61`→`#FF9B70`)은 **로고 전용 고정색**이다. 디자인 시스템 브랜드색은 그대로 스티비 coral `#ff6464`이고 CTA·칩·아이콘버튼은 계속 `#ff6464`를 쓴다 — 로고 색을 UI 토큰으로 승격하지 않는다.
+  - 로고 색과 UI 브랜드색은 **같다**(2026-08-18 전환, 근거 `docs/decisions/2026-08-18-일출코랄-DS전환.md`). 잉크 `#182333` = `--color-ink`, 일출 코랄 `#FF6F61` = `--color-coral`. 구 스티비 coral `#ff6464`·`#d93636`은 폐기 — 신규 산출물에 남아 있으면 교정한다.
+    - 예외: **일출 그라디언트**(`#FF6F61`→`#FF9B70`)는 로고 심볼 전용이다. UI 면에는 단색 `#FF6F61`만 쓴다.
+    - **면과 글자를 나눈다.** 면(버튼 배경·도트·아이콘)은 `coral`, 소형 텍스트·링크는 `coral-strong`(`#C93F2E`). 원색은 크림 위 2.6:1이라 글자색으로 쓰지 않는다. hover는 `coral-hover`, pressed는 `coral-pressed`.
+    - 디자인 시스템 정본은 `design/references/LP_Components.svg`, 실측 스펙은 `design/lp-components-spec.md`.
 
 ## 한 줄 정의
 **YOAKE** — 한국 뷰티 브랜드의 상세페이지·SNS·광고 문구를 **일본 고객 관점으로 진단**하고, 일본향 **카피·콘텐츠·운영**을 한곳에서 다루는 **일본향 메시지 설계가 내장된 Japan Growth Studio — 뷰티 중소기업용 내부 운영 툴 웹 서비스**.

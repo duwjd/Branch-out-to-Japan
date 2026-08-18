@@ -357,7 +357,7 @@ function TabNav({
               on ? 'bg-coral font-bold text-white' : 'font-semibold text-ink-body hover:bg-n-100'
             }`}
           >
-            <b aria-hidden className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-extrabold ${on ? 'bg-white/25 text-white' : 'bg-n-150 text-[#70737c]'}`}>
+            <b aria-hidden className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-extrabold ${on ? 'bg-white/25 text-white' : 'bg-n-150 text-ink-mute'}`}>
               {i + 1}
             </b>
             {label}

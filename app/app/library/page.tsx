@@ -334,7 +334,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
                     {label}
                     <span
                       className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${
-                        active ? 'bg-coral-tint text-coral-strong' : 'bg-n-150 text-[#9ca0a8]'
+                        active ? 'bg-coral-tint text-coral-strong' : 'bg-n-150 text-ink-faint'
                       }`}
                     >
                       {count}
@@ -437,7 +437,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
           <div className="mt-3.5 grid grid-cols-2 gap-4 max-md:grid-cols-1">
             <div aria-disabled="true" className="rounded-card border border-dashed border-input-border bg-n-50 p-5.5">
               <div className="flex items-center gap-2">
-                <h3 className="text-[15px] font-extrabold text-[#9ca0a8]">성과 판별</h3>
+                <h3 className="text-[15px] font-extrabold text-ink-faint">성과 판별</h3>
                 <StatusBadge tone="off">준비 중</StatusBadge>
               </div>
               <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-faint">

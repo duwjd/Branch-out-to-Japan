@@ -8,8 +8,8 @@ import { AppShell } from '@/components/app/AppShell';
  * /app 세그먼트 레이아웃 — 인증 가드 단일 지점(middleware 없음, 09 §4b M5).
  * 2026-08-18 플로우 개편: 서비스 내부에는 로그인 동선이 없다. 로그인은 랜딩에서만 하고
  * /app 이하는 전부 로그인 필수다 — 쿠키가 없으면 /login, 무효(만료)면 /login?expired=1.
- * 사이드바 셸 데이터(브랜드 1건·매칭 배지)는 여기서 조회해 주입한다.
- * 브랜드는 계정당 1개 전제라 스위처가 없다(2026-08-18 다중 브랜드 제거).
+ * 사이드바 셸 데이터(매칭 배지)는 여기서 조회해 주입한다. 브랜드는 매칭 배지 조회 스코프로만
+ * 쓴다 — 사이드바 브랜드 정보 행은 2026-08-18 제거했다(브랜드는 운영 > 브랜드 관리에서).
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const state = await getSessionState();
@@ -38,7 +38,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         email: session.user.email,
         providerLabel: PROVIDER_LABELS[session.provider],
       }}
-      brand={brand ? { name: brand.brandName, category: brand.category } : null}
       matchBadge={matchBadge}
     >
       {children}

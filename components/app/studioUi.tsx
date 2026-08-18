@@ -129,7 +129,7 @@ export function SegmentedControl<T extends string>({
 export function studioChipClass(on: boolean): string {
   return [
     'inline-flex cursor-pointer items-center rounded-[10px] px-3 py-[9px] text-[15px] leading-[1.467] font-medium tracking-[0.01em] transition-colors',
-    on ? 'bg-coral text-[#f7f7f8]' : 'border border-line-neutral text-ink-mute hover:text-ink-body',
+    on ? 'bg-coral text-white' : 'border border-line-neutral text-ink-mute hover:text-ink-body',
   ].join(' ');
 }
 
@@ -144,7 +144,7 @@ export const studioInputClass =
 export function studioButtonClass(variant: 'primary' | 'outline' = 'primary', extra = ''): string {
   const cls =
     variant === 'primary'
-      ? 'bg-coral text-white hover:bg-coral-strong'
+      ? 'bg-coral text-white hover:bg-coral-hover'
       : 'border border-coral bg-canvas text-coral-strong hover:bg-coral-tint';
   return [
     'inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-[12px] px-7 py-3 text-[16px] leading-[1.5] font-semibold transition-colors',
@@ -152,4 +152,23 @@ export function studioButtonClass(variant: 'primary' | 'outline' = 'primary', ex
     cls,
     extra,
   ].join(' ');
+}
+
+/**
+ * 하단 액션 바(HOME-06b · DETAIL-08a) — 폼이 길어 CTA가 화면 밖으로 밀리므로 바닥에 고정한다.
+ *
+ * `fixed` 대신 `sticky`인 이유(2026-08-18 수정):
+ * 1) 본문 `<main>`이 `animate-fade-up`을 쓰는데, 애니메이션이 끝나도 계산된 transform 이
+ *    `none`이 아니라 항등 행렬로 남는다. transform 이 있는 조상은 fixed 의 컨테이닝 블록이 되어
+ *    바가 뷰포트가 아니라 문서 맨 끝에 붙어 버렸다(썸네일 화면에서 실제로 그랬다).
+ * 2) `left: 248px` 하드코딩은 사이드바 접기(64px)를 따라가지 못해 바가 오른쪽으로 밀렸다.
+ *    sticky 는 본문 칼럼 안에 있으므로 접힘 여부와 무관하게 항상 칼럼 폭에 맞는다.
+ * 안쪽 컨테이너는 본문과 **같은 규격**(max-w-1280 + px-8)이라 버튼 좌우가 카드와 정확히 맞는다.
+ */
+export function StudioActionBar({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="sticky bottom-0 z-40 border-t border-hairline bg-page/92 py-4 backdrop-blur-[6px]">
+      <div className="mx-auto max-w-[1280px] px-8 max-sm:px-5">{children}</div>
+    </div>
+  );
 }
