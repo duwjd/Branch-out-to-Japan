@@ -42,6 +42,14 @@ import { currentLlmMode } from '../lib/engine/llm/client';
 import { composeDetail } from '../lib/studio/detail/compose';
 import { IMAGE_CONCURRENCY, outputProfile, type BlockType } from '../lib/studio/detail/output';
 import { renderBlock } from '../lib/studio/detail/render';
+import {
+  buildRenderPlan,
+  promptContextOf,
+  renderContextOf,
+  visualHeightOf,
+} from '../lib/studio/detail/renderContext';
+import { analyzeSafeArea, type CopyPlacement } from '../lib/studio/detail/safeArea';
+import { toneSummary } from '../lib/studio/detail/rhythm';
 import { blockContent } from '../lib/studio/detail/templates';
 import type { Platform } from '../lib/studio/platform';
 
@@ -124,12 +132,26 @@ async function buildOne(
   mkdirSync(cacheDir, { recursive: true });
 
   const plan = planBlocks(input, c.platform, c.id);
+  // 밴드 리듬·테마도 잡 러너와 같은 함수로 확정한다 — 안 하면 프리뷰 카드와 산출물이 어긋난다
+  const rp = buildRenderPlan(input, c.platform, c.id);
+  console.log(`밴드 리듬: ${toneSummary(rp.layout)} · accent ${rp.theme.accent}`);
   process.stdout.write(`  블록 ${plan.blocks.length}개 · AI ${plan.aiBlockCount}개\n`);
 
   // 카피 — 실 모드면 콜⑦, 아니면 픽스처
   let llmByBlock: Map<string, Record<string, string>>;
   const copyCache = path.join(cacheDir, 'copy.json');
-  if (currentLlmMode() === 'real' && !(!force && existsSync(copyCache))) {
+  // ⚠ **블록 구성이 바뀌면 캐시는 스테일이다.** 캐시에 없는 블록은 슬롯이 통째로 비어
+  //   라벨만 찍힌 빈 밴드가 나오는데, 그게 프리뷰라 실제 산출물인 줄 알고 디버깅하게 된다
+  //   (2026-08-18 실측: 카테고리 샷 보강으로 D2에 사용컷이 생기자 그 밴드가 "SCENE" 한 줄만 나왔다).
+  const cachedKeys: string[] = existsSync(copyCache)
+    ? Object.keys(JSON.parse(readFileSync(copyCache, 'utf8')) as Record<string, unknown>)
+    : [];
+  const missing = plan.blocks.filter((b) => !cachedKeys.includes(b.blockId)).map((b) => b.blockId);
+  const cacheUsable = cachedKeys.length > 0 && missing.length === 0;
+  if (missing.length > 0 && cachedKeys.length > 0) {
+    console.log(`  카피 캐시 스테일 — 블록 ${missing.join(', ')} 없음. 다시 채웁니다`);
+  }
+  if (currentLlmMode() === 'real' && (force || !cacheUsable)) {
     const copy = await runDetailCopy({
       templateId: plan.templateId,
       blocks: plan.blocks,
@@ -143,9 +165,10 @@ async function buildOne(
     );
     writeFileSync(copyCache, JSON.stringify(flat, null, 2));
     llmByBlock = new Map(Object.entries(flat));
-  } else if (existsSync(copyCache)) {
+  } else if (cacheUsable) {
     llmByBlock = new Map(Object.entries(JSON.parse(readFileSync(copyCache, 'utf8')) as Record<string, Record<string, string>>));
   } else {
+    // 목 모드이거나 캐시가 스테일인데 실 콜을 못 쓰는 경우 — 픽스처로 채워 빈 밴드를 만들지 않는다
     llmByBlock = new Map(plan.blocks.map((b) => [b.blockId, mockLlmSlots(b.blockId, input.productCategory, BRAND)]));
   }
 
@@ -166,7 +189,7 @@ async function buildOne(
           return;
         }
         const i = plan.blocks.indexOf(b);
-        const prompt = buildBlockPrompt(b.blockId, slotsBySeq[i], input.productCategory, false);
+        const prompt = buildBlockPrompt(b.blockId, slotsBySeq[i], promptContextOf(rp, input, false));
         const usesProduct = usesProductSource(b.blockId as BlockType);
         try {
           const gen = await generateBlockVisual({
@@ -190,9 +213,29 @@ async function buildOne(
   for (let i = 0; i < plan.blocks.length; i++) {
     const b = plan.blocks[i];
     const bg = visuals.get(b.blockId);
-    const content = blockContent(b.blockId, slotsBySeq[i], { brandName: BRAND, hasBackground: Boolean(bg) });
+    // 잡 러너와 같은 경로를 탄다 — 배경컷을 실제로 재서 제품이 없는 여백에 카피를 앉힌다
+    const band = rp.layout.find((x) => x.seq === b.seq);
+    const placement: CopyPlacement | undefined = bg ? await analyzeSafeArea(bg) : undefined;
+    const content = blockContent(
+      b.blockId,
+      slotsBySeq[i],
+      renderContextOf({
+        band,
+        theme: rp.theme,
+        templateId: rp.templateId,
+        brandName: BRAND,
+        hasBackground: Boolean(bg),
+        placement,
+      }),
+    );
     rendered.push(
-      await renderBlock({ content, background: bg, backgroundMediaType: 'image/png', scrimOpacity: bg ? 0.12 : undefined }),
+      await renderBlock({
+        content,
+        background: bg,
+        backgroundMediaType: 'image/png',
+        placement,
+        visualHeight: visualHeightOf(band),
+      }),
     );
   }
 

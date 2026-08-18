@@ -86,14 +86,26 @@ export const BLOCK_CANVAS_HEIGHT = 4_000;
 export const VISUAL_BLOCK_HEIGHT = 1_500;
 
 /**
- * AI 이미지 생성 블록 수 하드캡.
- * gpt-image-2 1장이 40~90초라 5장이면 2웨이브가 되어 maxDuration=300을 넘긴다.
- * 초과분은 planBlocks()가 'text'로 강등한다.
+ * AI 이미지 생성 블록 수 하드캡(2026-08-18 4 → 6).
+ *
+ * 4였을 때 카테고리 필수 컷(사용컷·제형컷)이 들어갈 자리가 없었다 — D2는 히어로 한 장짜리였다.
+ * 초과분은 planBlocks() 가 우선순위대로 잘라 'text'로 강등한다.
+ *
+ * ⚠ **IMAGE_CONCURRENCY 와 같은 값을 유지할 것.** 소요를 결정하는 건 장수가 아니라 웨이브 수다.
+ *   gpt-image-2 1장이 40~90초라, 동시성보다 큰 값을 주면 2웨이브가 되어 300초 예산을 넘긴다.
  */
-export const MAX_AI_BLOCKS = 4;
+export const MAX_AI_BLOCKS = 6;
 
-/** 이미지 생성 동시 실행 수 — OpenAI images 엔드포인트의 분당 제한(429) 회피. */
-export const IMAGE_CONCURRENCY = 4;
+/**
+ * 이미지 생성 동시 실행 수 — 6장을 **한 웨이브**로 끝내기 위한 값이다(2026-08-18 4 → 6).
+ * maxDuration=300 은 Vercel Hobby 플랫폼 상한이라 올릴 수 없으므로(11 §2),
+ * 시간을 더 사는 대신 웨이브를 늘리지 않는 쪽으로 예산을 맞춘다.
+ *
+ * 대가는 OpenAI images 분당 제한(429) 위험 상승이다. 봉쇄 장치는 두 겹:
+ * imageGen 의 IMAGE_MAX_RETRIES 백오프, 그리고 실패 블록만 텍스트로 강등하는 detailJob 의 경로.
+ * 실사용에서 429가 반복되면 이 값만 5로 내린다 — 캡은 6으로 두고 budget.ts 가 2웨이브를 흡수한다.
+ */
+export const IMAGE_CONCURRENCY = 6;
 
 export interface OutputProfile {
   /** 출력 폭(px) */
