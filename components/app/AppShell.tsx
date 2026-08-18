@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { YoakeLogo, YoakeMark } from '@/components/brand/Logo';
 import { StatusBadge, type BadgeTone } from '@/components/ui/primitives';
+import { CATEGORY_LABELS } from '@/lib/engine/types';
 import {
   IconBox,
   IconChevronLeft,
@@ -46,14 +47,6 @@ const MATCH_TONE: Record<'amber' | 'green' | 'neutral', BadgeTone> = {
   amber: 'warn',
   green: 'ok',
   neutral: 'off',
-};
-
-/** 카테고리 값 → 한/일 병기 라벨 (디자인: "스킨케어 / スキンケア"). 저장값은 Category 키다 */
-const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
-  skincare: { kr: '스킨케어', ja: 'スキンケア' },
-  makeup: { kr: '메이크업', ja: 'メイク' },
-  suncare: { kr: '선케어', ja: '日焼け止め' },
-  cleansing: { kr: '클렌징', ja: 'クレンジング' },
 };
 
 /** ≥lg 접힘(아이콘 레일)에서 숨길 라벨·텍스트. 라벨은 DOM에 유지하고 시각만 숨겨 모바일 스택은 무영향 */
@@ -136,7 +129,7 @@ export function AppShell({ user, brand, matchBadge, children }: ShellProps) {
   }
 
   const brandName = brand?.name ?? '브랜드 미설정';
-  const brandCat = brand ? CATEGORY_LABELS[brand.category] : undefined;
+  const brandCat = brand ? CATEGORY_LABELS[brand.category as keyof typeof CATEGORY_LABELS] : undefined;
   const brandInitial = brandName.slice(0, 1);
   const brandActive = pathname.startsWith('/app/brand');
 
@@ -159,19 +152,7 @@ export function AppShell({ user, brand, matchBadge, children }: ShellProps) {
       <span className={`min-w-0 flex-1 ${HIDE_ON_RAIL}`}>
         <span className="block truncate text-[13px] leading-tight font-bold text-ink">{brandName}</span>
         <span className="block truncate text-[10.5px] leading-tight text-ink-mute">
-          {brand ? (
-            <>
-              {brandCat?.kr ?? brand.category}
-              {brandCat && (
-                <>
-                  {' / '}
-                  <span lang="ja">{brandCat.ja}</span>
-                </>
-              )}
-            </>
-          ) : (
-            '브랜드를 먼저 등록해 주세요'
-          )}
+          {brand ? (brandCat ?? brand.category) : '브랜드를 먼저 등록해 주세요'}
         </span>
       </span>
     </Link>

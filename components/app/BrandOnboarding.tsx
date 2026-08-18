@@ -11,14 +11,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { buttonClass, cardClass, chipClass, fieldLabelClass, inputClass, selectClass } from '@/components/ui/primitives';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
+import { CATEGORY_LABELS, type Category } from '@/lib/engine/types';
 
-/** 카테고리 정본 — 리포트 입력폼과 동일(한/일 병기) */
-const CATEGORIES = [
-  { value: 'skincare', label: '스킨케어 / スキンケア' },
-  { value: 'makeup', label: '메이크업 / メイク' },
-  { value: 'suncare', label: '선케어 / 日焼け止め' },
-  { value: 'cleansing', label: '클렌징 / クレンジング' },
-] as const;
+/** 카테고리 — 라벨 정본은 lib/engine/types CATEGORY_LABELS(한국어 단독). 같은 값을 두 벌 두지 않는다 */
+const CATEGORIES = (Object.keys(CATEGORY_LABELS) as Category[]).map((value) => ({
+  value,
+  label: CATEGORY_LABELS[value],
+}));
 
 /** 제품분류 — 브랜드 도메인 4종(store BrandProductClass) */
 const PRODUCT_CLASSES = ['화장품', '의약외품', '건강식품', '미상'] as const;

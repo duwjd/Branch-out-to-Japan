@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { BrandProfileRecord, ReportSummary } from '@/lib/db/store';
-import type { RubricGroup } from '@/lib/engine/types';
+import { CATEGORY_LABELS, type RubricGroup } from '@/lib/engine/types';
 import { POSITIONING_TAGS } from '@/lib/engine/rules/positioning';
 import type { UpcomingEvent } from '@/lib/season';
 import { cardClass } from '@/components/ui/primitives';
@@ -19,17 +19,11 @@ const GROUP_LABELS: Record<RubricGroup, string> = {
   D: 'D 성분 프레이밍',
   E: 'E 카테고리 적합성',
 };
-const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
-  skincare: { kr: '스킨케어', ja: 'スキンケア' },
-  makeup: { kr: '메이크업', ja: 'メイク' },
-  suncare: { kr: '선케어', ja: '日焼け止め' },
-  cleansing: { kr: '클렌징', ja: 'クレンジング' },
-};
 const TAG_LABELS: Record<string, string> = Object.fromEntries(POSITIONING_TAGS.map((t) => [t.value, t.label]));
 
 /** MAIN-11 · 브랜드 정보 위젯 — "진단·생성이 무엇을 보고 도는가"를 홈에서 확인 */
 export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
-  const cat = CATEGORY_LABELS[brand.category];
+  const cat = CATEGORY_LABELS[brand.category as keyof typeof CATEGORY_LABELS];
   const tags = brand.positioningTags.map((v) => TAG_LABELS[v] ?? v);
   const shownTags = tags.slice(0, 3);
   const extraTags = tags.length - shownTags.length;
@@ -59,13 +53,7 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-bold text-ink">{brand.brandName}</span>
           <span className="mt-0.5 block text-[11.5px] text-ink-mute">
-            {cat ? (
-              <>
-                {cat.kr} / <span lang="ja">{cat.ja}</span>
-              </>
-            ) : (
-              brand.category
-            )}
+            {cat ?? brand.category}
             {' · '}
             {brand.productClass}
           </span>
