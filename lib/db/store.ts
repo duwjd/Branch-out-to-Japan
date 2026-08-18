@@ -109,10 +109,20 @@ export interface GateResult {
   checks: { key: string; label: string; note: string; pass?: boolean }[];
 }
 
-/** 콜⑥ studioCopy 산출 — RESULT-02·03 / DETAIL-02 해설 렌더 계약(08 §4.7) */
+/**
+ * 콜⑥ studioCopy 산출 — RESULT-02·03 / DETAIL-02 해설 렌더 계약(08 §4.7).
+ * 2026-08-18 결과 화면 개편으로 3가지가 붙었다 — 화면이 그리는 순서 그대로다:
+ * 제품명 → 원본 한 줄 진단(beforeSummary) → 카피 해설 카드(일본어 / 대응 한국어 원문 / 근거).
+ */
 export interface ExplanationJson {
+  /** 왜 이 문법이 이 제품·플랫폼에 맞는지(1~2문장) */
   styleReason: string;
-  copySlots: { slotKey: string; ja: string; krIntent: string; rationale: string; footnote: string }[];
+  /** 결과 헤드라인의 제품명 — 원본 이미지에 인쇄돼 읽히는 값만. 못 읽으면 빈 문자열 */
+  productName: string;
+  /** 원본(Before) 한 줄 진단 — 한국 원본이 무엇에 기대고 있었는지 */
+  beforeSummary: string;
+  /** 카피 해설 카드 — ja(일본어) / krSource(대응 한국어 원문) / rationale(재설계 근거) / footnote(※각주) */
+  copySlots: { slotKey: string; ja: string; krSource: string; rationale: string; footnote: string }[];
   krElementMap: { element: string; action: '유지·정제' | '재설계' | '제거'; reason: string }[];
 }
 
@@ -168,6 +178,19 @@ export interface DetailInput {
   reviews: { text: string; rating: string; age: string }[];
   promo: PromoInput | null;
   modelConsent: boolean;
+
+  // ── 콜⑧ inputTranslate 스냅샷 (08 §4.8) ────────────────────────────────────
+  // 전부 optional 이다. regenerateBlock 이 **구 자산의 detail_input 을 그대로** 읽으므로,
+  // required 로 두면 이 기능 이전에 만든 자산의 블록 재생성이 죽는다.
+
+  /** 변환 전 한국어 원문(감사·되돌리기). 위 필드들에는 이미 일본어가 들어가 있다 */
+  sourceKo?: { path: string; kr: string }[];
+  /** 「추가 요청」의 영어 변환 — AI 배경컷 프롬프트에 들어간다(한국어 원문은 promptUsed 가 보관) */
+  artDirectionEn?: string;
+  /** 생성 시점의 브랜드킷 스냅샷 — 브랜드 프로필을 나중에 바꿔도 블록 재생성이 흔들리지 않는다 */
+  brandKit?: BrandKit;
+  /** 변환에 실패해 한국어가 남은 필드(게이트 기록용) */
+  translationIssues?: { path: string; label: string; problem: string }[];
 }
 
 /** 블록 상태 — 자산 상태와 별개로 블록별로 진행·실패가 기록된다 */
@@ -240,6 +263,45 @@ export interface GeneratedAssetRecord {
   slicePaths: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * 목록용 자산 요약 — 카드·배지가 실제로 쓰는 필드만. 무거운 jsonb(detailInput·explanationJson·
+ * gateResult·proof·promoInput·slicePaths)와 promptUsed 는 **빠져 있다**.
+ *
+ * 왜 별도 타입인가: `listAssets`가 전체 행을 끌어오면 상세페이지 자산이 쌓일수록 목록 화면 비용이
+ * 선형 증가한다(detailInput 은 sourceKo 원문 18슬롯 + brandKit 스냅샷을 통째로 안는다).
+ * 상세 화면은 `getAsset(id)`로 전체 레코드를 따로 받는다.
+ */
+export type GeneratedAssetSummary = Omit<
+  GeneratedAssetRecord,
+  'detailInput' | 'explanationJson' | 'gateResult' | 'proof' | 'promoInput' | 'promptUsed' | 'slicePaths'
+>;
+
+/** 목록용 리포트 요약 — 9블록 본문(blocksJson)이 빠져 있다. 본문은 getReport(requestId)로 받는다 */
+export type ReportSummary = Omit<ReportRecord, 'blocksJson'>;
+
+/**
+ * 폴링용 자산 상태 스냅샷 — 진행률 표시와 소유 가드에 필요한 최소 필드만.
+ * 2.5초마다 도는 경로라 전체 레코드(detailInput·explanationJson·gateResult)를 실으면 안 된다.
+ */
+export interface AssetStatusSnapshot {
+  id: string;
+  brandProfileId: string;
+  kind: GeneratedAssetRecord['kind'];
+  status: GeneratedAssetStatus;
+  stage: string | null;
+  error: string | null;
+  blockTotal: number;
+  blockDone: number;
+  updatedAt: string;
+}
+
+/** 폴링용 블록 상태 — 변경 감지(재생성 완료 등)에 필요한 최소 필드만 */
+export interface BlockStatusSnapshot {
+  id: string;
+  status: AssetBlockStatus;
+  version: number;
 }
 
 /** 제품 이미지 — fileId + 대표 여부(BRAND-03b). 첫 장이 자동 대표, 대표 삭제 시 첫 장 승계 */
@@ -369,7 +431,8 @@ export interface Store {
   // ── 스프린트 2 (최신순 목록 조회는 라이브러리·매칭 카운트·마이페이지가 사용)
   //    목록·활성 매칭은 브랜드별 스코핑 — 구 데이터(brandProfileId 없음)는 LEGACY_BRAND_ID로 귀속
   listRequests(brandProfileId: string): Promise<DiagnosisRequestRecord[]>;
-  listReports(brandProfileId: string): Promise<ReportRecord[]>;
+  /** 목록용 리포트(최신순) — 9블록 본문 제외. 본문이 필요하면 getReport(requestId) */
+  listReports(brandProfileId: string): Promise<ReportSummary[]>;
   createAsset(input: Omit<GeneratedAssetRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<GeneratedAssetRecord>;
   getAsset(id: string): Promise<GeneratedAssetRecord | null>;
   updateAsset(
@@ -382,7 +445,10 @@ export interface Store {
       >
     >,
   ): Promise<void>;
-  listAssets(brandProfileId: string): Promise<GeneratedAssetRecord[]>;
+  /** 목록용 자산(최신순) — 무거운 jsonb 제외. 전체 레코드가 필요하면 getAsset(id) */
+  listAssets(brandProfileId: string): Promise<GeneratedAssetSummary[]>;
+  /** 폴링용 상태 스냅샷 — 진행률·소유 가드 필드만. 2.5초 주기 경로 전용 */
+  getAssetStatus(id: string): Promise<AssetStatusSnapshot | null>;
 
   // ── ② 상세페이지 블록(asset_blocks) ────────────────────────────────────
   /** 시퀀스 확정 직후 블록 행을 일괄 생성한다(seq 순서 그대로) */
@@ -392,6 +458,8 @@ export interface Store {
   ): Promise<AssetBlockRecord[]>;
   /** seq 오름차순 */
   listBlocks(assetId: string): Promise<AssetBlockRecord[]>;
+  /** 폴링용 블록 상태 목록 — slots·history 없이 변경 감지 필드만 */
+  listBlockStatuses(assetId: string): Promise<BlockStatusSnapshot[]>;
   getBlock(blockId: string): Promise<AssetBlockRecord | null>;
   updateBlock(
     blockId: string,

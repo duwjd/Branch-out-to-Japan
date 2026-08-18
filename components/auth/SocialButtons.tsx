@@ -2,8 +2,8 @@
 
 /**
  * 소셜 로그인 버튼 3종 (LOGIN-02) — 클릭 시 목 세션 발급 후 성공 콜백.
- * app/login/LoginButtons.tsx에서 이식·일반화(M4a): onSuccess prop을 받아 로그인 카드와
- * 게이트 모달(M4b)이 공유한다. onSuccess 없으면 기본 동작(/app 이동)을 한다.
+ * 로그인 성공하면 곧바로 서비스 메인(/app)으로 보낸다 — 서비스 안에는 로그인 동선이 없다
+ * (2026-08-18 게이트 모달 제거).
  * "최근 로그인" 배지는 localStorage. 소셜 브랜드색은 디자인 토큰이 아니라 각 사 가이드
  * 고정색 — 인라인 리터럴로만 쓴다.
  */
@@ -14,7 +14,7 @@ import type { AuthProvider } from '@/lib/server/session';
 import { Toast } from '@/components/ui/Toast';
 import { IconSpinner } from '@/components/ui/icons';
 
-const RECENT_KEY = 'kglow-recent-login';
+const RECENT_KEY = 'yoake-recent-login';
 
 /** 카카오 말풍선 심볼 */
 function KakaoSymbol() {
@@ -75,8 +75,7 @@ const BUTTONS: SocialButtonSpec[] = [
   { provider: 'google', label: 'Google로 계속하기', className: 'border border-input-border bg-canvas text-ink-body hover:bg-n-50', Symbol: GoogleSymbol },
 ];
 
-/** 소셜 로그인 성공 후 착지 — 게이트는 onSuccess로 "모달 닫고 재개"를 넘긴다 */
-export function SocialButtons({ onSuccess }: { onSuccess?: () => void }) {
+export function SocialButtons() {
   const router = useRouter();
   const [busy, setBusy] = useState<AuthProvider | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -105,10 +104,6 @@ export function SocialButtons({ onSuccess }: { onSuccess?: () => void }) {
       });
       if (!res.ok) throw new Error((await res.json()).error ?? `HTTP ${res.status}`);
       localStorage.setItem(RECENT_KEY, provider);
-      if (onSuccess) {
-        onSuccess();
-        return;
-      }
       router.replace('/app');
       router.refresh();
     } catch (err) {

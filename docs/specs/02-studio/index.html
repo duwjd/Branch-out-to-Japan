@@ -43,7 +43,7 @@
 <!-- 앱 헤더 -->
 <header class="app-header">
   <div class="app-header-in">
-    <span class="app-wordmark">KGLOW<span>.</span></span>
+    <span class="app-wordmark"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"></span>
     <span class="app-divider"></span>
     <span class="app-crumb">마케팅 스튜디오</span>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
@@ -118,6 +118,42 @@
       </a>
     </div>
     <p style="margin:14px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">라쿠텐 R-Cabinet은 이미지 1장당 3840px·2MB 제한이라 "이어붙인 긴 1장"은 업로드가 물리적으로 불가능합니다. 결합본은 확인·승인·공유용이고 몰에 올라가는 실체는 분할본입니다 — 결과 화면이 이 관계를 한 줄로 말합니다.</p>
+  </section>
+
+  <!-- ── 2026-08-11 개정 3건 (인터랙티브) ──────────────────────── -->
+  <section style="margin-top:40px;border:1px solid rgba(112,115,124,0.14);border-radius:18px;background:#fff;padding:24px">
+    <h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.01em;color:#202124">2026-08-11 개정 5건 — 조작해서 확인하세요</h2>
+    <p style="margin:8px 0 20px;font-size:13.5px;line-height:1.6;color:rgba(55,56,60,0.61)">전부 <b>동작</b>이라 정적 시안으로는 검토가 안 됩니다. 아래 3화면은 실제로 조작됩니다 — 빌드 없이 파일을 열면 바로 돌아갑니다. 공용 엔진은 <code style="font-size:12px">detail-proto.js</code> 하나이고, 화면은 추론하지 않고 그 결과를 그리기만 합니다.</p>
+    <div class="rwrap" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <a class="flow-node" href="3-detail-home.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">① 템플릿 미리보기</span>
+        <h3 style="margin:8px 0 6px;font-size:15px;font-weight:700;color:#202124">순서를 그림으로 본다</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">카드 미리보기가 <b>실제로 생성한 결과물</b>입니다(<code style="font-size:11px">npm run detail:previews</code>). 도식은 "몇 번째로 오는가"만 말하고 "그래서 어떻게 보이는가"는 못 말합니다.</p>
+      </a>
+      <a class="flow-node" href="3-detail-home.html#themeSection">
+        <span style="font-size:11.5px;font-weight:800;color:#B96C00;letter-spacing:.04em">② 브랜드 테마</span>
+        <h3 style="margin:8px 0 6px;font-size:15px;font-weight:700;color:#202124">제품컷에서 색을 뽑는다</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">데모 제품컷을 누르면 <b>실제로 색 추출이 돕니다</b>. 지금은 어느 브랜드로 만들어도 우리 코랄이 나옵니다 — 그 문제를 고칩니다. 저장은 <a href="../04-operations/3-brand.html">브랜드 관리 BRAND-11</a>.</p>
+      </a>
+      <a class="flow-node" href="5-detail-result.html">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">③ 밴드 리듬</span>
+        <h3 style="margin:8px 0 6px;font-size:15px;font-weight:700;color:#202124">슬라이드가 아니라 페이지로</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">미리보기 위 <b>[슬라이드형] ⇄ [밴드 리듬형]</b> 토글로 개정 전후를 같은 화면에서 대조합니다. 같은 블록·같은 카피를 두 렌더러에 태웠습니다.</p>
+      </a>
+    </div>
+    <div class="rwrap" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px">
+      <a class="flow-node" href="4-detail-confirm.html">
+        <span style="font-size:11.5px;font-weight:800;color:#B96C00;letter-spacing:.04em">④ 한국어 입력 변환 (2차 개정)</span>
+        <h3 style="margin:8px 0 6px;font-size:15px;font-weight:700;color:#202124">한국어로 쓰고, 일본어로 나간다</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">한국어로 입력하면 그 블록이 <b>조용히 사라지던</b> 문제를 고쳤습니다. 확인 화면의 변환 패널에서 값을 고쳐 보세요 — 숫자를 바꾸면 <b>실제로 경고가 뜹니다</b>(서버가 쓰는 것과 같은 검사 함수).</p>
+      </a>
+      <a class="flow-node" href="3-detail-home.html#themeSection">
+        <span style="font-size:11.5px;font-weight:800;color:#D93636;letter-spacing:.04em">⑤ 테마 적용 미리보기</span>
+        <h3 style="margin:8px 0 6px;font-size:15px;font-weight:700;color:#202124">색이 어디에 어떻게 들어가는지</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">템플릿 카드가 실제 생성물로 바뀌면서 <b>테마를 바꿔도 다시 칠해지지 않습니다.</b> 실시간 반영은 테마 섹션의 도식이 담당합니다.</p>
+      </a>
+    </div>
+    <p style="margin:16px 0 0;border-radius:10px;background:#FFF8F8;padding:12px 14px;font-size:12.5px;line-height:1.7;color:#414245">⚠ <b>이 프로토가 곧 엔진 스펙입니다.</b> <code style="font-size:11.5px">detail-proto.js</code>의 상수·판정식은 <a href="../02-detail-converter-spec.md">02-detail-converter-spec.md</a> §2-6(밴드 리듬)·§2-7(테마 해석)·§2-9(입력 언어 변환)과 글자 그대로 같아야 합니다. 값을 바꾸면 문서도 같이 바꿉니다.</p>
   </section>
 
   <!-- ── 보관·재열람은 별도 노드 ──────────────────────── -->

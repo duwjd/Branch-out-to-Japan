@@ -20,7 +20,7 @@ export interface SessionPayload {
 const PREFIX = 'v1.';
 const PROVIDERS: readonly SessionProvider[] = ['email', 'kakao', 'naver', 'google'];
 /** AUTH_SECRET 미설정 시의 dev 폴백 — 운영에서는 반드시 env로 덮어써야 한다 */
-const DEV_SECRET = 'kglow-dev-insecure-session-secret';
+const DEV_SECRET = 'yoake-dev-insecure-session-secret';
 
 let secretWarned = false;
 

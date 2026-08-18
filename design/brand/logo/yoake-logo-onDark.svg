@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="103" height="26" viewBox="0 0 103 26" fill="none" role="img" aria-label="YOAKE">
+<title>YOAKE 로고 (어두운 배경)</title>
+<rect y="17.7692" width="20" height="0.904" rx="0.452" fill="#FF6F61"/>
+<rect x="1.6" y="19.5963" width="16.8" height="0.92" rx="0.46" fill="#FF6F61"/>
+<rect x="3.2" y="21.4394" width="13.6" height="0.92" rx="0.46" fill="#FF6F61"/>
+<mask id="yoake-logo-ondark-sun" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="3" width="20" height="20">
+<circle cx="10" cy="13" r="10" fill="#fff"/>
+</mask>
+<g mask="url(#yoake-logo-ondark-sun)">
+<rect y="3" width="20" height="13.8462" fill="url(#yoake-logo-ondark-grad)"/>
+</g>
+<path d="M36.2764 11.8159L39.1944 6.9917H42.1993L37.5811 14.2183V19.0073H34.9385V14.27H34.9366L30.3194 6.9917H33.4092L36.2764 11.8159Z" fill="#FFFFFF"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M51.2989 6.78564C55.0073 6.78586 57.668 9.55056 57.668 12.9663V13.0005C57.6678 16.4161 54.973 19.2142 51.2647 19.2144C47.5562 19.2144 44.8958 16.4503 44.8955 13.0347L44.8946 13.0005C44.8946 9.5846 47.5902 6.78564 51.2989 6.78564ZM51.2647 9.22314C49.1364 9.22314 47.6592 10.9062 47.6592 12.9663V13.0005C47.6594 15.0604 49.1707 16.7769 51.2989 16.7769C53.4268 16.7766 54.9031 15.0944 54.9034 13.0347V13.0005C54.9034 10.9405 53.3928 9.22334 51.2647 9.22314Z" fill="#FFFFFF"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M73.5635 19.0083H70.8008L69.7022 16.314H64.6211L63.5235 19.0083H60.8282L65.9756 6.90576H68.4131L73.5635 19.0083ZM65.5635 13.978H68.7569L67.1602 10.0815L65.5635 13.978Z" fill="#FFFFFF"/>
+<path d="M80.6709 12.2437L85.5118 6.9917H88.7559L83.8457 12.0903L88.962 19.0083H85.7862L82.0606 13.8921L80.67 15.3345V19.0073H78.0264V6.9917H80.6709V12.2437Z" fill="#FFFFFF"/>
+<path d="M102.233 9.34326H95.7959V11.7808H101.461V14.1323H95.7959V16.6558H102.319V19.0073H93.169V6.9917H102.233V9.34326Z" fill="#FFFFFF"/>
+<defs>
+<linearGradient id="yoake-logo-ondark-grad" x1="0" y1="9.92308" x2="20" y2="9.92308" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF6F61"/>
+<stop offset="1" stop-color="#FF9B70"/>
+</linearGradient>
+</defs>
+</svg>

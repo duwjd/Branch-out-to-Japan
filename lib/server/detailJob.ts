@@ -8,6 +8,7 @@
  * 그래서 검수 게이트의 "오탈자 없음"이 프롬프트 부탁이 아니라 **구조적 사실**이 된다.
  */
 
+import sharp from 'sharp';
 import { getStore, type AssetBlockRecord, type DetailInput, type GateResult, type GeneratedAssetRecord } from '../db/store';
 import { readStoredFile, saveFile } from '../files/storage';
 import { persistBlockImage, persistVisual } from '../studio/detail/persist';
@@ -32,6 +33,8 @@ import { limit } from '../studio/detail/limit';
 import { IMAGE_CONCURRENCY, outputProfile, type BlockType, type RenderKind } from '../studio/detail/output';
 import { renderBlock } from '../studio/detail/render';
 import { blockContent } from '../studio/detail/templates';
+import { hasHangul } from '../studio/detail/translate';
+import { runInputTranslate } from '../studio/detail/translateCall';
 
 export interface DetailJobInput {
   brandProfileId: string;
@@ -79,17 +82,29 @@ export async function createDetailAsset(input: DetailJobInput): Promise<Generate
   });
 }
 
+/**
+ * 비전 입력 장변 상한(px) — 이 이상은 모델이 어차피 내부에서 줄인다.
+ * 원본(장당 최대 10MB)을 그대로 보내면 base64 로 1.33배가 되어, 10장이면 프롬프트 바디가
+ * 100MB를 넘는다. 업로드 대역과 첫 토큰까지의 시간이 거기서 다 나간다.
+ */
+const VISION_MAX_EDGE = 1568;
+
 /** 첨부 이미지들을 LLM 비전 입력 형태로 읽는다(최대 10장 — client.ts 계약). */
 async function loadVisionImages(paths: string[]) {
-  const out: { mediaType: 'image/png' | 'image/jpeg' | 'image/webp'; dataBase64: string }[] = [];
-  for (const p of paths.slice(0, 10)) {
-    const f = await readStoredFile(p);
-    if (!f) continue;
-    out.push({
-      mediaType: f.contentType as 'image/png' | 'image/jpeg' | 'image/webp',
-      dataBase64: f.buf.toString('base64'),
-    });
-  }
+  // 저장소 왕복 10회를 직렬로 기다리지 않는다 — 순서는 Promise.all 이 보존한다
+  const files = await Promise.all(paths.slice(0, 10).map((p) => readStoredFile(p)));
+  const out = await Promise.all(
+    files
+      .filter((f): f is NonNullable<typeof f> => f !== null)
+      .map(async (f) => {
+        // 장변만 줄인다(비율 유지). withoutEnlargement 로 작은 이미지는 그대로 둔다.
+        const buf = await sharp(f.buf)
+          .resize({ width: VISION_MAX_EDGE, height: VISION_MAX_EDGE, fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 82 })
+          .toBuffer();
+        return { mediaType: 'image/jpeg' as const, dataBase64: buf.toString('base64') };
+      }),
+  );
   if (out.length === 0) throw new Error('첨부 이미지를 찾을 수 없습니다.');
   return out;
 }
@@ -153,10 +168,38 @@ function detailGateResult(
     checks.push({ key: 'promoValues', label: '가격·특전 입력값 그대로', note });
   }
   if (input?.spec) {
+    // 입력 언어 변환(콜⑧)이 돌았으면 "원문 그대로"가 더 이상 사실이 아니다 — 문구를 갈라 쓴다
+    const regulated = (input.sourceKo ?? []).filter(
+      (s) => s.path === 'spec.fullIngredients' || s.path === 'spec.category',
+    );
     checks.push({
       key: 'specVerbatim',
-      label: '스펙표·전성분 원문 그대로',
-      note: '区分·全成分은 입력 원문을 자단위로 렌더 — 코드·LLM이 재가공하지 않는다',
+      label: regulated.length > 0 ? '스펙표·전성분 표기 변환됨' : '스펙표·전성분 원문 그대로',
+      note:
+        regulated.length > 0
+          ? `한국어로 입력하신 ${regulated.map((s) => (s.path === 'spec.category' ? '区分' : '全成分')).join('·')}을 일본 표기로 바꿔 넣었습니다. 표시 의무 항목이니 업로드 전 반드시 실제 표기와 대조해 주세요.`
+          : '区分·全成分은 입력 원문을 자단위로 렌더 — 코드·LLM이 재가공하지 않는다',
+    });
+  }
+  // 입력 언어 변환 기록 — 브랜드 규칙·표기 확인 등급이라 passed 판정에는 넣지 않는다
+  const translated = input?.sourceKo ?? [];
+  const issues = input?.translationIssues ?? [];
+  if (translated.length > 0 || issues.length > 0) {
+    checks.push({
+      key: 'inputTranslated',
+      label: '한국어 입력 일본어 변환',
+      pass: issues.length === 0 ? undefined : false,
+      note:
+        issues.length === 0
+          ? `${translated.length}개 항목을 일본 표기로 변환했습니다. 수치는 원문과 일치하는지 자동 검사했습니다.`
+          : `${translated.length}개 변환 · ${issues.length}개 실패 — ${issues.map((i) => i.label).join(' · ')}. 실패분은 한국어 원문이 남아 해당 블록이 빠졌을 수 있습니다.`,
+    });
+  }
+  if (input?.brandKit && (input.brandKit.productNamesJa.length > 0 || input.brandKit.forbiddenTerms.length > 0)) {
+    checks.push({
+      key: 'brandKitApplied',
+      label: '브랜드 용어집·금지 표현 반영',
+      note: `등록 표기 ${input.brandKit.productNamesJa.length}건을 우선 적용하고, 금지 표현 ${input.brandKit.forbiddenTerms.length}건을 변환 지시에 실었습니다.`,
     });
   }
   if (dropped.length > 0) {
@@ -200,7 +243,10 @@ export async function runDetailJob(assetId: string): Promise<void> {
   try {
     const platform = asset.platform as Platform;
     const templateId = asset.styleCategory as TemplateId;
-    const note = asset.promptUsed ?? '';
+    // 이미지 프롬프트에 들어가는 건 **영어 변환분**이다 — 프롬프트 나머지가 전부 영어라
+    // 한국어를 그대로 섞으면 지시가 흐려진다. promptUsed 에는 한국어 원문이 그대로 남아
+    // 화면이 사용자 입력을 되비출 수 있다(콜⑧이 안 돌았으면 원문이 곧 지시다).
+    const note = input.artDirectionEn ?? asset.promptUsed ?? '';
 
     // ── plan: 결정적 시퀀스 결정(LLM 미개입) ─────────────────────────────
     await store.updateAsset(assetId, { stage: 'plan' });
@@ -253,6 +299,9 @@ export async function runDetailJob(assetId: string): Promise<void> {
     await store.updateAsset(assetId, {
       explanationJson: {
         styleReason: copy.narrativeReason,
+        // 제품명·원본 요약은 썸네일 결과 화면 전용 필드다 — 상세페이지 화면은 쓰지 않아 비운다
+        productName: '',
+        beforeSummary: '',
         copySlots: copy.copySlots,
         krElementMap: copy.krElementMap,
       },
@@ -450,7 +499,20 @@ export async function regenerateBlock(
     const needsNewVisual = kind !== 'text' && (mode === 'visual' || mode === 'both');
     if (needsNewVisual) {
       const original = await readStoredFile(asset.originalImagePath);
-      const prompt = buildBlockPrompt(blockType, row.slots, input.productCategory, true, note);
+      // 재생성 요청도 한국어로 올 수 있다 — 최초 생성과 같은 규칙으로 영어 지시로 옮긴다.
+      // 변환에 실패하면 지시를 통째로 버린다(한국어를 영어 프롬프트에 섞는 것보다 없는 편이 낫다).
+      let artNote = note ?? '';
+      if (artNote && hasHangul(artNote)) {
+        const t = await runInputTranslate({
+          input,
+          note: artNote,
+          brandKit: input.brandKit,
+          onlyNote: true,
+          onLog: (entry) => store.saveLlmLog(null, entry),
+        });
+        artNote = t.artDirectionEn;
+      }
+      const prompt = buildBlockPrompt(blockType, row.slots, input.productCategory, true, artNote);
       promptUsed = prompt;
       const usesProduct = usesProductSource(blockType);
       const gen = await generateBlockVisual({

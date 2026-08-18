@@ -106,10 +106,10 @@ export function MatchingView({
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[760px] px-6 pt-9 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
         {/* 상단 안내(MATCH-01) */}
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">KGLOW 운영</p>
+          <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">YOAKE 운영</p>
           {storeKind === 'file' && <StatusBadge tone="off">로컬 저장(dev)</StatusBadge>}
         </div>
         <h1 className="mt-2.5 text-[28px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink">일본 기업 매칭</h1>

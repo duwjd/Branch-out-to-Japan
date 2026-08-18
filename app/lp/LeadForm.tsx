@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { LEAD_CHANNELS, LEAD_STAGES, PAIN_POINTS } from '@/lib/lead';
 import { buttonClass, chipClass, fieldLabelClass, inputClass, selectClass, textareaClass } from '@/components/ui/primitives';
-import { getSource, sendTrack } from './track';
+import { getSource, sendTrack } from '@/components/landing/track';
 
 /** 칩(복수 선택) 토글 헬퍼 */
 function toggleValue(list: string[], value: string): string[] {

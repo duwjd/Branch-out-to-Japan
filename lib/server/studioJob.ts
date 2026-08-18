@@ -127,6 +127,8 @@ export async function runThumbnailJob(assetId: string): Promise<void> {
       promptUsed: prompt,
       explanationJson: {
         styleReason: copy.styleReason,
+        productName: copy.productName,
+        beforeSummary: copy.beforeSummary,
         copySlots: copy.copySlots,
         krElementMap: copy.krElementMap,
       },

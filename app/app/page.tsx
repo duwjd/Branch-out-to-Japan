@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getStore } from '@/lib/db/store';
 import { getActiveBrand } from '@/lib/server/activeBrand';
-import type { DiagnosisRequestRecord, GeneratedAssetRecord, ReportRecord } from '@/lib/db/store';
+import type { DiagnosisRequestRecord, GeneratedAssetSummary, ReportSummary } from '@/lib/db/store';
 import { PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
 import { NEXT_MEGAWARI, dDay, upcomingEvents } from '@/lib/season';
 import { ReportCoverPreview, ThumbPreview } from '@/components/app/AssetPreview';
@@ -30,7 +30,7 @@ function reportName(req: DiagnosisRequestRecord): string {
 }
 
 /** 자산 표시명 — "공식샵 신뢰 배지형 · 라쿠텐 공식샵" */
-function assetName(a: GeneratedAssetRecord): string {
+function assetName(a: GeneratedAssetSummary): string {
   return `${a.styleName} · ${PLATFORM_LABELS[a.platform as Platform] ?? a.platform}`;
 }
 
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
     store.listAssets(brandProfile.id),
   ]);
 
-  const reportByRequest = new Map<string, ReportRecord>(reports.map((r) => [r.requestId, r]));
+  const reportByRequest = new Map<string, ReportSummary>(reports.map((r) => [r.requestId, r]));
   const publishedRequests = requests.filter((r) => r.status === 'published' && reportByRequest.has(r.id));
   const doneAssets = assets.filter((a) => a.status === 'done');
   const latestPublished = publishedRequests[0] ?? null;
@@ -120,7 +120,7 @@ export default async function DashboardPage() {
               </>
             ),
             desc: '프로모션 강조형 썸네일이 메가와리 표준 문법입니다. 세트·특전 소구를 일본 구매 관례어로 재설계합니다.',
-            primary: { href: '/app/studio/thumbnail', label: '스튜디오에서 준비하기 →' },
+            primary: { href: '/app/studio', label: '스튜디오에서 준비하기 →' },
             secondary: { href: '/app/library', label: '자산 라이브러리' } as { href: string; label: string } | null,
           }
         : {
@@ -148,7 +148,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[960px] px-8 pb-24 max-sm:px-5">
+      <div className="mx-auto max-w-[1280px] px-8 pb-24 max-sm:px-5">
         {firstVisit ? (
           /* ── MAIN-06 · 첫 방문 셋업 가이드(4단계) ────────── */
           <div className="pt-16">

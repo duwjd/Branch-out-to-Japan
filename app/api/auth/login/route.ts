@@ -35,7 +35,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (!demo) {
     demo = await store.createUser({
       id: 'demo-user',
-      email: 'demo@kglow.example',
+      email: 'demo@yoake.example',
       passwordHash: null, // 소셜(목) 계정 — 비밀번호 없음
       name: '데모 사용자',
       emailVerified: true,

@@ -56,7 +56,7 @@
     <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
-    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"><img class="wm-mark" src="../../../design/brand/logo/yoake-mark.svg" alt="" aria-hidden="true"></a>
     <div style="position:relative">
       <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
         style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
@@ -436,7 +436,7 @@
 /**
  * 결과 화면 상태 로직 (RESULT-00·06) — ?state=generating/failed 파싱,
  * 파이프라인 5단계 진행 시뮬레이션(1-home.html 생성중 타일과 동일 STAGES) 후 결과 뷰로 crossfade.
- * sessionStorage(kglow_studio_job) 소비 주체는 이 화면이다 — 완료 시 잡을 제거한다.
+ * sessionStorage(yoake_studio_job) 소비 주체는 이 화면이다 — 완료 시 잡을 제거한다.
  */
 (function () {
   var STAGES = ['원본 분석 중', '일본 고객 관점으로 카피 재설계 중', '프롬프트 조립 중', '썸네일 생성 중', '검수 게이트 확인 중'];
@@ -444,7 +444,7 @@
   var genTimer = null;
 
   function readJob() {
-    try { return JSON.parse(sessionStorage.getItem('kglow_studio_job') || 'null'); } catch (e) { return null; }
+    try { return JSON.parse(sessionStorage.getItem('yoake_studio_job') || 'null'); } catch (e) { return null; }
   }
 
   function showOnly(id) {
@@ -500,7 +500,7 @@
       i += 1;
       if (i >= STAGES.length) {
         clearInterval(genTimer);
-        try { sessionStorage.removeItem('kglow_studio_job'); } catch (e) {}
+        try { sessionStorage.removeItem('yoake_studio_job'); } catch (e) {}
         paintStages(STAGES.length);
         setTimeout(crossfadeToResult, 260);
       } else {
@@ -703,7 +703,7 @@
     b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
     // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
     try {
-      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+      sessionStorage.setItem('yoake_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
     } catch (err) {}
     setTimeout(function () { location.href = BRAND_PAGE; }, 500);
   };
@@ -716,7 +716,7 @@
   var side = document.querySelector('.app-side');
   var btn = side && side.querySelector('.side-collapse');
   if (!side || !btn) return;
-  var KEY = 'kglow_sidebar_collapsed';
+  var KEY = 'yoake_sidebar_collapsed';
   function apply(c) {
     side.setAttribute('data-collapsed', String(c));
     btn.setAttribute('aria-expanded', String(!c));

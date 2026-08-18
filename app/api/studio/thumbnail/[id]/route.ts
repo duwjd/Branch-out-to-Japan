@@ -8,6 +8,7 @@ import { getSession } from '@/lib/server/session';
 import { sessionOwnsBrand } from '@/lib/server/ownership';
 import { currentLlmMode } from '@/lib/engine/llm/client';
 import { currentImageMode } from '@/lib/studio/imageGen';
+import { normalizeExplanation } from '@/lib/studio/explanation';
 import { logger } from '@/lib/logger';
 
 // after() 잡이 함수 타임아웃 등으로 죽으면 generating이 영구 고착된다 — 폴링 시점에 실패 전환(11 §3)
@@ -35,6 +36,8 @@ export async function GET(
 
   return NextResponse.json({
     ...asset,
+    // 계약이 바뀌기 전에 저장된 해설도 현재 모양으로 맞춰 내려보낸다(마이그레이션 없음)
+    explanationJson: normalizeExplanation(asset.explanationJson),
     storeKind: store.kind(),
     // 목 모드 계약(RESULT-01·02·04) — 배지·데모 파일명 판단용(환경 고정값이라 조회 시점 판정 정확)
     imageMode: currentImageMode(),

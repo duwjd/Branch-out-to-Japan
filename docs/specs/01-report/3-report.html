@@ -7,7 +7,7 @@
 <!--
   비배포 · 기획 검토용 인터랙티브 프로토타입.
   정본: 01-report-ui-기획서.md # 3. 리포트 열람 (REPORT-00~17, 구조 정본 REPORT-14 · 2026-07-22 3탭 하이브리드 개편)
-  Claude Design "KGLOW 진단 리포트 v2" 의 리포트 열람 화면을 바닐라로 이식.
+  Claude Design "YOAKE 진단 리포트 v2" 의 리포트 열람 화면을 바닐라로 이식.
   화면 속 종합점수(18/100)·薬機法 판정·페르소나·일본어 카피는 전부 정본 샘플
   (가상 브랜드 HARUON CICA 앰플)의 예시 데이터다 — 실제 진단 결과가 아니다.
 
@@ -60,7 +60,7 @@
     <button type="button" class="side-collapse" aria-expanded="true" aria-label="사이드바 접기">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
-    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px;text-decoration:none;color:#22304F">KGLOW<span>.</span></a>
+    <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"><img class="wm-mark" src="../../../design/brand/logo/yoake-mark.svg" alt="" aria-hidden="true"></a>
     <div style="position:relative">
       <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
         style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
@@ -791,7 +791,7 @@
         </div>
       </div>
 
-      <p style="margin:36px 0 0;text-align:center;font-size:11.5px;line-height:1.7;color:#B6B8BF">KGLOW · 진단 리포트 r_8f31c0a2 · 화면 속 점수·판정·일본어 카피는 정본 샘플(가상 브랜드 HARUON)의 예시 데이터입니다</p>
+      <p style="margin:36px 0 0;text-align:center;font-size:11.5px;line-height:1.7;color:#B6B8BF">YOAKE · 진단 리포트 r_8f31c0a2 · 화면 속 점수·판정·일본어 카피는 정본 샘플(가상 브랜드 HARUON)의 예시 데이터입니다</p>
     </div>
   </main>
   </div>
@@ -810,7 +810,7 @@
   <div data-action="stageClick" style="width:min(1080px,94vw);aspect-ratio:16/9;background:#fff;border-radius:12px;overflow:hidden;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.45);cursor:pointer">
     <div id="sl0" style="position:absolute;inset:0;box-sizing:border-box;display:block">
       <div style="position:absolute;inset:0;background:linear-gradient(135deg,#FF6464 0%,#D93636 100%);color:#fff;padding:7% 8%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box">
-        <p style="margin:0;font-size:15px;font-weight:800;letter-spacing:.08em;opacity:.9">KGLOW<span style="opacity:.7">.</span> 진단 리포트</p>
+        <p style="margin:0;font-size:15px;font-weight:800;letter-spacing:.08em;opacity:.9">YOAKE<span style="opacity:.7">.</span> 진단 리포트</p>
         <h3 style="margin:28px 0 0;font-size:52px;font-weight:800;letter-spacing:-0.02em;line-height:1.15">일본 시장 진입<br />진단 리포트</h3>
         <p id="slCoverBrand" style="margin:22px 0 0;font-size:24px;font-weight:700">HARUON — CICA 진정 앰플 · 스킨케어</p>
         <p style="margin:auto 0 0;font-size:15px;opacity:.85">발행 2026-07-18 · 진단 리포트 고정가 30만 원 · 보고용 요약 7장</p>
@@ -916,7 +916,7 @@
 
   // ── 브랜드/제품명 (1-input.html → sessionStorage 전달) ──
   var demo = {};
-  try { demo = JSON.parse(sessionStorage.getItem('kglow_demo') || '{}'); } catch (e) { demo = {}; }
+  try { demo = JSON.parse(sessionStorage.getItem('yoake_demo') || '{}'); } catch (e) { demo = {}; }
   var brandName = (demo.brand && demo.brand.trim()) || 'HARUON';
   var productLabel = (demo.productName && demo.productName.trim()) || 'CICA 진정 앰플';
   $('heroBrand').textContent = brandName;
@@ -1313,7 +1313,7 @@
     b.disabled = true; b.style.opacity = '.5'; b.textContent = '추가 중…';
     // 착지 화면에서 띄울 토스트를 넘긴다 (데모 — 실제 저장 없음)
     try {
-      sessionStorage.setItem('kglow_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
+      sessionStorage.setItem('yoake_brand_added', JSON.stringify({ name: name, cat: $('abCat').value }));
     } catch (err) {}
     setTimeout(function () { location.href = BRAND_PAGE; }, 500);
   };
@@ -1325,7 +1325,7 @@
   var side = document.querySelector('.app-side');
   var btn = side && side.querySelector('.side-collapse');
   if (!side || !btn) return;
-  var KEY = 'kglow_sidebar_collapsed';
+  var KEY = 'yoake_sidebar_collapsed';
   function apply(c) {
     side.setAttribute('data-collapsed', String(c));
     btn.setAttribute('aria-expanded', String(!c));

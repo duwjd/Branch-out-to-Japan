@@ -189,7 +189,7 @@ export function ProductManager() {
                   <span className="h-[52px] w-[52px] flex-none overflow-hidden rounded-[9px] border border-hairline bg-n-100">
                     {primary ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={`/api/files/${primary.fileId}`} alt="" className="h-full w-full object-cover" />
+                      <img src={`/api/files/${primary.fileId}`} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     ) : (
                       <span className="flex h-full w-full items-center justify-center text-[9px] text-ink-faint">대표컷 없음</span>
                     )}

@@ -452,6 +452,22 @@ const result = await openai.images.edit({
 - **가격 슬롯 정책 개정(2026-07-22)**: 구 정책 "가격 슬롯 v1 항상 공란"은 입력 UI가 없던 시기의 임시 차단이었다. ② 기획서 HOME-05b로 프로모션 입력(세트명·판매가 필수 / 통상가·할인율·GIFT·한정 칩·각주 선택)이 생겨 **입력값만 자단위 조립**으로 대체한다. 취소선 통상가는 `promoInput.normalPriceVerified === true`일 때만 포함한다(有利誤認 차단 목적은 동일). LLM은 여전히 가격 슬롯을 산출하지 X — 코드 소유 슬롯이다.
 - **모델컷(2026-07-22)**: F 모델+카피형은 제품컷과 별도로 모델컷 1장 + 사용 권한 동의를 입력받아 생성 호출에 `[제품컷, 모델컷]` 배열로 넘긴다. 동의 미체크분은 파이프라인 진입 자체가 불가하고, 콜⑥ studioCopy에도 2장을 함께 첨부해 `modelHandling`·`insetParagraph`가 실제 모델컷을 근거로 산출되게 한다.
 
+### 4.7b 콜⑧ inputTranslate — 입력 언어 변환 (② 상세페이지 · 2026-08-11 신설)
+
+사용자는 한국인이므로 폼 입력을 **한국어로 받는다**. 그런데 `assembleBlockSlots` 가 사용자 입력 18슬롯을 원문 그대로 satori 에 넘기고, JP 폰트에 한글 글리프가 없어 `safeText()` 가 던지면 **그 블록이 통째로 사라진다**. 그래서 렌더 이전에 표기를 옮긴다. 계약 정본은 [[specs/02-detail-converter-spec]] §2-9.
+
+**콜⑦과 성격이 정반대다.** 콜⑦은 "번역 금지 · 재설계"(마케팅 카피를 일본 고객 관점으로 다시 씀), 콜⑧은 "재설계 금지 · 표기 변환"(가격·성분·시험 같은 **근거**를 값 그대로 옮김). 여기서 모델이 창의를 발휘하면 표시 사실이 변조된다.
+
+- **실행 조건**: 입력에 한글이 하나라도 있을 때만. 없으면 콜 0회이고 산출은 이 단계 도입 전과 동일하다.
+- **위치**: analyze 직후, plan 이전. 확인 화면(`POST /api/studio/detail/plan`)에서 먼저 돌고, 사용자가 검토·수정한 값이 제출(`POST /api/studio/detail`)에 hidden `translationJson` 으로 실려 온다. 원문(`kr`)을 함께 보내 서버가 현재 입력과 대조하므로, 그 사이 입력이 바뀌었으면 캐시를 버리고 다시 부른다.
+- **system**: `buildStableGrounding('inputTranslate', category, '화장품')` — 재설계 금지 + 숫자 불변 + 한글 잔존 금지 + 필드 성격별 취급 + 약기법 프레임 + 렉시콘 20.
+- **요청**: `{ path, kind, label, 원문 }` 목록 + brandKit(등록 표기 사전 · 금지 표현 · 톤 가이드) + 카테고리. `maxTokens: 6000`.
+- **응답**: `{ fields: [{ path, ja }], artDirectionEn }`. `note`(추가 요청)는 **일본어가 아니라 영어**로 `artDirectionEn` 에 담긴다 — 이미지 프롬프트 나머지가 전부 영어라 언어를 섞으면 지시가 흐려진다.
+- **`validate` 는 경로 누락만 본다.** 숫자·한글·금지표현은 전부 사후 검사다 — `client.ts` 가 교정 1회 후 throw 라, 필드 하나를 모델이 두 번 고집하면 생성 전체가 죽는다.
+- **결정적 선처리**: 区分 매핑표와 brandKit 사전이 LLM 이전에 확정한다. `spec.category` 는 코드가 `'医薬部外品'` 문자열 비교로 히어로 라벨을 켜므로 모델에 맡기면 안 된다.
+- **저장**: 변환값은 `generated_assets.detail_input` 본 필드에 들어가고, 원문은 같은 jsonb 의 `sourceKo` 에 스냅샷된다(**신규 컬럼 0개**). `artDirectionEn`·`brandKit`·`translationIssues` 도 같은 자리. 전부 optional — `regenerateBlock` 이 구 자산의 `detail_input` 을 그대로 읽는다.
+- **게이트**: `inputTranslated`(변환 N건·실패 M건) · `brandKitApplied` · `specVerbatim`(규제 텍스트가 변환됐으면 문구가 「표기 변환됨 — 업로드 전 대조」로 바뀐다). 셋 다 `passed` 판정에는 넣지 않는다.
+
 ### 4.8 호출 순서 — 병렬 구간
 
 ```mermaid

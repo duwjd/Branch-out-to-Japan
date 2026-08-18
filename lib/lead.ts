@@ -17,6 +17,27 @@ export const LEAD_CHANNELS = [
   { value: 'undecided', label: '아직 미정' },
 ] as const;
 
+/**
+ * 파일럿 신청 폼(랜딩 `/`)의 목표 채널 칩 — Figma LP 2026-08 정본.
+ * `/lp`의 LEAD_CHANNELS와 따로 두는 이유: 랜딩은 라쿠텐을 공식샵/리셀러로 나눠 묻는다
+ * (스튜디오 플랫폼 축과 같은 구분). 두 목록 모두 같은 leads.channels(jsonb)에 들어가고,
+ * 서버는 어느 쪽 값이든 화이트리스트로 통과시킨다 — 스키마 변경이 필요 없다.
+ */
+export const PILOT_CHANNELS = [
+  { value: 'qoo10', label: 'Qoo10' },
+  { value: 'amazon', label: '아마존JP' },
+  { value: 'own', label: '자사몰' },
+  { value: 'rakuten_official', label: '라쿠텐 공식샵' },
+  { value: 'rakuten_reseller', label: '라쿠텐 리셀러' },
+  { value: 'etc', label: '기타' },
+] as const;
+
+/** 파일럿 신청 폼의 "필요한 서비스" — 선택 결과는 memo에 한 줄로 적어 남긴다 */
+export const PILOT_SERVICES = ['진단 리포트', '썸네일', '상세페이지'] as const;
+
+/** 파일럿 신청 폼의 제품 카테고리 — 앱의 Category 축과 같은 4종 */
+export const PILOT_CATEGORIES = ['스킨케어', '메이크업', '선케어', '클렌징'] as const;
+
 /** 브랜드 현재 단계 — 상담 폼 단일 선택 */
 export const LEAD_STAGES = [
   { value: 'prep', label: '입점 준비 중' },
@@ -59,7 +80,10 @@ export const TRACK_EVENT_TYPES: readonly TrackEventType[] = [
   'lead_submit',
 ];
 
-const CHANNEL_VALUES = LEAD_CHANNELS.map((c) => c.value as string);
+const CHANNEL_VALUES = [
+  ...LEAD_CHANNELS.map((c) => c.value as string),
+  ...PILOT_CHANNELS.map((c) => c.value as string),
+];
 const STAGE_VALUES = LEAD_STAGES.map((s) => s.value as string);
 const PAIN_VALUES = PAIN_POINTS as readonly string[];
 
@@ -76,7 +100,11 @@ export function isKnownPainPoint(v: unknown): v is string {
 
 /** 채널/단계 value → 라벨(대시보드·확인 화면 표시용) */
 export function channelLabel(value: string): string {
-  return LEAD_CHANNELS.find((c) => c.value === value)?.label ?? value;
+  return (
+    LEAD_CHANNELS.find((c) => c.value === value)?.label ??
+    PILOT_CHANNELS.find((c) => c.value === value)?.label ??
+    value
+  );
 }
 export function stageLabel(value: string): string {
   return LEAD_STAGES.find((s) => s.value === value)?.label ?? value;
