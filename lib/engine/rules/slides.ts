@@ -12,6 +12,7 @@
 
 import type { BlocksJson, DeckSpec, RubricGroup, SlideCopy, SlideKey } from '../types';
 import { slideKeysFor } from '../types';
+import { GROUP_LABELS_PREFIXED } from '../../report/labels';
 
 /** design/DESIGN.md 코랄 시스템 — 로고색이 아니라 DS 토큰 */
 const T = {
@@ -30,14 +31,6 @@ const T = {
   safe: '#26775b',
   safeBg: '#e8f4f0',
 } as const;
-
-const GROUP_LABELS: Record<RubricGroup, string> = {
-  A: 'A 신뢰 구축',
-  B: 'B 무첨가·안전',
-  C: 'C 서사 구조',
-  D: 'D 성분 프레이밍',
-  E: 'E 카테고리 적합성',
-};
 
 /** HTML 특수문자 이스케이프 — 모든 동적 문자열의 유일한 출구 */
 export function escapeHtml(value: string): string {
@@ -124,12 +117,12 @@ function conclusionSlide(copy: SlideCopy, b: BlocksJson): string {
 function scoreSlide(copy: SlideCopy, b: BlocksJson): string {
   const b1 = requireScored(b);
   const b5 = requireBlock(b.block5, '점수');
-  const bars = (Object.keys(GROUP_LABELS) as RubricGroup[])
+  const bars = (Object.keys(GROUP_LABELS_PREFIXED) as RubricGroup[])
     .map((g) => {
       const pct = b5.groupScores[g] ?? 0;
       return [
         '<div class="bar">',
-        `<span class="lb">${escapeHtml(GROUP_LABELS[g])}</span>`,
+        `<span class="lb">${escapeHtml(GROUP_LABELS_PREFIXED[g])}</span>`,
         `<span class="tr"><i style="width:${pct}%"></i></span>`,
         `<span class="pc">${pct}%</span>`,
         '</div>',

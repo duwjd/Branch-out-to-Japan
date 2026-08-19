@@ -34,9 +34,14 @@ interface ShellProps {
   children: React.ReactNode;
 }
 
+/**
+ * 운영 하위 메뉴 — 사용자가 실제로 밟는 순서(설정 → 보관 → 준비 → 확장)로 둔다.
+ * 기획서 LIB-00(2026-07-22 개정) 순서에 시즌 캘린더를 3번째로 신설(2026-08-19).
+ */
 const OPS_ITEMS = [
-  { href: '/app/library', label: '자산 라이브러리' },
   { href: '/app/brand', label: '브랜드 관리' },
+  { href: '/app/library', label: '자산 라이브러리' },
+  { href: '/app/season', label: '시즌 캘린더' },
   { href: '/app/matching', label: '기업 매칭' },
 ];
 
@@ -141,7 +146,8 @@ export function AppShell({ user, matchBadge, children }: ShellProps) {
         <IconImage className={studioActive ? 'text-coral-strong' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>마케팅 스튜디오</span>
       </Link>
-      <Link href="/app/library" className={navClass(opsActive)}>
+      {/* 운영 착지는 첫 항목 브랜드 관리 — 운영에는 홈 화면이 없다(기획서 # 0) */}
+      <Link href="/app/brand" className={navClass(opsActive)} aria-expanded={opsActive}>
         <IconBox className={opsActive ? 'text-coral-strong' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>운영</span>
       </Link>

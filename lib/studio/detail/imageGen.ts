@@ -9,7 +9,13 @@
 
 import OpenAI, { toFile } from 'openai';
 import { logger } from '../../logger';
-import { currentImageMode, imageModel, type ImageMode } from '../imageGen';
+import {
+  currentImageMode,
+  imageModel,
+  isInputFidelityRejection,
+  noInputFidelityModels,
+  type ImageMode,
+} from '../imageGen';
 import type { BlockType } from './output';
 
 export { currentImageMode, imageModel } from '../imageGen';
@@ -207,6 +213,9 @@ export async function generateBlockVisual(opts: GenerateBlockVisualOptions): Pro
   if (opts.source) {
     const mediaType = opts.sourceMediaType ?? 'image/png';
     params.image = await toFile(opts.source, `source.${mediaType === 'image/png' ? 'png' : 'jpg'}`, { type: mediaType });
+    // 라벨·로고 보존 파라미터 — 썸네일 경로와 같은 가드를 공유한다. 기본 모델(gpt-image-2)은
+    // 항상 고정밀이라 붙이지 않지만, OPENAI_IMAGE_MODEL 을 바꾸면 상세만 보존을 잃던 구멍이었다.
+    if (!noInputFidelityModels.has(model)) params.input_fidelity = 'high';
   }
 
   // 요청별 timeout — 클라이언트는 프로세스당 1개라 기본값을 바꿀 수 없다.
@@ -222,7 +231,17 @@ export async function generateBlockVisual(opts: GenerateBlockVisualOptions): Pro
   try {
     res = await call();
   } catch (err) {
-    if (isSizeRejection(err) && params.size !== FALLBACK_SIZE) {
+    if ('input_fidelity' in params && isInputFidelityRejection(err)) {
+      // env로 교체한 미지 모델이 파라미터를 거부하는 경우 — 제거 후 1회 재시도(스펙 §6-Q1)
+      noInputFidelityModels.add(model);
+      logger.warn('input_fidelity 미지원 모델 — 파라미터 제거 후 재시도', { model, blockType: opts.blockType });
+      delete params.input_fidelity;
+      try {
+        res = await call();
+      } catch (retryErr) {
+        throw classifyImageError(retryErr, label);
+      }
+    } else if (isSizeRejection(err) && params.size !== FALLBACK_SIZE) {
       // 세로 슬롯을 지원하지 않는 모델 — 정사각으로 1회 재시도하고 이후 결합 단계가 리사이즈한다
       noTallSizeModels.add(model);
       logger.warn('세로 크기 미지원 모델 — 정사각으로 재시도', { model, blockType: opts.blockType });

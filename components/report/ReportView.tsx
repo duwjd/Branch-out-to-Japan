@@ -11,18 +11,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { buttonClass, cardClass, StatusBadge } from '@/components/ui/primitives';
 import type { AuditVerdict, BlocksJson, RewriteResult, RubricGroup, RubricItemId } from '@/lib/engine/types';
+// 그룹 라벨·밴딩은 카드·요약·슬라이드와 공유한다(사본 금지)
+import { BAND_BADGE, BAND_BAR, BAND_LABEL, GROUP_LABELS, GROUP_ORDER, scoreBand } from '@/lib/report/labels';
 
 /** 3탭 하이브리드(REPORT-14) — 블록0·1은 탭 위 상단 고정, 본문만 3탭으로 */
 const TAB_LABELS = ['시장', '진단', '처방'];
-
-const GROUP_ORDER: RubricGroup[] = ['A', 'B', 'C', 'D', 'E'];
-const GROUP_LABELS: Record<RubricGroup, string> = {
-  A: '신뢰 구축',
-  B: '무첨가·안전',
-  C: '서사 구조',
-  D: '성분 프레이밍',
-  E: '카테고리 적합성',
-};
 
 const VERDICT_BADGE: Record<AuditVerdict, string> = {
   불가: 'bg-danger-bg text-danger-text',
@@ -39,26 +32,6 @@ const CIRCLED_DIGITS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
 /** 1-based 순번 → 원문자(①…⑳). 약기법 문장은 화면에서 K-id 대신 이 순번으로만 표기한다(라벨 정책) */
 function circledNumber(n: number): string {
   return n >= 1 && n <= CIRCLED_DIGITS.length ? CIRCLED_DIGITS[n - 1] : String(n);
-}
-
-type Band = 'danger' | 'warn' | 'ok';
-const BAND_LABEL: Record<Band, string> = { danger: '위험', warn: '미흡', ok: '양호' };
-const BAND_BADGE: Record<Band, string> = {
-  danger: 'bg-danger-bg text-danger-text',
-  warn: 'bg-amber-bg text-amber-text',
-  ok: 'bg-green-bg text-green-text',
-};
-const BAND_BAR: Record<Band, string> = { danger: 'bg-danger', warn: 'bg-amber', ok: 'bg-green' };
-
-/**
- * 그룹 점수(%) → 위험/미흡/양호 — 블록5(A~E 상세 표)에서만 쓰는 화면 보조 밴딩이다.
- * 종합점수(블록1) 자체의 시급/보완/양호 라벨은 임계값 근거 부족으로 표기하지 않는다(스펙 REPORT-04) —
- * 혼동하지 않도록 이 밴딩은 그룹별 상세 막대에만 적용한다.
- */
-function scoreBand(score: number): Band {
-  if (score < 20) return 'danger';
-  if (score < 60) return 'warn';
-  return 'ok';
 }
 
 /** 데이터 잠금 카드(브랜드 진단) — 산출하지 않은 것을 빈 값·0건으로 위장하지 않는다(증거 원칙) */

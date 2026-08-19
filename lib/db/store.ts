@@ -392,6 +392,23 @@ export interface TrackEventRecord {
   createdAt: string;
 }
 
+/**
+ * 시즌 캘린더 메모(SEASON-03) — 브랜드가 특정 날짜·기간에 적어 두는 준비 메모.
+ * 시즌 이벤트 자체는 `lib/season.ts` 상수라 저장하지 않는다. 저장 대상은 사용자가 적은 것뿐이다.
+ * 예약·발행·알림 트리거가 아니다 — 화면에 다시 보여주기만 한다(금지 포지션).
+ */
+export interface SeasonMemoRecord {
+  id: string;
+  brandProfileId: string;
+  /** 시작일 YYYY-MM-DD(로컬) */
+  startDate: string;
+  /** 종료일 YYYY-MM-DD — null이면 단일 날짜 메모 */
+  endDate: string | null;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /** 브랜드 생성 입력 — id·타임스탬프는 스토어가 부여 */
 export type NewBrandProfile = Omit<BrandProfileRecord, 'id' | 'createdAt' | 'updatedAt'>;
 
@@ -511,6 +528,16 @@ export interface Store {
     patch: Partial<Pick<ProductRecord, 'nameKr' | 'nameJa' | 'category' | 'memo' | 'images'>>,
   ): Promise<void>;
   deleteProduct(id: string): Promise<void>;
+  // ── 시즌 캘린더 메모(SEASON-03) — 브랜드별 스코핑 ──────────────────────────
+  /** 시작일 오름차순 */
+  listSeasonMemos(brandProfileId: string): Promise<SeasonMemoRecord[]>;
+  getSeasonMemo(id: string): Promise<SeasonMemoRecord | null>;
+  createSeasonMemo(input: Omit<SeasonMemoRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<SeasonMemoRecord>;
+  updateSeasonMemo(
+    id: string,
+    patch: Partial<Pick<SeasonMemoRecord, 'startDate' | 'endDate' | 'body'>>,
+  ): Promise<void>;
+  deleteSeasonMemo(id: string): Promise<void>;
 }
 
 let storeInstance: Store | null = null;

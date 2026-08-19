@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { BrandProfileRecord, ReportSummary } from '@/lib/db/store';
-import type { RubricGroup } from '@/lib/engine/types';
 import { POSITIONING_TAGS } from '@/lib/engine/rules/positioning';
+import { GROUP_LABELS_PREFIXED, GROUP_ORDER } from '@/lib/report/labels';
 import type { UpcomingEvent } from '@/lib/season';
 import { cardClass } from '@/components/ui/primitives';
 
@@ -10,15 +10,6 @@ import { cardClass } from '@/components/ui/primitives';
  * 전부 기존 엔티티 재조회 전용(홈은 아무것도 저장하지 않는다 — 08 §7). 서버 컴포넌트.
  */
 
-const GROUP_ORDER: RubricGroup[] = ['A', 'B', 'C', 'D', 'E'];
-/** 리포트 GROUP_LABELS 정본과 동일(ReportView·slides.ts) */
-const GROUP_LABELS: Record<RubricGroup, string> = {
-  A: 'A 신뢰 구축',
-  B: 'B 무첨가·안전',
-  C: 'C 서사 구조',
-  D: 'D 성분 프레이밍',
-  E: 'E 카테고리 적합성',
-};
 const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
   skincare: { kr: '스킨케어', ja: 'スキンケア' },
   makeup: { kr: '메이크업', ja: 'メイク' },
@@ -168,7 +159,7 @@ export function ReportSummaryWidget({
               const pct = report.groupScores[g] ?? 0;
               return (
                 <div key={g} className="flex items-center gap-2.5 text-[11.5px]">
-                  <dt className="w-[92px] flex-none text-ink-body">{GROUP_LABELS[g]}</dt>
+                  <dt className="w-[92px] flex-none text-ink-body">{GROUP_LABELS_PREFIXED[g]}</dt>
                   <dd className="m-0 flex flex-1 items-center gap-2.5">
                     <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-n-150">
                       <span className="block h-full rounded-full bg-coral" style={{ width: `${pct}%` }} />
@@ -230,8 +221,8 @@ export function UpcomingEventsWidget({ events, banner }: { events: UpcomingEvent
           다가오는 이벤트
         </h2>
         <span className="ml-auto text-[12px]">
-          <Link href="/app/library" className="font-semibold text-coral-strong no-underline hover:underline">
-            시즌 전체 보기 →
+          <Link href="/app/season" className="font-semibold text-coral-strong no-underline hover:underline">
+            시즌 캘린더 →
           </Link>
         </span>
       </div>
@@ -257,7 +248,6 @@ export function UpcomingEventsWidget({ events, banner }: { events: UpcomingEvent
           );
         })}
       </ul>
-      <p className="mt-3 text-[11.5px] text-ink-faint">일정 예약 도구가 아니에요. 지금 무엇을 준비할지 보는 캘린더입니다.</p>
       </section>
     </div>
   );

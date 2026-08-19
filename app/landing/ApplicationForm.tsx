@@ -24,8 +24,9 @@ export function ApplicationForm() {
   const [contact, setContact] = useState('');
   const [category, setCategory] = useState('');
   const [stage, setStage] = useState('');
-  const [channels, setChannels] = useState<string[]>([]);
-  const [services, setServices] = useState<string[]>([]);
+  // 시안 기본값 — 가장 많이 쓰는 채널과 MVP 핵심 산출물을 미리 켜 둔다(둘 다 해제 가능)
+  const [channels, setChannels] = useState<string[]>(['qoo10']);
+  const [services, setServices] = useState<string[]>(['진단 리포트']);
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

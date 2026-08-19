@@ -1,20 +1,30 @@
 /**
- * 시즌 캘린더 상수 — 다음 메가와리 D-day는 사이드바 KPI·홈·라이브러리가 공유한다.
- * (일정 예약 도구가 아니라 "지금 무엇을 준비할지" 보는 조회 전용 데이터 — LIB-02 · ⓪ MAIN-12)
+ * 시즌 캘린더 데이터 정본 — 홈 위젯(⓪ MAIN-12)·시즌 캘린더 화면(SEASON-01~03)이 함께 쓴다.
+ *
+ * "지금 무엇을 준비할지"만 다루는 조회 데이터다. 예약·발행·알림 기능은 이 모듈로 만들지 않는다
+ * (SNS 예약 발행툴은 금지 포지션 — docs/00-positioning.md).
+ *
+ * 2026-08-19 개편: 시즌 캘린더가 별도 화면(`/app/season`)으로 독립하면서
+ *  ① `SEASON_EVENTS` 를 export 해 화면이 좌표를 다시 하드코딩하지 않게 하고
+ *  ② 메가와리를 연 4회(3·6·9·11월) 전부 넣어 어느 달로 이동해도 시즌이 비지 않게 하고
+ *  ③ 이벤트별 준비 항목(`prepSteps`)과 착수 시점(`leadDays`)을 데이터로 내려 추천을 규칙으로 만든다.
+ * 근거: research/beautyContent/일본_뷰티_인스타그램_컨텐츠_마케팅_리서치.md §11.
  */
-
-export const NEXT_MEGAWARI = { label: '9월 메가와리', month: '9월', date: '2026-09-01' };
 
 const MS_DAY = 86_400_000;
 
-/** 대상 날짜까지 남은 일수(음수면 0) */
-export function dDay(target: string): number {
-  const diff = new Date(target).getTime() - Date.now();
-  return Math.max(0, Math.ceil(diff / MS_DAY));
+/** 시즌 준비 항목 1건 — 추천 패널의 체크리스트 줄이 된다 */
+export interface SeasonPrepStep {
+  /** 무엇을 준비하는가 */
+  what: string;
+  /** 왜 지금인가(일본 구매 관례 근거) */
+  why: string;
+  /** 이어지는 축 — 있으면 해당 화면으로 가는 링크를 그린다 */
+  axis?: 'report' | 'thumbnail' | 'detail';
 }
 
-/** 시즌 이벤트 정의 — 월/일 기준(연도는 upcomingEvents가 now로 해석) */
-interface SeasonEventDef {
+/** 시즌 이벤트 정의 — 월/일 기준(연도는 조회 함수가 now로 해석) */
+export interface SeasonEventDef {
   id: string;
   name: string;
   /** 'period' = 기간형(진행 중 가능) · 'point' = 시점형 */
@@ -27,14 +37,17 @@ interface SeasonEventDef {
   when: string;
   /** 준비 한 줄 */
   prep: string;
+  /** 시작 이 일수 안으로 들어오면 "지금 착수할 시점"으로 본다 */
+  leadDays: number;
+  /** 준비 항목 — 추천 패널이 체크리스트로 편다 */
+  prepSteps: SeasonPrepStep[];
 }
 
 /**
  * 일본 뷰티 시즌 이벤트 — 메가와리 3·6·9·11월 · 크리스마스 코프레 · UV 상전 · 가을 신색.
- * 근거: research/beautyContent/일본_뷰티_인스타그램_컨텐츠_마케팅_리서치.md §11.
- * 라이브러리 시즌 타임라인(LIB-02)과 같은 좌표를 쓴다 — 조회 전용, 예약·발행 없음.
+ * 정의 순서는 dDay 동률일 때의 표기 순서가 된다(정렬이 안정 정렬이므로).
  */
-const SEASON_EVENTS: SeasonEventDef[] = [
+export const SEASON_EVENTS: SeasonEventDef[] = [
   {
     id: 'uv-shift',
     name: 'UV 상전',
@@ -43,6 +56,24 @@ const SEASON_EVENTS: SeasonEventDef[] = [
     to: [7, 31],
     when: '4월 ~ 7월 말 · 기간형',
     prep: '선케어 상세·톤업 소구를 일본 자외선 관례어로 다듬을 시점',
+    leadDays: 45,
+    prepSteps: [
+      {
+        what: 'SPF·PA 표기를 일본 표기 관례로 맞춘다',
+        why: '일본 상세는 SPF50+/PA++++ 를 스펙 표가 아니라 첫 화면에서 읽게 둔다',
+        axis: 'detail',
+      },
+      {
+        what: '톤업·화장 밀림 소구를 일본 고민 어휘로 바꾼다',
+        why: '「白浮き」「化粧崩れ」가 검색·리뷰에서 실제로 쓰이는 말이다',
+        axis: 'report',
+      },
+      {
+        what: '질감컷(밀림 없는 마무리)을 썸네일 1장으로 뽑는다',
+        why: '선케어는 발림성 판단이 구매 직전 확인 지점이다',
+        axis: 'thumbnail',
+      },
+    ],
   },
   {
     id: 'autumn-shade',
@@ -52,6 +83,19 @@ const SEASON_EVENTS: SeasonEventDef[] = [
     to: [9, 30],
     when: '7월 하순 ~ 9월 · 기간형',
     prep: '색조 신제품 컷과 발색 표현을 미리 정리할 시점',
+    leadDays: 45,
+    prepSteps: [
+      {
+        what: '컬러칩·발색 스와치를 색 이름과 함께 정리한다',
+        why: '일본 색조 상세는 색 이름·퍼스널컬러 축을 먼저 보여준다',
+        axis: 'detail',
+      },
+      {
+        what: '퍼스널컬러(イエベ·ブルベ) 축으로 색을 나눠 적는다',
+        why: '가을 신색은 퍼스널컬러 검색과 함께 소비된다',
+        axis: 'report',
+      },
+    ],
   },
   {
     id: 'xmas-coffret',
@@ -61,6 +105,66 @@ const SEASON_EVENTS: SeasonEventDef[] = [
     to: [10, 31],
     when: '8월 하순 해금 → 10월 하순 발매 · 기간형',
     prep: '한정 세트 구성과 数量限定 표기를 확정할 시점',
+    leadDays: 60,
+    prepSteps: [
+      {
+        what: '세트 구성과 수량 한정 표기를 확정한다',
+        why: '「数量限定」은 실제 수량 근거가 있을 때만 쓸 수 있는 표기다',
+        axis: 'detail',
+      },
+      {
+        what: '선물 소구(누구에게·왜)를 카피로 정리한다',
+        why: '코프레는 본인용보다 기프트 문맥에서 먼저 검색된다',
+        axis: 'report',
+      },
+      {
+        what: '세트 전체가 한 컷에 보이는 썸네일을 만든다',
+        why: '한정 세트는 구성이 한눈에 보여야 비교 대상에 오른다',
+        axis: 'thumbnail',
+      },
+    ],
+  },
+  {
+    id: 'megawari-3',
+    name: '3월 메가와리',
+    kind: 'point',
+    from: [3, 1],
+    when: '3월 초 · 시점형',
+    prep: '신학기·환절기 소구와 세트 가격 문구를 준비하는 시기',
+    leadDays: 30,
+    prepSteps: [
+      {
+        what: '세트 가격·쿠폰 문구를 일본 구매 관례어로 쓴다',
+        why: '메가와리는 가격 비교가 먼저다 — 할인율보다 실구매가 표기가 읽힌다',
+        axis: 'thumbnail',
+      },
+      {
+        what: '환절기 고민(건조·트러블)로 소구를 다시 잡는다',
+        why: '3월은 환절기 피부 고민 검색이 오르는 구간이다',
+        axis: 'report',
+      },
+    ],
+  },
+  {
+    id: 'megawari-6',
+    name: '6월 메가와리',
+    kind: 'point',
+    from: [6, 1],
+    when: '6월 초 · 시점형',
+    prep: '장마철·자외선 소구와 세트 가격 문구를 준비하는 시기',
+    leadDays: 30,
+    prepSteps: [
+      {
+        what: '세트 가격·쿠폰 문구를 일본 구매 관례어로 쓴다',
+        why: '메가와리는 가격 비교가 먼저다 — 할인율보다 실구매가 표기가 읽힌다',
+        axis: 'thumbnail',
+      },
+      {
+        what: '장마철 습도·번들거림 소구를 정리한다',
+        why: '6월은 「テカリ」「べたつき」 검색이 오르는 구간이다',
+        axis: 'report',
+      },
+    ],
   },
   {
     id: 'megawari-9',
@@ -69,6 +173,24 @@ const SEASON_EVENTS: SeasonEventDef[] = [
     from: [9, 1],
     when: '9월 초 · 시점형',
     prep: '프로모션 강조형 썸네일과 세트 가격 문구를 준비하는 시기',
+    leadDays: 30,
+    prepSteps: [
+      {
+        what: '프로모션 강조형 썸네일을 만든다',
+        why: '메가와리 기간에는 목록 화면에서 가격·특전이 먼저 비교된다',
+        axis: 'thumbnail',
+      },
+      {
+        what: '세트 구성·특전을 일본 구매 관례어로 다시 쓴다',
+        why: '「まとめ買い」「おまけ」처럼 일본 쪽에서 실제로 쓰는 말이 따로 있다',
+        axis: 'report',
+      },
+      {
+        what: '통상가 취소선을 쓸 근거가 있는지 확인한다',
+        why: '실판매 실적 없는 통상가 병기는 有利誤認에 해당한다',
+        axis: 'detail',
+      },
+    ],
   },
   {
     id: 'megawari-11',
@@ -77,8 +199,36 @@ const SEASON_EVENTS: SeasonEventDef[] = [
     from: [11, 1],
     when: '11월 초 · 시점형',
     prep: '연말 세트·기프트 소구를 일본 구매 관례어로 준비할 시점',
+    leadDays: 30,
+    prepSteps: [
+      {
+        what: '연말 기프트 세트 구성을 정리한다',
+        why: '11월 메가와리는 연말 선물 수요와 겹친다',
+        axis: 'detail',
+      },
+      {
+        what: '기프트 소구 썸네일을 준비한다',
+        why: '선물 문맥은 본인용과 첫 컷 문법이 다르다',
+        axis: 'thumbnail',
+      },
+    ],
   },
 ];
+
+/** 메가와리 이벤트만 추린 id 집합 — 화면이 노드를 강조할 때 쓴다 */
+const MEGAWARI_IDS = new Set(['megawari-3', 'megawari-6', 'megawari-9', 'megawari-11']);
+
+/** 로컬 자정 기준 타임스탬프 */
+function at(year: number, month: number, day: number): number {
+  return new Date(year, month - 1, day).getTime();
+}
+
+/** 그 해 주기로 해석한 이벤트 구간 */
+function resolveIn(e: SeasonEventDef, year: number): { startsAt: number; endsAt: number } {
+  const startsAt = at(year, e.from[0], e.from[1]);
+  const endsAt = e.to ? at(year, e.to[0], e.to[1]) : startsAt;
+  return { startsAt, endsAt };
+}
 
 export interface UpcomingEvent {
   id: string;
@@ -101,18 +251,134 @@ export interface UpcomingEvent {
 export function upcomingEvents(now: Date, limit = 3): UpcomingEvent[] {
   const year = now.getFullYear();
   const nowT = now.getTime();
-  const at = (mo: number, d: number, yr: number): number => new Date(yr, mo - 1, d).getTime();
 
   return SEASON_EVENTS.map((e) => {
     // 종료(시점형은 시작)가 이미 지났으면 내년 주기로 이동
-    const endThisYear = e.to ? at(e.to[0], e.to[1], year) : at(e.from[0], e.from[1], year);
-    const yr = endThisYear < nowT ? year + 1 : year;
-    const startT = at(e.from[0], e.from[1], yr);
-    const endT = e.to ? at(e.to[0], e.to[1], yr) : startT;
-    const inProgress = e.kind === 'period' && nowT >= startT && nowT <= endT;
-    const dDayVal = inProgress ? 0 : Math.max(0, Math.ceil((startT - nowT) / MS_DAY));
+    const thisYear = resolveIn(e, year);
+    const yr = thisYear.endsAt < nowT ? year + 1 : year;
+    const { startsAt, endsAt } = resolveIn(e, yr);
+    const inProgress = e.kind === 'period' && nowT >= startsAt && nowT <= endsAt;
+    const dDayVal = inProgress ? 0 : Math.max(0, Math.ceil((startsAt - nowT) / MS_DAY));
     return { id: e.id, name: e.name, kind: e.kind, when: e.when, prep: e.prep, dDay: dDayVal, inProgress };
   })
     .sort((a, b) => a.dDay - b.dDay)
     .slice(0, limit);
+}
+
+/** 특정 연도 주기로 해석한 시즌 이벤트 — 캘린더 셀 렌더 입력 */
+export interface ResolvedSeasonEvent {
+  id: string;
+  name: string;
+  kind: 'period' | 'point';
+  when: string;
+  prep: string;
+  /** 실제 시작 자정(ms) */
+  startsAt: number;
+  /** 실제 종료 자정(ms) — 시점형은 startsAt과 같다 */
+  endsAt: number;
+  /** 메가와리 계열인가 — 화면이 노드를 코랄로 강조한다 */
+  isMegawari: boolean;
+}
+
+/**
+ * 해당 월(1~12)에 하루라도 걸치는 시즌 이벤트를 실제 날짜로 해석해 돌려준다.
+ * 앞뒤 해 주기까지 훑어 연말·연초를 넘나드는 구간도 놓치지 않는다.
+ * 시작이 이른 순 → 기간이 긴 순으로 정렬해 캘린더 바가 위에서부터 안정적으로 쌓이게 한다.
+ * @param year 대상 연도
+ * @param month 대상 월(1~12)
+ */
+export function eventsInMonth(year: number, month: number): ResolvedSeasonEvent[] {
+  const monthStart = at(year, month, 1);
+  const monthEnd = new Date(year, month, 0).getTime(); // 다음 달 0일 = 이번 달 말일
+
+  const out: ResolvedSeasonEvent[] = [];
+  for (const e of SEASON_EVENTS) {
+    for (const yr of [year - 1, year, year + 1]) {
+      const { startsAt, endsAt } = resolveIn(e, yr);
+      if (endsAt < monthStart || startsAt > monthEnd) continue;
+      out.push({
+        id: e.id,
+        name: e.name,
+        kind: e.kind,
+        when: e.when,
+        prep: e.prep,
+        startsAt,
+        endsAt,
+        isMegawari: MEGAWARI_IDS.has(e.id),
+      });
+    }
+  }
+  const span = (e: ResolvedSeasonEvent): number => e.endsAt - e.startsAt;
+  return out.sort((a, b) => a.startsAt - b.startsAt || span(b) - span(a));
+}
+
+/** 다음 메가와리 — 홈 KPI·라이브러리 제안 카드가 같은 값을 쓴다 */
+export function nextMegawari(now: Date): { id: string; label: string; month: string; dDay: number } {
+  const mega = SEASON_EVENTS.filter((e) => MEGAWARI_IDS.has(e.id));
+  const year = now.getFullYear();
+  const nowT = now.getTime();
+  const resolved = mega
+    .map((e) => {
+      const yr = resolveIn(e, year).startsAt < nowT ? year + 1 : year;
+      return { id: e.id, label: e.name, month: `${e.from[0]}월`, startsAt: resolveIn(e, yr).startsAt };
+    })
+    .sort((a, b) => a.startsAt - b.startsAt);
+  const next = resolved[0];
+  return {
+    id: next.id,
+    label: next.label,
+    month: next.month,
+    dDay: Math.max(0, Math.ceil((next.startsAt - nowT) / MS_DAY)),
+  };
+}
+
+/** 추천 계산에 쓰는 브랜드 준비 상태 — 자산 유무만 본다(수치·성과는 보지 않는다) */
+export interface BrandReadiness {
+  hasReport: boolean;
+  hasThumbnail: boolean;
+  hasDetail: boolean;
+}
+
+export interface SeasonRecommendation {
+  event: UpcomingEvent;
+  /** leadDays 안에 들어왔거나 진행 중 — 지금 착수할 시점 */
+  urgent: boolean;
+  steps: SeasonPrepStep[];
+}
+
+/**
+ * 다가오는 시즌별 준비 추천 — 규칙 기반이다(LLM 호출 없음).
+ * 이벤트가 정의한 `prepSteps` 를 그대로 쓰되, 브랜드가 아직 밟지 않은 단계를 앞에 세운다.
+ * 없는 실적·수치를 만들어 내지 않는다 — 추천은 "무엇을 준비할지"까지만 말한다(증거 원칙).
+ * @param now 기준 시각
+ * @param ctx 브랜드가 이미 가진 자산 상태
+ * @param limit 최대 건수(기본 3)
+ */
+export function seasonRecommendations(now: Date, ctx: BrandReadiness, limit = 3): SeasonRecommendation[] {
+  const byId = new Map(SEASON_EVENTS.map((e) => [e.id, e]));
+
+  return upcomingEvents(now, limit).map((event) => {
+    const def = byId.get(event.id)!;
+    const urgent = event.inProgress || event.dDay <= def.leadDays;
+
+    // 진단이 없으면 시즌 카피의 재료 자체가 없다 — 어느 시즌이든 이게 먼저다
+    const steps: SeasonPrepStep[] = ctx.hasReport
+      ? [...def.prepSteps]
+      : [
+          {
+            what: '먼저 진단으로 시즌 카피의 재료를 만든다',
+            why: '재설계한 USP·구매 이유가 그대로 시즌 콘텐츠의 입력이 된다',
+            axis: 'report' as const,
+          },
+          ...def.prepSteps,
+        ];
+
+    // 이미 만든 축은 뒤로 — 아직 안 만든 축을 위에 둔다(순서만 바꾸고 항목을 지우지 않는다)
+    const done = (axis?: SeasonPrepStep['axis']): boolean =>
+      (axis === 'thumbnail' && ctx.hasThumbnail) || (axis === 'detail' && ctx.hasDetail);
+    const pending = steps.filter((s) => !done(s.axis));
+    const already = steps.filter((s) => done(s.axis));
+
+    return { event, urgent, steps: [...pending, ...already] };
+  });
 }

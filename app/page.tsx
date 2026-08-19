@@ -53,7 +53,7 @@ export default function LandingPage() {
         <Trust />
         <PilotCta />
         <Faq />
-        <LpSection id="apply" tone="warm">
+        <LpSection id="apply">
           <LpHeading lead={APPLICATION.lead}>{APPLICATION.heading}</LpHeading>
           <div className="mt-11">
             <ApplicationForm />

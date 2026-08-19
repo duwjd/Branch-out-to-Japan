@@ -118,7 +118,7 @@ export function MatchingView({
           보내드립니다.
         </p>
         <p className="mt-2 text-xs leading-relaxed text-ink-faint">
-          기업 목록을 열람하거나 검색하는 방식이 아닙니다. 운영팀이 브랜드 자산을 보고 직접 검토합니다.
+          운영팀이 브랜드 자산을 보고 직접 검토합니다.
         </p>
 
         {statusMsg && (
