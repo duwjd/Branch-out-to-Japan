@@ -30,10 +30,108 @@ import {
   CALL5_OUTPUT_SCHEMA_FULL,
 } from '../schemas';
 import { positioningTagLabels } from '../rules/positioning';
-import { runStructuredCall, type LlmCallLogEntry } from './client';
+import { REPORT_MODEL, runStructuredCall, type Effort, type LlmCallLogEntry } from './client';
+import { evaluateLanguage, isWholesaleDrift, languageRepairMessage, type PolicyRule } from './languageCheck';
 import { mockCall1, mockCall2, mockCall3, mockCall4, mockCall5 } from './fixtures';
 
 export type LogSink = (entry: LlmCallLogEntry) => Promise<void> | void;
+
+/**
+ * 콜별 추론 설정 — 08 §4.0 공통 규약 위에 콜 성격별로 얹는다.
+ *
+ * `maxTokens` 는 현행보다 전부 올렸다. **Opus 5는 `thinking` 을 생략하면 adaptive 가 켜진 채
+ * 돌고, `max_tokens` 가 thinking+본문을 함께 덮는다** — 기존 값 그대로면 본문이 중간에 잘린다.
+ *
+ * `effort` 는 전부 `high` 로 둔다 — **기존 기본값과 같은 자리다.** effort 미지정 시 API 기본이
+ * `high` 였으므로, 여기서 `medium` 으로 내리면 모델 상향과 추론 하향이 한 번에 섞여 품질 변화를
+ * 어느 쪽 탓으로도 돌릴 수 없게 된다. 실제로 콜①을 `medium` 으로 낮춰 돌렸을 때 같은 픽스처의
+ * 종합점수가 17 → 5로 흔들렸다(정본 샘플 18). 먼저 같은 자리에서 모델만 바꾼 기준선을 잡는다.
+ *
+ * 확정이 아니라 출발점이다. 골든 픽스처로 스윕해 콜별로 정한다(09 §5 검증 전략) —
+ * Opus 5는 `low`·`medium` 도 강해 비용 절감 여지가 있고, 콜④는 `xhigh` 상향 여지가 있다.
+ */
+const CALL_TUNING = {
+  call1: { model: REPORT_MODEL, effort: 'high' as Effort, maxTokens: 12000 },
+  call2: { model: REPORT_MODEL, effort: 'high' as Effort, maxTokens: 12000 },
+  call3: { model: REPORT_MODEL, effort: 'high' as Effort, maxTokens: 10000 },
+  call4: { model: REPORT_MODEL, effort: 'high' as Effort, maxTokens: 16000 },
+  call5: { model: REPORT_MODEL, effort: 'high' as Effort, maxTokens: 8000 },
+} as const;
+
+/**
+ * 출력 언어 계약 — 콜별 필드 정책. **정본은 목 픽스처 `mockCall3`**(fixtures.ts)이다.
+ *
+ * 선언하지 않은 필드는 검사하지 않는다. 일부러 뺀 것들 —
+ *  · `items[].evidenceQuote` · `rewrites[].beforeKr` — 고객 원문 인용이라 원문 언어를 따른다
+ *  · `items[].corpusRef` — 코퍼스 실측 표현을 그대로 인용하는 칸이다
+ *  · `persona.name`(`'ユイ'`) · `skinConcerns`(`['乾燥','肌あれ']`) · `checkBehaviors` ·
+ *    `trustTriggers`(`'効能評価試験済み'`) — **일본 고객의 어휘 자체가 값**인 필드다.
+ *    여기에 `ko` 를 걸면 정상 계약이 오탐된다.
+ *
+ * `schemas.ts` 의 description 표기와 1:1로 맞춰야 한다 — 한쪽만 고치면 프롬프트와 사후 검사가
+ * 서로 다른 계약을 말하게 된다.
+ */
+export const LANGUAGE_POLICY = {
+  call1: [{ path: 'items[].criterionRef', policy: 'ko' }] as PolicyRule[],
+  call2: [
+    { path: 'sentences[].reason', policy: 'ko' },
+    { path: 'sentences[].altTextJa', policy: 'ja' },
+  ] as PolicyRule[],
+  call3: [
+    { path: 'persona.ageRange', policy: 'ko' },
+    { path: 'persona.buyingMotive', policy: 'ko' },
+    { path: 'persona.priceSensitivity', policy: 'ko' },
+    { path: 'journey.stages[]', policy: 'ko' },
+    { path: 'journey.finalConfidencePoint', policy: 'ko' },
+    { path: 'objections[].question', policy: 'ja' },
+    { path: 'objections[].why', policy: 'ko' },
+    { path: 'uspTable[].krAppeal', policy: 'ko' },
+    { path: 'uspTable[].jpReading', policy: 'ko' },
+    { path: 'uspTable[].redefinedUsp', policy: 'ko' },
+    { path: 'reviewNarrative[].infoGap', policy: 'ko' },
+    { path: 'reviewNarrative[].distrustSignal', policy: 'ko' },
+    { path: 'reviewNarrative[].dropOff', policy: 'ko' },
+  ] as PolicyRule[],
+  call4: [
+    { path: 'headline.summary', policy: 'ko' },
+    { path: 'rewrites[].problem', policy: 'ko' },
+    { path: 'rewrites[].afterJa', policy: 'ja' },
+    { path: 'rewrites[].afterKr', policy: 'ko' },
+    { path: 'rewrites[].reason', policy: 'ko' },
+    { path: 'rewrites[].whatAdded[]', policy: 'ko' },
+    { path: 'sample.targetSection', policy: 'ko' },
+    { path: 'sample.afterJaBlock', policy: 'ja' },
+    { path: 'sample.afterKrBlock', policy: 'ko' },
+    { path: 'benchmarkNarrative', policy: 'ko' },
+  ] as PolicyRule[],
+} as const;
+
+/** 콜⑤ 슬라이드 — 모드별 키(7장/4장)를 펼쳐 전 카피 필드를 `ko` 로 건다(스펙 §10.3) */
+export function slideLanguageRules(keys: readonly string[]): PolicyRule[] {
+  return keys.flatMap((k): PolicyRule[] => [
+    { path: `${k}.heading`, policy: 'ko' },
+    { path: `${k}.lead`, policy: 'ko' },
+    { path: `${k}.bullets[]`, policy: 'ko' },
+  ]);
+}
+
+/** 언어 교정 지시(비치명) — `repair` 훅에 그대로 넣는다 */
+function languageRepair(rules: PolicyRule[]): (data: unknown) => string | null {
+  return (data) => languageRepairMessage(evaluateLanguage(data, rules));
+}
+
+/**
+ * 통째 표류만 계약 위반으로 올린다(치명).
+ * 부분 표류는 `repair` 가 교정하고, 못 고치면 사유를 남기고 통과시킨다 — 잡을 죽이지 않는다.
+ */
+function wholesaleDriftProblem(data: unknown, rules: PolicyRule[]): string | null {
+  const report = evaluateLanguage(data, rules);
+  if (!isWholesaleDrift(report)) return null;
+  return (
+    `응답이 통째로 한국어가 아니다(한국어 서술 필드 ${report.koChecked}개 중 ${report.koViolated}개 위반). ` +
+    `이 리포트는 일본어를 못 읽는 한국 담당자가 읽는다 — 서술 전체를 한국어로 다시 쓰라.`
+  );
+}
 
 /** 콜① 루브릭 채점 — 고객 문장 위에서만 돈다(브랜드+제품 진단 전용) */
 export async function runCall1(
@@ -59,10 +157,13 @@ export async function runCall1(
     system: buildStableGrounding('call1', input.category, input.productClass),
     userPayload: payload,
     schema: CALL1_OUTPUT_SCHEMA,
-    maxTokens: 8000,
+    ...CALL_TUNING.call1,
     mockData: mockCall1(items, signals, content.sentences),
     onLog,
+    repair: languageRepair(LANGUAGE_POLICY.call1),
     validate: (data) => {
+      const drift = wholesaleDriftProblem(data, LANGUAGE_POLICY.call1);
+      if (drift) return drift;
       const got = new Set(data.items.map((i) => i.itemId));
       const missing = requestedIds.filter((id) => !got.has(id));
       const extra = data.items.filter((i) => !requestedIds.includes(i.itemId)).map((i) => i.itemId);
@@ -92,10 +193,13 @@ export async function runCall2(
     system: buildStableGrounding('call2', input.category, input.productClass),
     userPayload: payload,
     schema: CALL2_OUTPUT_SCHEMA,
-    maxTokens: 8000,
+    ...CALL_TUNING.call2,
     mockData: mockCall2(content.sentences),
     onLog,
+    repair: languageRepair(LANGUAGE_POLICY.call2),
     validate: (data) => {
+      const drift = wholesaleDriftProblem(data, LANGUAGE_POLICY.call2);
+      if (drift) return drift;
       const requested = content.sentences.map((s) => s.id);
       const got = new Set(data.sentences.map((s) => s.sentenceId));
       const missing = requested.filter((id) => !got.has(id));
@@ -149,10 +253,15 @@ export async function runCall3(
     system: buildStableGrounding('call3', input.category, input.mode === 'brandProduct' ? input.productClass : '미상'),
     userPayload: payload,
     schema: CALL3_OUTPUT_SCHEMA,
-    maxTokens: 6000,
+    ...CALL_TUNING.call3,
     mockData: mockCall3(input.category),
     onLog,
+    repair: languageRepair(LANGUAGE_POLICY.call3),
     validate: (data) => {
+      // 이 콜이 언어 표류의 진원지다. 브랜드 진단에서는 유일한 LLM 산출이라
+      // 통째 표류를 통과시키면 리포트가 통째로 일본어로 발행된다 — 계약 위반으로 올린다
+      const drift = wholesaleDriftProblem(data, LANGUAGE_POLICY.call3);
+      if (drift) return drift;
       if (data.uspTable.length < 3) return 'USP 표는 3행 이상이어야 한다.';
       if (data.objections.length < 2) return '구매 반대 이유는 2개 이상이어야 한다.';
       return null;
@@ -198,10 +307,13 @@ export async function runCall4(
     system: buildStableGrounding('call4', input.category, input.productClass),
     userPayload: payload,
     schema: CALL4_OUTPUT_SCHEMA,
-    maxTokens: 12000,
+    ...CALL_TUNING.call4,
     mockData: mockCall4(audit, content.sentences),
     onLog,
+    repair: languageRepair(LANGUAGE_POLICY.call4),
     validate: (data) => {
+      const drift = wholesaleDriftProblem(data, LANGUAGE_POLICY.call4);
+      if (drift) return drift;
       if (data.rewrites.length < 3) return '재작성은 3쌍 이상이어야 한다(AC-3.1).';
       const noKr = data.rewrites.filter((r) => !r.afterKr.trim());
       if (noKr.length) return '모든 After에 한국어 역문(afterKr)이 필요하다(AC-3.2).';
@@ -283,10 +395,14 @@ export function runCall5(
     system: buildStableGrounding('call5', input.category, input.mode === 'brandProduct' ? input.productClass : '미상', mode),
     userPayload: payload,
     schema: mode === 'brand' ? CALL5_OUTPUT_SCHEMA_BRAND : CALL5_OUTPUT_SCHEMA_FULL,
-    maxTokens: 4000,
+    ...CALL_TUNING.call5,
     mockData: mockCall5(mode),
     onLog,
+    // 슬라이드는 전부 한국어 품의 카피다(스펙 §10.3) — 모드별 키를 펼쳐 정책을 만든다
+    repair: languageRepair(slideLanguageRules(keys)),
     validate: (data) => {
+      const drift = wholesaleDriftProblem(data, slideLanguageRules(keys));
+      if (drift) return drift;
       const missing = keys.filter((k) => !data[k]);
       if (missing.length) return `슬라이드 키가 빠졌다: ${missing.join(', ')}. ${keys.length}장 전부 채울 것.`;
       const empty = keys.filter((k) => !data[k]?.heading.trim() || !data[k]?.lead.trim());

@@ -66,6 +66,14 @@ export interface ReportRecord {
   /** 파이프라인 완료 시각 — 잡이 직접 세팅한다(발행 = 파이프라인 성공) */
   publishedAt: string | null;
   createdAt: string;
+  /**
+   * 콜⑩ reportHumanize 가 **채택하지 못한** 항목(경로 + 사유). 비차단 기록이다.
+   * ② 축 `AssetRecord.humanizeIssues` 의 ① 대응물 — 같은 이유로 남긴다: 윤문이 왜 안 먹혔는지
+   * 사후에 알 수 없으면 루브릭을 고칠 근거가 없다.
+   */
+  humanizeIssues?: { path: string; reason: string }[];
+  /** 콜⑩ 이 아예 돌지 않았다면 그 사유(목 모드·콜 실패) */
+  humanizeSkipped?: string;
 }
 
 // ── 스프린트 2 엔티티 (08 §6.1 스프린트 2 델타) ──────────────────────────────

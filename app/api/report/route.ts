@@ -9,6 +9,7 @@ import { currentLlmMode } from '@/lib/engine/llm/client';
 import { getSession } from '@/lib/server/session';
 import { getActiveBrandId } from '@/lib/server/activeBrand';
 import { hasSupabaseEnv } from '@/lib/db/supabaseClient';
+import { checkReportReadiness, reportBlockingReason } from '@/lib/server/reportReadiness';
 import { saveFile, extForMime } from '@/lib/files/storage';
 import { logger } from '@/lib/logger';
 import { HARD_GATE_CHARS, contentCharCount } from '@/lib/engine/rules/gates';
@@ -106,6 +107,14 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
   }
 
+  // 서버 준비 상태 — 이미지 파싱·저장보다 먼저 막는다. 리포트 잡은 LLM 4~5콜을 태운 뒤에야
+  // 저장하므로, 여기서 통과시키면 5분과 실비를 쓰고 원인 없는 failed 만 남는다.
+  const blocked = reportBlockingReason(await checkReportReadiness(true));
+  if (blocked) {
+    logger.error('리포트 제출 차단 — 서버 준비 미완', { reason: blocked });
+    return NextResponse.json({ error: `서버 설정이 끝나지 않았습니다 — ${blocked}` }, { status: 503 });
+  }
+
   // v7: 상세페이지 이미지 업로드가 기본 경로라 multipart FormData로 받는다(브랜드/제품 필드 + 이미지)
   let form: FormData;
   try {
@@ -175,5 +184,7 @@ export async function GET(): Promise<NextResponse> {
     llmMode: currentLlmMode(),
     // 프로덕션 + 파일 저장 = 오설정(서버리스 비영속) — 데이터 라우트는 명시적 500난다
     misconfigured: process.env.NODE_ENV === 'production' && !supabaseConfigured,
+    // 배포 확진용 — 런북 §6-B 가 이 값을 본다(② 축의 /api/studio/detail 과 같은 역할)
+    readiness: await checkReportReadiness(),
   });
 }

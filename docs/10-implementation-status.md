@@ -16,7 +16,7 @@
 |---|---|
 | 메인페이지(랜딩) | ✅ 확정 카피 12섹션(`public-onboarding-spec` §1 그대로) · Stats 수치 비노출 규칙 준수 |
 | ① 리포트: 진단 입력폼 | ✅ **브랜드 섹션 필수**(브랜드명 · 포지셔닝 = 택소노미 태그 1~5(16종, `rules/positioning.ts`)+자유 서술 · 카테고리) + **제품 섹션 전부 선택**(접이식 — 분류·제품명·성분·가격·상세 콘텐츠) · **50자 하드게이트(버튼 잠금 + 서버 400)** · 200자 미만 "정밀도 제한" 안내 · 서버 이중 검증 6종 400 확인 · `reviewSourceUrl` 폼 제거(데드필드) |
-| ① 리포트: 생성 파이프라인 | ✅ 규칙 5단계 + **LLM 4콜**(①②③ 병렬 → 집계 → ④) · `claude-sonnet-5` 구조화 출력 · 프롬프트 캐싱 · 콜별 폴백 · **`brand` 모드는 콜③ 1콜만**(stages `persona → benchmark → assemble` · **콜③ 실패 = 잡 실패**) |
+| ① 리포트: 생성 파이프라인 | ✅ 규칙 5단계 + **LLM 4콜**(①②③ 병렬 → 집계 → ④) **+ 조립 후 윤문 콜⑩** · `claude-opus-5` 구조화 출력 + 콜별 `effort` · 프롬프트 캐싱 · 콜별 폴백 · **출력 언어 계약 검사**(부분 표류=교정, 통째 표류=폴백) · **`brand` 모드는 콜③ 1콜만**(stages `persona → benchmark → assemble → humanize` · **콜③ 실패 = 잡 실패**) |
 | ① 리포트: 9블록 뷰 | ✅ 블록0~9 전부 렌더(품의 표지·감사표·A~E 점수·NG/OK JP+KR 병기 카드·고정가 퍼널) · **`brand` 모드는 블록 1·3·5·7·8 데이터 잠금**(종합점수 없음 · 대비표 "내 콘텐츠" = 미확인) |
 | 발행 | ✅ 파이프라인 성공 = `published` (잡이 직접 세팅). ~~검수 큐·실명 서명~~ 제거(2026-07-16) |
 | 보고용 슬라이드 | ✅ 발행 리포트 → 버튼 → 콜⑤(카피) + 코드 렌더 → 단일 HTML 다운로드 (스펙 §10) · **골격 모드별**: `brandProduct` 7장 / `brand` 4장(표지·포지셔닝/USP·벤치마크·다음 단계) |
@@ -91,7 +91,11 @@ lib/
     rules/                        #   normalize(K1..Kn 분해)·presignals·aggregate(+test)·benchmark(+test)·assemble·slides(+test)
     │                             #   + gates.ts(+test) — 게이트 단일 정의(50자/200자/URL) · positioning.ts — 포지셔닝 택소노미 16종
     grounding/index.ts            #   사전집계·규정요약·렉시콘 로더 + 콜별 system 프리픽스
-    llm/client.ts                 #   claude-sonnet-5 + output_config + 캐싱 + 목 모드 + 재시도
+    llm/client.ts                 #   모델·effort 지정 + output_config + 캐싱 + 목 모드 + validate/repair 2단 재시도 + refusal 분기
+    llm/languageCheck.ts          #   출력 언어 계약 검사(ko/ja 정책 · 통째 표류 판정)
+    lang.ts                       #   한국어 우세 비율·한글/가나 판정·숫자 지문(①②축 공용)
+    rules/evidenceGate.ts         #   증거 원칙 위반 후보 검사(결정적 · 비차단 경고)
+  report/humanizeReport.ts        # 콜⑩ 한국어 윤문 — 사후 검사 7종, 반려분은 원문 유지
     llm/calls.ts · fixtures.ts    #   콜별 페이로드/검증 · 목 픽스처(결정적 휴리스틱)
     pipeline.ts                   #   병렬 실행·폴백 규칙(콜② 실패=잡 실패)
   db/store.ts                     # 저장 인터페이스 (08 §6 간소화: 감사문장은 blocksJson 내)

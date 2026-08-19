@@ -13,6 +13,7 @@ export const REPORT_STAGE_LABELS: Record<string, string> = {
   benchmark: '일본 상위 제품과 비교하는 중',
   call4: '일본향 문안을 다시 쓰는 중',
   assemble: '리포트를 구성하는 중',
+  humanize: '문장을 읽기 좋게 다듬는 중',
 };
 
 /** 처리 화면 표시 순서 — extract는 이미지 업로드 시에만 도는 첫 단계, llmCalls·persona는 같은 슬롯 공유 */
@@ -25,9 +26,10 @@ export const REPORT_STAGE_STEPS: { keys: string[]; label: string }[] = [
   { keys: ['benchmark'], label: '일본 상위 제품과 비교하는 중' },
   { keys: ['call4'], label: '일본향 문안을 다시 쓰는 중' },
   { keys: ['assemble'], label: '리포트를 구성하는 중' },
+  { keys: ['humanize'], label: '문장을 읽기 좋게 다듬는 중' },
 ];
 
-/** 현재 stage 키 → 7단계 인덱스(모르는 키·null은 0) */
+/** 현재 stage 키 → 단계 인덱스(모르는 키·null은 0) */
 export function reportStageIndex(stage: string | null): number {
   if (!stage) return 0;
   const idx = REPORT_STAGE_STEPS.findIndex((s) => s.keys.includes(stage));

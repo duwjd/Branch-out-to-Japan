@@ -42,13 +42,24 @@ export async function runDiagnosisJob(requestId: string): Promise<void> {
       top3: result.top3,
       publishedAt: now,
       createdAt: now,
+      // 윤문은 비차단이다 — 반려분만 남겨 두고 발행은 그대로 진행한다
+      humanizeIssues: result.humanizeVerdicts
+        .filter((v) => !v.adopted)
+        .map((v) => ({ path: v.path, reason: v.rejectedReason ?? '사유 미기록' })),
+      ...(result.humanizeSkipped ? { humanizeSkipped: result.humanizeSkipped } : {}),
     });
     await store.updateRequest(requestId, {
       status: 'published',
       stage: null,
       precisionLimited: result.precisionLimited,
     });
-    logger.info('잡 완료 — 발행', { requestId, mode: result.blocksJson.meta.mode, overallScore: result.overallScore });
+    logger.info('잡 완료 — 발행', {
+      requestId,
+      mode: result.blocksJson.meta.mode,
+      overallScore: result.overallScore,
+      humanizeAdopted: result.humanizeVerdicts.filter((v) => v.adopted).length,
+      humanizeRejected: result.humanizeVerdicts.filter((v) => !v.adopted).length,
+    });
   } catch (err) {
     // 치명 실패 3종(콜② 없는 풀 발행 금지 · 브랜드 진단 콜③ 실패 · 입력 오류) — 사유를 남기고 failed
     const reason =
