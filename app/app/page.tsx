@@ -3,7 +3,7 @@ import { getStore } from '@/lib/db/store';
 import { getActiveBrand } from '@/lib/server/activeBrand';
 import type { DiagnosisRequestRecord, GeneratedAssetSummary, ReportSummary } from '@/lib/db/store';
 import { PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
-import { NEXT_MEGAWARI, dDay, upcomingEvents } from '@/lib/season';
+import { nextMegawari, upcomingEvents } from '@/lib/season';
 import { ReportCoverPreview, ThumbPreview } from '@/components/app/AssetPreview';
 import { JobPanel, type DashboardJob } from '@/components/app/JobPanel';
 import { BrandOnboarding } from '@/components/app/BrandOnboarding';
@@ -138,6 +138,8 @@ export default async function DashboardPage() {
         date: fmtDate(rep.publishedAt ?? req.createdAt),
         sort: rep.publishedAt ?? req.createdAt,
         score: rep.overallScore,
+        groupScores: rep.groupScores,
+        top3: rep.top3,
         img: null as string | null,
       };
     }),
@@ -149,6 +151,8 @@ export default async function DashboardPage() {
       date: fmtDate(a.createdAt),
       sort: a.createdAt,
       score: null,
+      groupScores: {},
+      top3: [] as ReportSummary['top3'],
       img: a.imagePath ? `/api/files/${a.imagePath}` : null,
     })),
   ]
@@ -158,7 +162,7 @@ export default async function DashboardPage() {
 
   // 다음 단계 밴드(MAIN-03) — 자산 상태에 따라 한 가지 primary만 제시(화면 유일 primary)
   const brandName = brandProfile.brandName ?? latestPublished?.tierInput.brandName ?? null;
-  const megawariD = dDay(NEXT_MEGAWARI.date);
+  const megawari = nextMegawari(new Date());
   const hero =
     publishedRequests.length > 0 && doneAssets.length === 0
       ? {
@@ -177,7 +181,7 @@ export default async function DashboardPage() {
         ? {
             headline: (
               <>
-                {NEXT_MEGAWARI.label} <b className="font-extrabold text-coral-strong">D-{megawariD}</b>
+                {megawari.label} <b className="font-extrabold text-coral-strong">D-{megawari.dDay}</b>
                 <br />
                 시즌 준비를 시작할 때예요
               </>
@@ -280,11 +284,11 @@ export default async function DashboardPage() {
               href="/app/library?tab=detail"
             />
             <StatTile
-              label={NEXT_MEGAWARI.label}
-              value={megawariD}
+              label={megawari.label}
+              value={megawari.dDay}
               unit="일 남음"
               sub="프로모션 강조형 썸네일을 준비할 시기"
-              href="/app/library"
+              href="/app/season"
             />
           </section>
         )}
@@ -426,7 +430,7 @@ export default async function DashboardPage() {
                       >
                         <span className="relative block aspect-16/10 overflow-hidden border-b border-n-150">
                           {r.kind === 'report' ? (
-                            <ReportCoverPreview score={r.score} />
+                            <ReportCoverPreview score={r.score} groupScores={r.groupScores} top3={r.top3} density="compact" />
                           ) : r.img ? (
                             <ThumbPreview src={r.img} alt="" />
                           ) : (

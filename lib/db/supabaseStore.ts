@@ -16,6 +16,7 @@ import type {
   LeadRecord,
   MatchRequestRecord,
   ProductRecord,
+  SeasonMemoRecord,
   ReportRecord,
   ReportSummary,
   Store,
@@ -416,6 +417,29 @@ function toProductRecord(row: ProductRow): ProductRecord {
     category: row.category,
     memo: row.memo,
     images: row.images ?? [],
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+interface SeasonMemoRow {
+  id: string;
+  brand_profile_id: string | null;
+  start_date: string;
+  end_date: string | null;
+  body: string;
+  created_at: string;
+  updated_at: string;
+}
+
+function toSeasonMemoRecord(row: SeasonMemoRow): SeasonMemoRecord {
+  return {
+    id: row.id,
+    brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
+    // date 컬럼은 'YYYY-MM-DD'로 돌아온다 — 타임존 해석이 끼지 않게 문자열 그대로 다룬다
+    startDate: row.start_date,
+    endDate: row.end_date,
+    body: row.body,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -875,6 +899,52 @@ export function createSupabaseStore(): Store {
     async deleteProduct(id) {
       const result = await client.from('products').delete().eq('id', id);
       if (result.error) throw new Error(`supabase deleteProduct 실패: ${result.error.message}`);
+    },
+
+    // ── 시즌 캘린더 메모(SEASON-03) ─────────────────────────────────────────
+    async listSeasonMemos(brandProfileId: string) {
+      const result = await client
+        .from('season_memos')
+        .select()
+        .eq('brand_profile_id', brandProfileId)
+        .order('start_date', { ascending: true })
+        .order('created_at', { ascending: true })
+        .returns<SeasonMemoRow[]>();
+      return must(result, 'listSeasonMemos').map(toSeasonMemoRecord);
+    },
+
+    async getSeasonMemo(id: string) {
+      const result = await client.from('season_memos').select().eq('id', id).maybeSingle<SeasonMemoRow>();
+      if (result.error) throw new Error(`supabase getSeasonMemo 실패: ${result.error.message}`);
+      return result.data ? toSeasonMemoRecord(result.data) : null;
+    },
+
+    async createSeasonMemo(input) {
+      const result = await client
+        .from('season_memos')
+        .insert({
+          brand_profile_id: input.brandProfileId,
+          start_date: input.startDate,
+          end_date: input.endDate,
+          body: input.body,
+        })
+        .select()
+        .single<SeasonMemoRow>();
+      return toSeasonMemoRecord(must(result, 'createSeasonMemo'));
+    },
+
+    async updateSeasonMemo(id, patch) {
+      const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      if (patch.startDate !== undefined) row.start_date = patch.startDate;
+      if (patch.endDate !== undefined) row.end_date = patch.endDate;
+      if (patch.body !== undefined) row.body = patch.body;
+      const result = await client.from('season_memos').update(row).eq('id', id);
+      if (result.error) throw new Error(`supabase updateSeasonMemo 실패: ${result.error.message}`);
+    },
+
+    async deleteSeasonMemo(id) {
+      const result = await client.from('season_memos').delete().eq('id', id);
+      if (result.error) throw new Error(`supabase deleteSeasonMemo 실패: ${result.error.message}`);
     },
 
     // ── 유저·인증 토큰(실 인증 — 08 §6 USER) ──────────────────────────────────

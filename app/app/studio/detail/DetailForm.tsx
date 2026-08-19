@@ -104,14 +104,21 @@ const FIT_LABELS: Record<string, string> = {
   qoo10: 'Qoo10',
 };
 
+/** 업로드 총 상한(서버 MAX_SOURCE_IMAGES 와 같은 값) — 제품컷 1장 + KR 상세 원본 최대 9장 */
 const MAX_IMAGES = 10;
+const MAX_KR_IMAGES = MAX_IMAGES - 1;
 
 export function DetailForm({ templates, readiness }: { templates: TemplateCard[]; readiness: DetailReadiness }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const productRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<'form' | 'confirm'>('form');
+  // 제품컷과 KR 상세 원본은 쓰임이 다르다 — 제품컷만 images.edit 의 base가 되고,
+  // KR 원본은 비전(갭 진단) 입력으로만 간다. 한 칸으로 받으면 순서에 따라 결과가 흔들린다.
+  const [productFile, setProductFile] = useState<File | null>(null);
+  const [productPreview, setProductPreview] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [templateId, setTemplateId] = useState<string>('');
@@ -138,7 +145,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
    *   추출 함수는 서버와 **같은 순수 함수**를 쓴다(lib/studio/detail/theme.ts).
    */
   useEffect(() => {
-    const src = previews[0];
+    const src = productPreview;
     if (!src) {
       setExtracted(null);
       return;
@@ -169,7 +176,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     return () => {
       alive = false;
     };
-  }, [previews, category]);
+  }, [productPreview, category]);
 
   const [plan, setPlan] = useState<PlanResult | null>(null);
   // 변환 결과는 plan 과 따로 둔다 — 사용자가 패널에서 고친 값이 여기 쌓이고, 그대로 제출된다
@@ -195,9 +202,30 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     });
   }, []);
 
+  /** 제품컷 1장 교체 — 이전 blob URL을 revoke 한다 */
+  const acceptProduct = useCallback((incoming: FileList | null) => {
+    const file = incoming?.[0];
+    if (!file) return;
+    setProductPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+    setProductFile(file);
+    setError(null);
+  }, []);
+
+  const clearProduct = useCallback(() => {
+    setProductPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setProductFile(null);
+    if (productRef.current) productRef.current.value = '';
+  }, []);
+
   const acceptFiles = useCallback((incoming: FileList | null) => {
     if (!incoming) return;
-    const next = [...files, ...Array.from(incoming)].slice(0, MAX_IMAGES);
+    const next = [...files, ...Array.from(incoming)].slice(0, MAX_KR_IMAGES);
     setFiles(next);
     replacePreviews(next);
     setError(null);
@@ -222,9 +250,13 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       if (!el) return null;
       const fd = new FormData(el);
       fd.delete('images');
+      fd.delete('productImage');
+      // 구성 계산은 총 장수를 보므로 제품컷도 함께 센다 — 저장 순서와 같은 [제품컷, KR 원본…]
+      const all = productFile ? [productFile, ...files] : files;
       if (opts?.withImages === false) {
-        fd.set('imageMeta', JSON.stringify(files.map((f) => ({ type: f.type, size: f.size }))));
+        fd.set('imageMeta', JSON.stringify(all.map((f) => ({ type: f.type, size: f.size }))));
       } else {
+        if (productFile) fd.set('productImage', productFile);
         for (const f of files) fd.append('images', f);
       }
       fd.set('platform', platform);
@@ -244,7 +276,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       }
       return fd;
     },
-    [files, platform, category, templateId, optionAxis, disabled, translation],
+    [productFile, files, platform, category, templateId, optionAxis, disabled, translation],
   );
 
   /** 1단계 → 확인 단계. 서버가 계산한 구성을 그대로 보여준다(화면이 따로 추론하지 않는다). */
@@ -301,8 +333,8 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   // 제출 가능 조건 — 서버와 같은 규칙
   let guidance = '이미지와 템플릿을 고르면 구성을 미리 볼 수 있어요.';
   let canPreview = true;
-  if (files.length === 0) {
-    guidance = '제품 이미지를 1장 이상 올려 주세요. 한국 상세페이지 원본을 함께 올리면 더 정확해집니다.';
+  if (!productFile) {
+    guidance = '제품컷 1장을 올려 주세요. 제품 사진은 이 이미지를 기준으로 다시 그립니다.';
     canPreview = false;
   } else if (!templateId) {
     guidance = '템플릿을 1개 선택해 주세요.';
@@ -371,8 +403,68 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
         {/* 입력 폼 — 확인 단계에서도 DOM에 남겨 FormData 를 유지한다 */}
         <form ref={formRef} className={step === 'confirm' ? 'hidden' : ''} onSubmit={(e) => e.preventDefault()}>
-          {/* DETAIL-02 원본 이미지 */}
-          <SectionCard step={1} title="원본 이미지" pill="required" desc="제품컷 1장은 필수입니다. 한국 상세페이지 원본을 위→아래 순서로 함께 올리면 갭 진단에 씁니다. 최대 10장.">
+          {/*
+            DETAIL-02 원본 이미지 — 2026-08-19 분리.
+            제품컷은 images.edit 의 base라 제품 형상·라벨이 여기서 결정된다. 예전에는 한 칸에
+            제품컷과 KR 상세 원본을 섞어 받고 첫 장을 base로 썼는데, 폼이 "상세 원본을 위→아래
+            순서로" 안내해서 텍스트가 얹힌 상세 스크린샷이 제품 자리를 차지하는 일이 있었다.
+          */}
+          <SectionCard
+            step={1}
+            title="제품컷"
+            pill="required"
+            desc="이 이미지를 기준으로 제품 사진을 다시 그립니다. 배경이 깔끔한 제품 단독컷 1장을 올려 주세요."
+          >
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                acceptProduct(e.dataTransfer.files);
+              }}
+              className="rounded-xl border border-dashed border-input-border p-6 text-center"
+            >
+              <input
+                ref={productRef}
+                type="file"
+                name="productImage"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                onChange={(e) => acceptProduct(e.target.files)}
+              />
+              <button type="button" onClick={() => productRef.current?.click()} className={buttonClass('secondary', 'md')}>
+                <IconUpload /> {productFile ? '제품컷 바꾸기' : '제품컷 선택'}
+              </button>
+              <p className="mt-2 text-xs text-ink-mute">JPG · PNG · WebP · 10MB 이하</p>
+            </div>
+            {productPreview && (
+              <div className="mt-4 flex items-center gap-3.5">
+                <span className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
+                  <img src={productPreview} alt="제품컷 미리보기" className="h-24 w-24 rounded-lg border border-card-border object-cover" />
+                  <button
+                    type="button"
+                    onClick={clearProduct}
+                    aria-label="제품컷 제거"
+                    className="absolute -top-1.5 -right-1.5 h-5 w-5 cursor-pointer rounded-full bg-ink text-xs text-white"
+                  >
+                    ×
+                  </button>
+                </span>
+                <p className="text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+                  제품이 등장하는 컷(히어로 · 사용 장면 · 텍스처 · 스와치)은 이 사진을 편집해 만듭니다.
+                </p>
+              </div>
+            )}
+          </SectionCard>
+
+          {/* DETAIL-02b 한국 상세페이지 원본 — 비전(갭 진단) 입력 전용 */}
+          <SectionCard
+            step={2}
+            title="한국 상세페이지 원본"
+            pill="optional"
+            pillTone="optional"
+            desc={`위→아래 순서로 올리면 한국 상세의 메시지 갭을 진단하는 데 씁니다. 제품 사진의 기준이 되지는 않습니다. 최대 ${MAX_KR_IMAGES}장.`}
+          >
             <div
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
@@ -391,7 +483,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 onChange={(e) => acceptFiles(e.target.files)}
               />
               <button type="button" onClick={() => fileRef.current?.click()} className={buttonClass('secondary', 'md')}>
-                <IconUpload /> 이미지 선택
+                <IconUpload /> 상세 원본 선택
               </button>
               <p className="mt-2 text-xs text-ink-mute">JPG · PNG · WebP · 10MB 이하</p>
             </div>
@@ -400,13 +492,13 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 {previews.map((src, i) => (
                   <li key={src} className="relative">
                     {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
-                    <img src={src} alt={`업로드 ${i + 1}`} className="h-24 w-24 rounded-lg border border-card-border object-cover" />
-                    <span className="absolute left-1 top-1 rounded bg-ink/70 px-1.5 text-[11px] font-bold text-white">{i + 1}</span>
+                    <img src={src} alt={`상세 원본 ${i + 1}`} className="h-24 w-24 rounded-lg border border-card-border object-cover" />
+                    <span className="absolute top-1 left-1 rounded bg-ink/70 px-1.5 text-[11px] font-bold text-white">{i + 1}</span>
                     <button
                       type="button"
                       onClick={() => removeFile(i)}
                       aria-label={`${i + 1}번 이미지 제거`}
-                      className="absolute -right-1.5 -top-1.5 h-5 w-5 rounded-full bg-ink text-xs text-white"
+                      className="absolute -top-1.5 -right-1.5 h-5 w-5 cursor-pointer rounded-full bg-ink text-xs text-white"
                     >
                       ×
                     </button>
@@ -417,7 +509,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-03 카테고리·플랫폼 */}
-          <SectionCard step={2} title="상품 종류 · 타깃 플랫폼" pill="required" desc="상품 종류가 템플릿과 이미지 분위기를 정합니다.">
+          <SectionCard step={3} title="상품 종류 · 타깃 플랫폼" pill="required" desc="상품 종류가 템플릿과 이미지 분위기를 정합니다.">
             <p className={fieldLabelClass}>상품 종류</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {CATEGORIES.map((c) => (
@@ -443,7 +535,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
           {/* DETAIL-04 템플릿 */}
           <SectionCard
-            step={3}
+            step={4}
             title="템플릿"
             pill="required"
             desc="상세페이지는 순서가 핵심입니다. 미리보기는 이 템플릿을 실제로 돌려 만든 결과입니다."
@@ -645,7 +737,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
           {/* DETAIL-05 제품 스펙 */}
           <SectionCard
-            step={4}
+            step={5}
             title="제품 스펙"
             pill="required"
             desc="표시 의무 항목입니다. 내용을 고쳐 쓰지 않고, 한국어로 입력하시면 일본 표기로만 바꿔 넣습니다 — 바꾼 결과는 다음 단계에서 확인·수정하실 수 있습니다."
@@ -675,7 +767,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-05b 성분·무첨가·사용법 */}
-          <SectionCard step={5} title="성분 · 무첨가 · 사용법" desc="성분을 입력하지 않으면 성분·기전 블록은 넣지 않습니다. 성분명을 지어내지 않습니다.">
+          <SectionCard step={6} title="성분 · 무첨가 · 사용법" desc="성분을 입력하지 않으면 성분·기전 블록은 넣지 않습니다. 성분명을 지어내지 않습니다.">
             <label className="block">
               <span className={fieldLabelClass}>성분 (한 줄에 하나 · 성분명|농도|배합목적)</span>
               <textarea name="ingredientRows" rows={3} className={inputClass} placeholder={'ナイアシンアミド|2%|整肌成分\nヒアルロン酸Na||保湿成分'} />
@@ -766,7 +858,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </Accordion>
 
           {/* DETAIL-07 추가 요청 */}
-          <SectionCard step={6} title="추가 요청" desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다.">
+          <SectionCard step={7} title="추가 요청" desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다.">
             <textarea name="note" rows={2} className={inputClass} placeholder="예: 전체적으로 더 밝고 화사하게" />
             <p className="mt-2 text-xs leading-relaxed text-ink-faint [text-wrap:pretty]">
               한국어로 쓰셔도 됩니다 — 이미지 생성 모델에는 영어로 바꿔 전달합니다.

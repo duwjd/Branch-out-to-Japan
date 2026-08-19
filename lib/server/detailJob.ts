@@ -449,6 +449,13 @@ export async function runDetailJob(assetId: string): Promise<void> {
             // 제품이 등장하는 블록만 원본을 편집 모드로 넘긴다(라벨 보존). 목록은 팩이 소유한다
             const usesProduct = usesProductSource(blockId);
             try {
+              // 제품컷을 못 읽었는데 그냥 부르면 편집이 아니라 **순수 생성**으로 조용히 떨어진다.
+              // 프롬프트는 여전히 "the supplied product" 라고 말하므로 모델이 없는 용기를 지어낸다 —
+              // 사용자가 올린 것과 전혀 다른 제품이 나오는 경로다. 아래 catch 로 보내 ai-visual 은
+              // 실패로 남기고(그 블록만 재생성), hybrid 는 배경 없이 카피만 남긴다.
+              if (usesProduct && !original) {
+                throw new Error('제품컷 원본을 불러오지 못했습니다. 이 블록만 다시 만들어 주세요.');
+              }
               const gen = await gate(() =>
                 generateBlockVisual({
                   prompt,
@@ -654,6 +661,10 @@ export async function regenerateBlock(
       const prompt = buildBlockPrompt(blockType, row.slots, promptContextOf(rp, input, true, artNote));
       promptUsed = prompt;
       const usesProduct = usesProductSource(blockType);
+      // 생성 잡과 같은 가드 — 무음 순수 생성으로 떨어지면 원본과 다른 제품이 나온다
+      if (usesProduct && !original) {
+        throw new Error('제품컷 원본을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      }
       const gen = await generateBlockVisual({
         prompt,
         blockType,

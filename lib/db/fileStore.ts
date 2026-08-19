@@ -19,6 +19,7 @@ import type {
   ProductRecord,
   ReportRecord,
   ReportSummary,
+  SeasonMemoRecord,
   Store,
   TrackEventRecord,
   UserRecord,
@@ -41,6 +42,7 @@ const MATCH_REQUESTS = path.join(DATA_DIR, 'match-requests.json');
 const LEADS = path.join(DATA_DIR, 'leads.json');
 const TRACK_EVENTS = path.join(DATA_DIR, 'track-events.json');
 const PRODUCTS = path.join(DATA_DIR, 'products.json');
+const SEASON_MEMOS = path.join(DATA_DIR, 'season-memos.json');
 const USERS = path.join(DATA_DIR, 'users.json');
 const AUTH_TOKENS = path.join(DATA_DIR, 'auth-tokens.json');
 
@@ -269,6 +271,8 @@ export function createFileStore(): Store {
         await writeJson(MATCH_REQUESTS, matches);
         const products = (await readJson<ProductRecord[]>(PRODUCTS, [])).filter((pr) => brandOf(pr) !== id);
         await writeJson(PRODUCTS, products);
+        const memos = (await readJson<SeasonMemoRecord[]>(SEASON_MEMOS, [])).filter((m) => brandOf(m) !== id);
+        await writeJson(SEASON_MEMOS, memos);
       });
     },
 
@@ -507,6 +511,50 @@ export function createFileStore(): Store {
       return serialized(async () => {
         const all = await readJson<ProductRecord[]>(PRODUCTS, []);
         await writeJson(PRODUCTS, all.filter((pr) => pr.id !== id));
+      });
+    },
+
+    // ── 시즌 캘린더 메모(SEASON-03) ─────────────────────────────────────────
+    listSeasonMemos(brandProfileId: string) {
+      return concurrent(async () => {
+        const all = await readJson<SeasonMemoRecord[]>(SEASON_MEMOS, []);
+        return all
+          .filter((m) => brandOf(m) === brandProfileId)
+          .sort((a, b) => a.startDate.localeCompare(b.startDate) || a.createdAt.localeCompare(b.createdAt));
+      });
+    },
+
+    getSeasonMemo(id: string) {
+      return concurrent(
+        async () => (await readJson<SeasonMemoRecord[]>(SEASON_MEMOS, [])).find((m) => m.id === id) ?? null,
+      );
+    },
+
+    createSeasonMemo(input) {
+      return serialized(async () => {
+        const now = new Date().toISOString();
+        const record: SeasonMemoRecord = { ...input, id: randomUUID(), createdAt: now, updatedAt: now };
+        const all = await readJson<SeasonMemoRecord[]>(SEASON_MEMOS, []);
+        all.push(record);
+        await writeJson(SEASON_MEMOS, all);
+        return record;
+      });
+    },
+
+    updateSeasonMemo(id, patch) {
+      return serialized(async () => {
+        const all = await readJson<SeasonMemoRecord[]>(SEASON_MEMOS, []);
+        const idx = all.findIndex((m) => m.id === id);
+        if (idx < 0) return;
+        all[idx] = { ...all[idx], ...patch, updatedAt: new Date().toISOString() };
+        await writeJson(SEASON_MEMOS, all);
+      });
+    },
+
+    deleteSeasonMemo(id) {
+      return serialized(async () => {
+        const all = await readJson<SeasonMemoRecord[]>(SEASON_MEMOS, []);
+        await writeJson(SEASON_MEMOS, all.filter((m) => m.id !== id));
       });
     },
 

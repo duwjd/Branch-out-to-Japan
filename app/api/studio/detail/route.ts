@@ -40,7 +40,19 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const form = await request.formData();
-  const files = form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
+  // 제품컷과 KR 상세 원본을 분리해서 받는다(2026-08-19). 제품컷이 곧 images.edit 의 base라
+  // 순서를 사용자 업로드에 맡기면 텍스트가 얹힌 KR 상세 스크린샷이 제품 자리를 차지한다.
+  const productImage = form.get('productImage');
+  const productFile = productImage instanceof File && productImage.size > 0 ? productImage : null;
+  const krFiles = form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
+  if (!productFile) {
+    return NextResponse.json(
+      { error: '제품컷 1장을 올려 주세요. 제품 사진은 이 이미지를 기준으로 다시 그립니다.' },
+      { status: 400 },
+    );
+  }
+  // 저장·비전 입력 순서 = [제품컷, KR 원본…]. 첫 장이 제품 대표컷이라는 잡의 계약을 UI가 보장한다.
+  const files = [productFile, ...krFiles];
   const imageError = validateImages(files);
   if (imageError) return NextResponse.json({ error: imageError }, { status: 400 });
 
