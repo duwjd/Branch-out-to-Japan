@@ -177,7 +177,7 @@ flowchart TD
     N2 -.-> C3
 
     classDef rule fill:#f2f2f2,stroke:#888,color:#222;
-    classDef llm fill:#fff0f0,stroke:#d93636,color:#5e1a1a;
+    classDef llm fill:#fff1ee,stroke:#c93f2e,color:#5e1a1a;
     class N1,N2,N3,N4,N5,MODE rule;
     class C1,C2,C3,C4 llm;
 ```

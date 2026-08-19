@@ -10,15 +10,15 @@
    슬라이드 면적의 대부분을 코랄 계열 화면 캡처가 차지하므로,
    덱 크롬도 같은 토큰을 써서 캡처와 한 벌로 읽히게 한다. */
 :root{
-  --page:#F7F7F8; --canvas:#FFFFFF;
-  --ink:#202124; --ink-body:#414245; --ink-mute:rgba(55,56,60,.61); --ink-faint:#B6B8BF;
-  --navy:#22304F;
-  --coral:#FF6464; --coral-strong:#D93636; --coral-tint:#FFF8F8;
-  --danger:#F0483C; --danger-tx:#C6362C; --danger-bg:#FDF0EF;
-  --amber:#FFAB00; --amber-tx:#B96C00; --amber-bg:#FFF6E5;
-  --green:#00B97C; --green-tx:#00875A; --green-bg:#EAF9F3;
-  --card-border:rgba(112,115,124,.14); --hairline:#EBEBEB;
-  --n-50:#FAFAFB; --n-100:#F2F2F4; --n-200:#ECECEF;
+  --page:#FAF8F5; --canvas:#FFFFFF;
+  --ink:#182333; --ink-body:#3D4655; --ink-mute:#6e7686; --ink-faint:#78818F;
+  --navy:#182333;
+  --coral:#FF6F61; --coral-strong:#C93F2E; --coral-tint:#FFF1EE;
+  --danger:#D94848; --danger-tx:#C13A3A; --danger-bg:#FBEDED;
+  --amber:#E39A22; --amber-tx:#8F6412; --amber-bg:#FDF3E4;
+  --green:#2D8C6B; --green-tx:#26775B; --green-bg:#E8F4F0;
+  --card-border:#e9e7e3; --hairline:#E9E7E3;
+  --n-50:#FDFCFA; --n-100:#F2F2F4; --n-200:#E9E7E3;
   --card-shadow:0 1px 3px rgba(16,18,20,.04);
   --shot-shadow:0 24px 60px rgba(16,18,20,.14), 0 2px 8px rgba(16,18,20,.06);
   --r:18px;
@@ -67,7 +67,7 @@ h1.t .sub{display:block;font-size:23px;font-weight:600;color:var(--ink-mute);let
 .card h3{font-size:17px;font-weight:800;margin-bottom:10px;letter-spacing:-.01em}
 .card p{font-size:15px;line-height:1.68;color:var(--ink-body)}
 .card p + p{margin-top:9px}
-.why{background:var(--coral-tint);border:1px solid rgba(255,100,100,.22)}
+.why{background:var(--coral-tint);border:1px solid rgba(255,111,97,.22)}
 .why h3{color:var(--coral-strong)}
 .quote{font-size:15.5px;line-height:1.65;color:var(--ink-body);font-weight:600}
 .quote .mark{color:var(--coral-strong);font-weight:800}
@@ -89,7 +89,7 @@ ul.k li b{color:var(--ink);font-weight:700}
 /* 배지 */
 .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 11px;
   font-size:12.5px;font-weight:700;line-height:1.5}
-.p-req{background:var(--coral-tint);color:var(--coral-strong);border:1px solid rgba(255,100,100,.3)}
+.p-req{background:var(--coral-tint);color:var(--coral-strong);border:1px solid rgba(255,111,97,.3)}
 .p-opt{background:var(--n-100);color:var(--ink-mute)}
 .p-ok{background:var(--green-bg);color:var(--green-tx)}
 .p-warn{background:var(--amber-bg);color:var(--amber-tx)}
@@ -118,7 +118,7 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
 
 /* 표지 */
 .cover{justify-content:center;padding-left:110px;
-  background:radial-gradient(900px 620px at 84% 16%,rgba(255,100,100,.13),transparent 62%),
+  background:radial-gradient(900px 620px at 84% 16%,rgba(255,111,97,.13),transparent 62%),
              radial-gradient(1000px 720px at 92% 96%,rgba(34,48,79,.07),transparent 58%),var(--page)}
 .cover .wm img{height:34px;width:auto;display:block}
 .cover h1{font-size:96px;font-weight:800;letter-spacing:-.035em;line-height:1.06;margin-top:36px}
@@ -1139,7 +1139,7 @@ table.k td.h{font-weight:700;color:var(--ink);white-space:nowrap}
       <figure><div class="fr wide"><img src="shots/s-result-generating.png" alt="결과 화면 생성중 시작 상태"></div><figcaption>② 결과 생성중<i>결과 화면 시작 상태</i></figcaption></figure>
       <figure><div class="fr wide"><img src="shots/s-result.png" alt="생성 결과"></div><figcaption>② 생성 결과<i>결과물 + 재설계 근거</i></figcaption></figure>
       <figure><div class="fr wide"><img src="shots/o-home-thumb.png" alt="운영 홈 썸네일 탭, 생성 썸네일이 모인 자산 라이브러리"></div><figcaption>③ 운영 홈<i>자산 라이브러리로 모인다</i></figcaption></figure>
-      <figure style="grid-column:span 2"><div class="fr" style="display:flex;align-items:center;padding:22px 26px;background:var(--coral-tint);border-color:rgba(255,100,100,.25)">
+      <figure style="grid-column:span 2"><div class="fr" style="display:flex;align-items:center;padding:22px 26px;background:var(--coral-tint);border-color:rgba(255,111,97,.25)">
         <div>
           <div style="font-size:15px;font-weight:800;color:var(--coral-strong);margin-bottom:9px">①→②→③를 잇는 지점</div>
           <ul class="k" style="gap:7px">

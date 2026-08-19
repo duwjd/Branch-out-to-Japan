@@ -56,7 +56,7 @@ const HOW_STEPS = [
 
 /** 코랄 primary CTA — large/bold + white(대비 트레이드오프, 호버 시 강한 코랄로 보강) */
 const CTA_PRIMARY =
-  'inline-flex items-center justify-center gap-1.5 rounded-xl bg-coral px-6 py-3.5 text-[15px] font-bold text-white shadow-[0_10px_28px_-10px_rgba(255,100,100,0.75)] transition hover:-translate-y-px hover:bg-coral-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral';
+  'inline-flex items-center justify-center gap-1.5 rounded-xl bg-coral px-6 py-3.5 text-[15px] font-bold text-white shadow-[0_10px_28px_-10px_rgba(255,111,97,0.75)] transition hover:-translate-y-px hover:bg-coral-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral';
 
 /** 랜딩 섹션 래퍼 — canvas/page 교대로 리듬을 준다 */
 function Section({ id, tint, children }: { id: string; tint?: boolean; children: React.ReactNode }) {
@@ -98,7 +98,7 @@ export default function LpPage() {
       <section className="relative overflow-hidden bg-canvas">
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
-          style={{ background: 'radial-gradient(760px 320px at 30% -60px, rgba(255,100,100,0.07), transparent)' }}
+          style={{ background: 'radial-gradient(760px 320px at 30% -60px, rgba(255,111,97,0.07), transparent)' }}
           aria-hidden="true"
         />
         <div className="relative mx-auto max-w-4xl px-6 py-[clamp(3.5rem,8vw,6rem)]">
@@ -150,7 +150,7 @@ export default function LpPage() {
                   role="img"
                   aria-label="소개 영상 자리 — 준비 중"
                 >
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-coral text-white shadow-[0_10px_28px_-10px_rgba(255,100,100,0.75)]">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-coral text-white shadow-[0_10px_28px_-10px_rgba(255,111,97,0.75)]">
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
                       <path d="M8 5v14l11-7z" />
                     </svg>

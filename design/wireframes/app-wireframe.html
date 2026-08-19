@@ -14,24 +14,24 @@
     - docs/07-ia.md §4 사이트맵(앱 영역)·§5 내비 모델·§6 화면 인벤토리·§7 브랜드 프로필 엔티티
     - design/DESIGN.md (코랄 · §14 상태 규약) · design/wireframes/service-wireframe.html #ops(프로토타입)
   IA 반영 신규: 브랜드 프로필 스위처 · 3축 성숙도 배지 · 온보딩→리포트 프리필 · 품의 PDF 재접근.
-  ⚠ CTA 정책: #FF6464 배경 + large/bold 흰 텍스트만. 소형 흰텍스트·링크는 #D93636.
+  ⚠ CTA 정책: #FF6F61 배경 + large/bold 흰 텍스트만. 소형 흰텍스트·링크는 #C93F2E.
   상세 명세는 app-spec.md 참조.
   ════════════════════════════════════════════════════════════════════
 -->
 <style>
   :root {
-    --primary: #FF6464; --primary-strong: #D93636; --primary-tint: #FFF8F8;
-    --error: #F0483C; --error-tint: #FDECEB; --error-ink: #A4271D;
-    --success: #00B97C; --success-tint: #E6F7F0; --success-ink: #036C4A;
-    --warning: #FFAB00; --warning-tint: #FFF6E5; --warning-ink: #7A5200;
-    --heading: #202124; --body: #414245; --secondary: rgba(55,56,60,.61);
-    --surface: #fff; --surface-subtle: #F6F6F6; --border: rgba(112,115,124,.22); --border-soft: rgba(112,115,124,.14);
+    --primary: #FF6F61; --primary-strong: #C93F2E; --primary-tint: #FFF1EE;
+    --error: #D94848; --error-tint: #FBEDED; --error-ink: #C13A3A;
+    --success: #2D8C6B; --success-tint: #E8F4F0; --success-ink: #26775B;
+    --warning: #E39A22; --warning-tint: #FDF3E4; --warning-ink: #8F6412;
+    --heading: #182333; --body: #3D4655; --secondary: #6e7686;
+    --surface: #fff; --surface-subtle: #F4F2EE; --border: #e9e7e3; --border-soft: #e9e7e3;
     --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", sans-serif;
     --shadow-float: 0 4px 12px rgba(32,33,36,.08); --radius: 12px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body { font-family: var(--font-sans); background: #ECEDEF; color: var(--body); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  body { font-family: var(--font-sans); background: #E9E7E3; color: var(--body); line-height: 1.6; -webkit-font-smoothing: antialiased; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation-duration: .001ms !important; transition-duration: .001ms !important; } }
 
   .docnav { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-soft); }
@@ -56,7 +56,7 @@
 
   .frame { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-float); }
   .chrome { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #F1F2F4; border-bottom: 1px solid var(--border-soft); }
-  .chrome .dots { display: flex; gap: 6px; } .chrome .dots i { width: 11px; height: 11px; border-radius: 50%; background: #D3D7DE; display: block; }
+  .chrome .dots { display: flex; gap: 6px; } .chrome .dots i { width: 11px; height: 11px; border-radius: 50%; background: #C9CDD4; display: block; }
   .chrome .url { font-size: 11.5px; color: var(--secondary); background: #fff; border: 1px solid var(--border-soft); border-radius: 999px; padding: 4px 12px; margin-left: 8px; flex: 1; max-width: 420px; }
 
   /* 앱 상단바 + 브랜드 스위처 */
@@ -113,7 +113,7 @@
   .asset .ic { width: 40px; height: 40px; border-radius: 9px; background: var(--surface-subtle); border: 1px solid var(--border-soft); display: grid; place-items: center; font-size: 15px; flex: none; }
   .asset .m { flex: 1; } .asset .m .n { font-size: 13px; font-weight: 600; color: var(--heading); } .asset .m .s { font-size: 11.5px; color: var(--secondary); margin-top: 2px; }
   .thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-  .thumbs .t { aspect-ratio: 1/1; border-radius: 8px; background: linear-gradient(135deg, #F0F1F4, #E4E7EC); border: 1px solid var(--border-soft); display: grid; place-items: center; font-size: 10px; color: var(--secondary); }
+  .thumbs .t { aspect-ratio: 1/1; border-radius: 8px; background: linear-gradient(135deg, #F0F1F4, #E9E7E3); border: 1px solid var(--border-soft); display: grid; place-items: center; font-size: 10px; color: var(--secondary); }
   .thumbs .more { background: var(--primary-tint); color: var(--primary-strong); font-weight: 700; }
 
   .match { display: flex; gap: 12px; align-items: center; padding: 10px 0; }
@@ -123,7 +123,7 @@
   .badge-ok { font-size: 10px; font-weight: 700; color: var(--success-ink); background: var(--success-tint); border: 1px solid rgba(0,185,124,.4); border-radius: 6px; padding: 3px 7px; }
 
   /* CTA 패널 */
-  .cta-panel { background: var(--primary-tint); border: 1px solid rgba(255,100,100,.28); border-radius: 12px; padding: 20px; }
+  .cta-panel { background: var(--primary-tint); border: 1px solid rgba(255,111,97,.28); border-radius: 12px; padding: 20px; }
   .cta-panel h3 { font-size: 15px; font-weight: 700; color: var(--heading); }
   .cta-panel p { font-size: 12.5px; color: var(--body); margin-top: 6px; }
   .cta-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
@@ -135,7 +135,7 @@
   /* empty / loading */
   .empty { text-align: center; padding: 26px 16px; }
   .empty p { font-size: 12.5px; color: var(--secondary); }
-  .skel { border-radius: 8px; background: linear-gradient(90deg, #EEF0F2, #E4E7EC, #EEF0F2); height: 14px; }
+  .skel { border-radius: 8px; background: linear-gradient(90deg, #EEF0F2, #E9E7E3, #EEF0F2); height: 14px; }
   .skel.big { height: 40px; }
 
   .notes { margin-top: 14px; display: grid; gap: 8px; }
@@ -164,7 +164,7 @@
       </p>
       <div class="meta">
         <span>in ← 온보딩/로그인 · out → ① 리포트 · ② 스튜디오 · ③ 운영</span>
-        <span>토큰 = 코랄 #FF6464</span>
+        <span>토큰 = 코랄 #FF6F61</span>
         <span>신규: 브랜드 스위처 · 성숙도 배지 · 프리필 · 품의 PDF 재접근</span>
       </div>
     </header>
@@ -308,7 +308,7 @@
 
     <div class="legend">
       <b>인계 메모</b> · 저채도 골격입니다. 정밀 스타일은 <code>design/DESIGN.md</code> 코랄 시스템으로 완성.
-      CTA는 <code>#FF6464</code> 배경+large/bold 흰 텍스트만, 소형 링크·배지는 <code>#D93636</code>.
+      CTA는 <code>#FF6F61</code> 배경+large/bold 흰 텍스트만, 소형 링크·배지는 <code>#C93F2E</code>.
       #ops(service-wireframe) 프로토타입을 코랄+IA(스위처·성숙도·프리필·품의PDF)로 재구성. 상세: <b>app-spec.md</b>.
     </div>
   </div>

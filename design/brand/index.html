@@ -1,7 +1,7 @@
 <!--
   YOAKE — 브랜드 아이덴티티 문서 (Brand Identity Document)
   단일 파일 자기완결형. 폰트만 CDN, 이미지는 assets/img/ 상대경로.
-  정본 컬러 = 코랄 시스템(#FF6464 / #D93636 / #FFF8F8). 파랑 primary 금지.
+  정본 컬러 = 코랄 시스템(#FF6F61 / #C93F2E / #FFF1EE). 파랑 primary 금지.
   이미지 크레딧/라이선스: 문서 하단 §13(브랜드 거버넌스) 참조.
   최종 갱신: 2026-07-13
 -->
@@ -22,30 +22,32 @@
      ============================================================ */
   :root{
     /* Coral primary family */
-    --primary:#FF6464;          /* 브랜드 / 기본 CTA / large-bold 강조 / 장식 */
-    --primary-strong:#D93636;   /* hover·pressed·active·focus / 텍스트 링크·소형 인터랙션(흰 위 AA) */
-    --primary-tint:#FFF8F8;     /* 틴트 면 · CTA 밴드 · 선택 배경 */
-    --primary-tint-2:#FFF0F0;   /* 한 단계 진한 틴트(대비용) */
+    --primary:#FF6F61;          /* 브랜드 / 기본 CTA / large-bold 강조 / 장식 */
+    --primary-strong:#C93F2E;   /* 소형 텍스트·링크·eyebrow 전용 (흰 위 5.0:1 · 크림 위 4.7:1 AA). 면에는 쓰지 않는다 */
+    --primary-hover:#F0594B;    /* 면 hover */
+    --primary-pressed:#DB4C3F;  /* 면 pressed */
+    --primary-tint:#FFF1EE;     /* 틴트 면 · CTA 밴드 · 선택 배경 */
+    --primary-tint-2:#FFE4DE;   /* 한 단계 진한 틴트(대비용) */
 
     /* Ink & surface */
-    --heading:#202124;
-    --body:#414245;
-    --muted:#5F6165;            /* 캡션·부가설명 (흰 위 ≈5.9:1, AA OK) */
-    --secondary:rgba(55,56,60,.61); /* DS 원본 토큰(장식·비필수 메타) */
-    --disabled:#747579;
+    --heading:#182333;
+    --body:#3D4655;
+    --muted:#6E7686;            /* 캡션·부가설명 (흰 위 ≈4.6:1, AA OK) */
+    --secondary:#6e7686; /* DS 원본 토큰(장식·비필수 메타) */
+    --disabled:#78818F;
     --surface:#ffffff;
-    --surface-subtle:#F6F6F6;
-    --backdrop:#ECEDEF;
-    --divider:#EBEBEB;
-    --hairline:#E4E7EC;
-    --border:rgba(112,115,124,.22);
-    --border-soft:rgba(112,115,124,.14);
-    --brand-black:#14191E;
+    --surface-subtle:#F4F2EE;
+    --backdrop:#E9E7E3;
+    --divider:#E9E7E3;
+    --hairline:#E9E7E3;
+    --border:#e9e7e3;
+    --border-soft:#F2F1ED;
+    --brand-black:#182333;
 
     /* Semantic */
-    --error:#F0483C; --error-tint:#FDECEB; --error-ink:#A4271D;
-    --success:#00B97C; --success-tint:#E6F6F0; --success-ink:#036C4A;
-    --warning:#FFAB00; --warning-tint:#FFF6E5; --warning-ink:#7A5200;
+    --error:#D94848; --error-tint:#FBEDED; --error-ink:#C13A3A;
+    --success:#2D8C6B; --success-tint:#E8F4F0; --success-ink:#26775B;
+    --warning:#E39A22; --warning-tint:#FDF3E4; --warning-ink:#8F6412;
 
     /* Marketing accents — 장식 전용, UI 인터랙션 금지 */
     --accent-orange:#FF5C00; --accent-pink:#FF8EFF; --accent-sky:#00ADFF; --accent-violet:#8364FF;
@@ -367,7 +369,7 @@
      ============================================================ */
   .diagram{background:var(--surface-subtle);border-radius:16px;padding:clamp(22px,3vw,36px)}
   .grid-viz{display:grid;grid-template-columns:repeat(12,1fr);gap:8px;height:120px;margin-top:6px}
-  .grid-viz span{background:var(--primary-tint-2);border-radius:4px;border:1px solid rgba(255,100,100,.25)}
+  .grid-viz span{background:var(--primary-tint-2);border-radius:4px;border:1px solid rgba(255,111,97,.25)}
   .space-scale{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-top:8px}
   .space-scale .u{text-align:center}
   .space-scale .u i{display:block;background:var(--primary);border-radius:3px;margin:0 auto 8px}
@@ -524,7 +526,7 @@
       </ul>
     </nav>
     <div class="side-meta">
-      <b>정본 컬러 · 코랄</b><br>#FF6464 / #D93636 / #FFF8F8<br>
+      <b>정본 컬러 · 코랄</b><br>#FF6F61 / #C93F2E / #FFF1EE<br>
       <span style="opacity:.8">일본 시장 진출 브랜드 전환 스튜디오</span>
     </div>
   </aside>
@@ -574,7 +576,7 @@
           <div class="illus-wrap reveal">
             <!-- 컨셉 일러스트: 직역 → 재설계 (자체 제작 SVG, 코랄) -->
             <svg class="illus" viewBox="0 0 420 320" role="img" aria-label="한국어 원문을 일본 고객 관점의 메시지로 재설계하는 과정 다이어그램">
-              <defs><style>.st{fill:#fff;stroke:#E4E7EC;stroke-width:1.5}.ln{stroke:#D9DBDF;stroke-width:6;stroke-linecap:round}.lnc{stroke:#FF6464;stroke-width:6;stroke-linecap:round}.tx{fill:#9A9C9F;font:600 12px sans-serif}.txc{fill:#D93636;font:700 12px sans-serif}</style></defs>
+              <defs><style>.st{fill:#fff;stroke:#E9E7E3;stroke-width:1.5}.ln{stroke:#D9DBDF;stroke-width:6;stroke-linecap:round}.lnc{stroke:#FF6F61;stroke-width:6;stroke-linecap:round}.tx{fill:#9A9C9F;font:600 12px sans-serif}.txc{fill:#C93F2E;font:700 12px sans-serif}</style></defs>
               <rect x="20" y="40" width="150" height="200" rx="12" class="st"/>
               <text x="34" y="66" class="tx">직역 (Before)</text>
               <line x1="36" y1="92" x2="150" y2="92" class="ln"/>
@@ -583,16 +585,16 @@
               <line x1="36" y1="176" x2="150" y2="176" class="ln"/>
               <line x1="36" y1="196" x2="132" y2="196" class="ln"/>
               <!-- arrow -->
-              <path d="M188 140 h44" stroke="#FF6464" stroke-width="3" fill="none"/>
-              <path d="M228 132 l10 8 l-10 8" fill="none" stroke="#FF6464" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="210" cy="112" r="15" fill="#FFF0F0" stroke="#FF6464" stroke-width="1.5"/>
-              <path d="M204 112 l4 4 l8 -9" fill="none" stroke="#D93636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <rect x="250" y="40" width="150" height="200" rx="12" class="st" style="stroke:#FF6464"/>
+              <path d="M188 140 h44" stroke="#FF6F61" stroke-width="3" fill="none"/>
+              <path d="M228 132 l10 8 l-10 8" fill="none" stroke="#FF6F61" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="210" cy="112" r="15" fill="#FFF1EE" stroke="#FF6F61" stroke-width="1.5"/>
+              <path d="M204 112 l4 4 l8 -9" fill="none" stroke="#C93F2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="250" y="40" width="150" height="200" rx="12" class="st" style="stroke:#FF6F61"/>
               <text x="264" y="66" class="txc">재설계 (After)</text>
               <line x1="266" y1="92" x2="380" y2="92" class="lnc"/>
               <line x1="266" y1="112" x2="380" y2="112" class="lnc"/>
               <line x1="266" y1="132" x2="350" y2="132" class="lnc"/>
-              <rect x="266" y="164" width="114" height="52" rx="8" fill="#FFF8F8" stroke="#FFD5D5" stroke-width="1.5"/>
+              <rect x="266" y="164" width="114" height="52" rx="8" fill="#FFF1EE" stroke="#FFD5D5" stroke-width="1.5"/>
               <text x="278" y="186" class="txc" style="font-size:10px">※ 근거 · 조건限定</text>
               <text x="278" y="204" class="tx" style="font-size:10px">薬機法 セーフ表現</text>
               <text x="118" y="284" class="tx" style="text-anchor:middle">한국어 원문</text>
@@ -692,7 +694,7 @@
         <div class="vt">
           <div class="col do">
             <h4>
-              <svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#00B97C" opacity=".16"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#036C4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#2D8C6B" opacity=".16"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#26775B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               이렇게 씁니다
             </h4>
             <ul>
@@ -704,7 +706,7 @@
           </div>
           <div class="col dont">
             <h4>
-              <svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#747579" opacity=".16"/><path d="M7 7l6 6M13 7l-6 6" stroke="#747579" stroke-width="2" stroke-linecap="round"/></svg>
+              <svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#78818F" opacity=".16"/><path d="M7 7l6 6M13 7l-6 6" stroke="#78818F" stroke-width="2" stroke-linecap="round"/></svg>
               이렇게 쓰지 않습니다
             </h4>
             <ul>
@@ -743,17 +745,17 @@
           <div class="ba-row">
             <div class="ba-thumb"><img class="photo" src="assets/img/moodboard-2.jpg" alt="세럼 텍스처 매크로" /><span class="cat">스킨케어 · CICA</span></div>
             <div class="ba-cell before"><span class="ba-tag">BEFORE · 직역</span><p class="ba-jp" lang="ja">塗る瞬間、トラブルを消す。即・鎮静CICAアンプル</p><p class="ba-kr">바르는 순간 트러블을 없앤다 — 단정·과장, 효능 단언</p></div>
-            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">乾燥による肌あれ<span style="color:#D93636">※</span>が気になる肌を、うるおいでキメ整える。</p><p class="ba-kr">건조로 인한 거칠어짐이 신경 쓰이는 피부를 결정돈. <b>※角層</b></p><p class="ba-why">▲ 조건限定 + 각주로 薬機法 세이프</p></div>
+            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">乾燥による肌あれ<span style="color:#C93F2E">※</span>が気になる肌を、うるおいでキメ整える。</p><p class="ba-kr">건조로 인한 거칠어짐이 신경 쓰이는 피부를 결정돈. <b>※角層</b></p><p class="ba-why">▲ 조건限定 + 각주로 薬機法 세이프</p></div>
           </div>
           <div class="ba-row">
             <div class="ba-thumb"><img class="photo" src="assets/img/moodboard-1.jpg" alt="뉴트럴 톤 화장품 정물" /><span class="cat">미백 · 기능성</span></div>
             <div class="ba-cell before"><span class="ba-tag">BEFORE · 직역</span><p class="ba-jp" lang="ja">シミが消える美白クリーム</p><p class="ba-kr">기미가 사라지는 미백 크림 — 결과 단언(위반 소지)</p></div>
-            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">メラニンの生成を抑え、シミ・そばかすを防ぐ。<span style="color:#D93636">※</span></p><p class="ba-kr">멜라닌 생성을 억제해 기미·주근깨를 예방. <b>※薬用(의약외품)의 경우</b></p><p class="ba-why">▲ 승인된 효능 범위 + 조건 명시</p></div>
+            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">メラニンの生成を抑え、シミ・そばかすを防ぐ。<span style="color:#C93F2E">※</span></p><p class="ba-kr">멜라닌 생성을 억제해 기미·주근깨를 예방. <b>※薬用(의약외품)의 경우</b></p><p class="ba-why">▲ 승인된 효능 범위 + 조건 명시</p></div>
           </div>
           <div class="ba-row">
             <div class="ba-thumb"><img class="photo" src="assets/img/moodboard-3.jpg" alt="식물 성분(병풀) 이미지" /><span class="cat">더마 · 敏感肌</span></div>
             <div class="ba-cell before"><span class="ba-tag">BEFORE · 직역</span><p class="ba-jp" lang="ja">病院処方級、肌を治療するケア</p><p class="ba-kr">병원 처방급, 피부를 치료하는 케어 — 의약품 오인</p></div>
-            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">敏感肌<span style="color:#D93636">※</span>の方の毎日にも。パッチテスト済み・無添加処方。</p><p class="ba-kr">민감 피부에도 매일. 패치테스트 완료·무첨가 처방. <b>※角層</b></p><p class="ba-why">▲ 치료 주장 삭제 + 검증 사실로 전환</p></div>
+            <div class="ba-cell after"><span class="ba-tag">AFTER · 재설계</span><p class="ba-jp" lang="ja">敏感肌<span style="color:#C93F2E">※</span>の方の毎日にも。パッチテスト済み・無添加処方。</p><p class="ba-kr">민감 피부에도 매일. 패치테스트 완료·무첨가 처방. <b>※角層</b></p><p class="ba-why">▲ 치료 주장 삭제 + 검증 사실로 전환</p></div>
           </div>
           <div class="ba-row">
             <div class="ba-thumb"><img class="photo" src="assets/img/moodboard-4.jpg" alt="일본 미니멀 정물" /><span class="cat">향 · 바디</span></div>
@@ -780,14 +782,14 @@
         <div class="wm-specs">
           <div class="spec"><div class="k">구성</div><div class="v">일출 심볼 + <code>YOAKE</code> 레터마크. 기본은 가로형, 정사각 자리(파비콘·아바타·접힌 레일)에만 심볼 단독.</div></div>
           <div class="spec"><div class="k">서체</div><div class="v">레터마크를 <strong>패스로 아웃라인</strong>한 자산이 정본. 폰트 설치가 필요 없고, 다른 서체로 재조판하지 않는다.</div></div>
-          <div class="spec"><div class="k">색 (로고 전용 고정색)</div><div class="v">해 <code>#FF6F61</code>→<code>#FF9B70</code>(좌→우) · 수평선 <code>#FF6F61</code> · 레터마크 잉크 <code>#182333</code>.<br><b>UI 토큰 아님</b> — CTA·칩은 그대로 코랄 <code>#FF6464</code>.</div></div>
+          <div class="spec"><div class="k">색 (로고 전용 고정색)</div><div class="v">해 <code>#FF6F61</code>→<code>#FF9B70</code>(좌→우) · 수평선 <code>#FF6F61</code> · 레터마크 잉크 <code>#182333</code>.<br><b>UI 토큰 아님</b> — CTA·칩은 그대로 코랄 <code>#FF6F61</code>.</div></div>
           <div class="spec"><div class="k">보호 여백 · 최소 크기</div><div class="v">사방으로 <strong>해 지름의 0.25배</strong> 여백. 가로형 최소 높이 20px(인쇄 7mm), 심볼 단독 20px(7mm) — 그 이하는 수평선이 뭉개지므로 잉크 <code>Y</code> 이니셜.</div></div>
         </div>
         <div class="dont-grid">
-          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#A4271D" stroke-width="2" stroke-linecap="round"/></svg>레터마크 코랄 금지</span><span class="m" style="color:#FF6464">YOAKE</span></div>
-          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#A4271D" stroke-width="2" stroke-linecap="round"/></svg>다른 서체 재조판 금지</span><span class="m" style="font-family:Georgia,serif;font-style:italic">YOAKE</span></div>
-          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#A4271D" stroke-width="2" stroke-linecap="round"/></svg>표기 변형 금지</span><span class="m">Yoake · YO-AKE</span></div>
-          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#A4271D" stroke-width="2" stroke-linecap="round"/></svg>장평 왜곡 금지</span><span class="m" style="transform:scaleX(1.35);transform-origin:left;display:inline-block">YOAKE</span></div>
+          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#C13A3A" stroke-width="2" stroke-linecap="round"/></svg>레터마크 코랄 금지</span><span class="m" style="color:#FF6F61">YOAKE</span></div>
+          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#C13A3A" stroke-width="2" stroke-linecap="round"/></svg>다른 서체 재조판 금지</span><span class="m" style="font-family:Georgia,serif;font-style:italic">YOAKE</span></div>
+          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#C13A3A" stroke-width="2" stroke-linecap="round"/></svg>표기 변형 금지</span><span class="m">Yoake · YO-AKE</span></div>
+          <div class="dont-item"><span class="x"><svg class="ic" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 6l8 8M14 6l-8 8" stroke="#C13A3A" stroke-width="2" stroke-linecap="round"/></svg>장평 왜곡 금지</span><span class="m" style="transform:scaleX(1.35);transform-origin:left;display:inline-block">YOAKE</span></div>
         </div>
       </div>
     </section>
@@ -801,30 +803,30 @@
           <p class="sec-lead">브랜드 액션 컬러는 <strong>코랄 단일 시스템</strong>. 파랑 primary는 쓰지 않는다. 코랄은 결정적인 순간에만 등장해, 낮은 채도의 지면 위에서 목소리가 된다.</p>
         </header>
         <div class="swatch-hero">
-          <div class="sw"><div class="chip-c" style="background:#FF6464"></div><div class="meta"><div class="role">Primary · 코랄</div><div class="hex">#FF6464 · rgb(255,100,100)</div><div class="use">브랜드 · 기본 CTA · large/bold 강조 · 장식</div></div></div>
-          <div class="sw"><div class="chip-c" style="background:#D93636"></div><div class="meta"><div class="role">Primary Strong</div><div class="hex">#D93636 · rgb(217,54,54)</div><div class="use">hover·pressed·active·focus · 텍스트 링크 · 소형 인터랙션</div></div></div>
-          <div class="sw"><div class="chip-c" style="background:#FFF8F8;border-bottom:1px solid var(--hairline)"></div><div class="meta"><div class="role">Primary Tint</div><div class="hex">#FFF8F8 · rgb(255,248,248)</div><div class="use">틴트 면 · CTA 밴드 · 선택 배경</div></div></div>
+          <div class="sw"><div class="chip-c" style="background:#FF6F61"></div><div class="meta"><div class="role">Primary · 코랄</div><div class="hex">#FF6F61 · rgb(255,111,97)</div><div class="use">브랜드 · 기본 CTA · large/bold 강조 · 장식</div></div></div>
+          <div class="sw"><div class="chip-c" style="background:#C93F2E"></div><div class="meta"><div class="role">Primary Strong</div><div class="hex">#C93F2E · rgb(201,63,46)</div><div class="use">hover·pressed·active·focus · 텍스트 링크 · 소형 인터랙션</div></div></div>
+          <div class="sw"><div class="chip-c" style="background:#FFF1EE;border-bottom:1px solid var(--hairline)"></div><div class="meta"><div class="role">Primary Tint</div><div class="hex">#FFF1EE · rgb(255,248,248)</div><div class="use">틴트 면 · CTA 밴드 · 선택 배경</div></div></div>
         </div>
 
         <div class="subhead">뉴트럴 · 텍스트 &amp; 서피스</div>
         <div class="sw-row">
-          <div class="sw-mini"><div class="c" style="background:#202124"></div><div class="m"><div class="r">Heading</div><div class="h">#202124</div></div></div>
-          <div class="sw-mini"><div class="c" style="background:#414245"></div><div class="m"><div class="r">Body</div><div class="h">#414245</div></div></div>
-          <div class="sw-mini"><div class="c" style="background:#5F6165"></div><div class="m"><div class="r">Muted</div><div class="h">#5F6165</div></div></div>
-          <div class="sw-mini"><div class="c" style="background:#F6F6F6;border-bottom:1px solid var(--hairline)"></div><div class="m"><div class="r">Surface Subtle</div><div class="h">#F6F6F6</div></div></div>
-          <div class="sw-mini"><div class="c" style="background:#14191E"></div><div class="m"><div class="r">Brand Black</div><div class="h">#14191E</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#182333"></div><div class="m"><div class="r">Heading</div><div class="h">#182333</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#3D4655"></div><div class="m"><div class="r">Body</div><div class="h">#3D4655</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#6E7686"></div><div class="m"><div class="r">Muted</div><div class="h">#6E7686</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#F4F2EE;border-bottom:1px solid var(--hairline)"></div><div class="m"><div class="r">Surface Subtle</div><div class="h">#F4F2EE</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#182333"></div><div class="m"><div class="r">Brand Black</div><div class="h">#182333</div></div></div>
         </div>
 
         <div class="subhead">시맨틱</div>
         <div class="sw-row">
-          <div class="sw-mini"><div class="c" style="background:#F0483C"></div><div class="m"><div class="r">Error</div><div class="h">#F0483C</div></div></div>
-          <div class="sw-mini"><div class="c" style="background:#00B97C"></div><div class="m"><div class="r">Success</div><div class="h">#00B97C</div></div></div>
-          <div class="sw-mini"><div class="c" style="background:#FFAB00"></div><div class="m"><div class="r">Warning</div><div class="h">#FFAB00</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#D94848"></div><div class="m"><div class="r">Error</div><div class="h">#D94848</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#2D8C6B"></div><div class="m"><div class="r">Success</div><div class="h">#2D8C6B</div></div></div>
+          <div class="sw-mini"><div class="c" style="background:#E39A22"></div><div class="m"><div class="r">Warning</div><div class="h">#E39A22</div></div></div>
         </div>
 
         <div class="a11y-note">
-          <svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2l8 14H2L10 2z" stroke="#7A5200" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8v4M10 14.5v.5" stroke="#7A5200" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <p><b>접근성 트레이드오프.</b> 코랄 <code>#FF6464</code> + 흰 텍스트는 약 <b>2.9:1</b>로 WCAG AA 미달이다. 따라서 흰 텍스트는 <b>large/bold(≥18px 또는 굵은 14px)에만</b> 쓰고, 소형 텍스트·링크·배지는 <code>#D93636</code>(흰 위 ≈4.6:1)을 쓴다. 의도된 규칙이다.</p>
+          <svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2l8 14H2L10 2z" stroke="#8F6412" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8v4M10 14.5v.5" stroke="#8F6412" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <p><b>접근성 트레이드오프.</b> 코랄 <code>#FF6F61</code> + 흰 텍스트는 약 <b>2.9:1</b>로 WCAG AA 미달이다. 따라서 흰 텍스트는 <b>large/bold(≥18px 또는 굵은 14px)에만</b> 쓰고, 소형 텍스트·링크·배지는 <code>#C93F2E</code>(흰 위 ≈4.6:1)을 쓴다. 의도된 규칙이다.</p>
         </div>
 
         <div class="subhead">마케팅 액센트 <span style="font-weight:500;color:var(--muted)">— 장식 전용, 제품 UI 인터랙션 금지</span></div>
@@ -886,11 +888,11 @@
         </div>
         <div class="img-do">
           <div class="box yes">
-            <h4><svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#00B97C" opacity=".16"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#036C4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>DO</h4>
+            <h4><svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#2D8C6B" opacity=".16"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#26775B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>DO</h4>
             <ul><li>저채도·뉴트럴·자연광, 넉넉한 여백</li><li>제품·성분·텍스처의 정돈된 정물</li><li>일본식 미니멀·청결의 감도</li></ul>
           </div>
           <div class="box no">
-            <h4><svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#747579" opacity=".16"/><path d="M7 7l6 6M13 7l-6 6" stroke="#747579" stroke-width="2" stroke-linecap="round"/></svg>DON'T</h4>
+            <h4><svg class="ic" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#78818F" opacity=".16"/><path d="M7 7l6 6M13 7l-6 6" stroke="#78818F" stroke-width="2" stroke-linecap="round"/></svg>DON'T</h4>
             <ul><li>네온·과채도·요란한 그라데이션</li><li>과장된 실적 배너·시끄러운 그래픽</li><li>가짜 고객 로고·후기로 쓰는 인물 스톡</li></ul>
           </div>
         </div>
@@ -945,7 +947,7 @@
         <header class="sec-head">
           <span class="sec-num">11</span>
           <h2>컴포넌트</h2>
-          <p class="sec-lead">코랄 시스템으로 구현한 핵심 요소들. 인터랙션 색은 코랄 계열만 — hover는 <code>#D93636</code>, 포커스 링은 <code>#FF6464</code>.</p>
+          <p class="sec-lead">코랄 시스템으로 구현한 핵심 요소들. 인터랙션 색은 코랄 계열만 — hover는 <code>#C93F2E</code>, 포커스 링은 <code>#FF6F61</code>.</p>
         </header>
         <div class="comp-grid">
           <div class="comp"><div class="lab">버튼</div><div class="btn-row"><button class="btn btn-primary">진단 시작하기</button><button class="btn btn-outline">샘플 보기</button><button class="btn btn-text">자세히 →</button></div></div>
@@ -1006,7 +1008,7 @@
         <div class="gov">
           <div class="g"><h4>근거로만 신뢰를 만든다</h4><p>가상 통계·익명 후기·허위 실적은 넣지 않는다(페르소나 검증 최대 이탈 트리거). 신뢰는 샘플 리포트 실물·채점 기준 공개·법 조항 근거로만 만든다.</p></div>
           <div class="g"><h4>네이밍 정본</h4><p>고객 대면 이름은 <strong>YOAKE</strong> 하나로 통일한다(전부 대문자 · <code>Yoake</code>·<code>YO-AKE</code> 금지). 어원은 일본어 <code>夜明け</code>(동트기) — 한자·가나 표기는 어원 설명에서만 병기하고 이름 자리에는 쓰지 않는다. 이전 이름 <code>KGLOW</code>와 <code>Japan Growth Studio</code>는 이름이 아니라 각각 구 아이덴티티·카테고리 서술어로만 남는다. 내부 팀 코드네임 ‘생존자들’은 대면 카피에 쓰지 않는다 — 자사 네이밍도 페르소나로 검증해 결정한, 근거 기반 판단이다.</p></div>
-          <div class="g"><h4>접근성 기준</h4><p>WCAG AA 이상. 본문 대비 ≥4.5:1, 포커스 가시화, 시맨틱 태그, 폼 label 연결. 코랄+흰 텍스트의 의도적 트레이드오프는 <code>#D93636</code>으로 보완한다.</p></div>
+          <div class="g"><h4>접근성 기준</h4><p>WCAG AA 이상. 본문 대비 ≥4.5:1, 포커스 가시화, 시맨틱 태그, 폼 label 연결. 코랄+흰 텍스트의 의도적 트레이드오프는 <code>#C93F2E</code>으로 보완한다.</p></div>
           <div class="g"><h4>산출물 자정 규칙</h4><p>산출물이 범용 자동생성·번역툴로 흐르면 즉시 교정한다. 우리의 경계선은 언제나 <strong>일본 고객 관점의 메시지 재설계</strong>다.</p></div>
         </div>
         <!-- IMAGE CREDITS (full sources)
@@ -1019,14 +1021,14 @@
           moodboard-3.jpg — vishnuvardhan J S,    Pexels — pexels.com/photo/37357248/
           moodboard-4.jpg — Valentin Ivantsov,    Pexels — pexels.com/photo/34589778/
           product-hero.jpg— Artem Podrez,         Pexels — pexels.com/photo/6801177/
-          concept-*.svg   — unDraw (undraw.co), coral #FF6464 recolor
+          concept-*.svg   — unDraw (undraw.co), coral #FF6F61 recolor
           License: Pexels License + unDraw open-source — 모두 상업적 이용 가능, 저작자 표시 불필요.
         -->
         <div class="credits">
           <h4>이미지 크레딧 · 라이선스</h4>
           <ul id="credits-list">
             <li><b>사진 · Pexels License</b> (상업적 이용 가능·저작자 표시 불필요) — Cup of Couple · KATRIN BOLOVTSOVA · DS stories · Ani Coloca · Polina · Jana Kukebal · vishnuvardhan J S · Valentin Ivantsov · Artem Podrez <span style="color:var(--disabled)">(pexels.com)</span></li>
-            <li><b>컨셉 일러스트 · unDraw</b> (오픈소스·상업적 이용 가능) — 코랄 <code>#FF6464</code> 리컬러 <span style="color:var(--disabled)">(undraw.co)</span></li>
+            <li><b>컨셉 일러스트 · unDraw</b> (오픈소스·상업적 이용 가능) — 코랄 <code>#FF6F61</code> 리컬러 <span style="color:var(--disabled)">(undraw.co)</span></li>
             <li><b>다이어그램</b> — 자체 제작 원본 인라인 SVG(코랄 시스템).</li>
             <li>전 이미지: 저채도 뉴트럴·코랄 무드로 큐레이션 · 가독 텍스트·로고·후기용 인물 배제.</li>
           </ul>

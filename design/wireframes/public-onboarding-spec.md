@@ -27,11 +27,11 @@
 ### ⚠ CTA 코랄 정책 (load-bearing)
 | 규칙 | 값 |
 |---|---|
-| 기본 CTA 배경 | `primary #FF6464` + **large/bold 흰 텍스트만** |
-| hover/pressed/focus | `primary-strong #D93636` |
-| 작은 인터랙티브 텍스트·링크·소형 배지 | `#D93636` (코랄 배경+작은 흰 텍스트는 ≈2.9:1 **AA 미달 → 금지**) |
-| tint surface / CTA band | `primary-tint #FFF8F8` |
-| validation/error | `error #F0483C` (CTA 색과 명확히 구분) |
+| 기본 CTA 배경 | `primary #FF6F61` + **large/bold 흰 텍스트만** |
+| hover/pressed/focus | `coral-hover #F0594B`(면 hover) · `coral-pressed #DB4C3F`(면 pressed) |
+| 작은 인터랙티브 텍스트·링크·소형 배지 | `#C93F2E` (코랄 배경+작은 흰 텍스트는 ≈2.7:1 **AA 미달 → 금지**) |
+| tint surface / CTA band | `primary-tint #FFF1EE` |
+| validation/error | `error #D94848` (CTA 색과 명확히 구분) |
 | 금지 | 파란 primary(`#0066FF`), 마케팅 accent를 product UI에 사용 |
 
 ### 타이포 (Pretendard Variable · 8종)
@@ -55,11 +55,11 @@ Spacing 4·8·12·16·20·24·32·64 / Radius 6·8·12·9999 / Elevation: Floati
 | Error(네트워크) | 중앙 heading+body+retry | URL fetch 실패 배너 / 각 호출 실패 `[디자이너]` |
 | Success | 인라인 flash(토스트 아님) | 비번 사용 가능·저장 완료 |
 | Disabled | opacity 0.4, geometry 유지 + 이유 안내 | 체커 제품분류 미선택 CTA |
-| Focus | 2px outline ring #FF6464 + 2px offset | 버튼·chip·input·tab `:focus-visible` |
+| Focus | 2px outline ring #FF6F61 + 2px offset | 버튼·chip·input·tab `:focus-visible` |
 | reduced-motion | `prefers-reduced-motion: reduce` → 모든 duration instant | 와이어프레임에 미디어쿼리 포함 |
 | 접근성 | label-input(for/id)·chip=button(role/aria)·file=네이티브 input·배너 아이콘 aria-hidden·tablist ARIA | 전 화면 반영 |
 
-> 배지 대비: NG/OK·판정 배지는 흰 텍스트 대비 미달(흰 on `#00B97C`≈2.6:1) → **tint 배경 + 진한 텍스트**로 교체(ux-review A5).
+> 배지 대비: NG/OK·판정 배지는 흰 텍스트 대비 미달(흰 on `#2D8C6B`≈2.6:1) → **tint 배경 + 진한 텍스트**로 교체(ux-review A5).
 
 ---
 
@@ -173,7 +173,7 @@ Spacing 4·8·12·16·20·24·32·64 / Radius 6·8·12·9999 / Elevation: Floati
 
 ### 주의
 - Growth **"첫 달 진단비 공제"** 명시 = "결과물 확인 전 월정액" 거부(전원 보류) 해소 장치.
-- **추천 배지**: 소형 흰 텍스트라 `primary-strong #D93636` 배경 사용(코랄+작은 흰텍스트 금지).
+- **추천 배지**: 소형 흰 텍스트라 `coral-hover #F0594B`(면 hover) · `coral-pressed #DB4C3F`(면 pressed) 배경 사용(코랄+작은 흰텍스트 금지).
 - 하단 노트: "고정가 · 견적 왕복 없이 · 언제든 해지 · 품의용 PDF 제공".
 - **A/B 검토**: featured를 Growth vs Report 어디에 둘지(Report가 전환 허브) `[팀 결정]`.
 
@@ -234,7 +234,7 @@ Spacing 4·8·12·16·20·24·32·64 / Radius 6·8·12·9999 / Elevation: Floati
 ## 7. 디자이너 인계 체크리스트
 
 - [ ] 6화면을 `design/DESIGN.md` 코랄 시스템으로 시각 완성(간격·타이포·아이콘·이미지)
-- [ ] **CTA 코랄 정책** 전수 준수(작은 흰 텍스트 없음·파란 primary 없음·소형 배지는 `#D93636`)
+- [ ] **CTA 코랄 정책** 전수 준수(작은 흰 텍스트 없음·파란 primary 없음·소형 배지는 `#C93F2E`)
 - [ ] 기존 컴포넌트 인벤토리 사용(신규 컴포넌트 발명 금지)
 - [ ] 카피: 본문 한국어 B2B / 일본어는 예시만 / 미확정 수치·가상 통계 제외
 - [ ] Input States(Helper/Error/Success)·로딩·게이트·업로드 상태 시각 정의(§0 상태 규약 매핑)

@@ -1,5 +1,11 @@
 # UX·엣지케이스·접근성 점검 (공개+온보딩 6화면)
 
+> **⚠ 색값은 전환 이전 기록이다 (2026-08-18).** 이 문서의 코랄 팔레트(`#FF6464`·`#D93636`·`#FFF8F8`)는 폐기됐다.
+> 현행 브랜드색은 **일출 코랄** — 면 `#FF6F61` · 면 hover `#F0594B` · 소형 텍스트·링크 `#C93F2E` · 틴트 `#FFF1EE`,
+> 표면 웜 크림 `#FAF8F5` · 잉크 `#182333`. 정본은 `design/references/LP_Components.svg` + `design/lp-components-spec.md`,
+> 근거는 `docs/decisions/2026-08-18-일출코랄-DS전환.md`.
+> **아래 색값은 당시 Figma as-built 기록으로만 읽는다** — 구조·컴포넌트·접근성 판단은 그대로 유효하다.
+
 > 대상: `public-onboarding-wireframe.html` + `public-onboarding-spec.md`
 > 점검 주체: qa 에이전트(접근성·상태·qa.md 6항목) + designer 에이전트(플로우 정합) · 2026-07-09
 > 기준: `.claude/agents/qa.md` · `design/DESIGN.md §14 States` · `handoff-landing-design-system.md`(접근성 194~196·햄버거 141)

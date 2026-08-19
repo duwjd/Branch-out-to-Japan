@@ -9,13 +9,13 @@
 /* ============================================================
    Japan Growth Studio 중간보고 덱
    디자인 시스템: design/references/stibee-design.md 토큰 그대로 적용
-   (코랄 #ff6464 단일 액션 · Pretendard 단일 서체 · 무그림자 · 헤어라인 분리)
+   (코랄 #ff6f61 단일 액션 · Pretendard 단일 서체 · 무그림자 · 헤어라인 분리)
    ============================================================ */
 :root{
-  --coral:#ff6464; --coral-strong:#d93636; --coral-tint:#fff8f8;
-  --ink:#202124; --body:#414245; --muted:#606165; --muted-alt:#747579;
-  --canvas:#ffffff; --surface:#f6f6f6; --surface-alt:#ebebeb; --hairline:#d9d9d9;
-  --ng:#d93636; --cond:#c77700; --ok:#1e6b43;
+  --coral:#ff6f61; --coral-strong:#c93f2e; --coral-tint:#fff1ee;
+  --ink:#182333; --body:#3D4655; --muted:#606165; --muted-alt:#78818F;
+  --canvas:#ffffff; --surface:#f4f2ee; --surface-alt:#e9e7e3; --hairline:#d9d9d9;
+  --ng:#c93f2e; --cond:#c77700; --ok:#1e6b43;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
@@ -587,12 +587,12 @@ ul.tight{padding-left:1.15em}ul.tight li{margin:3px 0}
       <div>
         <h3 style="margin-bottom:8px">컬러 토큰 (실사이트 라이브 추출)</h3>
         <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px">
-          <div class="swatch"><span class="sq" style="background:#ff6464"></span><span><span class="tagv p">#ff6464</span><br><small>primary · 유일한 액션 컬러</small></span></div>
-          <div class="swatch"><span class="sq" style="background:#fff8f8"></span><span><span class="tagv">#fff8f8</span><br><small>coral tint 서피스</small></span></div>
-          <div class="swatch"><span class="sq" style="background:#202124"></span><span><span class="tagv">#202124</span><br><small>ink · 순검정 대신</small></span></div>
-          <div class="swatch"><span class="sq" style="background:#414245"></span><span><span class="tagv">#414245</span><br><small>body, 이어서 #606165 · #747579</small></span></div>
-          <div class="swatch"><span class="sq" style="background:#f6f6f6"></span><span><span class="tagv">#f6f6f6</span><br><small>surface · 섹션 분리</small></span></div>
-          <div class="swatch"><span class="sq" style="background:#ebebeb"></span><span><span class="tagv">#ebebeb / #d9d9d9</span><br><small>헤어라인 (카드/필드)</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#ff6f61"></span><span><span class="tagv p">#ff6f61</span><br><small>primary · 유일한 액션 컬러</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#fff1ee"></span><span><span class="tagv">#fff1ee</span><br><small>coral tint 서피스</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#182333"></span><span><span class="tagv">#182333</span><br><small>ink · 순검정 대신</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#3D4655"></span><span><span class="tagv">#3D4655</span><br><small>body, 이어서 #606165 · #78818F</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#f4f2ee"></span><span><span class="tagv">#f4f2ee</span><br><small>surface · 섹션 분리</small></span></div>
+          <div class="swatch"><span class="sq" style="background:#e9e7e3"></span><span><span class="tagv">#e9e7e3 / #d9d9d9</span><br><small>헤어라인 (카드/필드)</small></span></div>
         </div>
         <h3 style="margin:14px 0 6px">타이포그래피</h3>
         <p><strong>Pretendard Variable 단일 서체.</strong> 위계는 서체가 아니라 굵기로 만든다 (헤드라인 600 / 본문 400). 히어로 44px(-0.4px) · 섹션 42px · 본문 14px/1.5</p>
@@ -601,9 +601,9 @@ ul.tight{padding-left:1.15em}ul.tight li{margin:3px 0}
         <h3 style="margin-bottom:8px">네 가지 원칙</h3>
         <div class="grid" style="grid-template-columns:1fr">
           <div class="card"><strong>1. 코랄은 단일 액션.</strong> 기본 CTA, 아웃라인 스트로크, 인라인 링크에만 쓴다. 다음 단계가 항상 한 색으로 보인다</div>
-          <div class="card"><strong>2. 무그림자.</strong> 깊이는 틴트 서피스(#f6f6f6 · #fff8f8)와 헤어라인으로 만든다</div>
+          <div class="card"><strong>2. 무그림자.</strong> 깊이는 틴트 서피스(#f4f2ee · #fff1ee)와 헤어라인으로 만든다</div>
           <div class="card"><strong>3. 부드러운 지오메트리.</strong> 버튼과 인풋 4px, 카드 10px. 필도 아니고 각도 아니게</div>
-          <div class="card"><strong>4. 접근성 정책.</strong> 코랄 배경에 작은 흰 글씨는 대비 미달(약 2.9:1)이라, 소형 요소는 <span class="tagv p">#d93636</span>을 쓴다</div>
+          <div class="card"><strong>4. 접근성 정책.</strong> 코랄 배경에 작은 흰 글씨는 대비 미달(약 2.9:1)이라, 소형 요소는 <span class="tagv p">#c93f2e</span>을 쓴다</div>
         </div>
         <p class="fine" style="margin-top:10px">이 슬라이드 덱 자체가 위 토큰으로 만들어졌다. 화면 적용 규약: design/wireframes/public-onboarding-spec §0</p>
       </div>

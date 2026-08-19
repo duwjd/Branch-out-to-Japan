@@ -26,7 +26,7 @@
   .jump-chip:hover { filter: brightness(0.97); }
   [role="tab"]:focus-visible,
   .jump-chip:focus-visible,
-  .h-top3:focus-visible { outline: 2px solid #202124; outline-offset: 2px; }
+  .h-top3:focus-visible { outline: 2px solid #182333; outline-offset: 2px; }
   /* Top3·해결 칩 딥링크 도착 지점 하이라이트 — REPORT-16 (":target 또는 클래스 토글" 중 클래스 토글 채택) */
   .hl-flash { animation: hlFlash 2s ease-out; border-radius: 12px; }
   @keyframes hlFlash {
@@ -63,31 +63,31 @@
     <a href="../00-main/1-home.html" class="app-wordmark" style="display:block;padding:4px 10px 16px"><img class="wm-full" src="../../../design/brand/logo/yoake-logo.svg" alt="YOAKE"><img class="wm-mark" src="../../../design/brand/logo/yoake-mark.svg" alt="" aria-hidden="true"></a>
     <div style="position:relative">
       <button type="button" id="swBtn" class="sw-btn" aria-haspopup="listbox" aria-expanded="false"
-        style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid rgba(112,115,124,0.28);border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
-        <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#B96C00">하</span>
+        style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:1px solid #e9e7e3;border-radius:11px;background:#fff;font-family:inherit;cursor:pointer;text-align:left">
+        <span aria-hidden="true" style="flex:none;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#8F6412">하</span>
         <span style="flex:1;min-width:0">
-          <span style="display:block;font-size:13px;font-weight:700;color:#202124;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">하루온 HARUON</span>
-          <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">스킨케어 / <span lang="ja">スキンケア</span></span>
+          <span style="display:block;font-size:13px;font-weight:700;color:#182333;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">하루온 HARUON</span>
+          <span style="display:block;font-size:10.5px;color:#6e7686;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">스킨케어 / <span lang="ja">スキンケア</span></span>
         </span>
-        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#70737C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E7686" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div id="swMenu" role="listbox" aria-label="브랜드 프로필 전환" class="sw-menu"
-        style="display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
+        style="display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:70;background:#fff;border:1px solid #e9e7e3;border-radius:12px;padding:6px">
         <div class="sw-item" role="option" aria-selected="true" style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px">
-          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#B96C00">하</span>
-          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#202124">하루온 HARUON</span><span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61)">현재 브랜드</span></span>
-          <span style="color:#00875A;font-size:13px;font-weight:800">✓</span>
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#FFE9DF,#FFCFB8);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#8F6412">하</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#182333">하루온 HARUON</span><span style="display:block;font-size:10.5px;color:#6e7686">현재 브랜드</span></span>
+          <span style="color:#26775B;font-size:13px;font-weight:800">✓</span>
         </div>
         <button type="button" class="sw-item" role="option" aria-selected="false" aria-disabled="true" title="브랜드 전환 데모는 홈 프로토타입에서 제공"
           style="display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:default">
-          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#E2F3E9,#BFE3CE);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#00875A">글</span>
-          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#9CA0A8">글로우리프</span><span style="display:block;font-size:10.5px;color:#B6B8BF">전환 데모는 홈에서</span></span>
+          <span aria-hidden="true" style="flex:none;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#E2F3E9,#BFE3CE);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#26775B">글</span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:12.5px;font-weight:700;color:#78818F">글로우리프</span><span style="display:block;font-size:10.5px;color:#78818F">전환 데모는 홈에서</span></span>
         </button>
-        <div style="height:1px;background:#EBEBEB;margin:6px 4px"></div>
+        <div style="height:1px;background:#E9E7E3;margin:6px 4px"></div>
           <!-- MAIN-01b′ · 브랜드 추가 (2026-07-22 (미정) 해제 · 전 화면 동일 동작) -->
           <button type="button" class="sw-item ab-open"
-            style="display:flex;width:100%;align-items:center;gap:8px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer;color:#D93636;font-size:12.5px;font-weight:700">
-            <span aria-hidden="true" style="flex:none;display:inline-flex;width:22px;height:22px;border-radius:7px;border:1px dashed rgba(255,100,100,.55);align-items:center;justify-content:center;font-size:13px;line-height:1">＋</span>
+            style="display:flex;width:100%;align-items:center;gap:8px;padding:9px 10px;border:none;background:transparent;border-radius:8px;font-family:inherit;text-align:left;cursor:pointer;color:#C93F2E;font-size:12.5px;font-weight:700">
+            <span aria-hidden="true" style="flex:none;display:inline-flex;width:22px;height:22px;border-radius:7px;border:1px dashed rgba(255,111,97,.55);align-items:center;justify-content:center;font-size:13px;line-height:1">＋</span>
             브랜드 추가</button>
       </div>
     </div>
@@ -110,16 +110,16 @@
       <div style="position:relative">
         <button type="button" id="avBtn" aria-haspopup="menu" aria-expanded="false" aria-label="계정 메뉴"
           style="display:flex;width:100%;align-items:center;gap:9px;padding:7px 8px;border:none;border-radius:10px;background:transparent;font-family:inherit;cursor:pointer;text-align:left" class="sw-item">
-          <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);color:#D93636;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</span>
+          <span aria-hidden="true" style="flex:none;width:28px;height:28px;border-radius:50%;background:#FFF1EE;border:1px solid rgba(255,111,97,.35);color:#C93F2E;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">박</span>
           <span style="flex:1;min-width:0">
-            <span style="display:block;font-size:12.5px;font-weight:700;color:#202124;line-height:1.25">박민정</span>
-            <span style="display:block;font-size:10.5px;color:rgba(55,56,60,0.61);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">minjeong@haruon.kr</span>
+            <span style="display:block;font-size:12.5px;font-weight:700;color:#182333;line-height:1.25">박민정</span>
+            <span style="display:block;font-size:10.5px;color:#6e7686;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">minjeong@haruon.kr</span>
           </span>
-          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B6B8BF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#78818F" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
         </button>
-        <div id="avMenu" role="menu" class="sw-menu" style="display:none;position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:70;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:6px">
-          <a href="../03-account/2-mypage.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">마이페이지</a>
-          <a href="../03-account/1-login.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#414245;font-size:12.5px;font-weight:600;text-decoration:none">로그아웃</a>
+        <div id="avMenu" role="menu" class="sw-menu" style="display:none;position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:70;background:#fff;border:1px solid #e9e7e3;border-radius:12px;padding:6px">
+          <a href="../03-account/2-mypage.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#3D4655;font-size:12.5px;font-weight:600;text-decoration:none">마이페이지</a>
+          <a href="../03-account/1-login.html" class="sw-item" role="menuitem" style="display:block;width:100%;padding:8px 10px;border-radius:8px;font-family:inherit;text-align:left;color:#3D4655;font-size:12.5px;font-weight:600;text-decoration:none">로그아웃</a>
         </div>
       </div>
     </div>
@@ -133,217 +133,217 @@
       <p style="margin:0 0 16px"><a href="1-input.html" style="font-size:12.5px;font-weight:700">← 새 진단</a></p>
 
       <!-- 예시 데이터 배너 -->
-      <p style="margin:0 0 20px;font-size:12px;line-height:1.6;color:#B96C00;background:#FFF6E5;border-radius:10px;padding:10px 14px">예시 데이터 — 종합 18/100·薬機法 판정·페르소나·일본어 카피는 가상 브랜드 HARUON 샘플입니다. 1장 시장 이미지는 타사 저작물의 분석 목적 소량 인용(출처 병기).</p>
+      <p style="margin:0 0 20px;font-size:12px;line-height:1.6;color:#8F6412;background:#FDF3E4;border-radius:10px;padding:10px 14px">예시 데이터 — 종합 18/100·薬機法 판정·페르소나·일본어 카피는 가상 브랜드 HARUON 샘플입니다. 1장 시장 이미지는 타사 저작물의 분석 목적 소량 인용(출처 병기).</p>
 
       <!-- 블록 0 — 리포트 히어로(품의용 요약 표지 · REPORT-03) — 탭과 무관하게 항상 노출 -->
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
         <div>
-          <p style="margin:0;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#D93636;letter-spacing:.03em"><span style="width:18px;height:2px;background:#FF6464;display:inline-block"></span>일본 시장 진입 진단 리포트</p>
-          <h1 id="heroBrand" style="margin:12px 0 0;font-size:36px;font-weight:800;letter-spacing:-0.02em;color:#202124;line-height:1.15">HARUON</h1>
-          <p style="margin:8px 0 0;font-size:14.5px;color:rgba(55,56,60,0.61)"><span id="heroProduct">CICA 진정 앰플</span> · 스킨케어 <span lang="ja">/ スキンケア</span> · 발행 2026-07-18</p>
+          <p style="margin:0;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#C93F2E;letter-spacing:.03em"><span style="width:18px;height:2px;background:#FF6F61;display:inline-block"></span>일본 시장 진입 진단 리포트</p>
+          <h1 id="heroBrand" style="margin:12px 0 0;font-size:36px;font-weight:800;letter-spacing:-0.02em;color:#182333;line-height:1.15">HARUON</h1>
+          <p style="margin:8px 0 0;font-size:14.5px;color:#6e7686"><span id="heroProduct">CICA 진정 앰플</span> · 스킨케어 <span lang="ja">/ スキンケア</span> · 발행 2026-07-18</p>
         </div>
-        <button type="button" class="js-slide-btn h-primary" data-action="makeSlides" style="height:44px;padding:0 20px;border:none;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;color:#fff;transition:background .15s;background:#FF6464;cursor:pointer">보고용 슬라이드 만들기</button>
+        <button type="button" class="js-slide-btn h-primary" data-action="makeSlides" style="height:44px;padding:0 20px;border:none;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;color:#fff;transition:background .15s;background:#FF6F61;cursor:pointer">보고용 슬라이드 만들기</button>
       </div>
 
       <!-- 블록 1 — 진단 요약 헤더(REPORT-04) — 탭 위 상단 고정. 구 "탭1 진단요약" 패널을 탭 밖으로 승격(2026-07-22) -->
       <div id="reportSummary" style="animation:fadeUp .5s ease both">
 
-        <section style="margin-top:20px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+        <section style="margin-top:20px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
           <div class="rwrap" style="display:grid;grid-template-columns:220px 1fr;gap:36px;align-items:center">
             <div style="position:relative;width:220px;height:220px">
               <svg viewBox="0 0 160 160" width="220" height="220" role="img" aria-label="일본 상세 관례 충족도 18점 / 100점">
-                <circle cx="80" cy="80" r="62" fill="none" stroke="#F1F1F3" stroke-width="14"></circle>
-                <circle id="scoreDonutCircle" cx="80" cy="80" r="62" fill="none" stroke="#FF6464" stroke-width="14" stroke-linecap="round" transform="rotate(-90 80 80)" style="stroke-dasharray:0 389.6;transition:stroke-dasharray .1s linear"></circle>
+                <circle cx="80" cy="80" r="62" fill="none" stroke="#F2F1ED" stroke-width="14"></circle>
+                <circle id="scoreDonutCircle" cx="80" cy="80" r="62" fill="none" stroke="#FF6F61" stroke-width="14" stroke-linecap="round" transform="rotate(-90 80 80)" style="stroke-dasharray:0 389.6;transition:stroke-dasharray .1s linear"></circle>
               </svg>
               <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-                <span id="scoreNum" style="font-size:56px;font-weight:800;line-height:1;letter-spacing:-0.04em;color:#202124;font-variant-numeric:tabular-nums">0</span>
-                <span style="margin-top:4px;font-size:13px;font-weight:700;color:#B6B8BF">/ 100</span>
+                <span id="scoreNum" style="font-size:56px;font-weight:800;line-height:1;letter-spacing:-0.04em;color:#182333;font-variant-numeric:tabular-nums">0</span>
+                <span style="margin-top:4px;font-size:13px;font-weight:700;color:#78818F">/ 100</span>
               </div>
             </div>
             <div>
-              <p style="margin:0;font-size:13px;font-weight:700;color:#D93636">일본 상세 관례 충족도</p>
-              <h2 style="margin:10px 0 0;font-size:24px;font-weight:800;letter-spacing:-0.02em;color:#202124;line-height:1.4;text-wrap:pretty">번역의 문제가 아니라,<br />신뢰 구조가 비어 있습니다</h2>
-              <p style="margin:12px 0 0;font-size:14.5px;line-height:1.75;color:#414245;text-wrap:pretty">11문장 중 8문장이 <span lang="ja">薬機法</span>상 표현 불가·조건부이고, 일본 상위 제품이 쓰는 신뢰 장치(근거 라벨·※각주·<span lang="ja">集計日</span>·무첨가 표기)는 하나도 없습니다. 이대로 게재하면 소구력 이전에 광고 리스크부터 발생합니다.</p>
+              <p style="margin:0;font-size:13px;font-weight:700;color:#C93F2E">일본 상세 관례 충족도</p>
+              <h2 style="margin:10px 0 0;font-size:24px;font-weight:800;letter-spacing:-0.02em;color:#182333;line-height:1.4;text-wrap:pretty">번역의 문제가 아니라,<br />신뢰 구조가 비어 있습니다</h2>
+              <p style="margin:12px 0 0;font-size:14.5px;line-height:1.75;color:#3D4655;text-wrap:pretty">11문장 중 8문장이 <span lang="ja">薬機法</span>상 표현 불가·조건부이고, 일본 상위 제품이 쓰는 신뢰 장치(근거 라벨·※각주·<span lang="ja">集計日</span>·무첨가 표기)는 하나도 없습니다. 이대로 게재하면 소구력 이전에 광고 리스크부터 발생합니다.</p>
               <div class="rwrap" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px">
-                <div style="background:#FAFAFB;border-radius:12px;padding:14px 16px"><p style="margin:0;font-size:24px;font-weight:800;color:#202124;line-height:1;font-variant-numeric:tabular-nums">11</p><p style="margin:6px 0 0;font-size:11.5px;font-weight:600;color:rgba(55,56,60,0.61)">감사한 문장</p></div>
-                <div style="background:#FDF0EF;border-radius:12px;padding:14px 16px"><p style="margin:0;font-size:24px;font-weight:800;color:#C6362C;line-height:1;font-variant-numeric:tabular-nums">6</p><p style="margin:6px 0 0;font-size:11.5px;font-weight:600;color:#C6362C">표현 불가</p></div>
-                <div style="background:#FFF6E5;border-radius:12px;padding:14px 16px"><p style="margin:0;font-size:24px;font-weight:800;color:#B96C00;line-height:1;font-variant-numeric:tabular-nums">5</p><p style="margin:6px 0 0;font-size:11.5px;font-weight:600;color:#B96C00">조건부</p></div>
-                <div style="background:#FAFAFB;border-radius:12px;padding:14px 16px"><p style="margin:0;font-size:24px;font-weight:800;color:#202124;line-height:1;font-variant-numeric:tabular-nums">0<span style="font-size:14px;color:#B6B8BF">/6</span></p><p style="margin:6px 0 0;font-size:11.5px;font-weight:600;color:rgba(55,56,60,0.61)">신뢰 장치 관찰</p></div>
+                <div style="background:#FDFCFA;border-radius:12px;padding:14px 16px"><p style="margin:0;font-size:24px;font-weight:800;color:#182333;line-height:1;font-variant-numeric:tabular-nums">11</p><p style="margin:6px 0 0;font-size:11.5px;font-weight:600;color:#6e7686">감사한 문장</p></div>
+                <div style="background:#FBEDED;border-radius:12px;padding:14px 16px"><p style="margin:0;font-size:24px;font-weight:800;color:#C13A3A;line-height:1;font-variant-numeric:tabular-nums">6</p><p style="margin:6px 0 0;font-size:11.5px;font-weight:600;color:#C13A3A">표현 불가</p></div>
+                <div style="background:#FDF3E4;border-radius:12px;padding:14px 16px"><p style="margin:0;font-size:24px;font-weight:800;color:#8F6412;line-height:1;font-variant-numeric:tabular-nums">5</p><p style="margin:6px 0 0;font-size:11.5px;font-weight:600;color:#8F6412">조건부</p></div>
+                <div style="background:#FDFCFA;border-radius:12px;padding:14px 16px"><p style="margin:0;font-size:24px;font-weight:800;color:#182333;line-height:1;font-variant-numeric:tabular-nums">0<span style="font-size:14px;color:#78818F">/6</span></p><p style="margin:6px 0 0;font-size:11.5px;font-weight:600;color:#6e7686">신뢰 장치 관찰</p></div>
               </div>
             </div>
           </div>
         </section>
 
         <section class="rwrap" style="margin-top:16px;display:grid;grid-template-columns:1.1fr 1fr;gap:16px">
-          <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-            <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">영역별 충족도</h3>
-            <p style="margin:6px 0 0;font-size:12.5px;color:rgba(55,56,60,0.61)">점선 = 일본 상위 제품 관례 수준(80%)</p>
+          <div style="background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+            <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">영역별 충족도</h3>
+            <p style="margin:6px 0 0;font-size:12.5px;color:#6e7686">점선 = 일본 상위 제품 관례 수준(80%)</p>
             <svg viewBox="-45 0 350 230" style="width:100%;max-width:420px;display:block;margin:12px auto 0" role="img" aria-label="영역별 충족도 레이더 차트: 신뢰 구축 10%, 무첨가·안전 0%, 서사 구조 33%, 성분 프레이밍 25%, 카테고리 적합성 13% — 상위 제품 관례 수준 80% 대비 전 영역 미달">
-              <polygon points="130,22 213.7,82.8 181.7,181.2 78.3,181.2 46.3,82.8" fill="none" stroke="#ECECEF" stroke-width="1"></polygon>
-              <polygon points="130,44 192.8,89.6 168.8,163.4 91.2,163.4 67.2,89.6" fill="none" stroke="#ECECEF" stroke-width="1"></polygon>
-              <polygon points="130,66 171.8,96.4 155.9,145.6 104.1,145.6 88.2,96.4" fill="none" stroke="#ECECEF" stroke-width="1"></polygon>
-              <polygon points="130,88 150.9,103.2 142.9,127.8 117.1,127.8 109.1,103.2" fill="none" stroke="#ECECEF" stroke-width="1"></polygon>
-              <line x1="130" y1="110" x2="130" y2="22" stroke="#ECECEF" stroke-width="1"></line>
-              <line x1="130" y1="110" x2="213.7" y2="82.8" stroke="#ECECEF" stroke-width="1"></line>
-              <line x1="130" y1="110" x2="181.7" y2="181.2" stroke="#ECECEF" stroke-width="1"></line>
-              <line x1="130" y1="110" x2="78.3" y2="181.2" stroke="#ECECEF" stroke-width="1"></line>
-              <line x1="130" y1="110" x2="46.3" y2="82.8" stroke="#ECECEF" stroke-width="1"></line>
-              <polygon points="130,39.6 196.9,88.2 171.4,167.0 88.6,167.0 63.1,88.2" fill="none" stroke="#B6B8BF" stroke-width="1.5" stroke-dasharray="4 4"></polygon>
-              <polygon points="130,101.2 130,110 147.1,133.5 117.1,127.8 119.2,106.5" fill="rgba(255,100,100,.22)" stroke="#FF6464" stroke-width="2" stroke-linejoin="round"></polygon>
-              <circle cx="130" cy="101.2" r="3" fill="#FF6464"></circle>
-              <circle cx="130" cy="110" r="3" fill="#FF6464"></circle>
-              <circle cx="147.1" cy="133.5" r="3" fill="#FF6464"></circle>
-              <circle cx="117.1" cy="127.8" r="3" fill="#FF6464"></circle>
-              <circle cx="119.2" cy="106.5" r="3" fill="#FF6464"></circle>
-              <text x="130" y="13" text-anchor="middle" font-size="11" font-weight="700" fill="#202124">신뢰 구축 10%</text>
-              <text x="220" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#C6362C">무첨가·안전 0%</text>
-              <text x="187" y="198" text-anchor="middle" font-size="11" font-weight="700" fill="#202124">서사 구조 33%</text>
-              <text x="73" y="198" text-anchor="middle" font-size="11" font-weight="700" fill="#202124">성분 프레이밍 25%</text>
-              <text x="40" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#202124">적합성 13%</text>
+              <polygon points="130,22 213.7,82.8 181.7,181.2 78.3,181.2 46.3,82.8" fill="none" stroke="#E9E7E3" stroke-width="1"></polygon>
+              <polygon points="130,44 192.8,89.6 168.8,163.4 91.2,163.4 67.2,89.6" fill="none" stroke="#E9E7E3" stroke-width="1"></polygon>
+              <polygon points="130,66 171.8,96.4 155.9,145.6 104.1,145.6 88.2,96.4" fill="none" stroke="#E9E7E3" stroke-width="1"></polygon>
+              <polygon points="130,88 150.9,103.2 142.9,127.8 117.1,127.8 109.1,103.2" fill="none" stroke="#E9E7E3" stroke-width="1"></polygon>
+              <line x1="130" y1="110" x2="130" y2="22" stroke="#E9E7E3" stroke-width="1"></line>
+              <line x1="130" y1="110" x2="213.7" y2="82.8" stroke="#E9E7E3" stroke-width="1"></line>
+              <line x1="130" y1="110" x2="181.7" y2="181.2" stroke="#E9E7E3" stroke-width="1"></line>
+              <line x1="130" y1="110" x2="78.3" y2="181.2" stroke="#E9E7E3" stroke-width="1"></line>
+              <line x1="130" y1="110" x2="46.3" y2="82.8" stroke="#E9E7E3" stroke-width="1"></line>
+              <polygon points="130,39.6 196.9,88.2 171.4,167.0 88.6,167.0 63.1,88.2" fill="none" stroke="#78818F" stroke-width="1.5" stroke-dasharray="4 4"></polygon>
+              <polygon points="130,101.2 130,110 147.1,133.5 117.1,127.8 119.2,106.5" fill="rgba(255,111,97,.22)" stroke="#FF6F61" stroke-width="2" stroke-linejoin="round"></polygon>
+              <circle cx="130" cy="101.2" r="3" fill="#FF6F61"></circle>
+              <circle cx="130" cy="110" r="3" fill="#FF6F61"></circle>
+              <circle cx="147.1" cy="133.5" r="3" fill="#FF6F61"></circle>
+              <circle cx="117.1" cy="127.8" r="3" fill="#FF6F61"></circle>
+              <circle cx="119.2" cy="106.5" r="3" fill="#FF6F61"></circle>
+              <text x="130" y="13" text-anchor="middle" font-size="11" font-weight="700" fill="#182333">신뢰 구축 10%</text>
+              <text x="220" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#C13A3A">무첨가·안전 0%</text>
+              <text x="187" y="198" text-anchor="middle" font-size="11" font-weight="700" fill="#182333">서사 구조 33%</text>
+              <text x="73" y="198" text-anchor="middle" font-size="11" font-weight="700" fill="#182333">성분 프레이밍 25%</text>
+              <text x="40" y="76" text-anchor="middle" font-size="11" font-weight="700" fill="#182333">적합성 13%</text>
             </svg>
           </div>
-          <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;flex-direction:column">
-            <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">최우선 재설계 Top 3</h3>
-            <p style="margin:6px 0 0;font-size:12px;color:rgba(55,56,60,0.61)">항목을 클릭하면 진단 탭의 근거로 바로 이동합니다</p>
+          <div style="background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;flex-direction:column">
+            <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">최우선 재설계 Top 3</h3>
+            <p style="margin:6px 0 0;font-size:12px;color:#6e7686">항목을 클릭하면 진단 탭의 근거로 바로 이동합니다</p>
             <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;flex:1">
-              <button type="button" class="h-top3 jump-chip" data-jump-tab="1" data-jump-target="rb-group-free" aria-label="무첨가·안전 소구 0% · 진단 탭 근거로 이동" style="display:flex;gap:14px;align-items:center;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:14px 16px;background:#fff;font-family:inherit;text-align:left;transition:border-color .15s">
-                <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#FF6464;color:#fff;font-size:13px;font-weight:800">1</span>
-                <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700;color:#202124">무첨가·안전 소구 <span style="color:#C6362C">0%</span></span><span style="display:block;margin-top:2px;font-size:12px;color:rgba(55,56,60,0.61)"><span lang="ja">敏感肌</span> 구매의 관문 문법이 전무</span></span>
-                <span aria-hidden="true" style="color:#B6B8BF">→</span>
+              <button type="button" class="h-top3 jump-chip" data-jump-tab="1" data-jump-target="rb-group-free" aria-label="무첨가·안전 소구 0% · 진단 탭 근거로 이동" style="display:flex;gap:14px;align-items:center;border:1px solid #e9e7e3;border-radius:12px;padding:14px 16px;background:#fff;font-family:inherit;text-align:left;transition:border-color .15s">
+                <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#FF6F61;color:#fff;font-size:13px;font-weight:800">1</span>
+                <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700;color:#182333">무첨가·안전 소구 <span style="color:#C13A3A">0%</span></span><span style="display:block;margin-top:2px;font-size:12px;color:#6e7686"><span lang="ja">敏感肌</span> 구매의 관문 문법이 전무</span></span>
+                <span aria-hidden="true" style="color:#78818F">→</span>
               </button>
-              <button type="button" class="h-top3 jump-chip" data-jump-tab="1" data-jump-target="rb-group-trust" data-jump-details="rb-detail-efficacy-label" aria-label="신뢰 구축 10% · 진단 탭 근거로 이동" style="display:flex;gap:14px;align-items:center;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:14px 16px;background:#fff;font-family:inherit;text-align:left;transition:border-color .15s">
-                <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#FF6464;color:#fff;font-size:13px;font-weight:800">2</span>
-                <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700;color:#202124">신뢰 구축 <span style="color:#C6362C">10%</span></span><span style="display:block;margin-top:2px;font-size:12px;color:rgba(55,56,60,0.61)">주장은 있는데 근거 장치가 없음</span></span>
-                <span aria-hidden="true" style="color:#B6B8BF">→</span>
+              <button type="button" class="h-top3 jump-chip" data-jump-tab="1" data-jump-target="rb-group-trust" data-jump-details="rb-detail-efficacy-label" aria-label="신뢰 구축 10% · 진단 탭 근거로 이동" style="display:flex;gap:14px;align-items:center;border:1px solid #e9e7e3;border-radius:12px;padding:14px 16px;background:#fff;font-family:inherit;text-align:left;transition:border-color .15s">
+                <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#FF6F61;color:#fff;font-size:13px;font-weight:800">2</span>
+                <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700;color:#182333">신뢰 구축 <span style="color:#C13A3A">10%</span></span><span style="display:block;margin-top:2px;font-size:12px;color:#6e7686">주장은 있는데 근거 장치가 없음</span></span>
+                <span aria-hidden="true" style="color:#78818F">→</span>
               </button>
-              <button type="button" class="h-top3 jump-chip" data-jump-tab="1" data-jump-target="rb-group-fit" aria-label="카테고리 적합성 13% · 진단 탭 근거로 이동" style="display:flex;gap:14px;align-items:center;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:14px 16px;background:#fff;font-family:inherit;text-align:left;transition:border-color .15s">
-                <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#FF6464;color:#fff;font-size:13px;font-weight:800">3</span>
-                <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700;color:#202124">카테고리 적합성 <span style="color:#C6362C">13%</span></span><span style="display:block;margin-top:2px;font-size:12px;color:rgba(55,56,60,0.61)">의약외품·의약품 영역 표현 다수</span></span>
-                <span aria-hidden="true" style="color:#B6B8BF">→</span>
+              <button type="button" class="h-top3 jump-chip" data-jump-tab="1" data-jump-target="rb-group-fit" aria-label="카테고리 적합성 13% · 진단 탭 근거로 이동" style="display:flex;gap:14px;align-items:center;border:1px solid #e9e7e3;border-radius:12px;padding:14px 16px;background:#fff;font-family:inherit;text-align:left;transition:border-color .15s">
+                <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#FF6F61;color:#fff;font-size:13px;font-weight:800">3</span>
+                <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700;color:#182333">카테고리 적합성 <span style="color:#C13A3A">13%</span></span><span style="display:block;margin-top:2px;font-size:12px;color:#6e7686">의약외품·의약품 영역 표현 다수</span></span>
+                <span aria-hidden="true" style="color:#78818F">→</span>
               </button>
             </div>
-            <p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:rgba(55,56,60,0.61)">종합점수는 성과 예측이 아니라 일본 상세 관례 충족도입니다.</p>
+            <p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:#6e7686">종합점수는 성과 예측이 아니라 일본 상세 관례 충족도입니다.</p>
           </div>
         </section>
 
       </div>
 
       <!-- 스티키 탭 바 — 시장 / 진단 / 처방 (REPORT-14 정본) -->
-      <nav aria-label="리포트 구간 이동" style="position:sticky;top:60px;z-index:50;margin-top:24px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:6px;box-shadow:0 4px 14px rgba(16,18,20,.06)">
+      <nav aria-label="리포트 구간 이동" style="position:sticky;top:60px;z-index:50;margin-top:24px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border:1px solid #e9e7e3;border-radius:14px;padding:6px;box-shadow:0 4px 14px rgba(16,18,20,.06)">
         <div id="reportTabs" role="tablist" aria-label="리포트 탭" style="display:flex;gap:4px;overflow-x:auto">
-          <button type="button" role="tab" id="tabBtn0" aria-selected="true" aria-controls="tabPanel0" tabindex="0" data-action="tab:0" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 14px;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;background:#FF6464;color:#fff;font-weight:700"><b id="tabNum0" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;background:rgba(255,255,255,.25);color:#fff">1</b>시장</button>
-          <button type="button" role="tab" id="tabBtn1" aria-selected="false" aria-controls="tabPanel1" tabindex="-1" data-action="tab:1" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 14px;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;background:transparent;color:#414245;font-weight:600"><b id="tabNum1" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;background:#F1F1F3;color:#70737C">2</b>진단</button>
-          <button type="button" role="tab" id="tabBtn2" aria-selected="false" aria-controls="tabPanel2" tabindex="-1" data-action="tab:2" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 14px;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;background:transparent;color:#414245;font-weight:600"><b id="tabNum2" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;background:#F1F1F3;color:#70737C">3</b>처방</button>
+          <button type="button" role="tab" id="tabBtn0" aria-selected="true" aria-controls="tabPanel0" tabindex="0" data-action="tab:0" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 14px;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;background:#FF6F61;color:#fff;font-weight:700"><b id="tabNum0" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;background:rgba(255,255,255,.25);color:#fff">1</b>시장</button>
+          <button type="button" role="tab" id="tabBtn1" aria-selected="false" aria-controls="tabPanel1" tabindex="-1" data-action="tab:1" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 14px;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;background:transparent;color:#3D4655;font-weight:600"><b id="tabNum1" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;background:#F2F1ED;color:#6E7686">2</b>진단</button>
+          <button type="button" role="tab" id="tabBtn2" aria-selected="false" aria-controls="tabPanel2" tabindex="-1" data-action="tab:2" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 14px;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;background:transparent;color:#3D4655;font-weight:600"><b id="tabNum2" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;background:#F2F1ED;color:#6E7686">3</b>처방</button>
         </div>
       </nav>
 
       <!-- ══════════ 탭 1 · 시장 — "일본은 이렇게 판다" (시장 브리핑, REPORT-15) ══════════ -->
       <div class="tabpanel" id="tabPanel0" role="tabpanel" aria-labelledby="tabBtn0" tabindex="0" style="animation:fadeUp .35s ease both">
 
-        <section style="margin-top:20px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#202124">일본 시장은 이렇게 판다</h2>
-          <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:#414245;max-width:640px;text-wrap:pretty">일본 상위 제품 실측 — 상세페이지 304건 OCR·썸네일 948장 수집(2026-07). 여기서 본 관례가 곧 다음 탭에서 내 브랜드를 채점하는 기준입니다.</p>
+        <section style="margin-top:20px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#182333">일본 시장은 이렇게 판다</h2>
+          <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:#3D4655;max-width:640px;text-wrap:pretty">일본 상위 제품 실측 — 상세페이지 304건 OCR·썸네일 948장 수집(2026-07). 여기서 본 관례가 곧 다음 탭에서 내 브랜드를 채점하는 기준입니다.</p>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px">
-            <div style="background:#FFF8F8;border:1px solid rgba(255,100,100,.22);border-radius:14px;padding:20px">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#FF6464;color:#fff;font-size:13px;font-weight:800">1</span>
-              <p style="margin:12px 0 0;font-size:15px;font-weight:700;color:#202124">주장하지 말고, 근거로 팔 것</p>
-              <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:#414245"><span lang="ja">効能評価試験済み</span>·배합률·<span lang="ja">集計日</span> 있는 실적 — 검증 장치가 소구를 대신합니다.</p>
+            <div style="background:#FFF1EE;border:1px solid rgba(255,111,97,.22);border-radius:14px;padding:20px">
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#FF6F61;color:#fff;font-size:13px;font-weight:800">1</span>
+              <p style="margin:12px 0 0;font-size:15px;font-weight:700;color:#182333">주장하지 말고, 근거로 팔 것</p>
+              <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:#3D4655"><span lang="ja">効能評価試験済み</span>·배합률·<span lang="ja">集計日</span> 있는 실적 — 검증 장치가 소구를 대신합니다.</p>
             </div>
-            <div style="background:#FFF8F8;border:1px solid rgba(255,100,100,.22);border-radius:14px;padding:20px">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#FF6464;color:#fff;font-size:13px;font-weight:800">2</span>
-              <p style="margin:12px 0 0;font-size:15px;font-weight:700;color:#202124">절제가 곧 신뢰다</p>
-              <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:#414245">※각주로 주장 범위를 스스로 좁힙니다. 과장·즉효 단정은 신뢰를 깎고 <span lang="ja">薬機法</span> 위반이 됩니다.</p>
+            <div style="background:#FFF1EE;border:1px solid rgba(255,111,97,.22);border-radius:14px;padding:20px">
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#FF6F61;color:#fff;font-size:13px;font-weight:800">2</span>
+              <p style="margin:12px 0 0;font-size:15px;font-weight:700;color:#182333">절제가 곧 신뢰다</p>
+              <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:#3D4655">※각주로 주장 범위를 스스로 좁힙니다. 과장·즉효 단정은 신뢰를 깎고 <span lang="ja">薬機法</span> 위반이 됩니다.</p>
             </div>
-            <div style="background:#FFF8F8;border:1px solid rgba(255,100,100,.22);border-radius:14px;padding:20px">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#FF6464;color:#fff;font-size:13px;font-weight:800">3</span>
-              <p style="margin:12px 0 0;font-size:15px;font-weight:700;color:#202124">플랫폼 문법을 지킬 것</p>
-              <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:#414245">아마존=클린 단독컷, 라쿠텐=신뢰 배지, Qoo10=프로모 문법 — 채널마다 다른 썸네일로 팝니다.</p>
+            <div style="background:#FFF1EE;border:1px solid rgba(255,111,97,.22);border-radius:14px;padding:20px">
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#FF6F61;color:#fff;font-size:13px;font-weight:800">3</span>
+              <p style="margin:12px 0 0;font-size:15px;font-weight:700;color:#182333">플랫폼 문법을 지킬 것</p>
+              <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:#3D4655">아마존=클린 단독컷, 라쿠텐=신뢰 배지, Qoo10=프로모 문법 — 채널마다 다른 썸네일로 팝니다.</p>
             </div>
           </div>
         </section>
 
-        <section style="margin-top:16px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">관례 실물 — 상위 제품 상세페이지에서 그대로</h3>
+        <section style="margin-top:16px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">관례 실물 — 상위 제품 상세페이지에서 그대로</h3>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px">
-            <article style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
-              <div tabindex="0" role="group" aria-label="아스타리프트 상세 실물 컷 — 효능평가시험 라벨. 스크롤 가능" style="height:220px;overflow-y:auto;background:#F6F6F6">
+            <article style="border:1px solid #e9e7e3;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+              <div tabindex="0" role="group" aria-label="아스타리프트 상세 실물 컷 — 효능평가시험 라벨. 스크롤 가능" style="height:220px;overflow-y:auto;background:#F4F2EE">
                 <img src="assets/detail/pattern-trust_fujifilm_8.jpg" alt="아스타리프트 상세 컷 — 효능 문장 끝에 効能評価試験済み 라벨과 조건 각주" loading="lazy" style="width:100%;height:auto;display:block" />
               </div>
               <div style="padding:16px;display:flex;flex-direction:column;gap:6px;flex:1">
-                <p style="margin:0;font-size:13.5px;font-weight:700;color:#202124">효능은 근거 라벨 + 조건 각주로</p>
-                <p lang="ja" style="margin:0;font-size:12.5px;line-height:1.6;color:#414245">「乾燥による小じわを目立たなくします（<b>効能評価試験済み</b>）」</p>
-                <p style="margin:auto 0 0;font-size:11px;color:#B6B8BF">출처: <span lang="ja">楽天</span> · アスタリフト(FUJIFILM) · 2026-07 수집 · 분석 목적 인용</p>
+                <p style="margin:0;font-size:13.5px;font-weight:700;color:#182333">효능은 근거 라벨 + 조건 각주로</p>
+                <p lang="ja" style="margin:0;font-size:12.5px;line-height:1.6;color:#3D4655">「乾燥による小じわを目立たなくします（<b>効能評価試験済み</b>）」</p>
+                <p style="margin:auto 0 0;font-size:11px;color:#78818F">출처: <span lang="ja">楽天</span> · アスタリフト(FUJIFILM) · 2026-07 수집 · 분석 목적 인용</p>
               </div>
             </article>
-            <article style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
-              <div tabindex="0" role="group" aria-label="트베르 상세 실물 컷 — 랭킹 1위 집계일 명기. 스크롤 가능" style="height:220px;overflow-y:auto;background:#F6F6F6">
+            <article style="border:1px solid #e9e7e3;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+              <div tabindex="0" role="group" aria-label="트베르 상세 실물 컷 — 랭킹 1위 집계일 명기. 스크롤 가능" style="height:220px;overflow-y:auto;background:#F4F2EE">
                 <img src="assets/detail/pattern-thirdparty_tvert_1.jpg" alt="TOUT VERT 상세 컷 — 랭킹 1위 위젯을 集計日 명기와 함께 쌓아 보여준다" loading="lazy" style="width:100%;height:auto;display:block" />
               </div>
               <div style="padding:16px;display:flex;flex-direction:column;gap:6px;flex:1">
-                <p style="margin:0;font-size:13.5px;font-weight:700;color:#202124">실적은 집계일 있는 제3자 지표로</p>
-                <p lang="ja" style="margin:0;font-size:12.5px;line-height:1.6;color:#414245">「ランキング1位（<b>集計日：5月11日〜5月17日</b>）」</p>
-                <p style="margin:auto 0 0;font-size:11px;color:#B6B8BF">출처: <span lang="ja">楽天</span> · TOUT VERT · 2026-07 수집 · 분석 목적 인용</p>
+                <p style="margin:0;font-size:13.5px;font-weight:700;color:#182333">실적은 집계일 있는 제3자 지표로</p>
+                <p lang="ja" style="margin:0;font-size:12.5px;line-height:1.6;color:#3D4655">「ランキング1位（<b>集計日：5月11日〜5月17日</b>）」</p>
+                <p style="margin:auto 0 0;font-size:11px;color:#78818F">출처: <span lang="ja">楽天</span> · TOUT VERT · 2026-07 수집 · 분석 목적 인용</p>
               </div>
             </article>
-            <article style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
-              <div tabindex="0" role="group" aria-label="FANCL 상세 실물 컷 — 무첨가 5종 배지. 스크롤 가능" style="height:220px;overflow-y:auto;background:#F6F6F6">
+            <article style="border:1px solid #e9e7e3;border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+              <div tabindex="0" role="group" aria-label="FANCL 상세 실물 컷 — 무첨가 5종 배지. 스크롤 가능" style="height:220px;overflow-y:auto;background:#F4F2EE">
                 <img src="assets/detail/pattern-free_fancl_4.jpg" alt="FANCL 상세 컷 — 5종 프리 처방을 원형 배지로 나열" loading="lazy" style="width:100%;height:auto;display:block" />
               </div>
               <div style="padding:16px;display:flex;flex-direction:column;gap:6px;flex:1">
-                <p style="margin:0;font-size:13.5px;font-weight:700;color:#202124">무첨가는 라벨로 세어 보여준다</p>
-                <p style="margin:0;font-size:12.5px;line-height:1.6;color:#414245"><span lang="ja">防腐剤・合成香料・合成色素</span> 등 뺀 것을 5개 배지로 나열</p>
-                <p style="margin:auto 0 0;font-size:11px;color:#B6B8BF">출처: <span lang="ja">楽天</span> · ファンケル(FANCL) · 2026-07 수집 · 분석 목적 인용</p>
+                <p style="margin:0;font-size:13.5px;font-weight:700;color:#182333">무첨가는 라벨로 세어 보여준다</p>
+                <p style="margin:0;font-size:12.5px;line-height:1.6;color:#3D4655"><span lang="ja">防腐剤・合成香料・合成色素</span> 등 뺀 것을 5개 배지로 나열</p>
+                <p style="margin:auto 0 0;font-size:11px;color:#78818F">출처: <span lang="ja">楽天</span> · ファンケル(FANCL) · 2026-07 수집 · 분석 목적 인용</p>
               </div>
             </article>
           </div>
         </section>
 
         <section style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-            <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">썸네일 스타일 분포</h3>
-            <p style="margin:6px 0 0;font-size:12.5px;color:rgba(55,56,60,0.61)">층화 표본 120장 라벨링 (948장 수집분)</p>
+          <div style="background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+            <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">썸네일 스타일 분포</h3>
+            <p style="margin:6px 0 0;font-size:12.5px;color:#6e7686">층화 표본 120장 라벨링 (948장 수집분)</p>
             <div role="img" aria-label="썸네일 스타일 분포: 클린 단독컷 33장 최다, 텍스처 스와치 15, 프로모션 강조 15, 모델+카피 13, 공식샵 배지 12, 프리미엄 무드 11, 카피+성분 7, 수상 스택 5" style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
-              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:700;color:#202124">클린 단독컷</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:100%;background:linear-gradient(90deg,#FF6464,#D93636);border-radius:5px"></span></span><span style="font-size:12px;font-weight:700;color:#202124;text-align:right;font-variant-numeric:tabular-nums">33</span></div>
-              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#414245">텍스처 스와치</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:45%;background:#FF9C9C;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">15</span></div>
-              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#414245">프로모션 강조</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:45%;background:#FF9C9C;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">15</span></div>
-              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#414245">모델+카피</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:39%;background:#FF9C9C;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">13</span></div>
-              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#414245">공식샵 배지</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:36%;background:#FF9C9C;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">12</span></div>
-              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#414245">프리미엄 무드</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:33%;background:#FFC4C4;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">11</span></div>
-              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#414245">카피+성분</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:21%;background:#FFC4C4;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">7</span></div>
-              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#414245">수상 스택</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:15%;background:#FFC4C4;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">5</span></div>
+              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:700;color:#182333">클린 단독컷</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:100%;background:linear-gradient(90deg,#FF6F61,#C93F2E);border-radius:5px"></span></span><span style="font-size:12px;font-weight:700;color:#182333;text-align:right;font-variant-numeric:tabular-nums">33</span></div>
+              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#3D4655">텍스처 스와치</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:45%;background:#FF9B70;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">15</span></div>
+              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#3D4655">프로모션 강조</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:45%;background:#FF9B70;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">15</span></div>
+              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#3D4655">모델+카피</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:39%;background:#FF9B70;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">13</span></div>
+              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#3D4655">공식샵 배지</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:36%;background:#FF9B70;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">12</span></div>
+              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#3D4655">프리미엄 무드</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:33%;background:#FFC7B3;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">11</span></div>
+              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#3D4655">카피+성분</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:21%;background:#FFC7B3;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">7</span></div>
+              <div style="display:grid;grid-template-columns:118px 1fr 30px;gap:10px;align-items:center"><span style="font-size:12.5px;font-weight:600;color:#3D4655">수상 스택</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:15%;background:#FFC7B3;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">5</span></div>
             </div>
-            <p style="margin:14px 0 0;font-size:11.5px;color:rgba(55,56,60,0.61)">분포는 층화 표본 120/948장의 추정치입니다.</p>
+            <p style="margin:14px 0 0;font-size:11.5px;color:#6e7686">분포는 층화 표본 120/948장의 추정치입니다.</p>
           </div>
-          <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-            <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">검색·SNS 유행어 빈도</h3>
-            <p style="margin:6px 0 0;font-size:12.5px;color:rgba(55,56,60,0.61)">렉시콘 100어휘 중 상위 (썸네일 타이틀·@cosme 표본)</p>
+          <div style="background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+            <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">검색·SNS 유행어 빈도</h3>
+            <p style="margin:6px 0 0;font-size:12.5px;color:#6e7686">렉시콘 100어휘 중 상위 (썸네일 타이틀·@cosme 표본)</p>
             <div role="img" aria-label="유행어 빈도: 保湿 209회, 毛穴 186회 최상위. 敏感肌 119, 乾燥 115, 韓国コスメ 90, 医薬部外品 71, 無添加 64, しっとり 50" style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
-              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:700;color:#202124">保湿</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:100%;background:linear-gradient(90deg,#FF6464,#D93636);border-radius:5px"></span></span><span style="font-size:12px;font-weight:700;color:#202124;text-align:right;font-variant-numeric:tabular-nums">209</span></div>
-              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:700;color:#202124">毛穴</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:89%;background:linear-gradient(90deg,#FF6464,#D93636);border-radius:5px"></span></span><span style="font-size:12px;font-weight:700;color:#202124;text-align:right;font-variant-numeric:tabular-nums">186</span></div>
-              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#414245">敏感肌</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:57%;background:#FF9C9C;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">119</span></div>
-              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#414245">乾燥</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:55%;background:#FF9C9C;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">115</span></div>
-              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#414245">韓国コスメ</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:43%;background:#FF9C9C;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">90</span></div>
-              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#414245">医薬部外品</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:34%;background:#FFC4C4;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">71</span></div>
-              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#414245">無添加</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:31%;background:#FFC4C4;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">64</span></div>
-              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#414245">しっとり</span><span style="height:16px;border-radius:5px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:24%;background:#FFC4C4;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#414245;text-align:right;font-variant-numeric:tabular-nums">50</span></div>
+              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:700;color:#182333">保湿</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:100%;background:linear-gradient(90deg,#FF6F61,#C93F2E);border-radius:5px"></span></span><span style="font-size:12px;font-weight:700;color:#182333;text-align:right;font-variant-numeric:tabular-nums">209</span></div>
+              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:700;color:#182333">毛穴</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:89%;background:linear-gradient(90deg,#FF6F61,#C93F2E);border-radius:5px"></span></span><span style="font-size:12px;font-weight:700;color:#182333;text-align:right;font-variant-numeric:tabular-nums">186</span></div>
+              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#3D4655">敏感肌</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:57%;background:#FF9B70;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">119</span></div>
+              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#3D4655">乾燥</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:55%;background:#FF9B70;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">115</span></div>
+              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#3D4655">韓国コスメ</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:43%;background:#FF9B70;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">90</span></div>
+              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#3D4655">医薬部外品</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:34%;background:#FFC7B3;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">71</span></div>
+              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#3D4655">無添加</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:31%;background:#FFC7B3;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">64</span></div>
+              <div style="display:grid;grid-template-columns:98px 1fr 36px;gap:10px;align-items:center"><span lang="ja" style="font-size:13px;font-weight:600;color:#3D4655">しっとり</span><span style="height:16px;border-radius:5px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:24%;background:#FFC7B3;border-radius:5px"></span></span><span style="font-size:12px;font-weight:600;color:#3D4655;text-align:right;font-variant-numeric:tabular-nums">50</span></div>
             </div>
-            <p style="margin:14px 0 0;font-size:12px;line-height:1.6;color:#414245"><span lang="ja">韓国コスメ</span>(90)가 자체 유행어일 만큼 관심은 실재합니다 — 문제는 <b>신뢰 문법의 부재</b>입니다.</p>
+            <p style="margin:14px 0 0;font-size:12px;line-height:1.6;color:#3D4655"><span lang="ja">韓国コスメ</span>(90)가 자체 유행어일 만큼 관심은 실재합니다 — 문제는 <b>신뢰 문법의 부재</b>입니다.</p>
           </div>
         </section>
 
-        <section style="margin-top:16px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+        <section style="margin-top:16px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
           <div class="rwrap" style="display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start">
             <figure style="margin:0;border:1.5px solid rgba(240,72,60,.45);border-radius:14px;overflow:hidden">
-              <img src="assets/market/thumb-KR_amazon_B0BYHXVPW4.jpg" alt="한국어 박스 카피가 번역 없이 그대로 노출된 썸네일" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#F6F6F6" />
+              <img src="assets/market/thumb-KR_amazon_B0BYHXVPW4.jpg" alt="한국어 박스 카피가 번역 없이 그대로 노출된 썸네일" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#F4F2EE" />
             </figure>
             <div>
-              <p style="margin:0;font-size:13px;font-weight:800;color:#C6362C">✕ 반면교사 — 한국어 미변환 실물</p>
-              <h3 style="margin:8px 0 0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">박스의 한국어 카피가 그대로 일본 썸네일에</h3>
-              <p style="margin:10px 0 0;font-size:13.5px;line-height:1.7;color:#414245;text-wrap:pretty">Amazon JP에서 실제 관찰된 사례입니다. 일본 고객에게 읽히지 않는 카피는 존재하지 않는 카피와 같고 &ldquo;현지화가 안 된 브랜드&rdquo;라는 첫인상까지 만듭니다 — 이 리포트가 막으려는 상태가 정확히 이것입니다.</p>
+              <p style="margin:0;font-size:13px;font-weight:800;color:#C13A3A">✕ 반면교사 — 한국어 미변환 실물</p>
+              <h3 style="margin:8px 0 0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">박스의 한국어 카피가 그대로 일본 썸네일에</h3>
+              <p style="margin:10px 0 0;font-size:13.5px;line-height:1.7;color:#3D4655;text-wrap:pretty">Amazon JP에서 실제 관찰된 사례입니다. 일본 고객에게 읽히지 않는 카피는 존재하지 않는 카피와 같고 &ldquo;현지화가 안 된 브랜드&rdquo;라는 첫인상까지 만듭니다 — 이 리포트가 막으려는 상태가 정확히 이것입니다.</p>
               <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
-                <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#FAFAFB;color:#414245;font-size:12px;font-weight:600;white-space:nowrap">Amazon JP — 순백 배경 · 텍스트 오버레이 불가</span>
-                <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#FAFAFB;color:#414245;font-size:12px;font-weight:600;white-space:nowrap">라쿠텐 — 텍스트 20% 이하 권장</span>
-                <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#FAFAFB;color:#414245;font-size:12px;font-weight:600;white-space:nowrap">Qoo10 — 캐치카피+가격 밴드 문법</span>
+                <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#FDFCFA;color:#3D4655;font-size:12px;font-weight:600;white-space:nowrap">Amazon JP — 순백 배경 · 텍스트 오버레이 불가</span>
+                <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#FDFCFA;color:#3D4655;font-size:12px;font-weight:600;white-space:nowrap">라쿠텐 — 텍스트 20% 이하 권장</span>
+                <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#FDFCFA;color:#3D4655;font-size:12px;font-weight:600;white-space:nowrap">Qoo10 — 캐치카피+가격 밴드 문법</span>
               </div>
             </div>
           </div>
@@ -355,130 +355,130 @@
       <div class="tabpanel" id="tabPanel1" role="tabpanel" aria-labelledby="tabBtn1" tabindex="0" style="display:none">
 
         <!-- 블록 4 — 카테고리 경쟁 벤치마크 (진단 탭 첫 블록 · REPORT-07) -->
-        <section id="blk-benchmark" style="margin-top:20px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#202124">신뢰 장치 벤치마크 — 내 콘텐츠의 첫 대면</h2>
-          <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:#414245;max-width:640px;text-wrap:pretty">일본 상위 제품이 쓰는 6가지 신뢰 장치 대비, 내 상세 카피에서 관찰된 것은 0개(부분 2개)입니다.</p>
+        <section id="blk-benchmark" style="margin-top:20px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#182333">신뢰 장치 벤치마크 — 내 콘텐츠의 첫 대면</h2>
+          <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:#3D4655;max-width:640px;text-wrap:pretty">일본 상위 제품이 쓰는 6가지 신뢰 장치 대비, 내 상세 카피에서 관찰된 것은 0개(부분 2개)입니다.</p>
           <div style="margin-top:22px;overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:680px">
               <thead>
                 <tr>
-                  <th style="text-align:left;padding:10px 14px;background:#F6F6F6;color:#414245;font-size:12px;font-weight:700;width:132px;border-radius:8px 0 0 8px">신뢰 장치</th>
-                  <th style="text-align:left;padding:10px 14px;background:#F6F6F6;color:#414245;font-size:12px;font-weight:700;width:34%">일본 상위 제품 실제 표현</th>
-                  <th style="text-align:center;padding:10px 14px;background:#F6F6F6;color:#414245;font-size:12px;font-weight:700;width:96px">내 콘텐츠</th>
-                  <th style="text-align:left;padding:10px 14px;background:#F6F6F6;color:#414245;font-size:12px;font-weight:700;border-radius:0 8px 8px 0">갭</th>
+                  <th style="text-align:left;padding:10px 14px;background:#F4F2EE;color:#3D4655;font-size:12px;font-weight:700;width:132px;border-radius:8px 0 0 8px">신뢰 장치</th>
+                  <th style="text-align:left;padding:10px 14px;background:#F4F2EE;color:#3D4655;font-size:12px;font-weight:700;width:34%">일본 상위 제품 실제 표현</th>
+                  <th style="text-align:center;padding:10px 14px;background:#F4F2EE;color:#3D4655;font-size:12px;font-weight:700;width:96px">내 콘텐츠</th>
+                  <th style="text-align:left;padding:10px 14px;background:#F4F2EE;color:#3D4655;font-size:12px;font-weight:700;border-radius:0 8px 8px 0">갭</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;font-weight:700;color:#202124;vertical-align:top">효능 근거 라벨</td>
-                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#414245;vertical-align:top">「効能評価試験済み」</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:12px;font-weight:700;white-space:nowrap">✕ 없음</span></td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6">효능을 근거 없이 형용사로 단정</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;font-weight:700;color:#182333;vertical-align:top">효능 근거 라벨</td>
+                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#3D4655;vertical-align:top">「効能評価試験済み」</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FBEDED;color:#C13A3A;font-size:12px;font-weight:700;white-space:nowrap">✕ 없음</span></td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#6e7686;vertical-align:top;line-height:1.6">효능을 근거 없이 형용사로 단정</td>
                 </tr>
                 <tr>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;font-weight:700;color:#202124;vertical-align:top">조건 각주 ※</td>
-                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#414245;vertical-align:top">「※角層まで」「＊朝と夜お使いの場合」</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:12px;font-weight:700;white-space:nowrap">✕ 없음</span></td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6">스스로 범위를 좁히는 각주 부재</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;font-weight:700;color:#182333;vertical-align:top">조건 각주 ※</td>
+                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#3D4655;vertical-align:top">「※角層まで」「＊朝と夜お使いの場合」</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FBEDED;color:#C13A3A;font-size:12px;font-weight:700;white-space:nowrap">✕ 없음</span></td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#6e7686;vertical-align:top;line-height:1.6">스스로 범위를 좁히는 각주 부재</td>
                 </tr>
                 <tr>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;font-weight:700;color:#202124;vertical-align:top">성분 배합률</td>
-                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#414245;vertical-align:top">「グリシルグリシン 6%」</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:12px;font-weight:700;white-space:nowrap">△ 부분</span></td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6">&ldquo;99%&rdquo;는 무엇의 비율인지 불명확</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;font-weight:700;color:#182333;vertical-align:top">성분 배합률</td>
+                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#3D4655;vertical-align:top">「グリシルグリシン 6%」</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FDF3E4;color:#8F6412;font-size:12px;font-weight:700;white-space:nowrap">△ 부분</span></td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#6e7686;vertical-align:top;line-height:1.6">&ldquo;99%&rdquo;는 무엇의 비율인지 불명확</td>
                 </tr>
                 <tr>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;font-weight:700;color:#202124;vertical-align:top">제3자 지표+집계일</td>
-                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#414245;vertical-align:top">「週間ランキング1位（集計日：5/11〜5/17）」</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:12px;font-weight:700;white-space:nowrap">✕ 없음</span></td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6">&ldquo;10만 병 완판&rdquo;은 집계일·출처 없음</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;font-weight:700;color:#182333;vertical-align:top">제3자 지표+집계일</td>
+                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#3D4655;vertical-align:top">「週間ランキング1位（集計日：5/11〜5/17）」</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FBEDED;color:#C13A3A;font-size:12px;font-weight:700;white-space:nowrap">✕ 없음</span></td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#6e7686;vertical-align:top;line-height:1.6">&ldquo;10만 병 완판&rdquo;은 집계일·출처 없음</td>
                 </tr>
                 <tr>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;font-weight:700;color:#202124;vertical-align:top">무첨가/프리 라벨</td>
-                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#414245;vertical-align:top">「合成香料フリー」「無香料・無着色」</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:12px;font-weight:700;white-space:nowrap">✕ 없음</span></td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6"><span lang="ja">敏感肌</span> 소구의 핵심 문법 완전 결여</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;font-weight:700;color:#182333;vertical-align:top">무첨가/프리 라벨</td>
+                  <td lang="ja" style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#3D4655;vertical-align:top">「合成香料フリー」「無香料・無着色」</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FBEDED;color:#C13A3A;font-size:12px;font-weight:700;white-space:nowrap">✕ 없음</span></td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#6e7686;vertical-align:top;line-height:1.6"><span lang="ja">敏感肌</span> 소구의 핵심 문법 완전 결여</td>
                 </tr>
                 <tr>
-                  <td style="padding:13px 14px;font-weight:700;color:#202124;vertical-align:top">성분 검색표기</td>
-                  <td lang="ja" style="padding:13px 14px;color:#414245;vertical-align:top">「CICA（ツボクサエキス）」</td>
-                  <td style="padding:13px 14px;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:12px;font-weight:700;white-space:nowrap">△ 부분</span></td>
-                  <td style="padding:13px 14px;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6">병기하면 검색 노출 강화 여지</td>
+                  <td style="padding:13px 14px;font-weight:700;color:#182333;vertical-align:top">성분 검색표기</td>
+                  <td lang="ja" style="padding:13px 14px;color:#3D4655;vertical-align:top">「CICA（ツボクサエキス）」</td>
+                  <td style="padding:13px 14px;vertical-align:top;text-align:center"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:9999px;background:#FDF3E4;color:#8F6412;font-size:12px;font-weight:700;white-space:nowrap">△ 부분</span></td>
+                  <td style="padding:13px 14px;color:#6e7686;vertical-align:top;line-height:1.6">병기하면 검색 노출 강화 여지</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p style="margin:16px 0 0;font-size:13px;line-height:1.65;color:#414245;background:#FAFAFB;border-radius:10px;padding:14px 16px"><b>참고 — 진정(<span lang="ja">鎮静</span>):</b> 한국 최강 소구어지만 일본에선 화장품 효능도, 강한 검색어도 아닙니다. 같은 니즈를 <span lang="ja">肌荒れ·敏感肌·ゆらぎ肌·整える</span>로 검색합니다.</p>
+          <p style="margin:16px 0 0;font-size:13px;line-height:1.65;color:#3D4655;background:#FDFCFA;border-radius:10px;padding:14px 16px"><b>참고 — 진정(<span lang="ja">鎮静</span>):</b> 한국 최강 소구어지만 일본에선 화장품 효능도, 강한 검색어도 아닙니다. 같은 니즈를 <span lang="ja">肌荒れ·敏感肌·ゆらぎ肌·整える</span>로 검색합니다.</p>
         </section>
 
         <!-- 블록 2 — 일본향 타깃 페르소나 · 구매여정 · USP 재정의 (진단 탭, 벤치마크 다음 · REPORT-05) -->
-        <section style="margin-top:16px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#202124">이 고객이, 이 지점에서 떠납니다</h2>
-          <div style="margin-top:22px;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:24px;display:flex;gap:20px;align-items:flex-start">
-            <img src="assets/persona-nao.svg" alt="" width="72" height="72" style="flex:none;width:72px;height:72px;border-radius:50%;background:#FFF8F8;border:1px solid rgba(255,100,100,.3)" />
+        <section style="margin-top:16px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#182333">이 고객이, 이 지점에서 떠납니다</h2>
+          <div style="margin-top:22px;border:1px solid #e9e7e3;border-radius:14px;padding:24px;display:flex;gap:20px;align-items:flex-start">
+            <img src="assets/persona-nao.svg" alt="" width="72" height="72" style="flex:none;width:72px;height:72px;border-radius:50%;background:#FFF1EE;border:1px solid rgba(255,111,97,.3)" />
             <div style="flex:1;min-width:0">
-              <p style="margin:0;font-size:16px;font-weight:700;color:#202124"><span lang="ja">ゆらぎ肌に疲れた</span> 나오(<span lang="ja">仮</span>) <span style="font-weight:400;font-size:13px;color:rgba(55,56,60,0.61)">· 26–34세 회사원 · 가상 인물</span></p>
+              <p style="margin:0;font-size:16px;font-weight:700;color:#182333"><span lang="ja">ゆらぎ肌に疲れた</span> 나오(<span lang="ja">仮</span>) <span style="font-weight:400;font-size:13px;color:#6e7686">· 26–34세 회사원 · 가상 인물</span></p>
               <dl style="margin:14px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:12px 24px">
-                <div style="margin:0"><dt style="font-size:11.5px;font-weight:700;color:rgba(55,56,60,0.61)">피부 고민</dt><dd style="margin:4px 0 0;font-size:13.5px;color:#202124;line-height:1.55"><span lang="ja">肌荒れ, 乾燥, ゆらぎ</span>(불안정)</dd></div>
-                <div style="margin:0"><dt style="font-size:11.5px;font-weight:700;color:rgba(55,56,60,0.61)">가격 감도</dt><dd style="margin:4px 0 0;font-size:13.5px;color:#202124;line-height:1.55">근거가 있으면 지불 — 과장에는 학습된 경계심</dd></div>
-                <div style="margin:0"><dt style="font-size:11.5px;font-weight:700;color:rgba(55,56,60,0.61)">신뢰 트리거</dt><dd style="margin:4px 0 0;font-size:13.5px;color:#202124;line-height:1.55"><span lang="ja">効能評価試験済み</span> · 배합률 · <span lang="ja">集計日</span> 있는 지표</dd></div>
-                <div style="margin:0"><dt style="font-size:11.5px;font-weight:700;color:rgba(55,56,60,0.61)">구매 전 확인</dt><dd style="margin:4px 0 0;font-size:13.5px;color:#202124;line-height:1.55">@cosme <span lang="ja">口コミ</span>·<span lang="ja">敏感肌</span> 후기·<span lang="ja">成分</span></dd></div>
+                <div style="margin:0"><dt style="font-size:11.5px;font-weight:700;color:#6e7686">피부 고민</dt><dd style="margin:4px 0 0;font-size:13.5px;color:#182333;line-height:1.55"><span lang="ja">肌荒れ, 乾燥, ゆらぎ</span>(불안정)</dd></div>
+                <div style="margin:0"><dt style="font-size:11.5px;font-weight:700;color:#6e7686">가격 감도</dt><dd style="margin:4px 0 0;font-size:13.5px;color:#182333;line-height:1.55">근거가 있으면 지불 — 과장에는 학습된 경계심</dd></div>
+                <div style="margin:0"><dt style="font-size:11.5px;font-weight:700;color:#6e7686">신뢰 트리거</dt><dd style="margin:4px 0 0;font-size:13.5px;color:#182333;line-height:1.55"><span lang="ja">効能評価試験済み</span> · 배합률 · <span lang="ja">集計日</span> 있는 지표</dd></div>
+                <div style="margin:0"><dt style="font-size:11.5px;font-weight:700;color:#6e7686">구매 전 확인</dt><dd style="margin:4px 0 0;font-size:13.5px;color:#182333;line-height:1.55">@cosme <span lang="ja">口コミ</span>·<span lang="ja">敏感肌</span> 후기·<span lang="ja">成分</span></dd></div>
               </dl>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 24px 1fr 24px 1.15fr;gap:8px;align-items:stretch;margin-top:16px">
-            <div style="border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:16px 18px">
-              <p style="margin:0;font-size:11.5px;font-weight:800;color:rgba(55,56,60,0.61)">1 · 인지</p>
-              <p style="margin:8px 0 0;font-size:14px;font-weight:700;color:#202124">Instagram / TikTok</p>
-              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#414245">리뷰어의 <span lang="ja">「使ってみた」</span>에서 인지</p>
+            <div style="border:1px solid #e9e7e3;border-radius:12px;padding:16px 18px">
+              <p style="margin:0;font-size:11.5px;font-weight:800;color:#6e7686">1 · 인지</p>
+              <p style="margin:8px 0 0;font-size:14px;font-weight:700;color:#182333">Instagram / TikTok</p>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#3D4655">리뷰어의 <span lang="ja">「使ってみた」</span>에서 인지</p>
             </div>
-            <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#B6B8BF;font-size:16px">→</span>
-            <div style="border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:16px 18px">
-              <p style="margin:0;font-size:11.5px;font-weight:800;color:rgba(55,56,60,0.61)">2 · 탐색</p>
-              <p style="margin:8px 0 0;font-size:14px;font-weight:700;color:#202124">@cosme · <span lang="ja">口コミ</span> · 랭킹</p>
-              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#414245">과장 카피는 여기서 감점</p>
+            <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#78818F;font-size:16px">→</span>
+            <div style="border:1px solid #e9e7e3;border-radius:12px;padding:16px 18px">
+              <p style="margin:0;font-size:11.5px;font-weight:800;color:#6e7686">2 · 탐색</p>
+              <p style="margin:8px 0 0;font-size:14px;font-weight:700;color:#182333">@cosme · <span lang="ja">口コミ</span> · 랭킹</p>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#3D4655">과장 카피는 여기서 감점</p>
             </div>
-            <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#B6B8BF;font-size:16px">→</span>
-            <div style="border:1.5px solid #FF6464;background:#FFF8F8;border-radius:12px;padding:16px 18px">
-              <p style="margin:0;font-size:11.5px;font-weight:800;color:#D93636">3 · 구매 = 최종 확신 지점</p>
-              <p style="margin:8px 0 0;font-size:14px;font-weight:700;color:#202124"><span lang="ja">楽天</span> / Qoo10 상세페이지</p>
-              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#414245"><span lang="ja">成分·無添加·効能評価</span>를 마지막으로 확인하고 결제</p>
+            <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#78818F;font-size:16px">→</span>
+            <div style="border:1.5px solid #FF6F61;background:#FFF1EE;border-radius:12px;padding:16px 18px">
+              <p style="margin:0;font-size:11.5px;font-weight:800;color:#C93F2E">3 · 구매 = 최종 확신 지점</p>
+              <p style="margin:8px 0 0;font-size:14px;font-weight:700;color:#182333"><span lang="ja">楽天</span> / Qoo10 상세페이지</p>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#3D4655"><span lang="ja">成分·無添加·効能評価</span>를 마지막으로 확인하고 결제</p>
             </div>
           </div>
         </section>
 
         <!-- 블록 2 (계속) — USP 재정의 표 -->
-        <section style="margin-top:16px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">USP 재정의 — 같은 강점, 일본의 언어로</h3>
+        <section style="margin-top:16px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">USP 재정의 — 같은 강점, 일본의 언어로</h3>
           <div style="margin-top:16px;overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:640px">
               <thead>
                 <tr>
-                  <th style="text-align:left;padding:10px 14px;background:#F6F6F6;color:#414245;font-size:12px;font-weight:700;width:26%;border-radius:8px 0 0 8px">현재(KR) 소구</th>
-                  <th style="text-align:left;padding:10px 14px;background:#F6F6F6;color:#414245;font-size:12px;font-weight:700;width:32%">일본 고객에게 읽히는 방식</th>
-                  <th style="text-align:left;padding:10px 14px;background:#F6F6F6;color:#414245;font-size:12px;font-weight:700;border-radius:0 8px 8px 0">재정의된 USP</th>
+                  <th style="text-align:left;padding:10px 14px;background:#F4F2EE;color:#3D4655;font-size:12px;font-weight:700;width:26%;border-radius:8px 0 0 8px">현재(KR) 소구</th>
+                  <th style="text-align:left;padding:10px 14px;background:#F4F2EE;color:#3D4655;font-size:12px;font-weight:700;width:32%">일본 고객에게 읽히는 방식</th>
+                  <th style="text-align:left;padding:10px 14px;background:#F4F2EE;color:#3D4655;font-size:12px;font-weight:700;border-radius:0 8px 8px 0">재정의된 USP</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#202124;font-weight:600;vertical-align:top;line-height:1.6">즉각 진정 · 트러블 싹</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6"><span lang="ja">化粧品でそんな効果出るの?</span> — 경계심 자극 · 표현 불가</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#414245;vertical-align:top;line-height:1.6"><b lang="ja" style="color:#202124">ゆらぎがちな肌を、うるおいで整える</b></td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#182333;font-weight:600;vertical-align:top;line-height:1.6">즉각 진정 · 트러블 싹</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#6e7686;vertical-align:top;line-height:1.6"><span lang="ja">化粧品でそんな効果出るの?</span> — 경계심 자극 · 표현 불가</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#3D4655;vertical-align:top;line-height:1.6"><b lang="ja" style="color:#182333">ゆらぎがちな肌を、うるおいで整える</b></td>
                 </tr>
                 <tr>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#202124;font-weight:600;vertical-align:top;line-height:1.6">99% 고농축 · 병원 처방급</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6"><span lang="ja">何の99%?</span> — 수치 근거 불명확 + 의료 비교</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#414245;vertical-align:top;line-height:1.6"><b style="color:#202124">정확한 배합률 + 기전으로 말하는 성분 신뢰</b></td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#182333;font-weight:600;vertical-align:top;line-height:1.6">99% 고농축 · 병원 처방급</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#6e7686;vertical-align:top;line-height:1.6"><span lang="ja">何の99%?</span> — 수치 근거 불명확 + 의료 비교</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#3D4655;vertical-align:top;line-height:1.6"><b style="color:#182333">정확한 배합률 + 기전으로 말하는 성분 신뢰</b></td>
                 </tr>
                 <tr>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#202124;font-weight:600;vertical-align:top;line-height:1.6">10만 병 완판 · 리뷰 난리</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6"><span lang="ja">集計日は?</span> — 출처 없는 실적은 불신을 키움</td>
-                  <td style="padding:13px 14px;border-bottom:1px solid #F1F1F3;color:#414245;vertical-align:top;line-height:1.6"><b style="color:#202124"><span lang="ja">累計出荷</span> + <span lang="ja">集計時点</span> 명기</b></td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#182333;font-weight:600;vertical-align:top;line-height:1.6">10만 병 완판 · 리뷰 난리</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#6e7686;vertical-align:top;line-height:1.6"><span lang="ja">集計日は?</span> — 출처 없는 실적은 불신을 키움</td>
+                  <td style="padding:13px 14px;border-bottom:1px solid #F2F1ED;color:#3D4655;vertical-align:top;line-height:1.6"><b style="color:#182333"><span lang="ja">累計出荷</span> + <span lang="ja">集計時点</span> 명기</b></td>
                 </tr>
                 <tr>
-                  <td style="padding:13px 14px;color:#202124;font-weight:600;vertical-align:top;line-height:1.6">(부재) 무첨가·안전 소구</td>
-                  <td style="padding:13px 14px;color:rgba(55,56,60,0.61);vertical-align:top;line-height:1.6">가장 먼저 찾는 정보에 답이 없음 = 탐색 이탈</td>
-                  <td style="padding:13px 14px;color:#414245;vertical-align:top;line-height:1.6"><b lang="ja" style="color:#202124">敏感肌の毎日に、無添加という安心</b></td>
+                  <td style="padding:13px 14px;color:#182333;font-weight:600;vertical-align:top;line-height:1.6">(부재) 무첨가·안전 소구</td>
+                  <td style="padding:13px 14px;color:#6e7686;vertical-align:top;line-height:1.6">가장 먼저 찾는 정보에 답이 없음 = 탐색 이탈</td>
+                  <td style="padding:13px 14px;color:#3D4655;vertical-align:top;line-height:1.6"><b lang="ja" style="color:#182333">敏感肌の毎日に、無添加という安心</b></td>
                 </tr>
               </tbody>
             </table>
@@ -487,149 +487,149 @@
 
         <!-- 블록 3 — 薬機法 표현 전수 감사 (REPORT-06) -->
         <section id="blk-audit" tabindex="-1" style="margin-top:16px;display:grid;grid-template-columns:1fr 1.2fr;gap:16px">
-          <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-            <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em"><span lang="ja">薬機法</span> 전수 감사</h3>
-            <p style="margin:6px 0 0;font-size:12.5px;color:rgba(55,56,60,0.61)">상세 카피 11문장 · <span lang="ja">化粧品</span>으로 상정</p>
+          <div style="background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+            <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em"><span lang="ja">薬機法</span> 전수 감사</h3>
+            <p style="margin:6px 0 0;font-size:12.5px;color:#6e7686">상세 카피 11문장 · <span lang="ja">化粧品</span>으로 상정</p>
             <div style="display:flex;align-items:center;gap:24px;margin-top:18px">
               <div style="position:relative;width:150px;height:150px;flex:none">
                 <svg viewBox="0 0 160 160" width="150" height="150" role="img" aria-label="판정 분포 도넛 차트: 불가 6문장, 조건부 5문장, 가능 0문장">
-                  <circle cx="80" cy="80" r="54" fill="none" stroke="#F1F1F3" stroke-width="18"></circle>
-                  <circle cx="80" cy="80" r="54" fill="none" stroke="#F0483C" stroke-width="18" stroke-dasharray="185.1 339.3" transform="rotate(-90 80 80)"></circle>
-                  <circle cx="80" cy="80" r="54" fill="none" stroke="#FFAB00" stroke-width="18" stroke-dasharray="154.2 339.3" transform="rotate(106.4 80 80)"></circle>
+                  <circle cx="80" cy="80" r="54" fill="none" stroke="#F2F1ED" stroke-width="18"></circle>
+                  <circle cx="80" cy="80" r="54" fill="none" stroke="#D94848" stroke-width="18" stroke-dasharray="185.1 339.3" transform="rotate(-90 80 80)"></circle>
+                  <circle cx="80" cy="80" r="54" fill="none" stroke="#E39A22" stroke-width="18" stroke-dasharray="154.2 339.3" transform="rotate(106.4 80 80)"></circle>
                 </svg>
                 <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-                  <span style="font-size:26px;font-weight:800;color:#202124;line-height:1;font-variant-numeric:tabular-nums">11</span>
-                  <span style="margin-top:2px;font-size:11px;font-weight:700;color:#B6B8BF">문장</span>
+                  <span style="font-size:26px;font-weight:800;color:#182333;line-height:1;font-variant-numeric:tabular-nums">11</span>
+                  <span style="margin-top:2px;font-size:11px;font-weight:700;color:#78818F">문장</span>
                 </div>
               </div>
               <div style="display:flex;flex-direction:column;gap:12px">
-                <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;border-radius:4px;background:#F0483C;flex:none"></span><span style="font-size:13.5px;font-weight:700;color:#202124">불가 6</span><span style="font-size:12px;color:rgba(55,56,60,0.61)">그대로 게재 불가</span></div>
-                <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;border-radius:4px;background:#FFAB00;flex:none"></span><span style="font-size:13.5px;font-weight:700;color:#202124">조건부 5</span><span style="font-size:12px;color:rgba(55,56,60,0.61)">각주·한정 필요</span></div>
-                <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;border-radius:4px;background:#00B97C;flex:none"></span><span style="font-size:13.5px;font-weight:700;color:#202124">가능 0</span><span style="font-size:12px;color:rgba(55,56,60,0.61)">그대로 쓸 수 있는 문장 없음</span></div>
+                <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;border-radius:4px;background:#D94848;flex:none"></span><span style="font-size:13.5px;font-weight:700;color:#182333">불가 6</span><span style="font-size:12px;color:#6e7686">그대로 게재 불가</span></div>
+                <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;border-radius:4px;background:#E39A22;flex:none"></span><span style="font-size:13.5px;font-weight:700;color:#182333">조건부 5</span><span style="font-size:12px;color:#6e7686">각주·한정 필요</span></div>
+                <div style="display:flex;align-items:center;gap:10px"><span style="width:12px;height:12px;border-radius:4px;background:#2D8C6B;flex:none"></span><span style="font-size:13.5px;font-weight:700;color:#182333">가능 0</span><span style="font-size:12px;color:#6e7686">그대로 쓸 수 있는 문장 없음</span></div>
               </div>
             </div>
             <div role="img" aria-label="문장별 판정: ①불가 ②조건부 ③불가 ④불가(최고위험) ⑤조건부 ⑥조건부 ⑦조건부 ⑧불가 ⑨불가 ⑩불가 ⑪조건부" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:20px">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF0EF;color:#C6362C;font-size:14px;font-weight:700">①</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FFF6E5;color:#B96C00;font-size:14px;font-weight:700">②</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF0EF;color:#C6362C;font-size:14px;font-weight:700">③</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#F0483C;color:#fff;font-size:14px;font-weight:700">④</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FFF6E5;color:#B96C00;font-size:14px;font-weight:700">⑤</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FFF6E5;color:#B96C00;font-size:14px;font-weight:700">⑥</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FFF6E5;color:#B96C00;font-size:14px;font-weight:700">⑦</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF0EF;color:#C6362C;font-size:14px;font-weight:700">⑧</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF0EF;color:#C6362C;font-size:14px;font-weight:700">⑨</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF0EF;color:#C6362C;font-size:14px;font-weight:700">⑩</span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FFF6E5;color:#B96C00;font-size:14px;font-weight:700">⑪</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FBEDED;color:#C13A3A;font-size:14px;font-weight:700">①</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF3E4;color:#8F6412;font-size:14px;font-weight:700">②</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FBEDED;color:#C13A3A;font-size:14px;font-weight:700">③</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#D94848;color:#fff;font-size:14px;font-weight:700">④</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF3E4;color:#8F6412;font-size:14px;font-weight:700">⑤</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF3E4;color:#8F6412;font-size:14px;font-weight:700">⑥</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF3E4;color:#8F6412;font-size:14px;font-weight:700">⑦</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FBEDED;color:#C13A3A;font-size:14px;font-weight:700">⑧</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FBEDED;color:#C13A3A;font-size:14px;font-weight:700">⑨</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FBEDED;color:#C13A3A;font-size:14px;font-weight:700">⑩</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#FDF3E4;color:#8F6412;font-size:14px;font-weight:700">⑪</span>
             </div>
-            <p style="margin:10px 0 0;font-size:11.5px;color:rgba(55,56,60,0.61)">채운 붉은 칸 = 최고위험 문장 ④</p>
+            <p style="margin:10px 0 0;font-size:11.5px;color:#6e7686">채운 붉은 칸 = 최고위험 문장 ④</p>
           </div>
-          <div style="background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;flex-direction:column;gap:14px">
-            <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">대표 판정 2건</h3>
+          <div style="background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:32px;box-shadow:0 1px 3px rgba(16,18,20,.04);display:flex;flex-direction:column;gap:14px">
+            <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">대표 판정 2건</h3>
             <article id="k-sentence-4" tabindex="-1" style="border:1px solid rgba(240,72,60,.35);border-radius:14px;overflow:hidden">
-              <header style="display:flex;align-items:center;gap:10px;padding:11px 16px;background:#FDF0EF;flex-wrap:wrap">
-                <span style="font-size:13.5px;font-weight:800;color:#202124">문장 ④</span>
-                <span style="display:inline-flex;align-items:center;height:23px;padding:0 9px;border-radius:6px;background:#F0483C;color:#fff;font-size:11.5px;font-weight:700">불가 · 최고위험</span>
+              <header style="display:flex;align-items:center;gap:10px;padding:11px 16px;background:#FBEDED;flex-wrap:wrap">
+                <span style="font-size:13.5px;font-weight:800;color:#182333">문장 ④</span>
+                <span style="display:inline-flex;align-items:center;height:23px;padding:0 9px;border-radius:6px;background:#D94848;color:#fff;font-size:11.5px;font-weight:700">불가 · 최고위험</span>
               </header>
               <div style="padding:16px">
-                <p style="margin:0;font-size:14px;line-height:1.65;color:#202124">손상된 피부 장벽을 <b>재생</b>시켜 근본부터 <b>치료</b>합니다</p>
-                <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)"><span lang="ja">「再生」「治療」</span>는 의약품적 효능 표현 — 어느 등급으로도 불가.</p>
-                <p lang="ja" style="margin:10px 0 0;font-size:13.5px;line-height:1.65;color:#00875A;background:#EAF9F3;border-radius:10px;padding:11px 14px"><b>대체:</b> うるおいのヴェールで肌を包み、乾燥に負けないなめらかな肌へ。</p>
+                <p style="margin:0;font-size:14px;line-height:1.65;color:#182333">손상된 피부 장벽을 <b>재생</b>시켜 근본부터 <b>치료</b>합니다</p>
+                <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#6e7686"><span lang="ja">「再生」「治療」</span>는 의약품적 효능 표현 — 어느 등급으로도 불가.</p>
+                <p lang="ja" style="margin:10px 0 0;font-size:13.5px;line-height:1.65;color:#26775B;background:#E8F4F0;border-radius:10px;padding:11px 14px"><b>대체:</b> うるおいのヴェールで肌を包み、乾燥に負けないなめらかな肌へ。</p>
               </div>
             </article>
             <article id="k-sentence-2" tabindex="-1" style="border:1px solid rgba(255,171,0,.4);border-radius:14px;overflow:hidden">
-              <header style="display:flex;align-items:center;gap:10px;padding:11px 16px;background:#FFF6E5;flex-wrap:wrap">
-                <span style="font-size:13.5px;font-weight:800;color:#202124">문장 ②</span>
-                <span style="display:inline-flex;align-items:center;height:23px;padding:0 9px;border-radius:6px;background:#FFAB00;color:#3C2E00;font-size:11.5px;font-weight:700">조건부</span>
+              <header style="display:flex;align-items:center;gap:10px;padding:11px 16px;background:#FDF3E4;flex-wrap:wrap">
+                <span style="font-size:13.5px;font-weight:800;color:#182333">문장 ②</span>
+                <span style="display:inline-flex;align-items:center;height:23px;padding:0 9px;border-radius:6px;background:#E39A22;color:#3C2E00;font-size:11.5px;font-weight:700">조건부</span>
               </header>
               <div style="padding:16px">
-                <p style="margin:0;font-size:14px;line-height:1.65;color:#202124">피부 속 <b>깊은 곳까지</b> 파고드는 시카(CICA) 앰플</p>
-                <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">침투 표현은 <span lang="ja">角質層</span> 한정 + ※각주가 붙어야 가능.</p>
-                <p lang="ja" style="margin:10px 0 0;font-size:13.5px;line-height:1.65;color:#00875A;background:#EAF9F3;border-radius:10px;padding:11px 14px"><b>대체:</b> 角層のすみずみ※まで、うるおいで満たす。 <span style="font-size:11.5px">※角質層まで</span></p>
+                <p style="margin:0;font-size:14px;line-height:1.65;color:#182333">피부 속 <b>깊은 곳까지</b> 파고드는 시카(CICA) 앰플</p>
+                <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#6e7686">침투 표현은 <span lang="ja">角質層</span> 한정 + ※각주가 붙어야 가능.</p>
+                <p lang="ja" style="margin:10px 0 0;font-size:13.5px;line-height:1.65;color:#26775B;background:#E8F4F0;border-radius:10px;padding:11px 14px"><b>대체:</b> 角層のすみずみ※まで、うるおいで満たす。 <span style="font-size:11.5px">※角質層まで</span></p>
               </div>
             </article>
-            <p style="margin:auto 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">전체 11건 판정과 대체 표현은 처방 탭의 Before/After로 이어집니다. 본 감사는 1차 스크리닝이며 법률 자문이 아닙니다 — 게재 전 약무 전문가 확인을 권고합니다.</p>
+            <p style="margin:auto 0 0;font-size:11.5px;line-height:1.6;color:#6e7686">전체 11건 판정과 대체 표현은 처방 탭의 Before/After로 이어집니다. 본 감사는 1차 스크리닝이며 법률 자문이 아닙니다 — 게재 전 약무 전문가 확인을 권고합니다.</p>
           </div>
         </section>
 
         <!-- 블록 5 — 일본 문법 진단 점수 (A~E 루브릭 · REPORT-08) -->
-        <section id="blk-rubric" style="margin-top:16px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">항목별 세부 점수</h3>
-          <p style="margin:6px 0 0;font-size:12.5px;color:rgba(55,56,60,0.61)">카테고리에 해당하는 항목만 채점 — 같은 점수는 항상 같은 종합 점수로 집계됩니다</p>
+        <section id="blk-rubric" style="margin-top:16px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">항목별 세부 점수</h3>
+          <p style="margin:6px 0 0;font-size:12.5px;color:#6e7686">카테고리에 해당하는 항목만 채점 — 같은 점수는 항상 같은 종합 점수로 집계됩니다</p>
           <div style="display:flex;flex-direction:column;gap:14px;margin-top:22px">
             <div id="rb-group-trust" tabindex="-1" style="display:grid;grid-template-columns:128px 1fr 96px 68px;gap:14px;align-items:center">
-              <span style="font-size:13.5px;font-weight:700;color:#202124">신뢰 구축</span>
-              <span role="img" aria-label="신뢰 구축 10%" style="height:12px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:10%;background:#F0483C;border-radius:9999px"></span></span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">위험 · 10%</span>
-              <span style="font-size:11.5px;color:rgba(55,56,60,0.61);text-align:right">가중 0.30</span>
+              <span style="font-size:13.5px;font-weight:700;color:#182333">신뢰 구축</span>
+              <span role="img" aria-label="신뢰 구축 10%" style="height:12px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:10%;background:#D94848;border-radius:9999px"></span></span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FBEDED;color:#C13A3A;font-size:11.5px;font-weight:700">위험 · 10%</span>
+              <span style="font-size:11.5px;color:#6e7686;text-align:right">가중 0.30</span>
             </div>
             <div id="rb-group-free" tabindex="-1" style="display:grid;grid-template-columns:128px 1fr 96px 68px;gap:14px;align-items:center">
-              <span style="font-size:13.5px;font-weight:700;color:#202124">무첨가·안전</span>
-              <span role="img" aria-label="무첨가·안전 0%" style="height:12px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:1.5%;background:#F0483C;border-radius:9999px"></span></span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">위험 · 0%</span>
-              <span style="font-size:11.5px;color:rgba(55,56,60,0.61);text-align:right">가중 0.15</span>
+              <span style="font-size:13.5px;font-weight:700;color:#182333">무첨가·안전</span>
+              <span role="img" aria-label="무첨가·안전 0%" style="height:12px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:1.5%;background:#D94848;border-radius:9999px"></span></span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FBEDED;color:#C13A3A;font-size:11.5px;font-weight:700">위험 · 0%</span>
+              <span style="font-size:11.5px;color:#6e7686;text-align:right">가중 0.15</span>
             </div>
             <div id="rb-group-narrative" tabindex="-1" style="display:grid;grid-template-columns:128px 1fr 96px 68px;gap:14px;align-items:center">
-              <span style="font-size:13.5px;font-weight:700;color:#202124">서사 구조</span>
-              <span role="img" aria-label="서사 구조 33%" style="height:12px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:33%;background:#FFAB00;border-radius:9999px"></span></span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700">미흡 · 33%</span>
-              <span style="font-size:11.5px;color:rgba(55,56,60,0.61);text-align:right">가중 0.25</span>
+              <span style="font-size:13.5px;font-weight:700;color:#182333">서사 구조</span>
+              <span role="img" aria-label="서사 구조 33%" style="height:12px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:33%;background:#E39A22;border-radius:9999px"></span></span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FDF3E4;color:#8F6412;font-size:11.5px;font-weight:700">미흡 · 33%</span>
+              <span style="font-size:11.5px;color:#6e7686;text-align:right">가중 0.25</span>
             </div>
             <div id="rb-group-ingredient" tabindex="-1" style="display:grid;grid-template-columns:128px 1fr 96px 68px;gap:14px;align-items:center">
-              <span style="font-size:13.5px;font-weight:700;color:#202124">성분 프레이밍</span>
-              <span role="img" aria-label="성분 프레이밍 25%" style="height:12px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:25%;background:#FFAB00;border-radius:9999px"></span></span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700">미흡 · 25%</span>
-              <span style="font-size:11.5px;color:rgba(55,56,60,0.61);text-align:right">가중 0.20</span>
+              <span style="font-size:13.5px;font-weight:700;color:#182333">성분 프레이밍</span>
+              <span role="img" aria-label="성분 프레이밍 25%" style="height:12px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:25%;background:#E39A22;border-radius:9999px"></span></span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FDF3E4;color:#8F6412;font-size:11.5px;font-weight:700">미흡 · 25%</span>
+              <span style="font-size:11.5px;color:#6e7686;text-align:right">가중 0.20</span>
             </div>
             <div id="rb-group-fit" tabindex="-1" style="display:grid;grid-template-columns:128px 1fr 96px 68px;gap:14px;align-items:center">
-              <span style="font-size:13.5px;font-weight:700;color:#202124">카테고리 적합성</span>
-              <span role="img" aria-label="카테고리 적합성 13%" style="height:12px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:13%;background:#F0483C;border-radius:9999px"></span></span>
-              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700">위험 · 13%</span>
-              <span style="font-size:11.5px;color:rgba(55,56,60,0.61);text-align:right">가중 0.10</span>
+              <span style="font-size:13.5px;font-weight:700;color:#182333">카테고리 적합성</span>
+              <span role="img" aria-label="카테고리 적합성 13%" style="height:12px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:13%;background:#D94848;border-radius:9999px"></span></span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;height:24px;border-radius:6px;background:#FBEDED;color:#C13A3A;font-size:11.5px;font-weight:700">위험 · 13%</span>
+              <span style="font-size:11.5px;color:#6e7686;text-align:right">가중 0.10</span>
             </div>
           </div>
-          <details id="rb-detail-efficacy-label" style="margin-top:22px;border-top:1px solid #F1F1F3">
+          <details id="rb-detail-efficacy-label" style="margin-top:22px;border-top:1px solid #F2F1ED">
             <summary class="h-summary" style="display:flex;align-items:center;gap:12px;padding:16px 8px;cursor:pointer;list-style:none">
-              <span style="font-size:14px;font-weight:600;color:#202124;flex:1">채점 근거 예시 — 효능 근거 라벨 항목</span>
-              <span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:6px;background:#FDF0EF;color:#C6362C;font-size:12px;font-weight:700">0점</span>
-              <span aria-hidden="true" style="color:#B6B8BF;font-size:12px">▾</span>
+              <span style="font-size:14px;font-weight:600;color:#182333;flex:1">채점 근거 예시 — 효능 근거 라벨 항목</span>
+              <span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:6px;background:#FBEDED;color:#C13A3A;font-size:12px;font-weight:700">0점</span>
+              <span aria-hidden="true" style="color:#78818F;font-size:12px">▾</span>
             </summary>
             <dl style="margin:0;padding:4px 8px 18px;display:grid;grid-template-columns:96px 1fr;gap:8px 16px">
-              <dt style="font-size:12px;font-weight:700;color:rgba(55,56,60,0.61)">통과 기준</dt><dd style="margin:0;font-size:13.5px;line-height:1.6;color:#414245">효능 주장에 <span lang="ja">効能評価試験済み</span> 등 검증 라벨이 병기되어 있다</dd>
-              <dt style="font-size:12px;font-weight:700;color:rgba(55,56,60,0.61)">내 문장</dt><dd style="margin:0;font-size:13.5px;line-height:1.6;color:#414245">(해당 표현 미관찰)</dd>
+              <dt style="font-size:12px;font-weight:700;color:#6e7686">통과 기준</dt><dd style="margin:0;font-size:13.5px;line-height:1.6;color:#3D4655">효능 주장에 <span lang="ja">効能評価試験済み</span> 등 검증 라벨이 병기되어 있다</dd>
+              <dt style="font-size:12px;font-weight:700;color:#6e7686">내 문장</dt><dd style="margin:0;font-size:13.5px;line-height:1.6;color:#3D4655">(해당 표현 미관찰)</dd>
             </dl>
           </details>
         </section>
 
         <!-- 블록 6 — 정보 공백이 이탈로 이어지는 길 (REPORT-09) -->
-        <section style="margin-top:16px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">정보 공백 → 의문 → 이탈</h3>
-          <div style="margin-top:18px;border:1px solid rgba(112,115,124,0.14);border-radius:14px;overflow:hidden">
-            <div style="display:grid;grid-template-columns:1.05fr 26px 1.1fr 26px 1.05fr;gap:10px;padding:12px 18px;background:#F6F6F6;font-size:11.5px;font-weight:700;color:#414245">
+        <section style="margin-top:16px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">정보 공백 → 의문 → 이탈</h3>
+          <div style="margin-top:18px;border:1px solid #e9e7e3;border-radius:14px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:1.05fr 26px 1.1fr 26px 1.05fr;gap:10px;padding:12px 18px;background:#F4F2EE;font-size:11.5px;font-weight:700;color:#3D4655">
               <span>진단된 정보 공백</span><span></span><span>고객이 떠올리는 의문</span><span></span><span>이탈 행동</span>
             </div>
-            <div style="display:grid;grid-template-columns:1.05fr 26px 1.1fr 26px 1.05fr;gap:10px;padding:15px 18px;border-top:1px solid #F1F1F3;align-items:center">
-              <span style="font-size:13px;line-height:1.55;color:#202124;font-weight:600">무첨가·안전 정보 부재 <span style="color:#C6362C">(0%)</span></span>
-              <span aria-hidden="true" style="color:#B6B8BF;text-align:center">→</span>
-              <span lang="ja" style="font-size:13px;line-height:1.6;color:#414245">敏感肌だけど大丈夫? 成分表どこ?</span>
-              <span aria-hidden="true" style="color:#B6B8BF;text-align:center">→</span>
-              <span style="font-size:13px;line-height:1.6;color:#414245">경쟁 제품의 <span lang="ja">◯◯フリー</span> 표기로 이동</span>
+            <div style="display:grid;grid-template-columns:1.05fr 26px 1.1fr 26px 1.05fr;gap:10px;padding:15px 18px;border-top:1px solid #F2F1ED;align-items:center">
+              <span style="font-size:13px;line-height:1.55;color:#182333;font-weight:600">무첨가·안전 정보 부재 <span style="color:#C13A3A">(0%)</span></span>
+              <span aria-hidden="true" style="color:#78818F;text-align:center">→</span>
+              <span lang="ja" style="font-size:13px;line-height:1.6;color:#3D4655">敏感肌だけど大丈夫? 成分表どこ?</span>
+              <span aria-hidden="true" style="color:#78818F;text-align:center">→</span>
+              <span style="font-size:13px;line-height:1.6;color:#3D4655">경쟁 제품의 <span lang="ja">◯◯フリー</span> 표기로 이동</span>
             </div>
-            <div style="display:grid;grid-template-columns:1.05fr 26px 1.1fr 26px 1.05fr;gap:10px;padding:15px 18px;border-top:1px solid #F1F1F3;align-items:center">
-              <span style="font-size:13px;line-height:1.55;color:#202124;font-weight:600">효능 근거 라벨 부재 <span style="color:#C6362C">(10%)</span></span>
-              <span aria-hidden="true" style="color:#B6B8BF;text-align:center">→</span>
-              <span lang="ja" style="font-size:13px;line-height:1.6;color:#414245">効果が出るって、根拠は?</span>
-              <span aria-hidden="true" style="color:#B6B8BF;text-align:center">→</span>
-              <span style="font-size:13px;line-height:1.6;color:#414245">과장 광고로 분류, 카트에 담지 않음</span>
+            <div style="display:grid;grid-template-columns:1.05fr 26px 1.1fr 26px 1.05fr;gap:10px;padding:15px 18px;border-top:1px solid #F2F1ED;align-items:center">
+              <span style="font-size:13px;line-height:1.55;color:#182333;font-weight:600">효능 근거 라벨 부재 <span style="color:#C13A3A">(10%)</span></span>
+              <span aria-hidden="true" style="color:#78818F;text-align:center">→</span>
+              <span lang="ja" style="font-size:13px;line-height:1.6;color:#3D4655">効果が出るって、根拠は?</span>
+              <span aria-hidden="true" style="color:#78818F;text-align:center">→</span>
+              <span style="font-size:13px;line-height:1.6;color:#3D4655">과장 광고로 분류, 카트에 담지 않음</span>
             </div>
-            <div style="display:grid;grid-template-columns:1.05fr 26px 1.1fr 26px 1.05fr;gap:10px;padding:15px 18px;border-top:1px solid #F1F1F3;align-items:center">
-              <span style="font-size:13px;line-height:1.55;color:#202124;font-weight:600">실적의 집계일·출처 부재 <span style="color:#B96C00">(문장 ⑥)</span></span>
-              <span aria-hidden="true" style="color:#B6B8BF;text-align:center">→</span>
-              <span lang="ja" style="font-size:13px;line-height:1.6;color:#414245">10万本って、いつの話?</span>
-              <span aria-hidden="true" style="color:#B6B8BF;text-align:center">→</span>
-              <span style="font-size:13px;line-height:1.6;color:#414245">@cosme 재검색 후 돌아오지 않음</span>
+            <div style="display:grid;grid-template-columns:1.05fr 26px 1.1fr 26px 1.05fr;gap:10px;padding:15px 18px;border-top:1px solid #F2F1ED;align-items:center">
+              <span style="font-size:13px;line-height:1.55;color:#182333;font-weight:600">실적의 집계일·출처 부재 <span style="color:#8F6412">(문장 ⑥)</span></span>
+              <span aria-hidden="true" style="color:#78818F;text-align:center">→</span>
+              <span lang="ja" style="font-size:13px;line-height:1.6;color:#3D4655">10万本って、いつの話?</span>
+              <span aria-hidden="true" style="color:#78818F;text-align:center">→</span>
+              <span style="font-size:13px;line-height:1.6;color:#3D4655">@cosme 재검색 후 돌아오지 않음</span>
             </div>
           </div>
-          <p style="margin:12px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">벤치마크 갭·페르소나에서 추론한 일반형 경로입니다 — 가짜 리뷰·평점은 만들지 않습니다.</p>
+          <p style="margin:12px 0 0;font-size:11.5px;line-height:1.6;color:#6e7686">벤치마크 갭·페르소나에서 추론한 일반형 경로입니다 — 가짜 리뷰·평점은 만들지 않습니다.</p>
         </section>
 
       </div>
@@ -637,146 +637,146 @@
       <!-- ══════════ 탭 3 · 처방 — "이렇게 바꾸면 풀린다" (블록7→8+닫는 밴드) ══════════ -->
       <div class="tabpanel" id="tabPanel2" role="tabpanel" aria-labelledby="tabBtn2" tabindex="0" style="display:none">
 
-        <section style="margin-top:20px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#202124">이렇게 바꾸면, 이 문제가 풀린다</h2>
-          <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:#414245;max-width:640px;text-wrap:pretty">위반·저점 문장을 문장 단위로 고치고 가장 저점인 헤드라인 블록은 통째로 다시 짰습니다. 번역이 아니라 정보 구조의 재설계입니다.</p>
+        <section style="margin-top:20px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#182333">이렇게 바꾸면, 이 문제가 풀린다</h2>
+          <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:#3D4655;max-width:640px;text-wrap:pretty">위반·저점 문장을 문장 단위로 고치고 가장 저점인 헤드라인 블록은 통째로 다시 짰습니다. 번역이 아니라 정보 구조의 재설계입니다.</p>
 
-          <article style="margin-top:22px;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:22px;background:#FAFAFB">
+          <article style="margin-top:22px;border:1px solid #e9e7e3;border-radius:14px;padding:22px;background:#FDFCFA">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <p style="margin:0;font-size:13.5px;font-weight:700;color:#202124">재작성 1</p>
-              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="blk-audit" aria-label="효능 단정【불가】 · 진단 탭 薬機法 감사로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700;white-space:nowrap">푸는 문제 · 효능 단정【불가】</button>
-              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="rb-group-narrative" aria-label="서사 구조 33% · 진단 탭 근거로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FFF6E5;color:#B96C00;font-size:11.5px;font-weight:700;white-space:nowrap">서사 구조 33%</button>
+              <p style="margin:0;font-size:13.5px;font-weight:700;color:#182333">재작성 1</p>
+              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="blk-audit" aria-label="효능 단정【불가】 · 진단 탭 薬機法 감사로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FBEDED;color:#C13A3A;font-size:11.5px;font-weight:700;white-space:nowrap">푸는 문제 · 효능 단정【불가】</button>
+              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="rb-group-narrative" aria-label="서사 구조 33% · 진단 탭 근거로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FDF3E4;color:#8F6412;font-size:11.5px;font-weight:700;white-space:nowrap">서사 구조 33%</button>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
-              <div style="background:#fff;border:1px solid #F1F1F3;border-radius:12px;padding:18px">
-                <p style="margin:0;font-size:11px;font-weight:800;color:rgba(55,56,60,0.61);letter-spacing:.05em">BEFORE · KR</p>
-                <p style="margin:10px 0 0;font-size:14.5px;line-height:1.7;color:#414245;text-decoration:line-through;text-decoration-color:rgba(240,72,60,.6)">트러블 싹, 붉은기 싹 — 바르는 순간 즉각 진정</p>
+              <div style="background:#fff;border:1px solid #F2F1ED;border-radius:12px;padding:18px">
+                <p style="margin:0;font-size:11px;font-weight:800;color:#6e7686;letter-spacing:.05em">BEFORE · KR</p>
+                <p style="margin:10px 0 0;font-size:14.5px;line-height:1.7;color:#3D4655;text-decoration:line-through;text-decoration-color:rgba(240,72,60,.6)">트러블 싹, 붉은기 싹 — 바르는 순간 즉각 진정</p>
               </div>
-              <div style="background:#FFF8F8;border:1px solid rgba(255,100,100,.35);border-radius:12px;padding:18px">
-                <p style="margin:0;font-size:11px;font-weight:800;color:#D93636;letter-spacing:.05em">AFTER · JP</p>
-                <p lang="ja" style="margin:10px 0 0;font-size:15px;font-weight:700;line-height:1.7;color:#202124">乾燥による肌あれ※が気になる肌を、うるおいでキメ整える。 <span style="font-size:12px;font-weight:400">※角層</span></p>
-                <p style="margin:8px 0 0;font-size:12.5px;line-height:1.6;color:#414245">&lsquo;없앤다&rsquo;가 아니라 &lsquo;정돈한다(<span lang="ja">整える</span>)&rsquo; — 효능 56항목 안에서 진정 니즈를 흡수합니다.</p>
+              <div style="background:#FFF1EE;border:1px solid rgba(255,111,97,.35);border-radius:12px;padding:18px">
+                <p style="margin:0;font-size:11px;font-weight:800;color:#C93F2E;letter-spacing:.05em">AFTER · JP</p>
+                <p lang="ja" style="margin:10px 0 0;font-size:15px;font-weight:700;line-height:1.7;color:#182333">乾燥による肌あれ※が気になる肌を、うるおいでキメ整える。 <span style="font-size:12px;font-weight:400">※角層</span></p>
+                <p style="margin:8px 0 0;font-size:12.5px;line-height:1.6;color:#3D4655">&lsquo;없앤다&rsquo;가 아니라 &lsquo;정돈한다(<span lang="ja">整える</span>)&rsquo; — 효능 56항목 안에서 진정 니즈를 흡수합니다.</p>
               </div>
             </div>
           </article>
 
-          <article style="margin-top:14px;border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:22px;background:#FAFAFB">
+          <article style="margin-top:14px;border:1px solid #e9e7e3;border-radius:14px;padding:22px;background:#FDFCFA">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <p style="margin:0;font-size:13.5px;font-weight:700;color:#202124">재작성 2</p>
-              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="k-sentence-4" aria-label="再生·治療【불가·최고위험】 · 진단 탭 문장④ 감사 카드로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700;white-space:nowrap">푸는 문제 · <span lang="ja">再生·治療</span>【불가·최고위험】</button>
+              <p style="margin:0;font-size:13.5px;font-weight:700;color:#182333">재작성 2</p>
+              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="k-sentence-4" aria-label="再生·治療【불가·최고위험】 · 진단 탭 문장④ 감사 카드로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FBEDED;color:#C13A3A;font-size:11.5px;font-weight:700;white-space:nowrap">푸는 문제 · <span lang="ja">再生·治療</span>【불가·최고위험】</button>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
-              <div style="background:#fff;border:1px solid #F1F1F3;border-radius:12px;padding:18px">
-                <p style="margin:0;font-size:11px;font-weight:800;color:rgba(55,56,60,0.61);letter-spacing:.05em">BEFORE · KR</p>
-                <p style="margin:10px 0 0;font-size:14.5px;line-height:1.7;color:#414245;text-decoration:line-through;text-decoration-color:rgba(240,72,60,.6)">손상된 피부 장벽을 재생시켜 근본부터 치료합니다</p>
+              <div style="background:#fff;border:1px solid #F2F1ED;border-radius:12px;padding:18px">
+                <p style="margin:0;font-size:11px;font-weight:800;color:#6e7686;letter-spacing:.05em">BEFORE · KR</p>
+                <p style="margin:10px 0 0;font-size:14.5px;line-height:1.7;color:#3D4655;text-decoration:line-through;text-decoration-color:rgba(240,72,60,.6)">손상된 피부 장벽을 재생시켜 근본부터 치료합니다</p>
               </div>
-              <div style="background:#FFF8F8;border:1px solid rgba(255,100,100,.35);border-radius:12px;padding:18px">
-                <p style="margin:0;font-size:11px;font-weight:800;color:#D93636;letter-spacing:.05em">AFTER · JP</p>
-                <p lang="ja" style="margin:10px 0 0;font-size:15px;font-weight:700;line-height:1.7;color:#202124">うるおいのヴェールで包み、乾燥に負けないなめらかな肌へ導く。</p>
-                <p style="margin:8px 0 0;font-size:12.5px;line-height:1.6;color:#414245">결과 단정을 지우고 &lsquo;이끈다(<span lang="ja">導く</span>)&rsquo;는 완화 표현으로 — 일본 상세의 관례적 절제입니다.</p>
+              <div style="background:#FFF1EE;border:1px solid rgba(255,111,97,.35);border-radius:12px;padding:18px">
+                <p style="margin:0;font-size:11px;font-weight:800;color:#C93F2E;letter-spacing:.05em">AFTER · JP</p>
+                <p lang="ja" style="margin:10px 0 0;font-size:15px;font-weight:700;line-height:1.7;color:#182333">うるおいのヴェールで包み、乾燥に負けないなめらかな肌へ導く。</p>
+                <p style="margin:8px 0 0;font-size:12.5px;line-height:1.6;color:#3D4655">결과 단정을 지우고 &lsquo;이끈다(<span lang="ja">導く</span>)&rsquo;는 완화 표현으로 — 일본 상세의 관례적 절제입니다.</p>
               </div>
             </div>
           </article>
 
-          <article class="rwrap" style="margin-top:14px;border:1.5px solid rgba(255,100,100,.45);border-radius:14px;padding:22px;background:#fff">
+          <article class="rwrap" style="margin-top:14px;border:1.5px solid rgba(255,111,97,.45);border-radius:14px;padding:22px;background:#fff">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <p style="margin:0;font-size:13.5px;font-weight:700;color:#202124">하이라이트 — 헤드라인 블록 통재구성</p>
-              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="k-sentence-2" aria-label="병원 비교·심부 침투【불가】 · 진단 탭 문장② 감사 카드로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700;white-space:nowrap">병원 비교·심부 침투【불가】</button>
-              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="rb-group-trust" data-jump-details="rb-detail-efficacy-label" aria-label="신뢰 10% · 무첨가 0% · 진단 탭 근거로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FDF0EF;color:#C6362C;font-size:11.5px;font-weight:700;white-space:nowrap">신뢰 10% · 무첨가 0%</button>
+              <p style="margin:0;font-size:13.5px;font-weight:700;color:#182333">하이라이트 — 헤드라인 블록 통재구성</p>
+              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="k-sentence-2" aria-label="병원 비교·심부 침투【불가】 · 진단 탭 문장② 감사 카드로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FBEDED;color:#C13A3A;font-size:11.5px;font-weight:700;white-space:nowrap">병원 비교·심부 침투【불가】</button>
+              <button type="button" class="jump-chip" data-jump-tab="1" data-jump-target="rb-group-trust" data-jump-details="rb-detail-efficacy-label" aria-label="신뢰 10% · 무첨가 0% · 진단 탭 근거로 이동" style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:#FBEDED;color:#C13A3A;font-size:11.5px;font-weight:700;white-space:nowrap">신뢰 10% · 무첨가 0%</button>
             </div>
             <div class="rwrap" style="display:grid;grid-template-columns:1fr 1.2fr;gap:14px;margin-top:14px">
-              <div style="background:#FAFAFB;border:1px solid #F1F1F3;border-radius:12px;padding:18px">
-                <p style="margin:0;font-size:11px;font-weight:800;color:rgba(55,56,60,0.61);letter-spacing:.05em">BEFORE · KR</p>
-                <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:#414245;text-decoration:line-through;text-decoration-color:rgba(240,72,60,.6)">병원 안 가도 되는 진정의 답 / 피부 속 깊은 곳까지 파고드는 시카 앰플</p>
+              <div style="background:#FDFCFA;border:1px solid #F2F1ED;border-radius:12px;padding:18px">
+                <p style="margin:0;font-size:11px;font-weight:800;color:#6e7686;letter-spacing:.05em">BEFORE · KR</p>
+                <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:#3D4655;text-decoration:line-through;text-decoration-color:rgba(240,72,60,.6)">병원 안 가도 되는 진정의 답 / 피부 속 깊은 곳까지 파고드는 시카 앰플</p>
               </div>
-              <div style="background:#FFF8F8;border:1px solid rgba(255,100,100,.35);border-radius:12px;padding:18px">
-                <p style="margin:0;font-size:11px;font-weight:800;color:#D93636;letter-spacing:.05em">AFTER · JP</p>
-                <p lang="ja" style="margin:10px 0 0;font-size:16px;font-weight:700;line-height:1.75;color:#202124">ゆらぎがちな肌※1に、うるおいという選択を。<br />角層のすみずみ※2まで満たす、CICA(ツボクサエキス)アンプル。</p>
-                <p lang="ja" style="margin:8px 0 0;font-size:11.5px;color:rgba(55,56,60,0.61)">※1 季節や乾燥によるコンディションの変化　※2 角質層まで</p>
+              <div style="background:#FFF1EE;border:1px solid rgba(255,111,97,.35);border-radius:12px;padding:18px">
+                <p style="margin:0;font-size:11px;font-weight:800;color:#C93F2E;letter-spacing:.05em">AFTER · JP</p>
+                <p lang="ja" style="margin:10px 0 0;font-size:16px;font-weight:700;line-height:1.75;color:#182333">ゆらぎがちな肌※1に、うるおいという選択を。<br />角層のすみずみ※2まで満たす、CICA(ツボクサエキス)アンプル。</p>
+                <p lang="ja" style="margin:8px 0 0;font-size:11.5px;color:#6e7686">※1 季節や乾燥によるコンディションの変化　※2 角質層まで</p>
               </div>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
-              <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:12px;font-weight:700;white-space:nowrap">+ 공감→약속 서사 구조</span>
-              <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:12px;font-weight:700;white-space:nowrap">+ <span lang="ja">※角層</span> 자기 한정 각주</span>
-              <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#EAF9F3;color:#00875A;font-size:12px;font-weight:700;white-space:nowrap">+ <span lang="ja">CICA(ツボクサエキス)</span> 검색표기</span>
+              <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#E8F4F0;color:#26775B;font-size:12px;font-weight:700;white-space:nowrap">+ 공감→약속 서사 구조</span>
+              <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#E8F4F0;color:#26775B;font-size:12px;font-weight:700;white-space:nowrap">+ <span lang="ja">※角層</span> 자기 한정 각주</span>
+              <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:9999px;background:#E8F4F0;color:#26775B;font-size:12px;font-weight:700;white-space:nowrap">+ <span lang="ja">CICA(ツボクサエキス)</span> 검색표기</span>
             </div>
           </article>
-          <p style="margin:14px 0 0;font-size:11.5px;line-height:1.6;color:rgba(55,56,60,0.61)">After는 실측 코퍼스 표현·렉시콘 근거로만 씁니다 — 가짜 수치·가짜 인증은 넣지 않습니다. 전체 5쌍 재작성은 정본 리포트에 포함됩니다.</p>
+          <p style="margin:14px 0 0;font-size:11.5px;line-height:1.6;color:#6e7686">After는 실측 코퍼스 표현·렉시콘 근거로만 씁니다 — 가짜 수치·가짜 인증은 넣지 않습니다. 전체 5쌍 재작성은 정본 리포트에 포함됩니다.</p>
         </section>
 
-        <section style="margin-top:16px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">지금 할 일 — 위험 순</h3>
+        <section style="margin-top:16px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">지금 할 일 — 위험 순</h3>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
-            <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:14px 18px">
-              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#F0483C;color:#fff;font-size:13px;font-weight:800">1</span>
-              <p style="margin:2px 0 0;font-size:14px;line-height:1.65;color:#414245"><b style="color:#202124">&ldquo;재생·치료&rdquo; 표현을 오늘 내리세요.</b> 의약품적 효능 표현 — 최고위험입니다</p>
+            <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid #e9e7e3;border-radius:12px;padding:14px 18px">
+              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#D94848;color:#fff;font-size:13px;font-weight:800">1</span>
+              <p style="margin:2px 0 0;font-size:14px;line-height:1.65;color:#3D4655"><b style="color:#182333">&ldquo;재생·치료&rdquo; 표현을 오늘 내리세요.</b> 의약품적 효능 표현 — 최고위험입니다</p>
             </div>
-            <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:14px 18px">
-              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#FFAB00;color:#3C2E00;font-size:13px;font-weight:800">2</span>
-              <p style="margin:2px 0 0;font-size:14px;line-height:1.65;color:#414245">침투 표현을 <span lang="ja">角層</span> 한정 + ※각주로 좁히세요</p>
+            <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid #e9e7e3;border-radius:12px;padding:14px 18px">
+              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#E39A22;color:#3C2E00;font-size:13px;font-weight:800">2</span>
+              <p style="margin:2px 0 0;font-size:14px;line-height:1.65;color:#3D4655">침투 표현을 <span lang="ja">角層</span> 한정 + ※각주로 좁히세요</p>
             </div>
-            <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:14px 18px">
-              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#FFAB00;color:#3C2E00;font-size:13px;font-weight:800">3</span>
-              <p style="margin:2px 0 0;font-size:14px;line-height:1.65;color:#414245">&ldquo;10만 병 완판&rdquo;에 집계 시점·출처를 붙이거나 내리세요</p>
+            <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid #e9e7e3;border-radius:12px;padding:14px 18px">
+              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#E39A22;color:#3C2E00;font-size:13px;font-weight:800">3</span>
+              <p style="margin:2px 0 0;font-size:14px;line-height:1.65;color:#3D4655">&ldquo;10만 병 완판&rdquo;에 집계 시점·출처를 붙이거나 내리세요</p>
             </div>
-            <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid rgba(112,115,124,0.14);border-radius:12px;padding:14px 18px">
-              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#F6F6F6;color:#414245;font-size:13px;font-weight:800">4</span>
-              <p style="margin:2px 0 0;font-size:14px;line-height:1.65;color:#414245">무첨가·프리 처방 라벨을 만드세요 — <span lang="ja">敏感肌</span> 구매의 관문입니다</p>
+            <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid #e9e7e3;border-radius:12px;padding:14px 18px">
+              <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#F4F2EE;color:#3D4655;font-size:13px;font-weight:800">4</span>
+              <p style="margin:2px 0 0;font-size:14px;line-height:1.65;color:#3D4655">무첨가·프리 처방 라벨을 만드세요 — <span lang="ja">敏感肌</span> 구매의 관문입니다</p>
             </div>
           </div>
         </section>
 
-        <section style="margin-top:16px;background:#fff;border:1px solid rgba(112,115,124,0.14);border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
-          <h3 style="margin:0;font-size:17px;font-weight:700;color:#202124;letter-spacing:-0.01em">다음 단계 — 고정가, 견적 왕복 없음</h3>
+        <section style="margin-top:16px;background:#fff;border:1px solid #e9e7e3;border-radius:18px;padding:36px;box-shadow:0 1px 3px rgba(16,18,20,.04)">
+          <h3 style="margin:0;font-size:17px;font-weight:700;color:#182333;letter-spacing:-0.01em">다음 단계 — 고정가, 견적 왕복 없음</h3>
           <div style="display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr;gap:8px;align-items:stretch;margin-top:16px">
-            <div style="border:1.5px solid #FF6464;background:#FFF8F8;border-radius:14px;padding:18px">
-              <p style="margin:0;font-size:12px;font-weight:800;color:#D93636">① 진단 리포트</p>
-              <p style="margin:8px 0 0;font-size:22px;font-weight:800;color:#202124">30만 원</p>
-              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#414245">지금 받으신 문서 · 1건 고정가</p>
+            <div style="border:1.5px solid #FF6F61;background:#FFF1EE;border-radius:14px;padding:18px">
+              <p style="margin:0;font-size:12px;font-weight:800;color:#C93F2E">① 진단 리포트</p>
+              <p style="margin:8px 0 0;font-size:22px;font-weight:800;color:#182333">30만 원</p>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#3D4655">지금 받으신 문서 · 1건 고정가</p>
             </div>
-            <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#B6B8BF;font-size:16px">→</span>
-            <div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:18px">
-              <p style="margin:0;font-size:12px;font-weight:800;color:rgba(55,56,60,0.61)">② 마케팅 스튜디오</p>
-              <p style="margin:8px 0 0;font-size:22px;font-weight:800;color:#202124">월 20만 원</p>
-              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#414245">첫 달 진단비 30만 원 공제 · 일본향 콘텐츠 제작</p>
+            <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#78818F;font-size:16px">→</span>
+            <div style="border:1px solid #e9e7e3;border-radius:14px;padding:18px">
+              <p style="margin:0;font-size:12px;font-weight:800;color:#6e7686">② 마케팅 스튜디오</p>
+              <p style="margin:8px 0 0;font-size:22px;font-weight:800;color:#182333">월 20만 원</p>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#3D4655">첫 달 진단비 30만 원 공제 · 일본향 콘텐츠 제작</p>
             </div>
-            <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#B6B8BF;font-size:16px">→</span>
-            <div style="border:1px solid rgba(112,115,124,0.14);border-radius:14px;padding:18px">
-              <p style="margin:0;font-size:12px;font-weight:800;color:rgba(55,56,60,0.61)">③ 운영</p>
-              <p style="margin:8px 0 0;font-size:22px;font-weight:800;color:#202124">구독 내 확장</p>
-              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#414245">진단만 받고 끝내도 됩니다</p>
+            <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#78818F;font-size:16px">→</span>
+            <div style="border:1px solid #e9e7e3;border-radius:14px;padding:18px">
+              <p style="margin:0;font-size:12px;font-weight:800;color:#6e7686">③ 운영</p>
+              <p style="margin:8px 0 0;font-size:22px;font-weight:800;color:#182333">구독 내 확장</p>
+              <p style="margin:6px 0 0;font-size:12.5px;line-height:1.6;color:#3D4655">진단만 받고 끝내도 됩니다</p>
             </div>
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px">
-            <div style="background:#FAFAFB;border:1px solid #F1F1F3;border-radius:14px;padding:18px">
-              <p style="margin:0;font-size:11px;font-weight:800;color:rgba(55,56,60,0.61);letter-spacing:.05em">BEFORE · 한국 판촉 원본</p>
+            <div style="background:#FDFCFA;border:1px solid #F2F1ED;border-radius:14px;padding:18px">
+              <p style="margin:0;font-size:11px;font-weight:800;color:#6e7686;letter-spacing:.05em">BEFORE · 한국 판촉 원본</p>
               <img src="../../presentation/샘플원본.webp" alt="한국 원본 판촉 이미지 — 특가·밈 카피·형광 테두리" loading="lazy" style="width:100%;height:auto;display:block;border-radius:10px;margin-top:10px" />
-              <p style="margin:10px 0 0;font-size:12.5px;line-height:1.6;color:rgba(55,56,60,0.61)">특가·밈 카피·형광 테두리 — 한국 판촉 문법.</p>
+              <p style="margin:10px 0 0;font-size:12.5px;line-height:1.6;color:#6e7686">특가·밈 카피·형광 테두리 — 한국 판촉 문법.</p>
             </div>
-            <div style="background:#FFF8F8;border:1px solid rgba(255,100,100,.35);border-radius:14px;padding:18px">
-              <p style="margin:0;font-size:11px;font-weight:800;color:#D93636;letter-spacing:.05em">AFTER · 일본향 재설계 (스튜디오 예시)</p>
+            <div style="background:#FFF1EE;border:1px solid rgba(255,111,97,.35);border-radius:14px;padding:18px">
+              <p style="margin:0;font-size:11px;font-weight:800;color:#C93F2E;letter-spacing:.05em">AFTER · 일본향 재설계 (스튜디오 예시)</p>
               <img src="../../presentation/샘플.png" alt="일본향으로 재설계한 이미지 — 스펙 중심·차분한 무드" loading="lazy" style="width:100%;height:auto;display:block;border-radius:10px;margin-top:10px" />
-              <p lang="ja" style="margin:10px 0 0;font-size:14px;font-weight:700;color:#202124">白浮きしない、透明感トーンアップUV <span style="font-weight:400;font-size:12px;color:rgba(55,56,60,0.61)">SPF50+ ・ PA++++</span></p>
+              <p lang="ja" style="margin:10px 0 0;font-size:14px;font-weight:700;color:#182333">白浮きしない、透明感トーンアップUV <span style="font-weight:400;font-size:12px;color:#6e7686">SPF50+ ・ PA++++</span></p>
             </div>
           </div>
 
-          <div style="margin-top:24px;background:#FFF8F8;border:1px solid rgba(255,100,100,.35);border-radius:14px;padding:32px;text-align:center">
-            <p style="margin:0;font-size:19px;font-weight:800;color:#202124;letter-spacing:-0.01em">지금 본 재설계를, 당신 브랜드로 직접.</p>
-            <p style="margin:10px auto 0;font-size:14px;line-height:1.7;color:#414245;max-width:520px;text-wrap:pretty">가입할 때 받은 무료 크레딧으로, 결제 전에 마케팅 스튜디오를 써볼 수 있습니다.</p>
-            <button type="button" class="h-primary" onclick="location.href='../02-studio/1-home.html'" style="margin-top:18px;height:50px;padding:0 36px;border:none;border-radius:12px;background:#FF6464;color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s">마케팅 스튜디오에서 시작하기</button>
+          <div style="margin-top:24px;background:#FFF1EE;border:1px solid rgba(255,111,97,.35);border-radius:14px;padding:32px;text-align:center">
+            <p style="margin:0;font-size:19px;font-weight:800;color:#182333;letter-spacing:-0.01em">지금 본 재설계를, 당신 브랜드로 직접.</p>
+            <p style="margin:10px auto 0;font-size:14px;line-height:1.7;color:#3D4655;max-width:520px;text-wrap:pretty">가입할 때 받은 무료 크레딧으로, 결제 전에 마케팅 스튜디오를 써볼 수 있습니다.</p>
+            <button type="button" class="h-primary" onclick="location.href='../02-studio/1-home.html'" style="margin-top:18px;height:50px;padding:0 36px;border:none;border-radius:12px;background:#FF6F61;color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s">마케팅 스튜디오에서 시작하기</button>
           </div>
 
           <details style="margin-top:20px">
-            <summary class="h-summary" style="cursor:pointer;font-size:12.5px;font-weight:600;color:rgba(55,56,60,0.61);list-style:none">규정 출처 · 한계 고지 ▾</summary>
+            <summary class="h-summary" style="cursor:pointer;font-size:12.5px;font-weight:600;color:#6e7686;list-style:none">규정 출처 · 한계 고지 ▾</summary>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:14px">
-              <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.9;color:#414245">
+              <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.9;color:#3D4655">
                 <li>화장품 효능효과 56항목 — <span lang="ja">厚生労働省</span> 고시</li>
                 <li><span lang="ja">医薬品等適正広告基準</span> — <span lang="ja">厚生労働省</span> 통지</li>
                 <li><span lang="ja">薬機法</span> 제66조(허위·과대광고 금지)</li>
                 <li><span lang="ja">景品表示法</span>(우량오인 표시) — <span lang="ja">消費者庁</span></li>
               </ul>
-              <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.9;color:#414245">
+              <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.9;color:#3D4655">
                 <li><span lang="ja">薬機法</span> 판정은 1차 스크리닝 — 법률 자문 아님</li>
                 <li>코퍼스는 <span lang="ja">楽天</span> 단일 채널 표본(skincare 90건)</li>
                 <li>이탈 경로는 진단 기반 일반형 — 개별 리뷰 미분석</li>
@@ -787,11 +787,11 @@
         </section>
 
         <div style="display:flex;justify-content:flex-end;margin-top:24px">
-          <button type="button" class="js-slide-btn h-primary" data-action="makeSlides" style="height:46px;padding:0 24px;border:none;border-radius:12px;background:#FF6464;color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s">보고용 슬라이드 만들기</button>
+          <button type="button" class="js-slide-btn h-primary" data-action="makeSlides" style="height:46px;padding:0 24px;border:none;border-radius:12px;background:#FF6F61;color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s">보고용 슬라이드 만들기</button>
         </div>
       </div>
 
-      <p style="margin:36px 0 0;text-align:center;font-size:11.5px;line-height:1.7;color:#B6B8BF">YOAKE · 진단 리포트 r_8f31c0a2 · 화면 속 점수·판정·일본어 카피는 정본 샘플(가상 브랜드 HARUON)의 예시 데이터입니다</p>
+      <p style="margin:36px 0 0;text-align:center;font-size:11.5px;line-height:1.7;color:#78818F">YOAKE · 진단 리포트 r_8f31c0a2 · 화면 속 점수·판정·일본어 카피는 정본 샘플(가상 브랜드 HARUON)의 예시 데이터입니다</p>
     </div>
   </main>
   </div>
@@ -804,12 +804,12 @@
     <span style="font-size:11.5px;color:rgba(255,255,255,.5);white-space:nowrap">화살표 키·클릭으로 넘김 · 16:9</span>
     <div style="margin-left:auto;display:flex;gap:8px">
       <button type="button" data-action="downloadSlides" class="h-ghost" style="height:34px;padding:0 14px;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer">HTML 파일로 저장</button>
-      <button type="button" data-action="closeSlides" class="h-soft" style="height:34px;padding:0 14px;border-radius:8px;border:none;background:#fff;color:#202124;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer">닫기 ✕</button>
+      <button type="button" data-action="closeSlides" class="h-soft" style="height:34px;padding:0 14px;border-radius:8px;border:none;background:#fff;color:#182333;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer">닫기 ✕</button>
     </div>
   </div>
   <div data-action="stageClick" style="width:min(1080px,94vw);aspect-ratio:16/9;background:#fff;border-radius:12px;overflow:hidden;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.45);cursor:pointer">
     <div id="sl0" style="position:absolute;inset:0;box-sizing:border-box;display:block">
-      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#FF6464 0%,#D93636 100%);color:#fff;padding:7% 8%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box">
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#FF6F61 0%,#C93F2E 100%);color:#fff;padding:7% 8%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box">
         <p style="margin:0;font-size:15px;font-weight:800;letter-spacing:.08em;opacity:.9">YOAKE<span style="opacity:.7">.</span> 진단 리포트</p>
         <h3 style="margin:28px 0 0;font-size:52px;font-weight:800;letter-spacing:-0.02em;line-height:1.15">일본 시장 진입<br />진단 리포트</h3>
         <p id="slCoverBrand" style="margin:22px 0 0;font-size:24px;font-weight:700">HARUON — CICA 진정 앰플 · 스킨케어</p>
@@ -818,83 +818,83 @@
     </div>
     <div id="sl1" style="position:absolute;inset:0;box-sizing:border-box;display:none">
       <div style="position:absolute;inset:0;padding:6% 8%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box">
-        <p style="margin:0;font-size:15px;font-weight:800;color:#D93636;letter-spacing:.06em">결론 — 이 장만 봐도 판단 가능</p>
+        <p style="margin:0;font-size:15px;font-weight:800;color:#C93F2E;letter-spacing:.06em">결론 — 이 장만 봐도 판단 가능</p>
         <div style="display:flex;align-items:baseline;gap:12px;margin-top:24px">
-          <span style="font-size:120px;font-weight:800;line-height:.9;letter-spacing:-0.04em;color:#202124">18</span>
-          <span style="font-size:36px;font-weight:700;color:#B6B8BF">/ 100</span>
+          <span style="font-size:120px;font-weight:800;line-height:.9;letter-spacing:-0.04em;color:#182333">18</span>
+          <span style="font-size:36px;font-weight:700;color:#78818F">/ 100</span>
         </div>
-        <div style="margin-top:22px;height:14px;border-radius:9999px;background:#F6F6F6;overflow:hidden;max-width:720px"><span style="display:block;height:100%;width:18%;background:linear-gradient(90deg,#FF6464,#D93636);border-radius:9999px"></span></div>
-        <p style="margin:26px 0 0;font-size:22px;line-height:1.6;color:#202124;max-width:800px">일본 상세 관례 충족도 18점 — <b>신뢰 구조가 비어 있어</b> 이대로 게재하면 소구력 이전에 광고 리스크부터 발생합니다. 문장 재설계가 선행 조건입니다.</p>
-        <p style="margin:auto 0 0;font-size:13px;color:#B6B8BF">종합점수는 성과 예측이 아니라 &ldquo;일본 상세 관례 충족도&rdquo;입니다</p>
+        <div style="margin-top:22px;height:14px;border-radius:9999px;background:#F4F2EE;overflow:hidden;max-width:720px"><span style="display:block;height:100%;width:18%;background:linear-gradient(90deg,#FF6F61,#C93F2E);border-radius:9999px"></span></div>
+        <p style="margin:26px 0 0;font-size:22px;line-height:1.6;color:#182333;max-width:800px">일본 상세 관례 충족도 18점 — <b>신뢰 구조가 비어 있어</b> 이대로 게재하면 소구력 이전에 광고 리스크부터 발생합니다. 문장 재설계가 선행 조건입니다.</p>
+        <p style="margin:auto 0 0;font-size:13px;color:#78818F">종합점수는 성과 예측이 아니라 &ldquo;일본 상세 관례 충족도&rdquo;입니다</p>
       </div>
     </div>
     <div id="sl2" style="position:absolute;inset:0;box-sizing:border-box;display:none">
       <div style="position:absolute;inset:0;padding:6% 8%;display:flex;flex-direction:column;box-sizing:border-box">
-        <p style="margin:0;font-size:15px;font-weight:800;color:#D93636;letter-spacing:.06em">점수 · 최우선 재설계 Top 3</p>
+        <p style="margin:0;font-size:15px;font-weight:800;color:#C93F2E;letter-spacing:.06em">점수 · 최우선 재설계 Top 3</p>
         <div style="display:flex;flex-direction:column;gap:14px;margin-top:36px;max-width:780px">
-          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#202124">신뢰 구축</span><span style="height:14px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:10%;background:#FF6464;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#202124;text-align:right">10%</span></div>
-          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#202124">무첨가·안전</span><span style="height:14px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:1.5%;background:#FF6464;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#202124;text-align:right">0%</span></div>
-          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#202124">서사 구조</span><span style="height:14px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:33%;background:#FF6464;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#202124;text-align:right">33%</span></div>
-          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#202124">성분 프레이밍</span><span style="height:14px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:25%;background:#FF6464;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#202124;text-align:right">25%</span></div>
-          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#202124">카테고리 적합성</span><span style="height:14px;border-radius:9999px;background:#F6F6F6;overflow:hidden"><span style="display:block;height:100%;width:13%;background:#FF6464;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#202124;text-align:right">13%</span></div>
+          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#182333">신뢰 구축</span><span style="height:14px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:10%;background:#FF6F61;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#182333;text-align:right">10%</span></div>
+          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#182333">무첨가·안전</span><span style="height:14px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:1.5%;background:#FF6F61;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#182333;text-align:right">0%</span></div>
+          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#182333">서사 구조</span><span style="height:14px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:33%;background:#FF6F61;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#182333;text-align:right">33%</span></div>
+          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#182333">성분 프레이밍</span><span style="height:14px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:25%;background:#FF6F61;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#182333;text-align:right">25%</span></div>
+          <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:16px;align-items:center"><span style="font-size:17px;font-weight:700;color:#182333">카테고리 적합성</span><span style="height:14px;border-radius:9999px;background:#F4F2EE;overflow:hidden"><span style="display:block;height:100%;width:13%;background:#FF6F61;border-radius:9999px"></span></span><span style="font-size:16px;font-weight:800;color:#182333;text-align:right">13%</span></div>
         </div>
-        <p style="margin:auto 0 0;font-size:17px;line-height:1.6;color:#202124"><b>Top 3:</b> ① 무첨가·안전 소구 (0%) → ② 신뢰 구축 (10%) → ③ 카테고리 적합성 (13%)</p>
+        <p style="margin:auto 0 0;font-size:17px;line-height:1.6;color:#182333"><b>Top 3:</b> ① 무첨가·안전 소구 (0%) → ② 신뢰 구축 (10%) → ③ 카테고리 적합성 (13%)</p>
       </div>
     </div>
     <div id="sl3" style="position:absolute;inset:0;box-sizing:border-box;display:none">
       <div style="position:absolute;inset:0;padding:6% 8%;display:flex;flex-direction:column;box-sizing:border-box">
-        <p style="margin:0;font-size:15px;font-weight:800;color:#D93636;letter-spacing:.06em"><span lang="ja">薬機法</span> 리스크 — 총 11문장 전수 감사</p>
+        <p style="margin:0;font-size:15px;font-weight:800;color:#C93F2E;letter-spacing:.06em"><span lang="ja">薬機法</span> 리스크 — 총 11문장 전수 감사</p>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px">
-          <div style="background:#FDF0EF;border-radius:16px;padding:28px;text-align:center"><p style="margin:0;font-size:64px;font-weight:800;color:#C6362C;line-height:1">6</p><p style="margin:10px 0 0;font-size:17px;font-weight:700;color:#C6362C">【불가】</p></div>
-          <div style="background:#FFF6E5;border-radius:16px;padding:28px;text-align:center"><p style="margin:0;font-size:64px;font-weight:800;color:#B96C00;line-height:1">5</p><p style="margin:10px 0 0;font-size:17px;font-weight:700;color:#B96C00">【조건부】</p></div>
-          <div style="background:#EAF9F3;border-radius:16px;padding:28px;text-align:center"><p style="margin:0;font-size:64px;font-weight:800;color:#00875A;line-height:1">0</p><p style="margin:10px 0 0;font-size:17px;font-weight:700;color:#00875A">【가능】</p></div>
+          <div style="background:#FBEDED;border-radius:16px;padding:28px;text-align:center"><p style="margin:0;font-size:64px;font-weight:800;color:#C13A3A;line-height:1">6</p><p style="margin:10px 0 0;font-size:17px;font-weight:700;color:#C13A3A">【불가】</p></div>
+          <div style="background:#FDF3E4;border-radius:16px;padding:28px;text-align:center"><p style="margin:0;font-size:64px;font-weight:800;color:#8F6412;line-height:1">5</p><p style="margin:10px 0 0;font-size:17px;font-weight:700;color:#8F6412">【조건부】</p></div>
+          <div style="background:#E8F4F0;border-radius:16px;padding:28px;text-align:center"><p style="margin:0;font-size:64px;font-weight:800;color:#26775B;line-height:1">0</p><p style="margin:10px 0 0;font-size:17px;font-weight:700;color:#26775B">【가능】</p></div>
         </div>
-        <div style="margin-top:auto;background:#FAFAFB;border:1px solid #EBEBEB;border-radius:12px;padding:22px 26px">
-          <p style="margin:0;font-size:14px;font-weight:800;color:#C6362C">최고위험 문장 ④【불가】</p>
-          <p style="margin:8px 0 0;font-size:19px;line-height:1.6;color:#202124">&ldquo;손상된 피부 장벽을 <b>재생</b>시켜 근본부터 <b>치료</b>합니다&rdquo; — 의약품적 효능 표현, 어느 등급으로도 불가</p>
+        <div style="margin-top:auto;background:#FDFCFA;border:1px solid #E9E7E3;border-radius:12px;padding:22px 26px">
+          <p style="margin:0;font-size:14px;font-weight:800;color:#C13A3A">최고위험 문장 ④【불가】</p>
+          <p style="margin:8px 0 0;font-size:19px;line-height:1.6;color:#182333">&ldquo;손상된 피부 장벽을 <b>재생</b>시켜 근본부터 <b>치료</b>합니다&rdquo; — 의약품적 효능 표현, 어느 등급으로도 불가</p>
         </div>
       </div>
     </div>
     <div id="sl4" style="position:absolute;inset:0;box-sizing:border-box;display:none">
       <div style="position:absolute;inset:0;padding:6% 8%;display:flex;flex-direction:column;box-sizing:border-box">
-        <p style="margin:0;font-size:15px;font-weight:800;color:#D93636;letter-spacing:.06em">벤치마크 갭 — 빠진 신뢰 장치 (코퍼스 90건 실측 대비)</p>
+        <p style="margin:0;font-size:15px;font-weight:800;color:#C93F2E;letter-spacing:.06em">벤치마크 갭 — 빠진 신뢰 장치 (코퍼스 90건 실측 대비)</p>
         <div style="display:flex;flex-direction:column;gap:12px;margin-top:34px;max-width:820px">
-          <div style="display:flex;align-items:center;gap:14px;border:1px solid #EBEBEB;border-radius:12px;padding:16px 22px"><span style="font-size:20px;font-weight:800;color:#C6362C">✕</span><span style="font-size:18px;font-weight:700;color:#202124">효능 근거 라벨</span><span lang="ja" style="margin-left:auto;font-size:15px;color:#414245">効能評価試験済み</span></div>
-          <div style="display:flex;align-items:center;gap:14px;border:1px solid #EBEBEB;border-radius:12px;padding:16px 22px"><span style="font-size:20px;font-weight:800;color:#C6362C">✕</span><span style="font-size:18px;font-weight:700;color:#202124">조건 각주 ※</span><span lang="ja" style="margin-left:auto;font-size:15px;color:#414245">※角層まで</span></div>
-          <div style="display:flex;align-items:center;gap:14px;border:1px solid #EBEBEB;border-radius:12px;padding:16px 22px"><span style="font-size:20px;font-weight:800;color:#C6362C">✕</span><span style="font-size:18px;font-weight:700;color:#202124">제3자 지표 + 집계일</span><span lang="ja" style="margin-left:auto;font-size:15px;color:#414245">ランキング1位（集計日明記）</span></div>
-          <div style="display:flex;align-items:center;gap:14px;border:1px solid #EBEBEB;border-radius:12px;padding:16px 22px"><span style="font-size:20px;font-weight:800;color:#C6362C">✕</span><span style="font-size:18px;font-weight:700;color:#202124">무첨가/프리 라벨</span><span lang="ja" style="margin-left:auto;font-size:15px;color:#414245">無香料・無着色 (코퍼스 54건)</span></div>
+          <div style="display:flex;align-items:center;gap:14px;border:1px solid #E9E7E3;border-radius:12px;padding:16px 22px"><span style="font-size:20px;font-weight:800;color:#C13A3A">✕</span><span style="font-size:18px;font-weight:700;color:#182333">효능 근거 라벨</span><span lang="ja" style="margin-left:auto;font-size:15px;color:#3D4655">効能評価試験済み</span></div>
+          <div style="display:flex;align-items:center;gap:14px;border:1px solid #E9E7E3;border-radius:12px;padding:16px 22px"><span style="font-size:20px;font-weight:800;color:#C13A3A">✕</span><span style="font-size:18px;font-weight:700;color:#182333">조건 각주 ※</span><span lang="ja" style="margin-left:auto;font-size:15px;color:#3D4655">※角層まで</span></div>
+          <div style="display:flex;align-items:center;gap:14px;border:1px solid #E9E7E3;border-radius:12px;padding:16px 22px"><span style="font-size:20px;font-weight:800;color:#C13A3A">✕</span><span style="font-size:18px;font-weight:700;color:#182333">제3자 지표 + 집계일</span><span lang="ja" style="margin-left:auto;font-size:15px;color:#3D4655">ランキング1位（集計日明記）</span></div>
+          <div style="display:flex;align-items:center;gap:14px;border:1px solid #E9E7E3;border-radius:12px;padding:16px 22px"><span style="font-size:20px;font-weight:800;color:#C13A3A">✕</span><span style="font-size:18px;font-weight:700;color:#182333">무첨가/프리 라벨</span><span lang="ja" style="margin-left:auto;font-size:15px;color:#3D4655">無香料・無着色 (코퍼스 54건)</span></div>
         </div>
-        <p style="margin:auto 0 0;font-size:14px;color:#B6B8BF">&ldquo;미관찰&rdquo;은 이 표본 스캔 결과의 사실 기술입니다</p>
+        <p style="margin:auto 0 0;font-size:14px;color:#78818F">&ldquo;미관찰&rdquo;은 이 표본 스캔 결과의 사실 기술입니다</p>
       </div>
     </div>
     <div id="sl5" style="position:absolute;inset:0;box-sizing:border-box;display:none">
       <div style="position:absolute;inset:0;padding:6% 8%;display:flex;flex-direction:column;box-sizing:border-box">
-        <p style="margin:0;font-size:15px;font-weight:800;color:#D93636;letter-spacing:.06em">Before / After — 재설계 1종 (총 5쌍 중)</p>
+        <p style="margin:0;font-size:15px;font-weight:800;color:#C93F2E;letter-spacing:.06em">Before / After — 재설계 1종 (총 5쌍 중)</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:34px;flex:1">
-          <div style="background:#FAFAFB;border:1px solid #EBEBEB;border-radius:16px;padding:28px">
-            <p style="margin:0;font-size:13px;font-weight:800;color:#B6B8BF;letter-spacing:.05em">BEFORE · KR</p>
-            <p style="margin:16px 0 0;font-size:22px;line-height:1.65;color:#414245;text-decoration:line-through;text-decoration-color:rgba(240,72,60,.6)">손상된 피부 장벽을 재생시켜 근본부터 치료합니다</p>
+          <div style="background:#FDFCFA;border:1px solid #E9E7E3;border-radius:16px;padding:28px">
+            <p style="margin:0;font-size:13px;font-weight:800;color:#78818F;letter-spacing:.05em">BEFORE · KR</p>
+            <p style="margin:16px 0 0;font-size:22px;line-height:1.65;color:#3D4655;text-decoration:line-through;text-decoration-color:rgba(240,72,60,.6)">손상된 피부 장벽을 재생시켜 근본부터 치료합니다</p>
           </div>
-          <div style="background:#FFF8F8;border:1.5px solid rgba(255,100,100,.5);border-radius:16px;padding:28px">
-            <p style="margin:0;font-size:13px;font-weight:800;color:#D93636;letter-spacing:.05em">AFTER · JP</p>
-            <p lang="ja" style="margin:16px 0 0;font-size:23px;font-weight:700;line-height:1.65;color:#202124">うるおいのヴェールで包み、乾燥に負けないなめらかな肌へ導く。</p>
-            <p style="margin:14px 0 0;font-size:15px;line-height:1.65;color:#414245">&ldquo;수분의 베일로 감싸, 건조에 지지 않는 매끄러운 피부로 이끈다&rdquo; — 결과 단정을 지우고 완화된 표현으로</p>
+          <div style="background:#FFF1EE;border:1.5px solid rgba(255,111,97,.5);border-radius:16px;padding:28px">
+            <p style="margin:0;font-size:13px;font-weight:800;color:#C93F2E;letter-spacing:.05em">AFTER · JP</p>
+            <p lang="ja" style="margin:16px 0 0;font-size:23px;font-weight:700;line-height:1.65;color:#182333">うるおいのヴェールで包み、乾燥に負けないなめらかな肌へ導く。</p>
+            <p style="margin:14px 0 0;font-size:15px;line-height:1.65;color:#3D4655">&ldquo;수분의 베일로 감싸, 건조에 지지 않는 매끄러운 피부로 이끈다&rdquo; — 결과 단정을 지우고 완화된 표현으로</p>
           </div>
         </div>
-        <p style="margin:20px 0 0;font-size:14px;color:#B6B8BF">번역이 아니라 정보 구조의 재설계입니다</p>
+        <p style="margin:20px 0 0;font-size:14px;color:#78818F">번역이 아니라 정보 구조의 재설계입니다</p>
       </div>
     </div>
     <div id="sl6" style="position:absolute;inset:0;box-sizing:border-box;display:none">
       <div style="position:absolute;inset:0;padding:6% 8%;display:flex;flex-direction:column;box-sizing:border-box">
-        <p style="margin:0;font-size:15px;font-weight:800;color:#D93636;letter-spacing:.06em">다음 단계 · 비용 — 고정가, 견적 왕복 없음</p>
+        <p style="margin:0;font-size:15px;font-weight:800;color:#C93F2E;letter-spacing:.06em">다음 단계 · 비용 — 고정가, 견적 왕복 없음</p>
         <div style="display:grid;grid-template-columns:1fr 36px 1fr 36px 1fr;gap:10px;align-items:stretch;margin-top:40px">
-          <div style="border:2px solid #FF6464;background:#FFF8F8;border-radius:16px;padding:26px"><p style="margin:0;font-size:14px;font-weight:800;color:#D93636">① 진단 리포트</p><p style="margin:12px 0 0;font-size:30px;font-weight:800;color:#202124">30만 원</p><p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#414245">지금 받으신 문서 · 1건 고정가</p></div>
-          <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#B6B8BF;font-size:22px">→</span>
-          <div style="border:1px solid #EBEBEB;border-radius:16px;padding:26px"><p style="margin:0;font-size:14px;font-weight:800;color:#414245">② 마케팅 스튜디오</p><p style="margin:12px 0 0;font-size:30px;font-weight:800;color:#202124">월 20만 원</p><p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#414245">첫 달 진단비 공제 · 일본향 콘텐츠 제작</p></div>
-          <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#B6B8BF;font-size:22px">→</span>
-          <div style="border:1px solid #EBEBEB;border-radius:16px;padding:26px"><p style="margin:0;font-size:14px;font-weight:800;color:#414245">③ 운영</p><p style="margin:12px 0 0;font-size:30px;font-weight:800;color:#202124">구독 내 확장</p><p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#414245">진단만 받고 끝내도 됩니다</p></div>
+          <div style="border:2px solid #FF6F61;background:#FFF1EE;border-radius:16px;padding:26px"><p style="margin:0;font-size:14px;font-weight:800;color:#C93F2E">① 진단 리포트</p><p style="margin:12px 0 0;font-size:30px;font-weight:800;color:#182333">30만 원</p><p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#3D4655">지금 받으신 문서 · 1건 고정가</p></div>
+          <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#78818F;font-size:22px">→</span>
+          <div style="border:1px solid #E9E7E3;border-radius:16px;padding:26px"><p style="margin:0;font-size:14px;font-weight:800;color:#3D4655">② 마케팅 스튜디오</p><p style="margin:12px 0 0;font-size:30px;font-weight:800;color:#182333">월 20만 원</p><p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#3D4655">첫 달 진단비 공제 · 일본향 콘텐츠 제작</p></div>
+          <span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:#78818F;font-size:22px">→</span>
+          <div style="border:1px solid #E9E7E3;border-radius:16px;padding:26px"><p style="margin:0;font-size:14px;font-weight:800;color:#3D4655">③ 운영</p><p style="margin:12px 0 0;font-size:30px;font-weight:800;color:#182333">구독 내 확장</p><p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#3D4655">진단만 받고 끝내도 됩니다</p></div>
         </div>
-        <p style="margin:auto 0 0;font-size:14px;color:#B6B8BF">대행이 아니라 사전 진단 → 실행 지원</p>
+        <p style="margin:auto 0 0;font-size:14px;color:#78818F">대행이 아니라 사전 진단 → 실행 지원</p>
       </div>
     </div>
   </div>
@@ -946,11 +946,11 @@
       btn.setAttribute('aria-selected', active ? 'true' : 'false');
       btn.setAttribute('tabindex', active ? '0' : '-1');
       btn.setAttribute('style', tabBase + (active
-        ? 'background:#FF6464;color:#fff;font-weight:700'
-        : 'background:transparent;color:#414245;font-weight:600'));
+        ? 'background:#FF6F61;color:#fff;font-weight:700'
+        : 'background:transparent;color:#3D4655;font-weight:600'));
       $('tabNum' + i).setAttribute('style', 'display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;' + (active
         ? 'background:rgba(255,255,255,.25);color:#fff'
-        : 'background:#F1F1F3;color:#70737C'));
+        : 'background:#F2F1ED;color:#6E7686'));
     }
   }
 
@@ -1117,7 +1117,7 @@
       ['다음 단계 · 비용 (고정가)', '① 진단 30만 원 → ② 마케팅 스튜디오 월 20만 원(첫 달 진단비 공제) → ③ 운영 — 견적 왕복 없음'],
     ];
     var SO = '<scr' + 'ipt>', SC = '</scr' + 'ipt>';
-    var html = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>' + b + ' 일본진출진단 보고용</title><style>body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;background:#14191E}section{display:none;width:100vw;height:100vh;box-sizing:border-box;padding:8vh 10vw;background:#fff;flex-direction:column;justify-content:center}section.on{display:flex}section:first-child{background:#FF6464;color:#fff}h1{font-size:5vh;margin:0 0 3vh;letter-spacing:-0.02em}p{font-size:3.2vh;line-height:1.6;margin:0;color:inherit}.c{position:fixed;bottom:3vh;right:4vw;font-size:2vh;color:#999;font-weight:600}</style></head><body>' +
+    var html = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>' + b + ' 일본진출진단 보고용</title><style>body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;background:#182333}section{display:none;width:100vw;height:100vh;box-sizing:border-box;padding:8vh 10vw;background:#fff;flex-direction:column;justify-content:center}section.on{display:flex}section:first-child{background:#FF6F61;color:#fff}h1{font-size:5vh;margin:0 0 3vh;letter-spacing:-0.02em}p{font-size:3.2vh;line-height:1.6;margin:0;color:inherit}.c{position:fixed;bottom:3vh;right:4vw;font-size:2vh;color:#999;font-weight:600}</style></head><body>' +
       slides.map(function (sl, i) { return '<section' + (i === 0 ? ' class="on"' : '') + '><h1>' + sl[0] + '</h1><p>' + sl[1] + '</p></section>'; }).join('') +
       '<div class="c" id="c">1 / 7</div>' + SO + 'let i=0,S=document.querySelectorAll("section");function go(d){i=Math.min(S.length-1,Math.max(0,i+d));S.forEach((s,j)=>s.classList.toggle("on",j===i));document.getElementById("c").textContent=(i+1)+" / "+S.length}addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key===" ")go(1);if(e.key==="ArrowLeft")go(-1)});addEventListener("click",()=>go(1))' + SC + '</body></html>';
     var blob = new Blob([html], { type: 'text/html' });
@@ -1185,35 +1185,35 @@
 <div id="abModal" class="ab-scrim" style="display:none">
   <div class="ab-card" role="dialog" aria-modal="true" aria-labelledby="abTitle" aria-describedby="abDesc">
     <h2 id="abTitle" class="ab-title">새 브랜드 추가</h2>
-    <p id="abDesc" style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61);text-wrap:pretty">필수 정보만 먼저 등록합니다. 제품·채널·용어집은 브랜드 관리에서 이어서 채웁니다.</p>
+    <p id="abDesc" style="margin:8px 0 0;font-size:13px;line-height:1.65;color:#6e7686;text-wrap:pretty">필수 정보만 먼저 등록합니다. 제품·채널·용어집은 브랜드 관리에서 이어서 채웁니다.</p>
 
     <div style="margin-top:20px;display:flex;flex-direction:column;gap:14px">
       <div>
-        <label class="ab-label" for="abName">브랜드명 <span style="color:#D93636">*</span></label>
+        <label class="ab-label" for="abName">브랜드명 <span style="color:#C93F2E">*</span></label>
         <input id="abName" class="ab-input" type="text" maxlength="40" placeholder="예: 하루온 HARUON" autocomplete="off" />
         <p id="abNameErr" class="ab-err" role="alert" style="display:none"></p>
       </div>
       <div>
-        <label class="ab-label" for="abCat">카테고리 <span style="color:#D93636">*</span></label>
+        <label class="ab-label" for="abCat">카테고리 <span style="color:#C93F2E">*</span></label>
         <select id="abCat" class="ab-input">
           <option value="">선택해 주세요</option>
           <option>스킨케어</option><option>메이크업</option><option>선케어</option><option>클렌징</option>
         </select>
       </div>
       <div>
-        <label class="ab-label" for="abClass">제품분류 <span style="font-weight:600;color:#B6B8BF">(선택)</span></label>
+        <label class="ab-label" for="abClass">제품분류 <span style="font-weight:600;color:#78818F">(선택)</span></label>
         <select id="abClass" class="ab-input">
           <option selected>화장품</option><option>의약외품</option><option>건강식품</option><option>미상</option>
         </select>
       </div>
     </div>
 
-    <p style="margin:16px 0 0;font-size:11.5px;line-height:1.6;color:#B6B8BF">추가하면 브랜드 관리 화면으로 이동합니다 — 거기서 제품과 채널을 이어서 채웁니다.</p>
+    <p style="margin:16px 0 0;font-size:11.5px;line-height:1.6;color:#78818F">추가하면 브랜드 관리 화면으로 이동합니다 — 거기서 제품과 채널을 이어서 채웁니다.</p>
 
     <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:9px">
       <button type="button" id="abCancel" class="hbtn hbtn-secondary" style="height:42px;padding:0 16px;border-radius:10px">취소</button>
       <button type="button" id="abSubmit" class="h-primary" disabled
-        style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6464;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:default;opacity:.5">브랜드 추가</button>
+        style="height:42px;padding:0 20px;border:none;border-radius:10px;background:#FF6F61;color:#fff;font-size:13.5px;font-weight:700;font-family:inherit;cursor:default;opacity:.5">브랜드 추가</button>
     </div>
   </div>
 </div>
@@ -1222,10 +1222,10 @@
 <div id="abDiscard" class="ab-scrim" style="display:none;z-index:120">
   <div class="ab-card" role="dialog" aria-modal="true" aria-labelledby="abDcTitle" style="max-width:360px">
     <h2 id="abDcTitle" class="ab-title" style="font-size:16px">입력한 내용이 사라집니다</h2>
-    <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:rgba(55,56,60,0.61)">브랜드 추가를 닫을까요?</p>
+    <p style="margin:8px 0 0;font-size:13px;line-height:1.65;color:#6e7686">브랜드 추가를 닫을까요?</p>
     <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:9px">
       <button type="button" id="abKeep" class="hbtn hbtn-secondary" style="height:40px;padding:0 15px;border-radius:10px">계속 입력</button>
-      <button type="button" id="abDrop" class="hbtn" style="height:40px;padding:0 15px;border:1px solid rgba(240,72,60,.4);border-radius:10px;background:#fff;color:#C6362C;font-weight:700">닫기</button>
+      <button type="button" id="abDrop" class="hbtn" style="height:40px;padding:0 15px;border:1px solid rgba(240,72,60,.4);border-radius:10px;background:#fff;color:#C13A3A;font-weight:700">닫기</button>
     </div>
   </div>
 </div>
