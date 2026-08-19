@@ -23,7 +23,7 @@ export const HERO = {
   ],
   tags: ['카피·근거 진단', '채널별 썸네일', '상세페이지'],
   primaryCta: '무료 파일럿 진단 신청',
-  secondaryCta: '서비스 자세히 보기',
+  secondaryCta: '샘플 리포트 보기',
 } as const;
 
 /**
@@ -189,7 +189,7 @@ export const SERVICE_CREATE = {
 
 export const PRODUCT_EXAMPLE = {
   heading: '한 문장이, 진단을 거쳐 제작물이 되기까지',
-  lead: '입력한 한국어 카피 한 줄이 어떤 확인을 거쳐 어떤 제작물이 되는지 보여 주는 예시입니다.',
+  lead: '입력한 한국어 카피 한 줄이 어떤 확인을 거쳐 어떤 결과물로 이어지는지 보여줍니다.',
   before: {
     label: 'BEFORE · 입력',
     title: '한국어 원문',
@@ -208,8 +208,9 @@ export const PRODUCT_EXAMPLE = {
     ],
     altLabel: '대체 표현 예시',
     alts: ['リフィル企画', 'セット価格'],
+    reasonLabel: '근거',
     reason:
-      '변경 이유 · 순위와 미백 효능 주장은 근거가 확인되지 않아 수치·최상급 표현을 빼고, 세트 구성 사실만 남겨 재설계했습니다.',
+      "'1등'(No.1) 순위 주장은 집계 시점·출처 근거가 입력에 없어 산출 금지 대상(조항[7])이며, '미백'은 등급상 표현 불가하므로 세트 구성 카피로 대체했다.",
   },
   create: {
     label: 'CREATE · 제작',
@@ -220,7 +221,7 @@ export const PRODUCT_EXAMPLE = {
       "세트 구성(리필팩+본품+증정 세럼)과 가격·혜택 배너가 화면 전체를 지배하는 정보 밀도형 레이아웃으로, Qoo10 메가포·기획전에서 요구하는 '한눈에 혜택 파악'에 맞춥니다.",
     caption: '원문·수정안 비교와 근거 표시 포함',
   },
-  note: '예시 화면이며 실제 심의 결과나 승인 완료 화면이 아닙니다.',
+  note: '예시 화면이며 실제 심의 결과나 승인 완료 화면이 아닙니다. 최종 게시 전에는 브랜드와 관련 전문가의 확인이 필요합니다.',
 } as const;
 
 export const WORKFLOW = {
@@ -258,8 +259,8 @@ export const WORKFLOW = {
 export const FUTURE = {
   eyebrow: 'COMING NEXT · CONNECT',
   badge: 'MVP 이후 확장 서비스',
-  headline: ['진단과 제작 이후,', '일본 현지 실행 파트너 연결'],
-  lead: 'MVP 검증 이후에는 브랜드의 제품 카테고리와 목표 채널, 준비 상태를 기준으로 일본 현지 파트너와 유통 채널 후보를 소개하는 단계를 검토하고 있습니다.',
+  headline: ['진단과 제작 이후,', '일본 현지 실행 파트너 연결로'],
+  lead: 'MVP 검증 이후에는 브랜드의 제품 카테고리와 목표 채널, 예산과 준비 상태를 바탕으로 일본 마케팅 회사와 유통 채널 후보를 소개하는 운영 서비스로 확장합니다.',
   items: [
     '일본 마케팅 회사 후보 소개',
     '광고·SNS·인플루언서 운영 파트너 연결',
@@ -268,7 +269,7 @@ export const FUTURE = {
     '상담·협업 이력 관리',
     '실제 수정·승인·반려 결과의 재연결',
   ],
-  note: '파트너 및 채널 후보를 소개하는 서비스이며 광고 집행이나 유통 계약을 대행하지 않습니다. 제공 시점과 범위는 확정되는 대로 안내합니다.',
+  note: '파트너 및 채널 후보를 소개하는 서비스이며 광고 성과, 계약 체결 또는 유통 입점을 보장하지 않습니다.',
   /**
    * 우측 미리보기 카드(Figma UI_PartnerMatch 1:2162) — 아직 만들지 않은 화면의 예고다.
    * 채널명을 `채널 A · 채널 B`로 두는 것은 ChannelChip 규칙(지원 확정 전에는 일반 표기)을 따른 것이다.
@@ -378,11 +379,32 @@ export const APPLICATION = {
 
 export const FOOTER = {
   tagline: 'K-Beauty Japan Growth Studio',
-  links: [
-    { href: '#service', label: '서비스' },
-    { href: '#workflow', label: '이용 방법' },
-    { href: '#faq', label: 'FAQ' },
-    { href: '/login', label: '로그인' },
+  /** 시안은 레이블이 붙은 3열이다 — 평면 링크 나열이 아니다 */
+  columns: [
+    {
+      title: '서비스',
+      links: [
+        { href: '#service', label: '진단 리포트' },
+        { href: '#service', label: '마케팅 스튜디오' },
+        { href: '#future', label: '확장 로드맵' },
+      ],
+    },
+    {
+      title: '이용 안내',
+      links: [
+        { href: '#workflow', label: '이용 방법' },
+        { href: '#faq', label: 'FAQ' },
+        { href: '/login', label: '로그인' },
+      ],
+    },
+    {
+      title: '정책·문의',
+      links: [
+        { href: '/privacy', label: '개인정보처리방침' },
+        { href: '/terms', label: '이용약관' },
+        { href: 'mailto:hello@yoake.kr', label: '문의처' },
+      ],
+    },
   ],
   disclosure: 'YOAKE는 법적 적합성이나 심의 통과를 보증하지 않습니다.',
   copyright: '© 2026 YOAKE. All rights reserved.',

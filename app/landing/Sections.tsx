@@ -273,28 +273,39 @@ function CreatePreview() {
       <div>
         <p className="text-[13px] leading-[1.5] font-medium text-lp-muted">{c.thumbLabel}</p>
         <ul className="mt-2.5 grid list-none grid-cols-3 gap-4 max-sm:grid-cols-1">
-          {c.thumbs.map((thumb) => (
-            <li key={thumb.name} className="flex h-full flex-col rounded-xl border border-lp-line bg-lp-surface p-2.5">
-              <LandingShot name={thumb.shot} alt={thumb.name} className="rounded-lg" />
-              <p lang="ja" className="mt-2.5 text-[13px] leading-[1.7] font-semibold text-lp-ink">
-                {thumb.ja}
-              </p>
-              {/* 템플릿 이름은 카드 바닥에 정렬한다 — 카피 줄 수가 달라도 세 카드가 같은 선에서 끝난다 */}
-              <p className="mt-auto pt-2 text-[12px] font-medium text-lp-muted">{thumb.name}</p>
-            </li>
-          ))}
+          {c.thumbs.map((thumb, i) => {
+            // 시안은 ①안이 선택 상태다 — 채널 칩과 같은 규칙으로 첫 항목을 켠다
+            const on = i === 0;
+            return (
+              <li
+                key={thumb.name}
+                className={`flex h-full flex-col rounded-xl border bg-white p-2.5 ${on ? 'border-lp-coral' : 'border-lp-line'}`}
+              >
+                {/* 이미지와 일본어 카피는 한 덩어리로 톤 패널 안에 들어간다 */}
+                <div className={`rounded-lg p-2.5 ${on ? 'bg-lp-coral-tint' : 'bg-lp-panel'}`}>
+                  <LandingShot name={thumb.shot} alt={thumb.name} className="rounded-md" />
+                  <p lang="ja" className="mt-2.5 text-[13px] leading-[1.7] font-semibold text-lp-ink">
+                    {thumb.ja}
+                  </p>
+                </div>
+                {/* 템플릿 이름은 카드 바닥에 정렬한다 — 카피 줄 수가 달라도 세 카드가 같은 선에서 끝난다 */}
+                <p className="mt-auto pt-2.5 text-[12px] font-medium text-lp-muted">{thumb.name}</p>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
       <div>
         <p className="text-[13px] leading-[1.5] font-medium text-lp-muted">{c.detailLabel}</p>
         <div className="mt-2.5 flex items-start gap-4 rounded-xl border border-lp-line bg-lp-surface p-4 max-sm:flex-col">
-          <LandingShot
-            name="studio-detail"
-            alt={c.detailLabel}
-            ratio="wide"
-            className="w-[180px] flex-none rounded-lg max-sm:w-full"
-          />
+          {/*
+            폭은 감싸는 상자가 정한다 — LandingShot이 `w-full`을 직접 달고 있어서
+            호출부에서 `w-[180px]`을 줘도 어느 쪽이 이길지 클래스 순서에 달리게 된다.
+          */}
+          <div className="w-[180px] flex-none max-sm:w-full">
+            <LandingShot name="studio-detail" alt={c.detailLabel} ratio="wide" className="rounded-lg border border-lp-coral" />
+          </div>
           <div className="min-w-0">
             <p lang="ja" className="text-lp-h4 font-bold text-lp-ink">
               {c.detailJa.map((line) => (
@@ -312,8 +323,13 @@ function CreatePreview() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
-        {c.beforeAfter.map((row) => (
-          <div key={row.label} className="rounded-lg border border-lp-line bg-white px-3.5 py-3">
+        {c.beforeAfter.map((row, i) => (
+          <div
+            key={row.label}
+            className={`rounded-lg border px-3.5 py-3 ${
+              i === 0 ? 'border-lp-line bg-lp-panel' : 'border-lp-coral bg-white'
+            }`}
+          >
             <p className="text-[12px] font-semibold text-lp-faint">{row.label}</p>
             <p lang={row.lang} className="mt-1.5 text-[14px] font-medium text-lp-ink">
               {row.value}
@@ -357,7 +373,7 @@ export function ProductExample() {
         <Reveal delay={80}>
           <article className="h-full rounded-2xl border border-lp-line bg-white p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-[14px] font-semibold tracking-[0.06em] text-lp-faint">{diagnose.label}</p>
+              <p className="text-[14px] font-semibold tracking-[0.06em] text-lp-coral">{diagnose.label}</p>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-lp-conditional-tint py-[7px] pr-3.5 pl-3 text-[14px] font-semibold whitespace-nowrap text-lp-conditional">
                 <span aria-hidden className="h-[7px] w-[7px] flex-none rounded-full bg-lp-conditional" />
                 {diagnose.status}
@@ -375,19 +391,18 @@ export function ProductExample() {
                 </li>
               ))}
             </ul>
-            <p className="mt-5 text-[13px] font-semibold text-lp-faint">{diagnose.altLabel}</p>
-            <ul className="mt-2 flex list-none flex-col gap-2">
-              {diagnose.alts.map((alt) => (
-                <li
-                  key={alt}
-                  lang="ja"
-                  className="rounded-lg border border-lp-line bg-lp-surface px-3.5 py-2.5 text-[14px] font-semibold text-lp-ink"
-                >
-                  {alt}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-5 text-[13px] leading-[1.7] text-lp-muted [text-wrap:pretty]">{diagnose.reason}</p>
+            <div className="mt-5 rounded-xl bg-lp-panel p-3.5">
+              <p className="text-[13px] font-semibold text-lp-faint">{diagnose.altLabel}</p>
+              <ul className="mt-2.5 flex list-none flex-col gap-2">
+                {diagnose.alts.map((alt) => (
+                  <li key={alt} lang="ja" className="rounded-lg bg-white px-3.5 py-2.5 text-[14px] font-semibold text-lp-ink">
+                    {alt}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="mt-5 text-[13px] font-semibold text-lp-muted">{diagnose.reasonLabel}</p>
+            <p className="mt-2 text-[13px] leading-[1.7] text-lp-muted [text-wrap:pretty]">{diagnose.reason}</p>
           </article>
         </Reveal>
 
@@ -395,13 +410,16 @@ export function ProductExample() {
 
         <Reveal delay={160}>
           <article className="h-full rounded-2xl border border-lp-line bg-lp-surface p-6">
-            <p className="text-[14px] font-semibold tracking-[0.06em] text-lp-faint">{create.label}</p>
-            <LandingShot name="example-create" alt={create.body} className="mt-5 rounded-xl" />
-            <p className="mt-5 text-[13px] font-semibold text-lp-faint">{create.title}</p>
-            <p className="mt-2 text-[14px] font-medium text-lp-body">{create.body}</p>
-            <div className="mt-4 rounded-xl border border-lp-line bg-white p-3.5">
-              <p className="text-[13px] font-bold text-lp-ink">{create.styleName}</p>
-              <p className="mt-2 text-[13px] leading-[1.65] text-lp-muted [text-wrap:pretty]">{create.styleBody}</p>
+            <p className="text-[14px] font-semibold tracking-[0.06em] text-lp-coral">{create.label}</p>
+            {/* 생성 결과물(이미지·라벨·제목)은 코랄 패널 한 덩어리 — 진단을 거쳐 나온 산출물이라는 표시 */}
+            <div className="mt-5 rounded-xl border border-lp-coral bg-lp-coral-tint p-2.5">
+              <LandingShot name="example-create" alt={create.body} className="rounded-lg" />
+              <p className="mt-3.5 text-[13px] font-semibold text-lp-faint">{create.title}</p>
+              <p className="mt-2 text-[14px] font-bold text-lp-ink [text-wrap:pretty]">{create.body}</p>
+            </div>
+            <div className="mt-4 rounded-xl bg-lp-panel p-3.5">
+              <p className="text-[13px] font-semibold text-lp-faint">{create.styleName}</p>
+              <p className="mt-2 text-[14px] leading-[1.65] text-lp-body [text-wrap:pretty]">{create.styleBody}</p>
             </div>
             <p className="mt-6 flex items-center gap-2 text-[13px] text-lp-muted">
               <span aria-hidden className="h-1.5 w-1.5 flex-none rounded-full bg-lp-coral" />
@@ -470,7 +488,7 @@ export function FutureOperations() {
             ))}
           </h2>
           <p className="text-lp-body text-lp-body [text-wrap:pretty]">{FUTURE.lead}</p>
-          <LpBullets items={FUTURE.items} />
+          <LpBullets items={FUTURE.items} tone="muted" />
           {/* 아직 제공하지 않는 범위라, 고지를 본문과 같은 무게로 두지 않고 별도 상자에 담는다 */}
           <p className="rounded-xl bg-lp-panel px-4.5 py-3.5 text-[14px] leading-[1.7] text-lp-muted [text-wrap:pretty]">
             {FUTURE.note}
@@ -605,12 +623,17 @@ export function Faq() {
           >
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lp-body font-semibold text-lp-ink [&::-webkit-details-marker]:hidden">
               {row.q}
-              <span
-                aria-hidden
-                className="flex-none text-lp-faint transition-transform duration-200 ease-standard group-open:rotate-180"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                  <path d="m6 9 6 6 6-6" />
+              {/*
+                시안은 코랄 +/− 다. 세로획만 접었다 펴서 +에서 −로 바뀌게 한다 —
+                아이콘 두 개를 교체하지 않으므로 레이아웃이 흔들리지 않는다.
+              */}
+              <span aria-hidden className="flex-none text-lp-coral">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 12h16" />
+                  <path
+                    d="M12 4v16"
+                    className="origin-center transition-transform duration-200 ease-standard group-open:scale-y-0"
+                  />
                 </svg>
               </span>
             </summary>

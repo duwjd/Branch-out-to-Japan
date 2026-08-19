@@ -10,10 +10,13 @@ import { HeroVisual } from './HeroVisual';
 export function Hero() {
   return (
     <LpSection tone="warm" className="relative overflow-hidden">
-      {/* 새벽 글로우 — 로고의 일출과 같은 결. 장식이라 스크린리더에서 제외한다 */}
+      {/*
+        새벽 글로우 — 로고의 일출과 같은 결. 시안 실측: 위쪽 47%는 크림 그대로 평평하고,
+        거기서부터 아래로 코랄 틴트까지 번진다(상단 중앙 글로우가 아니다). 장식이라 스크린리더에서 제외한다.
+      */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,111,97,0.16),transparent)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,var(--color-page)_47%,var(--color-coral-tint)_100%)]"
       />
       <div className="relative mx-auto flex max-w-[900px] flex-col items-center gap-5 text-center">
         <LpEyebrow>{HERO.eyebrow}</LpEyebrow>
