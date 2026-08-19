@@ -8,6 +8,7 @@
 import type { DetailInput, DetailOptionAxis, DetailProductCategory, PromoInput, ThumbnailProof } from '../db/store';
 import { PLATFORMS, type Platform } from '../studio/platform';
 import { getDetailPack, type TemplateId } from '../studio/detail/blockPack';
+import { resolveTheme } from '../studio/detail/theme';
 import { allowsPromoLayer, type BlockType } from '../studio/detail/output';
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -182,6 +183,19 @@ export function parseDetailForm(form: FormData, sourceImagePaths: string[]): Par
     reviews: rows(form, 'reviewRows', 3).map(([t, rating, age]) => ({ text: t, rating, age })),
     promo,
     modelConsent: text(form, 'modelConsent') === 'true',
+    // 산출물 색(§2-7). 폼 값은 **여기서 sanitize 한다** — 화이트리스트(paletteId)와
+    // normalizeHex(customAccent)를 통과하지 않으면 사용자 문자열이 그대로 satori 스타일과
+    // AI 프롬프트에 들어간다. 해석은 theme.ts 가 하고 결과만 자산에 스냅샷된다.
+    theme: resolveTheme(
+      {
+        source: (['custom', 'palette', 'auto'] as const).find((v) => v === text(form, 'themeSource')) ?? 'auto',
+        paletteId: text(form, 'themePaletteId'),
+        customAccent: text(form, 'themeCustomAccent'),
+        moodId: text(form, 'themeMoodId'),
+        extracted: text(form, 'themeExtracted'),
+      },
+      productCategory,
+    ) as unknown as Record<string, unknown>,
   };
 
   return {

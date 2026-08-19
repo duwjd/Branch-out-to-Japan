@@ -29,6 +29,8 @@ import {
 import { verifyTranslation, type TranslatedField } from '@/lib/studio/detail/translate';
 import { IconChevronDown, IconChevronUp, IconUpload } from '@/components/ui/icons';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
+import { StudioActionBar } from '@/components/app/studioUi';
+import { MOODS, PALETTES, accentFromPixels, normalizeHex, EXTRACT } from '@/lib/studio/detail/theme';
 
 interface TemplateCard {
   id: string;
@@ -116,9 +118,58 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   const [platform, setPlatform] = useState<Platform>('unset');
   const [category, setCategory] = useState<string>('skincare');
   const [optionAxis, setOptionAxis] = useState<string>('color');
+  // 산출물 테마(§2-7). 기본은 'auto' — 제품 대표컷에서 뽑는다.
+  // 어느 브랜드로 만들어도 YOAKE 코랄이 찍히던 것을 여기서 끊는다(관통 원칙 4).
+  const [themeSource, setThemeSource] = useState<'auto' | 'palette' | 'custom'>('auto');
+  const [themePaletteId, setThemePaletteId] = useState<string>(PALETTES[0].id);
+  const [themeCustomAccent, setThemeCustomAccent] = useState<string>('#8a7f76');
+  const [themeMoodId, setThemeMoodId] = useState<string>(MOODS[0].id);
+  /** auto 일 때 제품 대표컷에서 뽑은 값 + 신뢰도 */
+  const [extracted, setExtracted] = useState<{ accent: string; moodId: string; ok: boolean } | null>(null);
+
   const [openEvidence, setOpenEvidence] = useState(false);
   const [openOption, setOpenOption] = useState(false);
   const [openPromo, setOpenPromo] = useState(false);
+
+  /**
+   * 제품 대표컷에서 브랜드색을 뽑는다.
+   * ⚠ **첫 장만** 쓴다. 2번째 장부터는 한국 상세페이지 원본이라 한국어 UI 색(빨강 세일 배너 등)이
+   *   섞여 결과를 오염시킨다 — 서버 파이프라인도 같은 제약을 코드로 못박는다.
+   *   추출 함수는 서버와 **같은 순수 함수**를 쓴다(lib/studio/detail/theme.ts).
+   */
+  useEffect(() => {
+    const src = previews[0];
+    if (!src) {
+      setExtracted(null);
+      return;
+    }
+    let alive = true;
+    const img = new Image();
+    img.onload = () => {
+      if (!alive) return;
+      const n = EXTRACT.size;
+      const cv = document.createElement('canvas');
+      cv.width = n;
+      cv.height = n;
+      const ctx = cv.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0, n, n);
+      try {
+        const { data } = ctx.getImageData(0, 0, n, n);
+        const r = accentFromPixels(data, n, n, category as never);
+        setExtracted({ accent: r.accent, moodId: r.moodId, ok: r.ok });
+        // 무드는 제안일 뿐이다 — 사용자가 이미 고른 값은 덮지 않는다
+        setThemeMoodId((prev) => (prev === MOODS[0].id ? r.moodId : prev));
+      } catch {
+        // 캔버스 오염 등으로 못 읽으면 서버가 카테고리 기본 팔레트로 접는다
+        setExtracted(null);
+      }
+    };
+    img.src = src;
+    return () => {
+      alive = false;
+    };
+  }, [previews, category]);
 
   const [plan, setPlan] = useState<PlanResult | null>(null);
   // 변환 결과는 plan 과 따로 둔다 — 사용자가 패널에서 고친 값이 여기 쌓이고, 그대로 제출된다
@@ -180,6 +231,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       fd.set('productCategory', category);
       fd.set('templateId', templateId);
       fd.set('optionAxis', optionAxis);
+      fd.set('themeSource', themeSource);
+      fd.set('themePaletteId', themePaletteId);
+      fd.set('themeCustomAccent', themeCustomAccent);
+      fd.set('themeMoodId', themeMoodId);
+      fd.set('themeExtracted', extracted?.accent ?? '');
       fd.set('disabledBlocks', [...disabled].join(','));
       // 원문(kr)을 함께 보낸다 — 서버가 현재 입력과 대조해, 입력이 바뀌었으면 캐시를 버리고
       // 다시 번역한다. 이게 없으면 숫자 없는 필드에서 엉뚱한 일본어가 조용히 들어간다.
@@ -275,8 +331,8 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   };
 
   return (
-    <main className="pb-32">
-      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] max-sm:px-5">
+    <main>
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-8 max-sm:px-5">
         <header>
           <Link
             href="/app/studio"
@@ -448,6 +504,143 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
               미리보기는 데모 입력으로 실제 생성한 결과이고, 제품컷은 실존 제품이 아닌 가상 브랜드용 이미지입니다. 실제
               산출물은 입력하신 내용과 이미지로 만들어집니다.
             </p>
+
+            {/* DETAIL-04b 산출물 색 — 결과물은 고객 브랜드의 색으로 나온다(§2-7) */}
+            <div className="mt-6 border-t border-hairline pt-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[13px] font-bold text-ink">산출물 색</span>
+                <span className="text-[11px] text-ink-faint">
+                  상세페이지에 쓰이는 색입니다. YOAKE 화면 색과는 무관합니다.
+                </span>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(
+                  [
+                    ['auto', '제품컷에서 자동'],
+                    ['palette', '팔레트에서 선택'],
+                    ['custom', '직접 입력'],
+                  ] as const
+                ).map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setThemeSource(id)}
+                    aria-pressed={themeSource === id}
+                    className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
+                      themeSource === id
+                        ? 'border-coral bg-coral-tint text-coral-strong'
+                        : 'border-input-border text-ink-mute hover:border-ink-faint'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {themeSource === 'auto' && (
+                <p className="mt-3 flex items-center gap-2 text-[12px] text-ink-mute">
+                  {extracted ? (
+                    <>
+                      <span
+                        aria-hidden
+                        className="inline-block h-4 w-4 shrink-0 rounded-full border border-hairline"
+                        style={{ backgroundColor: extracted.accent }}
+                      />
+                      {extracted.ok ? (
+                        <>제품컷에서 <code className="text-ink">{extracted.accent}</code> 를 뽑았습니다.</>
+                      ) : (
+                        // 추출 실패를 조용히 넘기지 않는다 — 사용자가 직접 고를 수 있어야 한다
+                        <>
+                          제품컷이 무채색에 가까워 색을 뽑지 못했습니다. 상품 종류 기본색(
+                          <code className="text-ink">{extracted.accent}</code>)을 씁니다 — 원하는 색이 있으면 직접
+                          골라 주세요.
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>제품컷을 올리면 대표색을 뽑아 보여 드립니다.</>
+                  )}
+                </p>
+              )}
+
+              {themeSource === 'palette' && (
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {PALETTES.map((p) => (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        onClick={() => setThemePaletteId(p.id)}
+                        aria-pressed={themePaletteId === p.id}
+                        className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] transition ${
+                          themePaletteId === p.id
+                            ? 'border-ink font-semibold text-ink'
+                            : 'border-input-border text-ink-mute hover:border-ink-faint'
+                        }`}
+                      >
+                        <span
+                          aria-hidden
+                          className="inline-block h-3.5 w-3.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: p.accent }}
+                        />
+                        {p.labelKo}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {themeSource === 'custom' && (
+                <div className="mt-3 flex items-center gap-2">
+                  <label htmlFor="themeCustomAccent" className="text-[12px] text-ink-mute">
+                    브랜드 색(HEX)
+                  </label>
+                  <input
+                    id="themeCustomAccent"
+                    type="text"
+                    value={themeCustomAccent}
+                    onChange={(e) => setThemeCustomAccent(e.target.value)}
+                    placeholder="#8a7f76"
+                    aria-invalid={normalizeHex(themeCustomAccent) === null}
+                    className="w-32 rounded-lg border border-input-border px-2.5 py-1.5 font-mono text-[12px] text-ink"
+                  />
+                  <span
+                    aria-hidden
+                    className="inline-block h-6 w-6 shrink-0 rounded-md border border-hairline"
+                    style={{ backgroundColor: normalizeHex(themeCustomAccent) ?? 'transparent' }}
+                  />
+                  {normalizeHex(themeCustomAccent) === null && (
+                    <span className="text-[11px] text-coral-strong">#RRGGBB 형식으로 입력해 주세요.</span>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-4">
+                <span className="text-[12px] text-ink-mute">분위기</span>
+                <ul className="mt-2 flex flex-wrap gap-2">
+                  {MOODS.map((m) => (
+                    <li key={m.id}>
+                      <button
+                        type="button"
+                        onClick={() => setThemeMoodId(m.id)}
+                        aria-pressed={themeMoodId === m.id}
+                        className={`rounded-full border px-3 py-1.5 text-[12px] transition ${
+                          themeMoodId === m.id
+                            ? 'border-ink font-semibold text-ink'
+                            : 'border-input-border text-ink-mute hover:border-ink-faint'
+                        }`}
+                      >
+                        {m.labelKo}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-[11px] text-ink-faint [text-wrap:pretty]">
+                  배경컷 연출에 반영됩니다. 템플릿이 정한 시각 언어 위에 얹히는 값이라, 템플릿을 바꾸면 결과의 인상도
+                  함께 달라집니다.
+                </p>
+              </div>
+            </div>
           </SectionCard>
 
           {/* DETAIL-05 제품 스펙 */}
@@ -590,44 +783,42 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       </div>
 
       {/* 하단 sticky 액션 바 */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-canvas/95 px-6 py-4 backdrop-blur left-0 lg:left-sidebar">
-        <div className="mx-auto max-w-[1280px]">
-          {step === 'form' ? (
-            <>
-              <button
-                type="button"
-                disabled={!canPreview || busy || !readiness.ready}
-                onClick={() => void handlePreview()}
-                className={buttonClass('primary', 'lg', 'w-full')}
-              >
-                {busy ? '구성 확인 중…' : '블록 구성 확인'}
-              </button>
-              <p className="mt-2.5 text-center text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-                {readiness.ready ? guidance : '서버 설정이 끝나야 생성할 수 있습니다. 위 안내를 확인해 주세요.'}
-              </p>
-            </>
-          ) : (
-            <div className="flex gap-3">
-              <button type="button" onClick={() => setStep('form')} className={buttonClass('secondary', 'lg')}>
-                입력 수정
-              </button>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void handleSubmit()}
-                className={buttonClass('primary', 'lg', 'flex-1')}
-              >
-                {busy ? '생성 시작 중…' : `상세페이지 생성 (블록 ${plan?.blocks.length ?? 0}개)`}
-              </button>
-            </div>
-          )}
-          {error && (
-            <p role="alert" className="mt-1.5 text-center text-xs text-danger-text">
-              {error}
+      <StudioActionBar>
+        {step === 'form' ? (
+          <>
+            <button
+              type="button"
+              disabled={!canPreview || busy || !readiness.ready}
+              onClick={() => void handlePreview()}
+              className={buttonClass('primary', 'lg', 'w-full')}
+            >
+              {busy ? '구성 확인 중…' : '블록 구성 확인'}
+            </button>
+            <p className="mt-2.5 text-center text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+              {readiness.ready ? guidance : '서버 설정이 끝나야 생성할 수 있습니다. 위 안내를 확인해 주세요.'}
             </p>
-          )}
-        </div>
-      </div>
+          </>
+        ) : (
+          <div className="flex gap-3">
+            <button type="button" onClick={() => setStep('form')} className={buttonClass('secondary', 'lg')}>
+              입력 수정
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void handleSubmit()}
+              className={buttonClass('primary', 'lg', 'flex-1')}
+            >
+              {busy ? '생성 시작 중…' : '생성하기'}
+            </button>
+          </div>
+        )}
+        {error && (
+          <p role="alert" className="mt-1.5 text-center text-xs text-danger-text">
+            {error}
+          </p>
+        )}
+      </StudioActionBar>
       <TemplateZoom template={zoom} onClose={() => setZoom(null)} />
     </main>
   );

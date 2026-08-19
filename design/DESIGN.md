@@ -65,6 +65,12 @@ tokens:
   components_harvested: true
 ---
 
+> **⚠ 색값은 전환 이전 기록이다 (2026-08-18).** 이 문서의 코랄 팔레트(`#FF6464`·`#D93636`·`#FFF8F8`)는 폐기됐다.
+> 현행 브랜드색은 **일출 코랄** — 면 `#FF6F61` · 면 hover `#F0594B` · 소형 텍스트·링크 `#C93F2E` · 틴트 `#FFF1EE`,
+> 표면 웜 크림 `#FAF8F5` · 잉크 `#182333`. 정본은 `design/references/LP_Components.svg` + `design/lp-components-spec.md`,
+> 근거는 `docs/decisions/2026-08-18-일출코랄-DS전환.md`.
+> **아래 색값은 당시 Figma as-built 기록으로만 읽는다** — 구조·컴포넌트·접근성 판단은 그대로 유효하다.
+
 > **⚠ 문서 성격 (2026-07-13 갱신).** 이 문서는 원티드 Montage 레퍼런스를 **시드**로 시작했다. 그러나 **본 서비스 디자인 시스템은 스티비(Stibee) coral `#ff6464` 기반으로 확정**되었다. 확정 토큰·컴포넌트의 스냅샷은 아래 **§0 Figma 구현 현황**과 [design-system.md](design-system.md)이다. §1–§15에 남아 있는 원티드 브랜드 서사(**Wanted Blue `#0066FF`**·JobCard·합격보상금·Wanted Sans·페르소나 등)는 **시드 레퍼런스 잔재**로, 본 서비스에는 적용하지 않는다 — 브랜드 원색은 blue가 아니라 **coral**이다. (frontmatter의 `primary_color: #ff6464`, §5 그리드, §7 Do/Don't는 이미 coral 기준.)
 
 > **로고 잉크는 위 경고의 예외다 (2026-08-18 갱신).** 서비스명 **YOAKE** 로고의 잉크 `#182333`은 시드 잔재인 Wanted Blue와 무관한 **로고 전용 고정색**이므로 코랄로 리스킨하지 않는다. UI 토큰은 그대로 coral. 자산·규칙: [brand/logo/README.md](brand/logo/README.md).

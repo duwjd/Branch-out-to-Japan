@@ -191,6 +191,20 @@ export interface DetailInput {
   brandKit?: BrandKit;
   /** 변환에 실패해 한국어가 남은 필드(게이트 기록용) */
   translationIssues?: { path: string; label: string; problem: string }[];
+
+  // ── 테마·윤문 스냅샷 (§2-7 · 콜⑨) ─────────────────────────────────────────
+  // 같은 이유로 전부 optional 이다.
+
+  /**
+   * 생성 시점에 **해석이 끝난** 테마(hex 4종 + 무드 + 출처). 프리셋 id 가 아니라 실제 값이라
+   * 프리셋 테이블을 나중에 고쳐도 발행 자산의 블록 재생성 색이 흔들리지 않는다.
+   * 읽기는 `detailThemeOf()` 액세서 하나로만 — 타입은 `lib/studio/detail/theme.ts` 의 `DetailTheme`.
+   */
+  theme?: Record<string, unknown>;
+  /** 콜⑨ copyHumanize 가 채택하지 못한 항목(게이트 기록용). 비차단 등급이다 */
+  humanizeIssues?: { blockId: string; key: string; reason: string }[];
+  /** 콜⑨ 가 아예 돌지 않았다면 그 사유 */
+  humanizeSkipped?: string;
 }
 
 /** 블록 상태 — 자산 상태와 별개로 블록별로 진행·실패가 기록된다 */
@@ -442,6 +456,8 @@ export interface Store {
         GeneratedAssetRecord,
         | 'status' | 'stage' | 'error' | 'imagePath' | 'promptUsed' | 'gateResult' | 'explanationJson'
         | 'blockTotal' | 'blockDone' | 'slicePaths'
+        // 해석된 테마·윤문 결과를 생성 중에 스냅샷한다(§2-7 · 콜⑨). 신규 컬럼 없이 detail_input jsonb 안에 담는다
+        | 'detailInput'
       >
     >,
   ): Promise<void>;

@@ -27,6 +27,9 @@ import {
 
 export type TemplateId = 'D1' | 'D2' | 'D3' | 'D4' | 'D5' | 'D6';
 
+/** AI 컷의 종류. 팩 `shotGrammar`·`categoryShotPlan` 의 공통 어휘다(v1.3.0). */
+export type ShotType = 'hero' | 'mood' | 'usage' | 'texture' | 'swatch' | 'story' | 'look' | 'diagram';
+
 export interface SlotDef {
   required: boolean;
   source: 'llm' | 'input' | 'proof' | 'promo' | 'code';
@@ -52,7 +55,33 @@ export interface BlockDef {
    * 한 상세페이지에 서로 다른 제품이 섞인다(실측: 비교 도해가 히어로와 다른 병을 그림).
    */
   productPresence?: 'source' | 'none';
+  /**
+   * 이 블록이 만드는 컷의 **종류**(팩 v1.3.0). `shotGrammar[category][shotType]` 의 조회 키이고,
+   * `categoryShotPlan` 이 "이 카테고리에 반드시 있어야 할 컷"을 가리킬 때 쓰는 이름이기도 하다.
+   * 블록 id 로 가리키지 않는 이유: 같은 제형컷이라도 카테고리마다 연출 문법이 다르고,
+   * 앞으로 블록이 늘어도 샷 종류는 그대로이기 때문이다.
+   */
+  shotType?: ShotType;
+  /**
+   * 연출 지시를 받는 블록인가.
+   *  - 'scene'   : 사진. `sceneConstraints` + `dramaProfiles` 를 받는다
+   *  - 'graphic' : 평면 벡터 도해. 조명·그림자·심도 지시를 받으면 **자기 프롬프트와 모순된다**
+   * before-after-diagram 은 `"clean flat vector-style infographic"` 인데 여태 모든 AI 블록에
+   * `"Never flat, evenly-lit"` 가 붙고 있었다 — 그걸 끊는 필드다.
+   */
+  dramaAffinity?: 'scene' | 'graphic';
   promptTemplate?: string;
+  /**
+   * 밴드 리듬 입력(팩 v1.2.0 · §2-6). 정본은 팩이고, rhythm.ts 가 이 값을 읽어 톤 배열을 접는다.
+   *  - tonePreference : 이 블록이 선호하는 밴드 톤. 'auto' 면 교대 규칙이 정한다
+   *  - heightPreset   : 배경컷 블록의 높이 프리셋. 텍스트 블록은 null
+   *  - glyph          : 콘텐츠 성격(높이 추정·미니어처 공용)
+   *  - chapterOpener  : 챕터 레일과 여유 간격을 받는 절 시작 블록인가
+   */
+  tonePreference?: 'paper' | 'tint' | 'accent' | 'ink' | 'auto';
+  heightPreset?: 'hero' | 'band' | 'strip' | null;
+  glyph?: string;
+  chapterOpener?: boolean;
   slots: Record<string, SlotDef>;
   mustInclude: string[];
   mustNotInclude: string[];
@@ -70,6 +99,16 @@ export interface TemplateDef {
   platformFit: Platform[];
   blockSequence: BlockType[];
   signatureBlocks: BlockType[];
+  /**
+   * 템플릿의 시각 언어(팩 v1.2.0 · P3). 이게 없으면 D1(문제해결형)과 D6(프리미엄형)이
+   * 같은 카테고리일 때 이미지 지시가 **바이트 단위로 동일**해져 블록 순서만 다른 페이지가 나온다.
+   *  - artDirection : 영문 아트디렉션 구절. `{{artDirection}}` 로 프롬프트에 치환된다
+   *  - dramaLevel   : 연출 강도. defaults.dramaProfiles 의 문구를 고른다
+   *  - typeScale    : satori 타이포 스케일(compact | normal | display)
+   */
+  artDirection: string;
+  dramaLevel: 'low' | 'medium' | 'high';
+  typeScale: 'compact' | 'normal' | 'display';
 }
 
 interface DetailPack {
@@ -77,10 +116,25 @@ interface DetailPack {
   targetModel: string;
   inputCleanupNote: { when: string; template: string };
   slotFillingRules: string[];
-  defaults: Record<string, unknown>;
-  moodProfiles: Record<string, { accent: string; surface: string; keywords: string }>;
+  /** `dramaProfiles`(연출 강도 문구 3종)를 포함한다 */
+  defaults: Record<string, unknown> & { dramaProfiles?: Record<string, string> };
   commonConstraints: string[];
+  /** 사진 블록 전용 제약(조명·연출·인물). `dramaAffinity: 'scene'` 에만 붙는다 */
+  sceneConstraints: string[];
+  /** 평면 벡터 도해 전용 제약. `dramaAffinity: 'graphic'` 에만 붙는다 */
+  graphicConstraints: string[];
   commonNegativeConstraints: string[];
+  /**
+   * 카테고리 × 샷타입의 **연출 문법** — "무엇을 세우고 무슨 일이 일어나는가"의 정본.
+   * 팔레트·소재는 theme.ts `CATEGORY_KEYWORDS`, 빛은 `dramaProfiles`·`artDirection` 이 나눠 갖는다.
+   * 층을 섞으면 한 프롬프트 안에서 "평평하게"와 "평평하지 않게"가 동시에 지시된다.
+   */
+  shotGrammar: Record<string, Partial<Record<ShotType, string>>>;
+  /**
+   * 카테고리별 필수·선호 컷. 여태 이 결정은 코드 어디에도 없었고
+   * `template.blockSequence` 가 우연히 정하고 있었다(사용컷은 D3에만, 제형컷은 D2·D4에 없음).
+   */
+  categoryShotPlan: Record<string, { must: ShotType[]; prefer: ShotType[]; note?: string }>;
   blockCatalog: BlockDef[];
   conditionalLayers: Record<'promo' | 'proof' | 'option', { insertAt: 'head' | 'body'; blocks: BlockType[]; note: string }>;
   templates: TemplateDef[];
@@ -279,6 +333,63 @@ function checkRequirement(token: string, input: DetailInput): { reason: string; 
 }
 
 /**
+ * 마무리 구간의 시작. 카테고리 보강 컷은 **이 앞에** 들어간다 —
+ * 사용법·스펙표·각주 뒤로 밀리면 근거를 다 읽은 뒤에 사진이 나와 서사가 끊긴다.
+ */
+const CLOSING_ANCHORS: BlockType[] = ['how-to-use', 'product-spec-table', 'footnote-block'];
+
+/** shotType 을 만드는 블록. 정본은 `blockCatalog[].shotType` 이라 코드에 목록을 두지 않는다. */
+function blockForShot(shot: ShotType): BlockType | null {
+  return getDetailPack().blockCatalog.find((x) => x.shotType === shot)?.id ?? null;
+}
+
+/**
+ * 이 카테고리 상세페이지에 들어가야 할 컷의 블록 id(필수 → 선호 순).
+ * 선케어에 사용컷·제형컷이, 색조에 스와치컷이 항상 서게 하는 유일한 장치다.
+ * @param category 상품 카테고리
+ */
+export function shotBlocksFor(category: ProductCategory): BlockType[] {
+  const plan = getDetailPack().categoryShotPlan[category];
+  if (!plan) return [];
+  const out: BlockType[] = [];
+  for (const shot of [...plan.must, ...plan.prefer]) {
+    const id = blockForShot(shot);
+    if (id && !out.includes(id)) out.push(id);
+  }
+  return out;
+}
+
+/**
+ * 이미지 예산 우선순위 — **작을수록 먼저 받는다.**
+ * 예산이 모자랄 때 무엇을 포기하는가를 여기 한 곳에서만 정의한다:
+ * `planBlocks` 의 상한 배분과 `budget.ts` 의 마감 가드가 **같은 함수**를 쓴다.
+ * @param id 블록 식별자
+ * @param category 상품 카테고리 — 필수·선호 컷 판정에 쓴다
+ * @param templateId 템플릿 — 서명 블록 판정에 쓴다
+ */
+export function imagePriority(id: BlockType, category: ProductCategory, templateId: TemplateId): number {
+  if (id === 'hero-product') return 0; // 제품이 서는 자리는 어떤 경우에도 포기하지 않는다
+  const plan = getDetailPack().categoryShotPlan[category];
+  const shot = getBlock(id).shotType;
+  if (shot && plan?.must.includes(shot)) return 1;
+  if (getTemplate(templateId).signatureBlocks.includes(id)) return 2;
+  if (shot && plan?.prefer.includes(shot)) return 3;
+  return 4;
+}
+
+/**
+ * 카테고리 × 샷타입의 연출 문법. 없는 조합은 `etc` 로 접는다(빈 문자열보다 낫다 —
+ * 치환이 비면 프롬프트에 `Category staging grammar: .` 라는 빈 문장이 남는다).
+ * @param category 상품 카테고리
+ * @param shot 컷 종류
+ */
+export function shotGrammarFor(category: ProductCategory, shot: ShotType | undefined): string {
+  if (!shot) return '';
+  const g = getDetailPack().shotGrammar;
+  return g[category]?.[shot] ?? g.etc?.[shot] ?? '';
+}
+
+/**
  * 템플릿 + 조건부 레이어 + 게이트로 블록 시퀀스를 결정한다(결정적, LLM 미개입).
  *
  * 순서: 템플릿 시퀀스 → 레이어 삽입(프로모·실적은 head, 옵션은 body) → 게이트 → AI 상한 →
@@ -328,6 +439,18 @@ export function planBlocks(
     if (!body.includes(id)) body.splice(insertAt, 0, id);
   }
 
+  // ── 카테고리 샷 보강(팩 v1.3.0) ────────────────────────────────────
+  // 여태 어떤 컷이 들어가는지는 100% template.blockSequence 였고 카테고리는 *기본 템플릿 추천*에만
+  // 쓰였다 — 그래서 사용컷은 D3에만, 제형컷은 D2·D4에 없었다. 카테고리가 자기 필수 컷을 갖게 한다.
+  // LLM 미개입·결정적. 삽입 자리는 "마무리 구간 직전"으로 고정한다(사용법·스펙표·각주 앞).
+  const closingAt = body.findIndex((id) => CLOSING_ANCHORS.includes(id));
+  let shotAt = closingAt >= 0 ? closingAt : body.length;
+  for (const id of shotBlocksFor(input.productCategory)) {
+    if (body.includes(id) || head.includes(id)) continue;
+    body.splice(shotAt, 0, id);
+    shotAt++;
+  }
+
   // ── 사용자가 끈 블록 ───────────────────────────────────────────────
   // 필수 블록(히어로·POINT·스펙표·각주)은 끌 수 없다 — 표시 의무·구조가 무너진다
   const disabledSet = new Set<BlockType>(
@@ -363,9 +486,18 @@ export function planBlocks(
     passed.push(id);
   }
 
-  // ── AI 블록 상한 ──────────────────────────────────────────────────
-  // gpt-image-2 1장이 40~90초라 5장이면 2웨이브가 되어 maxDuration=300 을 넘긴다.
-  // hybrid 는 배경컷을 포기해 text 로 강등하고, ai-visual 은 텍스트 대체안이 없어 제외한다.
+  // ── AI 블록 상한 — 선착순이 아니라 우선순위로 배분한다 ─────────────
+  // 종전에는 시퀀스 순서대로 먼저 나온 블록이 예산을 가져갔다. 그러면 시퀀스 뒤쪽에 있는
+  // 카테고리 필수 컷(제형·사용)이 앞쪽 옵션 블록에 밀려 조용히 텍스트로 강등된다.
+  // 우선순위표는 imagePriority() 가 소유하고, 마감 예산 가드(budget.ts)도 **같은 값을 재사용**한다.
+  const aiCandidates = passed
+    .map((id, seq) => ({ id, seq }))
+    .filter(({ id }) => !TEXT_ONLY_BLOCKS.includes(id) && getBlock(id).renderKind !== 'text')
+    .map(({ id, seq }) => ({ id, seq, priority: imagePriority(id, input.productCategory, tid) }))
+    // 동점은 시퀀스 순서로 깬다 — 결정성이 이 함수의 계약이다
+    .sort((a, b) => a.priority - b.priority || a.seq - b.seq);
+  const withImage = new Set<BlockType>(aiCandidates.slice(0, MAX_AI_BLOCKS).map((c) => c.id));
+
   let aiUsed = 0;
   const finalIds: BlockType[] = [];
   const renderKindOf = new Map<BlockType, RenderKind>();
@@ -378,12 +510,13 @@ export function planBlocks(
       finalIds.push(id);
       continue;
     }
-    if (aiUsed < MAX_AI_BLOCKS) {
+    if (withImage.has(id)) {
       aiUsed++;
       renderKindOf.set(id, kind);
       finalIds.push(id);
       continue;
     }
+    // hybrid 는 배경컷을 포기해 text 로 강등하고, ai-visual 은 텍스트 대체안이 없어 제외한다
     if (kind === 'hybrid') {
       renderKindOf.set(id, 'text');
       finalIds.push(id);
@@ -622,33 +755,80 @@ export function checkFootnoteIntegrity(
 }
 
 /**
+ * AI 배경컷 프롬프트에 필요한 문맥.
+ * 종전에는 `(blockId, slots, category, isFromKoreanDetail, userNote)` 위치 인자였고
+ * **templateId 가 아예 없었다** — 그래서 D1(문제해결형)과 D6(프리미엄형)이 같은 카테고리면
+ * 이미지 지시가 바이트 단위로 동일했다. 인자가 늘어날 자리라 객체로 바꾼다.
+ */
+export interface BlockPromptContext {
+  templateId: TemplateId;
+  category: ProductCategory;
+  /** 해석된 테마(theme.ts `resolveTheme`). 색·무드가 여기서 온다 — 팩에는 더 이상 색이 없다 */
+  theme: {
+    surface: string;
+    accent: string;
+    accentNameEn: string;
+    moodKeywords: string;
+  };
+  /** 입력이 한국 상세 원본이면 cleanup 지시를 맨 앞에 붙인다 */
+  isFromKoreanDetail: boolean;
+  /** 「추가 요청」의 영어 변환 */
+  userNote?: string;
+}
+
+/**
+ * 이미지 모델은 hex 를 거의 따르지 못한다 — 영문 색 이름과 **함께** 준다.
+ * (썸네일 픽스처가 이미 쓰는 관례)
+ */
+function colorPhrase(hex: string, nameEn: string): string {
+  return `${nameEn} (${hex})`;
+}
+
+/**
  * AI 배경컷 프롬프트 조립 — 썸네일 buildPrompt 의 블록판.
  * negative 1순위가 "글자를 그리지 말 것"이다: 문자는 전부 satori 가 벡터로 그리므로
  * 생성 이미지에 글자가 섞이면 이중 표기가 되어 오히려 오탈자를 만든다.
+ *
+ * 무드 키워드는 **템플릿 아트디렉션 → 테마 무드 → 카테고리 장면 문법** 순으로 잇는다.
+ * 카테고리 키워드를 대체하지 않는 이유: 선케어의 `water droplets, summer air` 같은 값은
+ * 그 상품에 맞는 장면 문법이라 브랜드 무드가 지워선 안 된다(§2-7).
  */
 export function buildBlockPrompt(
   blockId: BlockType,
   slots: Record<string, string>,
-  category: ProductCategory,
-  isFromKoreanDetail: boolean,
-  userNote?: string,
+  ctx: BlockPromptContext,
 ): string {
   const pack = getDetailPack();
   const def = getBlock(blockId);
   if (!def.promptTemplate) throw new Error(`block has no AI prompt: ${blockId}`);
 
-  const mood = pack.moodProfiles[category] ?? pack.moodProfiles.etc;
+  const template = getTemplate(ctx.templateId);
+  // theme.moodKeywords 는 이미 `카테고리 장면 문법 + 무드`로 조립돼 있다(theme.ts resolveTheme).
+  // 여기서 카테고리 키워드를 또 붙이면 같은 구절이 두 번 들어가 지시가 흐려진다.
   const filled = def.promptTemplate.replace(/\{\{(\w+)\}\}/g, (_, key: string) => {
-    if (key === 'moodKeywords') return mood.keywords;
-    if (key === 'surfaceColor') return mood.surface;
-    if (key === 'accentColor') return mood.accent;
+    if (key === 'artDirection') return template.artDirection;
+    if (key === 'moodKeywords') return ctx.theme.moodKeywords;
+    // 카테고리 × 샷타입의 연출 문법 — "무엇을 세우고 무슨 일이 일어나는가"(팩 v1.3.0)
+    if (key === 'shotGrammar') return shotGrammarFor(ctx.category, def.shotType);
+    if (key === 'surfaceColor') return colorPhrase(ctx.theme.surface, `very pale ${ctx.theme.accentNameEn}`);
+    if (key === 'accentColor') return colorPhrase(ctx.theme.accent, ctx.theme.accentNameEn);
     return slots[key] ?? def.slots[key]?.default ?? '';
   });
 
-  const cleanup = isFromKoreanDetail ? `${pack.inputCleanupNote.template}\n\n` : '';
+  const cleanup = ctx.isFromKoreanDetail ? `${pack.inputCleanupNote.template}\n\n` : '';
   // 사용자 요청은 제약보다 **앞에** 둔다 — 뒤에 오는 제약이 우선순위를 갖게 하기 위해서다
-  const note = userNote?.trim() ? `\n\nAdditional art direction: ${userNote.trim()}` : '';
-  const constraints = [...pack.commonConstraints, ...pack.commonNegativeConstraints];
+  const note = ctx.userNote?.trim() ? `\n\nAdditional art direction: ${ctx.userNote.trim()}` : '';
+  // 연출 강도와 조명 지시는 **사진 블록에만** 붙인다.
+  // before-after-diagram 은 자기 프롬프트가 "clean flat vector-style infographic" 인데
+  // 여태 "Never flat, evenly-lit" 가 덧씌워지고 있었다 — 정면 모순이라 도해가 망가졌다.
+  const isScene = (def.dramaAffinity ?? 'scene') === 'scene';
+  const drama = isScene ? pack.defaults.dramaProfiles?.[template.dramaLevel] : undefined;
+  const constraints = [
+    ...(drama ? [drama] : []),
+    ...pack.commonConstraints,
+    ...(isScene ? pack.sceneConstraints : pack.graphicConstraints),
+    ...pack.commonNegativeConstraints,
+  ];
   // 원본 제품컷을 받지 않는 블록은 용기를 아예 그리지 못하게 막는다.
   // 막지 않으면 모델이 그럴듯한 화장품 용기를 지어내고, 그 용기가 히어로 블록의 실제 제품과 달라
   // 한 상세페이지 안에 서로 다른 제품이 섞인다.

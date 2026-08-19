@@ -13,8 +13,26 @@ import {
   templateUiMetas,
   usesProductSource,
   type DetailInput,
+  type TemplateId,
 } from './blockPack';
 import { MAX_AI_BLOCKS } from './output';
+import { resolveTheme } from './theme';
+
+/**
+ * `buildBlockPrompt` 문맥 — 종전 위치 인자 `(category, isFromKoreanDetail, userNote)` 를 대체한다.
+ * 시그니처가 객체로 바뀐 이유는 **templateId 가 아예 없었기 때문**이다: D1 과 D6 이 같은
+ * 카테고리면 이미지 지시가 바이트 단위로 동일해 템플릿이 결과물에 드러나지 않았다.
+ */
+function promptCtx(isFromKoreanDetail: boolean, userNote?: string, templateId: TemplateId = 'D1') {
+  const t = resolveTheme({ source: 'palette', paletteId: 'clinical-blue' }, 'skincare');
+  return {
+    templateId,
+    category: 'skincare' as const,
+    theme: { surface: t.surface, accent: t.accent, accentNameEn: t.accentNameEn, moodKeywords: t.moodKeywords },
+    isFromKoreanDetail,
+    userNote,
+  };
+}
 
 /** 모든 근거가 갖춰진 입력 — 여기서 하나씩 빼며 게이트를 확인한다. */
 function fullInput(over: Partial<DetailInput> = {}): DetailInput {
@@ -180,7 +198,7 @@ test('planBlocks — 제외 사유에는 중복이 없고 전부 한국어 설�
 });
 
 test('buildBlockPrompt — 글자 금지가 negative 제약에 포함된다', () => {
-  const p = buildBlockPrompt('hero-product', { backgroundVisual: 'soft studio backdrop' }, 'skincare', true);
+  const p = buildBlockPrompt('hero-product', { backgroundVisual: 'soft studio backdrop' }, promptCtx(true));
   assert.match(p, /No text, letters, kana, kanji, hangul/);
   assert.match(p, /Strict requirements:/);
   // KR 상세 입력이면 cleanup 프리펜드
@@ -189,12 +207,12 @@ test('buildBlockPrompt — 글자 금지가 negative 제약에 포함된다', ()
 });
 
 test('buildBlockPrompt — 사용자 요청은 제약보다 앞에 온다(우선순위 보존)', () => {
-  const p = buildBlockPrompt('hero-product', { backgroundVisual: 'x' }, 'skincare', false, 'もっと明るく');
+  const p = buildBlockPrompt('hero-product', { backgroundVisual: 'x' }, promptCtx(false, 'もっと明るく'));
   assert.ok(p.indexOf('Additional art direction') < p.indexOf('Strict requirements:'));
 });
 
 test('buildBlockPrompt — 텍스트 전용 블록은 AI 프롬프트가 없다', () => {
-  assert.throws(() => buildBlockPrompt('product-spec-table', {}, 'skincare', false), /no AI prompt/);
+  assert.throws(() => buildBlockPrompt('product-spec-table', {}, promptCtx(false)), /no AI prompt/);
 });
 
 test('팩 무결성 — 템플릿·레이어의 블록 참조가 전부 존재하고 rubric이 붙어 있다', () => {
@@ -230,13 +248,12 @@ test('buildBlockPrompt — 원본을 안 받는 블록에는 용기 금지 문�
   const banned = buildBlockPrompt(
     'before-after-diagram',
     { diagramDescription: 'moisture retention cross-section' },
-    'skincare',
-    false,
+    promptCtx(false),
   );
   assert.match(banned, /Do not depict any cosmetic container/);
 
   // 원본을 받는 블록에는 붙으면 안 된다 — 붙으면 실제 제품까지 지워진다
-  const withSource = buildBlockPrompt('hero-product', { backgroundVisual: 'x' }, 'skincare', false);
+  const withSource = buildBlockPrompt('hero-product', { backgroundVisual: 'x' }, promptCtx(false));
   assert.doesNotMatch(withSource, /Do not depict any cosmetic container/);
 });
 
@@ -251,5 +268,182 @@ test('슬롯 설명 — 번호 배지는 코드 소유임을 팩이 명시한다
       /코드가 배지로 자동으로 붙이므로/,
       `${id}.${slot}: 번호 라벨 금지 안내가 없음`,
     );
+  }
+});
+
+// ── 카테고리 샷 플랜 (팩 v1.3.0) ──────────────────────────────────────
+// 여기서 지키는 것: **어떤 템플릿을 고르든 그 카테고리의 필수 컷이 사진으로 나온다.**
+// 종전에는 사진 블록이 100% template.blockSequence 였고 카테고리는 기본 템플릿 추천에만 쓰여서,
+// 사용컷은 D3에만 있고 제형컷은 D2·D4에 아예 없었다.
+
+const ALL_TEMPLATES: TemplateId[] = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6'];
+const ALL_CATEGORIES: DetailInput['productCategory'][] = [
+  'skincare', 'suncare', 'makeup', 'cleansing', 'haircare', 'etc',
+];
+
+/** 그 샷타입을 만드는 블록이 **배경컷을 받은 채로**(text 강등이 아니라) 들어갔는가. */
+function hasImageForShot(r: ReturnType<typeof planBlocks>, shot: string): boolean {
+  return r.blocks.some((b) => getBlock(b.blockId).shotType === shot && b.renderKind !== 'text');
+}
+
+test('카테고리 필수 샷 — 6카테고리 × 6템플릿 36조합 전부에서 이미지를 받는다', () => {
+  const pack = getDetailPack();
+  for (const category of ALL_CATEGORIES) {
+    const must = pack.categoryShotPlan[category].must;
+    for (const templateId of ALL_TEMPLATES) {
+      // 색조 필수 컷(swatch)은 색상 옵션 게이트를 그대로 탄다 — 옵션을 채워 조건을 만족시킨다
+      const r = planBlocks(
+        fullInput({
+          productCategory: category,
+          options: [
+            { axis: 'color', name: '01 ローズ', sku: 'A', swatchHex: '#d4837f' },
+            { axis: 'color', name: '02 コーラル', sku: 'B', swatchHex: '#e08a6e' },
+          ],
+          modelConsent: true,
+        }),
+        'rakuten-official',
+        templateId,
+      );
+      for (const shot of must) {
+        assert.ok(
+          hasImageForShot(r, shot),
+          `${category}/${templateId}: 필수 컷 ${shot} 이 사진으로 들어가지 않았다 — ${idsOf(r).join(',')}`,
+        );
+      }
+    }
+  }
+});
+
+test('카테고리 필수 샷 — 옵션·근거가 하나도 없는 최소 입력에서도 확보된다', () => {
+  const pack = getDetailPack();
+  for (const category of ALL_CATEGORIES) {
+    // swatch 는 색상 옵션 2개가 있어야 성립하는 컷이라, 없으면 prefer 로 떨어지는 게 정상이다
+    const must = pack.categoryShotPlan[category].must.filter((s) => s !== 'swatch');
+    const r = planBlocks(
+      fullInput({ productCategory: category, options: [], modelConsent: false }),
+      'rakuten-official',
+      'D2', // 사진 블록이 히어로 하나뿐이던 최악의 템플릿
+    );
+    for (const shot of must) {
+      assert.ok(hasImageForShot(r, shot), `${category}/D2: ${shot} 누락 — ${idsOf(r).join(',')}`);
+    }
+  }
+});
+
+test('D2(성분근거형) — 히어로 한 장짜리 페이지가 더는 나오지 않는다', () => {
+  const r = planBlocks(fullInput({ productCategory: 'skincare' }), 'rakuten-official', 'D2');
+  assert.ok(r.aiBlockCount >= 3, `이미지 ${r.aiBlockCount}장 — 예산이 놀고 있다`);
+  assert.ok(idsOf(r).includes('texture-shot'), '제형컷이 없다');
+});
+
+test('보강 컷은 마무리 구간(사용법·스펙표·각주) 앞에 들어간다', () => {
+  const ids = idsOf(planBlocks(fullInput({ productCategory: 'suncare' }), 'rakuten-official', 'D2'));
+  const usage = ids.indexOf('usage-scene');
+  assert.ok(usage >= 0, '사용컷이 보강되지 않았다');
+  for (const closing of ['how-to-use', 'product-spec-table', 'footnote-block'] as const) {
+    const at = ids.indexOf(closing);
+    if (at >= 0) assert.ok(usage < at, `${closing}(${at}) 보다 뒤(${usage})에 앉았다 — 서사가 끊긴다`);
+  }
+});
+
+test('AI 예산 — 상한을 넘지 않고, 히어로와 필수 샷은 절대 강등되지 않는다', () => {
+  for (const category of ALL_CATEGORIES) {
+    for (const templateId of ALL_TEMPLATES) {
+      const r = planBlocks(
+        fullInput({
+          productCategory: category,
+          options: [
+            { axis: 'color', name: '01', sku: 'A', swatchHex: '#d4837f' },
+            { axis: 'color', name: '02', sku: 'B', swatchHex: '#e08a6e' },
+            { axis: 'size', name: 'L', sku: 'C' },
+            { axis: 'size', name: 'S', sku: 'D' },
+          ],
+          modelConsent: true,
+        }),
+        'rakuten-official',
+        templateId,
+      );
+      assert.ok(r.aiBlockCount <= MAX_AI_BLOCKS, `${category}/${templateId}: ${r.aiBlockCount}장`);
+      const hero = r.blocks.find((b) => b.blockId === 'hero-product');
+      assert.equal(hero?.renderKind, 'hybrid', `${category}/${templateId}: 히어로가 강등됐다`);
+    }
+  }
+});
+
+test('AI 예산 — 결정성: 같은 입력이면 같은 시퀀스와 같은 렌더킨드', () => {
+  const mk = () => planBlocks(fullInput({ productCategory: 'suncare' }), 'qoo10', 'D3');
+  const a = mk();
+  const b = mk();
+  assert.deepEqual(idsOf(a), idsOf(b));
+  assert.deepEqual(a.blocks.map((x) => x.renderKind), b.blocks.map((x) => x.renderKind));
+});
+
+// ── 연출 문법 · 드라마 친화도 ─────────────────────────────────────────
+
+test('shotGrammar — 같은 컷이라도 카테고리마다 연출이 갈린다', () => {
+  const skin = buildBlockPrompt('texture-shot', { textureDescription: 'x' }, { ...promptCtx(false), category: 'skincare' });
+  const sun = buildBlockPrompt('texture-shot', { textureDescription: 'x' }, { ...promptCtx(false), category: 'suncare' });
+  assert.notEqual(skin, sun, '카테고리가 달라도 제형컷 지시가 같다');
+  assert.match(sun, /white cast|sunlight/i, '선케어 제형컷에 백탁·직사광 문법이 없다');
+});
+
+test('shotGrammar — 치환 자리가 비어 남지 않는다', () => {
+  const pack = getDetailPack();
+  for (const def of pack.blockCatalog) {
+    if (!def.promptTemplate) continue;
+    for (const category of ALL_CATEGORIES) {
+      const p = buildBlockPrompt(def.id, {}, { ...promptCtx(false), category });
+      assert.ok(!p.includes('{{'), `${def.id}/${category}: 미치환 자리 남음`);
+      assert.ok(!/grammar[^.]*:\s*\./i.test(p), `${def.id}/${category}: 빈 문법 문장`);
+    }
+  }
+});
+
+test('dramaAffinity — 평면 벡터 도해에는 조명·연출 지시가 붙지 않는다', () => {
+  // before-after-diagram 은 자기 프롬프트가 "clean flat vector-style infographic" 인데
+  // 여태 모든 AI 블록에 "Never flat, evenly-lit" 가 덧씌워지고 있었다(정면 모순).
+  const p = buildBlockPrompt('before-after-diagram', { diagramDescription: 'x' }, promptCtx(false));
+  assert.ok(!p.includes('Never flat'), '도해에 조명 지시가 붙었다');
+  assert.ok(!p.includes('Stage a real moment'), '도해에 연출 지시가 붙었다');
+  assert.ok(p.includes('flat vector-style infographic, not a photograph'), '그래픽 제약이 안 붙었다');
+});
+
+test('dramaAffinity — 사진 블록에는 연출 강도와 조명 지시가 붙는다', () => {
+  const p = buildBlockPrompt('texture-shot', { textureDescription: 'x' }, promptCtx(false));
+  assert.ok(p.includes('Never flat, evenly-lit'), '사진 블록에 조명 지시가 없다');
+  assert.ok(p.includes('Stage a real moment'), '사진 블록에 연출 지시가 없다');
+  assert.ok(!p.includes('flat vector-style infographic'), '사진에 그래픽 제약이 붙었다');
+});
+
+test('팩 무결성 — 샷 정체성·연출 문법·샷 플랜이 서로 어긋나지 않는다', () => {
+  const pack = getDetailPack();
+  const shots = new Set(pack.blockCatalog.filter((b) => b.shotType).map((b) => b.shotType!));
+
+  for (const b of pack.blockCatalog) {
+    // AI 블록은 전부 샷 정체성을 가져야 한다 — 없으면 연출 문법이 조용히 빈 문자열이 된다
+    if (b.promptTemplate) {
+      assert.ok(b.shotType, `${b.id}: shotType 없음`);
+      assert.ok(b.dramaAffinity, `${b.id}: dramaAffinity 없음`);
+    } else {
+      assert.equal(b.shotType, undefined, `${b.id}: 텍스트 블록에 shotType`);
+    }
+    // 같은 샷타입을 두 블록이 가지면 blockForShot 이 어느 쪽을 고를지 불확정해진다
+    if (b.shotType) {
+      const dup = pack.blockCatalog.filter((x) => x.shotType === b.shotType);
+      assert.equal(dup.length, 1, `shotType ${b.shotType} 중복: ${dup.map((x) => x.id).join(',')}`);
+    }
+  }
+
+  for (const category of ALL_CATEGORIES) {
+    const grammar = pack.shotGrammar[category];
+    assert.ok(grammar, `shotGrammar 에 ${category} 없음`);
+    for (const shot of shots) {
+      assert.ok(grammar[shot]?.trim(), `shotGrammar[${category}][${shot}] 비어 있음`);
+    }
+    const plan = pack.categoryShotPlan[category];
+    assert.ok(plan, `categoryShotPlan 에 ${category} 없음`);
+    for (const shot of [...plan.must, ...plan.prefer]) {
+      assert.ok(shots.has(shot), `categoryShotPlan[${category}] 의 ${shot} 를 만드는 블록이 없다`);
+    }
   }
 });

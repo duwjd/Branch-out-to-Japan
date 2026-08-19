@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.3.0",
   "createdAt": "2026-08-10",
   "targetModel": "gpt-image-2",
   "renderer": "satori (next/og) — 문자는 전부 벡터 렌더. AI는 글자 없는 배경컷만 만든다.",
@@ -9,7 +9,8 @@
     "조립 순서: (1) selectionGuide 로 템플릿 결정 → (2) template.blockSequence 를 펼침 → (3) conditionalLayers 를 조건 충족 시 지정 위치에 삽입 → (4) 각 블록의 requires 게이트 검사 — 미충족 블록은 시퀀스에서 통째로 제거 → (5) 슬롯 채움 → (6) renderKind 에 따라 satori 렌더(text) 또는 AI 배경컷+satori(hybrid/ai-visual).",
     "블록 제거는 '실패'가 아니라 기본값이다. 근거가 없으면 그 블록이 없는 상세페이지가 나오는 것이 정상 동작이다(썸네일 팩 conditionalBadgeSlots 와 동일 문법).",
     "footnote-block(B27)은 마지막에 조립한다 — 앞선 모든 블록이 배출한 각주 마커(※1·＊ 등)를 수집해 한 번에 해소한다. 본문에 있는 마커가 B27에 없으면 조립 실패로 처리한다(고아 각주 금지).",
-    "renderKind='text' 인 블록은 팩에서 변경할 수 없다. 근거 표기(効能評価試験済み·集計日·全成分)는 한 글자만 어긋나도 근거로서 무효가 되고, 확산 모델의 글리프 정확도는 문자 수에 대해 곱셈으로 떨어진다."
+    "renderKind='text' 인 블록은 팩에서 변경할 수 없다. 근거 표기(効能評価試験済み·集計日·全成分)는 한 글자만 어긋나도 근거로서 무효가 되고, 확산 모델의 글리프 정확도는 문자 수에 대해 곱셈으로 떨어진다.",
+    "v1.2.0 — 밴드 리듬 입력(tonePreference·heightPreset·glyph·chapterOpener)과 템플릿 아트디렉션(artDirection·dramaLevel·typeScale)을 팩이 소유한다. 색은 여기 없다 — 정본은 lib/studio/detail/theme.ts 이고 고객 브랜드에서 온다(관통 원칙 4)."
   ],
   "inputCleanupNote": {
     "when": "입력이 한국 상세페이지 이미지(들)일 때, AI 배경컷 프롬프트 맨 앞에 프리펜드한다.",
@@ -24,7 +25,8 @@
     "product-spec-table 의 区分·全成分 은 브랜드 제공 원문만 쓴다. 코드가 재가공하거나 LLM이 추론하지 않는다 — 약기법 표시 의무 영역.",
     "한국 카피는 직역하지 않는다. 의도를 추출해 일본 고민 어휘·관례어로 재설계한 카피만 슬롯에 넣는다.",
     "CASE·STEP·POINT·LOOK 등 번호 배지는 코드가 렌더한다. 슬롯 제목에 같은 라벨을 다시 넣으면 이중 표기가 되므로 넣지 않는다.",
-    "한 상세페이지에는 하나의 제품만 등장한다. 배경컷 연출(sceneDescription·storyVisual·diagramDescription)에 업로드된 제품과 다른 용기·패키지를 등장시키지 않는다 — 제품이 서야 하는 블록은 원본 제품컷을 편집해 쓰고, 그 외 블록은 용기를 아예 그리지 않는다."
+    "한 상세페이지에는 하나의 제품만 등장한다. 배경컷 연출(sceneDescription·storyVisual·diagramDescription)에 업로드된 제품과 다른 용기·패키지를 등장시키지 않는다 — 제품이 서야 하는 블록은 원본 제품컷을 편집해 쓰고, 그 외 블록은 용기를 아예 그리지 않는다.",
+    "배경컷 연출 슬롯(backgroundVisual·sceneDescription·storyVisual·textureDescription·swatchDescription·lookDescription)은 카피가 아니라 **사진가에게 주는 영문 촬영 브리프**다. 형용사가 아니라 장면·광원 방향·잡힌 순간을 쓴다. 카테고리 연출 문법(shotGrammar)이 주어지면 그것을 겨냥해 구체화한다."
   ],
   "defaults": {
     "canvasWidth": 1200,
@@ -51,43 +53,17 @@
       }
     },
     "footnoteMinRatio": 0.36,
-    "footnoteMinRatioNote": "본문 대비 각주 크기 하한. 景表法 打消し表示는 시각적으로 묻히면 안 된다."
-  },
-  "moodProfiles": {
-    "skincare": {
-      "accent": "#ff6464",
-      "surface": "#fff8f8",
-      "keywords": "calm, clinical-clean, soft daylight, dewy texture, minimal props"
+    "footnoteMinRatioNote": "본문 대비 각주 크기 하한. 景表法 打消し表示는 시각적으로 묻히면 안 된다.",
+    "dramaProfiles": {
+      "low": "Restrained drama: keep contrast gentle and shadows soft, but still give the light one clear direction.",
+      "medium": "Moderate drama: one clear key light, a defined shadow shape, and real depth. Never flat, evenly-lit catalogue lighting.",
+      "high": "High drama: bold directional light, deep or crisp shadows, strong subject-to-background separation, and a sense of motion or of a moment caught."
     },
-    "suncare": {
-      "accent": "#ff6464",
-      "surface": "#f2f8ff",
-      "keywords": "bright outdoor light, fresh blue-white, water droplets, summer air, crisp"
-    },
-    "makeup": {
-      "accent": "#ff6464",
-      "surface": "#fff5f6",
-      "keywords": "editorial studio light, saturated pigment, glossy swatch, playful color blocking"
-    },
-    "cleansing": {
-      "accent": "#ff6464",
-      "surface": "#f6fbf9",
-      "keywords": "clean bathroom light, foam and water, gentle pastel, hygienic"
-    },
-    "haircare": {
-      "accent": "#ff6464",
-      "surface": "#f8f7fb",
-      "keywords": "soft salon light, silky flow, warm neutral, glossy strands"
-    },
-    "etc": {
-      "accent": "#ff6464",
-      "surface": "#f7f7f8",
-      "keywords": "neutral studio light, clean minimal, soft shadow"
-    }
+    "stagingBrief": "영문 25~45단어의 **촬영 브리프**다. 형용사를 늘어놓지 말고 장면을 써라. 반드시 담을 것 — ① 피사체와 그 상태 ② 장소를 말해주는 소품 1~2개 ③ 바닥·표면의 재질 ④ 광원 방향(어디서 들어와 어디에 그림자를 만드는가) ⑤ 잡힌 순간(떨어지는·번지는·끊어지는·바람에 날리는) ⑥ 카메라 거리와 심도. 금지 — 흰 배경에 떠 있는 제품 · 평평한 카탈로그 조명 · 얼굴 · 글자 · 업로드된 것과 다른 용기."
   },
   "commonConstraints": [
     "Preserve the product from the input exactly: same shape, proportions, cap, label layout, logo, and colors. Never redraw or invent anything printed on the physical package.",
-    "This image is one full-width horizontal slice of a vertical detail page. Keep the composition calm and leave generous empty space where vector text will be placed on top.",
+    "This image is one full-width horizontal slice of a vertical detail page. Leave one generous, continuous calm region — at least 30% of the frame — that is low-detail, low-contrast, and free of the main subject; Japanese vector text is composited there. The rest of the frame should be confidently art-directed, not flat.",
     "Keep left and right safe margins clear of important subject matter (about 6% each side).",
     "Match the mood keywords exactly; the block must sit visually next to the neighbouring blocks of the same page."
   ],
@@ -143,7 +119,11 @@
       ],
       "rubric": [
         "A5"
-      ]
+      ],
+      "glyph": "stat",
+      "tonePreference": "accent",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "set-offer-table",
@@ -198,7 +178,11 @@
       ],
       "rubric": [
         "A5"
-      ]
+      ],
+      "glyph": "table",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "hero-product",
@@ -209,7 +193,7 @@
       "renderKind": "hybrid",
       "necessity": "required",
       "requires": [],
-      "promptTemplate": "A premium Japanese e-commerce detail-page hero band for a Korean beauty product. Place the supplied product upright in the {{heroPlacement}} third of the frame, {{backgroundVisual}}. Mood: {{moodKeywords}}. Leave the opposite side visually calm and uncluttered — Japanese headline text will be composited on top as vector type. Soft directional light, gentle contact shadow, {{surfaceColor}} background.",
+      "promptTemplate": "A premium Japanese e-commerce detail-page hero band for a Korean beauty product. Place the supplied product upright in the {{heroPlacement}} third of the frame, {{backgroundVisual}}. Category staging grammar (follow it closely): {{shotGrammar}}. Art direction: {{artDirection}}. Mood: {{moodKeywords}}. Light it with a single strong key from one side, a clearly shaped cast shadow, and crisp separation between the product and the {{surfaceColor}} background. Keep one continuous calm region — the opposite side or the band below the product — where Japanese vector type will be composited.",
       "slots": {
         "productNameJa": {
           "required": true,
@@ -245,7 +229,7 @@
         "backgroundVisual": {
           "required": true,
           "source": "llm",
-          "description": "배경 연출(영문, 글자 없음)"
+          "description": "히어로 배경 연출(영문). 제품이 서는 자리와 그 주변만 쓴다 — 어떤 재질 위에 서고, 옆에 무엇이 놓이고, 빛이 어디서 들어와 어떤 그림자를 만드는가. 나머지는 [연출 브리프 공통 규칙]을 따른다."
         }
       },
       "mustInclude": [
@@ -258,7 +242,13 @@
       "rubric": [
         "A3"
       ],
-      "productPresence": "source"
+      "productPresence": "source",
+      "shotType": "hero",
+      "dramaAffinity": "scene",
+      "glyph": "photo",
+      "tonePreference": "paper",
+      "heightPreset": "hero",
+      "chapterOpener": true
     },
     {
       "id": "ranking-stack",
@@ -304,7 +294,11 @@
       ],
       "rubric": [
         "A4"
-      ]
+      ],
+      "glyph": "stat",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "cumulative-sales",
@@ -350,7 +344,11 @@
       ],
       "rubric": [
         "A4"
-      ]
+      ],
+      "glyph": "stat",
+      "tonePreference": "ink",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "problem-hook",
@@ -361,7 +359,7 @@
       "renderKind": "hybrid",
       "necessity": "required",
       "requires": [],
-      "promptTemplate": "A quiet Japanese detail-page mood band suggesting a skin concern moment. {{sceneDescription}} Mood: {{moodKeywords}}. Muted, empathetic, soft natural light. Keep the {{copyZone}} half almost empty and low-contrast so Japanese vector text can be placed there. No people's faces.",
+      "promptTemplate": "A Japanese detail-page mood band evoking a skin-concern moment. {{sceneDescription}} Category staging grammar (follow it closely): {{shotGrammar}}. Art direction: {{artDirection}}. Mood: {{moodKeywords}}. Cinematic low-key window light with a defined shadow gradient, shallow depth of field, empathetic rather than clinical — a moment observed, not a product shot. Keep the {{copyZone}} half low-detail and low-contrast so Japanese vector type can be placed there.",
       "slots": {
         "hookQuestionJa": {
           "required": true,
@@ -381,7 +379,7 @@
         "sceneDescription": {
           "required": true,
           "source": "llm",
-          "description": "배경 연출(영문)"
+          "description": "고민의 순간을 담은 장면 연출(영문). 제품·용기는 등장하지 않는다. 사람은 얼굴 없이 손·어깨·머리카락까지만. 설명하지 말고 그 순간을 보여라. 나머지는 [연출 브리프 공통 규칙]을 따른다."
         },
         "copyZone": {
           "required": false,
@@ -399,7 +397,13 @@
       "rubric": [
         "C1"
       ],
-      "productPresence": "none"
+      "productPresence": "none",
+      "shotType": "mood",
+      "dramaAffinity": "scene",
+      "glyph": "photo",
+      "tonePreference": "paper",
+      "heightPreset": "band",
+      "chapterOpener": true
     },
     {
       "id": "cause-structure",
@@ -435,7 +439,11 @@
       ],
       "rubric": [
         "C2"
-      ]
+      ],
+      "glyph": "list",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "before-after-diagram",
@@ -446,7 +454,7 @@
       "renderKind": "ai-visual",
       "necessity": "optional",
       "requires": [],
-      "promptTemplate": "A clean flat vector-style Japanese cosmetics infographic comparing two skin states side by side, {{diagramDescription}}. Simple cross-section illustration, pastel palette with {{accentColor}} accents, generous white space, no text of any kind. Labels will be composited separately as vector type.",
+      "promptTemplate": "A clean flat vector-style Japanese cosmetics infographic comparing two skin states side by side, {{diagramDescription}}. Reference structure: {{shotGrammar}}. Simple cross-section illustration with confident graphic contrast between the two states, pastel palette with {{accentColor}} accents, generous white space, no text of any kind. Labels are composited separately as vector type.",
       "slots": {
         "leftLabelJa": {
           "required": true,
@@ -461,7 +469,7 @@
         "diagramDescription": {
           "required": true,
           "source": "llm",
-          "description": "도해 내용(영문)"
+          "description": "도해 내용(영문). 이건 사진이 아니라 **평면 벡터 도해**다 — 조명·그림자·심도를 쓰지 마라. 두 상태가 무엇이 어떻게 다른지, 어떤 층·요소로 그릴지만 쓴다."
         },
         "footnoteJa": {
           "required": true,
@@ -478,7 +486,13 @@
       "rubric": [
         "C2"
       ],
-      "productPresence": "none"
+      "productPresence": "none",
+      "shotType": "diagram",
+      "dramaAffinity": "graphic",
+      "glyph": "diagram",
+      "tonePreference": "paper",
+      "heightPreset": "strip",
+      "chapterOpener": false
     },
     {
       "id": "mechanism-explainer",
@@ -518,7 +532,11 @@
         "C2",
         "C3",
         "D2"
-      ]
+      ],
+      "glyph": "list",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": true
     },
     {
       "id": "ingredient-card",
@@ -568,7 +586,11 @@
       "rubric": [
         "D1",
         "D4"
-      ]
+      ],
+      "glyph": "table",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": true
     },
     {
       "id": "quant-data-graph",
@@ -610,7 +632,11 @@
       ],
       "rubric": [
         "D3"
-      ]
+      ],
+      "glyph": "graph",
+      "tonePreference": "ink",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "test-evidence-label",
@@ -669,7 +695,11 @@
         "A1",
         "A2",
         "E4"
-      ]
+      ],
+      "glyph": "chips",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "point-list",
@@ -702,7 +732,11 @@
       "rubric": [
         "C3",
         "E3"
-      ]
+      ],
+      "glyph": "list",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": true
     },
     {
       "id": "spec-panel",
@@ -740,7 +774,11 @@
       ],
       "rubric": [
         "E1"
-      ]
+      ],
+      "glyph": "stat",
+      "tonePreference": "accent",
+      "heightPreset": null,
+      "chapterOpener": true
     },
     {
       "id": "usage-scene",
@@ -751,7 +789,7 @@
       "renderKind": "hybrid",
       "necessity": "optional",
       "requires": [],
-      "promptTemplate": "A bright Japanese lifestyle band showing the usage context of a beauty product: {{sceneDescription}}. Mood: {{moodKeywords}}. Natural light, airy composition, product not necessarily visible. Keep the lower third calm for vector text. No people's faces, no text.",
+      "promptTemplate": "A Japanese lifestyle band showing the product actually being used: {{sceneDescription}}. Category staging grammar (follow it closely): {{shotGrammar}}. Art direction: {{artDirection}}. Mood: {{moodKeywords}}. The supplied product must be held, tilted, or mid-application — never standing as a catalogue object. Directional natural light with a visible shadow shape, a real moment caught mid-action, shallow depth of field. Keep one continuous calm region — the {{copyZone}} side or the lower band — for Japanese vector type.",
       "slots": {
         "scenesJa": {
           "required": true,
@@ -766,7 +804,7 @@
         "sceneDescription": {
           "required": true,
           "source": "llm",
-          "description": "배경 연출(영문)"
+          "description": "제품을 실제로 쓰고 있는 순간의 연출(영문). 제품은 손에 들려 있거나 기울어져 있거나 바르는 중이어야 한다 — 카탈로그 오브제처럼 세우지 않는다. 얼굴은 나오지 않는다. 나머지는 [연출 브리프 공통 규칙]을 따른다."
         }
       },
       "mustInclude": [
@@ -778,7 +816,13 @@
       "rubric": [
         "E1"
       ],
-      "productPresence": "source"
+      "productPresence": "source",
+      "shotType": "usage",
+      "dramaAffinity": "scene",
+      "glyph": "photo",
+      "tonePreference": "paper",
+      "heightPreset": "band",
+      "chapterOpener": true
     },
     {
       "id": "free-from-badges",
@@ -817,7 +861,11 @@
       "rubric": [
         "B1",
         "B2"
-      ]
+      ],
+      "glyph": "chips",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "color-chip-grid",
@@ -851,7 +899,11 @@
       ],
       "rubric": [
         "E2"
-      ]
+      ],
+      "glyph": "swatches",
+      "tonePreference": "paper",
+      "heightPreset": null,
+      "chapterOpener": true
     },
     {
       "id": "color-chart-matrix",
@@ -883,7 +935,11 @@
       "mustNotInclude": [],
       "rubric": [
         "E2"
-      ]
+      ],
+      "glyph": "swatches",
+      "tonePreference": "paper",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "personal-color-look",
@@ -898,7 +954,7 @@
         "options.color>=2",
         "modelConsent"
       ],
-      "promptTemplate": "An editorial Japanese makeup look band using the supplied brand-owned model cut exactly as provided. Do not alter the face. {{lookDescription}} Mood: {{moodKeywords}}. Leave a calm side column for vector text. No text in the image.",
+      "promptTemplate": "An editorial Japanese makeup look band using the supplied brand-owned model cut exactly as provided. Do not alter the face. {{lookDescription}} Category staging grammar (follow it closely): {{shotGrammar}}. Art direction: {{artDirection}}. Mood: {{moodKeywords}}. Editorial studio light with sculpted shadow, saturated but controlled colour. Leave one calm column on the {{copyZone}} side for vector type.",
       "slots": {
         "looksJa": {
           "required": true,
@@ -908,7 +964,7 @@
         "lookDescription": {
           "required": true,
           "source": "llm",
-          "description": "연출(영문)"
+          "description": "모델컷 연출(영문). 제공된 브랜드 소유 모델컷의 얼굴은 바꾸지 않는다. 빛의 방향과 색의 강도, 크롭만 지시한다. 나머지는 [연출 브리프 공통 규칙]을 따른다."
         }
       },
       "mustInclude": [
@@ -921,7 +977,13 @@
       "rubric": [
         "E2"
       ],
-      "productPresence": "none"
+      "productPresence": "none",
+      "shotType": "look",
+      "dramaAffinity": "scene",
+      "glyph": "photo",
+      "tonePreference": "paper",
+      "heightPreset": "band",
+      "chapterOpener": false
     },
     {
       "id": "lineup-compare-chart",
@@ -966,7 +1028,11 @@
       "rubric": [
         "E1",
         "C3"
-      ]
+      ],
+      "glyph": "table",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": false
     },
     {
       "id": "swatch-demo",
@@ -980,12 +1046,12 @@
       "requires": [
         "options.color>=2"
       ],
-      "promptTemplate": "A clean Japanese cosmetics swatch band: {{swatchDescription}} on a {{surfaceColor}} surface, soft top light, macro texture detail, orderly repeating layout with even spacing. Mood: {{moodKeywords}}. No text, no labels.",
+      "promptTemplate": "A Japanese cosmetics swatch band: {{swatchDescription}} on a {{surfaceColor}} surface. Category staging grammar (follow it closely): {{shotGrammar}}. Art direction: {{artDirection}}. The swatches are the subject; the supplied container may appear once at the very edge of frame, never centred and never in focus. Raking side light that reveals macro texture and specular highlight, orderly repeating layout with even spacing, shallow depth of field. Mood: {{moodKeywords}}. Keep one calm region free of swatches for vector type.",
       "slots": {
         "swatchDescription": {
           "required": true,
           "source": "llm",
-          "description": "스와치 연출(영문)"
+          "description": "스와치 연출(영문). **스와치가 주인공이다** — 무엇 위에 몇 개를 어떤 간격으로 긋고, 사광이 어떤 광택을 드러내는가. 나머지는 [연출 브리프 공통 규칙]을 따른다."
         },
         "demoNoteJa": {
           "required": true,
@@ -1002,7 +1068,13 @@
       "rubric": [
         "E2"
       ],
-      "productPresence": "source"
+      "productPresence": "source",
+      "shotType": "swatch",
+      "dramaAffinity": "scene",
+      "glyph": "photo",
+      "tonePreference": "paper",
+      "heightPreset": "strip",
+      "chapterOpener": false
     },
     {
       "id": "how-to-use",
@@ -1044,7 +1116,11 @@
       "mustNotInclude": [],
       "rubric": [
         "E3"
-      ]
+      ],
+      "glyph": "list",
+      "tonePreference": "auto",
+      "heightPreset": null,
+      "chapterOpener": true
     },
     {
       "id": "brand-story",
@@ -1055,7 +1131,7 @@
       "renderKind": "hybrid",
       "necessity": "optional",
       "requires": [],
-      "promptTemplate": "A premium Japanese brand-story band: {{storyVisual}}. Mood: {{moodKeywords}}. Cinematic soft light, restrained palette, generous negative space on the {{copyZone}} side for vector type. No text, no logos.",
+      "promptTemplate": "A premium Japanese brand-story band: {{storyVisual}}. Category staging grammar (follow it closely): {{shotGrammar}}. Art direction: {{artDirection}}. Mood: {{moodKeywords}}. Cinematic low-key light carving deep controlled shadows, restrained palette, generous negative space on the {{copyZone}} side for vector type.",
       "slots": {
         "conceptTitleJa": {
           "required": true,
@@ -1070,7 +1146,7 @@
         "storyVisual": {
           "required": true,
           "source": "llm",
-          "description": "연출(영문)"
+          "description": "브랜드 세계관을 담은 정물 연출(영문). 제품 용기는 등장하지 않는다 — 브랜드가 무엇을 소중히 여기는지를 재질·소품·빛으로 말한다. 나머지는 [연출 브리프 공통 규칙]을 따른다."
         },
         "copyZone": {
           "required": false,
@@ -1084,7 +1160,13 @@
         "개발자·전문가 의견 창작"
       ],
       "rubric": [],
-      "productPresence": "none"
+      "productPresence": "none",
+      "shotType": "story",
+      "dramaAffinity": "scene",
+      "glyph": "photo",
+      "tonePreference": "paper",
+      "heightPreset": "hero",
+      "chapterOpener": true
     },
     {
       "id": "texture-shot",
@@ -1095,7 +1177,7 @@
       "renderKind": "hybrid",
       "necessity": "optional",
       "requires": [],
-      "promptTemplate": "A macro Japanese cosmetics texture band showing {{textureDescription}} of the supplied product. Mood: {{moodKeywords}}. Soft top light, shallow depth of field, {{surfaceColor}} surface, calm empty area for vector text. No text.",
+      "promptTemplate": "A macro Japanese cosmetics texture band showing {{textureDescription}}. Category staging grammar (follow it closely): {{shotGrammar}}. Art direction: {{artDirection}}. Mood: {{moodKeywords}}. The formula itself is the subject: the supplied container may sit softly defocused at the very edge of frame or be absent entirely — never centred, never in focus. Raking light, extreme shallow depth of field, visible viscosity and surface tension, {{surfaceColor}} surface. Keep one continuous calm region for vector type.",
       "slots": {
         "textureCopyJa": {
           "required": false,
@@ -1105,7 +1187,7 @@
         "textureDescription": {
           "required": true,
           "source": "llm",
-          "description": "제형 묘사(영문)"
+          "description": "제형 매크로 연출(영문). **제형이 주인공이다** — 무엇에 얹히고 어떻게 끌어올려지고 언제 끊어지는지, 그 한 순간을 쓴다. 용기를 화면 중앙에 세우지 않는다. 나머지는 [연출 브리프 공통 규칙]을 따른다."
         }
       },
       "mustInclude": [
@@ -1115,7 +1197,13 @@
         "광택·점도 과장"
       ],
       "rubric": [],
-      "productPresence": "source"
+      "productPresence": "source",
+      "shotType": "texture",
+      "dramaAffinity": "scene",
+      "glyph": "photo",
+      "tonePreference": "paper",
+      "heightPreset": "strip",
+      "chapterOpener": false
     },
     {
       "id": "customer-review",
@@ -1154,7 +1242,11 @@
       ],
       "rubric": [
         "A4"
-      ]
+      ],
+      "glyph": "card",
+      "tonePreference": "tint",
+      "heightPreset": null,
+      "chapterOpener": true
     },
     {
       "id": "product-spec-table",
@@ -1190,7 +1282,11 @@
       ],
       "rubric": [
         "A3"
-      ]
+      ],
+      "glyph": "table",
+      "tonePreference": "tint",
+      "heightPreset": null,
+      "chapterOpener": true
     },
     {
       "id": "footnote-block",
@@ -1221,7 +1317,11 @@
       "rubric": [
         "A2",
         "C3"
-      ]
+      ],
+      "glyph": "note",
+      "tonePreference": "paper",
+      "heightPreset": null,
+      "chapterOpener": false
     }
   ],
   "conditionalLayers": {
@@ -1290,7 +1390,10 @@
       "signatureBlocks": [
         "problem-hook",
         "mechanism-explainer"
-      ]
+      ],
+      "dramaLevel": "medium",
+      "typeScale": "normal",
+      "artDirection": "documentary realism, intimate close crop, soft overcast window light with visible falloff, a real bathroom or vanity context, condensation and lived-in detail, shallow depth of field"
     },
     {
       "id": "D2",
@@ -1322,7 +1425,10 @@
       "signatureBlocks": [
         "ingredient-card",
         "quant-data-graph"
-      ]
+      ],
+      "dramaLevel": "high",
+      "typeScale": "compact",
+      "artDirection": "clinical laboratory precision, cool crisp key light with hard-edged shadows, macro detail on droplet viscosity and surface tension, glass and brushed steel surfaces, high micro-contrast"
     },
     {
       "id": "D3",
@@ -1355,7 +1461,10 @@
       "signatureBlocks": [
         "spec-panel",
         "usage-scene"
-      ]
+      ],
+      "dramaLevel": "high",
+      "typeScale": "display",
+      "artDirection": "bright outdoor sunlight, strong directional sun casting crisp shadows, high-key summer air, water splash frozen mid-motion, sand and sea reflections, restrained lens flare"
     },
     {
       "id": "D4",
@@ -1385,7 +1494,10 @@
       ],
       "signatureBlocks": [
         "color-chip-grid"
-      ]
+      ],
+      "dramaLevel": "high",
+      "typeScale": "display",
+      "artDirection": "editorial colour studio, saturated gel lighting, graphic colour blocking, glossy pigment with specular highlights, bold seamless backdrop, crisp shadow edges"
     },
     {
       "id": "D5",
@@ -1416,7 +1528,10 @@
       "signatureBlocks": [
         "point-list",
         "free-from-badges"
-      ]
+      ],
+      "dramaLevel": "low",
+      "typeScale": "normal",
+      "artDirection": "soft airy daylight diffused through sheer fabric, foam and water in gentle motion, pastel neutral surfaces, weightless calm, low contrast anchored by one soft highlight"
     },
     {
       "id": "D6",
@@ -1446,7 +1561,10 @@
       ],
       "signatureBlocks": [
         "brand-story"
-      ]
+      ],
+      "dramaLevel": "medium",
+      "typeScale": "display",
+      "artDirection": "editorial still life, low-key directional light carving deep controlled shadows, wide negative space, polished stone linen and glass, restrained luxury palette, quiet cinematic mood"
     }
   ],
   "selectionGuide": {
@@ -1508,5 +1626,129 @@
       "브랜드 서사가 히어로보다 앞서고 배지·수치가 최소면 D6.",
       "모두 애매하면 카테고리 기본값: skincare→D1 / suncare→D3 / makeup→D4 / cleansing→D5."
     ]
+  },
+  "sceneConstraints": [
+    "Light the scene deliberately: one clear key direction, a visible shadow shape, and separation between subject and background. Avoid flat, evenly-lit catalogue lighting.",
+    "Stage a real moment, not a catalogue arrangement: something is being poured, spread, drawn up, blown, or caught mid-fall, and one or two props say where we are. Never float the product on empty white.",
+    "Do not show a face unless a brand-owned model cut was explicitly supplied for this block. Hands, forearms, shoulders and hair are always fine and are encouraged where the shot calls for them."
+  ],
+  "graphicConstraints": [
+    "This block is a flat vector-style infographic, not a photograph. No photographic lighting, no cast shadows, no depth of field, no material realism.",
+    "Use flat fills, clean geometry, generous white space, and a restrained pastel palette with the accent colour used sparingly for emphasis."
+  ],
+  "shotGrammar": {
+    "skincare": {
+      "hero": "the bottle standing on a honed stone ledge, one leaf shadow falling across it from a window out of frame, a single water ring left on the stone, morning light raking from one side",
+      "mood": "the corner of an unmade bed at dawn, crumpled linen still holding the shape of a head, cold blue light through a gap in the curtain, dust drifting in the beam",
+      "usage": "a hand pressing the formula into the cheek at a washbasin, chin and shoulder only, warm light through frosted glass, water still beaded on the basin rim",
+      "texture": "a viscous droplet drawn up on a glass rod, the thread stretched thin and about to break, raking light running along the meniscus, extreme macro",
+      "story": "a quiet apothecary shelf of amber glass and folded linen, one shaft of low afternoon light crossing the frame diagonally, deep shadow to either side",
+      "look": "an editorial crop below the eyes, bare dewy skin, a highlight running along the cheekbone, one soft key from the right",
+      "swatch": "three formula drops on brushed glass, each drawn a short distance with a spatula so the finish reads differently, hard side light",
+      "diagram": "two simplified skin cross-sections side by side — one with a dry, lifted, cracked surface, one smooth and evenly hydrated"
+    },
+    "suncare": {
+      "hero": "the tube standing on hot pale concrete in direct midday sun, a hard-edged shadow thrown long to one side, a scatter of sand grains, sea light bouncing back into the shadow",
+      "mood": "an exposed pavement at noon, visible heat shimmer, the hard shadow of a railing striping the bright ground, highlights blown at the edge of frame",
+      "usage": "a forearm and shoulder in strong sun with the formula being spread across the skin, sea wind lifting hair at the edge of frame, a crisp shadow falling across the arm",
+      "texture": "a bead of white fluid collapsing into a transparent film on the back of a hand, raking sunlight proving it leaves no white cast, extreme macro",
+      "story": "an early-morning shoreline, wet sand mirroring the sky, one towel and a straw hat, long low light coming from behind the subject",
+      "look": "a sunlit editorial crop of shoulder and jaw, clean glow on the skin, hard sun with a bounced fill from below",
+      "swatch": "three stripes drawn side by side on a warm-toned surface under hard sun, each showing a different finish, shadow edges crisp",
+      "diagram": "a simplified skin surface with UV arrows above it — one half unprotected, one half carrying a thin even protective film"
+    },
+    "makeup": {
+      "hero": "the product lying on a coloured seamless sweep with a second gel light throwing a coloured rim along its edge, one hard shadow, a fragment of mirror at the frame edge",
+      "mood": "a vanity at night, a lit mirror bulb thrown out of focus behind, an open compact and a scatter of loose pigment dust across the surface",
+      "usage": "a hand checking colour in a hand mirror, lips and chin only, editorial gel light, the product held in the other hand caught mid-motion",
+      "texture": "a cross-section of lip cream on a glass plate, the crest catching a hard specular highlight, pigment density visible through the body, extreme macro",
+      "story": "an editorial colour still life — folded silk in the brand shade and a single stem — low-key light and deep shadow, one saturated accent",
+      "look": "an editorial makeup crop below the eyes, sculpted highlight along the cheekbone, saturated but controlled colour, one hard key with a coloured fill",
+      "swatch": "a gradient of swatches drawn along the inner forearm, evenly spaced, raking light picking up the pearl in each, macro",
+      "diagram": "a simplified colour-tone chart on warm and cool axes, flat pastel blocks, no photographic depth"
+    },
+    "cleansing": {
+      "hero": "the bottle on a wet tiled ledge with a fogged mirror behind it, condensation running in one visible track down the glass, soft top light, a folded towel thrown out of focus",
+      "mood": "a steamed-up bathroom mirror with one hand-wiped arc through the fog, cool morning light through the window, water beading and running on tile",
+      "usage": "wet hands collapsing a dome of foam over a basin, water still running from the tap, soft daylight from the side, forearms only",
+      "texture": "dense foam whipped into standing peaks with the tips just curling over, raking top light revealing how fine the bubbles are, extreme macro",
+      "story": "a still life of folded cotton, a plain bar and a glass of water on pale stone, one wide diagonal shaft of light across the frame",
+      "look": "a bare-face editorial crop below the eyes, water sitting on the skin, cool soft key from one side",
+      "swatch": "three cleansing textures set on wet glass — balm, gel and foam — each caught mid-transformation, hard side light",
+      "diagram": "a simplified pore cross-section — one side loaded with sebum and debris, one side clear — flat vector bands"
+    },
+    "haircare": {
+      "hero": "the bottle on a warm wood salon counter with a comb and a loose coil of hair beside it, a low warm key from one side throwing a long soft shadow",
+      "mood": "hair falling across a shoulder inside a shaft of window light, individual strands separating, the rest of the frame dropping away into shadow",
+      "usage": "a hand drawing the formula down a length of hair, strands separating and catching the light, salon window light from behind, no face",
+      "texture": "a cream pulled apart between two fingertips with fine strings forming between them, raking light, extreme macro",
+      "story": "a salon still life at closing time — warm wood, a brush and a folded towel — one low lamp carving deep shadow across the counter",
+      "look": "an editorial crop of hair and shoulder, a glossy band of reflected light running down the length",
+      "swatch": "three formula textures set on a dark surface, each drawn out with a spatula to show its slip, hard side light",
+      "diagram": "a simplified hair-shaft cross-section — one side with a lifted, rough cuticle, one side smooth and closed"
+    },
+    "etc": {
+      "hero": "the product on a neutral stone plinth, one hard key from the upper left throwing a clean cast shadow, a single prop echoing the product's own material",
+      "mood": "a quiet interior corner cut by a strong diagonal of window light, the opposite side of the frame falling into deep shadow",
+      "usage": "hands using the product mid-action on a plain surface, directional daylight from one side, forearms only",
+      "texture": "the formula drawn out across a neutral surface, viscosity and surface tension clearly visible, raking light, extreme macro",
+      "story": "a restrained still life on stone and linen, one wide shaft of low light, generous deep negative space",
+      "look": "an editorial crop lit by a single sculpted key, restrained palette",
+      "swatch": "three even samples set on a neutral surface, hard side light picking up the difference in finish",
+      "diagram": "a simplified two-state comparison rendered in flat vector bands"
+    }
+  },
+  "categoryShotPlan": {
+    "skincare": {
+      "must": [
+        "texture"
+      ],
+      "prefer": [
+        "usage"
+      ],
+      "note": "제형의 점성·흡수가 구매 이유다. 사용 맥락이 있으면 더 좋다."
+    },
+    "suncare": {
+      "must": [
+        "usage",
+        "texture"
+      ],
+      "prefer": [],
+      "note": "언제 바르는가(사용)와 백탁 여부(제형)가 일본 선케어의 두 축이다."
+    },
+    "makeup": {
+      "must": [
+        "swatch"
+      ],
+      "prefer": [
+        "texture"
+      ],
+      "note": "색은 스와치로만 판단된다. 색상 옵션이 없으면 제형컷으로 떨어진다."
+    },
+    "cleansing": {
+      "must": [
+        "texture"
+      ],
+      "prefer": [
+        "usage"
+      ],
+      "note": "거품의 조밀도·밤의 용해가 저자극 소구의 시각 근거다."
+    },
+    "haircare": {
+      "must": [
+        "usage"
+      ],
+      "prefer": [
+        "texture"
+      ],
+      "note": "모발 결의 변화는 사용 장면에서만 읽힌다."
+    },
+    "etc": {
+      "must": [
+        "texture"
+      ],
+      "prefer": [],
+      "note": "카테고리 문법이 없을 때의 최소 보장."
+    }
   }
 }

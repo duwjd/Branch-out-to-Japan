@@ -20,34 +20,34 @@
     - design/handoff-landing-design-system.md (CTA 코랄 정책·접근성)
   v2(2026-07-09): UX/접근성 점검(ux-review.md) 반영 — chip 접근성·label 연결·배지 대비·
     모바일 햄버거·대표 상태(empty/disabled/URL실패/무료소진/로그인탭)·택소노미 정본 통일·랜딩 확정 카피.
-  ⚠ CTA 정책: #FF6464 배경 + large/bold 흰 텍스트만. 작은 흰 텍스트 금지(AA 미달).
-    작은 인터랙티브 텍스트·링크·소형 배지는 #D93636. 파란 primary 금지.
+  ⚠ CTA 정책: #FF6F61 배경 + large/bold 흰 텍스트만. 작은 흰 텍스트 금지(AA 미달).
+    작은 인터랙티브 텍스트·링크·소형 배지는 #C93F2E. 파란 primary 금지.
   화면 속 점수·문구·법조항은 UI 시연용 예시이며 실제 진단 결과가 아니다.
   상세 명세는 public-onboarding-spec.md, 점검 결과는 ux-review.md 참조.
   ════════════════════════════════════════════════════════════════════
 -->
 <style>
   :root {
-    --primary: #FF6464;
-    --primary-strong: #D93636;
-    --primary-tint: #FFF8F8;
-    --error: #F0483C;
-    --error-tint: #FDECEB;
-    --error-ink: #A4271D;
-    --success: #00B97C;
-    --success-tint: #E6F7F0;
-    --success-ink: #036C4A;
-    --warning: #FFAB00;
-    --warning-tint: #FFF6E5;
-    --warning-ink: #7A5200;
+    --primary: #FF6F61;
+    --primary-strong: #C93F2E;
+    --primary-tint: #FFF1EE;
+    --error: #D94848;
+    --error-tint: #FBEDED;
+    --error-ink: #C13A3A;
+    --success: #2D8C6B;
+    --success-tint: #E8F4F0;
+    --success-ink: #26775B;
+    --warning: #E39A22;
+    --warning-tint: #FDF3E4;
+    --warning-ink: #8F6412;
 
-    --heading: #202124;
-    --body: #414245;
-    --secondary: rgba(55,56,60,.61);
+    --heading: #182333;
+    --body: #3D4655;
+    --secondary: #6e7686;
     --surface: #ffffff;
-    --surface-subtle: #F6F6F6;
-    --border: rgba(112,115,124,.22);
-    --border-soft: rgba(112,115,124,.14);
+    --surface-subtle: #F4F2EE;
+    --border: #e9e7e3;
+    --border-soft: #e9e7e3;
 
     --font-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
       "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", sans-serif;
@@ -58,7 +58,7 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; scroll-padding-top: 68px; }
-  body { font-family: var(--font-sans); background: #ECEDEF; color: var(--body); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  body { font-family: var(--font-sans); background: #E9E7E3; color: var(--body); line-height: 1.6; -webkit-font-smoothing: antialiased; }
 
   /* reduced-motion (DESIGN.md §14) */
   @media (prefers-reduced-motion: reduce) {
@@ -95,7 +95,7 @@
   .frame { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-float); }
   .chrome { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #F1F2F4; border-bottom: 1px solid var(--border-soft); }
   .chrome .dots { display: flex; gap: 6px; }
-  .chrome .dots i { width: 11px; height: 11px; border-radius: 50%; background: #D3D7DE; display: block; }
+  .chrome .dots i { width: 11px; height: 11px; border-radius: 50%; background: #C9CDD4; display: block; }
   .chrome .url { font-size: 11.5px; color: var(--secondary); background: #fff; border: 1px solid var(--border-soft); border-radius: 999px; padding: 4px 12px; margin-left: 8px; flex: 1; max-width: 440px; }
   .chrome .vp { margin-left: auto; font-size: 10.5px; color: var(--secondary); }
 
@@ -129,7 +129,7 @@
 
   .card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
   .card-soft { background: var(--surface-subtle); border-color: var(--border-soft); }
-  .card-tint { background: var(--primary-tint); border-color: rgba(255,100,100,.28); }
+  .card-tint { background: var(--primary-tint); border-color: rgba(255,111,97,.28); }
   .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary-strong); }
   .muted { color: var(--secondary); }
   .grid { display: grid; gap: 16px; }
@@ -320,7 +320,7 @@
       </p>
       <div class="meta">
         <span>범위 = 공개(랜딩·체커·샘플·요금) + 인증/온보딩(로그인·브랜드 프로필)</span>
-        <span>토큰 = 코랄 #FF6464 (DESIGN.md 확정)</span>
+        <span>토큰 = 코랄 #FF6F61 (DESIGN.md 확정)</span>
         <span class="warn">CTA: 코랄 배경 + large/bold 흰 텍스트만 · 작은 흰 텍스트 금지 · 파란 primary 금지</span>
         <span>규격 = Desktop 1200 / Mobile 390 · 콘텐츠 max 1185</span>
         <span>v2: UX·접근성 점검 반영</span>
@@ -437,7 +437,7 @@
               <div class="sk-head"><span class="sk-tag">FAQ</span><span class="sk-name">자주 묻는 질문</span></div>
               <p>번역과 차이 / AI 신뢰 / 약기법 판정 신뢰 / 일본어 못 읽어도 검수 / 결과물 전 비용·해지 (전문 spec §1). Accordion.</p>
             </div>
-            <div class="sk" style="margin:0;background:var(--primary-tint);border-color:rgba(255,100,100,.28);">
+            <div class="sk" style="margin:0;background:var(--primary-tint);border-color:rgba(255,111,97,.28);">
               <div class="sk-head"><span class="sk-tag">FINAL CTA</span><span class="sk-name">지금 쓰는 문구부터, 무료로 진단해 보세요.</span></div>
               <p>가입 없이 체커로 시작하거나, 실제 카피로 만든 샘플 리포트를 먼저 볼 수 있습니다.</p>
               <div class="cta-inline"><a href="#s2" class="btn btn-primary btn-sm">무료 진단 시작</a><a href="#s3" class="btn btn-secondary btn-sm">샘플 리포트 보기</a></div>
@@ -702,7 +702,7 @@
       <div class="notes">
         <p class="note fix" data-n="1"><b>[반영] 브릿지 카피:</b> Growth 배지 옆 "첫 달 진단비 공제"로 '결과물 전 월정액' 마찰 상쇄.</p>
         <p class="note ask" data-n="2"><b>[플래그] featured 위치:</b> 검증 퍼널은 'Report 먼저'라 추천을 Report로 옮길지 A/B는 팀 결정(ux-review C5).</p>
-        <p class="note" data-n="3"><b>배지 대비:</b> 소형 흰 텍스트 배지는 `#D93636` 배경(코랄+작은 흰텍스트 금지).</p>
+        <p class="note" data-n="3"><b>배지 대비:</b> 소형 흰 텍스트 배지는 `#C93F2E` 배경(코랄+작은 흰텍스트 금지).</p>
       </div>
     </section>
 
@@ -905,7 +905,7 @@
     <div class="legend">
       <b>이 와이어프레임 읽는 법 · 디자이너 인계 메모</b><br>
       · 저채도 골격입니다. 정밀 스타일·간격·이미지·모션은 <code>design/DESIGN.md</code> 시스템으로 완성해 주세요.<br>
-      · <b>CTA 코랄 정책</b>: <code>#FF6464</code> 배경은 large/bold 흰 텍스트에만. 작은 인터랙티브 텍스트·링크·소형 배지는 <code>#D93636</code>. 파란 primary 금지.<br>
+      · <b>CTA 코랄 정책</b>: <code>#FF6F61</code> 배경은 large/bold 흰 텍스트에만. 작은 인터랙티브 텍스트·링크·소형 배지는 <code>#C93F2E</code>. 파란 primary 금지.<br>
       · <span class="note fix" style="padding-left:22px;position:relative;display:inline;">✓ 표시</span> = 이번 UX 점검(ux-review.md) 반영 항목. <span style="color:var(--primary-strong);font-weight:600;">? 표시</span> = 디자이너/팀 결정 필요.<br>
       · 컴포넌트는 발명하지 말고 기존 인벤토리 사용. 카피는 한국어 B2B(일본어는 예시만), 미확정 수치 금지.<br>
       · 상세 명세는 <b>public-onboarding-spec.md</b>, 점검 상세는 <b>ux-review.md</b>.

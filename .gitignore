@@ -74,3 +74,7 @@ data/processed/*.bak-*
 
 # Excel 임시 잠금 파일
 ~$*
+
+# Illustrator 원본·임시 파일 — 로컬 보관(용량 큼, 저장소에 넣지 않는다)
+*.ai
+~ai-*.tmp

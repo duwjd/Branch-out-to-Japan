@@ -453,7 +453,7 @@
 ## 10.2 형식 (확정)
 - **단일 self-contained HTML 1개 파일.** 외부 CSS/JS/폰트/이미지 **의존 0** — 디스크에서 열어 발표·인쇄·PDF 저장. Chart.js 등 CDN 금지.
 - 브라우저에서 화살표/클릭 내비게이션(인라인 스크립트). 16:9.
-- 디자인 토큰은 `design/DESIGN.md` 코랄 시스템(`#ff6464` CTA · `#d93636` hover/링크).
+- 디자인 토큰은 `design/lp-components-spec.md` 일출 코랄 시스템 — 면(CTA 배경) `#FF6F61` · 면 hover `#F0594B` · 소형 텍스트·링크 `#C93F2E`. 정본 시트는 `design/references/LP_Components.svg`.
 
 ## 10.3 산출 로직 — 숫자는 LLM이 만들지 않는다 (증거 원칙의 구조적 보장)
 | 무엇 | 누가 |

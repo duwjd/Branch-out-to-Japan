@@ -277,7 +277,7 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
               <div className="flex gap-6 max-sm:flex-col">
                 <Link
                   href={`/app/studio/thumbnail?from=${asset.id}&style=${asset.styleCategory}`}
-                  className="inline-flex flex-1 items-center justify-center rounded-[8px] bg-coral px-[22px] py-[13px] text-[15px] font-semibold text-white no-underline transition-colors hover:bg-coral-strong"
+                  className="inline-flex flex-1 items-center justify-center rounded-[8px] bg-coral px-[22px] py-[13px] text-[15px] font-semibold text-white no-underline transition-colors hover:bg-coral-hover"
                 >
                   다시 시도
                 </Link>
@@ -379,7 +379,7 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
                       </div>
                     </div>
                     {explanation?.beforeSummary && (
-                      <p className="text-[14px] leading-[1.6] text-[#666] [text-wrap:pretty]">{explanation.beforeSummary}</p>
+                      <p className="text-[14px] leading-[1.6] text-ink-body [text-wrap:pretty]">{explanation.beforeSummary}</p>
                     )}
                   </div>
 

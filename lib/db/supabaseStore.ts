@@ -619,6 +619,7 @@ export function createSupabaseStore(): Store {
       if (patch.blockTotal !== undefined) row.block_total = patch.blockTotal;
       if (patch.blockDone !== undefined) row.block_done = patch.blockDone;
       if (patch.slicePaths !== undefined) row.slice_paths = patch.slicePaths;
+      if (patch.detailInput !== undefined) row.detail_input = patch.detailInput;
       const result = await client.from('generated_assets').update(row).eq('id', id);
       if (result.error) throw new Error(`supabase updateAsset 실패: ${result.error.message}`);
     },
