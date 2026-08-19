@@ -1,55 +1,38 @@
-# 디자인 시스템 (확정 · YOAKE 단일 팔레트)
+# 디자인 시스템 (확정 · YOAKE 일출 코랄)
 
-> **⚠ 팔레트 전환 (2026-08-18).** 로고·랜딩·앱 셸이 **하나의 팔레트**로 통일됐다. 브랜드 원색은 로고의
-> 일출 코랄 `#ff6f61`, 바탕 `#faf8f5`, 선 `#e9e7e3`, 잉크 `#182333`이다. 구 **스티비 coral
-> `#ff6464`·`#d93636`·`#fff8f8`은 폐기**됐으므로 아래 "컬러 — Primitives" 표는 **이력**이다.
-> 현행 값은 아래 "컬러 — 현행(YOAKE Web)" 표와 `app/globals.css`를 본다.
-> 근거: [../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md](../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md).
+> **2026-08-18 전환.** 정본은 `LP_Components` 시트 → [references/LP_Components.svg](references/LP_Components.svg), 실측 스펙 [lp-components-spec.md](lp-components-spec.md), 결정 근거 [2026-08-18-일출코랄-DS전환.md](../docs/decisions/2026-08-18-일출코랄-DS전환.md).
+> 구현 토큰은 [app/globals.css](../app/globals.css) `@theme` 이고, 이 문서는 그 스냅샷이다.
 >
-> 팔레트 정본은 **Figma `YOAKE Web` 컬렉션**, 토큰 정본은 `app/globals.css`다. 상세 스펙은 [DESIGN.md](DESIGN.md).
-> 로고 자산·규칙: [brand/logo/README.md](brand/logo/README.md) — 로고 색은 이제 UI 팔레트와 같은 값이다.
-
-## 컬러 — 현행 (YOAKE Web · 정본)
-| 역할 | 토큰(Figma) | Tailwind | 값 |
-|---|---|---|---|
-| 브랜드/CTA | `color/brand/coral` | `coral` | `#ff6f61` |
-| 브랜드 hover·링크·소형 텍스트 | (코드 파생) | `coral-strong` | `#c44439` |
-| 브랜드 틴트 | `color/brand/coral-tint` | `coral-tint` | `#fff1ee` |
-| 배경(앱 바탕) | `color/bg/warm-white` | `page` | `#faf8f5` |
-| 배경(카드·입력) | `color/bg/white` | `canvas` | `#ffffff` |
-| 선 | `color/border/soft` | `card-border`·`input-border`·`hairline` | `#e9e7e3` |
-| 잉크(제목) | `color/text/primary` | `ink` | `#182333` |
-| 잉크(본문) | `color/text/body` | `ink-body` | `#3d4655` |
-| 잉크(보조) | `color/text/secondary` | `ink-mute` | `#6e7686` |
-| 반경 | `radius/card`·`button`·`pill` | `rounded-card` | `14` · `10` · `999` |
-
-> `coral-strong`은 Figma 컬렉션에 대응 변수가 없다. `#ff6f61`이 흰 배경 2.73:1로 소형 텍스트 AA에
-> 미달해, 같은 hue(5°)에서 코드가 파생한 값이다(흰 4.96:1 · tint 4.50:1).
-
-## 컬러 — Primitives (이력 · 구 스티비 팔레트, 사용 금지)
+> **구 스티비 coral `#ff6464` 팔레트는 폐기.** 브랜드색은 로고와 같은 일출 코랄 `#FF6F61`, 표면은 웜 크림 `#FAF8F5`, 잉크는 `#182333`이다. 아래 §타이포 이후 절에 남은 스티비·원티드 서사는 시드 잔재다.
+> 로고 자산·여백 규칙은 [brand/logo/README.md](brand/logo/README.md)를 계속 따른다 — 단 **일출 그라디언트만** 로고 전용이다.
 
 ## Figma 원본
 - 파일: `2조 생존자들` (fileKey `C3FYvw7rhJrrHK4HgCZzBt`)
 - 변수 컬렉션: `1. Primitives`(원색) → `2. Semantic`(역할) → `3. Scale`(간격·radius)
 - 로컬 컴포넌트·스타일 페이지: **Components (Local · Stibee)**
 
-## 컬러 — Primitives
-| 역할 | 토큰 | 값 |
+## 컬러 — Primitives (LP_Components 실측)
+| 역할 | CSS 토큰 | 값 |
 |---|---|---|
-| 브랜드/CTA | `coral/base` | `#ff6464` |
-| 브랜드 hover/pressed | `coral/strong` | `#d93636` |
-| 브랜드 틴트 | `coral/tint` | `#fff8f8` |
-| 배경(캔버스) | `neutral/canvas` | `#ffffff` |
-| 배경(서피스) | `neutral/surface` | `#f6f6f6` |
-| 디바이더 | `neutral/divider` | `#ebebeb` |
-| 보더(hairline) | `neutral/border` | `#70737c` 16% |
-| 제목 텍스트 | `text/heading` | `#202124` |
-| 본문 텍스트 | `text/body` | `#414245` |
-| 보조 텍스트 | `text/secondary` | `#37383c` 61% |
-| 비활성 텍스트 | `text/disabled` | `#747579` |
-| 에러 | `feedback/error` | `#f0483c` |
-| 성공 | `feedback/success` | `#00b97c` |
-| 경고 | `feedback/warning` | `#ffab00` |
+| 브랜드 **면**(CTA·아이콘) | `--color-coral` | `#FF6F61` |
+| 브랜드 hover / pressed | `--color-coral-hover` / `-pressed` | `#F0594B` / `#DB4C3F` |
+| 브랜드 **글자**(링크·소형) | `--color-coral-strong` | `#C93F2E` |
+| 브랜드 틴트 | `--color-coral-tint` | `#FFF1EE` |
+| 배경(페이지·크림) | `--color-page` | `#FAF8F5` |
+| 배경(캔버스) | `--color-canvas` | `#FFFFFF` |
+| 서피스 / subtle | `--color-n-100` / `-150` | `#F4F2EE` / `#F2F1ED` |
+| 보더·디바이더 | `--color-card-border` | `#E9E7E3` |
+| 보더(강) | `--color-border-strong` | `#C9CDD4` |
+| 제목 텍스트 | `--color-ink` | `#182333` |
+| 본문 텍스트 | `--color-ink-body` | `#3D4655` |
+| 보조·라벨 | `--color-ink-mute` | `#6E7686` |
+| placeholder·비활성 | `--color-ink-faint` | `#78818F` |
+| 잉크 배경 위 보조 | `--color-ink-on-dark` | `#C3CAD6` |
+| 에러 (면 / 글자) | `--color-danger` / `-text` | `#D94848` / `#C13A3A` |
+| 성공 (면 / 글자) | `--color-green` / `-text` | `#2D8C6B` / `#26775B` |
+| 경고 (면 / 글자) | `--color-amber` / `-text` | `#E39A22` / `#8F6412` |
+
+> **면과 글자를 나눈다.** 시트 원색은 대비가 낮아(코랄 2.57:1, 앰버 2.15:1) 소형 텍스트에 못 쓴다. 도트·보더·아이콘·버튼 면은 원색, 글자는 `*-text`/`coral-strong`.
 
 ## 컬러 — Semantic (역할 → 원색)
 | 시맨틱 토큰 | → 원색 | 용도 |
@@ -63,7 +46,7 @@
 | `bg/tint` | `coral/tint` | 코랄 틴트 배경 |
 | `border/default` / `border/subtle` | divider / border | 카드·필드 hairline |
 
-> **인풋 포커스 아웃라인은 브랜드색이 아닌 회색**(`Cool Neutral/50 #70737c`)을 쓴다. CTA·칩·아이콘버튼만 coral.
+> **포커스는 전 컴포넌트 코랄 3px 링**(`--color-coral`, offset 1)으로 통일한다 — 전환 전의 "포커스는 회색" 규칙은 폐기. 인풋은 여기에 `--color-coral-glow` 글로우를 더한다.
 
 ## 타이포
 - 웹 구현 폰트: **Pretendard Variable** (스티비 원본과 동일). Figma 컴포넌트는 환경 제약으로 Noto Sans KR 사용.
@@ -71,7 +54,7 @@
 
 ## 간격 · Radius (Scale 변수)
 - `space/*`: 4 · 8 · 12 · 16 · 20 · 24 · 32 · 64
-- `radius/*`: `sm 6` · `md 8` · `lg 12` · `full 9999`
+- `radius/*` (시트 실측): `--radius-check 5`(체크박스) · `--radius-field 8`(인풋·셀렉트) · `--radius-btn 10`(버튼) · `--radius-panel 12`(FAQ·성공메시지) · `--radius-card 14`(카드, 구 18) · `full 9999`(배지·칩)
 
 ## Effect Styles (쉐도우)
 | 스타일 | 값 |
@@ -101,5 +84,7 @@
 - 자세한 감사·경위: [audit-refined-landing-ds.md](audit-refined-landing-ds.md), [DESIGN.md](DESIGN.md) §5–6.
 
 ## 접근성 기준
-- 색 대비 WCAG AA 이상, 포커스 가시화, 시맨틱 태그.
-- **코랄 `#ff6f61`은 소형 텍스트에 단독으로 쓸 수 없다** — 흰 배경 2.73:1로 AA 미달이다. 큰 글씨·CTA 배경(위에 흰 글자)에만 쓰고, 링크·14px 이하 라벨·`coral-tint` 위 텍스트는 `coral-strong #c44439`(흰 4.96:1 · tint 4.50:1)를 쓴다.
+- 색 대비 WCAG AA(4.5:1) 이상. 소형 텍스트·링크는 반드시 `coral-strong`/`*-text` 토큰 — 시트 원색은 글자에 쓰지 않는다.
+- 포커스 가시화(코랄 3px), 시맨틱 태그, 상태는 색+글자+기호 3중 표기.
+- 전환 후 실측: 제목 14.9 · 본문 9.5 · 캡션 4.6 · 링크 5.0 · 배지 4.7–4.8 (전부 AA 이상).
+- **미해결:** Primary 버튼의 흰 글자 on `#FF6F61`은 2.73:1로 AA 미달이다. 해소안은 [결정 문서](../docs/decisions/2026-08-18-일출코랄-DS전환.md) "미해결" 절.

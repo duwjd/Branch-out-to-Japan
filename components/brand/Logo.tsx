@@ -3,11 +3,12 @@ import type { SVGProps } from 'react';
 /**
  * YOAKE 로고 — 정본 자산은 design/brand/logo/*.svg, 사용 규칙은 design/brand/logo/README.md.
  * 레터마크는 글리프를 패스로 아웃라인한 것이라 폰트 설치에 의존하지 않는다.
- * 로고 색은 2026-08-18부터 UI 팔레트와 통일됐다 — 잉크 #182333 = --color-ink, 일출 코랄 #ff6f61 = --color-coral.
- * 그래도 값을 여기 고정해 두는 이유는 로고가 테마·컨텍스트에 따라 변하면 안 되는 자산이기 때문이다.
+ * 2026-08-18 전환 이후 로고 색 = UI 토큰이다 — INK #182333 = --color-ink,
+ * SUN_FROM #FF6F61 = --color-coral. **일출 그라디언트만** 로고 심볼 전용이라 UI 면에는 쓰지 않는다.
+ * 값을 리터럴로 두는 이유: 이 SVG는 메일·OG 이미지로도 나가 CSS 변수를 못 받는다.
  */
 
-/** 레터마크 잉크 — 로고 자산 고정색(--color-ink와 같은 값) */
+/** 레터마크 잉크 (= --color-ink) */
 const INK = '#182333';
 /** 일출 그라디언트 — 왼쪽(코랄) → 오른쪽(살구) */
 const SUN_FROM = '#FF6F61';

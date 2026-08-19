@@ -14,6 +14,7 @@
  */
 
 import type { BrandKit, DetailInput } from '../../db/store';
+import { digitSignature, hasHangul } from '../../engine/lang';
 
 /**
  * 필드 성격 — 취급이 갈린다.
@@ -54,35 +55,16 @@ export const NOTE_PATH = 'note';
  * 한글이 섞여 있는가.
  * 완성형(가-힣)만 보면 안 된다 — 자모 단독(ㄱ·ㅏ)은 JP 폰트 cmap 에 **들어 있어서**
  * `uncoveredGlyphs()` 를 통과해 버린다. 렌더는 되지만 일본 상세페이지에 한글 자모가 남는다.
+ *
+ * 정의는 `lib/engine/lang.ts` 가 소유한다 — ① 리포트의 언어 계약 검사도 같은 판정을 쓰므로
+ * 정규식이 두 벌로 갈리면 두 축의 기준이 조용히 어긋난다. 여기서는 재수출만 한다.
  */
-const HANGUL_RE = /[ᄀ-ᇿ㄰-㆏ꥠ-꥿가-힣ힰ-퟿]/;
-
-/** @param text 검사 대상 */
-export function hasHangul(text: string): boolean {
-  return HANGUL_RE.test(text);
-}
+export { hasHangul };
 
 // ── 숫자 보존 검사 ───────────────────────────────────────────────────────────
 
-/**
- * 숫자 지문 — 표기 형식은 무시하고 **수치 자체**만 뽑는다.
- *
- * 형식 변화는 정상이고 오히려 바람직하다: `2026.04.15` → `2026年4月15日`,
- * `2022.5/19-2026.4/29` → `2022年5月19日〜2026年4月29日`, `163,991` → `163,991個`.
- * 그래서 (1) 천단위 쉼표 제거 → (2) 숫자 런 추출 → (3) 앞자리 0 제거 순으로 정규화한 뒤
- * 이어 붙인다. 위 세 예시는 전부 원문과 같은 지문이 나오고, 값이 실제로 바뀌면 즉시 갈린다.
- *
- * @param text 원문 또는 변환문
- */
-export function digitSignature(text: string): string {
-  const normalized = text
-    // 전각 숫자 → 반각
-    .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
-    // 천단위 구분자(반각·전각) 제거 — 넣고 빼는 건 표기 차이지 값 변화가 아니다
-    .replace(/[,，]/g, '');
-  const tokens = normalized.match(/\d+/g) ?? [];
-  return tokens.map((t) => t.replace(/^0+(?=\d)/, '')).join(',');
-}
+/** 정의는 `lib/engine/lang.ts` 가 소유한다(① 리포트도 같은 판정을 쓴다). 여기서는 재수출만 한다 */
+export { digitSignature };
 
 /**
  * 변환 후에도 수치가 그대로인가. 가격·수량·SPF·시험 인원이 조용히 바뀌면 景表法 리스크다.

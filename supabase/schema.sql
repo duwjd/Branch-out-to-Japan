@@ -365,3 +365,33 @@ $$;
 
 -- 서버(service role)만 접근하므로 RLS는 켜두고 정책 없이 둔다(anon 접근 차단).
 alter table asset_blocks enable row level security;
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 마이그레이션 · 2026-08-19 — ③ 운영 시즌 캘린더(SEASON-03 날짜·기간 메모)
+-- 시즌 이벤트 자체는 lib/season.ts 상수라 저장하지 않는다. 저장 대상은 사용자가 적은 메모뿐.
+-- 멱등. 구 코드는 이 테이블을 안 쓰므로 순서 무관하게 먼저 돌려도 안전하다.
+-- ───────────────────────────────────────────────────────────────────────────
+
+create table if not exists season_memos (
+  id uuid primary key default gen_random_uuid(),
+  brand_profile_id text references brand_profiles(id) on delete cascade,
+  start_date date not null,
+  end_date date,                          -- null = 단일 날짜 메모
+  body text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists idx_season_memos_brand on season_memos(brand_profile_id, start_date);
+
+-- 서버(service role)만 접근하므로 RLS는 켜두고 정책 없이 둔다(anon 접근 차단).
+alter table season_memos enable row level security;
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 마이그레이션 · 2026-08-19 — ① 리포트 한국어 윤문(콜⑩) 기록
+-- 윤문은 비차단이다. 반려된 항목과 미실행 사유를 남겨 두지 않으면 "왜 안 다듬어졌나"를
+-- 사후에 알 수 없고, 루브릭을 고칠 근거도 사라진다. 발행 자체를 막지는 않는다.
+-- 멱등. 구 코드는 이 컬럼을 안 쓰므로 순서 무관하게 먼저 돌려도 안전하다.
+-- ───────────────────────────────────────────────────────────────────────────
+
+alter table reports add column if not exists humanize_issues jsonb not null default '[]'::jsonb;
+alter table reports add column if not exists humanize_skipped text;

@@ -8,16 +8,15 @@
   - 어원은 일본어 **夜明け(동트기·새벽)** — 일본 시장에서 브랜드가 처음 빛을 보는 순간. 심볼의 일출이 이 뜻이다.
   - 금지 표기: `Yoake` · `YO-AKE` · `Y.O.A.K.E` · `yoake`(도메인·핸들·파일명 제외). 일본어도 로마자 `YOAKE` 그대로 — 한자·가나 표기(`夜明け`·`ヨアケ`)는 어원 설명에서만 병기하고 이름 자리에 쓰지 않는다.
   - **구 이름 `KGLOW`는 전면 폐기.** 신규 산출물에 남아 있으면 즉시 교정한다(근거: `docs/decisions/2026-08-18-리브랜딩-yoake.md`).
-  - 상위 포지셔닝은 **K-Beauty Japan Growth Studio**(한국어: K뷰티 일본 그로스 스튜디오) — 확정 2026-08-15. `Japan Growth Studio`는 **이름이 아니라 카테고리 서술어**이므로 단독으로 서비스명처럼 쓰지 않는다.
+  - 상위 포지셔닝은 **K-Beauty Japan Growth Studio**(한국어: K뷰티 일본 그로스 스튜디오) — 확정 2026-08-15. `Japan Growth Studio`는 **이름이 아니라 카테고리 서술어**이므로 단독으로 서비스명처럼 쓰지 않는다("YOAKE — K-Beauty Japan Growth Studio").
     - 영문은 반드시 `Japan Growth Studio`. **`Japanese Growth Studio`는 쓰지 않는다** — 일본식·일본계 스튜디오로 오해된다. YOAKE는 한국 브랜드의 일본 진출을 돕는 쪽이다.
-  - **`ClaimOps`는 서비스 카테고리가 아니다.** 주장 분류·근거 연결·위험 상태·대체 표현·변경 이유·규정 버전·승인 이력을 담당하는 **내부 진단 엔진**을 가리킬 때만 보조적으로 쓴다("ClaimOps 기반 진단 엔진" · "주장·근거 진단 체계"). "YOAKE는 ClaimOps 서비스다", "최종 상품은 ClaimOps다"라고 정의하지 않는다.
+  - **`ClaimOps`는 서비스 카테고리가 아니다.** 주장 분류·근거 연결·위험 상태·대체 표현·변경 이유·규정 버전·승인 이력을 담당하는 **내부 진단 엔진**을 가리킬 때만 보조적으로 쓴다("ClaimOps 기반 진단 엔진" · "주장·근거 진단 체계"). "YOAKE는 ClaimOps 서비스다", "최종 상품은 ClaimOps다"라고 정의하지 않는다. 로고·서비스명 옆에 붙이지 않는다.
 - 로고 정본은 `design/brand/logo/` — **규칙은 `design/brand/logo/README.md`를 읽고 따른다**(변형·여백·최소 크기·금지 사항).
   - 코드에서는 SVG를 직접 import하지 말고 `components/brand/Logo.tsx`의 `YoakeLogo` · `YoakeMark`를 쓴다.
-  - **팔레트는 로고·랜딩·앱 셸이 하나다 (확정 2026-08-18, 구 스티비 coral 폐기).** 브랜드 원색은 로고의 코랄 일출에서 온 `#ff6f61`이고, CTA·칩·아이콘버튼이 이 색을 쓴다. 배경은 웜 화이트 `#faf8f5`, 선은 `#e9e7e3`, 잉크는 로고와 같은 `#182333`이다. 근거: `docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md`.
-    - ~~"로고 색을 UI 토큰으로 승격하지 않는다"~~ 규칙은 위 결정으로 **폐기**됐다. 스티비 coral `#ff6464`·`#d93636`·`#fff8f8`은 신규 산출물에 쓰지 않는다.
-    - **단, `#ff6f61`은 흰 배경 대비 2.73:1로 소형 텍스트 AA에 미달한다.** 링크·14px 이하 라벨·coral-tint 위 텍스트는 반드시 `coral-strong #c44439`(흰 4.96:1)를 쓴다. 큰 글씨·CTA 배경에만 `#ff6f61`을 쓴다.
-    - 색은 항상 토큰으로 참조한다(`bg-coral`·`text-ink-body` …). Tailwind 임의값(`bg-[#ff6f61]`)으로 하드코딩하지 않는다. 토큰 정본은 `app/globals.css`, 팔레트 정본은 Figma **YOAKE Web** 컬렉션이다.
-    - 미통일 잔여: 진단 판정 상태색(green/amber/danger ↔ lp-review/conditional/risk)과 생성물 템플릿(`lib/studio/detail/templates.tsx`·`lib/engine/rules/slides.ts`)은 아직 구 팔레트다 — 별도 결정 대상.
+  - 로고 색과 UI 브랜드색은 **같다**(2026-08-18 전환, 근거 `docs/decisions/2026-08-18-일출코랄-DS전환.md`). 잉크 `#182333` = `--color-ink`, 일출 코랄 `#FF6F61` = `--color-coral`. 구 스티비 coral `#ff6464`·`#d93636`은 폐기 — 신규 산출물에 남아 있으면 교정한다.
+    - 예외: **일출 그라디언트**(`#FF6F61`→`#FF9B70`)는 로고 심볼 전용이다. UI 면에는 단색 `#FF6F61`만 쓴다.
+    - **면과 글자를 나눈다.** 면(버튼 배경·도트·아이콘)은 `coral`, 소형 텍스트·링크는 `coral-strong`(`#C93F2E`). 원색은 크림 위 2.6:1이라 글자색으로 쓰지 않는다. hover는 `coral-hover`, pressed는 `coral-pressed`.
+    - 디자인 시스템 정본은 `design/references/LP_Components.svg`, 실측 스펙은 `design/lp-components-spec.md`.
 
 ## 한 줄 정의
 **YOAKE** — 한국 뷰티 브랜드의 **카피와 근거를 진단**하고, 그 결과를 **일본 채널에 맞는 썸네일·상세페이지로 전환**하며, 이후 **현지 마케팅 회사·유통 채널 연결**까지 확장하는 **K-Beauty Japan Growth Studio**.

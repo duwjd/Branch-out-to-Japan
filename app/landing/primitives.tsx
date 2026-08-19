@@ -51,13 +51,19 @@ export function LpEyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-[14px] font-semibold tracking-[0.08em] text-lp-coral">{children}</p>;
 }
 
-/** 코랄 점 불릿 목록 — 서비스 섹션의 "주요 결과" */
-export function LpBullets({ items }: { items: readonly string[] }) {
+/**
+ * 점 불릿 목록 — 서비스 섹션의 "주요 결과".
+ * tone='muted'는 확장 로드맵(COMING NEXT)용 — 아직 못 쓰는 기능이라 시안에서도 점을 죽여 둔다.
+ */
+export function LpBullets({ items, tone = 'coral' }: { items: readonly string[]; tone?: 'coral' | 'muted' }) {
   return (
     <ul className="flex list-none flex-col gap-2.5">
       {items.map((item) => (
         <li key={item} className="flex items-start gap-2.5 text-lp-sm text-lp-body">
-          <span aria-hidden className="mt-[10px] h-[5px] w-[5px] flex-none rounded-full bg-lp-coral" />
+          <span
+            aria-hidden
+            className={`mt-[10px] h-[5px] w-[5px] flex-none rounded-full ${tone === 'muted' ? 'bg-lp-muted' : 'bg-lp-coral'}`}
+          />
           <span className="[text-wrap:pretty]">{item}</span>
         </li>
       ))}

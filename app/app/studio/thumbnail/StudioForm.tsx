@@ -3,14 +3,15 @@
 /**
  * 생성 퍼널 폼(HOME-02~08) — 원본 업로드·플랫폼·템플릿·실적을 한 화면에서 받아 제출한다.
  * 클라이언트 검증은 서버(POST /api/studio/thumbnail)와 동일 규칙 이중 적용.
+ * 2026-08-18: 하단 '최근 생성' 스트립 제거 — 생성 화면은 만들기에만 집중하고, 만든 자산은
+ * ③ 운영 자산 라이브러리와 결과 화면에서 본다(같은 목록을 세 곳에 두지 않는다).
  * 디자인 정본: docs/specs/02-studio/1-home.html
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { PLATFORMS, PLATFORM_LABELS, STUDIO_STAGE_LABELS, type Platform } from '@/lib/studio/platform';
-import { ThumbPreview } from '@/components/app/AssetPreview';
+import { PLATFORMS, PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
 import {
   StatusBadge,
   buttonClass,
@@ -22,6 +23,7 @@ import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 import {
   ContentBadge,
   SegmentedControl,
+  StudioActionBar,
   StudioPageHeading,
   StudioSection,
   studioButtonClass,
@@ -42,22 +44,10 @@ interface StyleCard {
   previewSrc: string;
 }
 
-interface RecentAsset {
-  id: string;
-  status: 'generating' | 'done' | 'failed';
-  stage: string | null;
-  styleName: string;
-  platform: string;
-  createdAt: string;
-  imageUrl: string | null;
-  originalUrl: string;
-}
-
 interface StudioMeta {
   storeKind: 'supabase' | 'file';
   llmMode: 'real' | 'mock';
   imageMode: 'real' | 'mock';
-  recent: RecentAsset[];
 }
 
 const FIT_LABELS: Record<string, string> = {
@@ -193,25 +183,19 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
     void loadProducts();
   }, [loadProducts]);
 
-  // 실행 모드 메타 + 최근 생성 스트립(HOME-07) — 생성중이 있으면 2.5초 폴링
-  const pollMeta = useCallback(async () => {
+  // 실행 모드 메타(dev 배지) — 최근 생성 스트립을 뺀 뒤로 폴링할 이유가 없어 진입 시 1회만 읽는다
+  const loadMeta = useCallback(async () => {
     try {
       const res = await fetch('/api/studio/thumbnail', { cache: 'no-store' });
       if (res.ok) setMeta(await res.json());
     } catch {
-      /* 스트립은 보조 표면 — 로드 실패를 화면 오류로 승격하지 않는다 */
+      /* 배지는 보조 표면 — 로드 실패를 화면 오류로 승격하지 않는다 */
     }
   }, []);
 
   useEffect(() => {
-    void pollMeta();
-  }, [pollMeta]);
-
-  useEffect(() => {
-    if (!meta?.recent.some((r) => r.status === 'generating')) return;
-    const timer = setInterval(() => void pollMeta(), 2500);
-    return () => clearInterval(timer);
-  }, [meta, pollMeta]);
+    void loadMeta();
+  }, [loadMeta]);
 
   const selected = styles.find((s) => s.id === styleId) ?? null;
   const proofComplete = Boolean(proof.rankTitle.trim() && proof.genre.trim() && proof.aggregationDate.trim());
@@ -286,7 +270,7 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-8 px-8 pt-[72px] pb-32 max-sm:px-5">
+      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-8 px-8 pt-[72px] pb-8 max-sm:px-5">
         {/* 페이지 헤더 — 스튜디오 메뉴에서 들어온다(Figma 1:11394) */}
         <div className="flex flex-col gap-3">
           <Link
@@ -760,97 +744,25 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
             </span>
           </p>
         </div>
-
-        {/* 최근 생성 스트립(HOME-07) — 자산 0건이면 영역 미출력 */}
-        {meta && meta.recent.length > 0 && (
-          <section className="mt-14">
-            <div className="flex flex-wrap items-baseline justify-between gap-2.5">
-              <h2 className="text-base font-extrabold tracking-[-0.01em] text-ink">최근 생성</h2>
-              <p className="text-[12.5px] text-ink-mute">
-                전체 자산은 ③ 운영 자산 라이브러리{' '}
-                <Link href="/app/library" className="font-bold text-coral-strong hover:underline">
-                  자산 라이브러리 열기
-                </Link>
-                에 모입니다
-              </p>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {meta.recent.map((a) =>
-                a.status === 'generating' ? (
-                  <Link
-                    key={a.id}
-                    href={`/app/studio/thumbnail/${a.id}`}
-                    role="status"
-                    aria-live="polite"
-                    className="block overflow-hidden rounded-2xl border border-card-border bg-canvas shadow-card"
-                  >
-                    <span className="relative block aspect-square overflow-hidden bg-n-150">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={a.originalUrl} alt="" aria-hidden className="h-full w-full scale-110 object-cover opacity-40 blur-sm" />
-                      <span
-                        aria-hidden
-                        className="absolute inset-0 animate-shimmer bg-[length:420px_100%] bg-no-repeat bg-[linear-gradient(100deg,transparent_20%,rgba(255,255,255,.62)_50%,transparent_80%)]"
-                      />
-                      <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-canvas/40 p-3 text-center">
-                        <span aria-hidden className="h-[18px] w-[18px] animate-spin rounded-full border-[2.5px] border-coral border-t-transparent" />
-                        <span className="text-[11px] font-bold text-ink-body">
-                          {a.stage ? (STUDIO_STAGE_LABELS[a.stage] ?? a.stage) : '대기 중'}
-                        </span>
-                      </span>
-                    </span>
-                    <span className="block px-3 pt-2.5 pb-3">
-                      <span className="block truncate text-[11.5px] font-bold text-ink">{a.styleName}</span>
-                      <span className="mt-1 block text-[11px] leading-normal text-ink-mute">
-                        완료되면 여기에 표시됩니다. 결과 화면에서도 볼 수 있습니다.
-                      </span>
-                    </span>
-                  </Link>
-                ) : (
-                  <Link
-                    key={a.id}
-                    href={`/app/studio/thumbnail/${a.id}`}
-                    className="block overflow-hidden rounded-2xl border border-card-border bg-canvas shadow-card transition-[border-color,box-shadow] hover:border-coral hover:shadow-2"
-                  >
-                    <span className="relative block aspect-square overflow-hidden">
-                      <ThumbPreview src={a.imageUrl ?? a.originalUrl} alt={`${a.styleName} 썸네일`} />
-                      {a.status === 'failed' && (
-                        <span aria-hidden className="absolute inset-0 bg-danger-bg/80" />
-                      )}
-                    </span>
-                    <span className="block px-3 pt-2.5 pb-3">
-                      <span className={`block truncate text-[11.5px] font-bold ${a.status === 'failed' ? 'text-danger-text' : 'text-ink'}`}>
-                        {a.status === 'failed' ? '생성 실패 — ' : ''}
-                        {a.styleName}
-                      </span>
-                      <span className="mt-0.5 block text-[11px] text-ink-mute">{a.createdAt.slice(0, 10)}</span>
-                    </span>
-                  </Link>
-                ),
-              )}
-            </div>
-          </section>
-        )}
       </div>
 
       {/* 하단 sticky 제출 바(HOME-06b·6c) — 전폭 primary + 힌트 */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-canvas/95 px-6 py-4 backdrop-blur left-0 lg:left-sidebar">
-        <div className="mx-auto max-w-[1280px]">
-          <button
-            type="button"
-            disabled={!canSubmit || submitting}
-            onClick={() => void handleSubmit()}
-            className={studioButtonClass('primary', 'w-full')}
-          >
-            {submitting ? '생성 시작 중…' : '일본향 썸네일 생성'}
-          </button>
-          <p className="mt-2.5 text-center text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">{guidance}</p>
-          {submitError && (
-            <p role="alert" className="mt-1.5 text-center text-xs text-danger-text">
-              {submitError}
-            </p>
-          )}
-        </div>
-      </div>
+      <StudioActionBar>
+        <button
+          type="button"
+          disabled={!canSubmit || submitting}
+          onClick={() => void handleSubmit()}
+          className={studioButtonClass('primary', 'w-full')}
+        >
+          {submitting ? '생성 시작 중…' : '생성하기'}
+        </button>
+        <p className="mt-2.5 text-center text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">{guidance}</p>
+        {submitError && (
+          <p role="alert" className="mt-1.5 text-center text-xs text-danger-text">
+            {submitError}
+          </p>
+        )}
+      </StudioActionBar>
     </main>
   );
 }

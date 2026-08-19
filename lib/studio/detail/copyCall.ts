@@ -12,7 +12,7 @@ import { buildStableGrounding } from '../../engine/grounding';
 import type { DetailInput, ExplanationJson } from '../../db/store';
 import type { Category } from '../../engine/types';
 import { PLATFORM_LABELS, type Platform } from '../platform';
-import { getBlock, getTemplate, type BlockPlan, type TemplateId } from './blockPack';
+import { getBlock, getTemplate, shotGrammarFor, type BlockPlan, type TemplateId } from './blockPack';
 import { mockLlmSlots } from './fixtures';
 
 export interface DetailCopyResult {
@@ -121,6 +121,26 @@ function slotSpec(blocks: BlockPlan[]): { lines: string; required: { blockId: st
 }
 
 /**
+ * 이 시퀀스에 실제로 들어간 컷의 **카테고리 연출 문법**만 추린다(팩 v1.3.0).
+ * 전부 싣지 않는 이유: 없는 컷의 문법까지 보내면 모델이 그 장면을 다른 슬롯에 흘린다.
+ * @param blocks 확정된 블록 시퀀스
+ * @param category 상품 카테고리
+ */
+function shotGrammarLines(blocks: BlockPlan[], category: DetailInput['productCategory']): string {
+  const seen = new Set<string>();
+  const lines: string[] = [];
+  for (const plan of blocks) {
+    const def = getBlock(plan.blockId);
+    if (!def.shotType || seen.has(def.shotType)) continue;
+    const grammar = shotGrammarFor(category, def.shotType);
+    if (!grammar) continue;
+    seen.add(def.shotType);
+    lines.push(`- ${plan.blockId} (${def.shotType}): ${grammar}`);
+  }
+  return lines.join('\n');
+}
+
+/**
  * 상품 카테고리 → grounding 카테고리 매핑.
  * grounding 코퍼스는 4종(skincare·makeup·suncare·cleansing)만 집계돼 있으므로,
  * 코퍼스가 없는 카테고리는 문법이 가장 가까운 skincare 로 접는다.
@@ -171,6 +191,8 @@ export async function runDetailCopy(opts: DetailCopyOptions): Promise<DetailCopy
     .filter(Boolean)
     .join(' · ');
 
+  const grammar = shotGrammarLines(opts.blocks, i.productCategory);
+
   const payload = [
     `[작업] 첨부 이미지(제품컷·한국 상세 원본)를 보고, 아래 블록 시퀀스의 일본어 카피 슬롯을 채운다.`,
     `[템플릿] ${template.nameKo}(${template.nameJa}) — ${template.description}`,
@@ -178,6 +200,7 @@ export async function runDetailCopy(opts: DetailCopyOptions): Promise<DetailCopy
     `[채울 슬롯 — 아래 blockId·key 조합만 산출한다. 없는 키를 만들지 말 것]\n${lines}`,
     `[입력된 사실]\n${facts}`,
     `[메타] 타깃 플랫폼: ${PLATFORM_LABELS[opts.platform]} · 브랜드명: ${opts.brandName}`,
+    grammar ? `[카테고리 연출 문법 — 이 컷들을 이 방향으로 구체화한다. 그대로 베끼지 말고 이 제품의 장면으로 옮겨 쓴다]\n${grammar}` : '',
     `[요청]`,
     `1. isKoreanDetailInput — 첨부가 한국어 오버레이가 있는 상세페이지인지 판정.`,
     `2. krElementMap — 첨부 속 KR 요소를 유지·정제/재설계/제거로 분류하고 근거를 한 줄씩.`,
@@ -185,7 +208,9 @@ export async function runDetailCopy(opts: DetailCopyOptions): Promise<DetailCopy
     `4. copySlots — 주요 일본어 카피 슬롯에 대해 ja(재설계한 일본어 카피) / krSource(그 카피가 대체하는 한국어 원문 그대로. 대응 문구가 없으면 원본 의도를 한 줄로) / rationale(재설계 근거) / footnote(없으면 빈 문자열).`,
     `5. narrativeReason — 왜 이 구성이 이 제품·플랫폼에 맞는지 1~2문장(한국어, 화면 해설용).`,
     `[주의] 일본어 카피에 한글·이모지·간체자를 절대 섞지 마라 — 렌더 폰트가 그리지 못해 생성이 실패한다.`,
-  ].join('\n\n');
+  ]
+    .filter(Boolean)
+    .join('\n\n');
 
   return runStructuredCall<DetailCopyResult>({
     callName: 'detailCopy',

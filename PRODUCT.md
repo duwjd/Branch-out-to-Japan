@@ -37,6 +37,6 @@ brand
 ## Accessibility & Inclusion
 
 - WCAG AA 이상: 본문 대비 ≥4.5:1, 포커스 가시화(:focus-visible), 시맨틱 태그, 모든 폼 필드 label 연결. (근거: design/DESIGN.md §14)
-- 단, 브랜드 CTA 코랄(`#FF6464`)+흰 텍스트는 ≈2.9:1로 의도적 트레이드오프 — large/bold에만 사용, 소형 텍스트·링크·배지는 `#D93636`. (design/handoff-landing-design-system.md)
+- 단, 브랜드 CTA 코랄(`#FF6F61`)+흰 텍스트는 ≈2.7:1로 의도적 트레이드오프 — large/bold에만 사용, 소형 텍스트·링크·배지는 `#C93F2E`. (design/handoff-landing-design-system.md)
 - 모바일 우선. prefers-reduced-motion 대응.
 - 한국어 본문 + 일본어 예시 문구 혼용을 견디는 폰트 스택.

@@ -1,5 +1,11 @@
 # 감사 리포트 — Refined Landing v2 ↔ 디자인 시스템 정합성
 
+> **⚠ 색값은 전환 이전 기록이다 (2026-08-18).** 이 문서의 코랄 팔레트(`#FF6464`·`#D93636`·`#FFF8F8`)는 폐기됐다.
+> 현행 브랜드색은 **일출 코랄** — 면 `#FF6F61` · 면 hover `#F0594B` · 소형 텍스트·링크 `#C93F2E` · 틴트 `#FFF1EE`,
+> 표면 웜 크림 `#FAF8F5` · 잉크 `#182333`. 정본은 `design/references/LP_Components.svg` + `design/lp-components-spec.md`,
+> 근거는 `docs/decisions/2026-08-18-일출코랄-DS전환.md`.
+> **아래 색값은 당시 Figma as-built 기록으로만 읽는다** — 구조·컴포넌트·접근성 판단은 그대로 유효하다.
+
 > 작성일: 2026-07-09 · 대상: Figma `2조 생존자들`(`C3FYvw7rhJrrHK4HgCZzBt`) 페이지 **`04 Screen Refinement`(`110:298`)**
 > 기준(단일 소스): [`design/DESIGN.md`](./DESIGN.md) · [`design/design-system-plan.md`](./design-system-plan.md) · [`design/handoff-landing-design-system.md`](./handoff-landing-design-system.md)
 > 범위: Desktop `110:2201`(1200×7104) + Mobile `110:2676`(390×8670), 총 937 노드. **본 문서는 진단만 — 수정은 별도 승인 후.**

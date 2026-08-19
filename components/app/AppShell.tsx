@@ -4,9 +4,10 @@
  * 앱 셸 — 좌측 사이드바(펼침 248px · 접힘 64px 아이콘 레일) + 본문(상단 중앙 코랄 글로우).
  * 디자인 정본: docs/specs/00-main/1-home.html MAIN-01 (2026-07-24 개정 — 성숙도 배지·KPI 위젯·
  * 품의용 PDF를 사이드바에서 제거하고 접기/펼치기 아이콘 레일을 추가).
- * 구성: (접기 토글) → 워드마크 → 브랜드 행 → 3축 내비(운영 하위 아코디언) → 계정 행.
+ * 구성: (접기 토글) → 워드마크 → 3축 내비(운영 하위 아코디언) → 계정 행.
  * 2026-08-18 개편: 계정당 브랜드 1개 전제로 브랜드 스위처·추가를 없앴고, /app 이하는 로그인
- * 필수라 게스트 CTA도 없앴다(로그인은 랜딩에서만).
+ * 필수라 게스트 CTA도 없앴다(로그인은 랜딩에서만). 상단 브랜드 정보 행도 제거했다 —
+ * 브랜드는 운영 > 브랜드 관리와 홈 위젯에서 다룬다(내비에 같은 정보를 두 번 두지 않는다).
  * 접힘은 ≥lg(1024px)에서만 적용되고 상태는 localStorage로 페이지 간 유지된다.
  * 1024px 미만에서는 사이드바가 상단 블록으로 접히며 접기 토글은 자동 no-op(숨김)이다.
  */
@@ -16,7 +17,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { YoakeLogo, YoakeMark } from '@/components/brand/Logo';
 import { StatusBadge, type BadgeTone } from '@/components/ui/primitives';
-import { CATEGORY_LABELS } from '@/lib/engine/types';
 import {
   IconBox,
   IconChevronLeft,
@@ -29,16 +29,19 @@ import {
 interface ShellProps {
   /** 로그인 세션 유저 — /app 이하는 로그인 필수라 항상 존재한다 */
   user: { name: string; email: string; providerLabel: string };
-  /** 이 계정의 브랜드 1건 — 아직 등록 전이면 null(온보딩 상태) */
-  brand: { name: string; category: string } | null;
   /** 기업 매칭 상태 배지(LIB-07) — null이면 미신청(배지 없음). 성숙도 배지가 아닌 라이브 상태 배지 */
   matchBadge: { label: string; tone: 'amber' | 'green' | 'neutral' } | null;
   children: React.ReactNode;
 }
 
+/**
+ * 운영 하위 메뉴 — 사용자가 실제로 밟는 순서(설정 → 보관 → 준비 → 확장)로 둔다.
+ * 기획서 LIB-00(2026-07-22 개정) 순서에 시즌 캘린더를 3번째로 신설(2026-08-19).
+ */
 const OPS_ITEMS = [
-  { href: '/app/library', label: '자산 라이브러리' },
   { href: '/app/brand', label: '브랜드 관리' },
+  { href: '/app/library', label: '자산 라이브러리' },
+  { href: '/app/season', label: '시즌 캘린더' },
   { href: '/app/matching', label: '기업 매칭' },
 ];
 
@@ -71,7 +74,7 @@ function subClass(active: boolean): string {
   ].join(' ');
 }
 
-export function AppShell({ user, brand, matchBadge, children }: ShellProps) {
+export function AppShell({ user, matchBadge, children }: ShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -128,39 +131,9 @@ export function AppShell({ user, brand, matchBadge, children }: ShellProps) {
     router.refresh();
   }
 
-  const brandName = brand?.name ?? '브랜드 미설정';
-  const brandCat = brand ? CATEGORY_LABELS[brand.category as keyof typeof CATEGORY_LABELS] : undefined;
-  const brandInitial = brandName.slice(0, 1);
-  const brandActive = pathname.startsWith('/app/brand');
-
-  /* ── 1b · 브랜드 행 — 계정당 1개라 전환이 없다. 눌러서 브랜드 정보로 이동 ─── */
-  const brandRow = (
-    <Link
-      href="/app/brand"
-      aria-label={brand ? `${brand.name} 브랜드 정보` : '브랜드 등록하기'}
-      aria-current={brandActive ? 'page' : undefined}
-      className={`flex w-full items-center gap-2 rounded-card border bg-canvas px-2.5 py-2 text-left no-underline transition-colors hover:border-coral lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:px-0 ${
-        brandActive ? 'border-coral bg-coral-tint' : 'border-input-border'
-      }`}
-    >
-      <span
-        aria-hidden
-        className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-lg bg-linear-135 from-[#ffe9df] to-[#ffcfb8] text-[11px] font-extrabold text-amber-text"
-      >
-        {brandInitial}
-      </span>
-      <span className={`min-w-0 flex-1 ${HIDE_ON_RAIL}`}>
-        <span className="block truncate text-[13px] leading-tight font-bold text-ink">{brandName}</span>
-        <span className="block truncate text-[10.5px] leading-tight text-ink-mute">
-          {brand ? (brandCat ?? brand.category) : '브랜드를 먼저 등록해 주세요'}
-        </span>
-      </span>
-    </Link>
-  );
-
   /* ── 1c · 3축 내비 (성숙도 배지 제거 · 2026-07-24) ─────── */
   const nav = (
-    <nav className="mt-4 flex flex-col gap-0.5" aria-label="주요 메뉴">
+    <nav className="mt-1 flex flex-col gap-0.5" aria-label="주요 메뉴">
       <Link href="/app" className={navClass(dashActive)} aria-current={dashActive ? 'page' : undefined}>
         <IconHome className={dashActive ? 'text-coral-strong' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>홈</span>
@@ -173,7 +146,8 @@ export function AppShell({ user, brand, matchBadge, children }: ShellProps) {
         <IconImage className={studioActive ? 'text-coral-strong' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>마케팅 스튜디오</span>
       </Link>
-      <Link href="/app/library" className={navClass(opsActive)}>
+      {/* 운영 착지는 첫 항목 브랜드 관리 — 운영에는 홈 화면이 없다(기획서 # 0) */}
+      <Link href="/app/brand" className={navClass(opsActive)} aria-expanded={opsActive}>
         <IconBox className={opsActive ? 'text-coral-strong' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>운영</span>
       </Link>
@@ -289,7 +263,6 @@ export function AppShell({ user, brand, matchBadge, children }: ShellProps) {
             uid="shell-mark"
           />
         </Link>
-        {brandRow}
         {nav}
         <span className="flex-1 max-lg:hidden" aria-hidden />
         {sideFoot}

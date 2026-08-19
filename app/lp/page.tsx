@@ -56,7 +56,7 @@ const HOW_STEPS = [
 
 /** 코랄 primary CTA — large/bold + white(대비 트레이드오프, 호버 시 강한 코랄로 보강) */
 const CTA_PRIMARY =
-  'inline-flex items-center justify-center gap-1.5 rounded-xl bg-coral px-6 py-3.5 text-[15px] font-bold text-white shadow-[0_10px_28px_-10px_rgba(255,111,97,0.75)] transition hover:-translate-y-px hover:bg-coral-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral';
+  'inline-flex items-center justify-center gap-1.5 rounded-xl bg-coral px-6 py-3.5 text-[15px] font-bold text-white shadow-[0_10px_28px_-10px_rgba(255,111,97,0.75)] transition hover:-translate-y-px hover:bg-coral-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral';
 
 /** 랜딩 섹션 래퍼 — canvas/page 교대로 리듬을 준다 */
 function Section({ id, tint, children }: { id: string; tint?: boolean; children: React.ReactNode }) {
@@ -87,7 +87,7 @@ export default function LpPage() {
           <TrackedCta
             cta="header-consult"
             targetId="lead"
-            className="inline-flex items-center rounded-lg bg-coral px-4 py-2 text-[14px] font-bold text-white transition-colors hover:bg-coral-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
+            className="inline-flex items-center rounded-lg bg-coral px-4 py-2 text-[14px] font-bold text-white transition-colors hover:bg-coral-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
           >
             무료 상담 신청
           </TrackedCta>

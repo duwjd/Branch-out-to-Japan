@@ -1,5 +1,11 @@
 # Design System Build Plan — Phase 1 Landing (최소치)
 
+> **⚠ 색값은 전환 이전 기록이다 (2026-08-18).** 이 문서의 코랄 팔레트(`#FF6464`·`#D93636`·`#FFF8F8`)는 폐기됐다.
+> 현행 브랜드색은 **일출 코랄** — 면 `#FF6F61` · 면 hover `#F0594B` · 소형 텍스트·링크 `#C93F2E` · 틴트 `#FFF1EE`,
+> 표면 웜 크림 `#FAF8F5` · 잉크 `#182333`. 정본은 `design/references/LP_Components.svg` + `design/lp-components-spec.md`,
+> 근거는 `docs/decisions/2026-08-18-일출코랄-DS전환.md`.
+> **아래 색값은 당시 Figma as-built 기록으로만 읽는다** — 구조·컴포넌트·접근성 판단은 그대로 유효하다.
+
 > 단일 기준: [`design/DESIGN.md`](./DESIGN.md) (Wanted 구조 + Stibee coral 팔레트 + `primary-strong` 접근성 토큰).
 > 목적: 일본 진출 콘텐츠 진단 랜딩("무료 5분 진단" 수요검증) 제작에 필요한 **최소 디자인 시스템**을 Figma에 구축.
 > Figma 파일: `2조 생존자들` (`C3FYvw7rhJrrHK4HgCZzBt`).

@@ -3,9 +3,13 @@
 import type { ReactNode } from 'react';
 import { sendTrack } from '@/components/landing/track';
 
-/** 기본 CTA 스타일 — 코랄 primary. 색은 토큰으로만 참조한다(구 하드코딩 #FF6464/#D93636 폐기) */
+/**
+ * 기본 CTA 스타일 — 일출 코랄 primary.
+ * 면(배경)은 원색 coral, hover는 coral-hover를 쓴다. coral-strong은 소형 텍스트 전용이라
+ * 면에 쓰지 않는다(design/lp-components-spec.md · app/globals.css).
+ */
 const DEFAULT_CLASS =
-  'inline-flex items-center justify-center rounded-lg bg-coral px-6 py-3 text-lg font-bold text-white transition-colors hover:bg-coral-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral';
+  'inline-flex items-center justify-center rounded-lg bg-coral px-6 py-3 text-lg font-bold text-white transition-colors hover:bg-coral-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral';
 
 /**
  * 클릭 시 cta_click 이벤트를 전송하고 페이지 내 앵커(targetId)로 스무스 스크롤하는 CTA.

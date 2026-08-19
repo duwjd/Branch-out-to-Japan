@@ -24,10 +24,10 @@ export function imageModel(): string {
 }
 
 /** input_fidelity 미지원 모델 — gpt-image-2는 입력을 항상 고정밀 처리라 파라미터 자체를 400으로 거부한다(2026-07-22 실검증) */
-const noInputFidelityModels = new Set<string>(['gpt-image-2']);
+export const noInputFidelityModels = new Set<string>(['gpt-image-2']);
 
 /** 400 + input_fidelity 언급이면 미지원 모델의 파라미터 거부로 판정 */
-function isInputFidelityRejection(err: unknown): boolean {
+export function isInputFidelityRejection(err: unknown): boolean {
   return err instanceof OpenAI.APIError && err.status === 400 && err.message.includes('input_fidelity');
 }
 

@@ -177,7 +177,7 @@ flowchart TD
     N2 -.-> C3
 
     classDef rule fill:#f2f2f2,stroke:#888,color:#222;
-    classDef llm fill:#fff0f0,stroke:#d93636,color:#5e1a1a;
+    classDef llm fill:#fff1ee,stroke:#c93f2e,color:#5e1a1a;
     class N1,N2,N3,N4,N5,MODE rule;
     class C1,C2,C3,C4 llm;
 ```
@@ -244,17 +244,19 @@ stateDiagram-v2
 | 항목 | 기본안 | 근거 |
 |---|---|---|
 | SDK | `@anthropic-ai/sdk` (TypeScript) | 저장소 선례: `scripts/crawl/ocr-detail.mjs` |
-| 모델 | `claude-sonnet-5` | OCR 파이프라인과 동일(일본어 정확도·비용 균형 검증됨). 인트로 요금 $2/$10 per MTok(~2026-08-31) |
-| 모델 대안 | 콜④(재작성 품질 민감) → `claude-opus-4-8` 상향 / 체커(비로그인·대량) → `claude-haiku-4-5` 하향 | UT 결과·비용 실측으로 콜별 확정 |
+| 모델 | **① 리포트 콜(①~⑤·⑩) = `claude-opus-5`** / ② 스튜디오 콜 = `claude-sonnet-5` | 2026-08-19 상향(D5 실행). 리포트는 판정·근거·재설계가 한 산출물에 걸려 추론 품질이 곧 상품 품질이다. ② 축은 이미지 왕복이 많아 콜당 비용이 크고 카피 재설계는 Sonnet 5로 충분 — 한쪽만 올려 비용을 필요한 곳에 쓴다 |
+| effort | 리포트 콜①~⑤ 전부 `high` · 신규 윤문 콜⑩ `medium` — `output_config.effort` | **effort 미지정 시 API 기본이 `high`** 라, 같은 자리에 두어 "모델만 바뀐" 기준선을 만든다. 콜①을 `medium` 으로 내렸더니 같은 픽스처 종합점수가 17→5로 흔들렸다(정본 18). 확정이 아니라 출발점 — 골든 픽스처로 스윕해 콜별로 정한다(09 §5) |
+| 모델 대안 | 체커(비로그인·대량) → `claude-haiku-4-5` 하향 | UT 결과·비용 실측으로 확정 |
 | 구조화 출력 | `output_config: { format: { type: "json_schema", schema } }` — 전 콜 적용. 스키마는 `additionalProperties: false` + `required` 전 필드 | 파싱 안정성. OCR 스크립트와 동일 패턴 |
-| thinking | 파라미터 생략(= Sonnet 5 기본 adaptive) | 판정 품질. 지연 민감한 체커만 `{type:"disabled"}` 검토 |
-| ⚠ 샘플링 | **`temperature`/`top_p`/`top_k`를 보내지 않는다** — claude-sonnet-5는 비기본 샘플링 파라미터를 400으로 거부 | 스펙 §9-Q5의 "temperature 고정" 전제는 성립 불가 → **재현성은 (a) 결정적 집계(코드) (b) 스키마 고정 출력 (c) `LlmCallLog` 편차 관찰**로 담보. 스펙 갱신 필요 |
-| max_tokens | 콜① 8000 · 콜② 8000 · 콜③ 6000 · 콜④ 12000 · **콜⑤ 4000** · 체커 2000 | adaptive thinking 토큰이 max_tokens에 포함되므로 여유. 16K 이하 = 비스트리밍 안전선 |
+| thinking | 파라미터 생략(= Opus 5·Sonnet 5 모두 기본 adaptive) | 판정 품질. ⚠ **Opus 5는 `max_tokens`가 thinking+본문을 함께 덮는다** — 아래 max_tokens 상향이 이 때문이다. 지연 민감한 체커만 `{type:"disabled"}` 검토 |
+| ⚠ 샘플링 | **`temperature`/`top_p`/`top_k`를 보내지 않는다** — Sonnet 5·Opus 5 모두 비기본 샘플링 파라미터를 400으로 거부 | 스펙 §9-Q5의 "temperature 고정" 전제는 성립 불가 → **재현성은 (a) 결정적 집계(코드) (b) 스키마 고정 출력 (c) `LlmCallLog` 편차 관찰**로 담보. 스펙 갱신 필요 |
+| max_tokens | 콜① 12000 · 콜② 12000 · 콜③ 10000 · 콜④ 16000 · **콜⑤ 8000** · 콜⑩ 12000 · 체커 2000 | 2026-08-19 상향. adaptive thinking 토큰이 max_tokens에 포함되고 Opus 5는 thinking이 기본 on이라 기존 값이면 본문이 잘린다. 16K 이하 = 비스트리밍 안전선 |
 | 프롬프트 캐싱 | 안정 grounding(루브릭 전문·사전집계·규정 요약·가드레일)을 **system 첫 블록**에 두고 `cache_control: {type:"ephemeral"}` | 4콜이 한 잡에서 연속 실행 → 콜 간 캐시 히트. 가변 데이터(고객 문장)는 messages에 |
 | 가드레일 문구 | system 말미 고정: **"코퍼스·규정 근거 밖의 수치·인증·리뷰를 창작하지 말 것. 근거를 제시할 수 없으면 해당 필드를 비울 것"** | 증거 원칙(스펙 §5.2) |
-| 재시도 | SDK 자동(429/5xx, max_retries 2) + `stop_reason === "max_tokens"` 시 max_tokens 상향 1회 재시도 | |
+| 재시도 | SDK 자동(429/5xx) + 최대 3시도. `stop_reason=="max_tokens"` → 토큰 상향(한 번 켜지면 유지) · `validate` 위반 → 교정 지시 후 재시도, 소진 시 **throw**(폴백 경로) · `repair` 위반(주로 언어) → 교정 후 재시도, 소진 시 **사유만 남기고 통과** | 언어 표류로 리포트를 죽이지 않는다. 단 **통째 표류는 `validate` 쪽**이라 폴백으로 간다 |
+| ⚠ 거절 | `stop_reason === "refusal"`(HTTP 200) 분기 필수 — 예외가 아니다. 재시도하지 않고 사유를 그대로 올린다 | 분기가 없으면 "응답에 텍스트 블록 없음"으로 오해를 부른다. 성분·薬機法 텍스트라 오탐 가능성이 실재 |
 | 실패 폴백 | 재시도 소진 시: 콜①③④ → 해당 블록 축소 + "정밀도 제한" / **콜②만은 잡 실패**(불변식: **제품 콘텐츠가 제출된 진단은 감사표 없이 발행하지 않는다** — `brand` 모드엔 콜② 자체가 없다) | §3.2 표 |
-| 로깅 | 콜마다 요청/응답 원문·모델·usage·지연을 `LlmCallLog`(§6)에 저장 | 재현성·편차 관찰(Q5)·비용 추적 |
+| 로깅 | 콜마다 요청/응답 원문·모델·effort·usage·지연 + **재시도를 유발한 응답(`rejectedAttempts`)·미해소 교정 사유(`repairIssues`)** 를 `LlmCallLog`(§6)에 저장 | 재현성·편차 관찰(Q5)·비용 추적. 예전엔 재시도를 유발한 응답이 안 남아 D6의 "편차 관찰"이 반쪽이었다 |
 | 자격증명 | `.env`의 `ANTHROPIC_API_KEY` (서버 전용 — 클라이언트 노출 금지) | OCR 스크립트와 동일 |
 
 **대표 요청 형태 (콜① 기준 — 나머지 콜은 스키마·페이로드만 교체):**
@@ -266,8 +268,8 @@ const client = new Anthropic(); // .env ANTHROPIC_API_KEY
 
 /** 콜① 루브릭 채점 — 항목별 0/1/2 판정만 LLM이 하고, 집계·가중은 코드가 한다 */
 const response = await client.messages.create({
-  model: "claude-sonnet-5",
-  max_tokens: 8000,
+  model: "claude-opus-5",
+  max_tokens: 12000,
   system: [
     {
       // 안정 프리픽스(모든 리포트 공통): 역할 + 루브릭 §4 전문 + 카테고리 사전집계 + 가드레일
@@ -626,7 +628,7 @@ erDiagram
 - **`BrandProfile.positioningTags`와 진단 입력 `positioning`(v4 신규)의 관계:** 온보딩 도입 시 `positioningTags`가 입력폼 `positioning.tags`의 **프리필 소스**가 된다 — 진단의 입력 원본은 어디까지나 `tierInput` 스냅샷의 `positioning`이다.
 - **`Report`에 `reviewerName`·`reviewerSignedAt`·`rejectedReason`은 없다**(2026-07-16 검수 제거). `publishedAt`은 파이프라인 성공 시각이다.
 - **`AuditSentence`를 `blocksJson`과 별도 정규화**하는 이유: ② 썸네일 검수 게이트·무료 체커 업셀이 문장 단위 판정을 재조회하기 때문(블록3 렌더는 blocksJson으로도 가능하지만 조회 축이 다름).
-- IA §7의 `상품`·`시즌 캘린더` 엔티티는 **MVP에서 생략** — 상품 정보는 `tierInput` 스냅샷과 `BrandProfile.productInfoMemo`로 흡수, 다상품·시즌은 ②·③ 스펙 확정 시 추가(스키마 예약만).
+- IA §7의 `상품`·`시즌 캘린더` 엔티티는 **둘 다 해제됐다** — `Product`는 2026-07-22 ③ 브랜드 관리 개정으로(아래 설계 노트), 시즌은 2026-08-19 시즌 캘린더 신설로 `SeasonMemo` 가 생겼다. 상품 공통 메모는 여전히 `BrandProfile.productInfoMemo`가 흡수한다.
 - **`BrandProfile.brandKitJson`(스키마 예약 · 2026-07-21)** — ③ 브랜드 관리(브랜드 킷)가 제안한 확장 필드(jsonb: `productNamesJa[]{kr,ja}` · `forbiddenTerms[]{term,reason}` · `toneGuide` — `specs/04-operations/04-operations-ui-기획서.md` BRAND-09). 생성 파이프라인 자동 참조 계약은 (추후 기획). 킷 수정은 `tierInput` 스냅샷 원칙에 따라 발행된 리포트에 소급되지 않는다.
 - `LlmCallLog.requestBody`는 원문 저장이 원칙(재현성). 저장량 우려 시 system 프리픽스는 해시로 대체 가능.
 
@@ -636,6 +638,7 @@ erDiagram
 - **`GeneratedAsset` 확장 확정**(② 기획서 델타 2건 채택): `status`(generating|done|failed) · `stage`(진행 단계) · `error` · `explanationJson`(콜⑥ 산출 — §4.7) · `originalImagePath`(원본 fileId) · `proof`(실적 3필드 스냅샷) · `brandNameSnapshot`(제출 시점 브랜드명 물질화 — `tierInput` 스냅샷 원칙과 동일). 실패물은 `status=failed`로 남되 라이브러리는 `done`만 조회(“검수 게이트 통과분만 자산” 원칙의 status 필터 구현).
 - **`GeneratedAsset` 조건 입력 델타 3건 (2026-07-22 — ② 기획서 HOME-02b·05b 채택)**: `modelImagePath`(모델컷 fileId · F 전용 · nullable) · `modelConsent`(사용 권한 동의 여부 boolean — 동의 사실을 자산에 함께 보존해 사후 추적 가능) · `promoInput`(G 전용 · nullable · `{ setTitle, salePrice, normalPrice, normalPriceVerified, discountRate, gift, qualifierChips, footnote }`). 셋 다 **제출 시점 스냅샷**이며 이후 수정 불소급(`brandNameSnapshot` 원칙과 동일). Supabase는 `model_image_path text` · `model_consent boolean not null default false` · `promo_input jsonb` 3열 추가.
 **2026-07-22 UI 기획 델타 제안 (⓪ 홈 개편 · ③ 제품 자산 CRUD — 백엔드 스펙 확정 전 "제안" 상태):**
+- **`SeasonMemo` 엔티티 신설(2026-08-19 · 구현 완료)** — ③ 시즌 캘린더가 날짜·기간 메모를 저장한다(`specs/04-operations/04-operations-ui-기획서.md` SEASON-03). 필드: `id` · `brandProfileId`(FK, cascade) · `startDate`(date) · `endDate`(date, nullable = 단일 날짜) · `body` · `createdAt` · `updatedAt`. **시즌 이벤트 자체는 저장하지 않는다** — 메가와리·크리스마스 코프레·UV 상전·가을 신색은 `lib/season.ts` 상수가 정본이고, DB에 담는 건 사용자가 적은 메모뿐이다. 예약·발행·알림 트리거는 붙이지 않는다(금지 포지션 — 이 테이블은 조회용 기록이다).
 - **`Product` 엔티티 신설 제안** — ③ 브랜드 관리가 제품을 레코드 단위로 등록하고 제품당 제품컷을 여러 장 보관하도록 개정됨(`specs/04-operations/04-operations-ui-기획서.md` BRAND-03·09). 필드: `id` · `brandProfileId`(FK) · `nameKr`(필수) · `nameJa`(nullable) · `category` · `memo` · `images[]{fileId, isPrimary}` · `createdAt`. 이미지는 기존 fileId 체계를 그대로 씀(`.data/files/` + `GET /api/files/[id]`) — 새 파일 계층 만들지 않는다. 이로써 §6.1 설계 노트의 "IA §7 `상품` 엔티티는 MVP에서 생략 · 다상품은 스키마 예약만"이 **UI 기획 수준에서는 해제**됐다. `BrandProfile.productInfoMemo`는 제품별로 나누기 어려운 브랜드 공통 메모로 존치한다.
 - **② 생성 요청 델타 제안**: `productImageSource`(upload \| brandAsset) · `productId`(brandAsset일 때 참조 제품). ② 스튜디오가 제품컷을 업로드 대신 등록 자산에서 고를 수 있게 됨(`specs/02-studio/02-studio-ui-기획서.md` HOME-02). 어느 경로든 파이프라인 입력은 이미지 1장이고, `GeneratedAsset`에는 **제출 시점 이미지가 스냅샷으로 복사**되므로 이후 제품 삭제·교체가 소급되지 않는다(`brandNameSnapshot` 원칙과 동일).
 - **`BrandProfile` 싱글턴 해제 제안** — ⓪ 브랜드 스위처의 "＋ 브랜드 추가"가 모달로 확정되며(`specs/00-main/00-main-ui-기획서.md` MAIN-01b′) 1브랜드 전제가 UI에서 깨졌다. 다중 브랜드 지원 시점·마이그레이션 범위는 백엔드 스펙 몫. 브랜드 삭제·상한은 여전히 (추후 기획).
@@ -696,8 +699,8 @@ erDiagram
 | D2 | 결제 게이트 위치 (ux-review C4) | ~~발행 직전(needsReview→published) 자리만, MVP 실결제 없음(수동)~~ → ~~**기본안 무효(2026-07-16)**: 근거로 삼은 `needsReview→published` 전이가 검수 제거로 사라졌다. `processing→published`는 잡이 자동으로 밟으므로 게이트 자리가 아니다. **재선정 필요**~~ → **자리 확정(2026-07-16 v4): 샘플 → 풀 열람 직전** — 제출 즉시 무료 샘플(블록0 전체 + 블록1 요약 일부(종합점수 가림) + 블록2 페르소나 맛보기, 두 모드 공통)이 열람되고, 풀 리포트는 결제 후 열람(스펙 §2 v4 · §3.4) | "결과물 확인 전 월정액 거부" 페르소나 검증과 정합 — **샘플이 이 요구를 충족**한다 | ~~온보딩 후 / 다운로드 시~~ (자리는 확정) | 자리 = 확정. **잔여:** 집행(enforcement, MVP 미구현)·브랜드 풀 진단 가격 **(미정)** — UT 전 (7월 말) · `decisions/DECISIONS.md` |
 | D3 | 코퍼스 사전집계 파이프라인 (스펙 §9-Q9) | `scripts/aggregate` 수동 스크립트 → `benchmark-aggregates.json` 커밋, 코퍼스 갱신 시 재실행. 노이즈 필터: 빈도 2 미만 제외+스팟체크 | §2.1 | CI 자동화(v2) | 7/11~12 (콜① 착수 전) |
 | ~~D4~~ | ~~검수자 플로우 (스펙 §9-Q8·Q11 연동)~~ | ~~비동기 검수 큐 + 내부 화면 1장(§7 공백), MVP는 팀 내 1인 지정. **실명·자격·책임 범위는 별도 세션**(Q8)~~ | ~~서명 없는 발행 0건 지표를 지키는 최소 구조~~ | ~~발행 후 소급 검수(지표 위반 — 비권장)~~ | **폐기(2026-07-16 재결정)** — 검수 단계 자체를 제거. 미결이 해결된 게 아니라 **질문이 소멸했다**. 대신 🔴 "면책의 대가물 부재"가 열렸다 → `decisions/DECISIONS.md` |
-| D5 | LLM 모델·파라미터 | `claude-sonnet-5` + 구조화 출력 + 캐싱(§4.0). 콜④ opus 상향/체커 haiku 하향은 UT 후 | OCR 선례·비용 | — | 콜별 실측 후 |
-| D6 | 재현성 전략 (스펙 §9-Q5) | temperature 고정 **불가**(Sonnet 5가 샘플링 파라미터 거부) → 결정적 집계(코드) + 스키마 고정 + `LlmCallLog` 편차 관찰로 대체. **스펙 §9-Q5 문구 갱신 필요** | claude-api 검증(2026-07-09) | 동일 입력 N회 실행 편차 리포트를 QA 항목화 | 스펙 갱신은 즉시 |
+| D5 | LLM 모델·파라미터 | **2026-08-19 실행:** ① 리포트 콜 전부 `claude-opus-5` + 콜별 `effort` · ② 스튜디오는 `claude-sonnet-5` 유지 · 체커 haiku 하향은 여전히 UT 후 | OCR 선례·비용 + 리포트 품질 이슈(콜③ 언어 표류) | effort 스윕으로 콜별 확정 | 스윕은 골든 픽스처 실측 후 |
+| D6 | 재현성 전략 (스펙 §9-Q5) | temperature 고정 **불가**(Sonnet 5·Opus 5 모두 샘플링 파라미터 거부) → 결정적 집계(코드) + 스키마 고정 + `LlmCallLog` 편차 관찰로 대체. **스펙 §9-Q5 문구 갱신 필요** | claude-api 검증(2026-07-09) | 동일 입력 N회 실행 편차 리포트를 QA 항목화. 2026-08-19부터 `rejectedAttempts`로 재시도 유발 응답도 남는다 | 스펙 갱신은 즉시 |
 | D7 | PDF 생성 방식 | 서버 사이드 렌더(웹 뷰와 동일 데이터) — 라이브러리는 구현 시 선택 | 품의용 표지 연동 | 브라우저 인쇄 CSS(임시) | 7/16~17 (리포트 주간 말) |
 | D8 | 익명 무료횟수 (ux-review B9) | localStorage + 쿠키 uuid + 서버 검증(§6.2) | 마찰 최소 | IP 결합(v2) | 공개영역 개발 시 |
 | D9 | 건강식품 분기 (ux-review C3) | 리포트 엔진 미지원 — 체커·온보딩에서 "리포트는 화장품·의약외품 대상" 안내 분기 | 스펙 지원 범위(4카테고리·2분류) | 엔진 확장(v2) | 공개영역 개발 시 |
@@ -707,6 +710,7 @@ erDiagram
 ---
 
 ## 변경 이력
+- 2026-08-19 **③ 운영 시즌 캘린더 · 상세 입력 이미지 분리**(→ [[specs/04-operations/04-operations-ui-기획서]] # 5 · [[09-dev-spec]] §2). **[추가]** §6.1 `SeasonMemo` 엔티티(브랜드 스코핑 · 날짜/기간 메모 · 시즌 이벤트는 `lib/season.ts` 상수라 미저장). **[변경]** §6.1 설계 노트의 "IA §7 `시즌 캘린더` 엔티티는 MVP 생략(스키마 예약만)" 해제 · ② 상세 제출 입력이 `productImage`(제품컷 1장 · `images.edit` base)와 `images`(KR 상세 원본 · 비전 입력)로 분리돼 `sourceImagePaths[0] = 제품컷`이 UI에서 보장된다(구조는 그대로, 순서 계약만 확정).
 - 2026-07-22 **② 스튜디오 조건 입력 3종 · 홈 최근 생성 스트립 삭제**(사용자 결정 → [[specs/02-studio/02-studio-ui-기획서]] 2026-07-22 개정 · [[specs/02-thumbnail-converter-spec]] §1·§2-④·§2-⑥·§4). **[변경]** §4.7 **가격 슬롯 "v1 항상 공란" 정책 폐기** → 사용자 프로모 입력(HOME-05b)에서 코드가 자단위 조립, 취소선 통상가는 `normalPriceVerified` 체크가 있을 때만(有利誤認 차단 목적 동일) · §4.7 생성 호출 `image`를 배열 계약으로 명시(F 모델+카피형만 `[제품컷, 모델컷]`) · §7 스튜디오 행을 홈(생성)/결과 상세 2행으로 분리하고 **홈의 자산 목록 조회를 제거**. **[추가]** §6.1 `GeneratedAsset` 델타 3건 — `modelImagePath`·`modelConsent`·`promoInput`(전부 제출 시점 스냅샷·불소급). 배경: 템플릿 8종 중 F(모델컷 잠금)·G(가격 공란) 2종이 자기 서명 요소를 렌더하지 못하던 문제를 **입력 경로를 열어** 해소 — 지어내기 차단(인물 합성 금지·이중가격 제한)은 그대로 둔다.
 - 2026-07-21 **스프린트 2 구현 확정 델타**(사용자 결정 → [[decisions/DECISIONS]] · [[09-dev-spec]] §4b). **[추가]** §4.7 콜⑥ studioCopy 계약(Claude 비전 1콜 — ①분석+③카피+④슬롯 통합 · 콜② 재사용 대신 grounding 재주입 · 가격 슬롯 v1 강제 공란 · 이미지 목 모드) · §6.1 스프린트 2 델타(User 없음 = 목 세션 · `BrandProfile` 싱글턴+`brandKit` 실구현 · `GeneratedAsset` status/stage/explanationJson/proof/원본 fileId/brandNameSnapshot 확정 · `MatchRequest` 신설 확정). **[변경]** §6.2 파일 = 로컬 `.data/files/` 우선 + fileId 서빙(Supabase Storage는 전환 대안).
 - 2026-07-18 **v6 블록 6 재프레이밍 · 블록 7·8 통합 · 블록 9→8 재번호 정합**(사용자 요청 → [[specs/01-report-spec]] v6). **[개정]** §4.3 콜③ 출력 스키마 `reviewNarrative`→`dropOffPath`(`{infoGap, customerDoubt, dropOff}`) — 블록6은 리뷰가 아니라 벤치마크 갭·페르소나 기반 **이탈 경로**로 재정의(리뷰 데이터 없음, `reviewSourceUrl` 무관), 가짜 리뷰 금지 가드레일 존치 · §4.4 콜④ 산출 블록 `1·7·8`→`1·7`(구 블록 8 '비포&애프터 샘플'이 블록 7 하이라이트로 통합) · 블록 9(맺음)→블록 8 재번호 → 리포트 블록0~8, brand 모드 잠금 목록 1·3·5·7. **[불변]** 파이프라인·두 모드·집계·LLM 4콜 구조 그대로(렌더/스키마 라벨만). 코드(`lib/engine`·`ReportView`) 반영은 후속.

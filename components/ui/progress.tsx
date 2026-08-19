@@ -40,7 +40,7 @@ export function Stepper({
                   ? 'bg-green-bg text-green-text'
                   : cur
                     ? 'border-[1.5px] border-coral bg-coral-tint text-coral-strong'
-                    : 'bg-n-150 text-[#9ca0a8]'
+                    : 'bg-n-150 text-ink-faint'
               }`}
             >
               {done ? '○' : i + 1}

@@ -11,10 +11,8 @@
 - 어원은 일본어 **夜明け(요아케 · 동트기·새벽)** — 일본 시장에서 브랜드가 처음 빛을 보는 순간. 심볼의 일출은 이 뜻을 그대로 그린 것이다.
 - **쓰지 않는 표기:** `Yoake` · `YO-AKE` · `Y.O.A.K.E` · `yoake`(도메인·핸들·파일명 제외).
 - 일본어 표기도 로마자 `YOAKE` 그대로 둔다. **한자·가나 표기(`夜明け` · `ヨアケ`)를 이름 자리에 쓰지 않는다** — 어원 설명 문맥에서만 병기한다.
-- 상위 포지셔닝은 **K-Beauty Japan Growth Studio**(한국어: K뷰티 일본 그로스 스튜디오) — 확정 2026-08-15 → [2026-08-14-포지셔닝-3축-vs-claimops](../../../docs/decisions/2026-08-14-포지셔닝-3축-vs-claimops.md).
-  - 워드마크 옆에 서술어를 붙일 때: "YOAKE — K-Beauty Japan Growth Studio". `Japan Growth Studio`는 **이름이 아니라 카테고리 서술어**이므로 단독으로 서비스명처럼 쓰지 않는다.
-  - 영문은 반드시 `Japan Growth Studio`. **`Japanese Growth Studio`는 쓰지 않는다**(일본계 스튜디오로 오해된다).
-  - `ClaimOps`는 로고·서비스명 옆에 붙이지 않는다. 내부 진단 엔진을 가리킬 때만 본문에서 보조적으로 쓴다.
+- `Japan Growth Studio`는 **이름이 아니라 카테고리 서술어**로만 남는다.
+  예: "YOAKE — 일본향 메시지 설계가 내장된 Japan Growth Studio". 단독으로 서비스명처럼 쓰지 않는다.
 
 ## 2. 자산
 
@@ -41,20 +39,15 @@ import { YoakeLogo, YoakeMark } from '@/components/brand/Logo';
 
 파비콘은 [app/icon.svg](../../../app/icon.svg) — `yoake-mark.svg`의 사본이며 Next.js App Router가 자동으로 잡는다. 마크를 고치면 이 파일도 함께 갱신한다.
 
-### 이력 자산 (현행 아님 · 신규 산출물에 쓰지 않는다)
+## 3. 색
 
-- [SVG/YOAKE_Logo_semicircle.svg](SVG/YOAKE_Logo_semicircle.svg) — 2026-08-14 발표 장표에 쓴 중간 락업. 현행 [yoake-logo.svg](yoake-logo.svg)가 대체했다.
-- [logo.ai](logo.ai) · `1x/` · `2x/` · [logo_test_yoake.png](logo_test_yoake.png) · [logo_test_agaru.png](logo_test_agaru.png) · [logo_test_noboru.png](logo_test_noboru.png) — 계단형 방향의 작업 파일. 미채택.
-
-## 3. 색 — **로고 자산 고정색 (UI 팔레트와 동일 계열)**
-
-> **2026-08-18 개정.** 구 규칙("로고 색을 UI 토큰으로 승격하지 않는다")은 폐기됐다. 앱·랜딩·로고가
-> **하나의 팔레트**를 쓰며, 로고의 해 `#FF6F61`은 UI 브랜드색 `--color-coral`, 잉크 `#182333`은
-> `--color-ink`와 같은 값이다 (`design/design-system.md` · `app/globals.css`).
-> 근거: [../../../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md](../../../docs/decisions/2026-08-18-앱셸-랜딩-팔레트-통일.md).
+> **2026-08-18 전환 — 로고 색이 곧 UI 브랜드색이다.** 구 스티비 코랄 `#ff6464`는 폐기됐고,
+> 디자인 시스템 브랜드색은 로고와 같은 일출 코랄 `#FF6F61`(= `--color-coral`), 잉크는 `#182333`(= `--color-ink`)이다
+> (근거 `docs/decisions/2026-08-18-일출코랄-DS전환.md` · 토큰 `app/globals.css`).
 >
-> 값이 여기 따로 적혀 있는 이유는 **로고가 테마·컨텍스트에 따라 변하면 안 되는 자산**이기 때문이지,
-> UI와 다른 색이어서가 아니다. 로고에는 아래 값을 고정으로 쓴다.
+> 단 **일출 그라디언트(`#FF6F61`→`#FF9B70`)는 로고 심볼 전용**이다. UI 면에는 단색 `#FF6F61`만 쓴다.
+> UI에서 면(버튼 배경·도트·아이콘)은 `coral`, 소형 텍스트·링크는 `coral-strong` `#C93F2E`로 나눠 쓴다 —
+> 원색은 크림 위 2.6:1이라 글자색으로 못 쓴다.
 
 | 역할 | 값 |
 |---|---|

@@ -1,24 +1,16 @@
 import Link from 'next/link';
 import type { BrandProfileRecord, ReportSummary } from '@/lib/db/store';
-import { CATEGORY_LABELS, type RubricGroup } from '@/lib/engine/types';
 import { POSITIONING_TAGS } from '@/lib/engine/rules/positioning';
+import { GROUP_LABELS_PREFIXED, GROUP_ORDER } from '@/lib/report/labels';
 import type { UpcomingEvent } from '@/lib/season';
 import { cardClass } from '@/components/ui/primitives';
+import { CATEGORY_LABELS } from '@/lib/engine/types';
 
 /**
  * 홈 복귀 뷰 위젯 3종 — MAIN-11 브랜드 정보 · MAIN-10 리포트 요약 · MAIN-12 다가오는 이벤트.
  * 전부 기존 엔티티 재조회 전용(홈은 아무것도 저장하지 않는다 — 08 §7). 서버 컴포넌트.
  */
 
-const GROUP_ORDER: RubricGroup[] = ['A', 'B', 'C', 'D', 'E'];
-/** 리포트 GROUP_LABELS 정본과 동일(ReportView·slides.ts) */
-const GROUP_LABELS: Record<RubricGroup, string> = {
-  A: 'A 신뢰 구축',
-  B: 'B 무첨가·안전',
-  C: 'C 서사 구조',
-  D: 'D 성분 프레이밍',
-  E: 'E 카테고리 적합성',
-};
 const TAG_LABELS: Record<string, string> = Object.fromEntries(POSITIONING_TAGS.map((t) => [t.value, t.label]));
 
 /** MAIN-11 · 브랜드 정보 위젯 — "진단·생성이 무엇을 보고 도는가"를 홈에서 확인 */
@@ -156,7 +148,7 @@ export function ReportSummaryWidget({
               const pct = report.groupScores[g] ?? 0;
               return (
                 <div key={g} className="flex items-center gap-2.5 text-[11.5px]">
-                  <dt className="w-[92px] flex-none text-ink-body">{GROUP_LABELS[g]}</dt>
+                  <dt className="w-[92px] flex-none text-ink-body">{GROUP_LABELS_PREFIXED[g]}</dt>
                   <dd className="m-0 flex flex-1 items-center gap-2.5">
                     <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-n-150">
                       <span className="block h-full rounded-full bg-coral" style={{ width: `${pct}%` }} />
@@ -198,20 +190,28 @@ export function ReportSummaryWidget({
   );
 }
 
-/** MAIN-12 · 다가오는 이벤트 위젯(전폭 스트립) — 조회 전용. 예약·발행·알림 없음(금지 포지션) */
-export function UpcomingEventsWidget({ events }: { events: UpcomingEvent[] }) {
+/**
+ * MAIN-12 · 다가오는 이벤트 위젯 — 조회 전용. 예약·발행·알림 없음(금지 포지션).
+ *
+ * `banner` 슬롯: 같은 카드 위쪽에 다음 단계 밴드(MAIN-03)를 얹는다. 2026-08-18 홈 개편에서
+ * 메가와리 D-day 배너와 시즌 목록이 화면 양 끝으로 떨어져 있어 같은 시즌 이야기가 두 번 나오는
+ * 것처럼 읽혔다 — 한 카드로 붙여 "지금 할 일 → 앞으로의 시즌" 한 덩어리로 읽히게 한다.
+ */
+export function UpcomingEventsWidget({ events, banner }: { events: UpcomingEvent[]; banner?: React.ReactNode }) {
   // 가장 임박한 카운트다운 1건만 코랄 강조(진행 중은 amber라 대상 아님 — MAIN-12)
   const nearId = events.find((e) => !e.inProgress)?.id;
 
   return (
-    <section className={cardClass('p-6')} aria-labelledby="w12t">
+    <div className={cardClass('overflow-hidden')}>
+      {banner && <div className="border-b border-coral/25 bg-coral-tint/55 p-6 max-sm:p-5">{banner}</div>}
+      <section className="p-6 max-sm:p-5" aria-labelledby="w12t">
       <div className="flex flex-wrap items-baseline gap-2">
         <h2 id="w12t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
           다가오는 이벤트
         </h2>
         <span className="ml-auto text-[12px]">
-          <Link href="/app/library" className="font-semibold text-coral-strong no-underline hover:underline">
-            시즌 전체 보기 →
+          <Link href="/app/season" className="font-semibold text-coral-strong no-underline hover:underline">
+            시즌 캘린더 →
           </Link>
         </span>
       </div>
@@ -237,7 +237,7 @@ export function UpcomingEventsWidget({ events }: { events: UpcomingEvent[] }) {
           );
         })}
       </ul>
-      <p className="mt-3 text-[11.5px] text-ink-faint">일정 예약 도구가 아니에요. 지금 무엇을 준비할지 보는 캘린더입니다.</p>
-    </section>
+      </section>
+    </div>
   );
 }

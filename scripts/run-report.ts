@@ -57,9 +57,15 @@ async function main(): Promise<void> {
     onLog: (entry) =>
       logger.info('LLM 로그', {
         call: entry.callName,
+        model: entry.model,
         mode: entry.mode,
         status: entry.status,
         durationMs: entry.durationMs,
+        effort: entry.requestSummary.effort,
+        maxTokens: entry.requestSummary.maxTokens,
+        // effort 스윕에 쓰는 값들 — 교정 미해소 사유와 재시도를 유발한 응답 수
+        ...(entry.repairIssues?.length ? { repairIssues: entry.repairIssues } : {}),
+        ...(entry.rejectedAttempts?.length ? { rejected: entry.rejectedAttempts.map((r) => r.reason) } : {}),
       }),
   });
 
@@ -73,7 +79,19 @@ async function main(): Promise<void> {
     auditSummary: b.block3?.summary ?? '(브랜드 진단 — 감사 없음)',
     rewriteCount: b.block7?.rewrites.length ?? 0,
     blocks: Object.keys(b).filter((k) => k.startsWith('block')).length,
+    humanizeAdopted: result.humanizeVerdicts.filter((v) => v.adopted).length,
+    humanizeRejected: result.humanizeVerdicts.filter((v) => !v.adopted).length,
+    humanizeSkipped: result.humanizeSkipped ?? '(정상 실행)',
   });
+
+  // 윤문 반려 사유는 루브릭을 고칠 유일한 근거다 — 요약 뒤에 그대로 붙인다
+  for (const v of result.humanizeVerdicts.filter((x) => !x.adopted)) {
+    logger.warn('윤문 반려', { path: v.path, reason: v.rejectedReason });
+  }
+  // 증거 원칙 위반 후보 — 비차단. QA(AC-2.5)가 이 목록을 보고 판단한다
+  for (const e of result.evidenceIssues) {
+    logger.warn('증거 원칙 위반 후보', { path: e.path, match: e.match, note: e.note });
+  }
 
   if (outPath) {
     await writeFile(outPath, JSON.stringify(b, null, 2), 'utf8');

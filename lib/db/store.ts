@@ -66,6 +66,14 @@ export interface ReportRecord {
   /** 파이프라인 완료 시각 — 잡이 직접 세팅한다(발행 = 파이프라인 성공) */
   publishedAt: string | null;
   createdAt: string;
+  /**
+   * 콜⑩ reportHumanize 가 **채택하지 못한** 항목(경로 + 사유). 비차단 기록이다.
+   * ② 축 `AssetRecord.humanizeIssues` 의 ① 대응물 — 같은 이유로 남긴다: 윤문이 왜 안 먹혔는지
+   * 사후에 알 수 없으면 루브릭을 고칠 근거가 없다.
+   */
+  humanizeIssues?: { path: string; reason: string }[];
+  /** 콜⑩ 이 아예 돌지 않았다면 그 사유(목 모드·콜 실패) */
+  humanizeSkipped?: string;
 }
 
 // ── 스프린트 2 엔티티 (08 §6.1 스프린트 2 델타) ──────────────────────────────
@@ -191,6 +199,20 @@ export interface DetailInput {
   brandKit?: BrandKit;
   /** 변환에 실패해 한국어가 남은 필드(게이트 기록용) */
   translationIssues?: { path: string; label: string; problem: string }[];
+
+  // ── 테마·윤문 스냅샷 (§2-7 · 콜⑨) ─────────────────────────────────────────
+  // 같은 이유로 전부 optional 이다.
+
+  /**
+   * 생성 시점에 **해석이 끝난** 테마(hex 4종 + 무드 + 출처). 프리셋 id 가 아니라 실제 값이라
+   * 프리셋 테이블을 나중에 고쳐도 발행 자산의 블록 재생성 색이 흔들리지 않는다.
+   * 읽기는 `detailThemeOf()` 액세서 하나로만 — 타입은 `lib/studio/detail/theme.ts` 의 `DetailTheme`.
+   */
+  theme?: Record<string, unknown>;
+  /** 콜⑨ copyHumanize 가 채택하지 못한 항목(게이트 기록용). 비차단 등급이다 */
+  humanizeIssues?: { blockId: string; key: string; reason: string }[];
+  /** 콜⑨ 가 아예 돌지 않았다면 그 사유 */
+  humanizeSkipped?: string;
 }
 
 /** 블록 상태 — 자산 상태와 별개로 블록별로 진행·실패가 기록된다 */
@@ -378,6 +400,23 @@ export interface TrackEventRecord {
   createdAt: string;
 }
 
+/**
+ * 시즌 캘린더 메모(SEASON-03) — 브랜드가 특정 날짜·기간에 적어 두는 준비 메모.
+ * 시즌 이벤트 자체는 `lib/season.ts` 상수라 저장하지 않는다. 저장 대상은 사용자가 적은 것뿐이다.
+ * 예약·발행·알림 트리거가 아니다 — 화면에 다시 보여주기만 한다(금지 포지션).
+ */
+export interface SeasonMemoRecord {
+  id: string;
+  brandProfileId: string;
+  /** 시작일 YYYY-MM-DD(로컬) */
+  startDate: string;
+  /** 종료일 YYYY-MM-DD — null이면 단일 날짜 메모 */
+  endDate: string | null;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /** 브랜드 생성 입력 — id·타임스탬프는 스토어가 부여 */
 export type NewBrandProfile = Omit<BrandProfileRecord, 'id' | 'createdAt' | 'updatedAt'>;
 
@@ -442,6 +481,8 @@ export interface Store {
         GeneratedAssetRecord,
         | 'status' | 'stage' | 'error' | 'imagePath' | 'promptUsed' | 'gateResult' | 'explanationJson'
         | 'blockTotal' | 'blockDone' | 'slicePaths'
+        // 해석된 테마·윤문 결과를 생성 중에 스냅샷한다(§2-7 · 콜⑨). 신규 컬럼 없이 detail_input jsonb 안에 담는다
+        | 'detailInput'
       >
     >,
   ): Promise<void>;
@@ -495,6 +536,16 @@ export interface Store {
     patch: Partial<Pick<ProductRecord, 'nameKr' | 'nameJa' | 'category' | 'memo' | 'images'>>,
   ): Promise<void>;
   deleteProduct(id: string): Promise<void>;
+  // ── 시즌 캘린더 메모(SEASON-03) — 브랜드별 스코핑 ──────────────────────────
+  /** 시작일 오름차순 */
+  listSeasonMemos(brandProfileId: string): Promise<SeasonMemoRecord[]>;
+  getSeasonMemo(id: string): Promise<SeasonMemoRecord | null>;
+  createSeasonMemo(input: Omit<SeasonMemoRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<SeasonMemoRecord>;
+  updateSeasonMemo(
+    id: string,
+    patch: Partial<Pick<SeasonMemoRecord, 'startDate' | 'endDate' | 'body'>>,
+  ): Promise<void>;
+  deleteSeasonMemo(id: string): Promise<void>;
 }
 
 let storeInstance: Store | null = null;

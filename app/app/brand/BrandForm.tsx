@@ -363,7 +363,7 @@ export function BrandForm({
           </SectionCard>
 
           {/* 일본향 용어집·톤 가이드(BRAND-05) */}
-          <SectionCard title="일본향 용어집 · 톤 가이드" desc="일본 고객 관점 메시지 재설계의 입력입니다 — 범용 번역 사전이 아닙니다">
+          <SectionCard title="일본향 용어집 · 톤 가이드" desc="일본 고객 관점 메시지 재설계의 입력입니다">
             <div className="space-y-6">
               {/* 제품명 일본어 표기(BRAND-05a) */}
               <div>

@@ -1,13 +1,17 @@
 # design/ — 디자인 산출물
 
-디자인 **단일 기준 = [DESIGN.md](DESIGN.md)** (코랄 시스템 `#FF6464`/`#D93636`/`#FFF8F8` · 컴포넌트 인벤토리 · §14 상태 규약 · CTA 코랄 정책). 모든 화면·와이어프레임은 이 코랄 시스템을 따른다. 인계 결정 로그는 [handoff-landing-design-system.md](handoff-landing-design-system.md).
+디자인 **단일 기준 = 일출 코랄 시스템** — 정본 시트 [references/LP_Components.svg](references/LP_Components.svg), 실측 스펙 [lp-components-spec.md](lp-components-spec.md), 토큰 구현 [`app/globals.css`](../app/globals.css). 면(CTA 배경·아이콘) `#FF6F61` · 면 hover `#F0594B` · 소형 텍스트·링크 `#C93F2E` · 틴트 `#FFF1EE` · 표면 웜 크림 `#FAF8F5` · 잉크 `#182333`. 모든 화면·와이어프레임은 이 시스템을 따른다.
+
+> **팔레트 전환(2026-08-18).** 구 스티비 코랄 `#FF6464`/`#D93636`/`#FFF8F8` 팔레트는 폐기됐다 — 근거 [`docs/decisions/2026-08-18-일출코랄-DS전환.md`](../docs/decisions/2026-08-18-일출코랄-DS전환.md). [DESIGN.md](DESIGN.md)와 [handoff-landing-design-system.md](handoff-landing-design-system.md)·[design-system-plan.md](design-system-plan.md)는 **전환 이전 Figma as-built 기록**이라 구 색값이 그대로 남아 있다. 컴포넌트 인벤토리·상태 규약은 계속 참고하되, **색은 위 정본을 따른다.**
 
 > 톤은 **코랄로 확정**(2026-07-09). 이전 "네이비 A안" 톤 탐색(`brand-tone-proposals.md`·`wireframes/tone-preview.html`)은 superseded(이력 보존). 리포트/산출물 와이어프레임도 코랄로 리스킨 완료.
 
 ## 폴더
-- `DESIGN.md` — **디자인 시스템 단일 기준**(코랄 토큰·타이포·간격·컴포넌트·상태)
-- `handoff-landing-design-system.md` — 랜딩 디자인시스템 인계(CTA 정책·Figma node id·접근성)
-- `design-system.md` / `design-system-plan.md` — 초기 토큰 계획(참고)
+- `references/LP_Components.svg` + `lp-components-spec.md` — **디자인 시스템 정본**(일출 코랄 토큰·컴포넌트 실측)
+- `design-system.md` — 일출 코랄 토큰 문서(정본 요약)
+- `DESIGN.md` — 컴포넌트 인벤토리·타이포·간격·상태 규약(**색은 전환 이전 as-built 기록**)
+- `handoff-landing-design-system.md` — 랜딩 디자인시스템 인계(CTA 정책·Figma node id·접근성 — **색은 전환 이전 기록**)
+- `design-system-plan.md` — 초기 토큰 계획(참고 · **색은 전환 이전 기록**)
 - `copy/` — 랜딩·광고 카피 (KR 원안 → JP 재설계, `jp-localizer` 산출물)
 - `references/` — 외부 레퍼런스(Stibee 코랄·Wanted 구조)
 - `wireframes/` — 와이어프레임 + 핸드오프 명세

@@ -9,7 +9,13 @@
 
 import OpenAI, { toFile } from 'openai';
 import { logger } from '../../logger';
-import { currentImageMode, imageModel, type ImageMode } from '../imageGen';
+import {
+  currentImageMode,
+  imageModel,
+  isInputFidelityRejection,
+  noInputFidelityModels,
+  type ImageMode,
+} from '../imageGen';
 import type { BlockType } from './output';
 
 export { currentImageMode, imageModel } from '../imageGen';
@@ -23,13 +29,15 @@ const FALLBACK_SIZE = '1024x1024';
  * 그 잡의 **모든** 블록이 스테일 가드로 죽는다 — 한 블록만 포기하는 게 낫다.
  * 실측 40~90초라 120초면 정상 호출을 자르지 않는다.
  */
-const IMAGE_TIMEOUT_MS = 120_000;
+export const IMAGE_TIMEOUT_MS = 120_000;
 
 /**
  * SDK 자동 재시도 횟수(429·5xx·연결 오류 대상, 지수 백오프).
  * 2를 넘기지 않는 이유: 재시도 1회가 최대 120초라 300초 예산을 쉽게 넘긴다.
- * 그래서 여기서 못 살린 실패는 **잡을 죽이지 않고 블록을 강등**하고(detailJob),
+ * 여기서 못 살린 실패는 **잡을 죽이지 않고 블록을 강등**하고(detailJob),
  * 사용자가 결과 화면에서 그 블록만 다시 만들게 한다.
+ * 동시성이 6으로 올라가면서(2026-08-18) 429 확률이 올랐지만, 이 백오프와 강등 경로가
+ * 그대로 봉쇄 장치가 되므로 신규 코드는 필요 없다 — 한 장이 죽어도 잡은 살아 있다.
  */
 const IMAGE_MAX_RETRIES = 2;
 
@@ -156,6 +164,11 @@ export interface GenerateBlockVisualOptions {
   /** 원본 제품컷 — 제품이 등장하는 블록에만 넘긴다(라벨 보존) */
   source?: Buffer;
   sourceMediaType?: string;
+  /**
+   * 이 호출 1건의 상한(ms). 잡의 남은 시간이 IMAGE_TIMEOUT_MS 보다 짧을 때 budget.ts 가 넘긴다.
+   * 생략하면 클라이언트 기본값(IMAGE_TIMEOUT_MS)을 쓴다.
+   */
+  timeoutMs?: number;
 }
 
 export interface GeneratedVisual {
@@ -200,19 +213,35 @@ export async function generateBlockVisual(opts: GenerateBlockVisualOptions): Pro
   if (opts.source) {
     const mediaType = opts.sourceMediaType ?? 'image/png';
     params.image = await toFile(opts.source, `source.${mediaType === 'image/png' ? 'png' : 'jpg'}`, { type: mediaType });
+    // 라벨·로고 보존 파라미터 — 썸네일 경로와 같은 가드를 공유한다. 기본 모델(gpt-image-2)은
+    // 항상 고정밀이라 붙이지 않지만, OPENAI_IMAGE_MODEL 을 바꾸면 상세만 보존을 잃던 구멍이었다.
+    if (!noInputFidelityModels.has(model)) params.input_fidelity = 'high';
   }
 
+  // 요청별 timeout — 클라이언트는 프로세스당 1개라 기본값을 바꿀 수 없다.
+  // 잡의 남은 예산이 짧으면 이 값이 내려와, 한 콜이 매달려 예산을 통째로 먹는 일을 막는다.
+  const reqOpts = opts.timeoutMs ? { timeout: opts.timeoutMs } : undefined;
   const call = async (): Promise<OpenAI.ImagesResponse> =>
     (useEdit
-      ? await getClient().images.edit(params as unknown as OpenAI.Images.ImageEditParams)
-      : await getClient().images.generate(params as unknown as OpenAI.Images.ImageGenerateParams)) as OpenAI.ImagesResponse;
+      ? await getClient().images.edit(params as unknown as OpenAI.Images.ImageEditParams, reqOpts)
+      : await getClient().images.generate(params as unknown as OpenAI.Images.ImageGenerateParams, reqOpts)) as OpenAI.ImagesResponse;
 
   const label = opts.blockNameKo ?? opts.blockType;
   let res: OpenAI.ImagesResponse;
   try {
     res = await call();
   } catch (err) {
-    if (isSizeRejection(err) && params.size !== FALLBACK_SIZE) {
+    if ('input_fidelity' in params && isInputFidelityRejection(err)) {
+      // env로 교체한 미지 모델이 파라미터를 거부하는 경우 — 제거 후 1회 재시도(스펙 §6-Q1)
+      noInputFidelityModels.add(model);
+      logger.warn('input_fidelity 미지원 모델 — 파라미터 제거 후 재시도', { model, blockType: opts.blockType });
+      delete params.input_fidelity;
+      try {
+        res = await call();
+      } catch (retryErr) {
+        throw classifyImageError(retryErr, label);
+      }
+    } else if (isSizeRejection(err) && params.size !== FALLBACK_SIZE) {
       // 세로 슬롯을 지원하지 않는 모델 — 정사각으로 1회 재시도하고 이후 결합 단계가 리사이즈한다
       noTallSizeModels.add(model);
       logger.warn('세로 크기 미지원 모델 — 정사각으로 재시도', { model, blockType: opts.blockType });
