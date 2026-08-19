@@ -1,7 +1,10 @@
 /**
  * ① 진단 리포트 파이프라인 — 08 §3.2 계약의 구현.
- * 순서: 정규화 → 사전신호 → [콜①·②·③ 병렬] → 집계(결정적) → 벤치마크(규칙) → 콜④ → 9블록 조립.
+ * 순서: 정규화 → 사전신호 → [콜①·②·③ 병렬] → 집계(결정적) → 벤치마크(규칙) → 콜④ → 9블록 조립 → 윤문.
  * 폴백(08 §3.2): 콜① 실패=블록5 축소(0점) · 콜③ 실패=카테고리 일반형 · 콜④ 실패=블록7·8 축소 · 콜② 실패만 잡 실패.
+ *
+ * 마지막 윤문(콜⑩)은 **조립 뒤**에 돈다 — 콜③·④가 쓴 한국어 서술이 한자리에 모인 시점이라
+ * 한 콜로 리포트 전체를 훑을 수 있다. 실패해도 잡을 죽이지 않는다(원문 유지).
  */
 
 import type { BlocksJson, BrandOnlyInput, BrandProductInput, RewriteResult, RubricGroup, RubricItemId, TierInput } from './types';
@@ -10,7 +13,9 @@ import { extractPreSignals } from './rules/presignals';
 import { aggregateScores } from './rules/aggregate';
 import { buildBenchmark } from './rules/benchmark';
 import { assembleBlocks, assembleBrandBlocks } from './rules/assemble';
+import { checkEvidence, type EvidenceIssue } from './rules/evidenceGate';
 import { runCall1, runCall2, runCall3, runCall4, type LogSink } from './llm/calls';
+import { runReportHumanize, type KoHumanizeVerdict } from '../report/humanizeReport';
 import { runCall0 } from './llm/call0';
 import { mockCall3 } from './llm/fixtures';
 import { logger } from '../logger';
@@ -38,6 +43,23 @@ export interface PipelineResult {
   groupScores: Partial<Record<RubricGroup, number>>;
   top3: { itemId: RubricItemId; title: string; score: number }[];
   precisionLimited: boolean;
+  /** 콜⑩ 윤문 판정 — 채택·반려 내역. 콜이 안 돌았으면 빈 배열 */
+  humanizeVerdicts: KoHumanizeVerdict[];
+  /** 윤문이 아예 돌지 않은 사유(목 모드·콜 실패). 정상이면 null */
+  humanizeSkipped: string | null;
+  /**
+   * 증거 원칙 위반 후보 — **비차단 경고**다. 발행을 막지 않는다.
+   * 정규식은 맥락을 모르므로 오탐이 나오고, 오탐으로 발행을 막으면 아무도 게이트를 켜두지 않는다.
+   * 잡을 죽이는 판단은 사람이 이 목록을 보고 한다(AC-2.5 수동 QA의 입력).
+   */
+  evidenceIssues: EvidenceIssue[];
+}
+
+/** 윤문까지 끝난 blocksJson 에 증거 원칙 검사를 걸고 경고를 남긴다 */
+function auditEvidence(blocksJson: BlocksJson): EvidenceIssue[] {
+  const issues = checkEvidence(blocksJson);
+  for (const i of issues) logger.warn('증거 원칙 위반 후보', { path: i.path, match: i.match, kind: i.kind });
+  return issues;
 }
 
 export interface PipelineDeps {
@@ -72,14 +94,20 @@ async function runBrandPipeline(tierInput: BrandOnlyInput, deps: PipelineDeps = 
   const benchmark = buildBenchmark(tierInput.category, null); // signals=null → "내 콘텐츠" 칸 전부 '미확인'
 
   await onStage?.('assemble');
-  const blocksJson = assembleBrandBlocks({ tierInput, persona, benchmark });
+  const assembled = assembleBrandBlocks({ tierInput, persona, benchmark });
+
+  await onStage?.('humanize');
+  const humanized = await runReportHumanize({ blocksJson: assembled, onLog });
 
   return {
-    blocksJson,
+    blocksJson: humanized.blocksJson,
     overallScore: null, // 점수 없음 — 대체 수치를 만들지 않는다(증거 원칙)
     groupScores: {},
     top3: [],
     precisionLimited: false,
+    humanizeVerdicts: humanized.verdicts,
+    humanizeSkipped: humanized.skippedReason,
+    evidenceIssues: auditEvidence(humanized.blocksJson),
   };
 }
 
@@ -153,7 +181,7 @@ async function runFullPipeline(tierInput: BrandProductInput, deps: PipelineDeps 
   }
 
   await onStage?.('assemble');
-  const blocksJson = assembleBlocks({
+  const assembled = assembleBlocks({
     tierInput,
     content,
     scored,
@@ -164,11 +192,17 @@ async function runFullPipeline(tierInput: BrandProductInput, deps: PipelineDeps 
     rewrite,
   });
 
+  await onStage?.('humanize');
+  const humanized = await runReportHumanize({ blocksJson: assembled, onLog });
+
   return {
-    blocksJson,
+    blocksJson: humanized.blocksJson,
     overallScore: aggregate.overallScore,
     groupScores: aggregate.groupScores,
     top3: aggregate.top3,
     precisionLimited: content.precisionLimited,
+    humanizeVerdicts: humanized.verdicts,
+    humanizeSkipped: humanized.skippedReason,
+    evidenceIssues: auditEvidence(humanized.blocksJson),
   };
 }

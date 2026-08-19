@@ -24,6 +24,7 @@ import type {
   UserRecord,
 } from './store';
 import { LEGACY_BRAND_ID, LEGACY_USER_ID } from './store';
+import { logger } from '../logger';
 import type { BlocksJson, ReportStatus, TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 
@@ -48,6 +49,9 @@ interface ReportRow {
   top3: ReportRecord['top3'];
   published_at: string | null;
   created_at: string;
+  /** 콜⑩ 윤문 기록 — 2026-08-19 마이그레이션. 구 행은 null 이므로 매퍼가 기본값을 준다 */
+  humanize_issues: ReportRecord['humanizeIssues'];
+  humanize_skipped: string | null;
 }
 
 function toRequestRecord(row: RequestRow): DiagnosisRequestRecord {
@@ -94,6 +98,8 @@ function toReportRecord(row: ReportRow): ReportRecord {
     top3: row.top3,
     publishedAt: row.published_at,
     createdAt: row.created_at,
+    humanizeIssues: row.humanize_issues ?? [],
+    ...(row.humanize_skipped ? { humanizeSkipped: row.humanize_skipped } : {}),
   };
 }
 
@@ -484,19 +490,40 @@ export function createSupabaseStore(): Store {
     },
 
     async saveReport(report: ReportRecord) {
-      const result = await client.from('reports').upsert(
-        {
-          request_id: report.requestId,
-          brand_profile_id: report.brandProfileId,
-          blocks_json: report.blocksJson,
-          overall_score: report.overallScore,
-          group_scores: report.groupScores,
-          top3: report.top3,
-          published_at: report.publishedAt,
-        },
-        { onConflict: 'request_id' },
-      );
-      if (result.error) throw new Error(`supabase saveReport 실패: ${result.error.message}`);
+      // 리포트 본문 — 이것만 저장되면 발행은 성립한다
+      const core = {
+        request_id: report.requestId,
+        brand_profile_id: report.brandProfileId,
+        blocks_json: report.blocksJson,
+        overall_score: report.overallScore,
+        group_scores: report.groupScores,
+        top3: report.top3,
+        published_at: report.publishedAt,
+      };
+      // 윤문 진단 기록 — 있으면 좋지만 없다고 리포트를 버릴 값은 아니다
+      const diagnostics = {
+        humanize_issues: report.humanizeIssues ?? [],
+        humanize_skipped: report.humanizeSkipped ?? null,
+      };
+
+      const result = await client.from('reports').upsert({ ...core, ...diagnostics }, { onConflict: 'request_id' });
+      if (!result.error) return;
+
+      // 2026-08-19 마이그레이션(humanize_issues·humanize_skipped) 미적용 DB — PostgREST 는
+      // 모르는 컬럼을 PGRST204 로 거부한다. 여기서 그대로 던지면 **파이프라인 5콜을 다 태운 뒤
+      // 마지막 저장에서 리포트가 통째로 날아간다.** 진단 기록 때문에 본문을 버릴 수는 없으므로
+      // 본문만 다시 저장하고, 무엇을 실행해야 하는지 로그에 크게 남긴다.
+      const isMissingColumn =
+        result.error.code === 'PGRST204' || /humanize_(issues|skipped)/.test(result.error.message);
+      if (!isMissingColumn) throw new Error(`supabase saveReport 실패: ${result.error.message}`);
+
+      logger.error('reports 윤문 컬럼 없음 — 본문만 저장하고 진단 기록은 버립니다', {
+        requestId: report.requestId,
+        reason: result.error.message,
+        fix: 'Supabase → SQL Editor 에서 supabase/schema.sql 의 "2026-08-19 · ① 리포트 한국어 윤문(콜⑩) 기록" 블록을 실행하세요(멱등).',
+      });
+      const retry = await client.from('reports').upsert(core, { onConflict: 'request_id' });
+      if (retry.error) throw new Error(`supabase saveReport 실패: ${retry.error.message}`);
     },
 
     async getReport(requestId) {
