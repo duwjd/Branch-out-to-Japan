@@ -10,6 +10,8 @@
  * 브랜드는 운영 > 브랜드 관리와 홈 위젯에서 다룬다(내비에 같은 정보를 두 번 두지 않는다).
  * 접힘은 ≥lg(1024px)에서만 적용되고 상태는 localStorage로 페이지 간 유지된다.
  * 1024px 미만에서는 사이드바가 상단 블록으로 접히며 접기 토글은 자동 no-op(숨김)이다.
+ * 2026-08-20 DS 정렬: 내비 항목 상태(default/hover/active)와 아이콘 크기를 LP_Components 시트의
+ * "SidebarNavItem — State" 블록에 맞췄다. 구조(브랜드 행 없음)는 2026-08-18 결정 그대로 유지한다.
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -57,12 +59,18 @@ const HIDE_ON_RAIL = 'lg:group-data-[collapsed=true]:hidden';
 /** 접힘 상태 지속 키 */
 const COLLAPSE_KEY = 'yoake:sidebar-collapsed';
 
-/** 3축 내비 항목 클래스 — 접힘 시 아이콘만 가운데 정렬 */
+/**
+ * 3축 내비 항목 클래스(SidebarNavItem) — 접힘 시 아이콘만 가운데 정렬.
+ * 상태 정본: design/references/LP_Components.svg "SidebarNavItem — State"
+ * (219×42 r10 · default 투명/#6E7686 · hover #F2F1ED/#182333 · active #FFF1EE).
+ * active 라벨만 시트 원색 #FF6F61 대신 coral-strong(#C93F2E)를 쓴다 — 원색은 코랄 틴트 위
+ * 2.48:1로 AA 미달이라 "면과 글자를 나눈다"(CLAUDE.md)를 따른다. 아이콘은 면이라 원색 그대로.
+ */
 function navClass(active: boolean): string {
   return [
     'flex h-[42px] items-center gap-2.5 rounded-[10px] px-3 text-[13.5px] font-semibold no-underline transition-colors',
     'lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:gap-0 lg:group-data-[collapsed=true]:px-0',
-    active ? 'bg-coral-tint text-coral-strong font-bold' : 'text-ink-body hover:bg-n-100 hover:text-ink',
+    active ? 'bg-coral-tint text-coral-strong font-bold' : 'text-ink-mute hover:bg-n-150 hover:text-ink',
   ].join(' ');
 }
 
@@ -70,7 +78,7 @@ function navClass(active: boolean): string {
 function subClass(active: boolean): string {
   return [
     'flex h-9 items-center gap-2 rounded-lg px-2.5 text-[12.5px] font-semibold no-underline transition-colors',
-    active ? 'bg-coral-tint text-coral-strong font-bold' : 'text-ink-mute hover:bg-n-100 hover:text-ink',
+    active ? 'bg-coral-tint text-coral-strong font-bold' : 'text-ink-mute hover:bg-n-150 hover:text-ink',
   ].join(' ');
 }
 
@@ -135,20 +143,20 @@ export function AppShell({ user, matchBadge, children }: ShellProps) {
   const nav = (
     <nav className="mt-1 flex flex-col gap-0.5" aria-label="주요 메뉴">
       <Link href="/app" className={navClass(dashActive)} aria-current={dashActive ? 'page' : undefined}>
-        <IconHome className={dashActive ? 'text-coral-strong' : 'text-ink-mute'} />
+        <IconHome size={20} className={dashActive ? 'text-coral' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>홈</span>
       </Link>
       <Link href="/app/report/new" className={navClass(reportActive)} aria-current={reportActive ? 'page' : undefined}>
-        <IconDoc className={reportActive ? 'text-coral-strong' : 'text-ink-mute'} />
+        <IconDoc size={20} className={reportActive ? 'text-coral' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>진단 리포트</span>
       </Link>
       <Link href="/app/studio" className={navClass(studioActive)} aria-current={studioActive ? 'page' : undefined}>
-        <IconImage className={studioActive ? 'text-coral-strong' : 'text-ink-mute'} />
+        <IconImage size={20} className={studioActive ? 'text-coral' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>마케팅 스튜디오</span>
       </Link>
       {/* 운영 착지는 첫 항목 브랜드 관리 — 운영에는 홈 화면이 없다(기획서 # 0) */}
       <Link href="/app/brand" className={navClass(opsActive)} aria-expanded={opsActive}>
-        <IconBox className={opsActive ? 'text-coral-strong' : 'text-ink-mute'} />
+        <IconBox size={20} className={opsActive ? 'text-coral' : 'text-ink-mute'} />
         <span className={HIDE_ON_RAIL}>운영</span>
       </Link>
       {/* LIB-00 · 운영 활성 시에만 펼치는 하위 아코디언 — 레일(접힘)에서는 숨김 */}
@@ -245,7 +253,7 @@ export function AppShell({ user, matchBadge, children }: ShellProps) {
           onClick={toggleCollapse}
           aria-expanded={!collapsed}
           aria-label={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
-          className="mb-1.5 inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center self-end rounded-lg border border-card-border bg-canvas text-ink-mute transition-colors hover:bg-n-100 hover:text-ink max-lg:hidden lg:group-data-[collapsed=true]:self-center"
+          className="mb-1.5 inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center self-end rounded-lg border border-card-border bg-canvas text-ink-mute transition-colors hover:bg-n-150 hover:text-ink max-lg:hidden lg:group-data-[collapsed=true]:self-center"
         >
           <IconChevronLeft className="transition-transform lg:group-data-[collapsed=true]:rotate-180" />
         </button>

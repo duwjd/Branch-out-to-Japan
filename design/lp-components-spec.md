@@ -4,6 +4,10 @@
 > 시트 제목: **"LP_Components — YOAKE 비회원 메인페이지 컴포넌트"**
 > SVG에서 색·치수를 기계적으로 추출한 결과다. 구현 토큰: [app/globals.css](../app/globals.css) `@theme`.
 
+> ⚠ **2026-08-20 — repo 자산은 구버전이다.** 시안 신버전(1600×5805)은 상단에 사이드바 블록
+> (아이콘 레일 · 4축 내비 · `SidebarNavItem — State`)이 추가돼 이하 y좌표가 약 900px 밀렸다.
+> §3.1은 신버전에서 읽은 실측이며, **신버전 SVG가 투입되면 위 치수 줄과 이 경고를 정리한다**.
+
 ## 0. 적용 상태 — 앱 전역 승격 완료
 
 PR #37이 이 팔레트를 **랜딩 한정**(`--color-lp-*`)으로 먼저 도입했고, 2026-08-18 결정으로 **앱 전역(`/app` 포함)으로 승격**했다 → [docs/decisions/2026-08-18-일출코랄-DS전환.md](../docs/decisions/2026-08-18-일출코랄-DS전환.md).
@@ -56,7 +60,7 @@ PR #37이 이 팔레트를 **랜딩 한정**(`--color-lp-*`)으로 먼저 도입
 ## 2. Radius
 `--radius-check 5` · `--radius-field 8` · `--radius-btn 10` · `--radius-panel 12` · `--radius-card 14`(구 18) · `full 9999`
 
-## 3. 컴포넌트 (시트 14종) — 치수 실측
+## 3. 컴포넌트 (시트 15종) — 치수 실측
 - **Button** 180×52 `r10`. Primary `#FF6F61`/흰 글자, Secondary 흰 배경 + `1px #C9CDD4` + 잉크 글자, Disabled `#E9E7E3`/`#78818F`
 - **포커스(공통)** 박스 밖 **3px `#FF6F61`**, offset 1 — 인풋은 여기에 글로우 추가. *전환 전 규칙(회색 포커스)은 폐기*
 - **TextLink** 1px 언더라인(`#E9E7E3` → hover `#FF6F61`)
@@ -67,6 +71,23 @@ PR #37이 이 팔레트를 **랜딩 한정**(`--color-lp-*`)으로 먼저 도입
 - **ServiceCard** 360×238 `r14` / **WorkflowStep** 320×196 `r14` — Coming은 `#F4F2EE` + 점선 `6 5`
 - **FAQAccordion** w880 `r12`, Expanded 보더 코랄 · **SuccessMessage** `r12` `#E8F4F0` + `1px #2D8C6B`
 - **Header** h76 (Transparent / Scrolled 흰 배경 94% + 하단 1px) · **FooterNav** 배경 `#182333`
+
+### 3.1 SidebarNavItem — State (신버전 추가분)
+회원 앱 좌측 내비 항목. 219×42 `r10`, 아이콘 20 + gap 10, 라벨 13.5px semibold.
+사이드바 폭 248 = 219 + 좌우 패딩 14.5 → `--spacing-sidebar` 그대로 맞는다.
+
+| 상태 | 배경 | 아이콘 | 라벨 |
+|---|---|---|---|
+| default | 투명 | `#6E7686` (`ink-mute`) | `#6E7686` (`ink-mute`) |
+| hover | `#F2F1ED` (`n-150`) | `#182333` (`ink`) | `#182333` (`ink`) |
+| active | `#FFF1EE` (`coral-tint`) | `#FF6F61` (`coral`) | **`#C93F2E`** (`coral-strong`) |
+
+> **active 라벨은 시트에서 유일하게 벗어난 값이다.** 시트는 아이콘·라벨 모두 `#FF6F61`로 그렸으나
+> 코랄 틴트 위 원색은 **2.48:1로 AA 미달**이다. §1 "면과 글자를 나눈다" 규칙대로 라벨만
+> `coral-strong`(§4 표: 코랄 틴트 위 4.50 AA)로 파생하고, **아이콘은 면이라 원색을 지킨다**.
+
+> 시트에 하위 메뉴(운영 아코디언)·접기 토글·계정 행 스펙은 없다. 구현은 hover 계단만
+> `n-150`으로 통일했고 나머지는 기존 값을 유지한다. 구현: [AppShell.tsx](../components/app/AppShell.tsx) `navClass`.
 
 ## 4. 접근성 — 전환 후 실측
 | 조합 | 대비 | 판정 |
@@ -82,5 +103,7 @@ PR #37이 이 팔레트를 **랜딩 한정**(`--color-lp-*`)으로 먼저 도입
 **미해결:** Primary 버튼의 흰 글자 on `#FF6F61` = **2.73:1로 AA 미달**(라벨 15px bold라 large 예외도 못 받음). 시트대로 두었다 — 해소안은 결정 문서 "미해결" 절.
 
 ## 5. 남은 일
+- **신버전 시트 SVG(1600×5805) 투입 대기** — `design/references/LP_Components.svg`를 교체하고 헤더의
+  치수·경고 줄을 정리한다. §3.1은 신버전 실측이라 값 자체는 교체 후에도 그대로다.
 - `--color-violet #8364FF`(스튜디오 템플릿명 배지)는 시트에 없는 액센트라 그대로 뒀다. 웜 팔레트 위 쿨 바이올렛이라 언젠가 정리 필요.
 - 브랜드 이니셜 아바타의 피치 그라디언트(`#FFE9DF`→`#FFCFB8`, AppShell·HomeWidgets)는 일출 계열이라 유지했으나 토큰화되어 있지 않다.
