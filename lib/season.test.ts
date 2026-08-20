@@ -5,7 +5,7 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { eventsInMonth, nextMegawari, seasonRecommendations, upcomingEvents } from './season';
+import { eventsInMonth, nextMegawari, seasonRecommendations, seasonRunway, upcomingEvents } from './season';
 
 describe('upcomingEvents', () => {
   const now = new Date(2026, 6, 23); // 2026-07-23 (로컬)
@@ -40,6 +40,29 @@ describe('upcomingEvents', () => {
     assert.ok(mega);
     assert.equal(mega.inProgress, false);
     assert.equal(mega.dDay, 40);
+  });
+
+  it('당일(D-0)은 아직 지난 것이 아니다 — 시점형 이벤트가 다음 해로 넘어가지 않는다', () => {
+    // 9월 메가와리(9/1) 당일 오전 10시 — 시각으로 비교하면 이미 지난 것으로 읽혀 D-365가 됐었다
+    const onTheDay = new Date(2026, 8, 1, 10, 0);
+    const mega = upcomingEvents(onTheDay, 7).find((e) => e.id === 'megawari-9');
+    assert.ok(mega);
+    assert.equal(mega.dDay, 0);
+    assert.equal(nextMegawari(onTheDay).id, 'megawari-9');
+    assert.equal(nextMegawari(onTheDay).dDay, 0);
+  });
+
+  it('기간형 마지막 날에도 진행 중이다', () => {
+    // 가을 신색(7/21~9/30)의 마지막 날 저녁
+    const lastDay = new Date(2026, 8, 30, 20, 0);
+    const autumn = upcomingEvents(lastDay, 7).find((e) => e.id === 'autumn-shade');
+    assert.equal(autumn?.inProgress, true);
+  });
+
+  it('같은 날이면 몇 시에 보든 D-day가 같다', () => {
+    const morning = upcomingEvents(new Date(2026, 7, 19, 1, 0), 7);
+    const night = upcomingEvents(new Date(2026, 7, 19, 23, 30), 7);
+    assert.deepEqual(morning, night);
   });
 
   it('이미 지난 이벤트는 내년 주기로 넘어간다', () => {
@@ -127,5 +150,37 @@ describe('seasonRecommendations', () => {
     assert.ok(autumn?.urgent, '진행 중은 urgent');
     const mega3 = recs.find((r) => r.event.id === 'megawari-3');
     if (mega3) assert.equal(mega3.urgent, false, '200일 넘게 남았으면 urgent 아님');
+  });
+});
+
+describe('seasonRunway', () => {
+  const now = new Date(2026, 7, 19); // 2026-08-19 (로컬)
+
+  it('limit 칸수만큼, 임박순으로 돌려준다', () => {
+    const steps = seasonRunway(now, 6);
+    assert.equal(steps.length, 6);
+    for (let i = 1; i < steps.length; i++) {
+      assert.ok(steps[i - 1].dDay <= steps[i].dDay, '임박순 위반');
+    }
+  });
+
+  it('진행 중·임박(7일 내) 시즌은 now 구간', () => {
+    const steps = seasonRunway(now, 6);
+    const autumn = steps.find((s) => s.id === 'autumn-shade'); // 진행 중
+    const xmas = steps.find((s) => s.id === 'xmas-coffret');   // 8/20 시작 = D-1
+    assert.equal(autumn?.phase, 'now');
+    assert.equal(xmas?.phase, 'now');
+  });
+
+  it('착수 권장 구간(leadDays) 안이면 prep, 밖이면 later', () => {
+    const steps = seasonRunway(now, 6);
+    const mega9 = steps.find((s) => s.id === 'megawari-9');   // D-13 ≤ lead 30
+    const mega11 = steps.find((s) => s.id === 'megawari-11'); // D-74 > lead 30
+    assert.equal(mega9?.phase, 'prep');
+    assert.equal(mega11?.phase, 'later');
+  });
+
+  it('같은 now → 같은 결과(결정적)', () => {
+    assert.deepEqual(seasonRunway(now, 6), seasonRunway(now, 6));
   });
 });

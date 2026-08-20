@@ -223,6 +223,16 @@ function at(year: number, month: number, day: number): number {
   return new Date(year, month - 1, day).getTime();
 }
 
+/**
+ * now가 속한 날의 로컬 자정 — 시즌 판정은 전부 이 값으로 한다.
+ * 시각(nowT)으로 비교하면 ① 이벤트 당일 오전에 이미 "지났다"고 판정돼 다음 해 주기로 넘어가고
+ * (9월 1일에 9월 메가와리가 D-365로 표기되던 문제) ② 같은 날에도 몇 시에 보느냐에 따라
+ * D-day가 흔들린다. 날 단위로 끊어 두 가지를 함께 없앤다.
+ */
+function startOfDay(now: Date): number {
+  return at(now.getFullYear(), now.getMonth() + 1, now.getDate());
+}
+
 /** 그 해 주기로 해석한 이벤트 구간 */
 function resolveIn(e: SeasonEventDef, year: number): { startsAt: number; endsAt: number } {
   const startsAt = at(year, e.from[0], e.from[1]);
@@ -250,15 +260,15 @@ export interface UpcomingEvent {
  */
 export function upcomingEvents(now: Date, limit = 3): UpcomingEvent[] {
   const year = now.getFullYear();
-  const nowT = now.getTime();
+  const todayT = startOfDay(now);
 
   return SEASON_EVENTS.map((e) => {
-    // 종료(시점형은 시작)가 이미 지났으면 내년 주기로 이동
+    // 종료(시점형은 시작)가 이미 지났으면 내년 주기로 이동 — 당일은 아직 지난 게 아니다
     const thisYear = resolveIn(e, year);
-    const yr = thisYear.endsAt < nowT ? year + 1 : year;
+    const yr = thisYear.endsAt < todayT ? year + 1 : year;
     const { startsAt, endsAt } = resolveIn(e, yr);
-    const inProgress = e.kind === 'period' && nowT >= startsAt && nowT <= endsAt;
-    const dDayVal = inProgress ? 0 : Math.max(0, Math.ceil((startsAt - nowT) / MS_DAY));
+    const inProgress = e.kind === 'period' && todayT >= startsAt && todayT <= endsAt;
+    const dDayVal = inProgress ? 0 : Math.max(0, Math.ceil((startsAt - todayT) / MS_DAY));
     return { id: e.id, name: e.name, kind: e.kind, when: e.when, prep: e.prep, dDay: dDayVal, inProgress };
   })
     .sort((a, b) => a.dDay - b.dDay)
@@ -316,10 +326,11 @@ export function eventsInMonth(year: number, month: number): ResolvedSeasonEvent[
 export function nextMegawari(now: Date): { id: string; label: string; month: string; dDay: number } {
   const mega = SEASON_EVENTS.filter((e) => MEGAWARI_IDS.has(e.id));
   const year = now.getFullYear();
-  const nowT = now.getTime();
+  const todayT = startOfDay(now);
   const resolved = mega
     .map((e) => {
-      const yr = resolveIn(e, year).startsAt < nowT ? year + 1 : year;
+      // 당일(D-0)은 아직 다음 메가와리다 — 오전에 다음 해 주기로 넘어가지 않게 자정 기준으로 본다
+      const yr = resolveIn(e, year).startsAt < todayT ? year + 1 : year;
       return { id: e.id, label: e.name, month: `${e.from[0]}월`, startsAt: resolveIn(e, yr).startsAt };
     })
     .sort((a, b) => a.startsAt - b.startsAt);
@@ -328,7 +339,7 @@ export function nextMegawari(now: Date): { id: string; label: string; month: str
     id: next.id,
     label: next.label,
     month: next.month,
-    dDay: Math.max(0, Math.ceil((next.startsAt - nowT) / MS_DAY)),
+    dDay: Math.max(0, Math.ceil((next.startsAt - todayT) / MS_DAY)),
   };
 }
 
@@ -380,5 +391,42 @@ export function seasonRecommendations(now: Date, ctx: BrandReadiness, limit = 3)
     const already = steps.filter((s) => done(s.axis));
 
     return { event, urgent, steps: [...pending, ...already] };
+  });
+}
+
+/**
+ * 시즌 눈금 한 칸의 긴급도 — 색이 아니라 의미로 정의한다(면 색은 화면이 고른다).
+ * 'now'   = 진행 중이거나 곧 시작 — 지금 손대는 시즌
+ * 'prep'  = 이벤트별 착수 권장 구간(leadDays) 안 — 지금 준비를 시작할 시즌
+ * 'later' = 아직 먼 시즌
+ */
+export type SeasonPhase = 'now' | 'prep' | 'later';
+
+/** 진행 중이 아니어도 이 일수 안에 시작하면 'now'로 본다 */
+const IMMINENT_DAYS = 7;
+
+export interface SeasonRunwayStep {
+  id: string;
+  name: string;
+  /** 시작까지 남은 일수(진행 중이면 0) */
+  dDay: number;
+  inProgress: boolean;
+  phase: SeasonPhase;
+}
+
+/**
+ * 홈 히어로 시즌 눈금 — 임박순 시즌 이벤트 N건에 긴급도를 매긴다(MAIN-03).
+ * 전부 날짜만으로 결정된다 — 없는 진척·실적을 만들어 내지 않는다(증거 원칙).
+ * @param now 기준 시각
+ * @param limit 눈금 칸 수(기본 6)
+ */
+export function seasonRunway(now: Date, limit = 6): SeasonRunwayStep[] {
+  const byId = new Map(SEASON_EVENTS.map((e) => [e.id, e]));
+
+  return upcomingEvents(now, limit).map((e) => {
+    const leadDays = byId.get(e.id)?.leadDays ?? 30;
+    const phase: SeasonPhase =
+      e.inProgress || e.dDay <= IMMINENT_DAYS ? 'now' : e.dDay <= leadDays ? 'prep' : 'later';
+    return { id: e.id, name: e.name, dDay: e.dDay, inProgress: e.inProgress, phase };
   });
 }
