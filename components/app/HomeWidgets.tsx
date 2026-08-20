@@ -6,8 +6,12 @@ import type { UpcomingEvent } from '@/lib/season';
 import { cardClass } from '@/components/ui/primitives';
 
 /**
- * 홈 복귀 뷰 위젯 3종 — MAIN-11 브랜드 정보 · MAIN-10 리포트 요약 · MAIN-12 다가오는 이벤트.
+ * 홈 복귀 뷰 위젯 — MAIN-11 브랜드 정보 · MAIN-10 리포트 요약 · MAIN-12 다가오는 이벤트.
  * 전부 기존 엔티티 재조회 전용(홈은 아무것도 저장하지 않는다 — 08 §7). 서버 컴포넌트.
+ *
+ * 2026-08-20 개편: 우측 칼럼(리포트 요약·브랜드 정보)의 카드 테두리를 걷고 머리선만 남겼다.
+ * 히어로가 카드 없는 페이지 머리로 올라오면서 카드가 3겹(페이지 위 카드 위 칩)으로 쌓여
+ * 본문 밀도가 왼쪽 칼럼과 맞지 않았다. 왼쪽(이벤트·자산)은 격자를 담는 그릇이라 카드를 유지한다.
  */
 
 const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
@@ -17,6 +21,14 @@ const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
   cleansing: { kr: '클렌징', ja: 'クレンジング' },
 };
 const TAG_LABELS: Record<string, string> = Object.fromEntries(POSITIONING_TAGS.map((t) => [t.value, t.label]));
+
+/** 우측 위젯 공통 표면 — 카드가 아니라 머리선으로만 구분한다(카드 3겹 방지) */
+const WIDGET = 'border-t border-card-border pt-5';
+
+/** 카테고리 한국어 라벨 — 미지의 값이면 원문 그대로(빈 자리를 만들지 않는다) */
+export function categoryLabelKr(category: string): string {
+  return CATEGORY_LABELS[category]?.kr ?? category;
+}
 
 /** MAIN-11 · 브랜드 정보 위젯 — "진단·생성이 무엇을 보고 도는가"를 홈에서 확인 */
 export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
@@ -32,7 +44,7 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
   const jpChannels = brand.channels.jp.map((c) => c.channel).filter(Boolean);
 
   return (
-    <section className={cardClass('p-6')} aria-labelledby="w11t">
+    <section className={WIDGET} aria-labelledby="w11t">
       <div className="flex items-baseline gap-2">
         <h2 id="w11t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
           브랜드 정보
@@ -49,7 +61,7 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-bold text-ink">{brand.brandName}</span>
-          <span className="mt-0.5 block text-[11.5px] text-ink-mute">
+          <span className="mt-0.5 block truncate text-[11.5px] text-ink-mute">
             {cat ? (
               <>
                 {cat.kr} / <span lang="ja">{cat.ja}</span>
@@ -85,8 +97,10 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
           <dd className={`m-0 font-semibold ${hasProductInfo ? 'text-ink' : 'text-ink-faint'}`}>{hasProductInfo ? '등록됨' : '미등록'}</dd>
         </div>
         <div className="flex items-baseline justify-between gap-3 border-b border-n-150 py-[7px] text-[12.5px]">
-          <dt className="text-ink-body">일본 채널</dt>
-          <dd className={`m-0 truncate font-semibold ${jpChannels.length ? 'text-ink' : 'text-ink-faint'}`}>{jpChannels.length ? jpChannels.join(' · ') : '미등록'}</dd>
+          <dt className="flex-none text-ink-body">일본 채널</dt>
+          <dd className={`m-0 min-w-0 truncate font-semibold ${jpChannels.length ? 'text-ink' : 'text-ink-faint'}`}>
+            {jpChannels.length ? jpChannels.join(' · ') : '미등록'}
+          </dd>
         </div>
         <div className="flex items-baseline justify-between gap-3 py-[7px] text-[12.5px]">
           <dt className="text-ink-body">브랜드 킷</dt>
@@ -100,7 +114,7 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
       <p className="mt-3.5 text-[12px] leading-relaxed text-ink-mute [text-wrap:pretty]">
         {hasProductInfo ? '채우면 진단·생성 정확도가 올라갑니다.' : '제품을 등록하면 스튜디오에서 제품컷을 바로 골라 쓸 수 있어요.'}
       </p>
-      <p className="mt-3.5 border-t border-n-150 pt-3.5 text-[12.5px]">
+      <p className="mt-3.5 text-[12.5px]">
         <Link href="/app/brand" className="font-semibold text-coral-strong no-underline hover:underline">
           브랜드 관리 →
         </Link>
@@ -124,12 +138,12 @@ export function ReportSummaryWidget({
   const isBrandMode = report.overallScore === null;
 
   return (
-    <section className={cardClass('p-6')} aria-labelledby="w10t">
+    <section className={WIDGET} aria-labelledby="w10t">
       <div className="flex items-baseline gap-2">
         <h2 id="w10t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
           최근 진단 리포트
         </h2>
-        <span className="ml-auto text-[11px] text-ink-faint">{date} 발행</span>
+        <span className="ml-auto flex-none text-[11px] text-ink-faint">{date} 발행</span>
       </div>
       <p className="mt-3 text-[13.5px] font-bold text-ink">{name}</p>
 
@@ -192,7 +206,7 @@ export function ReportSummaryWidget({
         </>
       )}
 
-      <p className="mt-4 border-t border-n-150 pt-3.5 text-[12.5px]">
+      <p className="mt-4 text-[12.5px]">
         <Link href={`/app/report/${requestId}`} className="font-semibold text-coral-strong no-underline hover:underline">
           리포트 전체 보기 →
         </Link>
@@ -202,20 +216,91 @@ export function ReportSummaryWidget({
 }
 
 /**
- * MAIN-12 · 다가오는 이벤트 위젯 — 조회 전용. 예약·발행·알림 없음(금지 포지션).
- *
- * `banner` 슬롯: 같은 카드 위쪽에 다음 단계 밴드(MAIN-03)를 얹는다. 2026-08-18 홈 개편에서
- * 메가와리 D-day 배너와 시즌 목록이 화면 양 끝으로 떨어져 있어 같은 시즌 이야기가 두 번 나오는
- * 것처럼 읽혔다 — 한 카드로 붙여 "지금 할 일 → 앞으로의 시즌" 한 덩어리로 읽히게 한다.
+ * MAIN-10 빈·진행·실패 변형 — 발행 리포트가 없어도 우측 칼럼의 자리를 지킨다.
+ * 진행/실패를 여기서 말해 주지 않으면, 새로고침 뒤에는 어디에서도 보이지 않는다
+ * (라이브러리는 실패물을 자산으로 치지 않는다 — LIB-05).
  */
-export function UpcomingEventsWidget({ events, banner }: { events: UpcomingEvent[]; banner?: React.ReactNode }) {
+export function ReportEmptyWidget({
+  pending,
+  failed,
+}: {
+  /** 생성 중인 진단 1건(최신) — 없으면 null */
+  pending: { id: string; name: string } | null;
+  /** 마지막으로 실패한 진단 1건 — 없으면 null */
+  failed: { id: string; name: string } | null;
+}) {
+  return (
+    <section className={WIDGET} aria-labelledby="w10et">
+      <div className="flex items-baseline gap-2">
+        <h2 id="w10et" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
+          최근 진단 리포트
+        </h2>
+        <span className="ml-auto flex-none text-[11px] text-ink-faint">
+          {pending ? '생성 중' : failed ? '실패 ✕' : '아직 없음'}
+        </span>
+      </div>
+
+      {pending ? (
+        <>
+          <p className="mt-3 flex items-center gap-2 text-[13.5px] font-bold text-ink">
+            <span aria-hidden className="h-[6px] w-[6px] flex-none rounded-full bg-coral animate-soft-pulse" />
+            <span className="min-w-0 truncate">{pending.name}</span>
+          </p>
+          <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+            진단이 도는 중입니다. 9블록이 모두 채워지면 이 자리에 요약이 뜹니다.
+          </p>
+          <p className="mt-3 text-[12.5px]">
+            <Link href={`/app/report/${pending.id}`} className="font-semibold text-coral-strong no-underline hover:underline">
+              진행 상황 보기 →
+            </Link>
+          </p>
+        </>
+      ) : failed ? (
+        <>
+          <p className="mt-3 truncate text-[13.5px] font-bold text-ink">{failed.name}</p>
+          <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+            마지막 진단이 끝까지 돌지 못했습니다. 원인을 확인하고 같은 입력으로 다시 시작할 수 있어요.
+          </p>
+          <p className="mt-3 text-[12.5px]">
+            <Link href={`/app/report/${failed.id}`} className="font-semibold text-coral-strong no-underline hover:underline">
+              실패 원인 보기 →
+            </Link>
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="mt-3 text-[13.5px] font-bold text-ink">아직 발행된 리포트가 없어요</p>
+          <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+            상세페이지·SNS 문구를 일본 고객 관점으로 진단합니다. 재설계된 문구가 그대로 썸네일 카피의 재료가 됩니다.
+          </p>
+          <p className="mt-3 text-[12.5px]">
+            <Link href="/app/report/new" className="font-semibold text-coral-strong no-underline hover:underline">
+              진단 시작 →
+            </Link>
+          </p>
+        </>
+      )}
+    </section>
+  );
+}
+
+/** 이벤트 건수별 열 수 — Tailwind는 정적 클래스만 읽으므로 표로 둔다 */
+const EVENT_COLS: Record<number, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+};
+
+/**
+ * MAIN-12 · 다가오는 이벤트 위젯 — 조회 전용. 예약·발행·알림 없음(금지 포지션).
+ * 히어로가 이미 말한 이벤트는 페이지가 걸러서 넘긴다 — 같은 D-day를 한 화면에서 두 번 읽히지 않게.
+ */
+export function UpcomingEventsWidget({ events }: { events: UpcomingEvent[] }) {
   // 가장 임박한 카운트다운 1건만 코랄 강조(진행 중은 amber라 대상 아님 — MAIN-12)
   const nearId = events.find((e) => !e.inProgress)?.id;
 
   return (
-    <div className={cardClass('overflow-hidden')}>
-      {banner && <div className="border-b border-coral/25 bg-coral-tint/55 p-6 max-sm:p-5">{banner}</div>}
-      <section className="p-6 max-sm:p-5" aria-labelledby="w12t">
+    <section className={cardClass('p-6 max-sm:p-5')} aria-labelledby="w12t">
       <div className="flex flex-wrap items-baseline gap-2">
         <h2 id="w12t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
           다가오는 이벤트
@@ -226,29 +311,34 @@ export function UpcomingEventsWidget({ events, banner }: { events: UpcomingEvent
           </Link>
         </span>
       </div>
-      <ul className="mt-3.5 grid list-none grid-cols-3 gap-2.5 p-0 max-md:grid-cols-1">
-        {events.map((e) => {
-          const near = e.id === nearId;
-          return (
-            <li
-              key={e.id}
-              className={`flex flex-col gap-1 rounded-xl border p-3.5 ${near ? 'border-coral/40 bg-coral-tint' : 'border-card-border bg-n-50'}`}
-            >
-              <span
-                className={`inline-flex h-[21px] w-fit items-center rounded-full px-2.5 text-[11px] font-bold ${
-                  e.inProgress ? 'bg-amber-bg text-amber-text' : near ? 'bg-coral text-white' : 'bg-n-150 text-ink-mute'
-                }`}
+      {events.length === 0 ? (
+        <p className="mt-3.5 text-[12.5px] leading-relaxed text-ink-mute">
+          지금 챙길 시즌은 위 카운트다운 하나뿐입니다. 다음 시즌은 캘린더에서 미리 볼 수 있어요.
+        </p>
+      ) : (
+        <ul className={`mt-3.5 grid list-none gap-2.5 p-0 max-md:grid-cols-1 ${EVENT_COLS[events.length] ?? 'grid-cols-3'}`}>
+          {events.map((e) => {
+            const near = e.id === nearId;
+            return (
+              <li
+                key={e.id}
+                className={`flex flex-col gap-1 rounded-xl border p-3.5 ${near ? 'border-coral/40 bg-coral-tint' : 'border-card-border bg-n-50'}`}
               >
-                {e.inProgress ? '진행 중 △' : `D-${e.dDay}`}
-              </span>
-              <span className="mt-0.5 text-[13px] font-bold text-ink">{e.name}</span>
-              <span className="text-[11px] text-ink-mute">{e.when}</span>
-              <span className="mt-0.5 text-[11.5px] leading-snug text-ink-body [text-wrap:pretty]">{e.prep}</span>
-            </li>
-          );
-        })}
-      </ul>
-      </section>
-    </div>
+                <span
+                  className={`inline-flex h-[21px] w-fit items-center rounded-full px-2.5 text-[11px] font-bold ${
+                    e.inProgress ? 'bg-amber-bg text-amber-text' : near ? 'bg-coral text-white' : 'bg-n-150 text-ink-mute'
+                  }`}
+                >
+                  {e.inProgress ? '진행 중 △' : e.dDay === 0 ? '오늘 시작' : `D-${e.dDay}`}
+                </span>
+                <span className="mt-0.5 text-[13px] font-bold text-ink">{e.name}</span>
+                <span className="text-[11px] text-ink-mute">{e.when}</span>
+                <span className="mt-0.5 text-[11.5px] leading-snug text-ink-body [text-wrap:pretty]">{e.prep}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
