@@ -2,9 +2,13 @@
  * 엔진 CLI 러너 — 화면 없이 파이프라인을 실행해 blocksJson을 확인한다(09 §3).
  * 기본 입력: cica 샘플 카피 K1~K11 (docs/specs/01-report-sample-cica-ampoule.md — 골든 픽스처).
  *
+ * 기본적으로 **배포본과 같은 시간 예산**(`REPORT_BUDGET_MS`)으로 돈다 — 여기서 통과하지 못하면
+ * Vercel 300초 안에서도 발행되지 않는다. 예산 없이 품질만 보고 싶을 때(effort 스윕 등)는 `--no-budget`.
+ *
  * 사용:
- *   npm run report:cli                # .env에 키 없으면 목 모드
- *   LLM_MODE=mock npm run report:cli  # 강제 목 모드
+ *   npm run report:cli                     # .env에 키 없으면 목 모드
+ *   LLM_MODE=mock npm run report:cli       # 강제 목 모드
+ *   npm run report:cli -- --no-budget      # 시간 예산 없이(품질 스윕용)
  *   npm run report:cli -- --out out.json
  */
 
@@ -12,6 +16,7 @@ import { writeFile } from 'node:fs/promises';
 import { runReportPipeline } from '../lib/engine/pipeline';
 import type { TierInput } from '../lib/engine/types';
 import { currentLlmMode } from '../lib/engine/llm/client';
+import { REPORT_BUDGET_MS } from '../lib/engine/reportBudget';
 import { logger } from '../lib/logger';
 
 /** cica 샘플 원문 K1~K11 (골든 픽스처 — 스펙 샘플과 점수 방향 대조용) */
@@ -49,11 +54,26 @@ async function main(): Promise<void> {
   const outIdx = process.argv.indexOf('--out');
   const outPath = outIdx >= 0 ? process.argv[outIdx + 1] : null;
 
-  logger.info('리포트 파이프라인 시작', { mode: currentLlmMode(), category: FIXTURE_INPUT.category });
+  // 배포본(`reportJob.ts`)과 같은 예산으로 돌아야 "이 코드가 300초 안에 발행되는가"를 답할 수 있다
+  const withBudget = !process.argv.includes('--no-budget');
   const startedAt = Date.now();
+  const deadlineAt = withBudget ? startedAt + REPORT_BUDGET_MS : undefined;
+
+  logger.info('리포트 파이프라인 시작', {
+    mode: currentLlmMode(),
+    category: FIXTURE_INPUT.category,
+    budgetMs: withBudget ? REPORT_BUDGET_MS : '(없음 — --no-budget)',
+  });
 
   const result = await runReportPipeline(FIXTURE_INPUT, {
-    onStage: (stage) => logger.info('단계', { stage }),
+    deadlineAt,
+    // 단계별 경과를 남긴다 — 어느 콜이 예산을 먹는지가 다음 튜닝의 유일한 입력이다
+    onStage: (stage) =>
+      logger.info('단계', {
+        stage,
+        elapsedMs: Date.now() - startedAt,
+        ...(deadlineAt ? { leftMs: deadlineAt - Date.now() } : {}),
+      }),
     onLog: (entry) =>
       logger.info('LLM 로그', {
         call: entry.callName,

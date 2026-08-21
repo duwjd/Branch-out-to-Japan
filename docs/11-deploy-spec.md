@@ -51,6 +51,7 @@ Supabase Free
 - **`app/api/studio/detail/plan/route.ts` = 60** (2026-08-11 추가). 콜⑧ inputTranslate 가 붙으면서 이 라우트가 LLM을 부르게 됐다 — 필드가 많은 최악 케이스 **실측 22초**다. 선언이 없으면 로컬은 제한이 없어 통과하고 **프로덕션에서만 타임아웃**난다. 300이 아니라 60인 이유: `after()` 배경 파이프라인이 아니라 사용자가 화면 앞에서 기다리는 요청 경로 콜이므로, 멈춘 호출이 함수를 5분 붙잡게 두지 않는다.
 - **이 라우트는 게스트에게 LLM을 태우지 않는다.** 원래 결정적 계산뿐이라 인증이 없었고, 콜⑧이 붙으면서 미인증 LLM 엔드포인트가 될 뻔했다(저장소에 레이트리밋 없음 · 리포·배포 공개). 블록 구성(무료)은 게스트에게 그대로 주고 **변환 콜만 로그인 뒤로** 옮겨 «비회원 열람 + 실행 직전 게이트»(2026-07-23)를 유지한다. 게스트 경로 실측 0.03초·콜 0.
 - **상세페이지는 순차 실행이 불가능하다.** 배경컷 1장이 40~90초라 4장을 순차로 돌리면 그것만으로 예산을 넘긴다 — `IMAGE_CONCURRENCY = 4` 와 `MAX_AI_BLOCKS = 4` 가 예산 안에 묶어두는 장치이므로 임의로 올리지 않는다.
+- **① 리포트 잡 예산 가드**(2026-08-21 구현 — `lib/engine/reportBudget.ts`): ② 상세 잡의 `budget.ts` 대응물이다. `REPORT_BUDGET_MS = 270_000`(=`JOB_BUDGET_MS`와 같은 규칙)으로 마감을 잡고, LLM 단계마다 남은 시간 기반 벽시계 상한을 건다. **왜 필요한가**: 리포트 잡은 저장이 맨 마지막이라 함수가 죽으면 5콜과 실비를 다 쓰고도 남는 게 없다. 또 파이프라인의 기존 폴백(콜① 0점·콜③ 일반형·콜④ 축소·콜⑩ 원문 유지)은 **콜이 실패로 끝나야** 발동하는데, SDK 기본 타임아웃(10분)이 함수 상한보다 길어 폴백에 닿기 전에 함수가 죽었다. 시간이 모자라면 윤문(콜⑩)만 건너뛰고 **발행은 반드시 한다**(`reports.humanize_skipped`에 사유 기록). 근거 실측: `docs/research/ut-agent/results/P0-리포트-파이프라인-예산초과.md`
 - **스테일 잡 가드**(2026-07-24 구현): 함수가 300초에서 죽으면 비터미널 상태가 영구 고착 → 폴링 라우트가 `updatedAt` 10분 초과 + 비터미널이면 `failed`로 전환(`app/api/report/[id]/status/route.ts` · `app/api/studio/thumbnail/[id]/route.ts`). 사용자는 재시도 안내를 받는다.
 
 ### 3-1. ② 상세페이지 만들기 — 배포 전제 3가지
@@ -124,7 +125,7 @@ Supabase Free
 
 | 증상 | 원인 후보 | 대응 |
 |---|---|---|
-| 진단이 `processing` 고착 → 10분 후 `failed` | 함수 300초 초과(파이프라인 지연) 또는 Fluid off(60초) | Fluid on 확인(§5-B4) → 재발 시 로그에서 콜별 소요 확인, 큐 도입 검토(08 §6.2 대안) |
+| 진단이 `processing` 고착 → 10분 후 `failed` | 함수 300초 초과(파이프라인 지연) 또는 Fluid off(60초) | Fluid on 확인(§5-B4). **2026-08-21부터 예산 가드가 이 고착을 막는다**(`lib/engine/reportBudget.ts`) — 그래도 고착이면 가드보다 앞단이 문제다. 로그 `단계`·`잡 완료 — 발행`의 `elapsedMs`로 콜별 소요를 보고, `LLM 콜 예산 소진 — 시도 중단`이 찍혔다면 어느 콜이 상한을 먹었는지 확인한다. 상한 자체가 실측과 어긋나면 `STAGE_CEILING_MS`를 갱신한다(큐 도입은 08 §6.2 대안) |
 | `/api/report`가 `storeKind:"file"` 또는 `misconfigured:true` | Supabase env 3종 미설정·오타 | §4 재확인 후 Redeploy |
 | **가입/로그인이 500** (프로덕션) | Supabase env 미설정 → 저장 팩토리가 명시적 throw(파일 폴백 차단, `lib/db/store.ts`) | Vercel **로그**에 "Supabase 환경변수 미설정…" 메시지 확인 → §4 설정 후 Redeploy |
 | 가입 500 + 로그 `Invalid path specified in request URL` | `NEXT_PUBLIC_SUPABASE_URL` 형식 오류(끝슬래시·공백·개행·대시보드 URL·경로 포함) | 값을 `https://<ref>.supabase.co`로 교정(§4) → Redeploy. 코드는 끝슬래시·공백 자동 정리(`lib/db/supabaseClient.ts`) |

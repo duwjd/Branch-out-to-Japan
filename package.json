@@ -16,7 +16,7 @@
     "db:check": "node --env-file-if-exists=.env scripts/db-push.mjs --check",
     "aggregate": "node scripts/aggregate/aggregate-benchmark.mjs",
     "aggregate:detail": "node scripts/aggregate/aggregate-detail-blocks.mjs",
-    "report:cli": "tsc -p tsconfig.node.json && node .tmp-node/scripts/run-report.js",
+    "report:cli": "tsc -p tsconfig.node.json && node --env-file-if-exists=.env .tmp-node/scripts/run-report.js",
     "thumbnail:cli": "tsc -p tsconfig.node.json && node .tmp-node/scripts/run-thumbnail.js",
     "detail:cli": "tsc -p tsconfig.node.json && node --env-file-if-exists=.env .tmp-node/scripts/run-detail.js",
     "detail:mockproduct": "tsc -p tsconfig.node.json && node --env-file-if-exists=.env .tmp-node/scripts/make-mock-product.js",

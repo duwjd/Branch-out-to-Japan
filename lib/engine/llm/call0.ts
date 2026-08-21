@@ -45,6 +45,8 @@ export async function runCall0(
   imageFileIds: string[],
   productClass: ProductClass,
   onLog?: LogSink,
+  /** 이 콜에 허용된 총 벽시계 상한(ms) — `reportBudget.callTimeout()` 산출. 생략하면 상한 없음(CLI·테스트) */
+  timeoutMs?: number,
 ): Promise<Call0Result> {
   const images: { mediaType: 'image/png' | 'image/jpeg' | 'image/webp'; dataBase64: string }[] = [];
   for (const fid of imageFileIds.slice(0, 10)) {
@@ -67,6 +69,7 @@ export async function runCall0(
     schema: CALL0_SCHEMA,
     maxTokens: 4000,
     images,
+    timeoutMs,
     mockData: MOCK_CALL0,
     onLog,
   });

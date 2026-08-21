@@ -6,6 +6,7 @@
 import { runReportPipeline, AuditFailedError, PersonaFailedError } from '../engine/pipeline';
 import { SourceContentError } from '../engine/rules/normalize';
 import { getStore } from '../db/store';
+import { REPORT_BUDGET_MS } from '../engine/reportBudget';
 import { logger } from '../logger';
 import type { TierInput } from '../engine/types';
 
@@ -26,10 +27,18 @@ export async function runDiagnosisJob(requestId: string): Promise<void> {
 
   await store.updateRequest(requestId, { status: 'processing', stage: 'normalize', error: null });
 
+  /**
+   * 잡 마감 — `after()` 는 응답 반환 직후 실행되므로 여기가 곧 함수 시작 시각이다.
+   * 이 잡은 **저장이 맨 마지막**이라(아래 saveReport → published), 함수가 300초에서 죽으면
+   * 5콜과 실비를 다 쓰고도 남는 게 없다. ② `detailJob.ts` 의 `deadline` 과 같은 자리·같은 규칙.
+   */
+  const deadlineAt = Date.now() + REPORT_BUDGET_MS;
+
   try {
     const result = await runReportPipeline(request.tierInput, {
       onStage: (stage) => store.updateRequest(requestId, { stage }),
       onLog: (entry) => store.saveLlmLog(requestId, entry),
+      deadlineAt,
     });
 
     const now = new Date().toISOString();
@@ -59,6 +68,10 @@ export async function runDiagnosisJob(requestId: string): Promise<void> {
       overallScore: result.overallScore,
       humanizeAdopted: result.humanizeVerdicts.filter((v) => v.adopted).length,
       humanizeRejected: result.humanizeVerdicts.filter((v) => !v.adopted).length,
+      humanizeSkipped: result.humanizeSkipped,
+      // 예산 대비 실소요 — 마감에 얼마나 붙었는지가 다음 튜닝의 입력이다(11 §3)
+      elapsedMs: REPORT_BUDGET_MS - (deadlineAt - Date.now()),
+      budgetMs: REPORT_BUDGET_MS,
     });
   } catch (err) {
     // 치명 실패 3종(콜② 없는 풀 발행 금지 · 브랜드 진단 콜③ 실패 · 입력 오류) — 사유를 남기고 failed
