@@ -1,6 +1,7 @@
 # 11 · 배포 스펙 (Vercel Hobby + Supabase Free)
 
-> **목적**: UT(8/1~3) 전까지 실사용자가 접속 가능한 무료 배포를 완성한다(08 §8-D1 "UT까지 배포 필요").
+> **상태(2026-08-21)**: ✅ 배포 완료 — `https://branch-out-to-japan.vercel.app` 에서 3축 전부가 작동하며, **AI 에이전트 UT 를 이 배포본에서 실행**했다(생성 60/60 · [[research/ut-agent/results/UT-리포트]]).
+> **목적**: 실사용자가 접속 가능한 무료 배포를 완성한다(08 §8-D1 "UT까지 배포 필요").
 > **원칙**: 간편 + 무료. 결정 근거는 [[decisions/2026-07-24-호스팅-배포-결정]], 저장 설계 정본은 [[08-data-flow]] §6.
 > **실전 절차서(클릭 단위 튜토리얼·업데이트·롤백·정지 복구)**: [deploy-runbook.md](deploy-runbook.md). 이 문서는 "왜·무엇을", runbook은 "어떻게 클릭".
 > 무료 티어 한도 수치는 **2026-07-24 확인** 기준 — 배포 트러블 시 공식 문서로 재확인.
@@ -13,8 +14,8 @@
    ▼
 Vercel Hobby ─ Next.js 16 (App Router)
    ├─ 페이지·API 라우트 (서버리스 함수, Fluid Compute)
-   ├─ after() 백그라운드 잡: 진단 파이프라인(LLM 4~5콜) · 썸네일 생성
-   │      ├─ Anthropic API (claude-sonnet-5 — 콜⓪~⑥)
+   ├─ after() 백그라운드 잡: 진단 파이프라인(LLM 5~6콜 + 윤문 콜⑩) · 썸네일·상세 생성
+   │      ├─ Anthropic API (① 리포트 콜 = claude-opus-5 / ② 스튜디오 콜 = claude-sonnet-5 — 2026-08-19 상향)
    │      └─ OpenAI API (gpt-image — 썸네일 이미지)
    ▼
 Supabase Free
