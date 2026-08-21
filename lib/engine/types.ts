@@ -8,6 +8,14 @@ export type Category = 'skincare' | 'makeup' | 'suncare' | 'cleansing';
 /** 제품 분류 — 미상 시 화장품 가정 + 경고(스펙 §3.1) */
 export type ProductClass = '화장품' | '의약외품' | '미상';
 
+/**
+ * 브랜드 관리 화면의 제품분류 — 진단 엔진의 ProductClass(3종)보다 넓다(08 §6.1 ER).
+ * 여기 두는 이유: 화면(브랜드 관리·온보딩)과 API가 같은 배열을 써야 하는데,
+ * lib/db/store 는 node:fs 를 끌고 와 클라이언트 컴포넌트에서 import 할 수 없다.
+ */
+export type BrandProductClass = ProductClass | '건강식품';
+export const BRAND_PRODUCT_CLASSES: BrandProductClass[] = ['화장품', '의약외품', '건강식품', '미상'];
+
 export const CATEGORY_LABELS: Record<Category, string> = {
   skincare: '스킨케어',
   makeup: '메이크업',

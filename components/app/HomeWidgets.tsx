@@ -4,6 +4,7 @@ import { POSITIONING_TAGS } from '@/lib/engine/rules/positioning';
 import { GROUP_LABELS_PREFIXED, GROUP_ORDER } from '@/lib/report/labels';
 import type { UpcomingEvent } from '@/lib/season';
 import { cardClass } from '@/components/ui/primitives';
+import { CATEGORY_LABELS } from '@/lib/engine/types';
 
 /**
  * 홈 복귀 뷰 위젯 — MAIN-11 브랜드 정보 · MAIN-10 리포트 요약 · MAIN-12 다가오는 이벤트.
@@ -14,12 +15,6 @@ import { cardClass } from '@/components/ui/primitives';
  * 본문 밀도가 왼쪽 칼럼과 맞지 않았다. 왼쪽(이벤트·자산)은 격자를 담는 그릇이라 카드를 유지한다.
  */
 
-const CATEGORY_LABELS: Record<string, { kr: string; ja: string }> = {
-  skincare: { kr: '스킨케어', ja: 'スキンケア' },
-  makeup: { kr: '메이크업', ja: 'メイク' },
-  suncare: { kr: '선케어', ja: '日焼け止め' },
-  cleansing: { kr: '클렌징', ja: 'クレンジング' },
-};
 const TAG_LABELS: Record<string, string> = Object.fromEntries(POSITIONING_TAGS.map((t) => [t.value, t.label]));
 
 /** 우측 위젯 공통 표면 — 카드가 아니라 머리선으로만 구분한다(카드 3겹 방지) */
@@ -27,12 +22,12 @@ const WIDGET = 'border-t border-card-border pt-5';
 
 /** 카테고리 한국어 라벨 — 미지의 값이면 원문 그대로(빈 자리를 만들지 않는다) */
 export function categoryLabelKr(category: string): string {
-  return CATEGORY_LABELS[category]?.kr ?? category;
+  return CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] ?? category;
 }
 
 /** MAIN-11 · 브랜드 정보 위젯 — "진단·생성이 무엇을 보고 도는가"를 홈에서 확인 */
 export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
-  const cat = CATEGORY_LABELS[brand.category];
+  const cat = CATEGORY_LABELS[brand.category as keyof typeof CATEGORY_LABELS];
   const tags = brand.positioningTags.map((v) => TAG_LABELS[v] ?? v);
   const shownTags = tags.slice(0, 3);
   const extraTags = tags.length - shownTags.length;
@@ -62,13 +57,7 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-bold text-ink">{brand.brandName}</span>
           <span className="mt-0.5 block truncate text-[11.5px] text-ink-mute">
-            {cat ? (
-              <>
-                {cat.kr} / <span lang="ja">{cat.ja}</span>
-              </>
-            ) : (
-              brand.category
-            )}
+            {cat ?? brand.category}
             {' · '}
             {brand.productClass}
           </span>

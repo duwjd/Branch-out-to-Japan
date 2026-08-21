@@ -8,6 +8,7 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/server/session';
 import { getActiveBrand, setActiveBrand } from '@/lib/server/activeBrand';
 import { getStore, type BrandProductClass, type BrandProfileRecord } from '@/lib/db/store';
+import { BRAND_PRODUCT_CLASSES } from '@/lib/engine/types';
 import {
   POSITIONING_TAGS_MAX,
   POSITIONING_TAGS_MIN,
@@ -17,7 +18,7 @@ import type { Category } from '@/lib/engine/types';
 import { logger } from '@/lib/logger';
 
 const CATEGORIES: Category[] = ['skincare', 'makeup', 'suncare', 'cleansing'];
-const PRODUCT_CLASSES: BrandProductClass[] = ['화장품', '의약외품', '건강식품', '미상'];
+
 
 export async function GET(): Promise<NextResponse> {
   const store = await getStore();
@@ -32,7 +33,7 @@ function parseProfile(body: Record<string, unknown>): { input: Omit<BrandProfile
   const category = body.category as Category;
   if (!CATEGORIES.includes(category)) return { error: '카테고리를 선택해 주세요.' };
 
-  const productClass = PRODUCT_CLASSES.includes(body.productClass as BrandProductClass)
+  const productClass = BRAND_PRODUCT_CLASSES.includes(body.productClass as BrandProductClass)
     ? (body.productClass as BrandProductClass)
     : '미상';
 
@@ -106,7 +107,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const category = body.category as Category;
   if (!CATEGORIES.includes(category)) return NextResponse.json({ error: '카테고리를 선택해 주세요.' }, { status: 400 });
 
-  const productClass = PRODUCT_CLASSES.includes(body.productClass as BrandProductClass)
+  const productClass = BRAND_PRODUCT_CLASSES.includes(body.productClass as BrandProductClass)
     ? (body.productClass as BrandProductClass)
     : '미상';
 

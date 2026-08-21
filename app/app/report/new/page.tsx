@@ -17,13 +17,13 @@ import {
 } from '@/lib/engine/rules/positioning';
 import { SectionCard, StatusBadge, buttonClass, chipClass, fieldLabelClass, inputClass, textareaClass } from '@/components/ui/primitives';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
+import { CATEGORY_LABELS, type Category } from '@/lib/engine/types';
 
-const CATEGORIES = [
-  { value: 'skincare', label: '스킨케어 / スキンケア' },
-  { value: 'makeup', label: '메이크업 / メイク' },
-  { value: 'suncare', label: '선케어 / 日焼け止め' },
-  { value: 'cleansing', label: '클렌징 / クレンジング' },
-] as const;
+/** 카테고리 — 라벨 정본은 lib/engine/types CATEGORY_LABELS(한국어 단독) */
+const CATEGORIES = (Object.keys(CATEGORY_LABELS) as Category[]).map((value) => ({
+  value,
+  label: CATEGORY_LABELS[value],
+}));
 
 const PRODUCT_CLASSES = [
   { value: '화장품', label: '화장품' },
