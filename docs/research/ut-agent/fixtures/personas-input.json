@@ -1,0 +1,1262 @@
+{
+  "note": "AI 에이전트 UT 페르소나 입력값. 근거: docs/research/ut-agent/00-ut-plan.md §8 · .claude/agents/persona_NN.md · 상세 선택 입력은 §8-2 콘텐츠 3군에 맞춰 차등(scripts/ut/enrich-fixtures.mjs)",
+  "createdAt": "2026-08-20",
+  "personas": [
+    {
+      "personaId": "P01",
+      "archetype": "A",
+      "lens": [],
+      "account": "test01@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-cream.jpg",
+      "brand": {
+        "brandName": "글로우리프",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "sensitive",
+          "moisture"
+        ],
+        "positioningNote": "국내에서 안정적으로 팔리는 저자극 세라마이드 크림 브랜드입니다. 번역만 해서는 반응이 없어, 일본 고객에게 통하는 메시지가 무엇인지부터 확인하고 싶습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://glowleaf.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/glowleaf"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "세라마이드 배리어 크림",
+        "productClass": "화장품",
+        "ingredients": [
+          "세라마이드NP",
+          "판테놀",
+          "마데카소사이드",
+          "히알루론산"
+        ],
+        "price": 3200,
+        "detailContent": "건조하고 예민해진 피부를 위한 저자극 수분 크림입니다. 피부 장벽의 주요 구성 성분인 세라마이드 NP를 고함량으로 담아, 겉도는 보습이 아니라 무너진 장벽을 안에서부터 채우는 데 집중했습니다. 판테놀과 마데카소사이드가 붉어진 피부를 진정시키고, 히알루론산 5종이 수분을 층층이 잡아둡니다. 인공향료·인공색소·파라벤·에탄올을 넣지 않았고, 민감성 피부 대상 인체적용시험을 마쳤습니다. 끈적임 없이 부드럽게 발리는 제형이라 아침 메이크업 전에도 부담 없이 쓰실 수 있습니다. 환절기마다 각질과 당김이 반복되는 분들께 권합니다.",
+        "detailContentGroup": "①충분",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "B",
+        "platform": "qoo10"
+      },
+      "detail": {
+        "templateId": "D1",
+        "productCategory": "skincare",
+        "platform": "qoo10",
+        "specVolume": "50mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社グロウリーフ",
+        "specOrigin": "韓国",
+        "specFullIngredients": "水、グリセリン、スクワラン、セラミドNP、パンテノール、マデカッソシド、ヒアルロン酸Na、BG",
+        "ingredientRows": "세라마이드NP|5%|피부 장벽 보강\n판테놀|3%|진정·보습\n마데카소사이드|0.2%|진정\n히알루론산|2%|수분 유지",
+        "freeOf": "인공향료\n인공색소\n파라벤\n동물성 원료",
+        "howToSteps": "세안 후 토너로 피부결을 정돈합니다.\n적당량을 덜어 얼굴 전체에 부드럽게 펴 발라 줍니다.\n손바닥으로 가볍게 감싸 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요.\n직사광선을 피해 서늘한 곳에 보관하고 어린이의 손이 닿지 않는 곳에 두세요."
+      }
+    },
+    {
+      "personaId": "P02",
+      "archetype": "A",
+      "lens": [],
+      "account": "test02@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-toner.jpg",
+      "brand": {
+        "brandName": "무드바이",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "moisture"
+        ],
+        "positioningNote": "셋이서 전부 처리하는 작은 스킨케어 브랜드입니다. 수분 토너 한 제품으로 라쿠텐과 Qoo10 진출을 검토 중입니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://moodby.kr",
+          "jp": [
+            {
+              "channel": "rakuten",
+              "url": "https://www.rakuten.co.jp/moodby/"
+            },
+            {
+              "channel": "qoo10",
+              "url": ""
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "딥 모이스트 토너",
+        "productClass": "화장품",
+        "ingredients": [
+          "히알루론산",
+          "베타인",
+          "판테놀"
+        ],
+        "price": 2400,
+        "detailContent": "",
+        "detailContentGroup": "③없음",
+        "expectedMode": "brand"
+      },
+      "thumbnail": {
+        "styleId": "A",
+        "platform": "rakuten-official"
+      },
+      "detail": {
+        "templateId": "D5",
+        "productCategory": "skincare",
+        "platform": "rakuten-official",
+        "specVolume": "200mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社ムードバイ",
+        "specOrigin": "韓国",
+        "specFullIngredients": ""
+      }
+    },
+    {
+      "personaId": "P03",
+      "archetype": "A",
+      "lens": [],
+      "account": "test03@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-serum.jpg",
+      "brand": {
+        "brandName": "하루온",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "calming",
+          "sensitive"
+        ],
+        "positioningNote": "병풀 진정 앰플을 주력으로 하는 스킨케어 브랜드입니다. Qoo10 데뷔 프로그램 일정이 잡혀 있어 광고를 붓기 전에 메시지가 통할지 확인하고 싶습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://haruon.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/haruon"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "시카 카밍 앰플",
+        "productClass": "화장품",
+        "ingredients": [
+          "병풀추출물",
+          "마데카소사이드",
+          "아시아티코사이드",
+          "판테놀"
+        ],
+        "price": 3800,
+        "detailContent": "자극받은 피부를 빠르게 가라앉히는 병풀 진정 앰플입니다. 병풀추출물을 전체 성분의 82%로 담고, 마데카소사이드·아시아티코사이드·아시아틱애씨드·마데카식애씨드 4종 시카 성분을 함께 배합했습니다. 트러블 자국으로 붉어진 부위와 피지로 번들거리는 T존을 동시에 다스리도록 설계했고, 끈적임 없이 흡수되는 워터리 제형이라 여러 번 겹쳐 발라도 밀리지 않습니다. 인공향료·인공색소·동물성 원료를 넣지 않았으며, 민감성 피부 인체적용시험에서 사용 2주 후 진정 지표가 개선되었습니다. 세안 후 토너 다음 단계에 2~3방울 덜어 얼굴 전체에 펴 발라 주세요.",
+        "detailContentGroup": "①충분",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "G",
+        "platform": "qoo10",
+        "promo": {
+          "setTitle": "2本セット",
+          "salePrice": "3,980",
+          "normalPrice": "4,980",
+          "normalPriceVerified": true,
+          "gift": "ミニサイズ1本"
+        }
+      },
+      "detail": {
+        "templateId": "D2",
+        "productCategory": "skincare",
+        "platform": "qoo10",
+        "specVolume": "30mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社ハルオン",
+        "specOrigin": "韓国",
+        "specFullIngredients": "ツボクサエキス、水、BG、グリセリン、マデカッソシド、アシアチコシド、パンテノール",
+        "ingredientRows": "병풀추출물|82%|진정\n마데카소사이드|0.2%|진정\n아시아티코사이드|0.1%|진정\n판테놀|3%|진정·보습",
+        "freeOf": "인공향료\n인공색소\n파라벤\n동물성 원료",
+        "howToSteps": "세안 후 토너로 피부결을 정돈합니다.\n적당량을 덜어 얼굴 전체에 부드럽게 펴 발라 줍니다.\n손바닥으로 가볍게 감싸 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요.\n직사광선을 피해 서늘한 곳에 보관하고 어린이의 손이 닿지 않는 곳에 두세요."
+      }
+    },
+    {
+      "personaId": "P04",
+      "archetype": "A",
+      "lens": [],
+      "account": "test04@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-tint.jpg",
+      "brand": {
+        "brandName": "셀피지",
+        "category": "makeup",
+        "productClass": "화장품",
+        "positioningTags": [
+          "kTrend",
+          "sensorial"
+        ],
+        "positioningNote": "발색과 질감을 중요하게 보는 색조 브랜드입니다. 한국 상세페이지를 그대로 옮기면 촌스러워 보일까 걱정입니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://selpage.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/selpage"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "워터 글로우 틴트",
+        "productClass": "화장품",
+        "ingredients": [
+          "히알루론산",
+          "시어버터"
+        ],
+        "price": 1800,
+        "detailContent": "물처럼 가볍게 발리는 워터 틴트입니다. 한 번만 발라도 선명하게 발색되고, 시간이 지나도 잘 지워지지 않습니다. 데일리로 쓰기 좋은 코랄부터 또렷한 레드까지 6가지 컬러로 출시했습니다.",
+        "detailContentGroup": "②빈약",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "D",
+        "platform": "qoo10"
+      },
+      "detail": {
+        "templateId": "D4",
+        "productCategory": "makeup",
+        "platform": "qoo10",
+        "specVolume": "4.5g",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社セルピジ",
+        "specOrigin": "韓国",
+        "specFullIngredients": "",
+        "howToSteps": "입술 결을 정돈한 뒤 사용합니다.\n팁을 입술 중앙에 대고 바깥쪽으로 펴 발라 줍니다.\n진하게 쓰고 싶으면 한 번 더 덧발라 줍니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요."
+      }
+    },
+    {
+      "personaId": "P05",
+      "archetype": "A",
+      "lens": [
+        "ai_resist"
+      ],
+      "account": "test05@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-toner.jpg",
+      "brand": {
+        "brandName": "노트원",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "mens"
+        ],
+        "positioningNote": "남성 올인원 스킨케어 브랜드입니다. 일본에서 남성 스킨케어의 소구 포인트가 다를 텐데 감이 없어, 사람이 검수해 주는 진단을 원합니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://noteone.kr",
+          "jp": [
+            {
+              "channel": "amazon-jp",
+              "url": "https://www.amazon.co.jp/stores/noteone"
+            },
+            {
+              "channel": "qoo10",
+              "url": ""
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "올인원 모이스처 로션",
+        "productClass": "화장품",
+        "ingredients": [
+          "판테놀",
+          "히알루론산",
+          "녹차추출물"
+        ],
+        "price": 2600,
+        "detailContent": "남성 피부를 위한 올인원 로션입니다. 면도 후 당기고 붉어진 피부를 진정시키고 수분을 채워 줍니다. 끈적임 없이 빠르게 흡수돼 아침에 발라도 부담이 없습니다. 스킨과 로션을 따로 쓰기 번거로운 분께 권합니다.",
+        "detailContentGroup": "②빈약",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "A",
+        "platform": "amazon-jp"
+      },
+      "detail": {
+        "templateId": "D3",
+        "productCategory": "skincare",
+        "platform": "amazon-jp",
+        "specVolume": "150mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社ノートワン",
+        "specOrigin": "韓国",
+        "specFullIngredients": "",
+        "howToSteps": "세안 후 토너로 피부결을 정돈합니다.\n적당량을 덜어 얼굴 전체에 부드럽게 펴 발라 줍니다.\n손바닥으로 가볍게 감싸 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요."
+      }
+    },
+    {
+      "personaId": "P06",
+      "archetype": "A",
+      "lens": [],
+      "account": "test06@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-cleansing.jpg",
+      "brand": {
+        "brandName": "코튼밤",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "derma",
+          "sensitive"
+        ],
+        "positioningNote": "입술과 손처럼 자극에 약한 부위를 다루는 더마 케어 브랜드입니다. @cosme 리뷰보다 우선 입점 상세페이지를 일본향으로 제대로 만들고 싶습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://cottonbalm.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/cottonbalm"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "더마 리페어 밤",
+        "productClass": "화장품",
+        "ingredients": [
+          "시어버터",
+          "호호바씨오일",
+          "세라마이드",
+          "판테놀"
+        ],
+        "price": 2200,
+        "detailContent": "입술과 손끝처럼 얇고 자극에 약한 부위를 위한 더마 케어 밤입니다. 시어버터와 호호바씨오일을 베이스로 하고, 세라마이드와 판테놀을 더해 갈라지고 트는 부위를 감싸듯 덮어 줍니다. 피부과 전문의와 함께 처방을 설계했고, 알레르기 유발 성분 26종을 배제했습니다. 무겁게 남는 유분감 대신 체온에 녹아 얇게 밀착하는 제형이라 덧발라도 답답하지 않습니다. 건조한 실내에서 하루 종일 일하는 분, 손 세정이 잦아 손등이 늘 거친 분께 권합니다. 입술·손·팔꿈치·발뒤꿈치까지 한 통으로 쓰실 수 있습니다.",
+        "detailContentGroup": "①충분",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "D",
+        "platform": "qoo10"
+      },
+      "detail": {
+        "templateId": "D6",
+        "productCategory": "skincare",
+        "platform": "qoo10",
+        "specVolume": "15g",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社コットンバーム",
+        "specOrigin": "韓国",
+        "specFullIngredients": "シア脂、ホホバ種子油、セラミドNP、パンテノール、トコフェロール",
+        "ingredientRows": "시어버터|5%|보습 밀착\n호호바씨오일|3%|유연\n세라마이드|3%|피부 장벽 보강\n판테놀|3%|진정·보습",
+        "freeOf": "인공향료\n인공색소\n파라벤\n동물성 원료",
+        "howToSteps": "세안 후 토너로 피부결을 정돈합니다.\n적당량을 덜어 얼굴 전체에 부드럽게 펴 발라 줍니다.\n손바닥으로 가볍게 감싸 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요.\n직사광선을 피해 서늘한 곳에 보관하고 어린이의 손이 닿지 않는 곳에 두세요."
+      }
+    },
+    {
+      "personaId": "P07",
+      "archetype": "A",
+      "lens": [],
+      "account": "test07@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-serum.jpg",
+      "brand": {
+        "brandName": "베러문",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "cleanVegan",
+          "freeFormula"
+        ],
+        "positioningNote": "클린·비건을 컨셉으로 하는 브랜드입니다. 이 컨셉이 일본에서 어떻게 받아들여지는지 확신이 없어 브랜드 메시지부터 점검받고 싶습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://bettermoon.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": ""
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "비건 밸런싱 세럼",
+        "productClass": "화장품",
+        "ingredients": [
+          "병풀추출물",
+          "판테놀"
+        ],
+        "price": 3400,
+        "detailContent": "",
+        "detailContentGroup": "③없음",
+        "expectedMode": "brand"
+      },
+      "thumbnail": {
+        "styleId": "B",
+        "platform": "qoo10"
+      },
+      "detail": {
+        "templateId": "D6",
+        "productCategory": "skincare",
+        "platform": "qoo10",
+        "specVolume": "30mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社ベタームーン",
+        "specOrigin": "韓国",
+        "specFullIngredients": ""
+      }
+    },
+    {
+      "personaId": "P08",
+      "archetype": "A",
+      "lens": [
+        "approval"
+      ],
+      "account": "test08@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-cleansing.jpg",
+      "brand": {
+        "brandName": "리프레쉬랩",
+        "category": "cleansing",
+        "productClass": "화장품",
+        "positioningTags": [
+          "pore",
+          "sensitive"
+        ],
+        "positioningNote": "각질·클렌징 라인을 다루는 브랜드입니다. 대표 지시로 일본 진출을 준비 중이며, 사전 진단으로 방향을 잡아 사내 품의를 올리려 합니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://refreshlab.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/refreshlab"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "딥 클리어 클렌징 젤",
+        "productClass": "화장품",
+        "ingredients": [
+          "살리실릭애씨드",
+          "병풀추출물"
+        ],
+        "price": 2100,
+        "detailContent": "묵은 각질과 모공 속 피지를 부드럽게 정리하는 클렌징 젤입니다. 자극 없이 산뜻하게 마무리되고, 세안 후 당김이 적습니다. 아침저녁 매일 사용하실 수 있으며 민감한 피부에도 무리가 없습니다.",
+        "detailContentGroup": "②빈약",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "B",
+        "platform": "qoo10"
+      },
+      "detail": {
+        "templateId": "D5",
+        "productCategory": "cleansing",
+        "platform": "qoo10",
+        "specVolume": "150mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社リフレッシュラボ",
+        "specOrigin": "韓国",
+        "specFullIngredients": "",
+        "howToSteps": "젖은 손에 적당량을 덜어 거품을 냅니다.\n얼굴 전체를 부드럽게 마사지하듯 문질러 줍니다.\n미지근한 물로 깨끗이 헹궈 냅니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요."
+      }
+    },
+    {
+      "personaId": "P09",
+      "archetype": "B",
+      "lens": [],
+      "account": "test09@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-cream.jpg",
+      "brand": {
+        "brandName": "오브제스킨",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "moisture",
+          "ingredientLed"
+        ],
+        "positioningNote": "Qoo10과 @cosme에 입점했지만 6개월째 매출이 제자리인 스킨케어 브랜드입니다. 리뷰가 안 쌓이고 상세페이지 반응도 밋밋합니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://objetskin.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/objetskin"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "8단 히알루론 세럼",
+        "productClass": "화장품",
+        "ingredients": [
+          "히알루론산",
+          "스쿠알란",
+          "세라마이드",
+          "나이아신아마이드"
+        ],
+        "price": 3600,
+        "detailContent": "겉보습으로는 해결되지 않는 속건조를 위한 고보습 세럼입니다. 저분자와 고분자 히알루론산을 8단계로 나눠 담아 표면과 안쪽에 순차적으로 수분을 채우고, 스쿠알란과 세라마이드가 채운 수분이 날아가지 않도록 잡아 둡니다. 나이아신아마이드 2%를 함께 배합해 칙칙해 보이는 피부 톤을 정돈합니다. 흡수가 빨라 다음 단계 제품이 밀리지 않고, 화장 전에 발라도 겉돌지 않습니다. 에센스 하나만 바꾸고 싶은 분, 계절이 바뀔 때마다 당김이 반복되는 분께 권합니다. 아침저녁 세안 후 토너 다음 단계에 사용하세요.",
+        "detailContentGroup": "①충분",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "D",
+        "platform": "qoo10",
+        "proof": {
+          "rankTitle": "Qoo10 メガ割 スキンケア部門 12位",
+          "genre": "スキンケア",
+          "aggregationDate": "2026-06-30"
+        }
+      },
+      "detail": {
+        "templateId": "D1",
+        "productCategory": "skincare",
+        "platform": "qoo10",
+        "specVolume": "50mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社オブジェスキン",
+        "specOrigin": "韓国",
+        "specFullIngredients": "水、BG、ヒアルロン酸Na、スクワラン、セラミドNP、ナイアシンアミド、グリセリン",
+        "ingredientRows": "히알루론산|2%|수분 유지\n스쿠알란|3%|유수분 밸런스\n세라마이드|3%|피부 장벽 보강\n나이아신아마이드|5%|피지·톤 정돈",
+        "freeOf": "인공향료\n인공색소\n파라벤\n동물성 원료",
+        "howToSteps": "세안 후 토너로 피부결을 정돈합니다.\n적당량을 덜어 얼굴 전체에 부드럽게 펴 발라 줍니다.\n손바닥으로 가볍게 감싸 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요.\n직사광선을 피해 서늘한 곳에 보관하고 어린이의 손이 닿지 않는 곳에 두세요."
+      }
+    },
+    {
+      "personaId": "P10",
+      "archetype": "B",
+      "lens": [
+        "approval"
+      ],
+      "account": "test10@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-tint.jpg",
+      "brand": {
+        "brandName": "데일리핏",
+        "category": "makeup",
+        "productClass": "화장품",
+        "positioningTags": [
+          "value",
+          "kTrend"
+        ],
+        "positioningNote": "@cosme·Qoo10·라쿠텐을 함께 운영하는 색조 브랜드입니다. 에이전시에 큰돈을 썼는데 채널별 성과 편차의 원인을 설명받지 못했습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://dailyfit.kr",
+          "jp": [
+            {
+              "channel": "rakuten",
+              "url": "https://www.rakuten.co.jp/dailyfit/"
+            },
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/dailyfit"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "데일리 무드 립",
+        "productClass": "화장품",
+        "ingredients": [
+          "히알루론산",
+          "호호바씨오일"
+        ],
+        "price": 1500,
+        "detailContent": "가볍게 밀착되는 데일리 립 컬러입니다. 촉촉한 마무리감과 선명한 발색을 동시에 담아, 덧바르지 않아도 하루 종일 자연스럽게 유지됩니다. 어떤 톤에도 잘 어울리는 8가지 컬러로 구성했습니다.",
+        "detailContentGroup": "②빈약",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "E",
+        "platform": "rakuten-official",
+        "proof": {
+          "rankTitle": "楽天市場 リップ・口紅 デイリーランキング 3位",
+          "genre": "メイクアップ",
+          "aggregationDate": "2026-07-15"
+        }
+      },
+      "detail": {
+        "templateId": "D4",
+        "productCategory": "makeup",
+        "platform": "rakuten-official",
+        "specVolume": "3.8g",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社デイリーフィット",
+        "specOrigin": "韓国",
+        "specFullIngredients": "",
+        "howToSteps": "입술 결을 정돈한 뒤 사용합니다.\n팁을 입술 중앙에 대고 바깥쪽으로 펴 발라 줍니다.\n진하게 쓰고 싶으면 한 번 더 덧발라 줍니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요."
+      }
+    },
+    {
+      "personaId": "P11",
+      "archetype": "B",
+      "lens": [],
+      "account": "test11@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-serum.jpg",
+      "brand": {
+        "brandName": "뮤트원",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "moisture",
+          "pore"
+        ],
+        "positioningNote": "입점 3개월차 스킨케어 브랜드입니다. 경쟁 브랜드는 @cosme 랭킹에 올라가는데 우리는 리뷰 자체가 안 붙습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://muteone.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/muteone"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "포어 밸런싱 세럼",
+        "productClass": "화장품",
+        "ingredients": [
+          "나이아신아마이드",
+          "아연PCA",
+          "살리실릭애씨드",
+          "병풀추출물"
+        ],
+        "price": 3100,
+        "detailContent": "피지와 각질이 뭉쳐 넓어 보이는 모공을 정돈하는 세럼입니다. 나이아신아마이드 5%와 아연 PCA가 과도한 피지 분비를 조절하고, 저농도 BHA가 모공 속에 쌓인 각질을 부드럽게 정리합니다. 병풀추출물과 알란토인을 함께 담아 각질 관리 후 예민해지기 쉬운 피부를 진정시킵니다. 산뜻하게 마무리되는 젤 제형이라 여름에도 답답하지 않고, 화장이 들뜨는 T존에 특히 잘 맞습니다. 인공향료와 인공색소를 넣지 않았습니다. 매일 저녁 세안 후 토너 다음 단계에 2~3방울 사용하시고, 자극이 느껴지면 격일로 조절하세요.",
+        "detailContentGroup": "①충분",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "D",
+        "platform": "qoo10"
+      },
+      "detail": {
+        "templateId": "D2",
+        "productCategory": "skincare",
+        "platform": "qoo10",
+        "specVolume": "30mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社ミュートワン",
+        "specOrigin": "韓国",
+        "specFullIngredients": "水、BG、ナイアシンアミド、亜鉛PCA、サリチル酸、ツボクサエキス、アラントイン",
+        "ingredientRows": "나이아신아마이드|5%|피지·톤 정돈\n아연PCA|1%|피지 조절\n살리실릭애씨드|0.5%|각질 정리\n병풀추출물|82%|진정",
+        "freeOf": "인공향료\n인공색소\n파라벤\n동물성 원료",
+        "howToSteps": "세안 후 토너로 피부결을 정돈합니다.\n적당량을 덜어 얼굴 전체에 부드럽게 펴 발라 줍니다.\n손바닥으로 가볍게 감싸 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요.\n직사광선을 피해 서늘한 곳에 보관하고 어린이의 손이 닿지 않는 곳에 두세요."
+      }
+    },
+    {
+      "personaId": "P12",
+      "archetype": "B",
+      "lens": [
+        "no_jp"
+      ],
+      "account": "test12@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-tint.jpg",
+      "brand": {
+        "brandName": "라라뷰",
+        "category": "makeup",
+        "productClass": "화장품",
+        "positioningTags": [
+          "kTrend",
+          "value"
+        ],
+        "positioningNote": "Qoo10에서 운영 중인 색조 브랜드입니다. 일본어를 제가 못 해 대행에 전부 맡겼는데 비용 대비 매출이 안 나옵니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://laraview.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/laraview"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "벨벳 무드 틴트",
+        "productClass": "화장품",
+        "ingredients": [
+          "히알루론산",
+          "시어버터"
+        ],
+        "price": 1700,
+        "detailContent": "한 번만 발라도 선명하게 올라오는 벨벳 무드 립 틴트입니다. 물처럼 가볍게 퍼지는 워터리 포뮬러가 입술 결을 메우며 균일하게 밀착해, 덧바르지 않아도 경계 없이 자연스럽게 마무리됩니다. 색소 침착과 건조함을 줄이기 위해 히알루론산과 시어버터를 함께 담았고, 마스크나 컵에 잘 묻어나지 않도록 밀착력을 높였습니다. 데일리로 쓰기 좋은 뮤트 코랄부터 또렷한 딥 로즈까지 6가지 컬러로 구성했습니다. 퍼스널 컬러가 헷갈리는 분을 위해 웜톤·쿨톤 추천 컬러를 함께 안내해 드립니다.",
+        "detailContentGroup": "①충분",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "G",
+        "platform": "qoo10",
+        "promo": {
+          "setTitle": "選べる2色セット",
+          "salePrice": "2,480",
+          "normalPrice": "2,980",
+          "normalPriceVerified": true,
+          "gift": ""
+        }
+      },
+      "detail": {
+        "templateId": "D4",
+        "productCategory": "makeup",
+        "platform": "qoo10",
+        "specVolume": "4.0g",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社ララビュー",
+        "specOrigin": "韓国",
+        "specFullIngredients": "",
+        "ingredientRows": "히알루론산|2%|수분 유지\n시어버터|5%|보습 밀착",
+        "freeOf": "인공향료\n인공색소\n파라벤\n동물성 원료",
+        "howToSteps": "입술 결을 정돈한 뒤 사용합니다.\n팁을 입술 중앙에 대고 바깥쪽으로 펴 발라 줍니다.\n진하게 쓰고 싶으면 한 번 더 덧발라 줍니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요.\n직사광선을 피해 서늘한 곳에 보관하고 어린이의 손이 닿지 않는 곳에 두세요."
+      }
+    },
+    {
+      "personaId": "P13",
+      "archetype": "B",
+      "lens": [
+        "ai_resist"
+      ],
+      "account": "test13@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-cream.jpg",
+      "brand": {
+        "brandName": "포레스트미",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "cleanVegan",
+          "derma"
+        ],
+        "positioningNote": "클린·더마를 컨셉으로 하는 브랜드입니다. @cosme 랭킹만 올리면 매출이 따라올 것 같은데 방법을 모르겠습니다. 사람 전문가가 사례로 짚어 주기를 바랍니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://forestme.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/forestme"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "클린 배리어 크림",
+        "productClass": "화장품",
+        "ingredients": [
+          "세라마이드",
+          "판테놀",
+          "마데카소사이드"
+        ],
+        "price": 3900,
+        "detailContent": "피부에 남기고 싶지 않은 것을 먼저 덜어낸 클린 더마 크림입니다. 성분표를 열어 봤을 때 이해할 수 없는 이름이 최소가 되도록 전 성분을 19가지로 줄였고, 인공향료·인공색소·파라벤·페녹시에탄올·동물성 원료를 넣지 않았습니다. 남은 자리는 세라마이드 3종과 판테놀, 마데카소사이드로 채워 장벽 회복에 집중했습니다. 비건 인증과 피부 자극 테스트를 마쳤으며, 용기는 재활용이 쉬운 단일 소재를 썼습니다. 성분을 하나하나 확인하고 사는 분, 이것저것 바꿔 보다 피부가 더 예민해진 분께 권합니다.",
+        "detailContentGroup": "①충분",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "C",
+        "platform": "qoo10",
+        "proof": {
+          "rankTitle": "@cosme 化粧水・美容液部門 週間 8位",
+          "genre": "スキンケア",
+          "aggregationDate": "2026-07-07"
+        }
+      },
+      "detail": {
+        "templateId": "D6",
+        "productCategory": "skincare",
+        "platform": "qoo10",
+        "specVolume": "50mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社フォレストミー",
+        "specOrigin": "韓国",
+        "specFullIngredients": "水、グリセリン、セラミドNP、セラミドAP、パンテノール、マデカッソシド、スクワラン",
+        "ingredientRows": "세라마이드|3%|피부 장벽 보강\n판테놀|3%|진정·보습\n마데카소사이드|0.2%|진정",
+        "freeOf": "인공향료\n인공색소\n파라벤\n동물성 원료",
+        "howToSteps": "세안 후 토너로 피부결을 정돈합니다.\n적당량을 덜어 얼굴 전체에 부드럽게 펴 발라 줍니다.\n손바닥으로 가볍게 감싸 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요.\n직사광선을 피해 서늘한 곳에 보관하고 어린이의 손이 닿지 않는 곳에 두세요."
+      }
+    },
+    {
+      "personaId": "P14",
+      "archetype": "B",
+      "lens": [
+        "approval"
+      ],
+      "account": "test14@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-toner.jpg",
+      "brand": {
+        "brandName": "슬로우데이",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "moisture",
+          "ingredientLed"
+        ],
+        "positioningNote": "복수 채널을 운영하는 스킨케어 브랜드입니다. 채널마다 콘텐츠를 새로 만들지 못해 몇 개는 방치돼 있습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://slowday.kr",
+          "jp": [
+            {
+              "channel": "rakuten",
+              "url": "https://www.rakuten.co.jp/slowday/"
+            },
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/slowday"
+            },
+            {
+              "channel": "amazon-jp",
+              "url": ""
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "데일리 모이스트 로션",
+        "productClass": "화장품",
+        "ingredients": [
+          "히알루론산",
+          "세라마이드",
+          "글리세린"
+        ],
+        "price": 2800,
+        "detailContent": "수분을 오래 잡아 주는 데일리 로션입니다. 히알루론산과 세라마이드를 함께 담아 겉도는 보습이 아니라 피부 안쪽까지 채워 줍니다. 가볍게 발려 다음 단계가 밀리지 않고, 아침저녁 세안 후 언제든 쓰실 수 있습니다.",
+        "detailContentGroup": "②빈약",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "E",
+        "platform": "rakuten-official",
+        "proof": {
+          "rankTitle": "楽天市場 スキンケア部門 週間ランキング 2位",
+          "genre": "スキンケア",
+          "aggregationDate": "2026-07-21"
+        }
+      },
+      "detail": {
+        "templateId": "D1",
+        "productCategory": "skincare",
+        "platform": "rakuten-official",
+        "specVolume": "120mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社スローデイ",
+        "specOrigin": "韓国",
+        "specFullIngredients": "",
+        "howToSteps": "세안 후 토너로 피부결을 정돈합니다.\n적당량을 덜어 얼굴 전체에 부드럽게 펴 발라 줍니다.\n손바닥으로 가볍게 감싸 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요."
+      }
+    },
+    {
+      "personaId": "P15",
+      "archetype": "C",
+      "lens": [
+        "approval"
+      ],
+      "account": "test15@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-toner.jpg",
+      "brand": {
+        "brandName": "루미네",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "moisture",
+          "calming"
+        ],
+        "positioningNote": "Qoo10·라쿠텐·@cosme를 함께 운영하는 수분·진정 라인 브랜드입니다. 채널을 넷으로 늘렸더니 혼자서는 콘텐츠를 못 따라갑니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://lumine.kr",
+          "jp": [
+            {
+              "channel": "rakuten",
+              "url": "https://www.rakuten.co.jp/lumine/"
+            },
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/lumine"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "카밍 워터 토너",
+        "productClass": "화장품",
+        "ingredients": [
+          "병풀추출물",
+          "판테놀",
+          "히알루론산"
+        ],
+        "price": 2500,
+        "detailContent": "건조하고 예민해진 피부를 위한 진정 토너입니다. 병풀추출물과 판테놀을 담아 붉어진 피부를 가라앉히고 결을 정돈합니다. 다음 단계 제품의 흡수를 도와 스킨케어 첫 단계로 쓰기 좋습니다.",
+        "detailContentGroup": "②빈약",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "H",
+        "platform": "rakuten-official"
+      },
+      "detail": {
+        "templateId": "D2",
+        "productCategory": "skincare",
+        "platform": "rakuten-official",
+        "specVolume": "200mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社ルミネ",
+        "specOrigin": "韓国",
+        "specFullIngredients": "",
+        "howToSteps": "세안 후 토너로 피부결을 정돈합니다.\n적당량을 덜어 얼굴 전체에 부드럽게 펴 발라 줍니다.\n손바닥으로 가볍게 감싸 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요."
+      }
+    },
+    {
+      "personaId": "P16",
+      "archetype": "C",
+      "lens": [],
+      "account": "test16@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-tint.jpg",
+      "brand": {
+        "brandName": "타임리스",
+        "category": "makeup",
+        "productClass": "화장품",
+        "positioningTags": [
+          "kTrend",
+          "sensorial"
+        ],
+        "positioningNote": "립·틴트를 주력으로 하는 색조 브랜드입니다. 경쟁 브랜드는 콘텐츠를 계속 새로 올리는데 우리는 만들 손이 없어 방치됩니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://timeless.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/timeless"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "매트 핏 립 틴트",
+        "productClass": "화장품",
+        "ingredients": [
+          "세라마이드",
+          "호호바씨오일"
+        ],
+        "price": 1900,
+        "detailContent": "입술 위에서 얇게 마르며 오래 남는 매트 립 틴트입니다. 발색이 진한 만큼 건조해지기 쉬운 매트 제형의 단점을 줄이기 위해 세라마이드와 식물성 오일을 배합해, 발린 뒤에도 갈라지거나 각질이 일어나지 않도록 설계했습니다. 한 번의 스와이프로 입술 전체를 채우는 납작한 팁을 적용해 아웃라인을 따로 그리지 않아도 됩니다. 톤 다운된 브릭·로즈 계열 5색으로 구성했고, 어떤 색이든 톤에 상관없이 무난하게 쓰실 수 있도록 채도를 낮췄습니다. 음료를 마셔도 잘 지워지지 않아 수정 화장 부담이 적습니다.",
+        "detailContentGroup": "①충분",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "G",
+        "platform": "qoo10",
+        "promo": {
+          "setTitle": "リップ3本セット",
+          "salePrice": "3,300",
+          "normalPrice": "3,900",
+          "normalPriceVerified": true,
+          "gift": ""
+        }
+      },
+      "detail": {
+        "templateId": "D4",
+        "productCategory": "makeup",
+        "platform": "qoo10",
+        "specVolume": "3.5g",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社タイムレス",
+        "specOrigin": "韓国",
+        "specFullIngredients": "水、BG、セラミドNP、ホホバ種子油、酸化チタン、赤226",
+        "ingredientRows": "세라마이드|3%|피부 장벽 보강\n호호바씨오일|3%|유연",
+        "freeOf": "인공향료\n인공색소\n파라벤\n동물성 원료",
+        "howToSteps": "입술 결을 정돈한 뒤 사용합니다.\n팁을 입술 중앙에 대고 바깥쪽으로 펴 발라 줍니다.\n진하게 쓰고 싶으면 한 번 더 덧발라 줍니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요.\n직사광선을 피해 서늘한 곳에 보관하고 어린이의 손이 닿지 않는 곳에 두세요."
+      }
+    },
+    {
+      "personaId": "P17",
+      "archetype": "C",
+      "lens": [
+        "approval",
+        "no_jp"
+      ],
+      "account": "test17@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-suncare.jpg",
+      "brand": {
+        "brandName": "데이쉴드",
+        "category": "suncare",
+        "productClass": "의약외품",
+        "positioningTags": [
+          "efficacy",
+          "sensitive"
+        ],
+        "positioningNote": "선크림 라인을 주력으로 하는 브랜드입니다. 채널별 콘텐츠 포맷이 달라 만드는 데만 시간이 다 가고, 일본어도 되지 않아 직접 만들 수가 없습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://dayshield.kr",
+          "jp": [
+            {
+              "channel": "rakuten",
+              "url": "https://www.rakuten.co.jp/dayshield/"
+            },
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/dayshield"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "데일리 톤업 선크림",
+        "productClass": "의약외품",
+        "ingredients": [
+          "징크옥사이드",
+          "티타늄디옥사이드",
+          "나이아신아마이드"
+        ],
+        "price": 2900,
+        "detailContent": "자외선 차단과 톤 보정을 함께하는 데일리 선크림입니다. 백탁 없이 얇게 발리고 끈적임이 적어 메이크업 전에도 무리가 없습니다. 외출 15분 전에 충분한 양을 발라 주시고, 필요하면 덧발라 주세요.",
+        "detailContentGroup": "②빈약",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "C",
+        "platform": "rakuten-official"
+      },
+      "detail": {
+        "templateId": "D3",
+        "productCategory": "suncare",
+        "platform": "rakuten-official",
+        "specVolume": "50mL",
+        "specCategory": "医薬部外品",
+        "specManufacturer": "株式会社デイシールド",
+        "specOrigin": "韓国",
+        "specFullIngredients": "",
+        "howToSteps": "외출 15분 전, 얼굴 전체에 충분한 양을 발라 줍니다.\n목과 귀 뒤까지 놓치지 않고 펴 바릅니다.\n2~3시간마다 덧발라 줍니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요."
+      }
+    },
+    {
+      "personaId": "P18",
+      "archetype": "C",
+      "lens": [],
+      "account": "test18@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-toner.jpg",
+      "brand": {
+        "brandName": "루트리",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "derma",
+          "sensitive"
+        ],
+        "positioningNote": "더마·두피를 컨셉으로 하는 브랜드입니다. 컨셉은 좋은데 이걸 일본 고객용 콘텐츠로 풀어낼 사람이 내부에 없습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://rootly.kr",
+          "jp": [
+            {
+              "channel": "qoo10",
+              "url": "https://www.qoo10.jp/shop/rootly"
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "스캘프 카밍 토닉",
+        "productClass": "화장품",
+        "ingredients": [
+          "판테놀",
+          "나이아신아마이드",
+          "병풀추출물",
+          "살리실릭애씨드"
+        ],
+        "price": 3300,
+        "detailContent": "가렵고 자꾸 각질이 일어나는 두피를 위한 데일리 두피 토닉입니다. 두피도 얼굴 피부와 이어져 있다는 관점에서, 스킨케어에 쓰이는 판테놀·나이아신아마이드·병풀추출물을 두피용 농도로 다시 설계했습니다. 살리실릭애씨드가 모공을 막은 묵은 각질을 정리하고, 멘톨 없이도 산뜻하게 마무리되도록 청량감은 식물 유래 성분으로 냈습니다. 알코올 특유의 건조함이 부담스러운 분을 위해 무알코올로 만들었습니다. 머리를 말린 뒤 가르마를 나눠 두피에 직접 뿌리고 손끝으로 가볍게 문질러 흡수시켜 주세요.",
+        "detailContentGroup": "①충분",
+        "expectedMode": "brandProduct"
+      },
+      "thumbnail": {
+        "styleId": "H",
+        "platform": "qoo10"
+      },
+      "detail": {
+        "templateId": "D1",
+        "productCategory": "haircare",
+        "platform": "qoo10",
+        "specVolume": "120mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社ルートリ",
+        "specOrigin": "韓国",
+        "specFullIngredients": "水、BG、パンテノール、ナイアシンアミド、ツボクサエキス、サリチル酸",
+        "ingredientRows": "판테놀|3%|진정·보습\n나이아신아마이드|5%|피지·톤 정돈\n병풀추출물|82%|진정\n살리실릭애씨드|0.5%|각질 정리",
+        "freeOf": "인공향료\n인공색소\n파라벤\n동물성 원료",
+        "howToSteps": "머리를 말린 뒤 가르마를 나눕니다.\n두피에 직접 분사합니다.\n손끝으로 가볍게 문질러 흡수시킵니다.",
+        "cautions": "사용 중 붉은 반점·부어오름·가려움 등 이상이 있으면 사용을 중지하고 전문의와 상담해 주세요.\n상처가 있는 부위에는 사용하지 마세요.\n직사광선을 피해 서늘한 곳에 보관하고 어린이의 손이 닿지 않는 곳에 두세요."
+      }
+    },
+    {
+      "personaId": "P19",
+      "archetype": "D",
+      "lens": [
+        "ai_resist",
+        "no_jp"
+      ],
+      "account": "test19@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-serum.jpg",
+      "brand": {
+        "brandName": "플레인",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "minimal"
+        ],
+        "positioningNote": "이제 막 시작한 미니멀 스킨케어 브랜드입니다. 일본은 아직 먼 얘기라 정보부터 모으는 단계입니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://plain.kr",
+          "jp": [
+            {
+              "channel": "undecided",
+              "url": ""
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "미니멀 에센스",
+        "productClass": "화장품",
+        "ingredients": [
+          "글리세린",
+          "판테놀"
+        ],
+        "price": 2000,
+        "detailContent": "",
+        "detailContentGroup": "③없음",
+        "expectedMode": "brand"
+      },
+      "thumbnail": {
+        "styleId": "A",
+        "platform": "unset"
+      },
+      "detail": {
+        "templateId": "D5",
+        "productCategory": "skincare",
+        "platform": "unset",
+        "specVolume": "50mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社プレーン",
+        "specOrigin": "韓国",
+        "specFullIngredients": ""
+      }
+    },
+    {
+      "personaId": "P20",
+      "archetype": "D",
+      "lens": [
+        "ai_resist",
+        "no_jp"
+      ],
+      "account": "test20@example.com",
+      "productImage": "docs/research/ut-agent/fixtures/products/product-toner.jpg",
+      "brand": {
+        "brandName": "센트리",
+        "category": "skincare",
+        "productClass": "화장품",
+        "positioningTags": [
+          "sensorial"
+        ],
+        "positioningNote": "둘이서 하는 향·바디 컨셉의 작은 브랜드입니다. 일본은 관심만 있는 정도라 돈 쓰기 전에 정보부터 모으고 있습니다.",
+        "targetMemo": "",
+        "productInfoMemo": "",
+        "channels": {
+          "krUrl": "https://scentry.kr",
+          "jp": [
+            {
+              "channel": "undecided",
+              "url": ""
+            }
+          ]
+        },
+        "toneGuide": ""
+      },
+      "report": {
+        "productName": "시어 바디 세럼",
+        "productClass": "화장품",
+        "ingredients": [
+          "시어버터",
+          "스쿠알란"
+        ],
+        "price": 2700,
+        "detailContent": "",
+        "detailContentGroup": "③없음",
+        "expectedMode": "brand"
+      },
+      "thumbnail": {
+        "styleId": "H",
+        "platform": "unset"
+      },
+      "detail": {
+        "templateId": "D3",
+        "productCategory": "etc",
+        "platform": "unset",
+        "specVolume": "100mL",
+        "specCategory": "化粧品",
+        "specManufacturer": "株式会社セントリー",
+        "specOrigin": "韓国",
+        "specFullIngredients": ""
+      }
+    }
+  ]
+}
