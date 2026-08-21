@@ -1,0 +1,133 @@
+{
+  "model": "gpt-image-2",
+  "quality": "medium",
+  "size": "1024x1536",
+  "calls": [
+    {
+      "id": "cream",
+      "call": "generate",
+      "size": "1024x1536",
+      "quality": "medium",
+      "usage": {
+        "input_tokens": 172,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 172
+        },
+        "output_tokens": 1372,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        },
+        "total_tokens": 1544
+      },
+      "usd": 0.04202,
+      "elapsedMs": 28164
+    },
+    {
+      "id": "toner",
+      "call": "generate",
+      "size": "1024x1536",
+      "quality": "medium",
+      "usage": {
+        "input_tokens": 170,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 170
+        },
+        "output_tokens": 1372,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        },
+        "total_tokens": 1542
+      },
+      "usd": 0.04201,
+      "elapsedMs": 30187
+    },
+    {
+      "id": "tint",
+      "call": "generate",
+      "size": "1024x1536",
+      "quality": "medium",
+      "usage": {
+        "input_tokens": 173,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 173
+        },
+        "output_tokens": 1372,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        },
+        "total_tokens": 1545
+      },
+      "usd": 0.042025,
+      "elapsedMs": 29817
+    },
+    {
+      "id": "suncare",
+      "call": "generate",
+      "size": "1024x1536",
+      "quality": "medium",
+      "usage": {
+        "input_tokens": 172,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 172
+        },
+        "output_tokens": 1372,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        },
+        "total_tokens": 1544
+      },
+      "usd": 0.04202,
+      "elapsedMs": 30530
+    },
+    {
+      "id": "cleansing",
+      "call": "generate",
+      "size": "1024x1536",
+      "quality": "medium",
+      "usage": {
+        "input_tokens": 172,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 172
+        },
+        "output_tokens": 1372,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        },
+        "total_tokens": 1544
+      },
+      "usd": 0.04202,
+      "elapsedMs": 31027
+    },
+    {
+      "id": "__thumbnail-probe",
+      "call": "edit",
+      "size": "1024x1024",
+      "quality": "medium",
+      "usage": {
+        "input_tokens": 1582,
+        "input_tokens_details": {
+          "image_tokens": 1536,
+          "text_tokens": 46
+        },
+        "output_tokens": 1756,
+        "output_tokens_details": {
+          "image_tokens": 1756,
+          "text_tokens": 0
+        },
+        "total_tokens": 3338
+      },
+      "usd": 0.065198,
+      "elapsedMs": 38971
+    }
+  ]
+}

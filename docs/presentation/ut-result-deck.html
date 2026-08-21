@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YOAKE — UT 결과 발표</title>
+<style>
+:root{
+  --page:#faf8f5; --canvas:#ffffff;
+  --ink:#182333; --ink-body:#3d4655; --ink-mute:#6e7686; --ink-faint:#8a929e;
+  --ink-on-dark:#c3cad6;
+  --coral:#ff6f61; --coral-strong:#c93f2e;
+  --bar-mid:#ff9b70; --bar-light:#ffc7b3;
+  --danger:#d94848; --danger-text:#c13a3a;
+  --green:#2d8c6b; --green-text:#26775b;
+  --amber:#e39a22;
+  --line:#e8e3dc; --track:#f1ede7;
+  --shadow:0 14px 36px rgba(24,35,51,.055), 0 2px 8px rgba(24,35,51,.045);
+  --r:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#101822;
+  font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,
+    'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  color:var(--ink); overflow:hidden; word-break:keep-all;
+  -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums;
+}
+#stage{
+  position:absolute; top:50%; left:50%;
+  width:1920px; height:1080px; transform-origin:center center;
+  background:var(--page); box-shadow:0 30px 90px rgba(0,0,0,.5);
+}
+.slide{position:absolute;inset:0;padding:60px 88px 58px;display:none;flex-direction:column;background:var(--page)}
+.slide.active{display:flex}
+
+.head{display:flex;align-items:baseline;justify-content:space-between;gap:32px;margin-bottom:38px}
+h1{font-size:46px;font-weight:800;letter-spacing:-1.3px;line-height:1.15}
+h1 em{font-style:normal;color:var(--coral-strong)}
+.hm{font-size:15px;color:var(--ink-mute);white-space:nowrap}
+.hm b{color:var(--ink);font-weight:700}
+
+.card{background:var(--canvas);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:34px 38px}
+.ct{font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.3px;margin-bottom:28px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:26px}
+.kpi{padding:26px 30px 24px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--coral)}
+.kpi.good::before{background:var(--green)}
+.kpi.bad::before{background:var(--danger)}
+.kpi .n{font-size:58px;font-weight:800;letter-spacing:-2.4px;line-height:1}
+.kpi.good .n{color:var(--green-text)} .kpi.bad .n{color:var(--danger-text)}
+.kpi .n .u{font-size:26px;font-weight:700;color:var(--ink-mute);letter-spacing:-.5px}
+.kpi .l{font-size:17px;font-weight:700;color:var(--ink-body);margin-top:14px}
+
+/* 가로 막대 */
+.bars{display:flex;flex-direction:column;gap:19px}
+.bar{display:grid;grid-template-columns:var(--lw,180px) 1fr 54px;align-items:center;gap:16px}
+.bar .lb{font-size:18px;color:var(--ink-body);font-weight:600;text-align:right}
+.bar .lb small{font-size:14px;color:var(--ink-faint);font-weight:500}
+.bar .tk{height:38px;background:var(--track);border-radius:6px;position:relative;display:flex;overflow:hidden}
+.bar .tk i{display:block;height:100%}
+.bar .vv{font-size:20px;font-weight:800;text-align:right}
+.avg{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.45}
+
+/* 그룹 막대 */
+.grp{display:grid;grid-template-columns:112px 1fr;gap:20px;align-items:center;margin-bottom:34px}
+.grp:last-child{margin-bottom:0}
+.grp .ax{font-size:18px;font-weight:700;color:var(--ink-body);text-align:right}
+.grp .set{display:flex;flex-direction:column;gap:9px}
+.grp .r3{display:grid;grid-template-columns:1fr 48px;gap:12px;align-items:center}
+.grp .t3{height:30px;background:var(--track);border-radius:5px;overflow:hidden}
+.grp .t3 i{display:block;height:100%;border-radius:5px}
+.grp .v3{font-size:18px;font-weight:800;text-align:right}
+.f-rep{background:var(--coral)} .f-thu{background:var(--bar-light)} .f-det{background:var(--bar-mid)}
+.legend{display:flex;gap:28px;font-size:16px;color:var(--ink-mute);margin-bottom:28px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:8px;vertical-align:-2px}
+
+/* 다이버징 */
+.heat{display:flex;flex-direction:column;gap:15px}
+.hrow{display:grid;grid-template-columns:196px 1fr 2px 1fr 70px;align-items:center}
+.hb{font-size:17px;font-weight:700;color:var(--ink-body)}
+.hb span{font-weight:500;color:var(--ink-faint)}
+.hl{display:flex;justify-content:flex-end}
+.hl i{display:block;height:30px;background:var(--green);border-radius:5px 0 0 5px}
+.hm2{background:var(--line);height:38px}
+.hr i{display:block;height:30px;background:var(--danger);border-radius:0 5px 5px 0}
+.hn{font-size:16px;color:var(--ink-faint);text-align:right}
+.hrow.dead .hb,.hrow.dead .hb span{color:var(--danger-text);font-weight:800}
+
+/* 스택 */
+.stack{display:flex;flex-direction:column;gap:20px}
+.st{display:grid;grid-template-columns:236px 1fr;gap:18px;align-items:center}
+.st .sl{font-size:18px;font-weight:700;color:var(--ink-body)}
+.st .sb{display:flex;height:52px;border-radius:7px;overflow:hidden}
+.sg{display:grid;place-items:center;font-size:17px;font-weight:800;color:#fff}
+.sg.y{background:var(--green)} .sg.p{background:var(--amber)} .sg.n{background:var(--danger)}
+.sg.z{background:var(--track);color:var(--ink-faint)}
+
+/* 게이지 */
+.gauge{position:relative;height:52px;background:var(--track);border-radius:8px;overflow:hidden}
+.gauge .g{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--bar-light),var(--coral))}
+.gauge .tk2{position:absolute;top:0;bottom:0;width:3px;background:var(--danger)}
+.gauge .lb2{position:absolute;top:50%;left:18px;transform:translateY(-50%);font-size:16px;font-weight:800;color:#fff}
+.gn{display:flex;justify-content:space-between;font-size:15px;color:var(--ink-faint);margin-top:10px}
+
+/* 본문 한 줄 */
+.say{font-size:18px;line-height:1.6;color:var(--ink-body)}
+.say b{color:var(--ink);font-weight:800}
+.say em{font-style:normal;color:var(--coral-strong);font-weight:800}
+
+/* 인용 — 덱 전체에 둘만 쓴다 */
+.q{border-left:4px solid var(--coral);padding:2px 0 2px 20px;font-size:18px;line-height:1.6;color:var(--ink-body)}
+.q b{color:var(--ink);font-weight:800}
+.q i{display:block;font-style:normal;font-size:14.5px;color:var(--ink-faint);margin-top:8px}
+
+/* 이슈 */
+.iss{display:grid;grid-template-columns:56px 1fr 168px;gap:22px;align-items:start;
+  background:var(--canvas);border:1px solid var(--line);border-left:5px solid var(--danger);
+  border-radius:16px;padding:24px 30px;box-shadow:0 2px 8px rgba(24,35,51,.04)}
+.iss .no{font-size:34px;font-weight:800;color:var(--danger-text);line-height:1;letter-spacing:-1.4px}
+.iss h4{font-size:22px;font-weight:800;color:var(--ink);line-height:1.32;margin-bottom:9px}
+.iss p{font-size:16px;color:var(--ink-body);line-height:1.55}
+.iss p b{color:var(--ink);font-weight:700}
+.iss .imp{text-align:right}
+.iss .imp .num{font-size:32px;font-weight:800;color:var(--ink);letter-spacing:-1.2px;line-height:1}
+.iss .imp .cap{font-size:14px;color:var(--ink-faint);margin-top:7px}
+
+.dark{background:var(--ink);border-radius:var(--r);padding:30px 34px;color:#fff}
+.dark .ct{color:#fff}
+.dark .say{color:var(--ink-on-dark)}
+.dark .say b{color:#fff}
+.dark .say em{color:var(--coral)}
+
+.next{list-style:none;counter-reset:n}
+.next li{counter-increment:n;display:grid;grid-template-columns:30px 1fr;gap:16px;
+  font-size:18px;line-height:1.5;color:var(--ink-body);padding:20px 0;border-bottom:1px solid var(--line)}
+.next li:last-child{border-bottom:0;padding-bottom:0}
+.next li::before{content:counter(n);font-size:14px;font-weight:800;color:#fff;background:var(--coral);
+  width:26px;height:26px;border-radius:50%;display:grid;place-items:center;margin-top:1px}
+.next li b{color:var(--ink);font-weight:800}
+
+.foot{position:absolute;left:88px;right:88px;bottom:24px;display:flex;justify-content:space-between;font-size:14px;color:var(--ink-faint)}
+.foot .pgno{visibility:hidden}
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:24px;flex:1;min-height:0}
+.c2u{display:grid;grid-template-columns:1.08fr 1fr;gap:24px;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;gap:22px;min-height:0}
+
+#nav{position:fixed;right:24px;bottom:20px;display:flex;gap:8px;align-items:center;z-index:9}
+#nav button{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.08);color:#fff;font-size:15px;cursor:pointer}
+#nav button:hover{background:rgba(255,255,255,.18)}
+#nav .pg{color:#9aa6b6;font-size:13px;min-width:40px;text-align:center}
+@media print{
+  body{background:#fff;overflow:visible}
+  #nav{display:none}
+  .foot .pgno{visibility:visible}
+  #stage{position:static;transform:none!important;box-shadow:none}
+  .slide{display:flex!important;page-break-after:always;position:relative}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ═══ 1 ═══ -->
+<section class="slide active">
+  <div class="head">
+    <h1>과업 만족도와 지불 의향</h1>
+    <div class="hm">합성 페르소나 <b>20인</b> · 과업 <b>T0~T7</b> · 생성 <b>60건</b> · 무효 <b>0건</b></div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi card good"><div class="n">60<span class="u">/60</span></div><div class="l">생성 전건 성공</div></div>
+    <div class="kpi card"><div class="n">18<span class="u">/20</span></div><div class="l">지불 의향 — 전원 30만원</div></div>
+    <div class="kpi card bad"><div class="n">6.05</div><div class="l">NPS — 9점 이상 0명</div></div>
+    <div class="kpi card"><div class="n">3.66</div><div class="l">전 과업 평균 만족도</div></div>
+  </div>
+
+  <div class="c2u">
+    <div class="card">
+      <div class="ct">과업별 만족도</div>
+      <div class="bars" style="--lw:196px">
+        <div class="bar"><span class="lb">T1 로그인</span><span class="tk"><i style="width:92%;background:var(--green)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv" style="color:var(--green-text)">4.60</span></div>
+        <div class="bar"><span class="lb">T3 진단 리포트</span><span class="tk"><i style="width:75%;background:var(--coral)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv">3.75</span></div>
+        <div class="bar"><span class="lb">T0 랜딩</span><span class="tk"><i style="width:74%;background:var(--bar-mid)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv">3.70</span></div>
+        <div class="bar"><span class="lb">T5 상세페이지</span><span class="tk"><i style="width:74%;background:var(--bar-mid)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv">3.70</span></div>
+        <div class="bar"><span class="lb">T2 브랜드 등록</span><span class="tk"><i style="width:73%;background:var(--bar-light)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv">3.65</span></div>
+        <div class="bar"><span class="lb">T4 썸네일</span><span class="tk"><i style="width:69%;background:var(--bar-light)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv">3.45</span></div>
+        <div class="bar"><span class="lb">T6 라이브러리·시즌·매칭</span><span class="tk"><i style="width:66%;background:var(--danger)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv" style="color:var(--danger-text)">3.30</span></div>
+        <div class="bar"><span class="lb">T7 마이페이지</span><span class="tk"><i style="width:62%;background:var(--danger)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv" style="color:var(--danger-text)">3.10</span></div>
+      </div>
+      <div class="say" style="margin-top:26px">
+        가장 낮은 <b>T6·T7</b> 의 이탈 사유가 하나로 모인다 — 기업 매칭은 <b>20/20 이 지적</b>했고 <b>15명이 이탈 직전</b>까지 갔다.
+        마이페이지는 결제가 목업이고 FREE 플랜 설명이 방금 한 일과 어긋난다.
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card" style="padding-top:26px;padding-bottom:26px">
+        <div class="ct">랜딩 (T0)</div>
+        <div class="bars" style="--lw:170px">
+          <div class="bar"><span class="lb">매력도</span><span class="tk"><i style="width:74%;background:var(--coral)"></i></span><span class="vv">3.70</span></div>
+          <div class="bar"><span class="lb">흥미도</span><span class="tk"><i style="width:75%;background:var(--coral)"></i></span><span class="vv">3.75</span></div>
+          <div class="bar"><span class="lb">다음 행동 의향</span><span class="tk"><i style="width:70%;background:var(--coral)"></i></span><span class="vv">3.50</span></div>
+          <div class="bar"><span class="lb">끝까지 스크롤</span><span class="tk"><i style="width:100%;background:var(--green)"></i></span><span class="vv" style="color:var(--green-text)">20/20</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1;padding-top:26px;padding-bottom:26px">
+        <div class="ct">아키타입별 지불 의향</div>
+        <div class="bars" style="--lw:250px">
+          <div class="bar"><span class="lb">A 입점 직전 인디 대표 <small>n=8</small></span><span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">8/8</span></div>
+          <div class="bar"><span class="lb">B 정체 돌파 운영자 <small>n=6</small></span><span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">6/6</span></div>
+          <div class="bar"><span class="lb">C 콘텐츠 리소스 부재 <small>n=4</small></span><span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">4/4</span></div>
+          <div class="bar"><span class="lb" style="color:var(--danger-text);font-weight:800">D 신중한 첫 도전자 <small>n=2</small></span><span class="tk"><i style="width:0%"></i></span><span class="vv" style="color:var(--danger-text)">0/2</span></div>
+        </div>
+        <div class="say" style="margin-top:20px">
+          NPS 도 A·B·C 6.25~6.38 대 <b>D 3.50</b>. 지불을 가른 것은 렌즈가 아니라 아키타입이다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>배포본 UT · 수치는 results/ CSV 4종</span><span class="pgno">1 / 4</span></div>
+</section>
+
+<!-- ═══ 2 ═══ -->
+<section class="slide">
+  <div class="head">
+    <h1>산출물 세 종의 평가</h1>
+    <div class="hm">4축 각 <b>1~5점</b> · n=20</div>
+  </div>
+
+  <div class="c2">
+    <div class="card">
+      <div class="ct">정확성 · 실행가능성 · 차별성 · 신뢰성</div>
+      <div class="legend">
+        <span><i style="background:var(--coral)"></i>진단 리포트</span>
+        <span><i style="background:var(--bar-light)"></i>썸네일</span>
+        <span><i style="background:var(--bar-mid)"></i>상세페이지</span>
+      </div>
+      <div class="grp"><span class="ax">정확성</span><span class="set">
+        <span class="r3"><span class="t3"><i class="f-rep" style="width:75%"></i></span><span class="v3">3.75</span></span>
+        <span class="r3"><span class="t3"><i class="f-thu" style="width:73%"></i></span><span class="v3">3.65</span></span>
+        <span class="r3"><span class="t3"><i class="f-det" style="width:80%"></i></span><span class="v3">4.00</span></span></span></div>
+      <div class="grp"><span class="ax">실행가능성</span><span class="set">
+        <span class="r3"><span class="t3"><i class="f-rep" style="width:83%"></i></span><span class="v3" style="color:var(--coral-strong)">4.15</span></span>
+        <span class="r3"><span class="t3"><i class="f-thu" style="width:62%"></i></span><span class="v3">3.10</span></span>
+        <span class="r3"><span class="t3"><i class="f-det" style="width:77%"></i></span><span class="v3">3.85</span></span></span></div>
+      <div class="grp"><span class="ax">차별성</span><span class="set">
+        <span class="r3"><span class="t3"><i class="f-rep" style="width:78%"></i></span><span class="v3">3.90</span></span>
+        <span class="r3"><span class="t3"><i class="f-thu" style="width:68%"></i></span><span class="v3">3.40</span></span>
+        <span class="r3"><span class="t3"><i class="f-det" style="width:86%"></i></span><span class="v3" style="color:var(--coral-strong)">4.30</span></span></span></div>
+      <div class="grp"><span class="ax">신뢰성</span><span class="set">
+        <span class="r3"><span class="t3"><i class="f-rep" style="width:71%"></i></span><span class="v3" style="color:var(--danger-text)">3.55</span></span>
+        <span class="r3"><span class="t3"><i class="f-thu" style="width:76%"></i></span><span class="v3">3.80</span></span>
+        <span class="r3"><span class="t3"><i class="f-det" style="width:79%"></i></span><span class="v3">3.95</span></span></span></div>
+      <div class="say" style="margin-top:28px">
+        리포트는 <em>가장 실행 가능하고 가장 못 믿는</em> 산출물이다. 두 값이 같은 사람에게서 함께 나온다 —
+        복붙할 수 있는 완성 문장을 주지만, <b>사람이 검수했다는 표시가 어디에도 없다.</b>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="ct">가장 돈값 하는 산출물</div>
+        <div class="stack">
+          <div class="st"><span class="sl">셋 중 하나를 고른다면</span>
+            <span class="sb"><i class="sg" style="width:80%;background:var(--coral)">진단 리포트 16</i><i class="sg" style="width:20%;background:var(--bar-mid)">상세 4</i></span></div>
+        </div>
+        <div class="say" style="margin-top:24px">
+          썸네일을 고른 사람은 <b>0명</b>이다. 카피 슬롯이 없는 템플릿(A·B)을 받은 6명은
+          <b>전원 차별성 2점</b>을 줬고, 근거가 부족한 브랜드일수록 그 템플릿으로 몰린다.
+        </div>
+      </div>
+
+      <div class="card" style="flex:1">
+        <div class="ct">리포트 종합점수 분포</div>
+        <div class="bars" style="--lw:130px">
+          <div class="bar"><span class="lb">0~9점</span><span class="tk"><i style="width:71%;background:var(--danger)"></i></span><span class="vv">5</span></div>
+          <div class="bar"><span class="lb">10~19점</span><span class="tk"><i style="width:29%;background:var(--bar-mid)"></i></span><span class="vv">2</span></div>
+          <div class="bar"><span class="lb">20~29점</span><span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">7</span></div>
+          <div class="bar"><span class="lb">30점 이상</span><span class="tk"><i style="width:29%;background:var(--bar-light)"></i></span><span class="vv">2</span></div>
+        </div>
+        <div class="say" style="margin-top:24px">
+          100점 만점에 중앙 <b>26점</b>, 최고 <b>40점</b>. 낮게 나오는 것이 설계 의도다 —
+          점수는 성과 예측이 아니라 <b>일본 상세 관례 충족도</b>다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>산출물 4축 n=20 · 종합점수 n=16</span><span class="pgno">2 / 4</span></div>
+</section>
+
+<!-- ═══ 3 ═══ -->
+<section class="slide">
+  <div class="head">
+    <h1>진단 리포트 — 무엇이 읽히고, 무엇이 안 도는가</h1>
+    <div class="hm">발행 <b>20/20</b> · 슬라이드 <b>20/20</b> · 블록 <b>10개</b></div>
+  </div>
+
+  <div class="c2">
+    <div class="card">
+      <div class="ct">블록별 읽음 · 스킵</div>
+      <div class="heat">
+        <div class="hrow"><span class="hb">블록9 <span>할 일·가격</span></span><span class="hl"><i style="width:89%"></i></span><span class="hm2"></span><span class="hr"><i style="width:11%"></i></span><span class="hn">17 / 2</span></div>
+        <div class="hrow"><span class="hb">블록3 <span>薬機法 감사</span></span><span class="hl"><i style="width:84%"></i></span><span class="hm2"></span><span class="hr"><i style="width:16%"></i></span><span class="hn">16 / 3</span></div>
+        <div class="hrow"><span class="hb">블록7 <span>문장 재작성</span></span><span class="hl"><i style="width:84%"></i></span><span class="hm2"></span><span class="hr"><i style="width:16%"></i></span><span class="hn">16 / 3</span></div>
+        <div class="hrow"><span class="hb">블록1 <span>종합점수</span></span><span class="hl"><i style="width:79%"></i></span><span class="hm2"></span><span class="hr"><i style="width:21%"></i></span><span class="hn">15 / 4</span></div>
+        <div class="hrow"><span class="hb">블록2 <span>페르소나</span></span><span class="hl"><i style="width:60%"></i></span><span class="hm2"></span><span class="hr"><i style="width:40%"></i></span><span class="hn">12 / 8</span></div>
+        <div class="hrow"><span class="hb">블록0 <span>요약 표지</span></span><span class="hl"><i style="width:67%"></i></span><span class="hm2"></span><span class="hr"><i style="width:33%"></i></span><span class="hn">4 / 2</span></div>
+        <div class="hrow dead"><span class="hb">블록4 <span>벤치마크</span></span><span class="hl"><i style="width:24%"></i></span><span class="hm2"></span><span class="hr"><i style="width:76%"></i></span><span class="hn">4 / 13</span></div>
+        <div class="hrow dead"><span class="hb">블록8 <span>헤드라인 재구성</span></span><span class="hl"><i style="width:7%"></i></span><span class="hm2"></span><span class="hr"><i style="width:93%"></i></span><span class="hn">1 / 13</span></div>
+        <div class="hrow dead"><span class="hb">블록6 <span>정보공백→이탈</span></span><span class="hl"><i style="width:15%"></i></span><span class="hm2"></span><span class="hr"><i style="width:85%"></i></span><span class="hn">3 / 17</span></div>
+        <div class="hrow dead"><span class="hb">블록5 <span>A~E 루브릭</span></span><span class="hl"><i style="width:0%"></i></span><span class="hm2"></span><span class="hr"><i style="width:100%"></i></span><span class="hn" style="color:var(--danger-text);font-weight:800">0 / 19</span></div>
+      </div>
+      <div class="legend" style="margin:22px 0 0"><span><i style="background:var(--green)"></i>끝까지 읽음</span><span><i style="background:var(--danger)"></i>스치고 넘어감</span></div>
+      <div class="say" style="margin-top:20px">
+        읽히는 넷(1·3·7·9)은 전부 <b>판정 아니면 행동</b>이고, 안 읽히는 넷(4·5·6·8)은 전부 <b>그 판정을 뒷받침하는 설명</b>이다.
+        스킵 사유는 예외 없이 <em>앞에서 본 것과 중복</em>. 지우지 말고 접는다.
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="ct">폐루프 — 진단이 제작으로 이어지는가</div>
+        <div class="stack">
+          <div class="st"><span class="sl">진단이 산출물에 반영됐다</span>
+            <span class="sb"><i class="sg z" style="width:4%">0</i><i class="sg p" style="width:60%">일부 12</i><i class="sg n" style="width:36%">아니다 8</i></span></div>
+          <div class="st"><span class="sl">한 서비스로 이어져 보인다</span>
+            <span class="sb"><i class="sg y" style="width:20%">4</i><i class="sg n" style="width:80%">따로 논다 16</i></span></div>
+          <div class="st"><span class="sl">처음 알게 된 것이 있다</span>
+            <span class="sb"><i class="sg y" style="width:100%">있다 20</i></span></div>
+        </div>
+        <div class="say" style="margin-top:26px">
+          리포트가 <b>이미 발행된 산출물을 보지 않는다.</b> 썸네일에 랭킹 배지가 붙어 있는데 "제3자 지표 미관찰"로 채점하고,
+          상세에 정량·각주가 있는데 "근거 라벨 0점"으로 매긴다.
+        </div>
+        <div class="q" style="margin-top:24px">
+          이미 만든 상세페이지에 오늘 리포트가 <b>"쓸 수 없다"고 한 표현이 그대로 남아있는데, 서비스가 그걸 스스로 못 잡아낸 것</b>
+          <i>P11</i>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1">
+        <div class="ct">생성 시간 예산 소진율</div>
+        <div class="gauge"><div class="g" style="width:88.5%"></div><div class="tk2" style="left:96.3%"></div>
+          <div class="lb2">중앙 239초 · 88.5%</div></div>
+        <div class="gn"><span>0초</span><span style="color:var(--danger-text);font-weight:800">최악 260초 — 여유 10초</span><span>예산 270초</span></div>
+        <div class="say" style="margin-top:22px">
+          15건 중 <b>3건이 예산의 95% 이상</b>을 썼다. 지금은 폴백에 한 번도 걸리지 않았지만 마진이 얇다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>폐루프 n=20 · 히트맵은 블록을 이름으로 지목한 응답 기준</span><span class="pgno">3 / 4</span></div>
+</section>
+
+<!-- ═══ 4 ═══ -->
+<section class="slide">
+  <div class="head">
+    <h1>P0 <em>14건</em> — 무엇부터 고치는가</h1>
+    <div class="hm">이슈 <b>71건</b> · P0 14 · P1 37 · P2 20</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="iss">
+      <div class="no">01</div>
+      <div>
+        <h4>리포트와 스튜디오가 서로 다른 제품을 말한다</h4>
+        <p>상세 폼에는 <b>제품명 입력칸이 없어</b> 생성기가 일본어 상품명을 스스로 지어낸다. 리포트는 사용자가 입력한 이름을 쓴다.
+        게다가 리포트는 이미 발행된 자산을 보지 않는다. → 상세 폼에 <b>제품 선택</b>을 넣고, 발행된 자산을 리포트 기준으로 <b>재감사</b>한다</p>
+      </div>
+      <div class="imp"><div class="num">16/20</div><div class="cap">"따로 논다"</div></div>
+    </div>
+    <div class="iss">
+      <div class="no">02</div>
+      <div>
+        <h4>랜딩과 앱이 서로 다른 말을 한다 — 기업 매칭</h4>
+        <p>랜딩은 "지금 사용할 수 있는 기능이 아닙니다", 앱에는 <b>작동하는 신청 폼</b>이 있다.
+        → 혼란을 겪지 않은 단 한 명의 이유가 "랜딩에서 이미 MVP 이후라고 밝혀놔서"였다. <b>그 문장을 앱 화면 상단에 옮기면 끝난다</b></p>
+      </div>
+      <div class="imp"><div class="num">20/20</div><div class="cap">15명 이탈 위기</div></div>
+    </div>
+    <div class="iss">
+      <div class="no">03</div>
+      <div>
+        <h4>규제 판정의 전제가 틀어진다</h4>
+        <p>의약외품을 골랐고 리포트 표지엔 그대로 표시되는데, 약기법 감사는 <b>"productClass 가 명시되지 않아 화장품으로 상정"</b>하고 판정한다.
+        → 표시 경로는 값을 받는데 <b>감사 경로가 못 받는다</b>. 이 서비스가 파는 것이 바로 그 판정이다</p>
+      </div>
+      <div class="imp"><div class="num">2/20</div><div class="cap">양방향 재현</div></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:24px;margin-top:24px;flex:1;min-height:0">
+    <div class="dark">
+      <div class="ct">P0 14건의 유형</div>
+      <div class="bars" style="--lw:230px">
+        <div class="bar"><span class="lb" style="color:#dfe4ec">말과 화면이 다르다</span><span class="tk" style="background:rgba(255,255,255,.1)"><i style="width:100%;background:var(--coral)"></i></span><span class="vv" style="color:#fff">9</span></div>
+        <div class="bar"><span class="lb" style="color:#dfe4ec">지불 판단 정보가 없다</span><span class="tk" style="background:rgba(255,255,255,.1)"><i style="width:33%;background:var(--bar-mid)"></i></span><span class="vv" style="color:#fff">3</span></div>
+        <div class="bar"><span class="lb" style="color:#dfe4ec">작동하지 않는다</span><span class="tk" style="background:rgba(255,255,255,.1)"><i style="width:22%;background:var(--bar-light)"></i></span><span class="vv" style="color:#fff">2</span></div>
+      </div>
+      <div class="say" style="margin-top:26px">
+        첫 묶음이 <em>9건</em>이고, 대부분 <b>문구·조건 분기</b>다. 새 기능이 필요 없다.
+        <b>기능을 더 만들 때가 아니라 이미 한 말을 화면과 맞출 때다.</b>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">다음 작업</div>
+      <ol class="next">
+        <li><span><b>리포트↔스튜디오를 제품 단위로</b> — 폐루프가 실제로 도는지 재측정</span></li>
+        <li><span><b>"말과 화면" 9건 정합</b> — 스펙 문안은 제안서로 준비 완료</span></li>
+        <li><span><b>안 읽히는 4블록 접기</b></span></li>
+        <li><span><b>비용 계기 배선 복구</b> — 모듈만 있고 호출부가 없다</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>합성 페르소나는 실제 고객이 아니며 구매 행동을 예측하지 않는다 · 폐루프 인과와 비용은 미측정</span><span class="pgno">4 / 4</span></div>
+</section>
+
+</div>
+
+<div id="nav">
+  <button id="prev" aria-label="이전 슬라이드">‹</button>
+  <span class="pg"><span id="cur">1</span>/4</span>
+  <button id="next" aria-label="다음 슬라이드">›</button>
+</div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const stage = document.getElementById('stage');
+  const cur = document.getElementById('cur');
+  let i = 0;
+
+  /** 지정한 인덱스의 슬라이드만 표시한다. */
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    cur.textContent = i + 1;
+  }
+  /** 1920×1080 무대를 뷰포트에 맞춰 축소·중앙 정렬한다. */
+  function fit() {
+    const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+  }
+
+  document.getElementById('prev').onclick = () => show(i - 1);
+  document.getElementById('next').onclick = () => show(i + 1);
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(i + 1); }
+    if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End') show(slides.length - 1);
+  });
+  window.addEventListener('resize', fit);
+  fit(); show(0);
+})();
+</script>
+</body>
+</html>
