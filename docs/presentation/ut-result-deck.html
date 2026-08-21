@@ -5,19 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YOAKE — UT 결과 발표</title>
 <style>
-/* ===== YOAKE DS 토큰 (app/globals.css 정본과 동일) ===== */
 :root{
   --page:#faf8f5; --canvas:#ffffff;
-  --ink:#182333; --ink-body:#3d4655; --ink-mute:#6e7686; --ink-faint:#78818f;
+  --ink:#182333; --ink-body:#3d4655; --ink-mute:#6e7686; --ink-faint:#8a929e;
   --ink-on-dark:#c3cad6;
-  --coral:#ff6f61; --coral-strong:#c93f2e; --coral-tint:#fff1ee;
+  --coral:#ff6f61; --coral-strong:#c93f2e;
   --bar-mid:#ff9b70; --bar-light:#ffc7b3;
-  --danger:#d94848; --danger-text:#c13a3a; --danger-bg:#fbeded;
-  --green:#2d8c6b; --green-text:#26775b; --green-bg:#e8f4f0;
-  --amber-bg:#fdf3e4;
+  --danger:#d94848; --danger-text:#c13a3a;
+  --green:#2d8c6b; --green-text:#26775b;
+  --amber:#e39a22;
   --line:#e8e3dc; --track:#f1ede7;
-  --shadow:0 14px 36px rgba(24,35,51,.06), 0 2px 8px rgba(24,35,51,.05);
-  --r-lg:22px; --r-md:14px;
+  --shadow:0 14px 36px rgba(24,35,51,.055), 0 2px 8px rgba(24,35,51,.045);
+  --r:20px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
@@ -33,127 +32,121 @@ body{
   width:1920px; height:1080px; transform-origin:center center;
   background:var(--page); box-shadow:0 30px 90px rgba(0,0,0,.5);
 }
-.slide{position:absolute; inset:0; padding:46px 78px 44px; display:none; flex-direction:column; background:var(--page)}
+.slide{position:absolute;inset:0;padding:60px 88px 58px;display:none;flex-direction:column;background:var(--page)}
 .slide.active{display:flex}
 
-/* 머리 */
-.head{display:flex;align-items:flex-end;justify-content:space-between;gap:26px;margin-bottom:22px}
-.eyebrow{font-size:16px;font-weight:800;color:var(--coral-strong);letter-spacing:1.5px;margin-bottom:7px}
-h1{font-size:42px;font-weight:800;letter-spacing:-1.1px;line-height:1.18}
+.head{display:flex;align-items:baseline;justify-content:space-between;gap:32px;margin-bottom:38px}
+h1{font-size:46px;font-weight:800;letter-spacing:-1.3px;line-height:1.15}
 h1 em{font-style:normal;color:var(--coral-strong)}
-.hm{text-align:right;font-size:14px;color:var(--ink-mute);line-height:1.6;white-space:nowrap}
+.hm{font-size:15px;color:var(--ink-mute);white-space:nowrap}
 .hm b{color:var(--ink);font-weight:700}
 
-/* 카드 */
-.card{background:var(--canvas);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px 26px}
-.ct{font-size:14px;font-weight:800;color:var(--ink-mute);letter-spacing:1px}
-.cs{font-size:13px;color:var(--ink-faint);margin-top:3px}
+.card{background:var(--canvas);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:34px 38px}
+.ct{font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.3px;margin-bottom:28px}
 
 /* KPI */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}
-.kpi{padding:16px 20px 14px;position:relative;overflow:hidden}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:26px}
+.kpi{padding:26px 30px 24px;position:relative;overflow:hidden}
 .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--coral)}
-.kpi.good::before{background:var(--green)} .kpi.bad::before{background:var(--danger)}
-.kpi .n{font-size:46px;font-weight:800;letter-spacing:-1.8px;line-height:1}
+.kpi.good::before{background:var(--green)}
+.kpi.bad::before{background:var(--danger)}
+.kpi .n{font-size:58px;font-weight:800;letter-spacing:-2.4px;line-height:1}
 .kpi.good .n{color:var(--green-text)} .kpi.bad .n{color:var(--danger-text)}
-.kpi .n .u{font-size:20px;font-weight:700;color:var(--ink-mute);letter-spacing:-.5px}
-.kpi .n .was{font-size:18px;font-weight:700;color:var(--ink-faint);text-decoration:line-through;margin-right:8px}
-.kpi .l{font-size:16px;font-weight:700;color:var(--ink-body);margin-top:8px}
-.kpi .s{font-size:13px;color:var(--ink-faint);margin-top:4px;line-height:1.45}
+.kpi .n .u{font-size:26px;font-weight:700;color:var(--ink-mute);letter-spacing:-.5px}
+.kpi .l{font-size:17px;font-weight:700;color:var(--ink-body);margin-top:14px}
 
 /* 가로 막대 */
-.bars{display:flex;flex-direction:column;gap:11px}
-.bar{display:grid;grid-template-columns:var(--lw,132px) 1fr 44px;align-items:center;gap:11px}
-.bar .lb{font-size:15.5px;color:var(--ink-body);font-weight:600;text-align:right}
-.bar .tk{height:24px;background:var(--track);border-radius:5px;position:relative;display:flex;overflow:hidden}
+.bars{display:flex;flex-direction:column;gap:19px}
+.bar{display:grid;grid-template-columns:var(--lw,180px) 1fr 54px;align-items:center;gap:16px}
+.bar .lb{font-size:18px;color:var(--ink-body);font-weight:600;text-align:right}
+.bar .lb small{font-size:14px;color:var(--ink-faint);font-weight:500}
+.bar .tk{height:38px;background:var(--track);border-radius:6px;position:relative;display:flex;overflow:hidden}
 .bar .tk i{display:block;height:100%}
-.bar .vv{font-size:16px;font-weight:800;text-align:right}
-.avg{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.5}
+.bar .vv{font-size:20px;font-weight:800;text-align:right}
+.avg{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.45}
 
 /* 그룹 막대 */
-.grp{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;margin-bottom:16px}
+.grp{display:grid;grid-template-columns:112px 1fr;gap:20px;align-items:center;margin-bottom:34px}
 .grp:last-child{margin-bottom:0}
-.grp .ax{font-size:15.5px;font-weight:700;color:var(--ink-body);text-align:right}
-.grp .set{display:flex;flex-direction:column;gap:4px}
-.grp .r3{display:grid;grid-template-columns:1fr 42px;gap:9px;align-items:center}
-.grp .t3{height:18px;background:var(--track);border-radius:4px;overflow:hidden}
-.grp .t3 i{display:block;height:100%;border-radius:4px}
-.grp .v3{font-size:14.5px;font-weight:800;text-align:right}
+.grp .ax{font-size:18px;font-weight:700;color:var(--ink-body);text-align:right}
+.grp .set{display:flex;flex-direction:column;gap:9px}
+.grp .r3{display:grid;grid-template-columns:1fr 48px;gap:12px;align-items:center}
+.grp .t3{height:30px;background:var(--track);border-radius:5px;overflow:hidden}
+.grp .t3 i{display:block;height:100%;border-radius:5px}
+.grp .v3{font-size:18px;font-weight:800;text-align:right}
 .f-rep{background:var(--coral)} .f-thu{background:var(--bar-light)} .f-det{background:var(--bar-mid)}
+.legend{display:flex;gap:28px;font-size:16px;color:var(--ink-mute);margin-bottom:28px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:8px;vertical-align:-2px}
 
-/* 다이버징 히트맵 */
-.heat{display:flex;flex-direction:column;gap:9px}
-.hrow{display:grid;grid-template-columns:166px 1fr 2px 1fr 64px;align-items:center}
-.hb{font-size:14.5px;font-weight:700;color:var(--ink-body)}
+/* 다이버징 */
+.heat{display:flex;flex-direction:column;gap:15px}
+.hrow{display:grid;grid-template-columns:196px 1fr 2px 1fr 70px;align-items:center}
+.hb{font-size:17px;font-weight:700;color:var(--ink-body)}
 .hb span{font-weight:500;color:var(--ink-faint)}
-.hl{display:flex;justify-content:flex-end} .hl i{display:block;height:22px;background:var(--green);border-radius:4px 0 0 4px}
-.hm2{background:var(--line);height:26px}
-.hr i{display:block;height:22px;background:var(--danger);border-radius:0 4px 4px 0}
-.hn{font-size:13.5px;color:var(--ink-faint);text-align:right}
-.hrow.dead .hb{color:var(--danger-text);font-weight:800}
-.hrow.dead .hb span{color:var(--danger-text);font-weight:700}
-.key{display:flex;gap:18px;font-size:13px;color:var(--ink-mute);margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
-.key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.hl{display:flex;justify-content:flex-end}
+.hl i{display:block;height:30px;background:var(--green);border-radius:5px 0 0 5px}
+.hm2{background:var(--line);height:38px}
+.hr i{display:block;height:30px;background:var(--danger);border-radius:0 5px 5px 0}
+.hn{font-size:16px;color:var(--ink-faint);text-align:right}
+.hrow.dead .hb,.hrow.dead .hb span{color:var(--danger-text);font-weight:800}
 
 /* 스택 */
-.stack{display:flex;flex-direction:column;gap:14px}
-.st{display:grid;grid-template-columns:190px 1fr;gap:14px;align-items:center}
-.st .sl{font-size:15px;font-weight:700;color:var(--ink-body)}
-.st .sb{display:flex;height:34px;border-radius:6px;overflow:hidden}
-.sg{display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff}
-.sg.y{background:var(--green)} .sg.p{background:#e39a22} .sg.n{background:var(--danger)}
+.stack{display:flex;flex-direction:column;gap:20px}
+.st{display:grid;grid-template-columns:236px 1fr;gap:18px;align-items:center}
+.st .sl{font-size:18px;font-weight:700;color:var(--ink-body)}
+.st .sb{display:flex;height:52px;border-radius:7px;overflow:hidden}
+.sg{display:grid;place-items:center;font-size:17px;font-weight:800;color:#fff}
+.sg.y{background:var(--green)} .sg.p{background:var(--amber)} .sg.n{background:var(--danger)}
 .sg.z{background:var(--track);color:var(--ink-faint)}
 
 /* 게이지 */
-.gauge{position:relative;height:32px;background:var(--track);border-radius:7px;overflow:hidden;margin-top:8px}
+.gauge{position:relative;height:52px;background:var(--track);border-radius:8px;overflow:hidden}
 .gauge .g{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--bar-light),var(--coral))}
 .gauge .tk2{position:absolute;top:0;bottom:0;width:3px;background:var(--danger)}
-.gauge .lb2{position:absolute;top:50%;left:14px;transform:translateY(-50%);font-size:13px;font-weight:800;color:#fff}
-.gn{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-faint);margin-top:6px}
+.gauge .lb2{position:absolute;top:50%;left:18px;transform:translateY(-50%);font-size:16px;font-weight:800;color:#fff}
+.gn{display:flex;justify-content:space-between;font-size:15px;color:var(--ink-faint);margin-top:10px}
 
-/* 인용 */
-.q{border-left:4px solid var(--coral);padding:1px 0 1px 15px}
-.q p{font-size:16px;line-height:1.58;color:var(--ink-body)}
-.q p b{color:var(--ink);font-weight:800}
-.q cite{display:block;font-style:normal;font-size:12.5px;color:var(--ink-faint);margin-top:5px}
+/* 본문 한 줄 */
+.say{font-size:18px;line-height:1.6;color:var(--ink-body)}
+.say b{color:var(--ink);font-weight:800}
+.say em{font-style:normal;color:var(--coral-strong);font-weight:800}
+
+/* 인용 — 덱 전체에 둘만 쓴다 */
+.q{border-left:4px solid var(--coral);padding:2px 0 2px 20px;font-size:18px;line-height:1.6;color:var(--ink-body)}
+.q b{color:var(--ink);font-weight:800}
+.q i{display:block;font-style:normal;font-size:14.5px;color:var(--ink-faint);margin-top:8px}
 
 /* 이슈 */
-.iss{display:grid;grid-template-columns:52px 1fr 150px;gap:18px;align-items:start;
+.iss{display:grid;grid-template-columns:56px 1fr 168px;gap:22px;align-items:start;
   background:var(--canvas);border:1px solid var(--line);border-left:5px solid var(--danger);
-  border-radius:var(--r-md);padding:19px 24px;box-shadow:0 2px 8px rgba(24,35,51,.04)}
-.iss .no{font-size:32px;font-weight:800;color:var(--danger-text);line-height:1;letter-spacing:-1.3px}
-.iss h4{font-size:20px;font-weight:800;color:var(--ink);line-height:1.3;margin-bottom:5px}
-.iss p{font-size:15px;color:var(--ink-body);line-height:1.52}
+  border-radius:16px;padding:24px 30px;box-shadow:0 2px 8px rgba(24,35,51,.04)}
+.iss .no{font-size:34px;font-weight:800;color:var(--danger-text);line-height:1;letter-spacing:-1.4px}
+.iss h4{font-size:22px;font-weight:800;color:var(--ink);line-height:1.32;margin-bottom:9px}
+.iss p{font-size:16px;color:var(--ink-body);line-height:1.55}
 .iss p b{color:var(--ink);font-weight:700}
 .iss .imp{text-align:right}
-.iss .imp .num{font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-1px;line-height:1}
-.iss .imp .cap{font-size:12px;color:var(--ink-faint);margin-top:4px;line-height:1.38}
+.iss .imp .num{font-size:32px;font-weight:800;color:var(--ink);letter-spacing:-1.2px;line-height:1}
+.iss .imp .cap{font-size:14px;color:var(--ink-faint);margin-top:7px}
 
-/* 잉크 패널 */
-.dark{background:var(--ink);border-radius:var(--r-lg);padding:20px 24px;color:#fff}
-.dark .ct{color:#8f9bad}
-.dark .lead{font-size:23px;font-weight:800;line-height:1.4;letter-spacing:-.4px;margin-top:10px}
-.dark .lead em{font-style:normal;color:var(--coral)}
-.dark .sub{font-size:15px;color:var(--ink-on-dark);line-height:1.58;margin-top:10px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-.chip{font-size:13px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);color:#dfe4ec;padding:5px 10px;border-radius:999px}
+.dark{background:var(--ink);border-radius:var(--r);padding:30px 34px;color:#fff}
+.dark .ct{color:#fff}
+.dark .say{color:var(--ink-on-dark)}
+.dark .say b{color:#fff}
+.dark .say em{color:var(--coral)}
 
-.next ol{list-style:none;counter-reset:n;margin-top:8px}
-.next li{counter-increment:n;display:grid;grid-template-columns:24px 1fr;gap:12px;
-  font-size:15.5px;line-height:1.5;color:var(--ink-body);padding:12px 0;border-bottom:1px solid var(--line)}
+.next{list-style:none;counter-reset:n}
+.next li{counter-increment:n;display:grid;grid-template-columns:30px 1fr;gap:16px;
+  font-size:18px;line-height:1.5;color:var(--ink-body);padding:20px 0;border-bottom:1px solid var(--line)}
 .next li:last-child{border-bottom:0;padding-bottom:0}
-.next li::before{content:counter(n);font-size:12.5px;font-weight:800;color:#fff;background:var(--coral);
-  width:21px;height:21px;border-radius:50%;display:grid;place-items:center;margin-top:1px}
+.next li::before{content:counter(n);font-size:14px;font-weight:800;color:#fff;background:var(--coral);
+  width:26px;height:26px;border-radius:50%;display:grid;place-items:center;margin-top:1px}
 .next li b{color:var(--ink);font-weight:800}
 
-.note{background:var(--amber-bg);border:1px solid #f0dcbb;border-radius:var(--r-md);
-  padding:14px 20px;font-size:15px;color:#6b4f16;line-height:1.5}
-.note b{color:#4d3a10;font-weight:800}
-.foot{position:absolute;left:80px;right:80px;bottom:18px;display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-faint)}
+.foot{position:absolute;left:88px;right:88px;bottom:24px;display:flex;justify-content:space-between;font-size:14px;color:var(--ink-faint)}
 .foot .pgno{visibility:hidden}
-.c2{display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;min-height:0}
-.c2u{display:grid;grid-template-columns:1.12fr 1fr;gap:18px;flex:1;min-height:0}
-.col{display:flex;flex-direction:column;gap:20px;min-height:0}
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:24px;flex:1;min-height:0}
+.c2u{display:grid;grid-template-columns:1.08fr 1fr;gap:24px;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;gap:22px;min-height:0}
 
 #nav{position:fixed;right:24px;bottom:20px;display:flex;gap:8px;align-items:center;z-index:9}
 #nav button{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.22);
@@ -172,146 +165,24 @@ h1 em{font-style:normal;color:var(--coral-strong)}
 <body>
 <div id="stage">
 
-<!-- ══════════ 1 ══════════ -->
+<!-- ═══ 1 ═══ -->
 <section class="slide active">
   <div class="head">
-    <div>
-      <div class="eyebrow">AI 에이전트 UT · 배포본 · 2세션</div>
-      <h1>진단 리포트가 살아나자,<br><em>무게중심이 옮겨갔다</em></h1>
-    </div>
-    <div class="hm">
-      1차 <b>caa7536</b> (8/20) · 2차 <b>5715100</b> (8/22)<br>
-      합성 페르소나 <b>20인</b> × 8과업 · 무효 <b>0건</b><br>
-      <span style="color:var(--ink-faint)">생성 60건 전건 성공</span>
-    </div>
+    <h1>과업 만족도와 지불 의향</h1>
+    <div class="hm">합성 페르소나 <b>20인</b> · 과업 <b>T0~T7</b> · 생성 <b>60건</b> · 무효 <b>0건</b></div>
   </div>
 
   <div class="kpis">
-    <div class="kpi card good">
-      <div class="n"><span class="was">0/20</span>20<span class="u">/20</span></div>
-      <div class="l">진단 리포트 발행</div>
-      <div class="s">예산 가드 <b>c1f3d30</b> 배포 후<br><b style="color:var(--green-text)">humanizeSkipped 0건</b> — 폴백 없이 완주</div>
-    </div>
-    <div class="kpi card">
-      <div class="n">16<span class="u">/20</span></div>
-      <div class="l">상세 → 리포트로 갈아탐</div>
-      <div class="s">1차 <b>상세 20/20 만장일치</b><br>→ 2차 리포트 16 · 상세 4</div>
-    </div>
-    <div class="kpi card">
-      <div class="n">20<span class="u">/20</span></div>
-      <div class="l">"처음 알게 된 것이 있다"</div>
-      <div class="s">리포트를 본 <b>전원</b>. 예외 0명<br>내용도 서로 겹치지 않는다</div>
-    </div>
-    <div class="kpi card bad">
-      <div class="n">0<span class="u">/20</span></div>
-      <div class="l">"진단이 산출물에 반영됐다"</div>
-      <div class="s">Y 0 · 일부 12 · 아니다 8<br><b style="color:var(--danger-text)">폐루프는 오히려 반증됐다</b></div>
-    </div>
-  </div>
-
-  <div class="c2">
-    <div class="card">
-      <div class="ct">가장 돈값 하는 산출물 — 1차 → 2차</div>
-      <div class="cs">같은 20명에게 리포트를 보여준 뒤 다시 물었다</div>
-      <svg viewBox="0 0 570 236" style="width:100%;height:auto;margin-top:10px" role="img"
-           aria-label="1차 상세페이지 20명 전원에서 2차 리포트 16명 상세 4명으로 이동">
-        <text x="88" y="14" font-size="12.5" font-weight="700" fill="#6e7686" text-anchor="middle">1차 · 리포트 없음</text>
-        <text x="478" y="14" font-size="12.5" font-weight="700" fill="#6e7686" text-anchor="middle">2차 · 리포트 있음</text>
-        <rect x="28" y="28" width="120" height="180" rx="8" fill="#ff9b70"/>
-        <text x="88" y="110" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">20</text>
-        <text x="88" y="134" font-size="13.5" font-weight="700" fill="#fff" text-anchor="middle">상세페이지</text>
-        <path d="M148 28 L418 28 L418 172 L148 172 Z" fill="#ff6f61" opacity="0.18"/>
-        <path d="M148 172 L418 172 L418 208 L148 208 Z" fill="#ff9b70" opacity="0.28"/>
-        <text x="283" y="104" font-size="15" font-weight="800" fill="#c93f2e" text-anchor="middle">16명 이동</text>
-        <text x="283" y="195" font-size="12.5" font-weight="700" fill="#78818f" text-anchor="middle">4명 유지</text>
-        <rect x="418" y="28" width="120" height="144" rx="8" fill="#ff6f61"/>
-        <text x="478" y="94" font-size="34" font-weight="800" fill="#fff" text-anchor="middle">16</text>
-        <text x="478" y="118" font-size="13.5" font-weight="700" fill="#fff" text-anchor="middle">리포트</text>
-        <rect x="418" y="176" width="120" height="32" rx="8" fill="#ffc7b3"/>
-        <text x="478" y="198" font-size="13.5" font-weight="800" fill="#182333" text-anchor="middle">상세 4</text>
-      </svg>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">
-        <div>
-          <div style="font-size:13px;font-weight:800;color:var(--coral-strong);letter-spacing:.5px;margin-bottom:8px">→ 리포트로 옮긴 16명</div>
-          <div class="q"><p>썸네일·상세는 예쁘게 나왔지만 <b>그게 왜 안 팔리는지를 설명해주진 않는다.</b>
-          결과물은 예쁘게 만들어도, <b>왜 그렇게 만들어야 하는지 이유를 모르면 다음 제품 나올 때 또 헤맨다.</b></p>
-          <cite>P13 · 포레스트미</cite></div>
-        </div>
-        <div>
-          <div style="font-size:13px;font-weight:800;color:var(--ink-mute);letter-spacing:.5px;margin-bottom:8px">상세를 유지한 4명 — P04·P06·P19·P20</div>
-          <div class="q" style="border-left-color:var(--bar-light)"><p>리포트는 <b>30만 원 내고 "방향"만</b> 받고, 반영하려면 또 스튜디오를 결제해야 한다.
-          <b>상세페이지는 지금 당장 올릴 수 있는 물건이다.</b></p>
-          <cite>P04 · 셀피지</cite></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col">
-      <div class="card">
-        <div class="ct">지불 의향 — 금액이 30만원으로 수렴했다</div>
-        <div class="bars" style="--lw:52px;margin-top:14px">
-          <div class="bar"><span class="lb">1차</span>
-            <span class="tk"><i style="width:70%;background:var(--coral)"></i><i style="width:15%;background:var(--bar-light)"></i><i style="width:15%;background:var(--track)"></i></span>
-            <span class="vv" style="color:var(--ink-mute)">17/20</span></div>
-          <div class="bar"><span class="lb">2차</span>
-            <span class="tk"><i style="width:90%;background:var(--coral)"></i><i style="width:10%;background:var(--track)"></i></span>
-            <span class="vv">18/20</span></div>
-        </div>
-        <div class="key" style="margin-top:11px;padding-top:9px">
-          <span><i style="background:var(--coral)"></i>30만원 <b>14 → 18</b></span>
-          <span><i style="background:var(--bar-light)"></i>20만원 3 → <b>0</b></span>
-          <span><i style="background:var(--track)"></i>지불 안 함 3 → 2</span>
-        </div>
-      </div>
-
-      <div class="card" style="flex:1">
-        <div class="ct">NPS 개인별 이동 — 5.85 → 6.05</div>
-        <div class="cs">여전히 낮다. <b>9점 이상은 1차·2차 모두 0명</b></div>
-        <div class="stack" style="margin-top:14px">
-          <div class="st"><span class="sl">NPS 변화 (n=20)</span>
-            <span class="sb"><i class="sg y" style="width:25%">상승 5</i><i class="sg z" style="width:65%">유지 13</i><i class="sg n" style="width:10%">2</i></span></div>
-        </div>
-        <div class="q" style="margin-top:15px">
-          <p><b>"예쁜 결과물보다 이 진단 자체에 지불 확신이 더 생겼다."</b></p>
-          <cite>P18 · 상승군 — "살리실산 문장이 불가 판정났다"는 구체적 리스크를 눈으로 본 뒤</cite>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="ct">리포트 종합점수 분포 (n=16)</div>
-        <div class="cs">100점 만점 · 중앙 <b>26점</b> · 최고 <b>40점</b> — <b>낮게 나오는 것이 설계 의도</b>다("성과 예측이 아니라 일본 상세 관례 충족도")</div>
-        <div class="bars" style="--lw:66px;margin-top:12px">
-          <div class="bar"><span class="lb">0~9점</span><span class="tk"><i style="width:71%;background:var(--danger)"></i></span><span class="vv">5</span></div>
-          <div class="bar"><span class="lb">10~19점</span><span class="tk"><i style="width:29%;background:var(--bar-mid)"></i></span><span class="vv">2</span></div>
-          <div class="bar"><span class="lb">20~29점</span><span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">7</span></div>
-          <div class="bar"><span class="lb">30점 이상</span><span class="tk"><i style="width:29%;background:var(--bar-light)"></i></span><span class="vv">2</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>수치는 results/ CSV 4종에서만 인용 · 무효 0건</span><span class="pgno">1 / 4</span></div>
-</section>
-
-<!-- ══════════ 2 ══════════ -->
-<section class="slide">
-  <div class="head">
-    <div>
-      <div class="eyebrow">정량 지표 · 20인 전수</div>
-      <h1>들어오는 문은 완벽하고,<br><em>나가는 문이 최악이다</em></h1>
-    </div>
-    <div class="hm">
-      과업 만족도 8개 · 산출물 4축 3계열<br>
-      전 과업 평균 <b>3.66</b> / 5<br>
-      <span style="color:var(--ink-faint)">응답의 scores 블록만 집계</span>
-    </div>
+    <div class="kpi card good"><div class="n">60<span class="u">/60</span></div><div class="l">생성 전건 성공</div></div>
+    <div class="kpi card"><div class="n">18<span class="u">/20</span></div><div class="l">지불 의향 — 전원 30만원</div></div>
+    <div class="kpi card bad"><div class="n">6.05</div><div class="l">NPS — 9점 이상 0명</div></div>
+    <div class="kpi card"><div class="n">3.66</div><div class="l">전 과업 평균 만족도</div></div>
   </div>
 
   <div class="c2u">
     <div class="card">
-      <div class="ct">과업별 만족도 (n=20 · 5점 만점)</div>
-      <div class="cs">세로선 = 전 과업 평균 3.66</div>
-      <div class="bars" style="--lw:168px;margin-top:14px">
+      <div class="ct">과업별 만족도</div>
+      <div class="bars" style="--lw:196px">
         <div class="bar"><span class="lb">T1 로그인</span><span class="tk"><i style="width:92%;background:var(--green)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv" style="color:var(--green-text)">4.60</span></div>
         <div class="bar"><span class="lb">T3 진단 리포트</span><span class="tk"><i style="width:75%;background:var(--coral)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv">3.75</span></div>
         <div class="bar"><span class="lb">T0 랜딩</span><span class="tk"><i style="width:74%;background:var(--bar-mid)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv">3.70</span></div>
@@ -321,150 +192,121 @@ h1 em{font-style:normal;color:var(--coral-strong)}
         <div class="bar"><span class="lb">T6 라이브러리·시즌·매칭</span><span class="tk"><i style="width:66%;background:var(--danger)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv" style="color:var(--danger-text)">3.30</span></div>
         <div class="bar"><span class="lb">T7 마이페이지</span><span class="tk"><i style="width:62%;background:var(--danger)"></i><span class="avg" style="left:73.2%"></span></span><span class="vv" style="color:var(--danger-text)">3.10</span></div>
       </div>
-      <div class="note" style="margin-top:16px">
-        <b>최저 두 과업의 이탈 사유가 하나로 모인다.</b> T6 은 <b>기업 매칭 20/20 지적 · 15명 이탈 위기</b>(랜딩은 "지금 쓸 수 없다", 앱은 작동하는 신청 폼),
-        T7 은 <b>결제가 목업</b>이고 FREE 플랜 설명이 방금 한 일과 어긋난다.
-      </div>
-
-      <div style="border-top:1px solid var(--line);margin-top:20px;padding-top:18px">
-        <div class="ct">아키타입별 지불 의향 — 갈림은 렌즈가 아니라 아키타입이다</div>
-        <div class="bars" style="--lw:196px;margin-top:12px">
-          <div class="bar"><span class="lb">A 입점 직전 인디 대표 <span style="color:var(--ink-faint);font-weight:500">n=8</span></span>
-            <span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">8/8</span></div>
-          <div class="bar"><span class="lb">B 정체 돌파 운영자 <span style="color:var(--ink-faint);font-weight:500">n=6</span></span>
-            <span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">6/6</span></div>
-          <div class="bar"><span class="lb">C 콘텐츠 리소스 부재 <span style="color:var(--ink-faint);font-weight:500">n=4</span></span>
-            <span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">4/4</span></div>
-          <div class="bar"><span class="lb" style="color:var(--danger-text);font-weight:800">D 신중한 첫 도전자 <span style="color:var(--ink-faint);font-weight:500">n=2</span></span>
-            <span class="tk"><i style="width:0%;background:var(--danger)"></i></span><span class="vv" style="color:var(--danger-text)">0/2</span></div>
-        </div>
-        <div style="font-size:14px;color:var(--ink-body);margin-top:12px;line-height:1.5">
-          <b>A·B·C 는 18/18 전원 지불, D 는 0/2.</b> NPS 도 A 6.38 · B 6.33 · C 6.25 vs <b style="color:var(--danger-text)">D 3.50</b>.
-          AI 거부감·일본어 불가 렌즈의 낮은 수치는 <b>D 2명과 교락</b>이며, 그 둘을 빼면 전체 평균과 거의 같아진다.
-        </div>
+      <div class="say" style="margin-top:26px">
+        가장 낮은 <b>T6·T7</b> 의 이탈 사유가 하나로 모인다 — 기업 매칭은 <b>20/20 이 지적</b>했고 <b>15명이 이탈 직전</b>까지 갔다.
+        마이페이지는 결제가 목업이고 FREE 플랜 설명이 방금 한 일과 어긋난다.
       </div>
     </div>
 
     <div class="col">
-      <div class="card">
-        <div class="ct">산출물 4축 — 각 축마다 위에서부터</div>
-        <div class="cs"><b style="color:var(--coral-strong)">■ 리포트</b> &nbsp; <b style="color:#c9926f">■ 썸네일</b> &nbsp; <b style="color:#c9714f">■ 상세페이지</b></div>
-        <div style="margin-top:14px">
-          <div class="grp"><span class="ax">정확성</span><span class="set">
-            <span class="r3"><span class="t3"><i class="f-rep" style="width:75%"></i></span><span class="v3">3.75</span></span>
-            <span class="r3"><span class="t3"><i class="f-thu" style="width:73%"></i></span><span class="v3">3.65</span></span>
-            <span class="r3"><span class="t3"><i class="f-det" style="width:80%"></i></span><span class="v3">4.00</span></span></span></div>
-          <div class="grp"><span class="ax" style="color:var(--coral-strong);font-weight:800">실행가능성</span><span class="set">
-            <span class="r3"><span class="t3"><i class="f-rep" style="width:83%"></i></span><span class="v3" style="color:var(--coral-strong)">4.15</span></span>
-            <span class="r3"><span class="t3"><i class="f-thu" style="width:62%"></i></span><span class="v3">3.10</span></span>
-            <span class="r3"><span class="t3"><i class="f-det" style="width:77%"></i></span><span class="v3">3.85</span></span></span></div>
-          <div class="grp"><span class="ax">차별성</span><span class="set">
-            <span class="r3"><span class="t3"><i class="f-rep" style="width:78%"></i></span><span class="v3">3.90</span></span>
-            <span class="r3"><span class="t3"><i class="f-thu" style="width:68%"></i></span><span class="v3">3.40</span></span>
-            <span class="r3"><span class="t3"><i class="f-det" style="width:86%"></i></span><span class="v3">4.30</span></span></span></div>
-          <div class="grp"><span class="ax" style="color:var(--danger-text);font-weight:800">신뢰성</span><span class="set">
-            <span class="r3"><span class="t3"><i class="f-rep" style="width:71%"></i></span><span class="v3" style="color:var(--danger-text)">3.55</span></span>
-            <span class="r3"><span class="t3"><i class="f-thu" style="width:76%"></i></span><span class="v3">3.80</span></span>
-            <span class="r3"><span class="t3"><i class="f-det" style="width:79%"></i></span><span class="v3">3.95</span></span></span></div>
+      <div class="card" style="padding-top:26px;padding-bottom:26px">
+        <div class="ct">랜딩 (T0)</div>
+        <div class="bars" style="--lw:170px">
+          <div class="bar"><span class="lb">매력도</span><span class="tk"><i style="width:74%;background:var(--coral)"></i></span><span class="vv">3.70</span></div>
+          <div class="bar"><span class="lb">흥미도</span><span class="tk"><i style="width:75%;background:var(--coral)"></i></span><span class="vv">3.75</span></div>
+          <div class="bar"><span class="lb">다음 행동 의향</span><span class="tk"><i style="width:70%;background:var(--coral)"></i></span><span class="vv">3.50</span></div>
+          <div class="bar"><span class="lb">끝까지 스크롤</span><span class="tk"><i style="width:100%;background:var(--green)"></i></span><span class="vv" style="color:var(--green-text)">20/20</span></div>
         </div>
       </div>
 
-      <div class="dark" style="flex:1">
-        <div class="ct">리포트의 모양</div>
-        <div class="lead">가장 <em>실행 가능</em>하고,<br>가장 <em>못 믿는</em> 산출물</div>
-        <div class="sub">두 값이 같은 사람의 같은 문단에서 나온다 — <b style="color:#fff">"바로 복붙해서 쓸 수 있는 수준"</b>(P12) 과
-        <b style="color:#fff">"결국 사람 약사 확인이 또 필요하다는 얘기잖아요"</b>(P01).</div>
-        <div class="chips">
-          <span class="chip">사람 검수 표시 없음 — 4명이 지불 조건으로 지목</span>
-          <span class="chip">본문 산술·표 오류 2건</span>
-          <span class="chip">코퍼스가 라쿠텐 단일 채널</span>
+      <div class="card" style="flex:1;padding-top:26px;padding-bottom:26px">
+        <div class="ct">아키타입별 지불 의향</div>
+        <div class="bars" style="--lw:250px">
+          <div class="bar"><span class="lb">A 입점 직전 인디 대표 <small>n=8</small></span><span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">8/8</span></div>
+          <div class="bar"><span class="lb">B 정체 돌파 운영자 <small>n=6</small></span><span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">6/6</span></div>
+          <div class="bar"><span class="lb">C 콘텐츠 리소스 부재 <small>n=4</small></span><span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">4/4</span></div>
+          <div class="bar"><span class="lb" style="color:var(--danger-text);font-weight:800">D 신중한 첫 도전자 <small>n=2</small></span><span class="tk"><i style="width:0%"></i></span><span class="vv" style="color:var(--danger-text)">0/2</span></div>
         </div>
-
-        <div style="border-top:1px solid rgba(255,255,255,.14);margin-top:16px;padding-top:15px">
-          <div class="ct" style="margin-bottom:14px">반대로, 신뢰를 만든 것은 하나로 모인다 — 근거 게이트</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-            <div style="background:rgba(45,140,107,.18);border:1px solid rgba(45,140,107,.4);border-radius:12px;padding:14px 16px">
-              <div style="font-size:30px;font-weight:800;color:#7fd6b4;line-height:1;letter-spacing:-1px">19/20</div>
-              <div style="font-size:13.5px;color:#dfe4ec;margin-top:8px;line-height:1.45"><b style="color:#fff">"빠진 블록 안내"</b><br>언급 전원 <b style="color:#fff">긍정</b></div>
-            </div>
-            <div style="background:rgba(45,140,107,.18);border:1px solid rgba(45,140,107,.4);border-radius:12px;padding:14px 16px">
-              <div style="font-size:30px;font-weight:800;color:#7fd6b4;line-height:1;letter-spacing:-1px">20/20</div>
-              <div style="font-size:13.5px;color:#dfe4ec;margin-top:8px;line-height:1.45"><b style="color:#fff">표시 의무 3항 강제</b><br>전원 신뢰 · 마찰 <b style="color:#fff">0명</b></div>
-            </div>
-          </div>
-          <div class="sub" style="margin-top:12px;font-size:14px">"근거가 없으면 그 블록을 아예 안 만든다"가
-          <b style="color:#fff">신뢰를 얻는 유일한 경로</b>다 — 카피 슬롯 없는 썸네일이 차별성 <b style="color:#fff">2.00</b> 으로 죽은 이유이기도 하다.</div>
+        <div class="say" style="margin-top:20px">
+          NPS 도 A·B·C 6.25~6.38 대 <b>D 3.50</b>. 지불을 가른 것은 렌즈가 아니라 아키타입이다.
         </div>
       </div>
     </div>
   </div>
 
-  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>과업 만족도 n=20 · 산출물 4축 n=20</span><span class="pgno">2 / 4</span></div>
+  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>배포본 UT · 수치는 results/ CSV 4종</span><span class="pgno">1 / 4</span></div>
 </section>
 
-<!-- ══════════ 3 ══════════ -->
+<!-- ═══ 2 ═══ -->
 <section class="slide">
   <div class="head">
-    <div>
-      <div class="eyebrow">핵심 차별점 검증</div>
-      <h1>리포트는 살아났는데,<br><em>스튜디오를 보지 않는다</em></h1>
-    </div>
-    <div class="hm">
-      폐루프 3문항 · 블록 히트맵 10블록<br>
-      리포트 소요 실측 <b>n=19</b><br>
-      <span style="color:var(--ink-faint)">"진단 결과가 그대로 제작의 입력값이 된다"</span>
-    </div>
+    <h1>산출물 세 종의 평가</h1>
+    <div class="hm">4축 각 <b>1~5점</b> · n=20</div>
   </div>
 
   <div class="c2">
-    <div class="col">
-      <div class="card">
-        <div class="ct">폐루프 3문항 (n=20)</div>
-        <div class="cs">막대 안 숫자는 인원</div>
-        <div class="stack" style="margin-top:14px">
-          <div class="st"><span class="sl">진단이 산출물에 반영됐다</span>
-            <span class="sb"><i class="sg z" style="width:4%">0</i><i class="sg p" style="width:60%">일부 12</i><i class="sg n" style="width:36%">아니다 8</i></span></div>
-          <div class="st"><span class="sl">한 서비스로 이어져 보인다</span>
-            <span class="sb"><i class="sg y" style="width:20%">4</i><i class="sg n" style="width:80%">따로 논다 16</i></span></div>
-          <div class="st"><span class="sl">처음 알게 된 것이 있다</span>
-            <span class="sb"><i class="sg y" style="width:100%">있다 20</i></span></div>
-        </div>
-        <div class="note" style="margin-top:15px">
-          <b>순서 문제만이 아니다.</b> 썸네일에 랭킹 배지가 이미 붙어 있는데 <b>"제3자 지표 ✕ 미관찰"</b>로 채점하고,
-          상세에 정량·각주가 이미 있는데 <b>"근거 라벨 0점"</b>으로 매긴다.
-        </div>
-        <div class="q" style="margin-top:13px">
-          <p>이미 만든 상세페이지에 오늘 리포트가 <b>"쓸 수 없다"고 한 표현(鎮静)이 그대로 남아있는데, 서비스가 그걸 스스로 못 잡아낸 것</b></p>
-          <cite>P11 · 뮤트원</cite>
-        </div>
+    <div class="card">
+      <div class="ct">정확성 · 실행가능성 · 차별성 · 신뢰성</div>
+      <div class="legend">
+        <span><i style="background:var(--coral)"></i>진단 리포트</span>
+        <span><i style="background:var(--bar-light)"></i>썸네일</span>
+        <span><i style="background:var(--bar-mid)"></i>상세페이지</span>
       </div>
-
-      <div class="card">
-        <div class="ct">리포트 생성 예산 소진율 — 270초 대비</div>
-        <div class="cs"><b>brandProduct</b> 모드 n=15 · 207~260초 · 중앙 239초</div>
-        <div class="gauge"><div class="g" style="width:88.5%"></div><div class="tk2" style="left:96.3%"></div>
-          <div class="lb2">중앙 239초 · 88.5%</div></div>
-        <div class="gn"><span>0초</span><span style="color:var(--danger-text);font-weight:800">최악 260초 = 여유 10초</span><span>270초</span></div>
-        <div style="font-size:13.5px;color:var(--ink-body);margin-top:11px;line-height:1.52">
-          <b>"고쳐졌다"와 "아슬아슬하다"가 같은 상태다.</b> 15건 중 <b>3건이 예산의 95% 이상</b>을 썼다.
-          지금은 폴백을 한 번도 안 썼지만(<b>humanizeSkipped 0</b>), 마진이 10초면 API 지연에 윤문이 잘린다.
-        </div>
-        <div class="bars" style="--lw:200px;margin-top:16px;padding-top:15px;border-top:1px solid var(--line)">
-          <div class="bar"><span class="lb">brandProduct <span style="color:var(--ink-faint);font-weight:500">카피 제출 n=15</span></span>
-            <span class="tk"><i style="width:88.5%;background:var(--coral)"></i></span><span class="vv">239초</span></div>
-          <div class="bar"><span class="lb">brand <span style="color:var(--ink-faint);font-weight:500">미제출 n=4</span></span>
-            <span class="tk"><i style="width:40.7%;background:var(--bar-light)"></i></span><span class="vv" style="color:var(--ink-mute)">110초</span></div>
-        </div>
-        <div style="font-size:13.5px;color:var(--ink-faint);margin-top:9px;line-height:1.5">
-          카피를 제출하면 블록 5개가 더 열리고 <b style="color:var(--ink-body)">소요가 2배가 된다.</b> 예산이 빡빡해지는 쪽은 언제나 제출한 사용자다.
-        </div>
+      <div class="grp"><span class="ax">정확성</span><span class="set">
+        <span class="r3"><span class="t3"><i class="f-rep" style="width:75%"></i></span><span class="v3">3.75</span></span>
+        <span class="r3"><span class="t3"><i class="f-thu" style="width:73%"></i></span><span class="v3">3.65</span></span>
+        <span class="r3"><span class="t3"><i class="f-det" style="width:80%"></i></span><span class="v3">4.00</span></span></span></div>
+      <div class="grp"><span class="ax">실행가능성</span><span class="set">
+        <span class="r3"><span class="t3"><i class="f-rep" style="width:83%"></i></span><span class="v3" style="color:var(--coral-strong)">4.15</span></span>
+        <span class="r3"><span class="t3"><i class="f-thu" style="width:62%"></i></span><span class="v3">3.10</span></span>
+        <span class="r3"><span class="t3"><i class="f-det" style="width:77%"></i></span><span class="v3">3.85</span></span></span></div>
+      <div class="grp"><span class="ax">차별성</span><span class="set">
+        <span class="r3"><span class="t3"><i class="f-rep" style="width:78%"></i></span><span class="v3">3.90</span></span>
+        <span class="r3"><span class="t3"><i class="f-thu" style="width:68%"></i></span><span class="v3">3.40</span></span>
+        <span class="r3"><span class="t3"><i class="f-det" style="width:86%"></i></span><span class="v3" style="color:var(--coral-strong)">4.30</span></span></span></div>
+      <div class="grp"><span class="ax">신뢰성</span><span class="set">
+        <span class="r3"><span class="t3"><i class="f-rep" style="width:71%"></i></span><span class="v3" style="color:var(--danger-text)">3.55</span></span>
+        <span class="r3"><span class="t3"><i class="f-thu" style="width:76%"></i></span><span class="v3">3.80</span></span>
+        <span class="r3"><span class="t3"><i class="f-det" style="width:79%"></i></span><span class="v3">3.95</span></span></span></div>
+      <div class="say" style="margin-top:28px">
+        리포트는 <em>가장 실행 가능하고 가장 못 믿는</em> 산출물이다. 두 값이 같은 사람에게서 함께 나온다 —
+        복붙할 수 있는 완성 문장을 주지만, <b>사람이 검수했다는 표시가 어디에도 없다.</b>
       </div>
     </div>
 
+    <div class="col">
+      <div class="card">
+        <div class="ct">가장 돈값 하는 산출물</div>
+        <div class="stack">
+          <div class="st"><span class="sl">셋 중 하나를 고른다면</span>
+            <span class="sb"><i class="sg" style="width:80%;background:var(--coral)">진단 리포트 16</i><i class="sg" style="width:20%;background:var(--bar-mid)">상세 4</i></span></div>
+        </div>
+        <div class="say" style="margin-top:24px">
+          썸네일을 고른 사람은 <b>0명</b>이다. 카피 슬롯이 없는 템플릿(A·B)을 받은 6명은
+          <b>전원 차별성 2점</b>을 줬고, 근거가 부족한 브랜드일수록 그 템플릿으로 몰린다.
+        </div>
+      </div>
+
+      <div class="card" style="flex:1">
+        <div class="ct">리포트 종합점수 분포</div>
+        <div class="bars" style="--lw:130px">
+          <div class="bar"><span class="lb">0~9점</span><span class="tk"><i style="width:71%;background:var(--danger)"></i></span><span class="vv">5</span></div>
+          <div class="bar"><span class="lb">10~19점</span><span class="tk"><i style="width:29%;background:var(--bar-mid)"></i></span><span class="vv">2</span></div>
+          <div class="bar"><span class="lb">20~29점</span><span class="tk"><i style="width:100%;background:var(--coral)"></i></span><span class="vv">7</span></div>
+          <div class="bar"><span class="lb">30점 이상</span><span class="tk"><i style="width:29%;background:var(--bar-light)"></i></span><span class="vv">2</span></div>
+        </div>
+        <div class="say" style="margin-top:24px">
+          100점 만점에 중앙 <b>26점</b>, 최고 <b>40점</b>. 낮게 나오는 것이 설계 의도다 —
+          점수는 성과 예측이 아니라 <b>일본 상세 관례 충족도</b>다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>산출물 4축 n=20 · 종합점수 n=16</span><span class="pgno">2 / 4</span></div>
+</section>
+
+<!-- ═══ 3 ═══ -->
+<section class="slide">
+  <div class="head">
+    <h1>진단 리포트 — 무엇이 읽히고, 무엇이 안 도는가</h1>
+    <div class="hm">발행 <b>20/20</b> · 슬라이드 <b>20/20</b> · 블록 <b>10개</b></div>
+  </div>
+
+  <div class="c2">
     <div class="card">
-      <div class="ct">리포트 9블록 — 무엇이 읽히고 무엇이 죽었나</div>
-      <div class="cs">블록을 이름으로 지목한 응답 기준 · 왼쪽 읽음 / 오른쪽 스킵</div>
-      <div class="heat" style="margin-top:15px">
+      <div class="ct">블록별 읽음 · 스킵</div>
+      <div class="heat">
         <div class="hrow"><span class="hb">블록9 <span>할 일·가격</span></span><span class="hl"><i style="width:89%"></i></span><span class="hm2"></span><span class="hr"><i style="width:11%"></i></span><span class="hn">17 / 2</span></div>
         <div class="hrow"><span class="hb">블록3 <span>薬機法 감사</span></span><span class="hl"><i style="width:84%"></i></span><span class="hm2"></span><span class="hr"><i style="width:16%"></i></span><span class="hn">16 / 3</span></div>
         <div class="hrow"><span class="hb">블록7 <span>문장 재작성</span></span><span class="hl"><i style="width:84%"></i></span><span class="hm2"></span><span class="hr"><i style="width:16%"></i></span><span class="hn">16 / 3</span></div>
@@ -476,27 +318,41 @@ h1 em{font-style:normal;color:var(--coral-strong)}
         <div class="hrow dead"><span class="hb">블록6 <span>정보공백→이탈</span></span><span class="hl"><i style="width:15%"></i></span><span class="hm2"></span><span class="hr"><i style="width:85%"></i></span><span class="hn">3 / 17</span></div>
         <div class="hrow dead"><span class="hb">블록5 <span>A~E 루브릭</span></span><span class="hl"><i style="width:0%"></i></span><span class="hm2"></span><span class="hr"><i style="width:100%"></i></span><span class="hn" style="color:var(--danger-text);font-weight:800">0 / 19</span></div>
       </div>
-      <div class="key"><span><i style="background:var(--green)"></i>끝까지 읽음</span><span><i style="background:var(--danger)"></i>스치고 넘어감</span></div>
-      <div class="note" style="margin-top:13px">
-        <b>블록5 는 읽은 사람이 0명이다.</b> 그리고 스킵 사유가 <b>예외 없이 "앞에서 본 것과 중복"</b>이다.
-        읽히는 4블록(1·3·7·9)은 전부 <b>판정 아니면 행동</b>, 안 읽히는 4블록(4·5·6·8)은 전부 <b>그 판정을 뒷받침하는 설명</b>이다.
-        → <b>사용자는 근거를 원하지만 근거를 읽지는 않는다.</b> 지우지 말고 접는다.
+      <div class="legend" style="margin:22px 0 0"><span><i style="background:var(--green)"></i>끝까지 읽음</span><span><i style="background:var(--danger)"></i>스치고 넘어감</span></div>
+      <div class="say" style="margin-top:20px">
+        읽히는 넷(1·3·7·9)은 전부 <b>판정 아니면 행동</b>이고, 안 읽히는 넷(4·5·6·8)은 전부 <b>그 판정을 뒷받침하는 설명</b>이다.
+        스킵 사유는 예외 없이 <em>앞에서 본 것과 중복</em>. 지우지 말고 접는다.
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="ct">폐루프 — 진단이 제작으로 이어지는가</div>
+        <div class="stack">
+          <div class="st"><span class="sl">진단이 산출물에 반영됐다</span>
+            <span class="sb"><i class="sg z" style="width:4%">0</i><i class="sg p" style="width:60%">일부 12</i><i class="sg n" style="width:36%">아니다 8</i></span></div>
+          <div class="st"><span class="sl">한 서비스로 이어져 보인다</span>
+            <span class="sb"><i class="sg y" style="width:20%">4</i><i class="sg n" style="width:80%">따로 논다 16</i></span></div>
+          <div class="st"><span class="sl">처음 알게 된 것이 있다</span>
+            <span class="sb"><i class="sg y" style="width:100%">있다 20</i></span></div>
+        </div>
+        <div class="say" style="margin-top:26px">
+          리포트가 <b>이미 발행된 산출물을 보지 않는다.</b> 썸네일에 랭킹 배지가 붙어 있는데 "제3자 지표 미관찰"로 채점하고,
+          상세에 정량·각주가 있는데 "근거 라벨 0점"으로 매긴다.
+        </div>
+        <div class="q" style="margin-top:24px">
+          이미 만든 상세페이지에 오늘 리포트가 <b>"쓸 수 없다"고 한 표현이 그대로 남아있는데, 서비스가 그걸 스스로 못 잡아낸 것</b>
+          <i>P11</i>
+        </div>
       </div>
 
-      <div style="border-top:1px solid var(--line);margin-top:18px;padding-top:16px">
-        <div class="ct">보고용 슬라이드 — 20/20 수신, 그런데 그대로 못 쓴다</div>
-        <div class="stack" style="margin-top:12px">
-          <div class="st"><span class="sl">사내 보고에 쓸 수 있는가</span>
-            <span class="sb"><i class="sg y" style="width:20%">Y 4</i><i class="sg p" style="width:80%">한 장 더 붙여야 한다 16</i></span></div>
-        </div>
-        <div style="font-size:14.5px;color:var(--ink-body);margin-top:13px;line-height:1.52">
-          <b>품의형 5명(P08·P10·P14·P15·P17)이 전원 같은 답을 냈다 — 정량 기대효과가 없다.</b>
-          리포트가 스스로 "성과 예측이 아니다"라고 선을 그은 결과이기도 하다.
-        </div>
-        <div class="q" style="margin-top:12px">
-          <p>결재자가 제일 먼저 물어볼 게 <b>"이거 해서 뭐가 얼마나 좋아지는데?"</b>인데 슬라이드엔 그 답이 없어서,
-          <b>제가 직접 기대효과 한 장을 더 붙여야 품의가 통과될 것 같아요.</b></p>
-          <cite>P14 · 슬로우데이 · 품의형</cite>
+      <div class="card" style="flex:1">
+        <div class="ct">생성 시간 예산 소진율</div>
+        <div class="gauge"><div class="g" style="width:88.5%"></div><div class="tk2" style="left:96.3%"></div>
+          <div class="lb2">중앙 239초 · 88.5%</div></div>
+        <div class="gn"><span>0초</span><span style="color:var(--danger-text);font-weight:800">최악 260초 — 여유 10초</span><span>예산 270초</span></div>
+        <div class="say" style="margin-top:22px">
+          15건 중 <b>3건이 예산의 95% 이상</b>을 썼다. 지금은 폴백에 한 번도 걸리지 않았지만 마진이 얇다.
         </div>
       </div>
     </div>
@@ -505,98 +361,68 @@ h1 em{font-style:normal;color:var(--coral-strong)}
   <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>폐루프 n=20 · 히트맵은 블록을 이름으로 지목한 응답 기준</span><span class="pgno">3 / 4</span></div>
 </section>
 
-<!-- ══════════ 4 ══════════ -->
+<!-- ═══ 4 ═══ -->
 <section class="slide">
   <div class="head">
-    <div>
-      <div class="eyebrow">P0 14건 · 무엇부터 고치는가</div>
-      <h1>기능을 더 만들 때가 아니라,<br><em>이미 한 말을 화면과 맞출</em> 때다</h1>
-    </div>
-    <div class="hm">
-      이슈 <b>71건</b> — P0 14 · P1 37 · P2 20<br>
-      P0 14건 중 <b>9건이 한 가지 유형</b><br>
-      <span style="color:var(--ink-faint)">results/이슈-백로그.md</span>
-    </div>
+    <h1>P0 <em>14건</em> — 무엇부터 고치는가</h1>
+    <div class="hm">이슈 <b>71건</b> · P0 14 · P1 37 · P2 20</div>
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:11px">
+  <div style="display:flex;flex-direction:column;gap:16px">
     <div class="iss">
       <div class="no">01</div>
       <div>
-        <h4>리포트와 스튜디오가 서로 다른 제품을 말한다 — 차별점이 화면에서 반증된다</h4>
-        <p>리포트는 사용자가 입력한 제품명을 쓰는데 <b>상세 폼에는 제품명 입력칸이 아예 없어</b> 생성기가 일본어 상품명을 스스로 지어낸다.
-        게다가 리포트는 이미 발행된 자산을 <b>보지 않고</b> "미관찰·0점"으로 채점한다.
-        → 상세 폼에 <b>제품 선택</b>을 넣고, 발행된 자산을 리포트 기준으로 <b>재감사</b>한다</p>
+        <h4>리포트와 스튜디오가 서로 다른 제품을 말한다</h4>
+        <p>상세 폼에는 <b>제품명 입력칸이 없어</b> 생성기가 일본어 상품명을 스스로 지어낸다. 리포트는 사용자가 입력한 이름을 쓴다.
+        게다가 리포트는 이미 발행된 자산을 보지 않는다. → 상세 폼에 <b>제품 선택</b>을 넣고, 발행된 자산을 리포트 기준으로 <b>재감사</b>한다</p>
       </div>
-      <div class="imp"><div class="num">16/20</div><div class="cap">"따로 논다"<br>제품명 불일치 3건</div></div>
+      <div class="imp"><div class="num">16/20</div><div class="cap">"따로 논다"</div></div>
     </div>
     <div class="iss">
       <div class="no">02</div>
       <div>
         <h4>랜딩과 앱이 서로 다른 말을 한다 — 기업 매칭</h4>
-        <p>랜딩은 "지금 사용할 수 있는 기능이 아닙니다", 앱에는 <b>작동하는 신청 폼</b>. 처리 기한은 "(미정)".
-        → <b>처방은 이미 나와 있다.</b> 혼란을 겪지 않은 단 한 명(P03)의 이유가 "랜딩에서 이미 MVP 이후라고 밝혀놔서"였다.
-        <b>그 문장을 앱 화면 상단에 옮기면 끝난다.</b></p>
+        <p>랜딩은 "지금 사용할 수 있는 기능이 아닙니다", 앱에는 <b>작동하는 신청 폼</b>이 있다.
+        → 혼란을 겪지 않은 단 한 명의 이유가 "랜딩에서 이미 MVP 이후라고 밝혀놔서"였다. <b>그 문장을 앱 화면 상단에 옮기면 끝난다</b></p>
       </div>
-      <div class="imp"><div class="num">20/20</div><div class="cap">전원 지적<br>15명 이탈 위기</div></div>
+      <div class="imp"><div class="num">20/20</div><div class="cap">15명 이탈 위기</div></div>
     </div>
     <div class="iss">
       <div class="no">03</div>
       <div>
-        <h4>규제 판정의 전제가 틀어진다 — <code>productClass</code> 가 감사에 전달되지 않는다</h4>
-        <p>의약외품을 골랐고 <b>리포트 표지엔 그대로 표시되는데</b>, 약기법 감사는 "productClass 가 명시되지 않아 <b>化粧品으로 상정</b>"하고 판정한다.
-        반대로 화장품을 고른 쪽은 표지에서 값이 <b>소실</b>된다. → 표시 경로는 값을 받는데 <b>감사 경로가 못 받는다</b></p>
+        <h4>규제 판정의 전제가 틀어진다</h4>
+        <p>의약외품을 골랐고 리포트 표지엔 그대로 표시되는데, 약기법 감사는 <b>"productClass 가 명시되지 않아 화장품으로 상정"</b>하고 판정한다.
+        → 표시 경로는 값을 받는데 <b>감사 경로가 못 받는다</b>. 이 서비스가 파는 것이 바로 그 판정이다</p>
       </div>
-      <div class="imp"><div class="num">2/20</div><div class="cap">양방향 재현<br>파는 것이 그 판정</div></div>
+      <div class="imp"><div class="num">2/20</div><div class="cap">양방향 재현</div></div>
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:14px;flex:1;min-height:0">
+  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:24px;margin-top:24px;flex:1;min-height:0">
     <div class="dark">
-      <div class="ct">P0 14건을 유형으로 묶으면</div>
-      <div class="lead">"말과 화면이 다르다" <em>9건</em><br>"지불 판단 정보가 없다" <em>3건</em> · "작동하지 않는다" <em>2건</em><span style="font-size:14px;font-weight:600;color:#8f9bad"> (1건 해소)</span></div>
-      <div class="sub">첫 묶음은 대부분 <b style="color:#fff">문구·조건 분기</b>다. 새 기능이 필요 없다.</div>
-      <div class="chips">
-        <span class="chip">랜딩 ↔ 앱 매칭</span>
-        <span class="chip">리포트 ↔ 스튜디오 제품</span>
-        <span class="chip">리포트 ↔ 이미 만든 자산</span>
-        <span class="chip">일본어 상세에 한국어 브랜드명</span>
-        <span class="chip">템플릿 이름 ↔ 실제 내용</span>
-        <span class="chip">productClass 표시 ↔ 감사</span>
+      <div class="ct">P0 14건의 유형</div>
+      <div class="bars" style="--lw:230px">
+        <div class="bar"><span class="lb" style="color:#dfe4ec">말과 화면이 다르다</span><span class="tk" style="background:rgba(255,255,255,.1)"><i style="width:100%;background:var(--coral)"></i></span><span class="vv" style="color:#fff">9</span></div>
+        <div class="bar"><span class="lb" style="color:#dfe4ec">지불 판단 정보가 없다</span><span class="tk" style="background:rgba(255,255,255,.1)"><i style="width:33%;background:var(--bar-mid)"></i></span><span class="vv" style="color:#fff">3</span></div>
+        <div class="bar"><span class="lb" style="color:#dfe4ec">작동하지 않는다</span><span class="tk" style="background:rgba(255,255,255,.1)"><i style="width:22%;background:var(--bar-light)"></i></span><span class="vv" style="color:#fff">2</span></div>
       </div>
-      <div style="border-top:1px solid rgba(255,255,255,.14);margin-top:18px;padding-top:16px">
-        <div class="ct" style="margin-bottom:10px">권고 순서</div>
-        <div style="font-size:16px;font-weight:800;color:#fff;line-height:1.5">
-          ①군 중 <em style="font-style:normal;color:var(--coral)">UT-58·59 먼저</em> → 나머지 ①군 → ②군
-        </div>
-        <div class="sub" style="margin-top:10px">그 둘이 고쳐지지 않으면 <b style="color:#fff">"진단 결과가 그대로 제작의 입력값이 되는 폐루프"</b>라는
-        서비스의 유일한 차별점이 계속 화면에서 반증된다. 이번에 <b style="color:#fff">"한 서비스로 보인다" 4/20 · "진단이 반영됐다" 0/20</b> 으로 측정됐다.</div>
+      <div class="say" style="margin-top:26px">
+        첫 묶음이 <em>9건</em>이고, 대부분 <b>문구·조건 분기</b>다. 새 기능이 필요 없다.
+        <b>기능을 더 만들 때가 아니라 이미 한 말을 화면과 맞출 때다.</b>
       </div>
     </div>
-    <div class="card next">
-      <div class="ct">다음 할 일</div>
-      <ol>
-        <li><span><b>리포트↔스튜디오를 제품 단위로</b> — 폐루프가 실제로 도는지 한 사이클 재측정</span></li>
-        <li><span><b>"말과 화면" 9건 정합</b> — 문구·분기. 스펙 문안은 제안서로 준비 완료</span></li>
-        <li><span><b>안 읽히는 4블록 접기</b> — 블록4·5·6·8 기본 접힘</span></li>
+    <div class="card">
+      <div class="ct">다음 작업</div>
+      <ol class="next">
+        <li><span><b>리포트↔스튜디오를 제품 단위로</b> — 폐루프가 실제로 도는지 재측정</span></li>
+        <li><span><b>"말과 화면" 9건 정합</b> — 스펙 문안은 제안서로 준비 완료</span></li>
+        <li><span><b>안 읽히는 4블록 접기</b></span></li>
         <li><span><b>비용 계기 배선 복구</b> — 모듈만 있고 호출부가 없다</span></li>
-        <li><span><b>실사용자 UT 관찰 항목 6개 확정</b> — 반응이 갈린 것만 추림</span></li>
       </ol>
-      <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;font-size:14px;color:var(--ink-body);line-height:1.55">
-        <b>①군은 대부분 문구·조건 분기다.</b> UT-27 은 랜딩에 이미 있는 문장 하나를
-        <b>`/app/matching` 상단에 옮기는 것</b>으로 끝난다 — 혼란을 겪지 않은 유일한 한 명의 이유가 정확히 그 문장이었다.
-      </div>
     </div>
   </div>
 
-  <div class="note" style="margin-top:13px">
-    <b>한계 — 이 결과로 결정할 때 함께 읽을 것.</b>
-    ① 합성 페르소나는 실제 고객이 아니며 <b>구매 행동을 예측하지 않는다.</b>
-    ② <b>폐루프 인과는 측정되지 않았다</b> — 제작을 리포트보다 먼저 돌렸다. "먼저 받았다면 달라졌겠는가"는 설계 의도의 설득력이지 실측이 아니다.
-    ③ <b>비용은 측정되지 않았다</b> — 계기 미배포로 추정치를 넣지 않았다.
-  </div>
-
-  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>전체: results/UT-리포트.md · 요약: results/한장요약.md</span><span class="pgno">4 / 4</span></div>
+  <div class="foot"><span>YOAKE — K-Beauty Japan Growth Studio</span><span>합성 페르소나는 실제 고객이 아니며 구매 행동을 예측하지 않는다 · 폐루프 인과와 비용은 미측정</span><span class="pgno">4 / 4</span></div>
 </section>
 
 </div>
