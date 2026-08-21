@@ -3,7 +3,7 @@
  * 구현 선택: SUPABASE_URL 있으면 Supabase(supabaseStore), 없으면 .data/ 파일 스토어(dev 폴백).
  */
 
-import type { BlocksJson, Category, ReportStatus, RubricGroup, RubricItemId, TierInput } from '../engine/types';
+import type { BlocksJson, BrandProductClass, Category, ReportStatus, RubricGroup, RubricItemId, TierInput } from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 import type { LeadKind, TrackEventType } from '../lead';
 
@@ -79,8 +79,8 @@ export interface ReportRecord {
 // ── 스프린트 2 엔티티 (08 §6.1 스프린트 2 델타) ──────────────────────────────
 // userId는 어디에도 두지 않는다 — 목 세션(데모 유저 1명), Auth 도입 시 일괄 마이그레이션.
 
-/** 브랜드 관리 화면의 제품분류 — 진단 엔진의 ProductClass(3종)보다 넓다(08 §6.1 ER) */
-export type BrandProductClass = '화장품' | '의약외품' | '건강식품' | '미상';
+/** 브랜드 관리 화면의 제품분류 — 정본은 engine/types(클라이언트 안전). 기존 import 경로 유지용 재수출 */
+export type { BrandProductClass } from '../engine/types';
 
 export interface BrandKit {
   productNamesJa: { kr: string; ja: string }[];
