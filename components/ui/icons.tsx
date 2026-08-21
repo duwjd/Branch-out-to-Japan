@@ -24,12 +24,53 @@ function baseProps(size: number | undefined, rest: React.SVGProps<SVGSVGElement>
   };
 }
 
-/** 대시보드(집) */
+/** 대시보드(집) — 사이드바 내비. 시트 신버전은 지붕·벽이 이어진 닫힌 외곽선 1-path다 */
 export function IconHome({ size, ...rest }: IconProps) {
   return (
     <svg {...baseProps(size, rest)}>
-      <path d="M3 10.5 12 3l9 7.5" />
-      <path d="M5 9.5V21h14V9.5" />
+      <path d="M4 9.8 12 3l8 6.8V19.4a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 19.4z" />
+    </svg>
+  );
+}
+
+/**
+ * 진단 리포트(줄무늬 문서) — 사이드바 내비 전용.
+ * 기존 IconDoc(접힌 페이지)은 브랜드 관리 첨부파일 행이 계속 쓰므로 교체하지 않고 신설했다.
+ */
+export function IconReport({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect x="4" y="3" width="16" height="18" rx="3.2" />
+      <path d="M8.4 7.6v8.8" />
+      <path d="M11.6 8.2h4.2" />
+      <path d="M11.6 12h4.2" />
+      <path d="M11.6 15.8h4.2" />
+    </svg>
+  );
+}
+
+/** 마케팅 스튜디오(카메라) — 사이드바 내비 전용 */
+export function IconCamera({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <rect x="3" y="7.4" width="18" height="13.2" rx="3.2" />
+      <path d="M6.6 7.4V6.1a1.7 1.7 0 0 1 1.7-1.7h1.9a1.7 1.7 0 0 1 1.7 1.7v1.3" />
+      <circle cx="12" cy="14" r="3.5" />
+    </svg>
+  );
+}
+
+/**
+ * 운영(슬라이더 + 기어) — 사이드바 내비 전용.
+ * 기존 IconBox(3D 상자)는 자산 라이브러리 빈 상태가 계속 쓰므로 교체하지 않고 신설했다.
+ */
+export function IconSliders({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size, rest)}>
+      <path d="M2.8 5.6h13" />
+      <path d="M2.8 10.6h8.4" />
+      <circle cx="15.8" cy="16.2" r="3.6" />
+      <path d="M21 16.2h2M18.4 20.7l1 1.74M13.2 20.7l-1 1.74M10.6 16.2h-2M13.2 11.7l-1-1.74M18.4 11.7l1-1.74" />
     </svg>
   );
 }

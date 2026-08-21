@@ -4,14 +4,18 @@
  * 앱 셸 — 좌측 사이드바(펼침 248px · 접힘 64px 아이콘 레일) + 본문(상단 중앙 코랄 글로우).
  * 디자인 정본: docs/specs/00-main/1-home.html MAIN-01 (2026-07-24 개정 — 성숙도 배지·KPI 위젯·
  * 품의용 PDF를 사이드바에서 제거하고 접기/펼치기 아이콘 레일을 추가).
- * 구성: (접기 토글) → 워드마크 → 3축 내비(운영 하위 아코디언) → 계정 행.
+ * 구성: 브랜드 행(워드마크 + 접기 토글) → 3축 내비(운영 하위 아코디언) → 계정 행.
  * 2026-08-18 개편: 계정당 브랜드 1개 전제로 브랜드 스위처·추가를 없앴고, /app 이하는 로그인
  * 필수라 게스트 CTA도 없앴다(로그인은 랜딩에서만). 상단 브랜드 정보 행도 제거했다 —
  * 브랜드는 운영 > 브랜드 관리와 홈 위젯에서 다룬다(내비에 같은 정보를 두 번 두지 않는다).
  * 접힘은 ≥lg(1024px)에서만 적용되고 상태는 localStorage로 페이지 간 유지된다.
  * 1024px 미만에서는 사이드바가 상단 블록으로 접히며 접기 토글은 자동 no-op(숨김)이다.
  * 2026-08-20 DS 정렬: 내비 항목 상태(default/hover/active)와 아이콘 크기를 LP_Components 시트의
- * "SidebarNavItem — State" 블록에 맞췄다. 구조(브랜드 행 없음)는 2026-08-18 결정 그대로 유지한다.
+ * "SidebarNavItem — State" 블록에 맞췄다.
+ * 2026-08-21 시트 정합 마무리: 아이콘 4종을 시트 모양(집·줄무늬 문서·카메라·슬라이더+기어)으로
+ * 바꾸고, hover가 아이콘까지 닿게 색 하드코딩을 걷어냈으며, active 라벨을 시트 원색으로 되돌렸다.
+ * 접기 토글은 로고 위 독립 행에서 로고와 같은 가로축으로 옮겼다.
+ * 근거: docs/decisions/2026-08-21-사이드바-내비-시트정합.md
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -20,12 +24,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { YoakeLogo, YoakeMark } from '@/components/brand/Logo';
 import { StatusBadge, type BadgeTone } from '@/components/ui/primitives';
 import {
-  IconBox,
+  IconCamera,
   IconChevronLeft,
   IconChevronUp,
-  IconDoc,
   IconHome,
-  IconImage,
+  IconReport,
+  IconSliders,
 } from '@/components/ui/icons';
 
 interface ShellProps {
@@ -62,23 +66,25 @@ const COLLAPSE_KEY = 'yoake:sidebar-collapsed';
 /**
  * 3축 내비 항목 클래스(SidebarNavItem) — 접힘 시 아이콘만 가운데 정렬.
  * 상태 정본: design/references/LP_Components.svg "SidebarNavItem — State"
- * (219×42 r10 · default 투명/#6E7686 · hover #F2F1ED/#182333 · active #FFF1EE).
- * active 라벨만 시트 원색 #FF6F61 대신 coral-strong(#C93F2E)를 쓴다 — 원색은 코랄 틴트 위
- * 2.48:1로 AA 미달이라 "면과 글자를 나눈다"(CLAUDE.md)를 따른다. 아이콘은 면이라 원색 그대로.
+ * (219×42 r10 · default 투명/#6E7686 · hover #F2F1ED/#182333 · active #FFF1EE/#FF6F61).
+ * 아이콘 색은 여기서 지정하지 않는다 — currentColor 상속이라 세 상태가 라벨과 함께 움직인다.
+ * (구 구현은 아이콘에 active ? coral : ink-mute 를 하드코딩해 hover가 아이콘에 닿지 않았다.)
+ * active 라벨은 시트 원색 #FF6F61 그대로다 — 코랄 틴트 위 2.48:1로 AA 미달인 걸 알고 채택했다.
+ * 근거: docs/decisions/2026-08-21-사이드바-내비-시트정합.md
  */
 function navClass(active: boolean): string {
   return [
     'flex h-[42px] items-center gap-2.5 rounded-[10px] px-3 text-[13.5px] font-semibold no-underline transition-colors',
     'lg:group-data-[collapsed=true]:justify-center lg:group-data-[collapsed=true]:gap-0 lg:group-data-[collapsed=true]:px-0',
-    active ? 'bg-coral-tint text-coral-strong font-bold' : 'text-ink-mute hover:bg-n-150 hover:text-ink',
+    active ? 'bg-coral-tint text-coral font-bold' : 'text-ink-mute hover:bg-n-150 hover:text-ink',
   ].join(' ');
 }
 
-/** 운영 하위 메뉴 항목 클래스 */
+/** 운영 하위 메뉴 항목 클래스 — 부모 "운영"과 나란히 보이므로 활성 색을 같은 코랄로 맞춘다 */
 function subClass(active: boolean): string {
   return [
     'flex h-9 items-center gap-2 rounded-lg px-2.5 text-[12.5px] font-semibold no-underline transition-colors',
-    active ? 'bg-coral-tint text-coral-strong font-bold' : 'text-ink-mute hover:bg-n-150 hover:text-ink',
+    active ? 'bg-coral-tint text-coral font-bold' : 'text-ink-mute hover:bg-n-150 hover:text-ink',
   ].join(' ');
 }
 
@@ -143,20 +149,20 @@ export function AppShell({ user, matchBadge, children }: ShellProps) {
   const nav = (
     <nav className="mt-1 flex flex-col gap-0.5" aria-label="주요 메뉴">
       <Link href="/app" className={navClass(dashActive)} aria-current={dashActive ? 'page' : undefined}>
-        <IconHome size={20} className={dashActive ? 'text-coral' : 'text-ink-mute'} />
+        <IconHome size={20} className="flex-none" />
         <span className={HIDE_ON_RAIL}>홈</span>
       </Link>
       <Link href="/app/report/new" className={navClass(reportActive)} aria-current={reportActive ? 'page' : undefined}>
-        <IconDoc size={20} className={reportActive ? 'text-coral' : 'text-ink-mute'} />
+        <IconReport size={20} className="flex-none" />
         <span className={HIDE_ON_RAIL}>진단 리포트</span>
       </Link>
       <Link href="/app/studio" className={navClass(studioActive)} aria-current={studioActive ? 'page' : undefined}>
-        <IconImage size={20} className={studioActive ? 'text-coral' : 'text-ink-mute'} />
+        <IconCamera size={20} className="flex-none" />
         <span className={HIDE_ON_RAIL}>마케팅 스튜디오</span>
       </Link>
       {/* 운영 착지는 첫 항목 브랜드 관리 — 운영에는 홈 화면이 없다(기획서 # 0) */}
       <Link href="/app/brand" className={navClass(opsActive)} aria-expanded={opsActive}>
-        <IconBox size={20} className={opsActive ? 'text-coral' : 'text-ink-mute'} />
+        <IconSliders size={20} className="flex-none" />
         <span className={HIDE_ON_RAIL}>운영</span>
       </Link>
       {/* LIB-00 · 운영 활성 시에만 펼치는 하위 아코디언 — 레일(접힘)에서는 숨김 */}
@@ -247,30 +253,30 @@ export function AppShell({ user, matchBadge, children }: ShellProps) {
         data-collapsed={collapsed ? 'true' : 'false'}
         className="group flex w-sidebar flex-none flex-col border-r border-hairline bg-canvas px-3.5 pt-[18px] pb-3.5 transition-[width] duration-200 max-lg:static max-lg:h-auto max-lg:w-auto max-lg:border-r-0 max-lg:border-b lg:sticky lg:top-0 lg:h-screen lg:data-[collapsed=true]:w-16 lg:data-[collapsed=true]:px-2"
       >
-        {/* 접기/펼치기 토글 — ≤lg(상단 블록)에서는 숨김(자동 no-op) */}
-        <button
-          type="button"
-          onClick={toggleCollapse}
-          aria-expanded={!collapsed}
-          aria-label={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
-          className="mb-1.5 inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center self-end rounded-lg border border-card-border bg-canvas text-ink-mute transition-colors hover:bg-n-150 hover:text-ink max-lg:hidden lg:group-data-[collapsed=true]:self-center"
-        >
-          <IconChevronLeft className="transition-transform lg:group-data-[collapsed=true]:rotate-180" />
-        </button>
+        {/* 1a · 상단 브랜드 행 — 로고와 접기 토글을 같은 가로축(items-center)에 둔다.
+            레일(≥lg 접힘)은 64px 폭이라 26px 마크 + 30px 버튼이 나란히 못 들어가 세로로 쌓는다. */}
+        <div className="mb-4 flex items-center justify-between gap-2 pl-2.5 lg:group-data-[collapsed=true]:mb-3 lg:group-data-[collapsed=true]:flex-col lg:group-data-[collapsed=true]:gap-1.5 lg:group-data-[collapsed=true]:pl-0">
+          {/* 접힘 시 일출 마크만 남긴다(정사각 자리 정본 자산) */}
+          <Link href="/app" aria-label="YOAKE 홈" className="block flex-none">
+            <YoakeLogo className={`h-[22px] w-auto ${HIDE_ON_RAIL}`} uid="shell-logo" />
+            <YoakeMark
+              aria-hidden
+              className="hidden h-[26px] w-[26px] lg:group-data-[collapsed=true]:inline-block"
+              uid="shell-mark"
+            />
+          </Link>
 
-        {/* 1a · 로고 — 접힘 시 일출 마크만 남긴다(정사각 자리 정본 자산) */}
-        <Link
-          href="/app"
-          aria-label="YOAKE 홈"
-          className="block px-2.5 pt-1 pb-4 lg:group-data-[collapsed=true]:px-0 lg:group-data-[collapsed=true]:text-center"
-        >
-          <YoakeLogo className={`h-[22px] w-auto ${HIDE_ON_RAIL}`} uid="shell-logo" />
-          <YoakeMark
-            aria-hidden
-            className="hidden h-[26px] w-[26px] lg:group-data-[collapsed=true]:inline-block"
-            uid="shell-mark"
-          />
-        </Link>
+          {/* 접기/펼치기 토글 — ≤lg(상단 블록)에서는 숨김(자동 no-op) */}
+          <button
+            type="button"
+            onClick={toggleCollapse}
+            aria-expanded={!collapsed}
+            aria-label={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
+            className="inline-flex h-[30px] w-[30px] flex-none cursor-pointer items-center justify-center rounded-lg border border-card-border bg-canvas text-ink-mute transition-colors hover:bg-n-150 hover:text-ink max-lg:hidden"
+          >
+            <IconChevronLeft className="transition-transform lg:group-data-[collapsed=true]:rotate-180" />
+          </button>
+        </div>
         {nav}
         <span className="flex-1 max-lg:hidden" aria-hidden />
         {sideFoot}
