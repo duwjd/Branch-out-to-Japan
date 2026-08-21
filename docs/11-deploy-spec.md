@@ -27,6 +27,33 @@ Supabase Free
 - **저장 = Supabase Free**: 코드는 env 유무로 자동 선택(`lib/db/store.ts:getStore()` — env 없으면 로컬 `.data/` 폴백이라 로컬 dev는 무설정 그대로). 파일 저장도 동일 기준(`lib/files/storage.ts` — env 있으면 Storage 버킷 `files`, 없으면 `.data/files/`).
 - 로컬 `.data/`는 서버리스에서 비영속·인스턴스 간 비공유 — **프로덕션은 반드시 Supabase env 3종을 설정**해야 한다(§4).
 
+### 1-1. 함수 리전 = `icn1`(서울) — `vercel.json` (2026-08-22)
+
+```json
+{ "$schema": "https://openapi.vercel.sh/vercel.json", "regions": ["icn1"] }
+```
+
+**왜 명시하나**: Vercel 신규 프로젝트의 기본 함수 리전은 `iad1`(워싱턴DC)이다. 반면 Supabase는
+`Northeast Asia (Seoul)`로 만든다(런북 §1-A). `vercel.json`이 없던 동안 배포본은 **함수는 미국 동부,
+DB는 서울**이었고, 응답 헤더에 그대로 찍혔다 — `x-vercel-id: icn1::iad1::…`(엣지는 서울, 실행은 iad1).
+
+실측한 대가:
+
+| 구간 | `iad1` | `icn1` |
+|---|---|---|
+| 브라우저(한국) → 함수 왕복 | ~250ms (`/login` TTFB 8회 240~256ms — 편차가 거의 없어 콜드스타트가 아니라 순수 거리) | ~10~30ms |
+| 함수 → Supabase 쿼리 1회 | ~200ms | ~5~15ms |
+
+`/app` 이하는 세션 → 브랜드 → 본문 데이터가 **의존 관계 때문에 직렬로** 3회 왕복하므로
+왕복 1회 비용이 그대로 3배로 곱해진다. UT 실측 중앙값이 `/app/studio/thumbnail` 3,136ms ·
+`/app/report/[id]` 2,794ms인데 DB를 안 보는 `/login`은 456ms였던 이유가 이것이다.
+
+주의:
+- **Hobby는 리전 1개만 허용**한다. 배열에 2개 이상 적으면 빌드 **전에** 배포가 실패한다.
+- 대시보드의 Function Region 설정보다 `vercel.json`이 우선한다 — 저장소에 남는 쪽으로 관리한다.
+- LLM 호출(`/api/report` · `/api/studio/*`)은 미국 API를 향하므로 +200ms가 붙지만, 이 라우트들은
+  원래 22초~3분짜리다(§3). 같은 라우트가 Supabase도 두드리므로 순증은 이득이다.
+
 ## 2. 무료 티어 한도 (확인일 2026-07-24)
 
 | 항목 | Vercel Hobby | 비고 |
@@ -157,3 +184,4 @@ Supabase Free
 - 2026-07-24 **인증 배포 가드 강화**: 배포본 이메일 가입/로그인 무동작(원인=Supabase env·`AUTH_MAIL_MODE` 미설정) 대응. **[코드]** 저장 팩토리 프로덕션 명시적 throw(침묵 파일 폴백 차단) · mailer/sessionToken 운영 error 로그 승격 · `/api/report` `misconfigured` 플래그 · `supabase/schema.sql` 상단 주석 함정(users 없음 오도) 교정. **[문서]** §7 트러블슈팅 3행 갱신 · §8 가드 항목 완료 표시. 필수 env(§4)는 코드 변경 아님 — 운영자가 Vercel에 설정(런북 §1-B).
 - 2026-07-24 **URL 형식 방어**(실장애 후속): 배포본 가입 500(로그 `Invalid path specified in request URL`) 원인 = `NEXT_PUBLIC_SUPABASE_URL` 끝슬래시/공백. **[코드]** `lib/db/supabaseClient.ts`가 URL 앞뒤 공백·끝슬래시 자동 제거 + 비표준 형식 경고. **[문서]** 런북 §8-1b · §7 트러블슈팅 1행 추가.
 - 2026-08-11 **② 상세페이지 만들기 배포 대응**: §3 실행모델에 상세 파이프라인 실측(130~155초)·동시성 하드캡 근거 추가 · **§3-1 신설**(배포 전제 3가지 — 마이그레이션·JP 폰트 트레이싱·Storage 버킷, Storage 소비량 실측표). **[코드]** 제출 전 프리플라이트(`lib/server/detailReadiness.ts` — 마이그레이션·폰트·키·Storage 미비를 한국어 사유+조치와 함께 차단, 폼 배너 + POST 503) · 저장 포맷 분리(`lib/studio/detail/persist.ts` — 건당 12.4MB→3.09MB, 1GB 기준 82건→331건) · 트레이싱 정밀화(`data/processed/**` → 런타임 5개 파일, 함수당 약 4MB 감축). **[운영]** §5-B0 마이그레이션 선행 단계 · §6-1 스모크 · §7 트러블슈팅 5행.
+- 2026-08-22 **페이지 이동 속도 개선**: 배포본 내비게이션 2~3초 대기 대응. **[설정]** `vercel.json` 신설 — 함수 리전 `iad1`→`icn1`(§1-1, 왕복 지연의 대부분) · `next.config.ts`에 `experimental.staleTimes { dynamic: 30, static: 180 }`(Next 15부터 dynamic 기본값 0초라 사이드바 왕복마다 서버 재요청). **[코드]** `loading.tsx` 4종 추가(`app/app/` 공통 + 썸네일·상세·리포트) — App Router는 대상 트리에 loading 경계가 없으면 **프리페치를 조기 종료**해(UT 로그: `/app?_rsc=… ERR_ABORTED` 153회) 클릭 후 RSC 왕복이 끝날 때까지 전환 표시가 전혀 없었다.
