@@ -139,6 +139,8 @@ export async function runCall1(
   content: NormalizedContent,
   signals: PreSignals,
   onLog?: LogSink,
+  /** 이 콜에 허용된 총 벽시계 상한(ms) — `reportBudget.callTimeout()` 산출. 생략하면 상한 없음(CLI·테스트) */
+  timeoutMs?: number,
 ): Promise<{ items: ScoredItem[] }> {
   const items = applicableItems(input.category);
   const requestedIds = items.map((i) => i.id);
@@ -158,6 +160,7 @@ export async function runCall1(
     userPayload: payload,
     schema: CALL1_OUTPUT_SCHEMA,
     ...CALL_TUNING.call1,
+    timeoutMs,
     mockData: mockCall1(items, signals, content.sentences),
     onLog,
     repair: languageRepair(LANGUAGE_POLICY.call1),
@@ -180,6 +183,8 @@ export async function runCall2(
   input: BrandProductInput,
   content: NormalizedContent,
   onLog?: LogSink,
+  /** 이 콜에 허용된 총 벽시계 상한(ms) — `reportBudget.callTimeout()` 산출. 생략하면 상한 없음(CLI·테스트) */
+  timeoutMs?: number,
 ): Promise<AuditResult> {
   const sentenceLines = content.sentences.map((s) => `${s.id}: ${s.text}`).join('\n');
   const payload = [
@@ -194,6 +199,7 @@ export async function runCall2(
     userPayload: payload,
     schema: CALL2_OUTPUT_SCHEMA,
     ...CALL_TUNING.call2,
+    timeoutMs,
     mockData: mockCall2(content.sentences),
     onLog,
     repair: languageRepair(LANGUAGE_POLICY.call2),
@@ -230,6 +236,8 @@ export async function runCall3(
   input: TierInput,
   content: NormalizedContent | null,
   onLog?: LogSink,
+  /** 이 콜에 허용된 총 벽시계 상한(ms) — `reportBudget.callTimeout()` 산출. 생략하면 상한 없음(CLI·테스트) */
+  timeoutMs?: number,
 ): Promise<PersonaResult> {
   const positioningLine =
     ` · 포지셔닝: ${positioningTagLabels(input.positioning.tags).join(', ')}` +
@@ -254,6 +262,7 @@ export async function runCall3(
     userPayload: payload,
     schema: CALL3_OUTPUT_SCHEMA,
     ...CALL_TUNING.call3,
+    timeoutMs,
     mockData: mockCall3(input.category),
     onLog,
     repair: languageRepair(LANGUAGE_POLICY.call3),
@@ -278,6 +287,8 @@ export async function runCall4(
   persona: PersonaResult,
   benchmark: BenchmarkData,
   onLog?: LogSink,
+  /** 이 콜에 허용된 총 벽시계 상한(ms) — `reportBudget.callTimeout()` 산출. 생략하면 상한 없음(CLI·테스트) */
+  timeoutMs?: number,
 ): Promise<RewriteResult> {
   const textById = new Map(content.sentences.map((s) => [s.id, s.text]));
   const problemSentences = audit.sentences
@@ -308,6 +319,7 @@ export async function runCall4(
     userPayload: payload,
     schema: CALL4_OUTPUT_SCHEMA,
     ...CALL_TUNING.call4,
+    timeoutMs,
     mockData: mockCall4(audit, content.sentences),
     onLog,
     repair: languageRepair(LANGUAGE_POLICY.call4),

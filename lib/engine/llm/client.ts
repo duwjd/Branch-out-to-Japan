@@ -80,11 +80,26 @@ export interface StructuredCallOptions<T> {
   repair?: (data: T) => string | null;
   /** 목 모드 응답(키 없음 / LLM_MODE=mock) */
   mockData: T;
+  /**
+   * 이 콜에 허용된 **총 벽시계 상한(ms) — 재시도까지 포함**. 생략하면 상한 없음(SDK 기본 10분).
+   *
+   * 왜 1회 왕복이 아니라 총합인가: 상위(잡 예산)가 "이 콜에 N초"를 줬는데 아래에서 재시도로
+   * N초를 여러 번 쓰면 예산이 조용히 배가 된다. `lib/engine/reportBudget.ts` 가 주는 값이
+   * 그대로 벽시계 상한이어야 예산 계산이 성립한다.
+   */
+  timeoutMs?: number;
   onLog?: (entry: LlmCallLogEntry) => Promise<void> | void;
 }
 
 /** 최대 API 호출 횟수 — 초기 1회 + 교정 2회(validate·repair 각 1회분) */
 const MAX_ATTEMPTS = 3;
+
+/**
+ * 한 번의 시도가 성립하는 최소 시간.
+ * 이보다 짧게 남았으면 걸어 봐야 타임아웃으로 버릴 시간이라, 시도하지 않고 실패 경로로 보낸다.
+ * `reportBudget.ts` 가 `HUMANIZE_MIN_MS` 를 이 값 위에 세운다 — 두 벌로 갈리면 한쪽만 느슨해진다.
+ */
+export const MIN_ATTEMPT_MS = 30_000;
 
 /** 비스트리밍 요청의 상한 — 이 위로는 SDK HTTP 타임아웃 위험이 있어 스트리밍이 필요하다 */
 const MAX_TOKENS_CEILING = 16000;
@@ -133,6 +148,7 @@ async function callOnce<T>(
   opts: StructuredCallOptions<T>,
   maxTokens: number,
   correction?: string,
+  timeoutMs?: number,
 ): Promise<{ data: T; usage: unknown }> {
   const text = correction ? `${opts.userPayload}\n\n[교정 지시 — 직전 응답의 문제] ${correction}` : opts.userPayload;
   const imgs = opts.images ?? (opts.image ? [opts.image] : []);
@@ -146,7 +162,7 @@ async function callOnce<T>(
     { type: 'text', text },
   ];
 
-  const message = await getClient().messages.create({
+  const params = {
     model: opts.model ?? LLM_MODEL,
     max_tokens: maxTokens,
     system: [
@@ -159,7 +175,17 @@ async function callOnce<T>(
     // effort 는 format 과 같은 output_config 안에 들어간다. SDK 타입에 없어 아래 캐스트가 덮는다
     output_config: { format: { type: 'json_schema', schema: opts.schema }, ...(opts.effort ? { effort: opts.effort } : {}) },
     messages: [{ role: 'user', content }],
-  } as Anthropic.MessageCreateParamsNonStreaming);
+  } as Anthropic.MessageCreateParamsNonStreaming;
+
+  // 요청별 상한 — 클라이언트는 프로세스당 1개라 생성자 기본값을 콜마다 바꿀 수 없다
+  // (② `lib/studio/detail/imageGen.ts` 가 이미지 콜에 쓰는 방식과 같다).
+  //
+  // ⚠ **`maxRetries: 0` 이 함께 있어야 한다.** SDK 기본 재시도(2회)는 타임아웃도 재시도하므로
+  //   그냥 두면 실 소요가 `timeout × 3` 이 되고, 위의 `MAX_ATTEMPTS` 루프까지 곱해져 최악 9회
+  //   왕복이 된다 — 예산 가드를 무력화하는 조합이다. 재시도는 이 파일의 루프 하나만 남긴다.
+  const message = timeoutMs === undefined
+    ? await getClient().messages.create(params)
+    : await getClient().messages.create(params, { timeout: timeoutMs, maxRetries: 0 });
 
   if (message.stop_reason === 'refusal') {
     const details = (message as { stop_details?: { category?: string | null } }).stop_details;
@@ -216,10 +242,29 @@ export async function runStructuredCall<T>(opts: StructuredCallOptions<T>): Prom
   /** validate 는 통과했지만 repair 가 남은 데이터 — 시도 소진 시 이걸 돌려준다 */
   let repairPending: { data: T; usage: unknown; issue: string } | null = null;
 
+  /** 이 콜의 마감 — 재시도를 포함한 총 벽시계다. 미지정이면 상한 없음(현행 동작) */
+  const callDeadline = opts.timeoutMs === undefined ? null : started + opts.timeoutMs;
+
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    /** 이번 시도에 줄 상한 — 남은 예산 전부. 재시도할수록 저절로 짧아진다 */
+    let attemptTimeoutMs: number | undefined;
+    if (callDeadline !== null) {
+      const left = callDeadline - Date.now();
+      if (left < MIN_ATTEMPT_MS) {
+        // 한 번의 시도조차 성립하지 않는다 — 걸어 봐야 타임아웃으로 버릴 시간이다.
+        // 여기서 멈춰야 상위 폴백(콜① 0점 · 콜③ 일반형 · 콜④ 축소 · 콜⑩ 원문 유지)에 도달한다.
+        status = 'failed';
+        // 직전 실패 사유(주로 "Request timed out.")를 지우지 않는다 — 왜 예산을 다 썼는지가 그 안에 있다
+        const budgetNote = `예산 소진 — 남은 시간 ${Math.max(0, Math.round(left / 1000))}초`;
+        lastError = lastError ? `${lastError} / ${budgetNote}` : budgetNote;
+        logger.warn('LLM 콜 예산 소진 — 시도 중단', { call: opts.callName, attempt, leftMs: left });
+        break;
+      }
+      attemptTimeoutMs = left;
+    }
     try {
       const maxTokens = bumpTokens ? Math.min(opts.maxTokens * 2, MAX_TOKENS_CEILING) : opts.maxTokens;
-      const { data, usage } = await callOnce(opts, maxTokens, correction);
+      const { data, usage } = await callOnce(opts, maxTokens, correction, attemptTimeoutMs);
 
       const contractProblem = opts.validate?.(data) ?? null;
       if (contractProblem) {

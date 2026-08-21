@@ -40,7 +40,10 @@ export interface KoHumanizeResult {
   /** 채택분이 반영된 blocksJson. 실패분은 원문이 그대로 들어 있다 */
   blocksJson: BlocksJson;
   verdicts: KoHumanizeVerdict[];
-  /** 콜이 아예 돌지 않았다면 그 사유(목 모드·예외·대상 없음) */
+  /**
+   * 원문을 그대로 쓴 사유. 콜이 아예 돌지 않았거나(목 모드·예외·대상 없음),
+   * **청크 일부만 실패**했을 때도 남는다 — 후자는 `verdicts` 가 비어 있지 않다.
+   */
   skippedReason: string | null;
 }
 
@@ -70,7 +73,7 @@ interface HumanizedItem {
   ko: string;
 }
 
-interface HumanizeResponse {
+export interface HumanizeResponse {
   items: HumanizedItem[];
 }
 
@@ -84,6 +87,69 @@ const MIN_CHARS = 16;
 
 /** 과윤문 가드 — 길이가 이 비율 밖으로 벗어나면 문체가 아니라 내용을 바꾼 것이다 */
 const LENGTH_TOLERANCE = 0.4;
+
+/**
+ * ## 왜 한 콜이 아니라 청크 병렬인가
+ *
+ * 이 콜은 "고칠 것이 없는 항목도 원문 그대로 포함해 개수를 맞춘다"를 요구한다(아래 payload).
+ * 즉 **출력량이 리포트 서술 전체에 비례**하고, 출력 토큰이 곧 지연이다. 실측(2026-08-20)에서
+ * 파이프라인이 이 콜에 도달한 시점이 231초였고 함수 상한 300초까지 69초뿐이라, 한 콜로는
+ * 한 번도 끝나지 못해 **리포트가 통째로 발행되지 않았다**
+ * (docs/research/ut-agent/results/P0-리포트-파이프라인-예산초과.md).
+ *
+ * 슬롯끼리는 의존이 없다 — 각 항목은 `path` 단위로 독립 판정되고, 사후 검사 7종도 항목 안에서만
+ * 돈다. 그래서 나눠 부르는 것이 계약을 바꾸지 않는다. 나누면 콜당 출력이 1/N이 되어 지연도
+ * 근사적으로 1/N로 준다. `system` 은 청크마다 **같은 문자열**을 쓴다 — 프리픽스 캐시가 청크 간에
+ * 그대로 적중한다. 여기서 청크별로 다른 system 을 만들면 캐시가 갈려 이득을 깎는다.
+ */
+
+/**
+ * 청크 최대 개수.
+ * 더 잘게 쪼갤수록 콜당 출력은 줄지만 콜마다 고정비(왕복·캐시 읽기)가 붙고, 항목이 흩어질수록
+ * 모델이 리포트 전체의 톤을 보지 못한다. 지연 이득이 고정비를 넘는 구간까지만 쓴다.
+ *
+ * 4인 이유(실측 2026-08-21 · 풀 진단 대상 슬롯 57개): 3청크(19슬롯)에서 가장 느린 청크가 42초였고,
+ * 배포본 기준 윤문 진입 시 잔여는 61초다 — 저장 몫을 빼면 46초라 여유가 4초뿐이다.
+ * 4청크(15슬롯 이하)로 한 단계 더 줄여 그 여유를 만든다. **측정 갱신 대상이다** —
+ * 슬롯 수·모델·effort가 바뀌면 여기부터 다시 잰다.
+ */
+const MAX_CHUNKS = 4;
+
+/** 청크 하나에 담는 최소 슬롯 수 — 이보다 잘게 나누면 콜 수만 늘고 지연은 줄지 않는다 */
+const MIN_SLOTS_PER_CHUNK = 8;
+
+/**
+ * 청크당 출력 상한. 단일 콜 시절의 12000을 청크 수로 나눈 자리다.
+ * `client.ts` 의 max_tokens 상향 재시도(→16000)가 예산을 먹는 주된 경로라, 잘리지 않을 만큼만 주되
+ * 상한을 낮게 잡아 폭주를 막는다.
+ */
+const CHUNK_MAX_TOKENS = 6000;
+
+/** 단일 콜(청크 1개)일 때의 출력 상한 — 기존 값 그대로 */
+const SINGLE_MAX_TOKENS = 12000;
+
+/**
+ * 윤문 대상을 청크로 나눈다. **수집 순서를 유지한 채** 균등 분배한다 —
+ * 순서를 섞을 이유가 없고(슬롯끼리 무관), 유지하면 로그·판정을 원문 순서로 읽을 수 있다.
+ *
+ * @param targets `collectKoreanNarrative` 산출
+ */
+export function chunkTargets(targets: KoSlotRef[]): KoSlotRef[][] {
+  const count = Math.min(MAX_CHUNKS, Math.floor(targets.length / MIN_SLOTS_PER_CHUNK));
+  if (count <= 1) return [targets];
+
+  const out: KoSlotRef[][] = [];
+  let start = 0;
+  for (let i = 0; i < count; i++) {
+    // ⚠ `ceil(전체/청크수)` 로 일괄 자르면 꼬리가 얇아진다(25개 → 9·9·7).
+    //   청크는 동시에 도니까 **지연은 가장 두꺼운 청크가 정한다** — 얇은 꼬리는 이득이 아니라 낭비다.
+    //   남은 항목을 남은 청크 수로 다시 나눠 편차를 1 이하로 유지한다(25개 → 9·8·8).
+    const size = Math.ceil((targets.length - start) / (count - i));
+    out.push(targets.slice(start, start + size));
+    start += size;
+  }
+  return out;
+}
 
 /**
  * 윤문 대상 수집 — **LLM이 쓴 한국어 서술 경로만.**
@@ -221,12 +287,56 @@ function setByPath(root: unknown, path: string, value: string): void {
 
 export interface KoHumanizeOptions {
   blocksJson: BlocksJson;
+  /**
+   * 이 콜 전체(청크 병렬 포함)에 허용된 벽시계 상한(ms) — `reportBudget.callTimeout('humanize', …)` 산출.
+   * 생략하면 상한 없음(CLI·테스트). 청크는 동시에 도니까 각 청크가 같은 상한을 받는다.
+   */
+  timeoutMs?: number;
   onLog?: (entry: LlmCallLogEntry) => Promise<void> | void;
+}
+
+/** 청크 하나의 요청 본문 — 지시는 단일 콜 시절과 같다(계약을 바꾸지 않는다) */
+function buildPayload(chunk: KoSlotRef[]): string {
+  return [
+    '[작업] 아래 한국어 서술의 문체만 다듬는다. 판정·근거·수치·각주는 그대로 둔다.',
+    `[대상 — path 를 그대로 돌려준다. 항목을 추가하거나 빼지 마라(총 ${chunk.length}개)]`,
+    chunk.map((t) => `■ ${t.path}\n${t.text}`).join('\n\n'),
+    '[출력] items 배열. 고칠 것이 없는 항목도 원문 그대로 포함해 개수를 맞춘다.',
+  ].join('\n\n');
+}
+
+/**
+ * 청크 응답을 하나로 합친다 — **성공한 청크만 반영하고 실패는 사유로 모은다.**
+ *
+ * 이 파일의 계약("절대 잡을 죽이지 않는다")이 콜을 나눈 뒤에도 성립하려면, 청크 하나가 실패했을 때
+ * 나머지 채택분까지 버리면 안 된다. 그 판단이 여기 한 곳에 있고 순수 함수라 테스트가 된다.
+ *
+ * @param settled 청크별 `Promise.allSettled` 결과(순서 = 청크 순서)
+ */
+export function mergeChunkResults(settled: PromiseSettledResult<HumanizeResponse>[]): {
+  byPath: Map<string, string>;
+  failures: string[];
+} {
+  const byPath = new Map<string, string>();
+  const failures: string[] = [];
+  settled.forEach((r, i) => {
+    if (r.status === 'fulfilled') {
+      for (const item of r.value.items) byPath.set(item.path, item.ko);
+      return;
+    }
+    const reason = r.reason instanceof Error ? r.reason.message : String(r.reason);
+    failures.push(reason);
+    logger.warn('리포트 윤문 청크 실패 — 해당 구간은 원문 유지', { chunk: i + 1, of: settled.length, reason });
+  });
+  return { byPath, failures };
 }
 
 /**
  * 리포트의 한국어 서술 전체에 자연성 루브릭을 적용한다.
  * 절대 throw 하지 않는다 — 실패는 원문 유지 + 사유 기록으로 흡수한다.
+ *
+ * 청크 하나가 실패해도 **나머지 청크의 채택분은 살린다.** 문체 때문에 리포트를 버리지 않는다는
+ * 이 파일의 계약이, 콜을 나눈 뒤에도 청크 단위로 그대로 성립해야 한다.
  */
 export async function runReportHumanize(opts: KoHumanizeOptions): Promise<KoHumanizeResult> {
   const targets = collectKoreanNarrative(opts.blocksJson);
@@ -236,43 +346,41 @@ export async function runReportHumanize(opts: KoHumanizeOptions): Promise<KoHuma
     return { blocksJson: next, verdicts: [], skippedReason: '윤문할 한국어 서술이 없습니다.' };
   }
 
-  const payload = [
-    '[작업] 아래 한국어 서술의 문체만 다듬는다. 판정·근거·수치·각주는 그대로 둔다.',
-    `[대상 — path 를 그대로 돌려준다. 항목을 추가하거나 빼지 마라(총 ${targets.length}개)]`,
-    targets.map((t) => `■ ${t.path}\n${t.text}`).join('\n\n'),
-    '[출력] items 배열. 고칠 것이 없는 항목도 원문 그대로 포함해 개수를 맞춘다.',
-  ].join('\n\n');
+  const chunks = chunkTargets(targets);
+  // 카테고리·제품분류는 이 콜의 grounding 에서 쓰이지 않는다(문체만 보는 콜이라 코퍼스·렉시콘·규정을
+  // 주입하지 않는다) — 청크 전체가 **같은 문자열**을 공유해 캐시 프리픽스를 하나로 고정한다.
+  const system = buildStableGrounding('reportHumanize', opts.blocksJson.meta.category, opts.blocksJson.meta.productClass);
 
-  let res: HumanizeResponse;
-  try {
-    res = await runStructuredCall<HumanizeResponse>({
-      callName: 'reportHumanize',
-      // 카테고리·제품분류는 이 콜의 grounding 에서 쓰이지 않는다(문체만 보는 콜이라
-      // 코퍼스·렉시콘·규정을 주입하지 않는다) — 캐시 프리픽스를 하나로 고정한다
-      system: buildStableGrounding('reportHumanize', opts.blocksJson.meta.category, opts.blocksJson.meta.productClass),
-      userPayload: payload,
-      schema: HUMANIZE_SCHEMA as unknown as object,
-      model: REPORT_MODEL,
-      effort: 'medium',
-      maxTokens: 12000,
-      // 목 모드에서는 원문을 그대로 둔다(픽스처 문장을 흔들지 않는다)
-      mockData: { items: [] },
-      onLog: opts.onLog,
-      // ⚠ validate·repair 를 두지 않는다 — 문체 규칙으로 리포트 전체를 죽이지 않기 위해서다
-    });
-  } catch (err) {
-    const reason = err instanceof Error ? err.message : String(err);
-    logger.warn('리포트 윤문 실패 — 원문 유지', { reason });
-    return { blocksJson: next, verdicts: [], skippedReason: `윤문 콜이 실패해 원문을 그대로 씁니다: ${reason}` };
+  const settled = await Promise.allSettled(
+    chunks.map((chunk, i) =>
+      runStructuredCall<HumanizeResponse>({
+        // 로그에서 청크를 구분할 수 있어야 어느 구간이 원문으로 남았는지 사후에 알 수 있다
+        callName: chunks.length > 1 ? `reportHumanize.${i + 1}of${chunks.length}` : 'reportHumanize',
+        system,
+        userPayload: buildPayload(chunk),
+        schema: HUMANIZE_SCHEMA as unknown as object,
+        model: REPORT_MODEL,
+        effort: 'medium',
+        maxTokens: chunks.length > 1 ? CHUNK_MAX_TOKENS : SINGLE_MAX_TOKENS,
+        timeoutMs: opts.timeoutMs,
+        // 목 모드에서는 원문을 그대로 둔다(픽스처 문장을 흔들지 않는다)
+        mockData: { items: [] },
+        onLog: opts.onLog,
+        // ⚠ validate·repair 를 두지 않는다 — 문체 규칙으로 리포트 전체를 죽이지 않기 위해서다
+      }),
+    ),
+  );
+
+  const { byPath, failures } = mergeChunkResults(settled);
+
+  if (failures.length === chunks.length) {
+    return { blocksJson: next, verdicts: [], skippedReason: `윤문 콜이 실패해 원문을 그대로 씁니다: ${failures[0]}` };
   }
-
-  if (res.items.length === 0) {
+  if (byPath.size === 0) {
     return { blocksJson: next, verdicts: [], skippedReason: '윤문 결과가 비어 있어 원문을 그대로 씁니다.' };
   }
 
-  const byPath = new Map(res.items.map((it) => [it.path, it.ko]));
   const verdicts: KoHumanizeVerdict[] = [];
-
   for (const t of targets) {
     const after = byPath.get(t.path);
     if (after === undefined || after.trim() === t.text.trim()) continue; // 변경 없음은 판정에 남기지 않는다
@@ -286,6 +394,12 @@ export async function runReportHumanize(opts: KoHumanizeOptions): Promise<KoHuma
   }
 
   const adopted = verdicts.filter((v) => v.adopted).length;
-  logger.info('리포트 윤문 완료', { targets: targets.length, changed: verdicts.length, adopted });
-  return { blocksJson: next, verdicts, skippedReason: null };
+  logger.info('리포트 윤문 완료', { targets: targets.length, chunks: chunks.length, changed: verdicts.length, adopted });
+  return {
+    blocksJson: next,
+    verdicts,
+    skippedReason: failures.length
+      ? `윤문 ${failures.length}/${chunks.length}구간이 실패해 그 구간은 원문을 그대로 씁니다: ${failures[0]}`
+      : null,
+  };
 }
