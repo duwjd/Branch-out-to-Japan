@@ -25,6 +25,15 @@ const MOCK_THUMBNAIL_SAMPLES = [
 ];
 
 const nextConfig: NextConfig = {
+  // 클라이언트 라우터 캐시 — Next 15부터 dynamic 기본값이 0초(캐시 안 함)라, 사이드바를
+  // A→B→A로 오갈 때 A를 매번 서버에서 새로 받는다. /app 이하는 전부 동적 SSR이라 그 왕복이
+  // 그대로 체감 지연이 된다. 30초를 주면 방금 본 페이지 재진입이 서버 요청 0건으로 끝난다.
+  // 오래된 데이터가 남지 않는 근거: 생성·수정 완료 지점에서 이미 router.refresh()를 부른다
+  // (JobPanel·MatchingView·SeasonCalendar·BrandOnboarding·EmailAuthPanel) — refresh는 캐시를 무효화한다.
+  // static 180은 프리페치된 loading.tsx 껍데기의 재사용 수명이다(app/app/loading.tsx와 짝).
+  experimental: {
+    staleTimes: { dynamic: 30, static: 180 },
+  },
   // 서버 코드가 fs 동적 경로로 읽는 데이터 자산을 서버리스 번들에 강제 포함한다(11 §3).
   // 트레이싱은 정적 import만 따라가므로 fs 동적 경로는 여기에 명시해야 한다.
   //
