@@ -201,6 +201,8 @@ export interface PaletteDef {
  * `#ff6f61`(YOAKE 일출 코랄)은 **넣지 않는다** — 고객이 우연히 우리 색을 고르는 것과
  * 우리가 강요하는 것은 다르다. 필요하면 `rose-coral` 이 그 자리를 대신한다.
  */
+// 팔레트 카탈로그 — id·라벨·accent 를 나란히 놓고 색을 고른다
+// prettier-ignore
 export const PALETTES: readonly PaletteDef[] = [
   { id: 'neutral-greige', labelKo: '뉴트럴 그레이지', accent: '#8a7f76', nameEn: 'warm greige' },
   { id: 'clinical-blue', labelKo: '클리니컬 블루', accent: '#3d6fb5', nameEn: 'deep clinical blue' },
@@ -229,6 +231,8 @@ export interface MoodDef {
  * 이 층이 말하는 것은 **팔레트 · 소재 · 스타일링**이다.
  * 그림자의 성격(`deep controlled shadows`·`high-contrast`)은 연출 층과 방향이 같으므로 남긴다.
  */
+// 무드 카탈로그 — 위와 같은 이유
+// prettier-ignore
 export const MOODS: readonly MoodDef[] = [
   { id: 'minimal-clean', labelKo: '미니멀 클린', keywords: 'minimal clean styling, generous negative space, matte neutral props, restrained palette' },
   { id: 'clinical', labelKo: '클리니컬', keywords: 'clinical precision, cool neutral palette, laboratory-clean glass and brushed steel, restrained styling' },

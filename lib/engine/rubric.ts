@@ -13,6 +13,8 @@ export interface RubricItem {
   criterion: string;
 }
 
+// 루브릭 18항 정본 표 — 한 항목이 한 줄이어야 id·group·title·기준을 나란히 읽는다
+// prettier-ignore
 export const RUBRIC_ITEMS: RubricItem[] = [
   { id: 'A1', group: 'A', title: '효능 주장에 근거 라벨', criterion: '効能評価試験済み 등 시험·근거 표기가 있는가' },
   { id: 'A2', group: 'A', title: '조건 각주(※/＊)로 범위 한정', criterion: '※1 角質層まで 식으로 주장의 범위를 스스로 한정했는가' },

@@ -11,6 +11,8 @@
 
 import type { RubricItemId } from './types';
 
+// 루브릭 id 목록 — 18개를 한 줄로 두어야 rubric.ts 표와 대조된다
+// prettier-ignore
 const RUBRIC_ITEM_IDS: RubricItemId[] = [
   'A1', 'A2', 'A3', 'A4', 'A5', 'B1', 'B2', 'C1', 'C2', 'C3', 'D1', 'D2', 'D3', 'D4', 'E1', 'E2', 'E3', 'E4',
 ];

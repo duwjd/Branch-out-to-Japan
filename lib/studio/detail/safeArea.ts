@@ -91,6 +91,8 @@ interface Candidate {
  * 화면 한가운데 떠 있는 카드는 다시 사진을 가리는 장치가 되므로 마지막 폴백에만 둔다.
  * 배열 순서가 곧 동점 시 우선순위다(일본 상세 관례상 하단 → 상단 → 좌우).
  */
+// 배치 후보 표 — 행마다 격자 좌표(col0·col1·row0·row1)를 세로로 훑어 비교한다
+// prettier-ignore
 const CANDIDATES: readonly Candidate[] = [
   { id: 'bottom-band', labelKo: '하단', col0: 0, col1: 4, row0: 4, row1: 6, direction: 'to top', vAlign: 'bottom', hAlign: 'left' },
   { id: 'bottom-half', labelKo: '하단 절반', col0: 0, col1: 4, row0: 3, row1: 6, direction: 'to top', vAlign: 'bottom', hAlign: 'left' },
