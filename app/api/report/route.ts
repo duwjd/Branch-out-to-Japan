@@ -8,7 +8,7 @@ import { createDiagnosisRequest, runDiagnosisJob } from '@/lib/server/reportJob'
 import { currentLlmMode } from '@/lib/engine/llm/client';
 import { getSession } from '@/lib/server/session';
 import { getActiveBrandId } from '@/lib/server/activeBrand';
-import { hasSupabaseEnv } from '@/lib/db/supabaseClient';
+import { hasSupabaseEnv, supabaseProjectRef } from '@/lib/db/supabaseClient';
 import { checkReportReadiness, reportBlockingReason } from '@/lib/server/reportReadiness';
 import { saveFile, extForMime } from '@/lib/files/storage';
 import { logger } from '@/lib/logger';
@@ -182,6 +182,9 @@ export async function GET(): Promise<NextResponse> {
   return NextResponse.json({
     storeKind: supabaseConfigured ? 'supabase' : 'file',
     llmMode: currentLlmMode(),
+    // 환경 확진용 — stg/prd 가 서로 다른 Supabase 프로젝트를 보는지 여기서 판정한다(런북 §환경 매트릭스)
+    vercelEnv: process.env.VERCEL_ENV ?? null,
+    supabaseRef: supabaseProjectRef(),
     // 프로덕션 + 파일 저장 = 오설정(서버리스 비영속) — 데이터 라우트는 명시적 500난다
     misconfigured: process.env.NODE_ENV === 'production' && !supabaseConfigured,
     // 배포 확진용 — 런북 §6-B 가 이 값을 본다(② 축의 /api/studio/detail 과 같은 역할)

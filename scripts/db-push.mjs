@@ -17,6 +17,11 @@
  *   npm run db:push            적용
  *   npm run db:push -- --check 적용하지 않고 현재 스키마 상태만 점검
  *
+ * ⚠ 실행 직전에 대상 project ref 를 출력한다 — **반드시 눈으로 확인할 것.**
+ * Session pooler URI 는 호스트에 ref 가 안 보여서, `.env` 를 갈아끼우다 보면
+ * 어느 프로젝트를 때리는지 모른 채 실행하게 된다. 현재 DB 는 운영 하나뿐이므로
+ * 이 명령은 **곧바로 운영 스키마를 바꾼다**(stg DB 분리는 보류 — [[deploy-runbook]] §9).
+ *
  * 필요한 값: `SUPABASE_DB_URL` (.env)
  *   Supabase 대시보드 → Project Settings → Database → Connection string → **Session pooler** 의
  *   URI 를 복사하고 `[YOUR-PASSWORD]` 를 실제 DB 비밀번호로 바꾼다. service_role 키가 아니다.
@@ -45,6 +50,26 @@ function fail(message, hint) {
   console.error(`\n✖ ${message}`);
   if (hint) console.error(`  → ${hint}`);
   process.exit(1);
+}
+
+/**
+ * 접속 문자열에서 "어느 프로젝트인가"를 사람이 읽을 수 있게 뽑는다 — 비밀번호는 절대 출력하지 않는다.
+ * 대상을 모른 채 실행하는 것이 이 스크립트의 가장 큰 사고 경로다(적용은 되돌릴 수 없다).
+ * Session pooler 는 user 가 `postgres.<ref>`, 직결은 host 가 `db.<ref>.supabase.co` 라 둘 다 본다.
+ */
+function describeTarget(connectionString) {
+  try {
+    const u = new URL(connectionString);
+    const fromUser = /^postgres\.([a-z0-9-]+)$/i.exec(decodeURIComponent(u.username))?.[1];
+    const fromHost = /^db\.([a-z0-9-]+)\.supabase\.co$/i.exec(u.hostname)?.[1];
+    return {
+      ref: fromUser ?? fromHost ?? '(알 수 없음)',
+      host: u.hostname,
+      database: u.pathname.replace(/^\//, '') || '(기본값)',
+    };
+  } catch {
+    return { ref: '(파싱 실패)', host: '(파싱 실패)', database: '(파싱 실패)' };
+  }
 }
 
 /** 실제 존재하는 컬럼을 information_schema 에서 읽어 EXPECTED 와 대조한다 */
@@ -87,6 +112,9 @@ async function main() {
   const sql = await readFile(SCHEMA_PATH, 'utf8');
   // pg 는 파라미터 없는 query 에서 다중 문장을 그대로 받는다(simple query protocol).
   // schema.sql 은 do $$ ... $$ 블록을 포함하므로 세미콜론으로 쪼개면 안 된다 — 통째로 보낸다.
+  const target = describeTarget(url);
+  console.log(`■ 대상 DB  project ref: ${target.ref} / host: ${target.host} / database: ${target.database}`);
+
   const client = new pg.Client({ connectionString: url });
 
   try {

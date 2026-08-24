@@ -11,6 +11,7 @@ import { createDetailAsset, runDetailJob } from '@/lib/server/detailJob';
 import { parseDetailForm, validateImages } from '@/lib/server/detailForm';
 import { saveFile, extForMime, type StoredFileExt } from '@/lib/files/storage';
 import { getStore } from '@/lib/db/store';
+import { supabaseProjectRef } from '@/lib/db/supabaseClient';
 import { currentLlmMode } from '@/lib/engine/llm/client';
 import { currentImageMode, imageModel } from '@/lib/studio/imageGen';
 import { blockingReason, checkDetailReadiness } from '@/lib/server/detailReadiness';
@@ -163,6 +164,9 @@ export async function GET(): Promise<NextResponse> {
   return NextResponse.json({
     storeKind: store.kind(),
     llmMode: currentLlmMode(),
+    // 환경 확진용 — ① 축의 /api/report GET 과 같은 역할·같은 필드명
+    vercelEnv: process.env.VERCEL_ENV ?? null,
+    supabaseRef: supabaseProjectRef(),
     imageMode: currentImageMode(),
     imageModel: imageModel(),
     // 배포 환경 준비 상태 — 폼이 생성 전에 막고, 운영자가 원인을 바로 보게 한다
