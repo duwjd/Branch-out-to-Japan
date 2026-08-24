@@ -74,7 +74,9 @@ export function ResetPasswordCard({ token }: { token: string | null }) {
     return (
       <div className="mt-5 text-center">
         <p className="text-[18px] font-extrabold tracking-[-0.01em] text-ink">링크가 만료되었거나 유효하지 않습니다</p>
-        <p className="mt-2 text-[13px] leading-relaxed text-ink-mute">재설정 링크는 일정 시간 후 만료됩니다. 다시 요청해 주세요.</p>
+        <p className="mt-2 text-[13px] leading-relaxed text-ink-mute">
+          재설정 링크는 일정 시간 후 만료됩니다. 다시 요청해 주세요.
+        </p>
         <Link href="/login" className={buttonClass('primary', 'lg', 'mt-5 w-full')}>
           재설정 메일 다시 요청
         </Link>
@@ -85,7 +87,9 @@ export function ResetPasswordCard({ token }: { token: string | null }) {
   return (
     <div className="mt-5">
       <h1 className="text-center text-[20px] font-extrabold tracking-[-0.02em] text-ink">새 비밀번호 설정</h1>
-      <p className="mt-2 text-center text-[13px] leading-relaxed text-ink-mute">계정에 사용할 새 비밀번호를 입력해 주세요.</p>
+      <p className="mt-2 text-center text-[13px] leading-relaxed text-ink-mute">
+        계정에 사용할 새 비밀번호를 입력해 주세요.
+      </p>
       <form onSubmit={submit} className="mt-5 text-left">
         <label htmlFor="rs-pw" className={fieldLabelClass}>
           새 비밀번호

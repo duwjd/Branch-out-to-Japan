@@ -118,12 +118,22 @@ async function checkStore(): Promise<ReportReadinessCheck> {
 async function checkSchema(): Promise<ReportReadinessCheck> {
   const label = '리포트 스키마';
   if (!hasSupabaseEnv()) {
-    return { key: 'schema', label, ok: true, level: 'blocked', detail: '로컬 저장 모드에서는 마이그레이션이 필요 없습니다.', fix: null };
+    return {
+      key: 'schema',
+      label,
+      ok: true,
+      level: 'blocked',
+      detail: '로컬 저장 모드에서는 마이그레이션이 필요 없습니다.',
+      fix: null,
+    };
   }
   const client = getSupabaseClient();
   const missing: string[] = [];
   try {
-    const reports = await client.from('reports').select('request_id, blocks_json, humanize_issues, humanize_skipped').limit(1);
+    const reports = await client
+      .from('reports')
+      .select('request_id, blocks_json, humanize_issues, humanize_skipped')
+      .limit(1);
     if (reports.error) missing.push(`reports 컬럼(${reports.error.message})`);
   } catch (err) {
     missing.push(String(err));

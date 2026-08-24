@@ -19,10 +19,38 @@ const MARK = '── 내가 이 화면에 입력한 값 ──';
 const log = (m) => process.stdout.write(`${m}\n`);
 
 const CATEGORY = { skincare: '스킨케어', makeup: '메이크업', suncare: '선케어', cleansing: '클렌징' };
-const DETAIL_CATEGORY = { skincare: '스킨케어', suncare: '선케어', makeup: '색조', cleansing: '클렌징', haircare: '헤어', etc: '기타' };
-const PLATFORM = { unset: '미정/전체', 'amazon-jp': '아마존JP', 'rakuten-official': '라쿠텐 공식샵', 'rakuten-reseller': '라쿠텐 리셀러', qoo10: 'Qoo10' };
-const STYLE = { A: '클린 스튜디오 단독컷', B: '제품+텍스처 스와치', C: '공식샵 신뢰 배지형', D: '캐치카피+성분 비주얼형', E: '수상 실적 스택형', G: '프로모션 강조형', H: '프리미엄 무드형' };
-const TEMPLATE = { D1: '문제해결 서사형', D2: '성분 근거형', D3: '스펙·씬 신뢰형', D4: '컬러 배리에이션형', D5: '저자극·편의형', D6: '브랜드 프리미엄형' };
+const DETAIL_CATEGORY = {
+  skincare: '스킨케어',
+  suncare: '선케어',
+  makeup: '색조',
+  cleansing: '클렌징',
+  haircare: '헤어',
+  etc: '기타',
+};
+const PLATFORM = {
+  unset: '미정/전체',
+  'amazon-jp': '아마존JP',
+  'rakuten-official': '라쿠텐 공식샵',
+  'rakuten-reseller': '라쿠텐 리셀러',
+  qoo10: 'Qoo10',
+};
+const STYLE = {
+  A: '클린 스튜디오 단독컷',
+  B: '제품+텍스처 스와치',
+  C: '공식샵 신뢰 배지형',
+  D: '캐치카피+성분 비주얼형',
+  E: '수상 실적 스택형',
+  G: '프로모션 강조형',
+  H: '프리미엄 무드형',
+};
+const TEMPLATE = {
+  D1: '문제해결 서사형',
+  D2: '성분 근거형',
+  D3: '스펙·씬 신뢰형',
+  D4: '컬러 배리에이션형',
+  D5: '저자극·편의형',
+  D6: '브랜드 프리미엄형',
+};
 
 /** 파일 끝에 블록을 덧붙인다. 이미 있으면 건너뛴다(멱등) */
 function append(file, lines) {
@@ -62,7 +90,12 @@ for (const p of doc.personas) {
       ? [`  실적명: ${t.proof.rankTitle}`, `  부문·장르: ${t.proof.genre}`, `  수상일: ${t.proof.aggregationDate}`]
       : ['  랭킹·수상 실적: (입력하지 않음)']),
     ...(t.promo
-      ? [`  프로모션 이름: ${t.promo.setTitle}`, `  할인 가격(엔): ${t.promo.salePrice}`, `  정가(엔): ${t.promo.normalPrice ?? ''}`, `  취소선 가격 체크: ${t.promo.normalPriceVerified ? '체크됨' : ''}`]
+      ? [
+          `  프로모션 이름: ${t.promo.setTitle}`,
+          `  할인 가격(엔): ${t.promo.salePrice}`,
+          `  정가(엔): ${t.promo.normalPrice ?? ''}`,
+          `  취소선 가격 체크: ${t.promo.normalPriceVerified ? '체크됨' : ''}`,
+        ]
       : ['  프로모션: (입력하지 않음)']),
   ];
   if (append(path.join(dir, '12-thumbnail-new.txt'), thumbLines)) n += 1;

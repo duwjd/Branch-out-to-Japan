@@ -27,7 +27,11 @@ export async function loadExistingIds() {
   const ids = new Set();
   for (const line of text.split('\n')) {
     if (!line.trim()) continue;
-    try { ids.add(JSON.parse(line).id); } catch { /* 손상 라인 무시 */ }
+    try {
+      ids.add(JSON.parse(line).id);
+    } catch {
+      /* 손상 라인 무시 */
+    }
   }
   return ids;
 }
@@ -54,7 +58,12 @@ export async function dropRecords(shouldDrop) {
   for (const line of text.split('\n')) {
     if (!line.trim()) continue;
     let r;
-    try { r = JSON.parse(line); } catch { kept.push(line); continue; } // 손상 라인은 보존
+    try {
+      r = JSON.parse(line);
+    } catch {
+      kept.push(line);
+      continue;
+    } // 손상 라인은 보존
     if (shouldDrop(r)) dropped.add(r.id);
     else kept.push(line);
   }

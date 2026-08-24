@@ -37,7 +37,9 @@ export function listForPrompt(dir, prefix, keep = () => true) {
 /** 트랙 A 한 페르소나의 화면·산출물 목록 */
 export function personaFileList(runDir) {
   const screens = listForPrompt(path.join(runDir, 'screens'), 'screens/', (f) => /\.(png|txt)$/.test(f));
-  const artifacts = listForPrompt(path.join(runDir, 'artifacts'), 'artifacts/', (f) => /\.(png|jpg|jpeg|html|txt)$/.test(f));
+  const artifacts = listForPrompt(path.join(runDir, 'artifacts'), 'artifacts/', (f) =>
+    /\.(png|jpg|jpeg|html|txt)$/.test(f),
+  );
   return { screens, artifacts };
 }
 

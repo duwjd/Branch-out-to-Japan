@@ -184,7 +184,9 @@ export async function runCopyHumanize(opts: HumanizeOptions): Promise<HumanizeRe
   const payload = [
     '[작업] 아래 일본어 카피의 문체만 다듬는다. 내용·수치·각주 마커는 그대로 둔다.',
     tone ? `[브랜드 톤 가이드]\n${tone}` : '',
-    forbidden.length ? `[브랜드 금지 표현 — 결과에 절대 넣지 마라]\n${forbidden.map((f) => `- ${f.term} (${f.reason})`).join('\n')}` : '',
+    forbidden.length
+      ? `[브랜드 금지 표현 — 결과에 절대 넣지 마라]\n${forbidden.map((f) => `- ${f.term} (${f.reason})`).join('\n')}`
+      : '',
     `[대상 — blockId·key 조합을 그대로 돌려준다. 항목을 추가하거나 빼지 마라]\n${targets
       .map((t) => `■ ${t.blockId}.${t.key}\n${t.ja}`)
       .join('\n\n')}`,
@@ -228,7 +230,14 @@ export async function runCopyHumanize(opts: HumanizeOptions): Promise<HumanizeRe
       base[t.blockId][t.key] = after;
       verdicts.push({ blockId: t.blockId, key: t.key, before: t.ja, after, adopted: true });
     } else {
-      verdicts.push({ blockId: t.blockId, key: t.key, before: t.ja, after, adopted: false, rejectedReason: check.reason });
+      verdicts.push({
+        blockId: t.blockId,
+        key: t.key,
+        before: t.ja,
+        after,
+        adopted: false,
+        rejectedReason: check.reason,
+      });
     }
   }
 

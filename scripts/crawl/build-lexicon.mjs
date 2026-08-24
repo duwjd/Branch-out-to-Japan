@@ -25,8 +25,20 @@ const OUT_PATH = path.join(REPO_ROOT, 'data/processed/sns-lexicon.csv');
 
 /** 카타카나 자동발굴에서 제외할 이커머스 판촉어(뷰티 어휘 아님). */
 const KATAKANA_STOP = new Set([
-  'クーポン', 'ポイント', 'ギフト', 'プレゼント', 'セット', 'キャンペーン', 'セール',
-  'オフ', 'クリスマス', 'ランキング', 'サイト', 'ショップ', 'レビュー', 'コスメ',
+  'クーポン',
+  'ポイント',
+  'ギフト',
+  'プレゼント',
+  'セット',
+  'キャンペーン',
+  'セール',
+  'オフ',
+  'クリスマス',
+  'ランキング',
+  'サイト',
+  'ショップ',
+  'レビュー',
+  'コスメ',
 ]);
 
 function parseArgs(argv) {
@@ -48,7 +60,9 @@ async function loadCorpus() {
         const r = JSON.parse(l);
         // type=detail 은 부모 상품명을 반복하므로 빈도 왜곡 방지 위해 썸네일만 집계
         if (r.type === 'thumbnail' && r.productName) lines.push({ text: r.productName, source: 'rakuten' });
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     }
   }
   if (existsSync(COSME_DIR)) {
@@ -71,7 +85,9 @@ async function loadCorpus() {
         const r = JSON.parse(l);
         if (r.rawText) lines.push({ text: r.rawText, source: 'rakuten-detail-ocr' });
         for (const a of r.appeals || []) lines.push({ text: a, source: 'rakuten-detail-ocr' });
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     }
   }
   return lines;
@@ -87,7 +103,10 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const corpus = await loadCorpus();
   if (corpus.length === 0) {
-    logger.error('코퍼스 비어있음. 먼저 rakuten/cosme 수집기를 실행하세요.', { catalog: existsSync(CATALOG_PATH), cosme: existsSync(COSME_DIR) });
+    logger.error('코퍼스 비어있음. 먼저 rakuten/cosme 수집기를 실행하세요.', {
+      catalog: existsSync(CATALOG_PATH),
+      cosme: existsSync(COSME_DIR),
+    });
     process.exit(1);
   }
   const collectedAt = new Date().toISOString().slice(0, 10);
@@ -123,18 +142,23 @@ async function main() {
       kata.set(m, e);
     }
   }
-  const topKata = [...kata.entries()]
-    .sort((a, b) => b[1].freq - a[1].freq)
-    .slice(0, args.topKatakana);
+  const topKata = [...kata.entries()].sort((a, b) => b[1].freq - a[1].freq).slice(0, args.topKatakana);
   for (const [term, e] of topKata) {
-    rows.push({ term, reading: '', source: [...e.srcSet].join('+'), category: '자동발굴(카타카나)', example: e.example, freq: e.freq });
+    rows.push({
+      term,
+      reading: '',
+      source: [...e.srcSet].join('+'),
+      category: '자동발굴(카타카나)',
+      example: e.example,
+      freq: e.freq,
+    });
   }
 
   // 빈도 내림차순 정렬 후 CSV
   rows.sort((a, b) => b.freq - a.freq);
   const header = 'term,reading,source,category,exampleContext,frequency,collectedAt';
   const body = rows.map((r) =>
-    [r.term, r.reading, r.source, r.category, r.example, r.freq, collectedAt].map(csvCell).join(',')
+    [r.term, r.reading, r.source, r.category, r.example, r.freq, collectedAt].map(csvCell).join(','),
   );
   await writeFile(OUT_PATH, header + '\n' + body.join('\n') + '\n', 'utf8');
 

@@ -69,7 +69,9 @@ export function ReportCoverPreview({
         ) : (
           <span className="mt-[3%] block">
             <span className="block text-[13px] leading-tight font-extrabold text-ink">브랜드 진단</span>
-            <span className="mt-[3px] block text-[9.5px] font-semibold text-ink-faint">제품 콘텐츠를 넣으면 점수가 나옵니다</span>
+            <span className="mt-[3px] block text-[9.5px] font-semibold text-ink-faint">
+              제품 콘텐츠를 넣으면 점수가 나옵니다
+            </span>
           </span>
         )}
 
@@ -84,7 +86,10 @@ export function ReportCoverPreview({
               <span key={g} className="flex items-center gap-1.5">
                 <span className="w-[9px] flex-none text-[8px] font-extrabold text-ink-faint">{g}</span>
                 <span className="h-[5px] flex-1 overflow-hidden rounded-full bg-n-150">
-                  <span className={`block h-full rounded-full ${BAND_BAR[scoreBand(pct)]}`} style={{ width: `${pct}%` }} />
+                  <span
+                    className={`block h-full rounded-full ${BAND_BAR[scoreBand(pct)]}`}
+                    style={{ width: `${pct}%` }}
+                  />
                 </span>
                 <span className="tnum w-[15px] flex-none text-right text-[8px] font-bold text-ink-mute">{pct}</span>
               </span>

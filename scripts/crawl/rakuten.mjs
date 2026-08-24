@@ -73,7 +73,9 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const applicationId = await readEnvValue('RAKUTEN_APP_ID');
   if (!applicationId) {
-    logger.error('RAKUTEN_APP_ID 없음. https://webservice.rakuten.co.jp/ 에서 앱ID를 발급받아 .env 에 넣거나 환경변수로 전달하세요.');
+    logger.error(
+      'RAKUTEN_APP_ID 없음. https://webservice.rakuten.co.jp/ 에서 앱ID를 발급받아 .env 에 넣거나 환경변수로 전달하세요.',
+    );
     process.exit(1);
   }
 
@@ -107,7 +109,11 @@ async function main() {
     }
   }
 
-  logger.info('완료', { newRecords: totalNew, imagesDownloaded: totalImages, catalog: path.relative(REPO_ROOT, CATALOG_PATH) });
+  logger.info('완료', {
+    newRecords: totalNew,
+    imagesDownloaded: totalImages,
+    catalog: path.relative(REPO_ROOT, CATALOG_PATH),
+  });
 }
 
 main().catch((err) => {

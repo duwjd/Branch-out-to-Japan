@@ -57,7 +57,11 @@ function SeasonRunwayBar({ steps, heroEventId }: { steps: SeasonRunwayStep[]; he
       </p>
       <div aria-hidden className="flex items-center gap-2">
         {steps.map((s) => (
-          <span key={s.id} className={`h-1.5 flex-1 rounded-full ${PHASE_BAR[s.phase]}`} title={`${stepLabel(s)} — ${PHASE_TEXT[s.phase]}`} />
+          <span
+            key={s.id}
+            className={`h-1.5 flex-1 rounded-full ${PHASE_BAR[s.phase]}`}
+            title={`${stepLabel(s)} — ${PHASE_TEXT[s.phase]}`}
+          />
         ))}
       </div>
       <div className="mt-2.5 flex items-baseline justify-between gap-5 text-[12px] text-ink-mute">
@@ -102,13 +106,21 @@ export function HomeHero({
       <h1 className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-ink [text-wrap:pretty]">
         {dDay === 0 ? (
           <>
-            <span className="text-[68px] leading-[0.95] font-extrabold tracking-[-0.04em] max-sm:text-[48px]">오늘</span>
-            <span className="text-[26px] leading-snug font-extrabold tracking-[-0.02em] max-sm:text-[20px]">{eventLabel} 시작</span>
+            <span className="text-[68px] leading-[0.95] font-extrabold tracking-[-0.04em] max-sm:text-[48px]">
+              오늘
+            </span>
+            <span className="text-[26px] leading-snug font-extrabold tracking-[-0.02em] max-sm:text-[20px]">
+              {eventLabel} 시작
+            </span>
           </>
         ) : (
           <>
-            <span className="tnum text-[100px] leading-[0.9] font-extrabold tracking-[-0.045em] max-sm:text-[64px]">{dDay}</span>
-            <span className="text-[26px] leading-snug font-extrabold tracking-[-0.02em] max-sm:text-[20px]">일 뒤 {eventLabel}</span>
+            <span className="tnum text-[100px] leading-[0.9] font-extrabold tracking-[-0.045em] max-sm:text-[64px]">
+              {dDay}
+            </span>
+            <span className="text-[26px] leading-snug font-extrabold tracking-[-0.02em] max-sm:text-[20px]">
+              일 뒤 {eventLabel}
+            </span>
           </>
         )}
       </h1>

@@ -164,10 +164,12 @@ function mockResult(opts: DetailCopyOptions): DetailCopyResult {
     narrativeReason: `${getTemplate(opts.templateId).nameKo} 구성으로, 문제 제기부터 근거까지 순서대로 쌓이도록 배치했습니다. (데모 카피)`,
     blocks: opts.blocks.map((b) => ({
       blockId: b.blockId,
-      slots: Object.entries(mockLlmSlots(b.blockId, opts.input.productCategory, opts.brandName)).map(([key, value]) => ({
-        key,
-        value,
-      })),
+      slots: Object.entries(mockLlmSlots(b.blockId, opts.input.productCategory, opts.brandName)).map(
+        ([key, value]) => ({
+          key,
+          value,
+        }),
+      ),
     })),
     copySlots: [],
     krElementMap: [],
@@ -182,7 +184,9 @@ export async function runDetailCopy(opts: DetailCopyOptions): Promise<DetailCopy
 
   const facts = [
     `카테고리: ${i.productCategory}`,
-    i.ingredients.length ? `성분(입력됨): ${i.ingredients.map((x) => `${x.name} ${x.percent}`).join(', ')}` : '성분: 미입력',
+    i.ingredients.length
+      ? `성분(입력됨): ${i.ingredients.map((x) => `${x.name} ${x.percent}`).join(', ')}`
+      : '성분: 미입력',
     i.freeOf.length ? `무첨가: ${i.freeOf.join(', ')}` : '',
     i.specs.length ? `스펙: ${i.specs.map((x) => `${x.label} ${x.value}`).join(', ')}` : '',
     i.options.length ? `옵션: ${i.options.length}개(${i.options[0].axis})` : '',
@@ -200,7 +204,9 @@ export async function runDetailCopy(opts: DetailCopyOptions): Promise<DetailCopy
     `[채울 슬롯 — 아래 blockId·key 조합만 산출한다. 없는 키를 만들지 말 것]\n${lines}`,
     `[입력된 사실]\n${facts}`,
     `[메타] 타깃 플랫폼: ${PLATFORM_LABELS[opts.platform]} · 브랜드명: ${opts.brandName}`,
-    grammar ? `[카테고리 연출 문법 — 이 컷들을 이 방향으로 구체화한다. 그대로 베끼지 말고 이 제품의 장면으로 옮겨 쓴다]\n${grammar}` : '',
+    grammar
+      ? `[카테고리 연출 문법 — 이 컷들을 이 방향으로 구체화한다. 그대로 베끼지 말고 이 제품의 장면으로 옮겨 쓴다]\n${grammar}`
+      : '',
     `[요청]`,
     `1. isKoreanDetailInput — 첨부가 한국어 오버레이가 있는 상세페이지인지 판정.`,
     `2. krElementMap — 첨부 속 KR 요소를 유지·정제/재설계/제거로 분류하고 근거를 한 줄씩.`,

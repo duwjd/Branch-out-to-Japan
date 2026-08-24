@@ -77,8 +77,17 @@ export function hsvToRgb(h: number, s: number, v: number): { r: number; g: numbe
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = v - c;
   const t =
-    h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x]
-    : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+    h < 60
+      ? [c, x, 0]
+      : h < 120
+        ? [x, c, 0]
+        : h < 180
+          ? [0, c, x]
+          : h < 240
+            ? [0, x, c]
+            : h < 300
+              ? [x, 0, c]
+              : [c, 0, x];
   return { r: (t[0] + m) * 255, g: (t[1] + m) * 255, b: (t[2] + m) * 255 };
 }
 
@@ -519,7 +528,8 @@ export function resolveTheme(input: ThemeInput | undefined, category?: ProductCa
 
   let raw: string | null = null;
   if (t.source === 'custom') raw = normalizeHex(t.customAccent);
-  else if (t.source === 'palette') raw = paletteById(t.paletteId).accent; // 화이트리스트 통과분만
+  else if (t.source === 'palette')
+    raw = paletteById(t.paletteId).accent; // 화이트리스트 통과분만
   else raw = normalizeHex(t.extracted);
   if (!raw) raw = paletteById(CATEGORY_FALLBACK[cat] ?? 'neutral-greige').accent;
 

@@ -12,10 +12,7 @@ import { logger } from '@/lib/logger';
 // after() 잡이 함수 타임아웃 등으로 죽으면 비터미널 상태가 영구 고착된다 — 폴링 시점에 실패 전환(11 §3)
 const STALE_JOB_MS = 10 * 60 * 1000;
 
-export async function GET(
-  _request: Request,
-  context: { params: Promise<{ id: string }> },
-): Promise<NextResponse> {
+export async function GET(_request: Request, context: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   const { id } = await context.params;
   const store = await getStore();
   const request = await store.getRequest(id);

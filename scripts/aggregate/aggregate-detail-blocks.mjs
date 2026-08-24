@@ -61,7 +61,10 @@ async function main() {
   const label = (code) => blockMap.get(code)?.nameKo ?? code;
   const slugOf = (code) => blockMap.get(code)?.id ?? code;
   const text = await readFile(SRC, 'utf8');
-  const rows = text.split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l));
+  const rows = text
+    .split('\n')
+    .filter((l) => l.trim())
+    .map((l) => JSON.parse(l));
 
   const v2 = rows.filter((r) => (r.schemaVersion ?? 1) >= 2);
   if (v2.length === 0) {
@@ -93,9 +96,9 @@ async function main() {
   }
 
   const blockFreq = new Map();
-  const blockProducts = new Map();  // 블록 → 보유 상품 수
-  const posByBlock = new Map();     // 블록 → {head, body, tail}
-  const catByBlock = new Map();     // 블록 → 카테고리별 관측
+  const blockProducts = new Map(); // 블록 → 보유 상품 수
+  const posByBlock = new Map(); // 블록 → {head, body, tail}
+  const catByBlock = new Map(); // 블록 → 카테고리별 관측
   const legalFreq = new Map();
   const sequences = [];
   let noiseCount = 0;
@@ -108,12 +111,18 @@ async function main() {
 
     for (const img of p.images) {
       const bt = img.blockType ?? 'noise';
-      if (bt === 'noise') { noiseCount++; continue; }
+      if (bt === 'noise') {
+        noiseCount++;
+        continue;
+      }
       const idx = img.sequenceIndex ?? seq.length + 1;
       seq.push({ seq: idx, blockType: bt });
 
       inc(blockFreq, bt);
-      if (!seen.has(bt)) { seen.add(bt); inc(blockProducts, bt); }
+      if (!seen.has(bt)) {
+        seen.add(bt);
+        inc(blockProducts, bt);
+      }
 
       if (!posByBlock.has(bt)) posByBlock.set(bt, new Map(ZONES.map((z) => [z, 0])));
       inc(posByBlock.get(bt), zoneOf(idx, total));
@@ -160,9 +169,7 @@ async function main() {
   const positionProfile = {};
   for (const [bt, zones] of posByBlock.entries()) {
     const sum = [...zones.values()].reduce((a, b) => a + b, 0) || 1;
-    positionProfile[bt] = Object.fromEntries(
-      ZONES.map((z) => [z, Number(((zones.get(z) ?? 0) / sum).toFixed(3))]),
-    );
+    positionProfile[bt] = Object.fromEntries(ZONES.map((z) => [z, Number(((zones.get(z) ?? 0) / sum).toFixed(3))]));
   }
 
   const out = {
@@ -170,9 +177,7 @@ async function main() {
     sourceRows: v2.length,
     productCount: productTotal,
     noiseImages: noiseCount,
-    bySource: Object.fromEntries(sortedEntries(
-      sequences.reduce((m, s) => (inc(m, s.source), m), new Map()),
-    )),
+    bySource: Object.fromEntries(sortedEntries(sequences.reduce((m, s) => (inc(m, s.source), m), new Map()))),
     blockFrequency: sortedEntries(blockFreq).map(([blockType, count]) => ({
       blockType,
       slug: slugOf(blockType),

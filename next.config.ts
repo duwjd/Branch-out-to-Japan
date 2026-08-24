@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 /**
  * 상세페이지 satori 렌더용 일본어 폰트(9.2MB).
@@ -6,7 +6,7 @@ import type { NextConfig } from "next";
  * 그 둘을 타는 라우트는 아래 두 트리로 한정된다.
  * ⚠ 빼면 배포본에서 파일이 사라지고 satori가 Google Fonts를 런타임 fetch하다 실패해 두부(tofu)가 된다.
  */
-const JP_FONTS = ["./app/fonts/jp/**"];
+const JP_FONTS = ['./app/fonts/jp/**'];
 
 /**
  * 썸네일 목 모드 샘플 — 키 미설정 배포에서만 발동한다(lib/studio/fixtures.ts:mockImageBuffer).
@@ -15,13 +15,13 @@ const JP_FONTS = ["./app/fonts/jp/**"];
  * 스타일→파일 매핑을 바꾸면 여기도 함께 고친다(누락 시 목 모드에서 ENOENT).
  */
 const MOCK_THUMBNAIL_SAMPLES = [
-  "./docs/specs/02-studio/assets/samples/haruon-clean.png",
-  "./docs/specs/02-studio/assets/samples/haruon-texture.png",
-  "./docs/specs/02-studio/assets/samples/haruon-official.png",
-  "./docs/specs/02-studio/assets/samples/haruon-copy-ingredient.png",
-  "./docs/specs/02-studio/assets/samples/haruon-award.png",
-  "./docs/specs/02-studio/assets/samples/haruon-promo.png",
-  "./docs/specs/02-studio/assets/samples/haruon-premium.png",
+  './docs/specs/02-studio/assets/samples/haruon-clean.png',
+  './docs/specs/02-studio/assets/samples/haruon-texture.png',
+  './docs/specs/02-studio/assets/samples/haruon-official.png',
+  './docs/specs/02-studio/assets/samples/haruon-copy-ingredient.png',
+  './docs/specs/02-studio/assets/samples/haruon-award.png',
+  './docs/specs/02-studio/assets/samples/haruon-promo.png',
+  './docs/specs/02-studio/assets/samples/haruon-premium.png',
 ];
 
 const nextConfig: NextConfig = {
@@ -46,21 +46,21 @@ const nextConfig: NextConfig = {
   //    새 런타임 데이터 파일을 추가하면 **여기에도 추가**해야 한다(누락 시 배포본에서 ENOENT).
   outputFileTracingIncludes: {
     // 전 라우트 공통 — 합계 약 107KB. grounding·프롬프트 팩은 어느 경로에서든 닿을 수 있다.
-    "/**": [
-      "./data/processed/thumbnail-style-prompts.json", // lib/studio/promptPack.ts
-      "./data/processed/detail-style-prompts.json",    // lib/studio/detail/blockPack.ts
-      "./data/processed/benchmark-aggregates.json",    // lib/engine/grounding/index.ts
-      "./data/processed/regulatory-summary.json",      // lib/engine/grounding/index.ts
-      "./data/processed/sns-lexicon.csv",              // lib/engine/grounding/index.ts
+    '/**': [
+      './data/processed/thumbnail-style-prompts.json', // lib/studio/promptPack.ts
+      './data/processed/detail-style-prompts.json', // lib/studio/detail/blockPack.ts
+      './data/processed/benchmark-aggregates.json', // lib/engine/grounding/index.ts
+      './data/processed/regulatory-summary.json', // lib/engine/grounding/index.ts
+      './data/processed/sns-lexicon.csv', // lib/engine/grounding/index.ts
     ],
     // ② 상세페이지 — 폼 진입(readiness 점검)·생성·블록 재생성이 satori를 탄다
-    "/app/studio/detail": JP_FONTS,
-    "/app/studio/detail/**": JP_FONTS,
-    "/api/studio/detail": JP_FONTS,
-    "/api/studio/detail/**": JP_FONTS,
+    '/app/studio/detail': JP_FONTS,
+    '/app/studio/detail/**': JP_FONTS,
+    '/api/studio/detail': JP_FONTS,
+    '/api/studio/detail/**': JP_FONTS,
     // ② 썸네일 — 목 모드 이미지 생성(lib/studio/imageGen.ts)
-    "/api/studio/thumbnail": MOCK_THUMBNAIL_SAMPLES,
-    "/api/studio/thumbnail/**": MOCK_THUMBNAIL_SAMPLES,
+    '/api/studio/thumbnail': MOCK_THUMBNAIL_SAMPLES,
+    '/api/studio/thumbnail/**': MOCK_THUMBNAIL_SAMPLES,
   },
 };
 

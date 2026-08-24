@@ -116,7 +116,9 @@ export function languageRepairMessage(report: LanguageReport): string | null {
 
   const ko = report.violations.filter((v) => v.policy === 'ko');
   const ja = report.violations.filter((v) => v.policy === 'ja');
-  const lines: string[] = ['출력 언어 계약을 어긴 필드가 있다. 아래 필드만 고쳐서 전체를 다시 내라 — 다른 필드는 그대로 둔다.'];
+  const lines: string[] = [
+    '출력 언어 계약을 어긴 필드가 있다. 아래 필드만 고쳐서 전체를 다시 내라 — 다른 필드는 그대로 둔다.',
+  ];
 
   if (ko.length) {
     lines.push(

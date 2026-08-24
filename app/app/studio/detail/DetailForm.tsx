@@ -223,13 +223,16 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     if (productRef.current) productRef.current.value = '';
   }, []);
 
-  const acceptFiles = useCallback((incoming: FileList | null) => {
-    if (!incoming) return;
-    const next = [...files, ...Array.from(incoming)].slice(0, MAX_KR_IMAGES);
-    setFiles(next);
-    replacePreviews(next);
-    setError(null);
-  }, [files, replacePreviews]);
+  const acceptFiles = useCallback(
+    (incoming: FileList | null) => {
+      if (!incoming) return;
+      const next = [...files, ...Array.from(incoming)].slice(0, MAX_KR_IMAGES);
+      setFiles(next);
+      replacePreviews(next);
+      setError(null);
+    },
+    [files, replacePreviews],
+  );
 
   const removeFile = (idx: number) => {
     const next = files.filter((_, i) => i !== idx);
@@ -431,7 +434,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 className="sr-only"
                 onChange={(e) => acceptProduct(e.target.files)}
               />
-              <button type="button" onClick={() => productRef.current?.click()} className={buttonClass('secondary', 'md')}>
+              <button
+                type="button"
+                onClick={() => productRef.current?.click()}
+                className={buttonClass('secondary', 'md')}
+              >
                 <IconUpload /> {productFile ? '제품컷 바꾸기' : '제품컷 선택'}
               </button>
               <p className="mt-2 text-xs text-ink-mute">JPG · PNG · WebP · 10MB 이하</p>
@@ -440,7 +447,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
               <div className="mt-4 flex items-center gap-3.5">
                 <span className="relative">
                   {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
-                  <img src={productPreview} alt="제품컷 미리보기" className="h-24 w-24 rounded-lg border border-card-border object-cover" />
+                  <img
+                    src={productPreview}
+                    alt="제품컷 미리보기"
+                    className="h-24 w-24 rounded-lg border border-card-border object-cover"
+                  />
                   <button
                     type="button"
                     onClick={clearProduct}
@@ -492,8 +503,14 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 {previews.map((src, i) => (
                   <li key={src} className="relative">
                     {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
-                    <img src={src} alt={`상세 원본 ${i + 1}`} className="h-24 w-24 rounded-lg border border-card-border object-cover" />
-                    <span className="absolute top-1 left-1 rounded bg-ink/70 px-1.5 text-[11px] font-bold text-white">{i + 1}</span>
+                    <img
+                      src={src}
+                      alt={`상세 원본 ${i + 1}`}
+                      className="h-24 w-24 rounded-lg border border-card-border object-cover"
+                    />
+                    <span className="absolute top-1 left-1 rounded bg-ink/70 px-1.5 text-[11px] font-bold text-white">
+                      {i + 1}
+                    </span>
                     <button
                       type="button"
                       onClick={() => removeFile(i)}
@@ -509,11 +526,21 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-03 카테고리·플랫폼 */}
-          <SectionCard step={3} title="상품 종류 · 타깃 플랫폼" pill="required" desc="상품 종류가 템플릿과 이미지 분위기를 정합니다.">
+          <SectionCard
+            step={3}
+            title="상품 종류 · 타깃 플랫폼"
+            pill="required"
+            desc="상품 종류가 템플릿과 이미지 분위기를 정합니다."
+          >
             <p className={fieldLabelClass}>상품 종류</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {CATEGORIES.map((c) => (
-                <button key={c.id} type="button" onClick={() => setCategory(c.id)} className={chipClass(category === c.id)}>
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setCategory(c.id)}
+                  className={chipClass(category === c.id)}
+                >
                   {c.label}
                 </button>
               ))}
@@ -574,7 +601,9 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                             </span>
                           ))}
                           {t.sequencePreview.length > 3 && (
-                            <span className="block text-[11px] text-ink-faint">외 {t.sequencePreview.length - 3}개</span>
+                            <span className="block text-[11px] text-ink-faint">
+                              외 {t.sequencePreview.length - 3}개
+                            </span>
                           )}
                         </span>
                       </span>
@@ -640,13 +669,15 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                         style={{ backgroundColor: extracted.accent }}
                       />
                       {extracted.ok ? (
-                        <>제품컷에서 <code className="text-ink">{extracted.accent}</code> 를 뽑았습니다.</>
+                        <>
+                          제품컷에서 <code className="text-ink">{extracted.accent}</code> 를 뽑았습니다.
+                        </>
                       ) : (
                         // 추출 실패를 조용히 넘기지 않는다 — 사용자가 직접 고를 수 있어야 한다
                         <>
                           제품컷이 무채색에 가까워 색을 뽑지 못했습니다. 상품 종류 기본색(
-                          <code className="text-ink">{extracted.accent}</code>)을 씁니다 — 원하는 색이 있으면 직접
-                          골라 주세요.
+                          <code className="text-ink">{extracted.accent}</code>)을 씁니다 — 원하는 색이 있으면 직접 골라
+                          주세요.
                         </>
                       )}
                     </>
@@ -767,10 +798,19 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-05b 성분·무첨가·사용법 */}
-          <SectionCard step={6} title="성분 · 무첨가 · 사용법" desc="성분을 입력하지 않으면 성분·기전 블록은 넣지 않습니다. 성분명을 지어내지 않습니다.">
+          <SectionCard
+            step={6}
+            title="성분 · 무첨가 · 사용법"
+            desc="성분을 입력하지 않으면 성분·기전 블록은 넣지 않습니다. 성분명을 지어내지 않습니다."
+          >
             <label className="block">
               <span className={fieldLabelClass}>성분 (한 줄에 하나 · 성분명|농도|배합목적)</span>
-              <textarea name="ingredientRows" rows={3} className={inputClass} placeholder={'ナイアシンアミド|2%|整肌成分\nヒアルロン酸Na||保湿成分'} />
+              <textarea
+                name="ingredientRows"
+                rows={3}
+                className={inputClass}
+                placeholder={'ナイアシンアミド|2%|整肌成分\nヒアルロン酸Na||保湿成分'}
+              />
             </label>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>무첨가 항목 (한 줄에 하나)</span>
@@ -782,7 +822,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
             </label>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>사용법 STEP (한 줄에 하나)</span>
-              <textarea name="howToSteps" rows={3} className={inputClass} placeholder={'洗顔後、化粧水で肌をととのえます。'} />
+              <textarea
+                name="howToSteps"
+                rows={3}
+                className={inputClass}
+                placeholder={'洗顔後、化粧水で肌をととのえます。'}
+              />
             </label>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>주의사항 (한 줄에 하나)</span>
@@ -791,7 +836,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-06 근거(접이식) */}
-          <Accordion open={openEvidence} onToggle={() => setOpenEvidence((v) => !v)} title="실적 · 시험 근거" hint="그룹별로 전부 채워야 해당 블록이 들어갑니다">
+          <Accordion
+            open={openEvidence}
+            onToggle={() => setOpenEvidence((v) => !v)}
+            title="실적 · 시험 근거"
+            hint="그룹별로 전부 채워야 해당 블록이 들어갑니다"
+          >
             <div className="grid gap-3 sm:grid-cols-3">
               <input name="proofRankTitle" className={inputClass} placeholder="실적명 (楽天ランキング1位)" />
               <input name="proofGenre" className={inputClass} placeholder="부문 (美容液部門)" />
@@ -816,7 +866,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
           {/* DETAIL-06b 프로모(접이식) */}
           {!amazonSelected && (
-            <Accordion open={openPromo} onToggle={() => setOpenPromo((v) => !v)} title="프로모션" hint="세트명·판매가가 있어야 가격 블록이 들어갑니다">
+            <Accordion
+              open={openPromo}
+              onToggle={() => setOpenPromo((v) => !v)}
+              title="프로모션"
+              hint="세트명·판매가가 있어야 가격 블록이 들어갑니다"
+            >
               <div className="grid gap-3 sm:grid-cols-2">
                 <input name="promoSetTitle" className={inputClass} placeholder="세트명 (2個セット)" />
                 <input name="promoSalePrice" className={inputClass} placeholder="판매가 (1,920)" />
@@ -827,29 +882,51 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
               </div>
               <label className="mt-3 flex items-start gap-2 text-[13px] leading-relaxed text-ink-body">
                 <input type="checkbox" name="promoNormalPriceVerified" value="true" className="mt-0.5" />
-                <span>통상가로 실제 판매한 실적이 있습니다. (체크하지 않으면 통상가 취소선을 넣지 않습니다 — 有利誤認 방지)</span>
+                <span>
+                  통상가로 실제 판매한 실적이 있습니다. (체크하지 않으면 통상가 취소선을 넣지 않습니다 — 有利誤認 방지)
+                </span>
               </label>
               <input name="promoFootnote" className={`${inputClass} mt-3`} placeholder="가격 조건 각주" />
             </Accordion>
           )}
 
           {/* DETAIL-06c 옵션(접이식) */}
-          <Accordion open={openOption} onToggle={() => setOpenOption((v) => !v)} title="옵션" hint="2개 이상이면 옵션 블록이 들어갑니다">
+          <Accordion
+            open={openOption}
+            onToggle={() => setOpenOption((v) => !v)}
+            title="옵션"
+            hint="2개 이상이면 옵션 블록이 들어갑니다"
+          >
             <p className={fieldLabelClass}>옵션 축</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {OPTION_AXES.map((a) => (
-                <button key={a.id} type="button" onClick={() => setOptionAxis(a.id)} className={chipClass(optionAxis === a.id)}>
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => setOptionAxis(a.id)}
+                  className={chipClass(optionAxis === a.id)}
+                >
                   {a.label}
                 </button>
               ))}
             </div>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>옵션 목록 (이름|색상값|품번)</span>
-              <textarea name="optionRows" rows={3} className={inputClass} placeholder={'01 ローズベージュ|#c86b5a|SHADE 1'} />
+              <textarea
+                name="optionRows"
+                rows={3}
+                className={inputClass}
+                placeholder={'01 ローズベージュ|#c86b5a|SHADE 1'}
+              />
             </label>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>모델컷 (퍼스널컬러 블록용)</span>
-              <input type="file" name="modelImage" accept="image/jpeg,image/png,image/webp" className="mt-1 block text-sm" />
+              <input
+                type="file"
+                name="modelImage"
+                accept="image/jpeg,image/png,image/webp"
+                className="mt-1 block text-sm"
+              />
             </label>
             <label className="mt-2 flex items-start gap-2 text-[13px] leading-relaxed text-ink-body">
               <input type="checkbox" name="modelConsent" value="true" className="mt-0.5" />
@@ -858,7 +935,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </Accordion>
 
           {/* DETAIL-07 추가 요청 */}
-          <SectionCard step={7} title="추가 요청" desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다.">
+          <SectionCard
+            step={7}
+            title="추가 요청"
+            desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다."
+          >
             <textarea name="note" rows={2} className={inputClass} placeholder="예: 전체적으로 더 밝고 화사하게" />
             <p className="mt-2 text-xs leading-relaxed text-ink-faint [text-wrap:pretty]">
               한국어로 쓰셔도 됩니다 — 이미지 생성 모델에는 영어로 바꿔 전달합니다.
@@ -866,10 +947,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           <p className="mt-4 rounded-lg bg-coral-tint px-4 py-3 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
-            번역이 아니라 <b>일본 고객 관점의 메시지 재설계</b>입니다. 근거를 입력하지 않은 배지·가격·수치는 만들지 않습니다.
+            번역이 아니라 <b>일본 고객 관점의 메시지 재설계</b>입니다. 근거를 입력하지 않은 배지·가격·수치는 만들지
+            않습니다.
             <br />
-            입력은 <b>한국어로 하셔도 됩니다.</b> 사실 정보(성분·스펙·주의사항 등)는 일본 표기로 바꿔 넣고, 바꾼 결과를 다음
-            단계에서 보여 드립니다. 수치·가격은 원문 그대로 유지합니다.
+            입력은 <b>한국어로 하셔도 됩니다.</b> 사실 정보(성분·스펙·주의사항 등)는 일본 표기로 바꿔 넣고, 바꾼 결과를
+            다음 단계에서 보여 드립니다. 수치·가격은 원문 그대로 유지합니다.
           </p>
         </form>
       </div>
@@ -1051,8 +1133,8 @@ function TranslationPanel({
           <h3 className="text-sm font-bold text-ink">한국어로 입력하신 항목이 있습니다</h3>
         </div>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-          일본 표기로 바꿔서 넣습니다. 바꾼 결과를 미리 확인·수정하시려면 로그인해 주세요. 로그인하지 않고 생성하면 변환은
-          그대로 적용되지만 검토 단계를 건너뛰게 됩니다.
+          일본 표기로 바꿔서 넣습니다. 바꾼 결과를 미리 확인·수정하시려면 로그인해 주세요. 로그인하지 않고 생성하면
+          변환은 그대로 적용되지만 검토 단계를 건너뛰게 됩니다.
         </p>
       </section>
     );
@@ -1066,8 +1148,8 @@ function TranslationPanel({
           <h3 className="text-sm font-bold text-ink">한국어 입력을 일본어로 바꾸지 못했습니다</h3>
         </div>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-          이대로 생성하면 한국어가 남은 항목의 블록이 만들어지지 않습니다. 잠시 후 다시 시도하시거나, 해당 항목을 일본어로 직접
-          입력해 주세요.
+          이대로 생성하면 한국어가 남은 항목의 블록이 만들어지지 않습니다. 잠시 후 다시 시도하시거나, 해당 항목을
+          일본어로 직접 입력해 주세요.
         </p>
       </section>
     );
@@ -1091,8 +1173,8 @@ function TranslationPanel({
         )}
       </div>
       <p className="mt-1.5 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-        한국어로 입력하신 항목을 일본 표기로 바꿨습니다. 수치·가격은 원문과 같은지 자동으로 대조했고, 아래에서 직접 고치실 수
-        있습니다.
+        한국어로 입력하신 항목을 일본 표기로 바꿨습니다. 수치·가격은 원문과 같은지 자동으로 대조했고, 아래에서 직접
+        고치실 수 있습니다.
       </p>
 
       {alwaysOpen.length > 0 && (
@@ -1131,7 +1213,9 @@ function TranslationPanel({
 function TranslationRow({ field, onEdit }: { field: TranslatedField; onEdit: (path: string, ja: string) => void }) {
   const inputId = `tr-${field.path.replace(/[^\w-]/g, '-')}`;
   return (
-    <li className={`rounded-lg border px-4 py-3 ${field.ok ? 'border-card-border bg-n-50' : 'border-danger bg-danger-bg'}`}>
+    <li
+      className={`rounded-lg border px-4 py-3 ${field.ok ? 'border-card-border bg-n-50' : 'border-danger bg-danger-bg'}`}
+    >
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[13px] font-semibold text-ink-body">{field.label}</span>
         {field.kind === 'regulated' && <StatusBadge tone="warn">표시 의무 — 반드시 확인</StatusBadge>}
@@ -1179,7 +1263,12 @@ function Accordion({
 }) {
   return (
     <section className={`${cardClass} mt-4 overflow-hidden`}>
-      <button type="button" onClick={onToggle} aria-expanded={open} className="flex w-full items-center justify-between px-5 py-4 text-left">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between px-5 py-4 text-left"
+      >
         <span>
           <span className="text-sm font-bold text-ink">{title}</span>
           <span className="ml-2 text-xs text-ink-mute">{hint}</span>
@@ -1212,12 +1301,17 @@ function ConfirmStep({
     <div className="mt-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-ink">블록 구성 확인</h2>
-        <button type="button" onClick={onBack} className="text-[13px] font-medium text-coral-strong underline-offset-2 hover:underline">
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-[13px] font-medium text-coral-strong underline-offset-2 hover:underline"
+        >
           입력으로 돌아가기
         </button>
       </div>
       <p className="mt-1.5 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-        약 {minutes}분 걸립니다 · 블록 {plan.blocks.length}개 (이미지 생성 {plan.aiBlockCount}개) · 출력 폭 {plan.output.width}px
+        약 {minutes}분 걸립니다 · 블록 {plan.blocks.length}개 (이미지 생성 {plan.aiBlockCount}개) · 출력 폭{' '}
+        {plan.output.width}px
       </p>
       <p className="mt-2 rounded-lg bg-n-50 px-3 py-2 text-xs leading-relaxed text-ink-mute">{plan.output.note}</p>
 

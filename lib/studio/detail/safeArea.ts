@@ -267,10 +267,11 @@ export async function analyzeSafeArea(background: Buffer): Promise<CopyPlacement
   const calm = best.density <= CALM_SCORE_LIMIT;
   const alpha = calm && solved.reached ? solved.alpha : MAX_SCRIM_ALPHA;
   const confidence = calm && solved.reached ? Math.max(0, Math.min(1, 1 - best.density / CALM_SCORE_LIMIT)) : 0;
-  const reason = calm && solved.reached
-    ? `${best.cand.labelKo} 여백에 배치(밀도 ${best.density.toFixed(3)} · 밝기 ${best.luma.toFixed(2)} · 스크림 ${alpha}).`
-    : `배경컷 전체가 빽빽해 뚜렷한 여백을 찾지 못했습니다(밀도 ${best.density.toFixed(3)}). ` +
-      `${best.cand.labelKo}에 강한 그라디언트로 배치했으니 결과를 확인해 주세요.`;
+  const reason =
+    calm && solved.reached
+      ? `${best.cand.labelKo} 여백에 배치(밀도 ${best.density.toFixed(3)} · 밝기 ${best.luma.toFixed(2)} · 스크림 ${alpha}).`
+      : `배경컷 전체가 빽빽해 뚜렷한 여백을 찾지 못했습니다(밀도 ${best.density.toFixed(3)}). ` +
+        `${best.cand.labelKo}에 강한 그라디언트로 배치했으니 결과를 확인해 주세요.`;
 
   return {
     zone: {

@@ -33,7 +33,15 @@ export async function pollWithShots(ctx, o) {
   let last = null;
   for (;;) {
     if (Date.now() - started > o.maxMs) {
-      return { timeout: true, ok: false, status: last?.status ?? 'timeout', elapsedMs: Date.now() - started, progress, steps, raw: last?.raw ?? null };
+      return {
+        timeout: true,
+        ok: false,
+        status: last?.status ?? 'timeout',
+        elapsedMs: Date.now() - started,
+        progress,
+        steps,
+        raw: last?.raw ?? null,
+      };
     }
     await ctx.page.waitForTimeout(o.intervalMs);
     try {
@@ -42,7 +50,16 @@ export async function pollWithShots(ctx, o) {
     } catch (err) {
       failures += 1;
       if (failures >= 10) {
-        return { timeout: false, ok: false, status: 'poll-error', error: String(err?.message ?? err), elapsedMs: Date.now() - started, progress, steps, raw: null };
+        return {
+          timeout: false,
+          ok: false,
+          status: 'poll-error',
+          error: String(err?.message ?? err),
+          elapsedMs: Date.now() - started,
+          progress,
+          steps,
+          raw: null,
+        };
       }
       continue;
     }
@@ -55,7 +72,15 @@ export async function pollWithShots(ctx, o) {
     if (last.terminal) {
       await ctx.page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
       await ctx.page.waitForTimeout(800);
-      return { timeout: false, ok: last.ok, status: last.status, elapsedMs: Date.now() - started, progress, steps, raw: last.raw };
+      return {
+        timeout: false,
+        ok: last.ok,
+        status: last.status,
+        elapsedMs: Date.now() - started,
+        progress,
+        steps,
+        raw: last.raw,
+      };
     }
   }
 }

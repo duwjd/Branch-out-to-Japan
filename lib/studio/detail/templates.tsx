@@ -70,7 +70,10 @@ export interface BlockRenderContext {
 
 /** 여러 값을 담는 슬롯은 줄바꿈으로 구분한다(팩 정의). */
 function lines(v: string | undefined): string[] {
-  return (v ?? '').split('\n').map((s) => s.trim()).filter(Boolean);
+  return (v ?? '')
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 /** `제목|본문|각주` 형식의 행을 파싱한다. */
@@ -109,15 +112,29 @@ function photoTokens(placement: CopyPlacement | undefined, th: DetailTheme): Ban
   const light = placement?.textTone !== 'dark';
   if (light) {
     return {
-      bg: 'transparent', ink: '#ffffff', body: 'rgba(255,255,255,0.86)', mute: 'rgba(255,255,255,0.68)',
-      accent: mixWhite(th.accent, 0.45), fill: mixWhite(th.accent, 0.3), rule: 'rgba(255,255,255,0.28)',
-      card: 'rgba(255,255,255,0.14)', softFill: 'rgba(255,255,255,0.16)', softInk: '#ffffff',
+      bg: 'transparent',
+      ink: '#ffffff',
+      body: 'rgba(255,255,255,0.86)',
+      mute: 'rgba(255,255,255,0.68)',
+      accent: mixWhite(th.accent, 0.45),
+      fill: mixWhite(th.accent, 0.3),
+      rule: 'rgba(255,255,255,0.28)',
+      card: 'rgba(255,255,255,0.14)',
+      softFill: 'rgba(255,255,255,0.16)',
+      softInk: '#ffffff',
     };
   }
   return {
-    bg: 'transparent', ink: NEUTRAL_INK, body: 'rgba(32,33,36,0.84)', mute: 'rgba(55,56,60,0.66)',
-    accent: th.accentStrong, fill: th.accent, rule: 'rgba(32,33,36,0.22)',
-    card: 'rgba(255,255,255,0.55)', softFill: 'rgba(255,255,255,0.62)', softInk: th.accentStrong,
+    bg: 'transparent',
+    ink: NEUTRAL_INK,
+    body: 'rgba(32,33,36,0.84)',
+    mute: 'rgba(55,56,60,0.66)',
+    accent: th.accentStrong,
+    fill: th.accent,
+    rule: 'rgba(32,33,36,0.22)',
+    card: 'rgba(255,255,255,0.55)',
+    softFill: 'rgba(255,255,255,0.62)',
+    softInk: th.accentStrong,
   };
 }
 
@@ -127,19 +144,12 @@ function photoTokens(placement: CopyPlacement | undefined, th: DetailTheme): Ban
  *
  * 레이아웃 프리미티브는 **이 함수 안에서** 만들어진다 — 위 헤더의 팩토리 클로저 규칙 때문이다.
  */
-export function blockContent(
-  blockId: BlockType,
-  slots: Record<string, string>,
-  ctx: BlockRenderContext,
-): ReactElement {
+export function blockContent(blockId: BlockType, slots: Record<string, string>, ctx: BlockRenderContext): ReactElement {
   const onPhoto = ctx.surface === 'photo' && ctx.hasBackground;
   const T = onPhoto ? photoTokens(ctx.placement, ctx.theme) : surfaceFor(ctx.tone, ctx.theme);
   const showRail = !onPhoto && ctx.chapter !== null;
   /** 패딩·레일을 뺀 실제 콘텐츠 폭. 모든 가변 폭 요소가 이 값을 기준으로 잡힌다 */
-  const contentWidth = Math.max(
-    240,
-    (ctx.availableWidth || CANVAS_WIDTH) - PAD * 2 - (showRail ? RAIL_W : 0),
-  );
+  const contentWidth = Math.max(240, (ctx.availableWidth || CANVAS_WIDTH) - PAD * 2 - (showRail ? RAIL_W : 0));
   const k = TYPE_SCALE[ctx.typeScale];
   /**
    * 좁은 여백 보정.
@@ -182,7 +192,9 @@ export function blockContent(
           {`${pad2(index)} / ${pad2(total)}`}
         </div>
         {/* 인덱스 **아래**로 바를 흘린다. 바를 위에 두면 숫자가 본문에서 멀어져 정체불명의 각주처럼 읽힌다 */}
-        <div style={{ display: 'flex', width: 4, flexGrow: 1, marginTop: 14, backgroundColor: T.fill, borderRadius: 2 }} />
+        <div
+          style={{ display: 'flex', width: 4, flexGrow: 1, marginTop: 14, backgroundColor: T.fill, borderRadius: 2 }}
+        />
       </div>
     );
   }
@@ -208,7 +220,16 @@ export function blockContent(
           backgroundColor: T.bg,
         }}
       >
-        <div style={{ display: 'flex', width: 44, height: 44, backgroundColor: nextBg, transform: 'rotate(45deg)', marginTop: 22 }} />
+        <div
+          style={{
+            display: 'flex',
+            width: 44,
+            height: 44,
+            backgroundColor: nextBg,
+            transform: 'rotate(45deg)',
+            marginTop: 22,
+          }}
+        />
       </div>
     );
   }
@@ -233,15 +254,23 @@ export function blockContent(
 
   function Eyebrow({ text }: { text: string }) {
     return (
-      <div style={{ display: 'flex', color: T.accent, fontSize: z(26), fontWeight: 700, letterSpacing: 4 }}>
-        {text}
-      </div>
+      <div style={{ display: 'flex', color: T.accent, fontSize: z(26), fontWeight: 700, letterSpacing: 4 }}>{text}</div>
     );
   }
 
   function Headline({ text, size = 52 }: { text: string; size?: number }) {
     return (
-      <div style={{ display: 'flex', width: contentWidth, marginTop: 18, fontSize: z(size), fontWeight: 700, color: T.ink, lineHeight: 1.35 }}>
+      <div
+        style={{
+          display: 'flex',
+          width: contentWidth,
+          marginTop: 18,
+          fontSize: z(size),
+          fontWeight: 700,
+          color: T.ink,
+          lineHeight: 1.35,
+        }}
+      >
         {text}
       </div>
     );
@@ -250,7 +279,9 @@ export function blockContent(
   /** 디스플레이 수치 — 할인율·누적 판매처럼 숫자 자체가 메시지인 자리. */
   function Display({ text, size = 96 }: { text: string; size?: number }) {
     return (
-      <div style={{ display: 'flex', marginTop: 12, fontSize: dsp(size), fontWeight: 700, color: T.ink, lineHeight: 1.1 }}>
+      <div
+        style={{ display: 'flex', marginTop: 12, fontSize: dsp(size), fontWeight: 700, color: T.ink, lineHeight: 1.1 }}
+      >
         {text}
       </div>
     );
@@ -258,7 +289,11 @@ export function blockContent(
 
   function Body({ text, marginTop = 24 }: { text: string; marginTop?: number }) {
     return (
-      <div style={{ display: 'flex', width: contentWidth, marginTop, fontSize: z(27), lineHeight: 1.75, color: T.body }}>{text}</div>
+      <div
+        style={{ display: 'flex', width: contentWidth, marginTop, fontSize: z(27), lineHeight: 1.75, color: T.body }}
+      >
+        {text}
+      </div>
     );
   }
 
@@ -267,7 +302,17 @@ export function blockContent(
     return (
       <div style={{ display: 'flex', flexDirection: 'column', marginTop }}>
         {items.map((t, i) => (
-          <div key={i} style={{ display: 'flex', width: contentWidth, fontSize: z(19), lineHeight: 1.6, color: T.mute, marginTop: i === 0 ? 0 : 6 }}>
+          <div
+            key={i}
+            style={{
+              display: 'flex',
+              width: contentWidth,
+              fontSize: z(19),
+              lineHeight: 1.6,
+              color: T.mute,
+              marginTop: i === 0 ? 0 : 6,
+            }}
+          >
             {t}
           </div>
         ))}
@@ -281,8 +326,20 @@ export function blockContent(
       <div style={{ display: 'flex', flexDirection: 'column', marginTop: 36, borderTop: `2px solid ${T.ink}` }}>
         {rows.map(([label, value], i) => (
           <div key={i} style={{ display: 'flex', borderBottom: `1px solid ${T.rule}`, padding: '16px 0' }}>
-            <div style={{ display: 'flex', width: labelWidth, flexShrink: 0, color: T.mute, fontSize: z(24) }}>{label}</div>
-            <div style={{ display: 'flex', width: contentWidth - labelWidth, color: T.ink, fontSize: z(24), lineHeight: 1.6 }}>{value}</div>
+            <div style={{ display: 'flex', width: labelWidth, flexShrink: 0, color: T.mute, fontSize: z(24) }}>
+              {label}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                width: contentWidth - labelWidth,
+                color: T.ink,
+                fontSize: z(24),
+                lineHeight: 1.6,
+              }}
+            >
+              {value}
+            </div>
           </div>
         ))}
       </div>
@@ -321,37 +378,41 @@ export function blockContent(
           const { title, body } = stripAutoLabel(raw.title, raw.body, label);
           const it = { ...raw, title, body };
           return (
-          <div key={i} style={{ display: 'flex', marginTop: i === 0 ? 0 : 28 }}>
-            {/* 라벨 길이가 CASE1·POINT 1 등으로 달라지므로 고정 원형이 아니라 알약형으로 둔다 */}
-            <div
-              style={{
-                display: 'flex',
-                minWidth: 132,
-                height: 52,
-                flexShrink: 0,
-                borderRadius: 999,
-                backgroundColor: T.softFill,
-                color: T.softInk,
-                fontSize: z(22),
-                fontWeight: 700,
-                letterSpacing: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0 20px',
-              }}
-            >
-              {`${label}${i + 1}`.trim()}
+            <div key={i} style={{ display: 'flex', marginTop: i === 0 ? 0 : 28 }}>
+              {/* 라벨 길이가 CASE1·POINT 1 등으로 달라지므로 고정 원형이 아니라 알약형으로 둔다 */}
+              <div
+                style={{
+                  display: 'flex',
+                  minWidth: 132,
+                  height: 52,
+                  flexShrink: 0,
+                  borderRadius: 999,
+                  backgroundColor: T.softFill,
+                  color: T.softInk,
+                  fontSize: z(22),
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0 20px',
+                }}
+              >
+                {`${label}${i + 1}`.trim()}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 24, width: contentWidth - 132 - 24 }}>
+                <div style={{ display: 'flex', fontSize: z(30), fontWeight: 700, color: T.ink, lineHeight: 1.4 }}>
+                  {it.title}
+                </div>
+                {it.body ? (
+                  <div style={{ display: 'flex', marginTop: 8, fontSize: z(25), lineHeight: 1.7, color: T.body }}>
+                    {it.body}
+                  </div>
+                ) : null}
+                {it.note ? (
+                  <div style={{ display: 'flex', marginTop: 6, fontSize: z(19), color: T.mute }}>{it.note}</div>
+                ) : null}
+              </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 24, width: contentWidth - 132 - 24 }}>
-              <div style={{ display: 'flex', fontSize: z(30), fontWeight: 700, color: T.ink, lineHeight: 1.4 }}>{it.title}</div>
-              {it.body ? (
-                <div style={{ display: 'flex', marginTop: 8, fontSize: z(25), lineHeight: 1.7, color: T.body }}>{it.body}</div>
-              ) : null}
-              {it.note ? (
-                <div style={{ display: 'flex', marginTop: 6, fontSize: z(19), color: T.mute }}>{it.note}</div>
-              ) : null}
-            </div>
-          </div>
           );
         })}
       </div>
@@ -366,9 +427,7 @@ export function blockContent(
             <div style={{ display: 'flex', fontSize: z(44), fontWeight: 700, color: T.accent, lineHeight: 1.35 }}>
               {s('couponTitleJa')}
             </div>
-            {s('discountRateJa') ? (
-              <Display text={s('discountRateJa')} size={104} />
-            ) : null}
+            {s('discountRateJa') ? <Display text={s('discountRateJa')} size={104} /> : null}
             {s('periodJa') ? <Body text={s('periodJa')} marginTop={16} /> : null}
           </div>
           <Footnotes items={sLines('conditionFootnoteJa')} marginTop={24} />
@@ -437,7 +496,16 @@ export function blockContent(
           <div style={{ display: 'flex', flexDirection: 'column', marginTop: 28 }}>
             {sLines('painPointsJa').map((t, i) => (
               <div key={i} style={{ display: 'flex', marginTop: i === 0 ? 0 : 14, alignItems: 'center' }}>
-                <div style={{ display: 'flex', width: 10, height: 10, borderRadius: 999, backgroundColor: T.fill, marginRight: 16 }} />
+                <div
+                  style={{
+                    display: 'flex',
+                    width: 10,
+                    height: 10,
+                    borderRadius: 999,
+                    backgroundColor: T.fill,
+                    marginRight: 16,
+                  }}
+                />
                 <div style={{ display: 'flex', fontSize: z(28), color: T.body, lineHeight: 1.6 }}>{t}</div>
               </div>
             ))}
@@ -534,9 +602,25 @@ export function blockContent(
                 <div key={i} style={{ display: 'flex', alignItems: 'center', marginTop: i === 0 ? 0 : 20 }}>
                   <div style={{ display: 'flex', width: 240, fontSize: z(24), color: T.mute }}>{label}</div>
                   <div style={{ display: 'flex', flex: 1, height: 40, backgroundColor: T.rule, borderRadius: 6 }}>
-                    <div style={{ display: 'flex', width: `${Math.round((n / max) * 100)}%`, backgroundColor: T.fill, borderRadius: 6 }} />
+                    <div
+                      style={{
+                        display: 'flex',
+                        width: `${Math.round((n / max) * 100)}%`,
+                        backgroundColor: T.fill,
+                        borderRadius: 6,
+                      }}
+                    />
                   </div>
-                  <div style={{ display: 'flex', width: 140, justifyContent: 'flex-end', fontSize: dsp(40), fontWeight: 700, color: T.ink }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      width: 140,
+                      justifyContent: 'flex-end',
+                      fontSize: dsp(40),
+                      fontWeight: 700,
+                      color: T.ink,
+                    }}
+                  >
                     {value}
                   </div>
                 </div>
@@ -602,7 +686,9 @@ export function blockContent(
                   }}
                 >
                   <div style={{ display: 'flex', fontSize: z(22), color: T.mute }}>{label}</div>
-                  <div style={{ display: 'flex', marginTop: 8, fontSize: dsp(72), fontWeight: 700, color: T.softInk }}>{value}</div>
+                  <div style={{ display: 'flex', marginTop: 8, fontSize: dsp(72), fontWeight: 700, color: T.softInk }}>
+                    {value}
+                  </div>
                 </div>
               );
             })}
@@ -626,7 +712,9 @@ export function blockContent(
       return (
         <Frame>
           {s('headlineJa') ? <Headline text={s('headlineJa')} size={44} /> : <Eyebrow text="FREE FROM" />}
-          <Chips items={sLines('freeFromJa').map((t) => (t.endsWith('フリー') || t.endsWith('不使用') ? t : `${t}フリー`))} />
+          <Chips
+            items={sLines('freeFromJa').map((t) => (t.endsWith('フリー') || t.endsWith('不使用') ? t : `${t}フリー`))}
+          />
           <Footnotes items={sLines('footnoteJa')} marginTop={12} />
         </Frame>
       );
@@ -640,8 +728,19 @@ export function blockContent(
             {sLines('colorRows').map((l, i) => {
               const [no, nameJa, nameEn, hex] = cols(l, 4);
               return (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', width: 168, marginRight: 16, marginBottom: 24 }}>
-                  <div style={{ display: 'flex', width: 168, height: 168, borderRadius: 18, backgroundColor: hex || T.rule }} />
+                <div
+                  key={i}
+                  style={{ display: 'flex', flexDirection: 'column', width: 168, marginRight: 16, marginBottom: 24 }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      width: 168,
+                      height: 168,
+                      borderRadius: 18,
+                      backgroundColor: hex || T.rule,
+                    }}
+                  />
                   <div style={{ display: 'flex', marginTop: 12, fontSize: z(22), fontWeight: 700, color: T.ink }}>
                     {[no, nameJa].filter(Boolean).join(' ')}
                   </div>
@@ -662,20 +761,53 @@ export function blockContent(
             <div style={{ display: 'flex', justifyContent: 'center', fontSize: z(22), color: T.mute }}>{ax1}</div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 12 }}>
               <div style={{ display: 'flex', width: 90, fontSize: z(22), color: T.mute }}>{ax2}</div>
-              <div style={{ display: 'flex', flex: 1, flexWrap: 'wrap', border: `1px solid ${T.rule}`, borderRadius: 18, padding: 24, minHeight: 320 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flex: 1,
+                  flexWrap: 'wrap',
+                  border: `1px solid ${T.rule}`,
+                  borderRadius: 18,
+                  padding: 24,
+                  minHeight: 320,
+                }}
+              >
                 {sLines('placements').map((l, i) => {
                   const [no, name, hex] = cols(l, 3);
                   return (
-                    <div key={i} style={{ display: 'flex', flexDirection: 'column', width: 132, marginRight: 12, marginBottom: 12 }}>
-                      <div style={{ display: 'flex', width: 132, height: 88, borderRadius: 12, backgroundColor: hex || T.rule }} />
-                      <div style={{ display: 'flex', marginTop: 6, fontSize: z(19), color: T.body }}>{[no, name].filter(Boolean).join(' ')}</div>
+                    <div
+                      key={i}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: 132,
+                        marginRight: 12,
+                        marginBottom: 12,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          width: 132,
+                          height: 88,
+                          borderRadius: 12,
+                          backgroundColor: hex || T.rule,
+                        }}
+                      />
+                      <div style={{ display: 'flex', marginTop: 6, fontSize: z(19), color: T.body }}>
+                        {[no, name].filter(Boolean).join(' ')}
+                      </div>
                     </div>
                   );
                 })}
               </div>
-              <div style={{ display: 'flex', width: 90, justifyContent: 'flex-end', fontSize: z(22), color: T.mute }}>{ax3}</div>
+              <div style={{ display: 'flex', width: 90, justifyContent: 'flex-end', fontSize: z(22), color: T.mute }}>
+                {ax3}
+              </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, fontSize: z(22), color: T.mute }}>{ax4}</div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12, fontSize: z(22), color: T.mute }}>
+              {ax4}
+            </div>
           </div>
         </Frame>
       );
@@ -706,17 +838,35 @@ export function blockContent(
             <div style={{ display: 'flex', padding: '14px 0', borderBottom: `1px solid ${T.rule}` }}>
               <div style={{ display: 'flex', width: 300, fontSize: z(22), color: T.mute }} />
               {axes.map((a, i) => (
-                <div key={i} style={{ display: 'flex', flex: 1, justifyContent: 'center', fontSize: z(22), color: T.mute }}>{a}</div>
+                <div
+                  key={i}
+                  style={{ display: 'flex', flex: 1, justifyContent: 'center', fontSize: z(22), color: T.mute }}
+                >
+                  {a}
+                </div>
               ))}
             </div>
             {sLines('itemRows').map((l, i) => {
               const parts = l.split('|').map((x) => x.trim());
               const name = parts[0] ?? '';
               return (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '18px 0', borderBottom: `1px solid ${T.rule}` }}>
-                  <div style={{ display: 'flex', width: 300, fontSize: z(26), fontWeight: 700, color: T.ink }}>{name}</div>
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '18px 0',
+                    borderBottom: `1px solid ${T.rule}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', width: 300, fontSize: z(26), fontWeight: 700, color: T.ink }}>
+                    {name}
+                  </div>
                   {axes.map((_, j) => (
-                    <div key={j} style={{ display: 'flex', flex: 1, justifyContent: 'center', fontSize: z(26), color: T.accent }}>
+                    <div
+                      key={j}
+                      style={{ display: 'flex', flex: 1, justifyContent: 'center', fontSize: z(26), color: T.accent }}
+                    >
                       {parts[j + 1] ?? '-'}
                     </div>
                   ))}
@@ -770,7 +920,12 @@ export function blockContent(
     }
 
     case 'texture-shot': {
-      if (!s('textureCopyJa')) return <Frame><div style={{ display: 'flex' }} /></Frame>;
+      if (!s('textureCopyJa'))
+        return (
+          <Frame>
+            <div style={{ display: 'flex' }} />
+          </Frame>
+        );
       const inner = <Headline text={s('textureCopyJa')} size={44} />;
       return <Frame>{inner}</Frame>;
     }
@@ -824,7 +979,10 @@ export function blockContent(
         <Frame>
           <div style={{ display: 'flex', flexDirection: 'column', borderTop: `1px solid ${T.rule}`, paddingTop: 28 }}>
             {sLines('footnoteRows').map((t, i) => (
-              <div key={i} style={{ display: 'flex', fontSize: z(20), lineHeight: 1.7, color: T.mute, marginTop: i === 0 ? 0 : 6 }}>
+              <div
+                key={i}
+                style={{ display: 'flex', fontSize: z(20), lineHeight: 1.7, color: T.mute, marginTop: i === 0 ? 0 : 6 }}
+              >
                 {t}
               </div>
             ))}
@@ -832,7 +990,12 @@ export function blockContent(
               <div style={{ display: 'flex', flexDirection: 'column', marginTop: 24 }}>
                 <div style={{ display: 'flex', fontSize: z(22), fontWeight: 700, color: T.body }}>ご使用上の注意</div>
                 {sLines('cautionsJa').map((t, i) => (
-                  <div key={i} style={{ display: 'flex', marginTop: 8, fontSize: z(20), lineHeight: 1.7, color: T.mute }}>{t}</div>
+                  <div
+                    key={i}
+                    style={{ display: 'flex', marginTop: 8, fontSize: z(20), lineHeight: 1.7, color: T.mute }}
+                  >
+                    {t}
+                  </div>
                 ))}
               </div>
             ) : null}

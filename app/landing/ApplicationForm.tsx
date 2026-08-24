@@ -98,13 +98,26 @@ export function ApplicationForm() {
           <label htmlFor="lp-brand" className={fieldLabel}>
             브랜드명
           </label>
-          <input id="lp-brand" value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="예) 글로우리프" className={fieldInput} required />
+          <input
+            id="lp-brand"
+            value={brandName}
+            onChange={(e) => setBrandName(e.target.value)}
+            placeholder="예) 글로우리프"
+            className={fieldInput}
+            required
+          />
         </div>
         <div>
           <label htmlFor="lp-name" className={fieldLabel}>
             담당자명
           </label>
-          <input id="lp-name" value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="예) 김서연" className={fieldInput} />
+          <input
+            id="lp-name"
+            value={contactName}
+            onChange={(e) => setContactName(e.target.value)}
+            placeholder="예) 김서연"
+            className={fieldInput}
+          />
         </div>
       </div>
 
@@ -127,7 +140,12 @@ export function ApplicationForm() {
           <label htmlFor="lp-category" className={fieldLabel}>
             제품 카테고리
           </label>
-          <select id="lp-category" value={category} onChange={(e) => setCategory(e.target.value)} className={fieldInput}>
+          <select
+            id="lp-category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className={fieldInput}
+          >
             <option value="">선택해 주세요</option>
             {PILOT_CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -164,7 +182,9 @@ export function ApplicationForm() {
                   aria-pressed={on}
                   onClick={() => toggle(channels, c.value, setChannels)}
                   className={`inline-flex cursor-pointer items-center rounded-full border px-4 py-2.5 text-[15px] font-semibold transition-colors ${
-                    on ? 'border-lp-coral bg-lp-coral text-white' : 'border-lp-line bg-white text-lp-body hover:border-lp-line-strong'
+                    on
+                      ? 'border-lp-coral bg-lp-coral text-white'
+                      : 'border-lp-line bg-white text-lp-body hover:border-lp-line-strong'
                   }`}
                 >
                   {c.label}
@@ -195,7 +215,13 @@ export function ApplicationForm() {
       <hr className="border-lp-line" />
 
       <label className="flex cursor-pointer items-center gap-2.5 py-1 text-[16px] text-lp-body">
-        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="h-5 w-5 accent-lp-coral" required />
+        <input
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => setConsent(e.target.checked)}
+          className="h-5 w-5 accent-lp-coral"
+          required
+        />
         {APPLICATION.consent}
       </label>
 
@@ -205,7 +231,11 @@ export function ApplicationForm() {
         </p>
       )}
 
-      <button type="submit" disabled={!canSubmit} className={lpButtonClass('primary', 'w-full disabled:cursor-default disabled:opacity-40')}>
+      <button
+        type="submit"
+        disabled={!canSubmit}
+        className={lpButtonClass('primary', 'w-full disabled:cursor-default disabled:opacity-40')}
+      >
         {busy ? '신청 중…' : APPLICATION.submit}
       </button>
 

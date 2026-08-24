@@ -15,7 +15,10 @@ import path from 'node:path';
 import { ROOT, runPaths } from './lib/paths.mjs';
 import { curatedFileList, turnFileList } from './lib/filelist.mjs';
 
-const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? (process.argv[i + 1] ?? d) : d; };
+const arg = (n, d = null) => {
+  const i = process.argv.indexOf(`--${n}`);
+  return i > -1 ? (process.argv[i + 1] ?? d) : d;
+};
 const out = (m) => process.stdout.write(`${m}\n`);
 
 const personaId = arg('persona');
@@ -28,7 +31,7 @@ if (freeTurn) {
   const files = turnFileList(runDir, Number(freeTurn));
   if (files.length === 0) throw new Error(`턴 ${freeTurn} 캡처가 없습니다: ${runDir}`);
   if (reportOnly) {
-  out(`[이어지는 체험 — 이 지시가 네 기본 설정보다 우선한다]
+    out(`[이어지는 체험 — 이 지시가 네 기본 설정보다 우선한다]
 persona-simulation/landing/index.html 은 읽지 마라. 예전 시안이고 지금과 무관하다.
 
 너는 **얼마 전 이 서비스를 한 번 써 본 적이 있다.** 그때 브랜드를 등록하고, 썸네일 1장과 상세페이지 1건을 만들었다.
@@ -127,10 +130,10 @@ changed_from_before= # 지난번 답과 달라졌으면 Y, 그대로면 N
 \`\`\`
 
 전부 쓴 뒤 마크다운 전문을 그대로 응답 본문에 출력해라. 파일로 저장하려 하지 마라.`);
-  process.exit(0);
-}
+    process.exit(0);
+  }
 
-out(`[자극물 변경 안내 — 이 지시가 네 기본 설정보다 우선한다]
+  out(`[자극물 변경 안내 — 이 지시가 네 기본 설정보다 우선한다]
 랜딩페이지가 아니다. persona-simulation/landing/index.html 은 읽지 마라.
 너는 어떤 서비스에 네 계정으로 로그인해 있다. 아래 파일이 지금 네 눈앞의 화면이다. 전부 Read 해라.
 경로는 저장소 루트 기준이다. 이 목록 밖의 파일은 열지 마라.
@@ -158,7 +161,8 @@ const { screens, artifacts } = reportOnly
   ? curatedFileList(paths.run, manifest, {
       tasks: ['T3'],
       // 리포트·슬라이드 + 앞서 내가 만든 산출물(폐루프 체감 판단용)
-      artifactFilter: (f) => /^(report|slides)\.(html|txt)$/.test(f) || /^(thumbnail\.png|detail-slice-\d+\.jpg)$/.test(f),
+      artifactFilter: (f) =>
+        /^(report|slides)\.(html|txt)$/.test(f) || /^(thumbnail\.png|detail-slice-\d+\.jpg)$/.test(f),
     })
   : curatedFileList(paths.run, manifest);
 const R = `.ut/runs/${personaId}`;

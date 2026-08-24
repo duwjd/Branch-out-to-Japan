@@ -63,10 +63,12 @@ export function buildBenchmark(category: Category, signals: PreSignals | null): 
   const corpusQuotes: BenchmarkData['corpusQuotes'] = [];
   const comparisonRows: BenchmarkData['comparisonRows'] = [];
   for (const d of devices) {
-    const quote = pickQuote(agg.topTrustBadges, d.patterns) || pickQuote(
-      agg.appealExamples.map((text) => ({ text, count: 1 })),
-      d.patterns,
-    );
+    const quote =
+      pickQuote(agg.topTrustBadges, d.patterns) ||
+      pickQuote(
+        agg.appealExamples.map((text) => ({ text, count: 1 })),
+        d.patterns,
+      );
     if (quote) corpusQuotes.push({ device: d.device, quote });
     comparisonRows.push({
       device: d.device,

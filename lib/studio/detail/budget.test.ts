@@ -48,7 +48,10 @@ test('웨이브가 줄어들 때만 후보를 자른다', () => {
 test('버리는 순서는 우선순위 역순 — 카테고리 필수 컷이 서명 블록보다 오래 버틴다', () => {
   const r = fitImageBudget(CANDIDATES, IMAGE_WAVE_MS * 2 + COMPOSE_RESERVE_MS, 2, TIMEOUT);
   assert.deepEqual(r.keep, ['hero-product', 'texture-shot', 'problem-hook', 'usage-scene']);
-  assert.deepEqual(r.drop.map((d) => d.blockId), ['before-after-diagram']);
+  assert.deepEqual(
+    r.drop.map((d) => d.blockId),
+    ['before-after-diagram'],
+  );
 });
 
 test('히어로는 시간이 아무리 없어도 남는다 — 제품이 한 번도 안 서는 페이지는 실패한 페이지다', () => {

@@ -50,7 +50,12 @@ function LockedCard({ title, body, hint }: { title: string; body: string; hint?:
 
 /** 4타일 통계(감사 문장·불가·조건부·신뢰 장치 관찰) 공용 타일 */
 function StatTile({ value, label, tone }: { value: React.ReactNode; label: string; tone?: 'danger' | 'amber' }) {
-  const toneCls = tone === 'danger' ? 'bg-danger-bg text-danger-text' : tone === 'amber' ? 'bg-amber-bg text-amber-text' : 'bg-n-50 text-ink';
+  const toneCls =
+    tone === 'danger'
+      ? 'bg-danger-bg text-danger-text'
+      : tone === 'amber'
+        ? 'bg-amber-bg text-amber-text'
+        : 'bg-n-50 text-ink';
   return (
     <div className={`rounded-[12px] p-3.5 ${toneCls}`}>
       <p className="tnum text-2xl leading-none font-extrabold">{value}</p>
@@ -145,7 +150,9 @@ function ScoreDonut({ score }: { score: number }) {
       segments={[{ value: score, className: 'stroke-coral' }]}
       total={100}
       ariaLabel={`일본 상세 관례 충족도 ${score}점 / 100점`}
-      centerLabel={<span className="tnum text-[52px] leading-none font-extrabold tracking-[-0.04em] text-ink">{score}</span>}
+      centerLabel={
+        <span className="tnum text-[52px] leading-none font-extrabold tracking-[-0.04em] text-ink">{score}</span>
+      }
       centerSub={<span className="mt-1 text-[13px] font-bold text-ink-faint">/ 100</span>}
     />
   );
@@ -180,7 +187,13 @@ function RadarChart({ groupScores }: { groupScores: Record<RubricGroup, number> 
         return <line key={i} x1={cx} y1={cy} x2={x} y2={y} className="stroke-n-200" strokeWidth={1} />;
       })}
       <polygon points={refPolygon} fill="none" className="stroke-ink-faint" strokeWidth={1.5} strokeDasharray="4 4" />
-      <polygon points={valuePolygon} fill="rgba(255,111,97,.22)" className="stroke-coral" strokeWidth={2} strokeLinejoin="round" />
+      <polygon
+        points={valuePolygon}
+        fill="rgba(255,111,97,.22)"
+        className="stroke-coral"
+        strokeWidth={2}
+        strokeLinejoin="round"
+      />
       {GROUP_ORDER.map((g, i) => {
         const [x, y] = pointAt(i, (maxR * (groupScores[g] ?? 0)) / 100);
         return <circle key={g} cx={x} cy={y} r={3} className="fill-coral" />;
@@ -223,53 +236,54 @@ const MARKET_CALLOUTS: { title: string; desc: React.ReactNode }[] = [
   },
 ];
 
-const MARKET_PATTERNS: { img: string; alt: string; title: string; quote: React.ReactNode; source: React.ReactNode }[] = [
-  {
-    img: '/report-assets/pattern-trust_fujifilm_8.jpg',
-    alt: '아스타리프트 상세 컷 — 효능 문장 끝에 効能評価試験済み 라벨과 조건 각주',
-    title: '효능은 근거 라벨 + 조건 각주로',
-    quote: (
-      <span lang="ja">
-        「乾燥による小じわを目立たなくします（<b>効能評価試験済み</b>）」
-      </span>
-    ),
-    source: (
-      <>
-        출처: <span lang="ja">楽天</span> · アスタリフト(FUJIFILM) · 2026-07 수집 · 분석 목적 인용
-      </>
-    ),
-  },
-  {
-    img: '/report-assets/pattern-thirdparty_tvert_1.jpg',
-    alt: 'TOUT VERT 상세 컷 — 랭킹 1위 위젯을 集計日 명기와 함께 보여준다',
-    title: '실적은 집계일 있는 제3자 지표로',
-    quote: (
-      <span lang="ja">
-        「ランキング1位（<b>集計日：5月11日〜5月17日</b>）」
-      </span>
-    ),
-    source: (
-      <>
-        출처: <span lang="ja">楽天</span> · TOUT VERT · 2026-07 수집 · 분석 목적 인용
-      </>
-    ),
-  },
-  {
-    img: '/report-assets/pattern-free_fancl_4.jpg',
-    alt: 'FANCL 상세 컷 — 5종 프리 처방을 원형 배지로 나열',
-    title: '무첨가는 라벨로 세어 보여준다',
-    quote: (
-      <>
-        <span lang="ja">防腐剤・合成香料・合成色素</span> 등 뺀 것을 5개 배지로 나열
-      </>
-    ),
-    source: (
-      <>
-        출처: <span lang="ja">楽天</span> · ファンケル(FANCL) · 2026-07 수집 · 분석 목적 인용
-      </>
-    ),
-  },
-];
+const MARKET_PATTERNS: { img: string; alt: string; title: string; quote: React.ReactNode; source: React.ReactNode }[] =
+  [
+    {
+      img: '/report-assets/pattern-trust_fujifilm_8.jpg',
+      alt: '아스타리프트 상세 컷 — 효능 문장 끝에 効能評価試験済み 라벨과 조건 각주',
+      title: '효능은 근거 라벨 + 조건 각주로',
+      quote: (
+        <span lang="ja">
+          「乾燥による小じわを目立たなくします（<b>効能評価試験済み</b>）」
+        </span>
+      ),
+      source: (
+        <>
+          출처: <span lang="ja">楽天</span> · アスタリフト(FUJIFILM) · 2026-07 수집 · 분석 목적 인용
+        </>
+      ),
+    },
+    {
+      img: '/report-assets/pattern-thirdparty_tvert_1.jpg',
+      alt: 'TOUT VERT 상세 컷 — 랭킹 1위 위젯을 集計日 명기와 함께 보여준다',
+      title: '실적은 집계일 있는 제3자 지표로',
+      quote: (
+        <span lang="ja">
+          「ランキング1位（<b>集計日：5月11日〜5月17日</b>）」
+        </span>
+      ),
+      source: (
+        <>
+          출처: <span lang="ja">楽天</span> · TOUT VERT · 2026-07 수집 · 분석 목적 인용
+        </>
+      ),
+    },
+    {
+      img: '/report-assets/pattern-free_fancl_4.jpg',
+      alt: 'FANCL 상세 컷 — 5종 프리 처방을 원형 배지로 나열',
+      title: '무첨가는 라벨로 세어 보여준다',
+      quote: (
+        <>
+          <span lang="ja">防腐剤・合成香料・合成色素</span> 등 뺀 것을 5개 배지로 나열
+        </>
+      ),
+      source: (
+        <>
+          출처: <span lang="ja">楽天</span> · ファンケル(FANCL) · 2026-07 수집 · 분석 목적 인용
+        </>
+      ),
+    },
+  ];
 
 const THUMB_DIST: { label: string; pct: number }[] = [
   { label: '클린 단독컷', pct: 33 },
@@ -330,7 +344,10 @@ function TabNav({
               on ? 'bg-coral font-bold text-white' : 'font-semibold text-ink-body hover:bg-n-100'
             }`}
           >
-            <b aria-hidden className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-extrabold ${on ? 'bg-white/25 text-white' : 'bg-n-150 text-ink-mute'}`}>
+            <b
+              aria-hidden
+              className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-extrabold ${on ? 'bg-white/25 text-white' : 'bg-n-150 text-ink-mute'}`}
+            >
               {i + 1}
             </b>
             {label}
@@ -347,14 +364,38 @@ function CoverSummaryCard({ block0 }: { block0: BlocksJson['block0'] }) {
     <section className={cardClass('mt-5 p-7')}>
       <p className="text-[11px] font-semibold text-ink-faint">블록 0 · 품의용 요약 표지</p>
       <dl className="mt-2.5 grid grid-cols-1 gap-x-8 gap-y-2 text-[13px] sm:grid-cols-2">
-        <div><dt className="inline font-bold text-ink">브랜드 </dt><dd className="inline text-ink-body">{block0.brandName}</dd></div>
-        <div><dt className="inline font-bold text-ink">제품 </dt><dd className="inline text-ink-body">{block0.productName}</dd></div>
-        <div><dt className="inline font-bold text-ink">카테고리 </dt><dd className="inline text-ink-body">{block0.categoryLabel}</dd></div>
-        <div><dt className="inline font-bold text-ink">제품 분류 </dt><dd className="inline text-ink-body">{block0.productClassLabel}</dd></div>
-        <div><dt className="inline font-bold text-ink">가격 </dt><dd className="inline text-ink-body">{block0.priceLabel}</dd></div>
-        <div><dt className="inline font-bold text-ink">발행일 </dt><dd className="inline text-ink-body">{block0.issuedAt}</dd></div>
-        <div className="sm:col-span-2"><dt className="inline font-bold text-ink">진단 범위 </dt><dd className="inline text-ink-body">{block0.scope}</dd></div>
-        <div className="sm:col-span-2"><dt className="inline font-bold text-ink">한계 요약 </dt><dd className="inline text-ink-body">{block0.limitSummary}</dd></div>
+        <div>
+          <dt className="inline font-bold text-ink">브랜드 </dt>
+          <dd className="inline text-ink-body">{block0.brandName}</dd>
+        </div>
+        <div>
+          <dt className="inline font-bold text-ink">제품 </dt>
+          <dd className="inline text-ink-body">{block0.productName}</dd>
+        </div>
+        <div>
+          <dt className="inline font-bold text-ink">카테고리 </dt>
+          <dd className="inline text-ink-body">{block0.categoryLabel}</dd>
+        </div>
+        <div>
+          <dt className="inline font-bold text-ink">제품 분류 </dt>
+          <dd className="inline text-ink-body">{block0.productClassLabel}</dd>
+        </div>
+        <div>
+          <dt className="inline font-bold text-ink">가격 </dt>
+          <dd className="inline text-ink-body">{block0.priceLabel}</dd>
+        </div>
+        <div>
+          <dt className="inline font-bold text-ink">발행일 </dt>
+          <dd className="inline text-ink-body">{block0.issuedAt}</dd>
+        </div>
+        <div className="sm:col-span-2">
+          <dt className="inline font-bold text-ink">진단 범위 </dt>
+          <dd className="inline text-ink-body">{block0.scope}</dd>
+        </div>
+        <div className="sm:col-span-2">
+          <dt className="inline font-bold text-ink">한계 요약 </dt>
+          <dd className="inline text-ink-body">{block0.limitSummary}</dd>
+        </div>
       </dl>
     </section>
   );
@@ -379,10 +420,14 @@ function Block1Header({ b, onDeepLink }: { b: BlocksJson; onDeepLink: (itemId: s
               <p className="mt-2.5 max-w-2xl leading-[1.75] whitespace-pre-line text-ink-body [text-wrap:pretty]">
                 {block1.summaryText}
               </p>
-              <p className="mt-2 text-xs text-ink-mute">종합점수는 성과 예측이 아니라 &ldquo;일본 상세 관례 충족도&rdquo;입니다.</p>
+              <p className="mt-2 text-xs text-ink-mute">
+                종합점수는 성과 예측이 아니라 &ldquo;일본 상세 관례 충족도&rdquo;입니다.
+              </p>
               <ul className="mt-3 flex flex-wrap gap-1.5">
                 {block1.trustBadges.map((badge) => (
-                  <li key={badge} className="rounded-full border border-input-border px-2.5 py-1 text-xs text-ink-mute">{badge}</li>
+                  <li key={badge} className="rounded-full border border-input-border px-2.5 py-1 text-xs text-ink-mute">
+                    {badge}
+                  </li>
                 ))}
               </ul>
               <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
@@ -399,7 +444,9 @@ function Block1Header({ b, onDeepLink }: { b: BlocksJson; onDeepLink: (itemId: s
             <p className="mt-4 max-w-2xl leading-[1.75] whitespace-pre-line text-ink-body">{block1.summaryText}</p>
             <ul className="mt-3 flex flex-wrap gap-1.5">
               {block1.trustBadges.map((badge) => (
-                <li key={badge} className="rounded-full border border-input-border px-2.5 py-1 text-xs text-ink-mute">{badge}</li>
+                <li key={badge} className="rounded-full border border-input-border px-2.5 py-1 text-xs text-ink-mute">
+                  {badge}
+                </li>
               ))}
             </ul>
           </>
@@ -423,7 +470,10 @@ function Block1Header({ b, onDeepLink }: { b: BlocksJson; onDeepLink: (itemId: s
                   onClick={() => onDeepLink(t.itemId)}
                   className="flex items-center gap-3.5 rounded-[12px] border border-card-border bg-canvas p-3.5 text-left transition-colors hover:border-coral"
                 >
-                  <span aria-hidden className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-coral text-[13px] font-extrabold text-white">
+                  <span
+                    aria-hidden
+                    className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-coral text-[13px] font-extrabold text-white"
+                  >
                     {i + 1}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -432,7 +482,9 @@ function Block1Header({ b, onDeepLink }: { b: BlocksJson; onDeepLink: (itemId: s
                     </span>
                     <span className="mt-0.5 block text-xs text-ink-mute">{GROUP_LABELS[itemGroupOf(t.itemId)]}</span>
                   </span>
-                  <span aria-hidden className="text-ink-faint">→</span>
+                  <span aria-hidden className="text-ink-faint">
+                    →
+                  </span>
                 </button>
               ))}
             </div>
@@ -458,7 +510,10 @@ function MarketPanel() {
         <div className="mt-6 grid gap-3.5 sm:grid-cols-3">
           {MARKET_CALLOUTS.map((c, i) => (
             <div key={c.title} className="rounded-[14px] border border-coral/20 bg-coral-tint p-5">
-              <span aria-hidden className="inline-flex h-[26px] w-[26px] items-center justify-center rounded-full bg-coral text-[13px] font-extrabold text-white">
+              <span
+                aria-hidden
+                className="inline-flex h-[26px] w-[26px] items-center justify-center rounded-full bg-coral text-[13px] font-extrabold text-white"
+              >
                 {i + 1}
               </span>
               <p className="mt-3 text-[15px] font-bold text-ink">{c.title}</p>
@@ -497,9 +552,14 @@ function MarketPanel() {
         >
           {THUMB_DIST.map((d, i) => (
             <div key={d.label} className="grid grid-cols-[118px_1fr_34px] items-center gap-2.5">
-              <span className={`text-[12.5px] ${i === 0 ? 'font-bold text-ink' : 'font-semibold text-ink-body'}`}>{d.label}</span>
+              <span className={`text-[12.5px] ${i === 0 ? 'font-bold text-ink' : 'font-semibold text-ink-body'}`}>
+                {d.label}
+              </span>
               <span aria-hidden className="h-4 overflow-hidden rounded-[5px] bg-n-100">
-                <span className={`block h-full rounded-[5px] ${i === 0 ? 'bg-coral' : 'bg-coral/55'}`} style={{ width: `${(d.pct / maxPct) * 100}%` }} />
+                <span
+                  className={`block h-full rounded-[5px] ${i === 0 ? 'bg-coral' : 'bg-coral/55'}`}
+                  style={{ width: `${(d.pct / maxPct) * 100}%` }}
+                />
               </span>
               <span className="tnum text-right text-xs font-bold text-ink">{d.pct}</span>
             </div>
@@ -521,7 +581,8 @@ function BenchmarkSection({ block4 }: { block4: BlocksJson['block4'] }) {
     <section className={cardClass('mt-5 p-9')}>
       <p className="text-[11px] font-semibold text-ink-faint">블록 4</p>
       <h2 className="text-[22px] font-extrabold tracking-[-0.02em] text-ink">
-        카테고리 경쟁 벤치마크 <span className="text-base font-semibold text-ink-mute">(코퍼스 {block4.sampleCount}건 실측)</span>
+        카테고리 경쟁 벤치마크{' '}
+        <span className="text-base font-semibold text-ink-mute">(코퍼스 {block4.sampleCount}건 실측)</span>
       </h2>
       <p className="mt-2.5 max-w-[640px] text-sm leading-[1.7] text-ink-body">
         일본 상위 제품이 쓰는 {total}가지 신뢰 장치 대비, 내 상세 카피에서 관찰된 것은 {observed}개입니다.
@@ -532,7 +593,9 @@ function BenchmarkSection({ block4 }: { block4: BlocksJson['block4'] }) {
           {block4.corpusQuotes.map((q) => (
             <li key={q.device}>
               <span className="font-semibold text-ink">{q.device}: </span>
-              <span lang="ja" className="text-ink-body">「{q.quote}」</span>
+              <span lang="ja" className="text-ink-body">
+                「{q.quote}」
+              </span>
             </li>
           ))}
         </ul>
@@ -541,17 +604,33 @@ function BenchmarkSection({ block4 }: { block4: BlocksJson['block4'] }) {
         <table className="w-full min-w-[680px] border-collapse text-[13px]">
           <thead>
             <tr>
-              <th scope="col" className="rounded-l-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">신뢰 장치</th>
-              <th scope="col" className="bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">일본 상위 제품 실제 표현</th>
-              <th scope="col" className="bg-n-100 px-3.5 py-2.5 text-center text-xs font-bold text-ink-body">내 콘텐츠</th>
-              <th scope="col" className="rounded-r-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">갭</th>
+              <th
+                scope="col"
+                className="rounded-l-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body"
+              >
+                신뢰 장치
+              </th>
+              <th scope="col" className="bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">
+                일본 상위 제품 실제 표현
+              </th>
+              <th scope="col" className="bg-n-100 px-3.5 py-2.5 text-center text-xs font-bold text-ink-body">
+                내 콘텐츠
+              </th>
+              <th
+                scope="col"
+                className="rounded-r-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body"
+              >
+                갭
+              </th>
             </tr>
           </thead>
           <tbody>
             {block4.comparisonRows.map((row) => (
               <tr key={row.device} className="border-b border-n-150 align-top">
                 <td className="px-3.5 py-3 font-bold text-ink">{row.device}</td>
-                <td lang="ja" className="px-3.5 py-3 text-ink-body">{row.corpusExample}</td>
+                <td lang="ja" className="px-3.5 py-3 text-ink-body">
+                  {row.corpusExample}
+                </td>
                 <td className="px-3.5 py-3 text-center">
                   <span
                     className={`inline-flex h-6.5 items-center gap-1 rounded-full px-2.5 text-xs font-bold whitespace-nowrap ${
@@ -562,7 +641,11 @@ function BenchmarkSection({ block4 }: { block4: BlocksJson['block4'] }) {
                           : 'bg-danger-bg text-danger-text'
                     }`}
                   >
-                    {row.customerStatus === '관찰됨' ? '○ 관찰됨' : row.customerStatus === '미확인' ? '— 미확인' : '✕ 미관찰'}
+                    {row.customerStatus === '관찰됨'
+                      ? '○ 관찰됨'
+                      : row.customerStatus === '미확인'
+                        ? '— 미확인'
+                        : '✕ 미관찰'}
                   </span>
                 </td>
                 <td className="px-3.5 py-3 leading-relaxed text-ink-mute">{row.gapNote}</td>
@@ -577,7 +660,10 @@ function BenchmarkSection({ block4 }: { block4: BlocksJson['block4'] }) {
           <ul className="mt-2 flex flex-wrap gap-1.5">
             {block4.searchTermRows.map((t) => (
               <li key={t.term} className="rounded-full border border-input-border px-2.5 py-1 text-xs">
-                <span lang="ja" className="font-semibold text-ink">{t.term}</span> <span className="text-ink-mute">{t.frequency}</span>
+                <span lang="ja" className="font-semibold text-ink">
+                  {t.term}
+                </span>{' '}
+                <span className="text-ink-mute">{t.frequency}</span>
               </li>
             ))}
           </ul>
@@ -592,7 +678,9 @@ function AuditSection({ block3, productClassAssumed }: { block3: BlocksJson['blo
   return (
     <section className={cardClass('mt-4 p-9')}>
       <p className="text-[11px] font-semibold text-ink-faint">블록 3</p>
-      <h2 className="text-[17px] font-bold text-ink"><span lang="ja">薬機法</span> 표현 전수 감사</h2>
+      <h2 className="text-[17px] font-bold text-ink">
+        <span lang="ja">薬機法</span> 표현 전수 감사
+      </h2>
       {block3 === null ? (
         <div className="mt-4">
           <LockedCard
@@ -613,15 +701,30 @@ function AuditSection({ block3, productClassAssumed }: { block3: BlocksJson['blo
             <table className="w-full min-w-[520px] border-collapse text-[13px]">
               <thead>
                 <tr>
-                  <th scope="col" className="rounded-l-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body" lang="ja">등급</th>
-                  <th scope="col" className="bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">말할 수 있는 것</th>
-                  <th scope="col" className="rounded-r-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">말할 수 없는 것</th>
+                  <th
+                    scope="col"
+                    className="rounded-l-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body"
+                    lang="ja"
+                  >
+                    등급
+                  </th>
+                  <th scope="col" className="bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">
+                    말할 수 있는 것
+                  </th>
+                  <th
+                    scope="col"
+                    className="rounded-r-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body"
+                  >
+                    말할 수 없는 것
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {block3.gradeRows.map((g) => (
                   <tr key={g.grade} className="border-b border-n-150 align-top">
-                    <td className="px-3.5 py-3 font-bold text-ink" lang="ja">{g.grade}</td>
+                    <td className="px-3.5 py-3 font-bold text-ink" lang="ja">
+                      {g.grade}
+                    </td>
                     <td className="px-3.5 py-3 text-ink-body">{g.canSay}</td>
                     <td className="px-3.5 py-3 text-ink-body">{g.cannotSay}</td>
                   </tr>
@@ -646,9 +749,21 @@ function AuditSection({ block3, productClassAssumed }: { block3: BlocksJson['blo
               centerSub={<span className="text-[11px] font-bold text-ink-faint">문장</span>}
             />
             <div className="flex flex-col gap-2.5 text-[13.5px]">
-              <p><span aria-hidden className="mr-2 inline-block h-3 w-3 rounded-[4px] bg-danger align-middle" /><b className="text-ink">불가 {block3.summary.ngCount}</b> <span className="text-ink-mute">그대로 게재 불가</span></p>
-              <p><span aria-hidden className="mr-2 inline-block h-3 w-3 rounded-[4px] bg-amber align-middle" /><b className="text-ink">조건부 {block3.summary.conditionalCount}</b> <span className="text-ink-mute">각주·한정 필요</span></p>
-              <p><span aria-hidden className="mr-2 inline-block h-3 w-3 rounded-[4px] bg-green align-middle" /><b className="text-ink">가능 {block3.summary.okCount}</b> <span className="text-ink-mute">그대로 쓸 수 있는 문장</span></p>
+              <p>
+                <span aria-hidden className="mr-2 inline-block h-3 w-3 rounded-[4px] bg-danger align-middle" />
+                <b className="text-ink">불가 {block3.summary.ngCount}</b>{' '}
+                <span className="text-ink-mute">그대로 게재 불가</span>
+              </p>
+              <p>
+                <span aria-hidden className="mr-2 inline-block h-3 w-3 rounded-[4px] bg-amber align-middle" />
+                <b className="text-ink">조건부 {block3.summary.conditionalCount}</b>{' '}
+                <span className="text-ink-mute">각주·한정 필요</span>
+              </p>
+              <p>
+                <span aria-hidden className="mr-2 inline-block h-3 w-3 rounded-[4px] bg-green align-middle" />
+                <b className="text-ink">가능 {block3.summary.okCount}</b>{' '}
+                <span className="text-ink-mute">그대로 쓸 수 있는 문장</span>
+              </p>
             </div>
           </div>
 
@@ -677,14 +792,24 @@ function AuditSection({ block3, productClassAssumed }: { block3: BlocksJson['blo
                 key={s.sentenceId}
                 id={`audit-${s.sentenceId}`}
                 className={`rounded-[14px] border p-4 text-sm ${
-                  s.verdict === '불가' ? 'border-danger/35' : s.verdict === '조건부' ? 'border-amber/40' : 'border-card-border'
+                  s.verdict === '불가'
+                    ? 'border-danger/35'
+                    : s.verdict === '조건부'
+                      ? 'border-amber/40'
+                      : 'border-card-border'
                 }`}
               >
                 <header className="flex flex-wrap items-center gap-2">
                   <span className="font-extrabold text-ink">문장 {circledNumber(i + 1)}</span>
-                  <span className={`inline-flex h-[23px] items-center rounded-[6px] px-2.5 text-xs font-bold ${VERDICT_BADGE[s.verdict]}`}>【{s.verdict}】</span>
+                  <span
+                    className={`inline-flex h-[23px] items-center rounded-[6px] px-2.5 text-xs font-bold ${VERDICT_BADGE[s.verdict]}`}
+                  >
+                    【{s.verdict}】
+                  </span>
                   {s.clauseRefs.length > 0 && (
-                    <span className="text-xs text-ink-mute">근거 조항 {s.clauseRefs.map((r) => `[${r}]`).join('')}</span>
+                    <span className="text-xs text-ink-mute">
+                      근거 조항 {s.clauseRefs.map((r) => `[${r}]`).join('')}
+                    </span>
                   )}
                 </header>
                 <p className="mt-2.5 text-ink">{s.originalText}</p>
@@ -698,7 +823,9 @@ function AuditSection({ block3, productClassAssumed }: { block3: BlocksJson['blo
               </article>
             ))}
           </div>
-          <p className="mt-4 rounded-[10px] border border-card-border bg-n-50 p-3 text-xs text-ink-mute">{block3.disclaimer}</p>
+          <p className="mt-4 rounded-[10px] border border-card-border bg-n-50 p-3 text-xs text-ink-mute">
+            {block3.disclaimer}
+          </p>
         </>
       )}
     </section>
@@ -710,7 +837,9 @@ function RubricSection({ block5 }: { block5: BlocksJson['block5'] }) {
   return (
     <section className={cardClass('mt-4 p-9')}>
       <p className="text-[11px] font-semibold text-ink-faint">블록 5</p>
-      <h2 className="text-[17px] font-bold text-ink">일본 문법 진단 점수 <span className="font-normal text-ink-mute">(A~E 루브릭)</span></h2>
+      <h2 className="text-[17px] font-bold text-ink">
+        일본 문법 진단 점수 <span className="font-normal text-ink-mute">(A~E 루브릭)</span>
+      </h2>
       {block5 === null ? (
         <div className="mt-4">
           <LockedCard
@@ -721,7 +850,9 @@ function RubricSection({ block5 }: { block5: BlocksJson['block5'] }) {
         </div>
       ) : (
         <>
-          <p className="mt-1.5 text-xs text-ink-mute">카테고리에 해당하는 항목만 채점 — 같은 점수는 항상 같은 종합 점수로 집계됩니다</p>
+          <p className="mt-1.5 text-xs text-ink-mute">
+            카테고리에 해당하는 항목만 채점 — 같은 점수는 항상 같은 종합 점수로 집계됩니다
+          </p>
           <div className="mt-5 flex flex-col gap-3.5">
             {GROUP_ORDER.map((g) => {
               const score = block5.groupScores[g];
@@ -729,25 +860,41 @@ function RubricSection({ block5 }: { block5: BlocksJson['block5'] }) {
               return (
                 <div key={g} className="grid grid-cols-[112px_1fr_92px_64px] items-center gap-3.5">
                   <span className="text-[13.5px] font-bold text-ink">{GROUP_LABELS[g]}</span>
-                  <span role="img" aria-label={`${GROUP_LABELS[g]} ${score}%`} className="h-3 overflow-hidden rounded-full bg-n-100">
+                  <span
+                    role="img"
+                    aria-label={`${GROUP_LABELS[g]} ${score}%`}
+                    className="h-3 overflow-hidden rounded-full bg-n-100"
+                  >
                     <span className={`block h-full rounded-full ${BAND_BAR[band]}`} style={{ width: `${score}%` }} />
                   </span>
-                  <span className={`inline-flex h-6 items-center justify-center rounded-[6px] text-[11.5px] font-bold ${BAND_BADGE[band]}`}>
+                  <span
+                    className={`inline-flex h-6 items-center justify-center rounded-[6px] text-[11.5px] font-bold ${BAND_BADGE[band]}`}
+                  >
                     {BAND_LABEL[band]} · {score}%
                   </span>
-                  <span className="tnum text-right text-[11.5px] text-ink-mute">가중 {block5.weights[g].toFixed(2)}</span>
+                  <span className="tnum text-right text-[11.5px] text-ink-mute">
+                    가중 {block5.weights[g].toFixed(2)}
+                  </span>
                 </div>
               );
             })}
           </div>
           <div className="mt-5 space-y-2">
             {block5.items.map((item) => (
-              <details key={item.itemId} id={`rubric-${item.itemId}`} className="rounded-[12px] border border-card-border p-3.5 text-sm">
+              <details
+                key={item.itemId}
+                id={`rubric-${item.itemId}`}
+                className="rounded-[12px] border border-card-border p-3.5 text-sm"
+              >
                 <summary className="flex cursor-pointer flex-wrap items-center gap-2">
                   <span className="flex-1 font-semibold text-ink">{item.title}</span>
                   <span
                     className={`inline-flex h-6 items-center rounded-[6px] px-2 text-xs font-bold ${
-                      item.score === 2 ? 'bg-green-bg text-green-text' : item.score === 1 ? 'bg-amber-bg text-amber-text' : 'bg-danger-bg text-danger-text'
+                      item.score === 2
+                        ? 'bg-green-bg text-green-text'
+                        : item.score === 1
+                          ? 'bg-amber-bg text-amber-text'
+                          : 'bg-danger-bg text-danger-text'
                     }`}
                   >
                     {item.score}점
@@ -788,13 +935,30 @@ function PersonaSection({ block2: p }: { block2: BlocksJson['block2'] }) {
             className="h-[72px] w-[72px] flex-none rounded-full border border-coral/30 bg-coral-tint"
           />
           <div className="min-w-0 flex-1">
-            <p className="text-base font-bold text-ink">{p.persona.name} · {p.persona.ageRange}</p>
+            <p className="text-base font-bold text-ink">
+              {p.persona.name} · {p.persona.ageRange}
+            </p>
             <dl className="mt-3.5 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-              <div><dt className="text-[11.5px] font-bold text-ink-mute">피부 고민</dt><dd className="mt-1 text-[13.5px] text-ink">{p.persona.skinConcerns.join(', ')}</dd></div>
-              <div><dt className="text-[11.5px] font-bold text-ink-mute">구매 동기</dt><dd className="mt-1 text-[13.5px] text-ink">{p.persona.buyingMotive}</dd></div>
-              <div><dt className="text-[11.5px] font-bold text-ink-mute">구매 전 확인</dt><dd className="mt-1 text-[13.5px] text-ink">{p.persona.checkBehaviors.join(' · ')}</dd></div>
-              <div><dt className="text-[11.5px] font-bold text-ink-mute">가격 감도</dt><dd className="mt-1 text-[13.5px] text-ink">{p.persona.priceSensitivity}</dd></div>
-              <div className="sm:col-span-2"><dt className="text-[11.5px] font-bold text-ink-mute">신뢰 트리거</dt><dd className="mt-1 text-[13.5px] text-ink">{p.persona.trustTriggers.join(' · ')}</dd></div>
+              <div>
+                <dt className="text-[11.5px] font-bold text-ink-mute">피부 고민</dt>
+                <dd className="mt-1 text-[13.5px] text-ink">{p.persona.skinConcerns.join(', ')}</dd>
+              </div>
+              <div>
+                <dt className="text-[11.5px] font-bold text-ink-mute">구매 동기</dt>
+                <dd className="mt-1 text-[13.5px] text-ink">{p.persona.buyingMotive}</dd>
+              </div>
+              <div>
+                <dt className="text-[11.5px] font-bold text-ink-mute">구매 전 확인</dt>
+                <dd className="mt-1 text-[13.5px] text-ink">{p.persona.checkBehaviors.join(' · ')}</dd>
+              </div>
+              <div>
+                <dt className="text-[11.5px] font-bold text-ink-mute">가격 감도</dt>
+                <dd className="mt-1 text-[13.5px] text-ink">{p.persona.priceSensitivity}</dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-[11.5px] font-bold text-ink-mute">신뢰 트리거</dt>
+                <dd className="mt-1 text-[13.5px] text-ink">{p.persona.trustTriggers.join(' · ')}</dd>
+              </div>
             </dl>
           </div>
         </div>
@@ -816,7 +980,16 @@ function PersonaSection({ block2: p }: { block2: BlocksJson['block2'] }) {
               </div>
             );
             if (isLast) return [card];
-            return [card, <span key={`arrow-${i}`} aria-hidden className="hidden items-center justify-center text-ink-faint sm:flex">→</span>];
+            return [
+              card,
+              <span
+                key={`arrow-${i}`}
+                aria-hidden
+                className="hidden items-center justify-center text-ink-faint sm:flex"
+              >
+                →
+              </span>,
+            ];
           })}
         </div>
 
@@ -825,7 +998,12 @@ function PersonaSection({ block2: p }: { block2: BlocksJson['block2'] }) {
             <h3 className="text-sm font-bold text-ink">구매 반대 이유 (첫 의문)</h3>
             <ul className="mt-2 space-y-1.5 text-sm text-ink-body">
               {p.objections.map((o) => (
-                <li key={o.question}><span lang="ja" className="font-semibold text-ink">{o.question}</span> — {o.why}</li>
+                <li key={o.question}>
+                  <span lang="ja" className="font-semibold text-ink">
+                    {o.question}
+                  </span>{' '}
+                  — {o.why}
+                </li>
               ))}
             </ul>
           </div>
@@ -838,9 +1016,21 @@ function PersonaSection({ block2: p }: { block2: BlocksJson['block2'] }) {
           <table className="w-full min-w-[640px] border-collapse text-[13px]">
             <thead>
               <tr>
-                <th scope="col" className="rounded-l-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">현재(KR) 소구</th>
-                <th scope="col" className="bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">일본 고객에게 읽히는 방식</th>
-                <th scope="col" className="rounded-r-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">재정의된 USP</th>
+                <th
+                  scope="col"
+                  className="rounded-l-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body"
+                >
+                  현재(KR) 소구
+                </th>
+                <th scope="col" className="bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body">
+                  일본 고객에게 읽히는 방식
+                </th>
+                <th
+                  scope="col"
+                  className="rounded-r-[8px] bg-n-100 px-3.5 py-2.5 text-left text-xs font-bold text-ink-body"
+                >
+                  재정의된 USP
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -899,7 +1089,10 @@ function RewriteCard({ rw, index }: { rw: RewriteRow; index: number }) {
           푸는 문제 · {rw.problem}
         </span>
         {rw.whatAdded.map((w) => (
-          <span key={w} className="inline-flex h-6 items-center rounded-full bg-green-bg px-2.5 text-[11.5px] font-bold whitespace-nowrap text-green-text">
+          <span
+            key={w}
+            className="inline-flex h-6 items-center rounded-full bg-green-bg px-2.5 text-[11.5px] font-bold whitespace-nowrap text-green-text"
+          >
             + {w}
           </span>
         ))}
@@ -911,7 +1104,9 @@ function RewriteCard({ rw, index }: { rw: RewriteRow; index: number }) {
         </div>
         <div className="rounded-[12px] border border-coral/35 bg-coral-tint p-4.5">
           <p className="text-[11px] font-extrabold tracking-[.05em] text-coral-strong">AFTER · JP</p>
-          <p lang="ja" className="mt-2.5 leading-[1.7] font-bold text-ink">{rw.afterJa}</p>
+          <p lang="ja" className="mt-2.5 leading-[1.7] font-bold text-ink">
+            {rw.afterJa}
+          </p>
           <p className="mt-2 text-[12.5px] leading-relaxed text-ink-body">{rw.afterKr}</p>
         </div>
       </div>
@@ -968,9 +1163,13 @@ function SampleSection({ block8 }: { block8: BlocksJson['block8'] }) {
         <div className="mt-4 rounded-[14px] border-[1.5px] border-coral/40 p-5.5">
           <p className="flex flex-wrap items-center gap-2 text-xs font-bold text-ink-mute">
             대상 섹션: {block8.targetSection}
-            {block8.isDemo && <span className="rounded-full bg-amber-bg px-2 py-0.5 text-[11px] text-amber-text">예시(데모)</span>}
+            {block8.isDemo && (
+              <span className="rounded-full bg-amber-bg px-2 py-0.5 text-[11px] text-amber-text">예시(데모)</span>
+            )}
           </p>
-          <p lang="ja" className="mt-3.5 text-base leading-[1.75] font-bold whitespace-pre-line text-ink">{block8.afterJaBlock}</p>
+          <p lang="ja" className="mt-3.5 text-base leading-[1.75] font-bold whitespace-pre-line text-ink">
+            {block8.afterJaBlock}
+          </p>
           <p className="mt-3 leading-relaxed whitespace-pre-line text-ink-body">{block8.afterKrBlock}</p>
         </div>
       ) : (
@@ -989,7 +1188,10 @@ function NextStepSection({ block9 }: { block9: BlocksJson['block9'] }) {
       <ol className="mt-4 flex flex-col gap-2.5">
         {block9.actions.map((a, i) => (
           <li key={a} className="flex items-start gap-3.5 rounded-[12px] border border-card-border p-3.5">
-            <span aria-hidden className={`inline-flex h-7 w-7 flex-none items-center justify-center rounded-full text-[13px] font-extrabold ${i === 0 ? 'bg-danger text-white' : 'bg-n-150 text-ink-body'}`}>
+            <span
+              aria-hidden
+              className={`inline-flex h-7 w-7 flex-none items-center justify-center rounded-full text-[13px] font-extrabold ${i === 0 ? 'bg-danger text-white' : 'bg-n-150 text-ink-body'}`}
+            >
               {i + 1}
             </span>
             <p className="text-sm leading-relaxed text-ink-body">{a}</p>
@@ -1000,7 +1202,10 @@ function NextStepSection({ block9 }: { block9: BlocksJson['block9'] }) {
       <h2 className="mt-8 text-[17px] font-bold text-ink">다음 단계 — 고정가, 견적 왕복 없음</h2>
       <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         {block9.funnel.map((f, i) => (
-          <div key={f.step} className={`rounded-[14px] p-4.5 ${i === 0 ? 'border-[1.5px] border-coral bg-coral-tint' : 'border border-card-border'}`}>
+          <div
+            key={f.step}
+            className={`rounded-[14px] p-4.5 ${i === 0 ? 'border-[1.5px] border-coral bg-coral-tint' : 'border border-card-border'}`}
+          >
             <p className={`text-xs font-extrabold ${i === 0 ? 'text-coral-strong' : 'text-ink-mute'}`}>{f.step}</p>
             <p className="mt-2 text-[22px] font-extrabold text-ink">{f.price}</p>
             <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-body">{f.note}</p>
@@ -1014,14 +1219,18 @@ function NextStepSection({ block9 }: { block9: BlocksJson['block9'] }) {
           <div>
             <h3 className="text-xs font-bold text-ink-mute">규정 출처</h3>
             {block9.sources.length === 0 ? (
-              <p className="mt-1.5 text-xs text-ink-faint">각주의 원천인 감사가 없어 규정 출처가 없습니다(브랜드 진단).</p>
+              <p className="mt-1.5 text-xs text-ink-faint">
+                각주의 원천인 감사가 없어 규정 출처가 없습니다(브랜드 진단).
+              </p>
             ) : (
               <ul className="mt-1.5 space-y-1.5 text-xs text-ink-body">
                 {block9.sources.map((s) => (
                   <li key={s.id}>
                     [{s.id}] {s.title} — {s.source}{' '}
                     {s.url && (
-                      <a href={s.url} target="_blank" rel="noreferrer" className="text-coral-strong underline">원문</a>
+                      <a href={s.url} target="_blank" rel="noreferrer" className="text-coral-strong underline">
+                        원문
+                      </a>
                     )}
                   </li>
                 ))}
@@ -1031,7 +1240,9 @@ function NextStepSection({ block9 }: { block9: BlocksJson['block9'] }) {
           <div>
             <h3 className="text-xs font-bold text-ink-mute">한계 고지</h3>
             <ul className="mt-1.5 list-disc space-y-1.5 pl-4 text-xs text-ink-body">
-              {block9.limits.map((l) => <li key={l}>{l}</li>)}
+              {block9.limits.map((l) => (
+                <li key={l}>{l}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -1053,13 +1264,27 @@ function PrescriptionPanel({ b, slideExportSlot }: { b: BlocksJson; slideExportS
           <div className="rounded-[14px] border border-n-150 bg-n-50 p-4.5">
             <p className="text-[11px] font-extrabold tracking-[.05em] text-ink-mute">BEFORE · 한국 판촉 원본</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/report-assets/sample-before.webp" alt="한국 원본 판촉 이미지 — 특가·밈 카피·형광 테두리" loading="lazy" className="mt-2.5 block w-full rounded-[10px]" />
-            <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-mute">특가·밈 카피·형광 테두리 — 한국 판촉 문법.</p>
+            <img
+              src="/report-assets/sample-before.webp"
+              alt="한국 원본 판촉 이미지 — 특가·밈 카피·형광 테두리"
+              loading="lazy"
+              className="mt-2.5 block w-full rounded-[10px]"
+            />
+            <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-mute">
+              특가·밈 카피·형광 테두리 — 한국 판촉 문법.
+            </p>
           </div>
           <div className="rounded-[14px] border border-coral/35 bg-coral-tint p-4.5">
-            <p className="text-[11px] font-extrabold tracking-[.05em] text-coral-strong">AFTER · 일본향 재설계 (스튜디오 예시)</p>
+            <p className="text-[11px] font-extrabold tracking-[.05em] text-coral-strong">
+              AFTER · 일본향 재설계 (스튜디오 예시)
+            </p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/report-assets/sample-after.png" alt="일본향으로 재설계한 이미지 — 스펙 중심·차분한 무드" loading="lazy" className="mt-2.5 block w-full rounded-[10px]" />
+            <img
+              src="/report-assets/sample-after.png"
+              alt="일본향으로 재설계한 이미지 — 스펙 중심·차분한 무드"
+              loading="lazy"
+              className="mt-2.5 block w-full rounded-[10px]"
+            />
             <p className="mt-2.5 text-sm font-bold text-ink">
               <span lang="ja">白浮きしない、透明感トーンアップUV</span>{' '}
               <span className="text-xs font-normal text-ink-mute">SPF50+ · PA++++</span>

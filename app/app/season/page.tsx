@@ -82,8 +82,8 @@ export default async function SeasonPage({ searchParams }: { searchParams: Promi
           시즌 캘린더
         </h1>
         <p className="mt-3.5 max-w-[640px] text-[15px] leading-[1.7] text-ink-body [text-wrap:pretty]">
-          일본 뷰티 시즌을 달력으로 보고, 다음 시즌에 무엇을 어떤 말로 준비할지 확인하세요. 날짜와 기간에 메모를
-          남기면 그대로 남습니다.
+          일본 뷰티 시즌을 달력으로 보고, 다음 시즌에 무엇을 어떤 말로 준비할지 확인하세요. 날짜와 기간에 메모를 남기면
+          그대로 남습니다.
         </p>
         <p className="tnum mt-2.5 text-[13px] font-bold text-coral-strong">
           다음 메가와리 — {megawari.label} D-{megawari.dDay}
@@ -91,13 +91,7 @@ export default async function SeasonPage({ searchParams }: { searchParams: Promi
 
         <div className="mt-7 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
           {/* 캘린더(SEASON-02·03) */}
-          <SeasonCalendar
-            year={year}
-            month={month}
-            events={events}
-            memos={calendarMemos}
-            todayIso={todayIso}
-          />
+          <SeasonCalendar year={year} month={month} events={events} memos={calendarMemos} todayIso={todayIso} />
 
           {/* 준비 추천(SEASON-04) — 규칙 기반. 실적·성과 수치는 만들지 않는다 */}
           <section className={cardClass('p-6 max-sm:p-5')} aria-labelledby="season-reco">
@@ -145,7 +139,9 @@ export default async function SeasonPage({ searchParams }: { searchParams: Promi
                           </span>
                           <div className="min-w-0">
                             <p className="text-[12.5px] leading-snug font-bold text-ink [text-wrap:pretty]">{s.what}</p>
-                            <p className="mt-0.5 text-[11.5px] leading-snug text-ink-mute [text-wrap:pretty]">{s.why}</p>
+                            <p className="mt-0.5 text-[11.5px] leading-snug text-ink-mute [text-wrap:pretty]">
+                              {s.why}
+                            </p>
                             {link && (
                               <Link
                                 href={link.href}

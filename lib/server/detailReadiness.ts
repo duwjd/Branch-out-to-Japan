@@ -99,20 +99,37 @@ async function checkStore(): Promise<ReadinessCheck> {
 async function checkSchema(): Promise<ReadinessCheck> {
   const label = '상세페이지 스키마';
   if (!hasSupabaseEnv()) {
-    return { key: 'schema', label, ok: true, level: 'blocked', detail: '로컬 저장 모드에서는 마이그레이션이 필요 없습니다.', fix: null };
+    return {
+      key: 'schema',
+      label,
+      ok: true,
+      level: 'blocked',
+      detail: '로컬 저장 모드에서는 마이그레이션이 필요 없습니다.',
+      fix: null,
+    };
   }
   const client = getSupabaseClient();
   const missing: string[] = [];
   try {
     const blocks = await client.from('asset_blocks').select('id').limit(1);
     if (blocks.error) missing.push(`asset_blocks 테이블(${blocks.error.message})`);
-    const cols = await client.from('generated_assets').select('id, detail_input, block_total, block_done, slice_paths').limit(1);
+    const cols = await client
+      .from('generated_assets')
+      .select('id, detail_input, block_total, block_done, slice_paths')
+      .limit(1);
     if (cols.error) missing.push(`generated_assets 상세 컬럼(${cols.error.message})`);
   } catch (err) {
     missing.push(String(err));
   }
   if (missing.length === 0) {
-    return { key: 'schema', label, ok: true, level: 'blocked', detail: 'asset_blocks · generated_assets 델타 적용됨', fix: null };
+    return {
+      key: 'schema',
+      label,
+      ok: true,
+      level: 'blocked',
+      detail: 'asset_blocks · generated_assets 델타 적용됨',
+      fix: null,
+    };
   }
   logger.error('상세페이지 스키마 미적용', { missing });
   return {
@@ -132,7 +149,8 @@ async function checkStorage(): Promise<ReadinessCheck> {
     return { key: 'storage', label, ok: true, level: 'blocked', detail: '로컬 .data/files (개발 환경)', fix: null };
   }
   const { error } = await getSupabaseClient().storage.from('files').list('', { limit: 1 });
-  if (!error) return { key: 'storage', label, ok: true, level: 'blocked', detail: 'Supabase Storage 버킷 files', fix: null };
+  if (!error)
+    return { key: 'storage', label, ok: true, level: 'blocked', detail: 'Supabase Storage 버킷 files', fix: null };
   return {
     key: 'storage',
     label,

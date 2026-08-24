@@ -153,12 +153,10 @@ async function callOnce<T>(
   const text = correction ? `${opts.userPayload}\n\n[교정 지시 — 직전 응답의 문제] ${correction}` : opts.userPayload;
   const imgs = opts.images ?? (opts.image ? [opts.image] : []);
   const content: Anthropic.ContentBlockParam[] = [
-    ...imgs.map(
-      (im): Anthropic.ContentBlockParam => ({
-        type: 'image',
-        source: { type: 'base64', media_type: im.mediaType, data: im.dataBase64 },
-      }),
-    ),
+    ...imgs.map((im): Anthropic.ContentBlockParam => ({
+      type: 'image',
+      source: { type: 'base64', media_type: im.mediaType, data: im.dataBase64 },
+    })),
     { type: 'text', text },
   ];
 
@@ -173,7 +171,10 @@ async function callOnce<T>(
       },
     ],
     // effort 는 format 과 같은 output_config 안에 들어간다. SDK 타입에 없어 아래 캐스트가 덮는다
-    output_config: { format: { type: 'json_schema', schema: opts.schema }, ...(opts.effort ? { effort: opts.effort } : {}) },
+    output_config: {
+      format: { type: 'json_schema', schema: opts.schema },
+      ...(opts.effort ? { effort: opts.effort } : {}),
+    },
     messages: [{ role: 'user', content }],
   } as Anthropic.MessageCreateParamsNonStreaming;
 
@@ -183,9 +184,10 @@ async function callOnce<T>(
   // ⚠ **`maxRetries: 0` 이 함께 있어야 한다.** SDK 기본 재시도(2회)는 타임아웃도 재시도하므로
   //   그냥 두면 실 소요가 `timeout × 3` 이 되고, 위의 `MAX_ATTEMPTS` 루프까지 곱해져 최악 9회
   //   왕복이 된다 — 예산 가드를 무력화하는 조합이다. 재시도는 이 파일의 루프 하나만 남긴다.
-  const message = timeoutMs === undefined
-    ? await getClient().messages.create(params)
-    : await getClient().messages.create(params, { timeout: timeoutMs, maxRetries: 0 });
+  const message =
+    timeoutMs === undefined
+      ? await getClient().messages.create(params)
+      : await getClient().messages.create(params, { timeout: timeoutMs, maxRetries: 0 });
 
   if (message.stop_reason === 'refusal') {
     const details = (message as { stop_details?: { category?: string | null } }).stop_details;

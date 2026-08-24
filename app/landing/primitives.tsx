@@ -40,8 +40,12 @@ export function LpHeading({
   const a = align === 'center' ? 'text-center' : 'text-left';
   return (
     <div className={a}>
-      <h2 className={`text-lp-h2 font-bold break-keep text-lp-ink max-sm:text-[30px] ${a} [text-wrap:pretty]`}>{children}</h2>
-      {lead && <p className={`mt-4 text-lp-lead break-keep text-lp-body max-sm:text-[16px] ${a} [text-wrap:pretty]`}>{lead}</p>}
+      <h2 className={`text-lp-h2 font-bold break-keep text-lp-ink max-sm:text-[30px] ${a} [text-wrap:pretty]`}>
+        {children}
+      </h2>
+      {lead && (
+        <p className={`mt-4 text-lp-lead break-keep text-lp-body max-sm:text-[16px] ${a} [text-wrap:pretty]`}>{lead}</p>
+      )}
     </div>
   );
 }
@@ -82,10 +86,7 @@ export function LpPullQuote({ children }: { children: React.ReactNode }) {
 
 /** 테두리 칩 — Hero 태그·제공 항목 */
 export function LpChip({ children, tone = 'light' }: { children: React.ReactNode; tone?: 'light' | 'onNavy' }) {
-  const cls =
-    tone === 'onNavy'
-      ? 'border-white/16 bg-white/8 text-white'
-      : 'border-lp-line bg-white text-lp-body';
+  const cls = tone === 'onNavy' ? 'border-white/16 bg-white/8 text-white' : 'border-lp-line bg-white text-lp-body';
   return (
     <span className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[14px] font-semibold ${cls}`}>
       <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${tone === 'onNavy' ? 'bg-lp-coral' : 'bg-lp-coral'}`} />

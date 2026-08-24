@@ -69,11 +69,18 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
         {shownTags.length > 0 ? (
           <>
             {shownTags.map((t) => (
-              <span key={t} className="inline-flex h-6 items-center rounded-full bg-n-100 px-2.5 text-[11.5px] font-semibold text-ink-body">
+              <span
+                key={t}
+                className="inline-flex h-6 items-center rounded-full bg-n-100 px-2.5 text-[11.5px] font-semibold text-ink-body"
+              >
                 {t}
               </span>
             ))}
-            {extraTags > 0 && <span className="inline-flex h-6 items-center px-1 text-[11.5px] font-semibold text-ink-faint">＋{extraTags}</span>}
+            {extraTags > 0 && (
+              <span className="inline-flex h-6 items-center px-1 text-[11.5px] font-semibold text-ink-faint">
+                ＋{extraTags}
+              </span>
+            )}
           </>
         ) : (
           <span className="text-[12px] text-ink-faint">미등록</span>
@@ -83,7 +90,9 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
       <dl className="mt-4 flex flex-col">
         <div className="flex items-baseline justify-between gap-3 border-b border-n-150 py-[7px] text-[12.5px]">
           <dt className="text-ink-body">제품·상세 정보</dt>
-          <dd className={`m-0 font-semibold ${hasProductInfo ? 'text-ink' : 'text-ink-faint'}`}>{hasProductInfo ? '등록됨' : '미등록'}</dd>
+          <dd className={`m-0 font-semibold ${hasProductInfo ? 'text-ink' : 'text-ink-faint'}`}>
+            {hasProductInfo ? '등록됨' : '미등록'}
+          </dd>
         </div>
         <div className="flex items-baseline justify-between gap-3 border-b border-n-150 py-[7px] text-[12.5px]">
           <dt className="flex-none text-ink-body">일본 채널</dt>
@@ -101,7 +110,9 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
       </dl>
 
       <p className="mt-3.5 text-[12px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-        {hasProductInfo ? '채우면 진단·생성 정확도가 올라갑니다.' : '제품을 등록하면 스튜디오에서 제품컷을 바로 골라 쓸 수 있어요.'}
+        {hasProductInfo
+          ? '채우면 진단·생성 정확도가 올라갑니다.'
+          : '제품을 등록하면 스튜디오에서 제품컷을 바로 골라 쓸 수 있어요.'}
       </p>
       <p className="mt-3.5 text-[12.5px]">
         <Link href="/app/brand" className="font-semibold text-coral-strong no-underline hover:underline">
@@ -138,7 +149,9 @@ export function ReportSummaryWidget({
 
       {isBrandMode ? (
         <div className="mt-3">
-          <span className="inline-flex h-[26px] items-center rounded-full bg-n-150 px-[11px] text-[12px] font-bold text-ink-mute">종합점수 없음 · brand 모드</span>
+          <span className="inline-flex h-[26px] items-center rounded-full bg-n-150 px-[11px] text-[12px] font-bold text-ink-mute">
+            종합점수 없음 · brand 모드
+          </span>
           <p className="mt-3 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
             브랜드 진단은 종합점수를 내지 않아요. 제품 콘텐츠를 넣으면 점수가 나옵니다.
           </p>
@@ -152,7 +165,9 @@ export function ReportSummaryWidget({
         <>
           <div className="mt-3 flex items-end gap-3">
             <span className="flex items-baseline gap-0.5">
-              <span className="tnum text-[38px] leading-none font-extrabold tracking-[-0.03em] text-ink">{report.overallScore}</span>
+              <span className="tnum text-[38px] leading-none font-extrabold tracking-[-0.03em] text-ink">
+                {report.overallScore}
+              </span>
               <span className="text-sm font-semibold text-ink-faint">/100</span>
             </span>
           </div>
@@ -196,7 +211,10 @@ export function ReportSummaryWidget({
       )}
 
       <p className="mt-4 text-[12.5px]">
-        <Link href={`/app/report/${requestId}`} className="font-semibold text-coral-strong no-underline hover:underline">
+        <Link
+          href={`/app/report/${requestId}`}
+          className="font-semibold text-coral-strong no-underline hover:underline"
+        >
           리포트 전체 보기 →
         </Link>
       </p>
@@ -239,7 +257,10 @@ export function ReportEmptyWidget({
             진단이 도는 중입니다. 9블록이 모두 채워지면 이 자리에 요약이 뜹니다.
           </p>
           <p className="mt-3 text-[12.5px]">
-            <Link href={`/app/report/${pending.id}`} className="font-semibold text-coral-strong no-underline hover:underline">
+            <Link
+              href={`/app/report/${pending.id}`}
+              className="font-semibold text-coral-strong no-underline hover:underline"
+            >
               진행 상황 보기 →
             </Link>
           </p>
@@ -251,7 +272,10 @@ export function ReportEmptyWidget({
             마지막 진단이 끝까지 돌지 못했습니다. 원인을 확인하고 같은 입력으로 다시 시작할 수 있어요.
           </p>
           <p className="mt-3 text-[12.5px]">
-            <Link href={`/app/report/${failed.id}`} className="font-semibold text-coral-strong no-underline hover:underline">
+            <Link
+              href={`/app/report/${failed.id}`}
+              className="font-semibold text-coral-strong no-underline hover:underline"
+            >
               실패 원인 보기 →
             </Link>
           </p>
@@ -305,7 +329,9 @@ export function UpcomingEventsWidget({ events }: { events: UpcomingEvent[] }) {
           지금 챙길 시즌은 위 카운트다운 하나뿐입니다. 다음 시즌은 캘린더에서 미리 볼 수 있어요.
         </p>
       ) : (
-        <ul className={`mt-3.5 grid list-none gap-2.5 p-0 max-md:grid-cols-1 ${EVENT_COLS[events.length] ?? 'grid-cols-3'}`}>
+        <ul
+          className={`mt-3.5 grid list-none gap-2.5 p-0 max-md:grid-cols-1 ${EVENT_COLS[events.length] ?? 'grid-cols-3'}`}
+        >
           {events.map((e) => {
             const near = e.id === nearId;
             return (
@@ -315,7 +341,11 @@ export function UpcomingEventsWidget({ events }: { events: UpcomingEvent[] }) {
               >
                 <span
                   className={`inline-flex h-[21px] w-fit items-center rounded-full px-2.5 text-[11px] font-bold ${
-                    e.inProgress ? 'bg-amber-bg text-amber-text' : near ? 'bg-coral text-white' : 'bg-n-150 text-ink-mute'
+                    e.inProgress
+                      ? 'bg-amber-bg text-amber-text'
+                      : near
+                        ? 'bg-coral text-white'
+                        : 'bg-n-150 text-ink-mute'
                   }`}
                 >
                   {e.inProgress ? '진행 중 △' : e.dDay === 0 ? '오늘 시작' : `D-${e.dDay}`}

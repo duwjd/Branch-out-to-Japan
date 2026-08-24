@@ -89,7 +89,10 @@ function StatTile({
             <span className="tnum text-[11px] font-bold text-coral-strong">생성 중 {running}</span>
           </>
         )}
-        <span aria-hidden className="ml-auto text-[13px] text-ink-faint transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-coral-strong">
+        <span
+          aria-hidden
+          className="ml-auto text-[13px] text-ink-faint transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-coral-strong"
+        >
           →
         </span>
       </span>
@@ -130,9 +133,7 @@ export default async function DashboardPage() {
   // 진행 중 잡 → 플로팅 패널(MAIN-05a)
   const jobs: DashboardJob[] = [
     ...runningRequests.map((r) => ({ kind: 'report' as const, id: r.id, name: reportName(r) })),
-    ...assets
-      .filter((a) => a.status === 'generating')
-      .map((a) => ({ kind: a.kind, id: a.id, name: assetName(a) })),
+    ...assets.filter((a) => a.status === 'generating').map((a) => ({ kind: a.kind, id: a.id, name: assetName(a) })),
   ];
 
   const firstVisit = publishedRequests.length === 0 && doneAssets.length === 0 && jobs.length === 0;
@@ -144,13 +145,14 @@ export default async function DashboardPage() {
   const failedAssets = assets.filter((a) => a.status === 'failed' && a.updatedAt >= failCutoff);
   const failCount = failedRequests.length + failedAssets.length;
   // 원인 화면은 실패물별로 다르다 — 가장 최근 1건으로 보낸다(리포트/썸네일/상세 각자의 실패 화면)
-  const newestFail: { at: string; href: string } | null = [
-    ...failedRequests.map((r) => ({ at: r.updatedAt, href: `/app/report/${r.id}` })),
-    ...failedAssets.map((a) => ({
-      at: a.updatedAt,
-      href: a.kind === 'detail' ? `/app/studio/detail/${a.id}` : `/app/studio/thumbnail/${a.id}`,
-    })),
-  ].sort((x, y) => (x.at < y.at ? 1 : -1))[0] ?? null;
+  const newestFail: { at: string; href: string } | null =
+    [
+      ...failedRequests.map((r) => ({ at: r.updatedAt, href: `/app/report/${r.id}` })),
+      ...failedAssets.map((a) => ({
+        at: a.updatedAt,
+        href: a.kind === 'detail' ? `/app/studio/detail/${a.id}` : `/app/studio/thumbnail/${a.id}`,
+      })),
+    ].sort((x, y) => (x.at < y.at ? 1 : -1))[0] ?? null;
 
   // 최근 자산(MAIN-05b) — 발행 리포트 + 완성 썸네일 최신순
   const recents = [
@@ -212,11 +214,10 @@ export default async function DashboardPage() {
 
   // 4단계 셋업 가이드(MAIN-06) — 2단계(제품)는 Product 엔티티 부재로 proxy 판정
   const step2Done = Boolean(brandProfile.productInfoMemo.trim() || brandProfile.detailDocName);
-  const doneSteps =
-    1 + (step2Done ? 1 : 0) + (publishedRequests.length > 0 ? 1 : 0) + (doneAssets.length > 0 ? 1 : 0);
+  const doneSteps = 1 + (step2Done ? 1 : 0) + (publishedRequests.length > 0 ? 1 : 0) + (doneAssets.length > 0 ? 1 : 0);
 
   // 복귀 뷰 위젯(MAIN-10~12) 데이터 — 홈은 재조회 전용, 새 저장 없음
-  const latestReport = latestPublished ? reportByRequest.get(latestPublished.id) ?? null : null;
+  const latestReport = latestPublished ? (reportByRequest.get(latestPublished.id) ?? null) : null;
   const pendingRequest = runningRequests[0] ?? null;
   const lastFailedRequest = requests.find((r) => r.status === 'failed') ?? null;
   // 히어로가 이미 말한 이벤트는 목록에서 뺀다 — 같은 D-day를 한 화면에서 두 번 읽히지 않게
@@ -256,7 +257,11 @@ export default async function DashboardPage() {
             value={doneThumbs.length}
             unit="건"
             running={runningThumbs}
-            sub={doneThumbs.length > 0 ? `최근 생성 ${fmtDate(doneThumbs[0].createdAt)}` : '스튜디오에서 첫 장을 만들어 보세요'}
+            sub={
+              doneThumbs.length > 0
+                ? `최근 생성 ${fmtDate(doneThumbs[0].createdAt)}`
+                : '스튜디오에서 첫 장을 만들어 보세요'
+            }
             href="/app/library?tab=thumbnail"
           />
           <StatTile
@@ -264,7 +269,11 @@ export default async function DashboardPage() {
             value={doneDetails.length}
             unit="건"
             running={runningDetails}
-            sub={doneDetails.length > 0 ? `최근 생성 ${fmtDate(doneDetails[0].createdAt)}` : '한국형 상세를 일본향으로 바꿔 보세요'}
+            sub={
+              doneDetails.length > 0
+                ? `최근 생성 ${fmtDate(doneDetails[0].createdAt)}`
+                : '한국형 상세를 일본향으로 바꿔 보세요'
+            }
             href="/app/library?tab=detail"
           />
         </section>
@@ -295,16 +304,23 @@ export default async function DashboardPage() {
                     시작하기 4단계
                   </h2>
                   <span className="tnum text-[11.5px] font-bold text-green-text">{doneSteps}/4 완료</span>
-                  <span className="ml-auto text-[11.5px] text-ink-mute">브랜드 정보는 3축 전체에서 그대로 쓰입니다</span>
+                  <span className="ml-auto text-[11.5px] text-ink-mute">
+                    브랜드 정보는 3축 전체에서 그대로 쓰입니다
+                  </span>
                 </div>
                 <ol className="mt-1 mb-0 list-none p-0">
                   {/* 1 · 브랜드 프로필 (온보딩 완료로 ✓) */}
                   <li className="flex items-start gap-3.5 border-t border-n-150 py-4">
-                    <span aria-hidden className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-green-bg text-[13px] font-extrabold text-green-text">
+                    <span
+                      aria-hidden
+                      className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-green-bg text-[13px] font-extrabold text-green-text"
+                    >
                       ✓
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[14.5px] font-bold text-ink line-through decoration-ink/35">브랜드 프로필 등록</span>
+                      <span className="block text-[14.5px] font-bold text-ink line-through decoration-ink/35">
+                        브랜드 프로필 등록
+                      </span>
                       <span className="mt-[3px] block text-[12.5px] leading-relaxed text-ink-mute">
                         브랜드·카테고리·채널 상정이 3축 전체에서 재사용됩니다.
                       </span>
@@ -314,16 +330,24 @@ export default async function DashboardPage() {
                   {/* 2 · 제품 등록 (건너뛸 수 있음 — 3단계 잠그지 않음) */}
                   <li className="flex items-start gap-3.5 border-t border-n-150 py-4">
                     {step2Done ? (
-                      <span aria-hidden className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-green-bg text-[13px] font-extrabold text-green-text">
+                      <span
+                        aria-hidden
+                        className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-green-bg text-[13px] font-extrabold text-green-text"
+                      >
                         ✓
                       </span>
                     ) : (
-                      <span aria-hidden className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full border-[1.5px] border-coral bg-coral-tint text-[12.5px] font-extrabold text-coral-strong">
+                      <span
+                        aria-hidden
+                        className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full border-[1.5px] border-coral bg-coral-tint text-[12.5px] font-extrabold text-coral-strong"
+                      >
                         2
                       </span>
                     )}
                     <span className="min-w-0 flex-1">
-                      <span className={`block text-[14.5px] font-bold text-ink ${step2Done ? 'line-through decoration-ink/35' : ''}`}>
+                      <span
+                        className={`block text-[14.5px] font-bold text-ink ${step2Done ? 'line-through decoration-ink/35' : ''}`}
+                      >
                         제품 등록 <span className="text-[11.5px] font-semibold text-ink-faint">· 건너뛸 수 있어요</span>
                       </span>
                       <span className="mt-[3px] block text-[12.5px] leading-relaxed text-ink-mute">
@@ -340,7 +364,10 @@ export default async function DashboardPage() {
                   </li>
                   {/* 3 · 첫 진단 — 히어로 primary와 같은 행선지(중복이 아니라 같은 한 걸음) */}
                   <li className="flex items-start gap-3.5 border-t border-n-150 py-4">
-                    <span aria-hidden className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full border-[1.5px] border-coral bg-coral-tint text-[12.5px] font-extrabold text-coral-strong">
+                    <span
+                      aria-hidden
+                      className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full border-[1.5px] border-coral bg-coral-tint text-[12.5px] font-extrabold text-coral-strong"
+                    >
                       3
                     </span>
                     <span className="min-w-0 flex-1">
@@ -355,7 +382,10 @@ export default async function DashboardPage() {
                   </li>
                   {/* 4 · 첫 썸네일 (리포트 발행 전 비활성 — 발행 시 홈이 복귀 뷰로 전이) */}
                   <li className="flex items-start gap-3.5 border-t border-n-150 py-4">
-                    <span aria-hidden className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-n-150 text-[12.5px] font-extrabold text-ink-faint">
+                    <span
+                      aria-hidden
+                      className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-n-150 text-[12.5px] font-extrabold text-ink-faint"
+                    >
                       4
                     </span>
                     <span className="min-w-0 flex-1">
@@ -378,8 +408,13 @@ export default async function DashboardPage() {
                   <h2 id="recents-t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
                     최근 자산
                   </h2>
-                  {recents.length > 0 && <span className="tnum text-[11px] font-semibold text-ink-mute">최신 {recents.length}건</span>}
-                  <Link href="/app/library" className="ml-auto text-[12px] font-semibold text-coral-strong no-underline hover:underline">
+                  {recents.length > 0 && (
+                    <span className="tnum text-[11px] font-semibold text-ink-mute">최신 {recents.length}건</span>
+                  )}
+                  <Link
+                    href="/app/library"
+                    className="ml-auto text-[12px] font-semibold text-coral-strong no-underline hover:underline"
+                  >
                     전체 자산 보기 →
                   </Link>
                 </div>
@@ -401,7 +436,12 @@ export default async function DashboardPage() {
                     >
                       <span className="relative block aspect-16/10 overflow-hidden border-b border-n-150">
                         {r.kind === 'report' ? (
-                          <ReportCoverPreview score={r.score} groupScores={r.groupScores} top3={r.top3} density="compact" />
+                          <ReportCoverPreview
+                            score={r.score}
+                            groupScores={r.groupScores}
+                            top3={r.top3}
+                            density="compact"
+                          />
                         ) : r.img ? (
                           <ThumbPreview src={r.img} alt="" />
                         ) : (
@@ -424,7 +464,10 @@ export default async function DashboardPage() {
                       recents.length === 0 ? 'col-span-full' : ''
                     }`}
                   >
-                    <span aria-hidden className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-coral-tint text-[18px] font-extrabold text-coral-strong">
+                    <span
+                      aria-hidden
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-coral-tint text-[18px] font-extrabold text-coral-strong"
+                    >
                       ＋
                     </span>
                     <span className="mt-0.5 text-[13px] font-bold text-ink">새 자산 만들기</span>

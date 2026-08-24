@@ -90,7 +90,10 @@ export function BeforeAfterShowcase() {
           {/* Before */}
           <div className="rounded-card border border-card-border bg-n-50 p-6">
             <p className="text-[12px] font-bold uppercase tracking-wide text-ink-faint">Before · 직역</p>
-            <p lang="ja" className="mt-3 text-[17px] leading-relaxed text-ink-mute line-through decoration-ink-faint/70">
+            <p
+              lang="ja"
+              className="mt-3 text-[17px] leading-relaxed text-ink-mute line-through decoration-ink-faint/70"
+            >
               {row.before}
             </p>
           </div>

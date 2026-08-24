@@ -18,7 +18,12 @@ export function LogoutButton() {
   }
 
   return (
-    <button type="button" disabled={busy} onClick={() => void handleLogout()} className={buttonClass('secondary', 'sm')}>
+    <button
+      type="button"
+      disabled={busy}
+      onClick={() => void handleLogout()}
+      className={buttonClass('secondary', 'sm')}
+    >
       {busy ? '로그아웃 중…' : '로그아웃'}
     </button>
   );
