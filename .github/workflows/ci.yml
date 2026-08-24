@@ -37,6 +37,10 @@ jobs:
 
       - run: npm ci
 
+      # 포맷은 가장 싸고 가장 자주 걸리는 검사라 맨 앞에 둔다 — 실패하면 `npm run format` 한 줄로 끝난다.
+      - name: 포맷 검사
+        run: npm run format:check
+
       - name: 타입 검증
         run: npm run typecheck
 
