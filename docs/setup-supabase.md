@@ -34,7 +34,6 @@ npm run db:push
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=      ← Project URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY= ← anon public 키
 SUPABASE_SERVICE_ROLE_KEY=     ← service_role 키 (서버 전용 — 절대 커밋·공유 금지)
 ```
 

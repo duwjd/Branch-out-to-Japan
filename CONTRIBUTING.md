@@ -11,11 +11,41 @@ npm run dev
 ```
 Claude Code를 쓴다면 새 세션에서 `/kickoff` 를 먼저 실행하세요.
 
+**로컬이 곧 dev 환경입니다.** `.env` 에 Supabase 키를 넣지 마세요 — 키가 없으면 앱이
+`.data/` 파일 스토어로 돌아 로컬 데이터가 운영 DB 와 완전히 분리됩니다. **현재 데이터가
+격리되는 곳은 로컬뿐입니다** — `stg` 배포본은 운영 Supabase 를 그대로 씁니다
+(DB 분리 보류 · [deploy-runbook §9](docs/deploy-runbook.md)). 위험한 데이터 조작은 로컬에서 하세요.
+
 ## 브랜치 전략
-- `main` 은 보호 브랜치. 직접 push 하지 않고 PR로 병합합니다.
-- 브랜치 이름: 작업자에 따라 각자의 브랜치에 pushß
-  - hanna
-  - jeongwon
+
+브랜치는 **작업자가 아니라 환경**으로 나눕니다. 어느 브랜치에 있느냐가 곧 "어디까지 검증됐느냐"입니다.
+
+| 브랜치 | 환경 | 배포 |
+|---|---|---|
+| `main` | **prd** — 실사용자 | Vercel Production (머지 즉시 자동 배포) |
+| `stg` | **stg** — QA | Vercel Preview (브랜치 alias URL) · ⚠️ **DB 는 운영과 공유** |
+| `dev` | **dev** — 통합 | 배포 없음. 각자 로컬에서 확인 |
+| `feat/…` `fix/…` `docs/…` | 작업 브랜치 | 없음 |
+
+```
+feat/x ──PR(squash)──> dev ──PR(merge commit)──> stg ──PR(merge commit)──> main
+  로컬에서 확인            로컬 통합              stg 배포·QA           운영 배포
+
+hotfix/x ────────────────────────────────────────────────────────────────> main
+                            ↑ 머지 후 반드시 back-merge: main → stg → dev
+```
+
+지켜야 할 것 3가지:
+
+1. **승격 PR(`dev`→`stg`, `stg`→`main`)은 merge commit으로 병합합니다.** squash 하면 승격된
+   브랜치가 원본과 다른 SHA 를 갖게 되어 다음 승격 PR 마다 유령 충돌이 납니다.
+   작업 브랜치 → `dev` 만 squash 합니다.
+2. **`main` 에 뭔가 들어가면 즉시 `main` → `stg` → `dev` 로 역병합합니다.** 핫픽스든 정기
+   릴리스든 예외 없습니다. 빼먹으면 다음 승격 PR 이 "이미 반영된 변경을 되돌리는" diff 를 들고 옵니다.
+3. **운영 장애의 1차 대응은 hotfix 가 아니라 Vercel Instant Rollback** 입니다
+   ([deploy-runbook §3](docs/deploy-runbook.md)). 롤백은 수 초, hotfix 는 빌드까지 10분 이상 걸립니다.
+
+`main` 과 `stg` 는 보호 브랜치입니다. 직접 push 하지 않고 PR 로 병합합니다.
 
 ## 커밋
 [Conventional Commits](https://www.conventionalcommits.org/) 사용:
@@ -27,10 +57,11 @@ docs: 로드맵 Phase 2 범위 정리
 - 커밋 메시지에 **변경 이유**를 한 줄 남깁니다(전역 규칙).
 
 ## PR
-1. 브랜치에서 작업 후 PR 생성.
+1. 작업 브랜치에서 작업 후 **base 를 `dev` 로** PR 생성(승격 PR 만 base 가 `stg`·`main`).
 2. [PR 템플릿](.github/pull_request_template.md)의 체크리스트를 채웁니다(변경 요약·이유·테스트·스크린샷).
 3. 리뷰 1인 이상 승인 후 병합.
-4. 병합 전 `npm run typecheck` 통과 확인(가능하면 `npm run lint`·`npm run build` 도).
+4. 병합 전 `npm run typecheck && npm test && npm run build` 3종 통과 확인(합쳐 30초 남짓).
+   `npm run lint` 는 없습니다 — 이 저장소에 ESLint 가 없습니다.
 
 ## 에이전트 팀 사용법
 `.claude/agents/` 에 역할별 에이전트가 있습니다. 슬래시 명령으로 호출:
@@ -50,9 +81,10 @@ docs: 로드맵 Phase 2 범위 정리
 
 ## 트러블슈팅
 
-### `next dev` / `npm run lint` 실행 시 Segmentation fault (exit 3221225477 / 139)
+### `next dev` 실행 시 Segmentation fault (exit 3221225477 / 139)
 일부 Windows 머신에서 **네이티브 노드 애드온(.node) 로딩 시 세그폴트**가 발생합니다.
-Next의 SWC 바이너리나 eslint의 `unrs-resolver` 같은 네이티브 모듈을 로드하는 순간 크래시합니다.
+Next의 SWC 바이너리 같은 네이티브 모듈을 로드하는 순간 크래시합니다.
+(과거 eslint 의 `unrs-resolver` 도 같은 증상을 냈고, 그래서 이 저장소에는 ESLint 가 없습니다.)
 주로 **보안/백신 소프트웨어**가 native 모듈 로드를 가로채는 것이 원인입니다.
 
 우회/해결:

@@ -92,7 +92,9 @@
 KR→JP는 **번역이 아니다**. 일본 고객의 신뢰 요소·구매 이유·소구점을 처음부터 재설계한다. 카피는 `jp-localizer`를 통해 다룬다.
 
 ## 협업 규칙
-- `main` 보호. 기능 브랜치: `feat/…`, 문서: `docs/…`, 수정: `fix/…`.
+- **브랜치는 작업자가 아니라 환경으로 나눈다** — `main`(=prd, 보호) · `stg`(=QA 배포, 보호) · `dev`(=통합, 배포 없음).
+  작업 브랜치는 `feat/…` · `docs/…` · `fix/…` 이고 **base 는 `dev`** 다. 승격은 `dev`→`stg`→`main` 순서이며 **merge commit**으로만 한다(squash 금지 — 다음 승격에서 유령 충돌이 난다).
+  `main`에 뭔가 들어가면 즉시 `main`→`stg`→`dev` 역병합한다. **브랜치 규칙 정본은 `CONTRIBUTING.md`.**
 - 커밋: Conventional Commits(`feat:`, `fix:`, `docs:`, `chore:` …).
 - PR로 병합, 리뷰 1인 이상. 템플릿(`.github/pull_request_template.md`) 사용.
 - 자세한 협업 방법: `CONTRIBUTING.md` (개발 머신 트러블슈팅 포함)

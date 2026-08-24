@@ -107,18 +107,37 @@ DB는 서울**이었고, 응답 헤더에 그대로 찍혔다 — `x-vercel-id: 
 
 ## 4. 환경변수 정본 (Vercel 대시보드 → Settings → Environment Variables)
 
-키 이름 정본은 [[09-dev-spec]] §1과 동일. **전부 Production+Preview에 설정**, `NEXT_PUBLIC_*` 외에는 서버 전용.
+키 이름 정본은 [[09-dev-spec]] §1과 동일. `NEXT_PUBLIC_*` 외에는 서버 전용.
 
-| 키 | 값 | 필수 | 미설정 시 |
+**스코프가 곧 환경이다**(2026-08-22 브랜치 축 도입). Vercel 프로젝트는 하나이고
+`Production` = **prd**(`main` 브랜치), `Preview` = **stg**(`stg` 브랜치 및 그 외 브랜치).
+dev 환경은 배포하지 않고 각자 로컬에서 돈다(`.data/` 파일 스토어).
+
+> ⚠️ **DB 분리는 보류 중이다.** 아래 표에서 Supabase 2종은 현재 **두 스코프가 같은 값**이며,
+> 즉 stg 에서 만든 데이터가 실 DB 에 쌓인다. 분리하려면 Supabase 프로젝트를 하나 더 만들어
+> Preview 스코프에만 그 값을 넣으면 된다 — **코드 변경은 필요 없다**(값 3개만 갈아끼우는 일).
+> `AUTH_SECRET` 분리는 DB 공유 상태에서도 지금 바로 유효하다.
+
+| 키 | Production (prd) | Preview (stg) | 미설정 시 |
 |---|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Project URL | **필수** | `.data/` 파일 폴백 — 서버리스에서 저장 유실 |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon public 키 | **필수** | 〃 |
-| `SUPABASE_SERVICE_ROLE_KEY` | service_role 키 (**서버 전용 — 절대 노출 금지**) | **필수** | 〃 |
-| `ANTHROPIC_API_KEY` | Anthropic 콘솔 발급 | **필수** | LLM 목 모드(가짜 리포트) |
-| `OPENAI_API_KEY` | OpenAI 콘솔 발급 | **필수** | 이미지 목 모드(샘플 이미지) |
-| `AUTH_SECRET` | `openssl rand -base64 32` 산출값 | **필수** | 하드코딩 dev 시크릿 — **누구나 세션 위조 가능** |
-| `AUTH_MAIL_MODE` | `devlink` | UT 기간 필수 | 운영에서 인증 링크 미전달 → **가입 전원 차단**(실메일 미구현 — `lib/server/mailer.ts`) |
+| `NEXT_PUBLIC_SUPABASE_URL` | 운영 프로젝트 URL | **현재 동일**(분리 시 stg URL) | `.data/` 파일 폴백 — 서버리스에서 저장 유실 |
+| `SUPABASE_SERVICE_ROLE_KEY` | 운영 service_role (**서버 전용 — 절대 노출 금지**) | **현재 동일**(분리 시 stg 키) | 〃 |
+| `ANTHROPIC_API_KEY` | 필수 | 동일 키 사용 가능 | LLM 목 모드(가짜 리포트) |
+| `OPENAI_API_KEY` | 필수 | 동일 키 사용 가능 | 이미지 목 모드(샘플 이미지) |
+| `AUTH_SECRET` | 필수 — **한 번 정하면 바꾸지 않는다**(바꾸면 전원 로그아웃) | **stg 전용 신규 값** | 하드코딩 dev 시크릿 — **누구나 세션 위조 가능** |
+| `AUTH_MAIL_MODE` | `devlink` | `devlink` | 운영에서 인증 링크 미전달 → **가입 전원 차단**(실메일 미구현 — `lib/server/mailer.ts`) |
 | `OPENAI_IMAGE_QUALITY` | `medium`(기본) 또는 `low`(비용 절약) | 선택 | 코드 기본값 medium |
+
+> **`AUTH_SECRET`을 환경마다 다르게 두는 이유**: 같은 시크릿이면 stg 에서 발급된 세션 토큰이
+> 운영에서도 검증을 통과한다. 단 **운영 값은 로테이션하지 않는다.**
+>
+> **`NEXT_PUBLIC_SUPABASE_ANON_KEY`는 넣지 않는다.** 예전 표에 "필수"로 적혀 있었으나
+> 코드가 이 키를 읽는 곳이 하나도 없다 — `lib/db/supabaseClient.ts`의 `hasSupabaseEnv()`는
+> URL + service_role 2종만 본다(2026-08-22 확인·정정).
+>
+> 어느 DB 를 보는지는 `GET /api/report` 의 `supabaseRef` 로 확인한다. **DB 분리 후에는**
+> stg 와 prd 가 서로 다른 ref 를 답해야 하고, 같으면 분리가 안 된 것이다.
+> (지금은 공유 중이라 같게 나오는 것이 정상이다.)
 
 > `AUTH_MAIL_MODE=devlink`는 **실메일 미구현 상태의 폐쇄 UT용 임시 모드** — 가입 완료 화면에 인증 링크를 직접 노출한다. 실메일(Resend) 도입 시 제거(§8).
 

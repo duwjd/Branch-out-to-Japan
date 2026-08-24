@@ -179,5 +179,7 @@ persona-simulation/  페르소나 검증용 랜딩 시안·카피 팩·결과 �
 
 ## 기여
 
-`main` 보호 · 기능 브랜치(`feat/…`·`docs/…`·`fix/…`) · Conventional Commits · PR 리뷰 1인 이상.
+브랜치는 환경 축이다 — `main`(prd, 보호) · `stg`(QA, 보호) · `dev`(통합, 배포 없음).
+작업 브랜치(`feat/…`·`docs/…`·`fix/…`)는 `dev` 로 PR 하고, 승격은 `dev`→`stg`→`main`.
+Conventional Commits · PR 리뷰 1인 이상.
 브랜치·PR·커밋 규칙과 개발 머신 트러블슈팅은 [CONTRIBUTING.md](CONTRIBUTING.md) 참고.
