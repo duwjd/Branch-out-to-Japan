@@ -1,0 +1,49 @@
+# PR 검증 게이트 — main 머지가 곧 운영 배포이므로, 그 앞에 기계가 보는 관문을 둔다.
+#
+# 왜 이 4단계인가: 이 저장소에는 ESLint 가 없고(과거 네이티브 모듈이 일부 머신에서 크래시해 제거),
+# 라우트·컴포넌트 테스트도 아직 없다. 지금 실행 가능한 검증은 타입·순수 로직 테스트·빌드 셋이고
+# 합쳐 30초 남짓이라 PR 마다 돌려도 부담이 없다. 커버리지가 늘면 여기에 붙인다.
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, stg, main]
+
+# 같은 PR 에 연속 push 하면 이전 실행을 취소한다 — 무료 러너 시간 낭비 방지.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 잡 이름을 바꾸면 브랜치 보호의 required check 가 이름으로 매칭되므로 끊긴다.
+  # 이름을 바꿔야 하면 보호 규칙에서 먼저 빼고 바꾼 뒤 다시 등록할 것.
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # 보험 — 현재 playwright(1.61.1)는 install 훅이 없어 npm ci 가 브라우저를 받지 않는다.
+      # 다만 과거 버전은 postinstall 로 수백 MB 를 내려받았고, 이 저장소에서 playwright 는
+      # 크롤러·UT 스크립트 전용이라 CI 에서 브라우저가 필요한 적이 없다. 버전이 올라가
+      # 훅이 부활해도 CI 시간이 튀지 않도록 미리 걸어 둔다(현재는 무해한 no-op).
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22' # package.json engines 와 동일
+          cache: npm
+
+      - run: npm ci
+
+      - name: 타입 검증
+        run: npm run typecheck
+
+      - name: 테스트
+        run: npm test
+
+      # 시크릿 없이 통과하도록 설계돼 있다 — lib/db/store.ts 가 빌드 페이즈
+      # (NEXT_PHASE=phase-production-build)를 예외로 두어 Supabase env 없이도 깨지지 않는다.
+      - name: 빌드
+        run: npm run build
