@@ -1,3 +1,13 @@
+---
+title: YOAKE — K-Beauty Japan Growth Studio
+space: 프로젝트 기준
+status: 정본
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [진입점, 개요]
+---
+
 # YOAKE — K-Beauty Japan Growth Studio
 
 한국 뷰티 브랜드의 **카피와 근거를 진단**하고, 그 결과를 **일본 채널에 맞는 썸네일·상세페이지로 전환**하며,

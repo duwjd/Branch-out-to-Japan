@@ -1,3 +1,13 @@
+---
+title: Product
+space: 프로젝트 기준
+status: 정본
+phase: Phase 0
+updated: 2026-08-21
+owner:
+tags: [제품브리프, 디자인원칙]
+---
+
 # Product
 
 ## Register

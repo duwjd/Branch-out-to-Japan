@@ -1,3 +1,13 @@
+---
+title: 04 · 로드맵 (Phase 축)
+space: 전략·제품
+status: 정본
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [로드맵, Phase, 진척]
+---
+
 # 04 · 로드맵 (Phase 축)
 
 > **지금: Phase 0 종료 (2026-08-31).** Phase 1 은 아직 정하지 않았다.

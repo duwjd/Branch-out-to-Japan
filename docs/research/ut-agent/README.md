@@ -1,3 +1,13 @@
+---
+title: AI 에이전트 UT — YOAKE 실서비스 만족도 평가
+space: 검증·실험
+status: 정본
+phase: Phase 0
+updated: 2026-08-21
+owner:
+tags: [UT, 인덱스]
+---
+
 # AI 에이전트 UT — YOAKE 실서비스 만족도 평가
 
 합성 페르소나 20인(`persona_01`~`persona_20`)에게 **작동하는 YOAKE**를 사용시키고 만족도·이탈·지불의향을 측정하는 사전 검증 세트.

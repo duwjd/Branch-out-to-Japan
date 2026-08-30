@@ -1,3 +1,14 @@
+---
+title: Reddit 커뮤니티 리서치 - 한국 온라인 사업 관련 핵심 문제들
+space: 리서치
+status: 폐기
+phase: Phase 0
+updated: 2026-07-09
+owner:
+tags: [보존물, 피벗이전]
+superseded_by: 2026-07-02 일본 시장 피벗으로 대체 — 맥락 추적용. docs/research/archive/README.md
+---
+
 # Reddit 커뮤니티 리서치 - 한국 온라인 사업 관련 핵심 문제들
 
 ## 📅 수집 날짜: 2026-07-01

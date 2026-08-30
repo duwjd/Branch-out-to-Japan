@@ -1,3 +1,13 @@
+---
+title: 배포 운영 가이드 (Deploy Runbook)
+space: 설계·개발
+status: 정본
+phase: Phase 0
+updated: 2026-08-24
+owner:
+tags: [배포, 런북, 절차]
+---
+
 # 배포 운영 가이드 (Deploy Runbook)
 
 > **무엇**: YOAKE를 실제로 배포·업데이트·복구하는 **손에 잡히는 절차서**.

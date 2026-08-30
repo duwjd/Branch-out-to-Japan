@@ -1,3 +1,14 @@
+---
+title: Handoff — Landing Design System (Phase 1)
+space: 디자인
+status: 이력
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [디자인, 랜딩, 핸드오프]
+superseded_by: design/lp-components-spec.md (색값 한정 — CTA 정책·node id 는 계속 유효)
+---
+
 # Handoff — Landing Design System (Phase 1)
 
 > **⚠ 색값은 전환 이전 기록이다 (2026-08-18).** 이 문서의 코랄 팔레트(`#FF6464`·`#D93636`·`#FFF8F8`)는 폐기됐다.

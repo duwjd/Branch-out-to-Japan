@@ -1,3 +1,13 @@
+---
+title: "YOAKE 로고 — 자산 정본 & 사용 규칙"
+space: 디자인
+status: 정본
+phase: Phase 0
+updated: 2026-08-19
+owner:
+tags: [디자인, 로고, 브랜드]
+---
+
 # YOAKE 로고 — 자산 정본 & 사용 규칙
 
 > **확정 2026-08-18.** 서비스명은 **YOAKE**, 로고는 이 폴더의 SVG가 정본이다.

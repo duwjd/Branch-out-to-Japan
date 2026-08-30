@@ -1,3 +1,13 @@
+---
+title: YOAKE 브랜드 일러스트 — ChatGPT 생성 프롬프트 팩
+space: 디자인
+status: 정본
+phase: Phase 0
+updated: 2026-08-18
+owner:
+tags: [디자인, 일러스트, 브랜드]
+---
+
 # YOAKE 브랜드 일러스트 — ChatGPT 생성 프롬프트 팩
 
 > 대상: Figma `LP_Illustration_Style`(node 1118:3553) 및 `LP_Assets_Illustrations`의 ILL_* 8종 고도화

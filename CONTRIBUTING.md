@@ -1,3 +1,13 @@
+---
+title: 기여 가이드 (CONTRIBUTING)
+space: 프로젝트 기준
+status: 정본
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [협업, 브랜치, PR]
+---
+
 # 기여 가이드 (CONTRIBUTING)
 
 함께 작업하는 분을 위한 협업 규칙입니다. 프로젝트 규칙 전문은 [CLAUDE.md](CLAUDE.md).

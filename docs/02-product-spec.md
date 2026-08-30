@@ -1,3 +1,13 @@
+---
+title: 02 · 제품 스펙 (PRD)
+space: 전략·제품
+status: 정본
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [PRD, 제품구조, 커머셜]
+---
+
 # 02 · 제품 스펙 (PRD)
 
 > 리서치에서 도출한 상품 구조 골격. 세부 항목은 `pm-planner` 에이전트가 `/spec` 으로 채운다.

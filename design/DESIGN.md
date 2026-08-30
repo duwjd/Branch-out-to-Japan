@@ -1,4 +1,13 @@
 ---
+title: DESIGN — 컴포넌트 인벤토리·타이포·간격·상태 규약 (as-built)
+space: 디자인
+status: 이력
+phase: Phase 0
+updated: 2026-08-19
+owner:
+tags: [디자인, as-built]
+superseded_by: design/lp-components-spec.md (색값 한정 — 컴포넌트·상태 규약은 계속 유효)
+# ↓ 이 아래는 이 문서가 원래 갖고 있던 메타데이터다
 id: wanted
 name: Wanted
 country: KR

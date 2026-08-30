@@ -1,3 +1,14 @@
+---
+title: 데이터 수집 계획 — 일본 시장 레퍼런스 코퍼스
+space: 리서치
+status: 이력
+phase: Phase 0
+updated: 2026-07-08
+owner:
+tags: [리서치, 데이터, 계획]
+superseded_by: 수집 완료 — 결과 코퍼스는 data/processed/ 와 docs/research/jp-detail-message-patterns.md
+---
+
 # 데이터 수집 계획 — 일본 시장 레퍼런스 코퍼스
 
 작성일: 2026-07-08 · 저장 위치: `data/` · 관련: `docs/research/beautyContent/`

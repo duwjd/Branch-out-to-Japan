@@ -1,3 +1,13 @@
+---
+title: research/archive/ — 보존물 (현 빌드 기준 아님)
+space: 리서치
+status: 정본
+phase: Phase 0
+updated: 2026-07-09
+owner:
+tags: [인덱스, 보존물]
+---
+
 # research/archive/ — 보존물 (현 빌드 기준 아님)
 
 피벗 이전(한국 GTM 탐색)·컨시어지 MVP 시절·단일제품 스펙의 **이력 보존물**이다. **현재 3축 빌드 방향과 맞지 않으므로 기준 문서로 참조하지 말 것.** 맥락·근거 추적용으로만 남긴다.

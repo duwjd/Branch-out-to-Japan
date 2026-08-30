@@ -1,3 +1,14 @@
+---
+title: 05 · 팀 합의 필요 질문
+space: 전략·제품
+status: 이력
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [열린질문, 미결정]
+superseded_by: docs/decisions/DECISIONS.md "미결정" 절 (질문 대부분이 해소되어 답과 함께 이력 보존)
+---
+
 # 05 · 팀 합의 필요 질문
 
 > 팀MVP 진행 전 합의가 필요한 열린 질문. 결정되면 [[decisions/DECISIONS]] 에 기록한다.

@@ -1,3 +1,14 @@
+---
+title: Product Hunt June 2026 - 데이터 수집 완료 보고서
+space: 리서치
+status: 폐기
+phase: Phase 0
+updated: 2026-07-09
+owner:
+tags: [보존물, 피벗이전]
+superseded_by: 2026-07-02 일본 시장 피벗으로 대체 — 맥락 추적용. docs/research/archive/README.md
+---
+
 # Product Hunt June 2026 - 데이터 수집 완료 보고서
 
 ## 📋 수집 현황

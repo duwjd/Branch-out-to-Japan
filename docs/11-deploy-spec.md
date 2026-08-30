@@ -1,3 +1,13 @@
+---
+title: 11 · 배포 스펙 (Vercel Hobby + Supabase Free)
+space: 설계·개발
+status: 정본
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [배포, 인프라]
+---
+
 # 11 · 배포 스펙 (Vercel Hobby + Supabase Free)
 
 > **상태(Phase 0 종료 · 2026-08-31)**: ✅ 배포 완료 — `https://branch-out-to-japan.vercel.app` 에서 3축 전부가 작동하며, **AI 에이전트 UT 를 이 배포본에서 실행**했다(생성 60/60 · [[research/ut-agent/results/UT-리포트]]).

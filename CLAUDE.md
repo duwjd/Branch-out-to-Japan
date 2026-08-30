@@ -1,3 +1,13 @@
+---
+title: CLAUDE.md — YOAKE (일본 시장 진출 브랜드 전환 스튜디오)
+space: 프로젝트 기준
+status: 정본
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [팀규칙, 에이전트]
+---
+
 # CLAUDE.md — YOAKE (일본 시장 진출 브랜드 전환 스튜디오)
 
 > 이 파일은 **팀 전원과 모든 Claude Code 세션·에이전트가 공유하는 프로젝트 규칙**이다.

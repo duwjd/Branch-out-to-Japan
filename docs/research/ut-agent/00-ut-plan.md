@@ -1,3 +1,13 @@
+---
+title: AI 에이전트 사용자 테스트(UT) 계획 — YOAKE 실서비스 만족도 평가
+space: 검증·실험
+status: 정본
+phase: Phase 0
+updated: 2026-08-21
+owner:
+tags: [UT, 계획]
+---
+
 # AI 에이전트 사용자 테스트(UT) 계획 — YOAKE 실서비스 만족도 평가
 
 > **한 줄:** 합성 페르소나 20인(`persona_01`~`persona_20`)이 **배포된 YOAKE**(https://branch-out-to-japan.vercel.app)에 들어가 랜딩을 먼저 평가하고, 각자의 계정으로 로그인해 브랜드를 등록한 뒤 **진단 리포트·썸네일·상세페이지를 각 1회씩 실제로 생성**하고, 과업 성공·이탈 지점·산출물 만족도·지불의향을 평가한다.

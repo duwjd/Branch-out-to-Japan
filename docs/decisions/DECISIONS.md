@@ -1,3 +1,13 @@
+---
+title: 의사결정 기록 (ADR)
+space: 의사결정
+status: 정본
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [ADR, 인덱스]
+---
+
 # 의사결정 기록 (ADR)
 
 > 되돌리기 어렵거나 팀에 영향을 주는 결정을 한 줄씩 기록한다.

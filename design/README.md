@@ -1,3 +1,13 @@
+---
+title: design/ — 디자인 산출물
+space: 디자인
+status: 정본
+phase: Phase 0
+updated: 2026-08-19
+owner:
+tags: [디자인, 인덱스]
+---
+
 # design/ — 디자인 산출물
 
 디자인 **단일 기준 = 일출 코랄 시스템** — 정본 시트 [references/LP_Components.svg](references/LP_Components.svg), 실측 스펙 [lp-components-spec.md](lp-components-spec.md), 토큰 구현 [`app/globals.css`](../app/globals.css). 면(CTA 배경·아이콘) `#FF6F61` · 면 hover `#F0594B` · 소형 텍스트·링크 `#C93F2E` · 틴트 `#FFF1EE` · 표면 웜 크림 `#FAF8F5` · 잉크 `#182333`. 모든 화면·와이어프레임은 이 시스템을 따른다.
