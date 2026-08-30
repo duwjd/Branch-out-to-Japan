@@ -16,7 +16,7 @@
 - **Stibee coral palette 반영** — primary `#FF6464` 등 coral 팔레트로 재정의.
 - **접근성 토큰 추가** — `primary-strong #D93636` (interactive용, white 텍스트 AA ≈4.6:1). 적용값(CTA/link/focus/selection/active)까지 정리.
 - **Figma Color System 보드 완성** — `Color System — Stibee Coral` 페이지(Primitive/Semantic/Component/Marketing/Do·Don't). 스와치는 Variables에 바인딩(승격) 완료.
-- **Phase 1 랜딩용 최소 디자인 시스템 구축** — Variables/Styles + Core/Section 컴포넌트 + Landing draft.
+- **Phase 1 랜딩용 최소 디자인 시스템 구축**(※ 여기서 "Phase 1" 은 **폐기된 컨시어지 로드맵**의 단계다 — 현행 [[../docs/04-roadmap]] Phase 0/1 과 무관) — Variables/Styles + Core/Section 컴포넌트 + Landing draft.
 - **페이지 생성** — Foundations / Components / Sections / Landing.
 - **`design/design-system-plan.md` 커밋 완료** (계획 + as-built 결과, node id 포함).
 

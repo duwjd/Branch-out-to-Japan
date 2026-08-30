@@ -26,17 +26,20 @@
 
 ---
 
-## 현재 단계 — 개발 스프린트 종료 (2026-08-21)
+## 현재 단계 — Phase 0 종료 (2026-08-31)
 
-3축 서비스를 **직접 개발**하기로 확정(2026-07-04)한 뒤, **3축 전부를 배포본에서 실작동시키고 UT까지 마쳤습니다.**
+**지금까지의 개발 전체를 `Phase 0`(MVP 빌드)으로 부릅니다** — 2026-07-04 셀프서브 빌드 전환 결정부터 08-31 협업 기반 정비까지. 3축 전부를 배포본에서 실작동시키고 UT까지 마쳤습니다. **Phase 1 은 아직 정하지 않았습니다.**
 
 - **배포본**: `https://branch-out-to-japan.vercel.app` (Vercel Hobby + Supabase Free)
 - **실작동 범위**: 랜딩 → 회원가입·로그인(이메일 실인증 / 소셜은 목) → ① 진단 리포트 한 사이클 → ② 썸네일·상세페이지 실생성 → ③ 브랜드 관리·자산 라이브러리·시즌 캘린더·기업 매칭
 - **UT**: 배포본 대상 **AI 에이전트 UT**(합성 페르소나 20인 · 2세션 · 2026-08-20~21) — 생성 **60/60 성공** · 이슈 71건(P0 14) 수집. 계획했던 실사용자 UT(8/1~3)의 **대체이며 등가가 아닙니다** — 합성 페르소나는 구매 행동을 예측하지 않습니다.
+- **협업 기반**(0-G · 8/22~31): 환경 축 브랜치(`main`/`stg`/`dev`) · PR 검증 게이트 CI(typecheck·test·build) · Prettier 전면 적용 · 문서 지식베이스
 - **최종 검증**: typecheck 0 오류 · 테스트 322/322
 
-무엇이 어디까지 돌아가는지는 [docs/10-implementation-status.md](docs/10-implementation-status.md)가 정본, UT 결과는 [UT 리포트](docs/research/ut-agent/results/UT-리포트.md)·[한 장 요약](docs/research/ut-agent/results/한장요약.md), 실행 방법은 아래 [로컬에서 실행하기](#로컬에서-실행하기-localhost) 참조.
+Phase 정의·구간(0-A~0-G)·종료 시점 미해결은 [docs/04-roadmap.md](docs/04-roadmap.md)가 정본, 문서 전체는 지식베이스 홈 [docs/README.md](docs/README.md)에서 찾습니다. 무엇이 어디까지 돌아가는지는 [docs/10-implementation-status.md](docs/10-implementation-status.md)가 정본, UT 결과는 [UT 리포트](docs/research/ut-agent/results/UT-리포트.md)·[한 장 요약](docs/research/ut-agent/results/한장요약.md), 실행 방법은 아래 [로컬에서 실행하기](#로컬에서-실행하기-localhost) 참조.
 
+> **Phase 0 을 검증되지 않은 채로 종료했습니다.** 실사용자 수요·지불 의사는 미검증입니다.
+>
 > **남아 있는 가장 큰 숙제:** 핵심 차별점인 **폐루프가 화면에서 반증됐습니다** — "한 서비스로 이어져 보이는가" 4/20. 리포트가 스튜디오 산출물을 보지 않고, 둘이 서로 다른 제품을 말합니다(UT-58·59). 대응 계획은 [docs/09-dev-spec.md](docs/09-dev-spec.md) §4d **M12-B**.
 
 지금까지 쌓인 것:

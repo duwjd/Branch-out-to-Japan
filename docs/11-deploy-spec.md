@@ -1,7 +1,8 @@
 # 11 · 배포 스펙 (Vercel Hobby + Supabase Free)
 
-> **상태(2026-08-21)**: ✅ 배포 완료 — `https://branch-out-to-japan.vercel.app` 에서 3축 전부가 작동하며, **AI 에이전트 UT 를 이 배포본에서 실행**했다(생성 60/60 · [[research/ut-agent/results/UT-리포트]]).
+> **상태(Phase 0 종료 · 2026-08-31)**: ✅ 배포 완료 — `https://branch-out-to-japan.vercel.app` 에서 3축 전부가 작동하며, **AI 에이전트 UT 를 이 배포본에서 실행**했다(생성 60/60 · [[research/ut-agent/results/UT-리포트]]).
 > **목적**: 실사용자가 접속 가능한 무료 배포를 완성한다(08 §8-D1 "UT까지 배포 필요").
+> **범위**: [[04-roadmap]] **Phase 0 의 배포 스택**이다 — 비상업 Hobby 한정이라 유료 고객이 생기면 Pro 전환이 트리거된다(§감수).
 > **원칙**: 간편 + 무료. 결정 근거는 [[decisions/2026-07-24-호스팅-배포-결정]], 저장 설계 정본은 [[08-data-flow]] §6.
 > **실전 절차서(클릭 단위 튜토리얼·업데이트·롤백·정지 복구)**: [deploy-runbook.md](deploy-runbook.md). 이 문서는 "왜·무엇을", runbook은 "어떻게 클릭".
 > 무료 티어 한도 수치는 **2026-07-24 확인** 기준 — 배포 트러블 시 공식 문서로 재확인.

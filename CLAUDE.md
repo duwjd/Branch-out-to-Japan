@@ -28,16 +28,24 @@
 - **① + ②가 현재 MVP다.** 진단 리포트만 MVP인 것처럼 쓰지 않는다.
 - **③ 운영 서비스는 MVP 이후 확장 가설** — 브랜드에게 적합한 **일본 마케팅 회사·유통 채널을 소개·연결**하는 서비스로 재정의(2026-08-15). 현재 구현된 기능처럼 쓰지 않으며, `MVP 이후`·`확장 가설`로 표시한다. YOAKE가 광고 집행이나 유통을 직접 수행하지 않고, **유통 입점·광고 성과·판매 실적을 보장하지 않는다**.
 
-## 현재 단계
-- **빌드(개발 스프린트) 단계** — 3축 서비스를 **직접 개발**하기로 확정(2026-07-04, `docs/decisions/DECISIONS.md`). 개발 스프린트: 주말 리서치(7/5~7/6) → 데이터 수집·정제 → IA·플로우 설계 → 1차 개발(리포트 7/11~17 · 스튜디오 7/18~24 · 운영 7/25~31) → UT(8/1~8/3) → 개선·완성(8/4~8/9) → 발표.
-- 자세히: `docs/04-roadmap.md`. 상품 구조: `docs/decisions/2026-07-04-상품-구조-구체화.md`.
-- ① 진단 리포트 설계 자산(2026-07-08): 스펙 `docs/specs/01-report-spec.md`(9블록·티어 입력) · 심화 샘플 `docs/specs/01-report-sample-cica-ampoule.md` · 메시지 관례 루브릭 `docs/research/jp-detail-message-patterns.md` · 페르소나 검증 `docs/research/simulations/리포트샘플-페르소나-검증.md`. 데이터: `data/processed/detail-ocr.jsonl`·`sns-lexicon.csv`.
-- 데이터 플로우 정본(2026-07-09): `docs/08-data-flow.md` — 입력→가공→출력 E2E, LLM 콜별 요청/응답 계약(§4), 엔티티·저장(§6), 화면↔데이터 매핑(§7). 개발 시 `01-report-spec.md`와 함께 참조.
-- 개발 스펙(2026-07-09): `docs/09-dev-spec.md` — 스택·라우트 맵·모듈 구조 + ① 스프린트 마일스톤 M0~M4(엔진 우선). "어떻게 짓는가"는 이 문서, 내용·계약은 01/08 정본.
-- **구현 현황(2026-07-09): `docs/10-implementation-status.md`** — 기능 검증 빌드 완료: 랜딩 + ① 리포트 한 사이클(입력→LLM 4콜 파이프라인→9블록 뷰→발행) 실 LLM E2E 통과. 실행 방법(⚠ 한글 경로 차단 → `C:\dev\jgs-run` 미러, CONTRIBUTING 참조)·코드 맵·잔여 작업은 이 문서.
-- **배포 정본(2026-07-24): `docs/11-deploy-spec.md`** — Vercel Hobby + Supabase Free 무료 스택("왜·무엇"). 운영 절차(첫 배포·업데이트·롤백·정지 복구)는 `docs/deploy-runbook.md`("어떻게 클릭"), 결정 근거는 `docs/decisions/2026-07-24-호스팅-배포-결정.md`. UT(8/1~8/3) 전 실사용자 접속 배포가 목표.
-- 참고 자산: 페르소나 검증 랜딩 시안 `persona-simulation/landing/index.html`(비배포), 근거 문서 `docs/research/archive/페르소나-검증형-MVP-실행안.md`.
-- ※ 이전의 "컨시어지형 MVP · 랜딩 검증(Phase 1/2)" 로드맵은 빌드 전환 결정으로 대체됨. 기존 Next.js 앱 코드는 git 이력에 보존.
+## 현재 단계 — Phase 0 종료 (2026-08-31)
+
+- **지금까지의 개발 전체 = `Phase 0` (MVP 빌드, 2026-07-02 ~ 08-31).** 3축을 직접 개발하기로 확정(2026-07-04)한 뒤 배포·UT·리브랜딩·협업 기반 정비까지가 한 덩어리다. **Phase 1 은 아직 정하지 않았다** — Phase 1 의 내용을 확정된 것처럼 쓰지 않는다.
+- **Phase 정본 = `docs/04-roadmap.md`.** 구간(0-A~0-G)·무엇을 만들었나·종료 시점 미해결이 전부 여기 있다. 마일스톤 `M0~M12` 는 Phase 0 의 **실행 단위**이며 상세는 `docs/09-dev-spec.md` §4~§4d.
+- **Phase 0 종료 판정:** 배포본에서 3축이 돌고 UT 를 마쳤다. 다만 **검증되지 않은 채로 종료했다** — 실사용자 수요·폐루프·지불 의사는 미검증이며 미결정 정본은 `docs/decisions/DECISIONS.md` "미결정" 절이다.
+- **문서를 찾을 때는 지식베이스 홈 `docs/README.md` 부터 본다.** 영역별 인덱스와 문서 상태(정본/초안/이력/폐기)가 거기 있다. 문서 규약은 `docs/CONVENTIONS.md`.
+
+**주제별 정본 (자주 쓰는 것)**
+- 제품 정의 — `docs/00-positioning.md` · 상품 구조 `docs/decisions/2026-07-04-상품-구조-구체화.md`
+- ① 진단 리포트 — 스펙 `docs/specs/01-report-spec.md` · 심화 샘플 `docs/specs/01-report-sample-cica-ampoule.md` · 메시지 관례 루브릭 `docs/research/jp-detail-message-patterns.md`
+- 데이터 계약 — `docs/08-data-flow.md` (입력→가공→출력 E2E · LLM 콜별 요청/응답 §4 · 엔티티·저장 §6 · 화면↔데이터 §7)
+- 어떻게 짓는가 — `docs/09-dev-spec.md` (스택·라우트 맵·모듈 구조·마일스톤)
+- 무엇이 실제로 도는가 — `docs/10-implementation-status.md` (Phase 0 종료 시점 스냅샷 · 실행 방법 · 잔여)
+- 배포 — `docs/11-deploy-spec.md`("왜·무엇") · `docs/deploy-runbook.md`("어떻게 클릭") · 환경 축 브랜치 `docs/decisions/2026-08-22-환경분리-브랜치전략.md`
+- 검증 결과 — `docs/research/ut-agent/results/UT-리포트.md`
+- 참고 자산: 페르소나 검증 랜딩 시안 `persona-simulation/landing/index.html`(비배포)
+
+> ※ 2026-07-04 이전의 컨시어지 로드맵도 단계를 `Phase 1`·`Phase 2` 로 불렀다. **위 Phase 0/1 과 무관한 번호**다 — 옛 문서에서 만나면 "컨시어지 로드맵"으로 읽고, 신규 산출물에는 쓰지 않는다.
 
 ## 절대 하지 말 것 (금지 포지션)
 아래로 흐르는 산출물/기획/카피는 즉시 교정한다. 각각 강력한 경쟁사와 정면충돌한다.
