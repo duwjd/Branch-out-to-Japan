@@ -77,10 +77,29 @@ tags: [팀규칙, 에이전트]
 - 빌드 스택: Next.js (App Router) · TypeScript · Tailwind CSS · npm. 저장소 루트 = 앱 루트.
 - 페르소나 검증용 랜딩 시안은 의존성 없는 단일 HTML(`persona-simulation/`, 비배포).
 
+## 문서를 찾는 법 (지식베이스)
+
+**`docs/README.md` 가 문서의 출발점이다.** 폴더를 뒤지지 말고 거기서 시작한다 — 영역별 인덱스와 각 문서의 상태가 있다.
+
+모든 문서는 상단 속성에 **상태**를 달고 있다(규약: `docs/CONVENTIONS.md`).
+
+| 상태 | 어떻게 다루나 |
+|---|---|
+| **정본** | 지금 기준. 다른 문서와 어긋나면 이쪽이 맞다 |
+| **초안** | 참고는 하되 **근거로 인용하지 않는다** |
+| **이력** | 그 시점의 기록. 현재 기준으로 쓰지 않는다 |
+| **폐기** | 읽지 말고 `superseded_by` 가 가리키는 문서로 간다 |
+
+**어긋날 때 무엇이 이기나** — 무엇을 만드는가 `docs/00-positioning.md` · 지금 어느 단계인가 `docs/04-roadmap.md` · 무엇이 **실제로** 도는가 `docs/10-implementation-status.md` · 무엇을 만들기로 **했는가** `docs/09-dev-spec.md`·`docs/specs/` · 데이터 계약 `docs/08-data-flow.md` · 색·컴포넌트 `design/lp-components-spec.md` · 왜 그렇게 했는가 `docs/decisions/DECISIONS.md`.
+**스펙과 코드가 다르면 코드가 사실이고 스펙이 의도다.**
+
+문서를 새로 만들면 **해당 영역 인덱스에 한 줄 등재한다**. 등재되지 않으면 `npm run docs:check` 가 고아 문서로 잡는다.
+
 ## 폴더 맵
-- `docs/` — 기획 산출물(포지셔닝·리서치·PRD·페르소나·로드맵·열린질문·의사결정)
+- `docs/` — 기획·설계·리서치·의사결정 문서 (**지식베이스 홈 = `docs/README.md`**)
 - `design/` — 디자인(디자인시스템·카피·와이어프레임) / `design/brand/logo/` — **로고 정본 자산·사용 규칙**
 - `persona-simulation/` — 페르소나 검증용 랜딩 시안·카피 팩·스크린샷·결과 기록 (비배포)
+- `scripts/docs/check-docs.mjs` — 문서 규약 검사 (`npm run docs:check`)
 - `.claude/agents/` — 역할별 에이전트, `.claude/commands/` — 슬래시 명령
 
 ## 에이전트 팀 & 호출 시점
