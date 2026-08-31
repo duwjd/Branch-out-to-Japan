@@ -97,14 +97,16 @@ Vercel이 GitHub와 연결돼 있어 커밋이 들어오는 순간 자동 빌드
 | `main` | **prd** (실사용자) | Production 배포 |
 
 즉 **운영 배포 = `stg` 에서 확인한 것을 `main` 에 머지**다. `dev` 는 배포되지 않는다(각자 로컬).
+개인 브랜치(`dev-jeongwon`·`dev-hanna`)도 배포 대상이 아니다 — push 하면 Preview URL 만 생긴다(아래 §프리뷰 배포).
 
 ### 표준 흐름 (권장 — 협업 규칙 준수)
 `main`·`stg` 는 보호 브랜치이므로 직접 push하지 않고 PR로 병합한다([CONTRIBUTING.md](../CONTRIBUTING.md) 브랜치 전략).
 
 ```bash
-# 1) 최신 dev에서 작업 브랜치 분기
+# 1) 자기 개인 브랜치로 이동하고 dev 를 받아 온다 (rebase 아님 — merge)
 git fetch origin
-git checkout -b feat/무엇을-바꾸는지 origin/dev
+git checkout dev-jeongwon          # 파트너는 dev-hanna
+git merge origin/dev
 
 # 2) 코드 수정 → 로컬 검증(반드시)
 npm run typecheck && npm test && npm run build
@@ -112,17 +114,18 @@ npm run typecheck && npm test && npm run build
 # 3) 커밋·푸시
 git add -A
 git commit -m "feat: ..."   # Conventional Commits
-git push -u origin feat/무엇을-바꾸는지
+git push
 
-# 4) GitHub에서 PR 생성 (base = dev) → 리뷰 1인 → squash 머지
+# 4) GitHub에서 PR 생성 (base = dev) → 리뷰 1인 → merge commit
 # 5) 승격: dev → stg PR (merge commit) → stg 에서 QA
 # 6) 승격: stg → main PR (merge commit) → 운영 배포
+# ※ 개인 브랜치는 병합 후에도 지우지 않는다. 다음 작업도 같은 브랜치에서 이어 간다.
 ```
 
 - **`main` 에 머지되면 자동으로 프로덕션 배포** 시작 → Vercel **Deployments** 탭에서 확인.
 - 배포 후에는 §1-C 스모크 중 최소 1번(`/api/report` 응답)만이라도 확인한다.
-- **승격 PR 은 squash 하지 않는다** — 승격된 브랜치가 원본과 다른 SHA 를 갖게 되어 다음 승격에서 유령 충돌이 난다.
-- **`main` 에 뭔가 들어가면 즉시 `main` → `stg` → `dev` 역병합한다.**
+- **어떤 PR 도 squash 하지 않는다** — 병합된 브랜치가 원본과 다른 SHA 를 갖게 되어 다음 병합에서 유령 충돌이 난다. 개인 브랜치는 계속 살기 때문에 `dev-{이름}`→`dev` 도 예외가 아니다.
+- **`main` 에 뭔가 들어가면 즉시 `main` → `stg` → `dev` → `dev-{이름}` 역병합한다.**
 
 ### 프리뷰 배포 — 머지 전에 실물로 테스트
 `main` 이 아닌 브랜치를 push하면 Vercel이 **미리보기 URL(Preview Deployment)** 을 자동 생성한다(PR 화면에 Vercel 봇이 링크를 댓글로 남김).
@@ -131,8 +134,9 @@ git push -u origin feat/무엇을-바꾸는지
 > 여기서 만든 데이터는 실 DB 에 그대로 쌓이므로 **파괴적 테스트는 하지 않는다.** 데이터를 험하게
 > 다뤄야 하는 검증은 로컬(`.data/` 파일 스토어)에서 한다.
 >
-> 브랜치 축을 먼저 도입한 것은 **검증 단계를 만들기 위해서**다 — 코드가 `stg` 에서 한 번 돌아본 뒤
+> 환경 축을 도입한 것은 **검증 단계를 만들기 위해서**다 — 코드가 `stg` 에서 한 번 돌아본 뒤
 > 운영에 가는 것과 바로 가는 것은 다르다. 데이터 격리는 그 다음 단계다.
+> 개인 브랜치(`dev-{이름}`)는 그 아래의 **작업 공간**이지 검증 단계가 아니다.
 
 ### 문서만 바꿨을 때
 `docs/` 변경도 커밋되면 빌드가 돌지만 사용자 화면에는 영향 없다. 같은 PR 흐름으로 처리하면 된다(이 runbook도 그렇게 올라감).
@@ -299,7 +303,7 @@ API 키 교체, `AUTH_MAIL_MODE` 조정, 새 키 추가 등.
 
 | | dev (로컬) | stg | prd |
 |---|---|---|---|
-| 브랜치 | `dev` + 작업 브랜치 | `stg` | `main` |
+| 브랜치 | `dev` · `dev-{이름}` | `stg` | `main` |
 | URL | `localhost:3000` | `branch-out-to-japan-git-stg-<scope>.vercel.app` | `branch-out-to-japan.vercel.app` |
 | Vercel 스코프 | — | Preview | Production |
 | **Supabase** | 없음 (`.data/` 파일 스토어) | ⚠️ **운영 프로젝트 (공유)** | 운영 프로젝트 |

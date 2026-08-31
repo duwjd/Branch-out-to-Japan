@@ -129,9 +129,10 @@ tags: [팀규칙, 에이전트]
 KR→JP는 **번역이 아니다**. 일본 고객의 신뢰 요소·구매 이유·소구점을 처음부터 재설계한다. 카피는 `jp-localizer`를 통해 다룬다.
 
 ## 협업 규칙
-- **브랜치는 작업자가 아니라 환경으로 나눈다** — `main`(=prd, 보호) · `stg`(=QA 배포, 보호) · `dev`(=통합, 배포 없음).
-  작업 브랜치는 `feat/…` · `docs/…` · `fix/…` 이고 **base 는 `dev`** 다. 승격은 `dev`→`stg`→`main` 순서이며 **merge commit**으로만 한다(squash 금지 — 다음 승격에서 유령 충돌이 난다).
-  `main`에 뭔가 들어가면 즉시 `main`→`stg`→`dev` 역병합한다. **브랜치 규칙 정본은 `CONTRIBUTING.md`.**
+- **브랜치에 축이 둘이다** — **환경 축** `main`(=prd, 보호) · `stg`(=QA 배포, 보호) · `dev`(=통합, 배포 없음) 이 "어디까지 검증됐는가"를, **사람 축** `dev-jeongwon` · `dev-hanna` 가 "누가 만지는가"를 나타낸다.
+  **기능마다 브랜치를 파지 않는다** — 각자 자기 `dev-{이름}` 에서 작업하고 base 를 `dev` 로 PR 한다. 개인 브랜치는 하나이고 병합 후에도 계속 산다.
+  **모든 병합은 merge commit 이다(squash 금지)** — 장수 브랜치를 squash 하면 다음 병합마다 유령 충돌이 난다. `dev-{이름}` 은 **rebase 하지 않고** `dev` 를 merge 해서 최신화한다.
+  `main`에 뭔가 들어가면 즉시 `main`→`stg`→`dev`→`dev-{이름}` 역병합한다. **브랜치 규칙 정본은 `CONTRIBUTING.md`** · 근거 `docs/decisions/2026-08-31-개인-브랜치-복귀.md`.
 - 커밋: Conventional Commits(`feat:`, `fix:`, `docs:`, `chore:` …).
 - PR로 병합, 리뷰 1인 이상. 템플릿(`.github/pull_request_template.md`) 사용.
 - 자세한 협업 방법: `CONTRIBUTING.md` (개발 머신 트러블슈팅 포함)

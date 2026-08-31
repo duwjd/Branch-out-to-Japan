@@ -97,7 +97,8 @@ tags: [구현현황, 스냅샷]
 | 구분 | 상태 |
 |---|---|
 | **응답 속도(2026-08-22)** | ✅ 함수 리전 **서울 이전** · `loading` 경계 · 라우터 캐시 — 페이지 이동 지연 제거(`3963d10`) |
-| **환경 축 브랜치(2026-08-24)** | ✅ `main`(=prd·보호) · `stg`(=QA 배포·보호) · `dev`(=통합) 으로 재편, 작업자 이름 브랜치 폐지. 승격은 `dev`→`stg`→`main` **merge commit** 전용 · 마이그레이션 대상 표시 + 환경 확진 진단 노출(`4724a5a`·`6f5c3f2`). 규칙 정본 = [CONTRIBUTING](../CONTRIBUTING.md) · 근거 [[decisions/2026-08-22-환경분리-브랜치전략]]. ⚠ **DB 분리는 보류** — `stg` 도 운영 Supabase 를 쓴다 |
+| **환경 축 브랜치(2026-08-24)** | ✅ `main`(=prd·보호) · `stg`(=QA 배포·보호) · `dev`(=통합) 으로 재편. 승격은 `dev`→`stg`→`main` **merge commit** 전용 · 마이그레이션 대상 표시 + 환경 확진 진단 노출(`4724a5a`·`6f5c3f2`). 근거 [[decisions/2026-08-22-환경분리-브랜치전략]]. ⚠ **DB 분리는 보류** — `stg` 도 운영 Supabase 를 쓴다 |
+| **사람 축 브랜치 복귀(2026-08-31)** | ✅ 같이 도입했던 **작업자 이름 브랜치 폐지는 되돌렸다** — 작업 브랜치가 `feat/…`·`fix/…`·`docs/…` 에서 개인 장수 브랜치 `dev-jeongwon`·`dev-hanna` 로. 환경 축은 그대로 두고 개인 브랜치를 그 **아래 작업 공간**으로 둔다. 동반으로 **squash 전면 폐지**(모든 병합이 merge commit — 장수 브랜치를 squash 하면 back-merge 마다 유령 충돌). 규칙 정본 = [CONTRIBUTING](../CONTRIBUTING.md) · 근거 [[decisions/2026-08-31-개인-브랜치-복귀]] |
 | **PR 검증 게이트(2026-08-24)** | ✅ GitHub Actions — PR 에서 `typecheck` · `test` · `build` 통과를 병합 조건으로(`60afdc0`) |
 | **코드 포맷(2026-08-24)** | ✅ Prettier 도입 → 전면 적용 → CI 포맷 검사 연결(`0882805`·`86fb2be`·`52dea7a`). 대상은 `**/*.{ts,tsx,mjs}` — **`*.md` 는 `.prettierignore` 로 제외**(한국어 표·문단이 재배치되면 읽기 나빠진다). 기계 적용 커밋은 `.git-blame-ignore-revs` 등록 |
 | **문서 지식베이스(2026-08-31)** | ✅ Phase 축 도입 + `docs/README.md` 홈 · 영역 인덱스 · 문서 속성(상태·오너·갱신일·Phase) · 검증 스크립트 `npm run docs:check`. 규약 = [CONVENTIONS](CONVENTIONS.md) |

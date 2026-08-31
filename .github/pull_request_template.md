@@ -8,7 +8,8 @@
 <!-- docs/... , 로드맵 항목, 이슈 번호 -->
 
 ## 체크리스트
-- [ ] **base 브랜치 확인** — 작업 PR 은 `dev`, 승격 PR 은 `stg`/`main`(승격은 squash 금지·merge commit)
+- [ ] **base 브랜치 확인** — 개인 브랜치(`dev-{이름}`) PR 은 `dev`, 승격 PR 은 `stg`/`main`
+- [ ] **merge commit 으로 병합** — squash 금지(어떤 PR 도. 장수 브랜치가 squash 되면 다음 병합에서 유령 충돌)
 - [ ] `docs/00-positioning.md` 의 금지 포지션으로 흐르지 않음
 - [ ] `npm run typecheck && npm test && npm run build` 3종 통과
 - [ ] `console.log` 없음 (→ `lib/logger.ts`)

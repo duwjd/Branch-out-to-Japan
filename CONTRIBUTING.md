@@ -28,34 +28,46 @@ Claude Code를 쓴다면 새 세션에서 `/kickoff` 를 먼저 실행하세요.
 
 ## 브랜치 전략
 
-브랜치는 **작업자가 아니라 환경**으로 나눕니다. 어느 브랜치에 있느냐가 곧 "어디까지 검증됐느냐"입니다.
+브랜치에 **축이 둘**입니다. **환경 축**이 "어디까지 검증됐는가"를, **사람 축**이 "누가 지금 만지는가"를 나타냅니다.
 
-| 브랜치 | 환경 | 배포 |
-|---|---|---|
-| `main` | **prd** — 실사용자 | Vercel Production (머지 즉시 자동 배포) |
-| `stg` | **stg** — QA | Vercel Preview (브랜치 alias URL) · ⚠️ **DB 는 운영과 공유** |
-| `dev` | **dev** — 통합 | 배포 없음. 각자 로컬에서 확인 |
-| `feat/…` `fix/…` `docs/…` | 작업 브랜치 | 없음 |
+| 브랜치 | 축 | 역할 | 배포 |
+|---|---|---|---|
+| `main` | 환경 | **prd** — 실사용자 | Vercel Production (머지 즉시 자동 배포) |
+| `stg` | 환경 | **stg** — QA | Vercel Preview (브랜치 alias URL) · ⚠️ **DB 는 운영과 공유** |
+| `dev` | 환경 | **dev** — 통합 | 배포 없음. 각자 로컬에서 확인 |
+| `dev-jeongwon` · `dev-hanna` | 사람 | **개인 작업 공간** | 없음 (push 하면 Vercel 이 Preview URL 을 자동 생성) |
+
+**개인 브랜치는 사람마다 하나이고 계속 삽니다.** 기능마다 브랜치를 파지 않습니다 — 본인 작업은 전부 자기 `dev-{이름}` 에서 합니다.
 
 ```
-feat/x ──PR(squash)──> dev ──PR(merge commit)──> stg ──PR(merge commit)──> main
-  로컬에서 확인            로컬 통합              stg 배포·QA           운영 배포
+dev-jeongwon ──PR(merge)──┐
+                          ├──> dev ──PR(merge)──> stg ──PR(merge)──> main
+dev-hanna    ──PR(merge)──┘      로컬 통합         stg 배포·QA        운영 배포
 
-hotfix/x ────────────────────────────────────────────────────────────────> main
-                            ↑ 머지 후 반드시 back-merge: main → stg → dev
+최신화: dev ──merge──> dev-{이름}          (자주 받아 옵니다)
+역병합: main ──> stg ──> dev ──> dev-{이름}
+hotfix/x ────────────────────────────────> main   (긴급 시에만 · 위 역병합 필수)
 ```
 
-지켜야 할 것 3가지:
+지켜야 할 것 4가지:
 
-1. **승격 PR(`dev`→`stg`, `stg`→`main`)은 merge commit으로 병합합니다.** squash 하면 승격된
-   브랜치가 원본과 다른 SHA 를 갖게 되어 다음 승격 PR 마다 유령 충돌이 납니다.
-   작업 브랜치 → `dev` 만 squash 합니다.
-2. **`main` 에 뭔가 들어가면 즉시 `main` → `stg` → `dev` 로 역병합합니다.** 핫픽스든 정기
+1. **모든 병합은 merge commit 입니다. squash 하지 않습니다.** squash 하면 병합된 쪽이 원본과 다른
+   SHA 를 갖게 되어 다음 병합마다 유령 충돌이 납니다. 승격 PR(`dev`→`stg`→`main`)은 물론이고
+   **`dev-{이름}`→`dev` 도 마찬가지**입니다 — 개인 브랜치는 병합 후에도 계속 살아서 재사용되므로,
+   여기서 squash 하면 다음 back-merge 때마다 같은 사고가 반복됩니다.
+2. **`dev-{이름}` 을 rebase 하지 않습니다.** push 한 순간부터 공유 브랜치입니다. 최신 코드는
+   `dev` 를 **merge 해서** 받아 옵니다(`git merge origin/dev`). 자주 받을수록 나중에 덜 아픕니다.
+3. **`main` 에 뭔가 들어가면 즉시 `main` → `stg` → `dev` 로 역병합합니다.** 핫픽스든 정기
    릴리스든 예외 없습니다. 빼먹으면 다음 승격 PR 이 "이미 반영된 변경을 되돌리는" diff 를 들고 옵니다.
-3. **운영 장애의 1차 대응은 hotfix 가 아니라 Vercel Instant Rollback** 입니다
+   역병합이 `dev` 에 닿으면 각자 자기 `dev-{이름}` 으로도 받아 옵니다.
+4. **운영 장애의 1차 대응은 hotfix 가 아니라 Vercel Instant Rollback** 입니다
    ([deploy-runbook §3](docs/deploy-runbook.md)). 롤백은 수 초, hotfix 는 빌드까지 10분 이상 걸립니다.
 
 `main` 과 `stg` 는 보호 브랜치입니다. 직접 push 하지 않고 PR 로 병합합니다.
+
+> **개인 브랜치가 커지면 나눠서 PR 합니다.** 사람 단위 브랜치의 대가는 PR 에 주제가 섞이는 것입니다.
+> 한 덩어리가 너무 커졌다 싶으면 중간에 `dev` 로 한 번 올리세요 — 리뷰가 가능한 크기를 유지하는 게
+> 브랜치 이름보다 중요합니다. 배경은 [ADR](docs/decisions/2026-08-31-개인-브랜치-복귀.md).
 
 ## 커밋
 [Conventional Commits](https://www.conventionalcommits.org/) 사용:
@@ -67,7 +79,7 @@ docs: 로드맵 Phase 0 구간 정리
 - 커밋 메시지에 **변경 이유**를 한 줄 남깁니다(전역 규칙).
 
 ## PR
-1. 작업 브랜치에서 작업 후 **base 를 `dev` 로** PR 생성(승격 PR 만 base 가 `stg`·`main`).
+1. 자기 `dev-{이름}` 에서 작업 후 **base 를 `dev` 로** PR 생성(승격 PR 만 base 가 `stg`·`main`). **머지 방식은 merge commit.**
 2. [PR 템플릿](.github/pull_request_template.md)의 체크리스트를 채웁니다(변경 요약·이유·테스트·스크린샷).
 3. 리뷰 1인 이상 승인 후 병합.
 4. 병합 전 `npm run typecheck && npm test && npm run build` 3종 통과 확인(합쳐 30초 남짓).
