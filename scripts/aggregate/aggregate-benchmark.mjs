@@ -22,7 +22,9 @@ const EXAMPLE_N = 12;
 
 /** 공백·중복 문자를 정규화한다(집계 키 안정화). */
 function normalizeText(s) {
-  return String(s ?? '').replace(/\s+/g, ' ').trim();
+  return String(s ?? '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /** 배열 항목 빈도를 세어 [{text, count}] 상위 N을 결정적 순서로 반환한다. */

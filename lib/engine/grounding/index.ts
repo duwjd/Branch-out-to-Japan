@@ -135,9 +135,18 @@ const REPORT_CALLS = new Set(['call1', 'call2', 'call3', 'call4', 'call5', 'chec
 function aggregateSection(category: Category): string {
   const agg = getCategoryAggregate(category);
   if (!agg) return `[코퍼스 사전집계] ${category} 표본 없음 — 카테고리 일반 원칙으로만 판단하고 corpusRef는 비울 것.`;
-  const badges = agg.topTrustBadges.slice(0, 12).map((b) => `${b.text}(${b.count})`).join(' · ');
-  const ingredients = agg.topIngredients.slice(0, 10).map((b) => `${b.text}(${b.count})`).join(' · ');
-  const examples = agg.appealExamples.slice(0, 8).map((e) => `- ${e}`).join('\n');
+  const badges = agg.topTrustBadges
+    .slice(0, 12)
+    .map((b) => `${b.text}(${b.count})`)
+    .join(' · ');
+  const ingredients = agg.topIngredients
+    .slice(0, 10)
+    .map((b) => `${b.text}(${b.count})`)
+    .join(' · ');
+  const examples = agg.appealExamples
+    .slice(0, 8)
+    .map((e) => `- ${e}`)
+    .join('\n');
   return [
     `[코퍼스 사전집계 — 라쿠텐 ${category} 상세 ${agg.sampleCount}건 실측. 이 안의 표현만 corpusRef로 인용 가능]`,
     `상위 신뢰 배지: ${badges}`,
@@ -149,9 +158,7 @@ function aggregateSection(category: Category): string {
 /** 규정 요약을 프롬프트 주입용 텍스트로 */
 function regulatorySection(productClass: ProductClass): string {
   const reg = getRegulatory();
-  const grades = reg.gradeFrame.grades
-    .map((g) => `- ${g.grade}: 가능=${g.canSay} / 불가=${g.cannotSay}`)
-    .join('\n');
+  const grades = reg.gradeFrame.grades.map((g) => `- ${g.grade}: 가능=${g.canSay} / 불가=${g.cannotSay}`).join('\n');
   const clauses = reg.clauses.map((c) => `[${c.id}] ${c.title} — ${c.summary}`).join('\n');
   const assumed = productClass === '미상' ? ' (제품분류 미상 → 化粧品으로 상정하고 판정할 것)' : '';
   return [

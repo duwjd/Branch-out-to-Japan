@@ -70,7 +70,11 @@ async function loadThumbnailRecords(only) {
   for (const l of text.split('\n')) {
     if (!l.trim()) continue;
     let r;
-    try { r = JSON.parse(l); } catch { continue; }
+    try {
+      r = JSON.parse(l);
+    } catch {
+      continue;
+    }
     if (r.type !== 'thumbnail') continue;
     if (only && r.category !== only) continue;
     if (!r.sourceUrl) continue;
@@ -126,7 +130,11 @@ function pickRoundRobin(pool, limit) {
       while (i < list.length) {
         const r = list[i++];
         const shop = shopOf(r.id);
-        if (!seenShops.has(shop)) { seenShops.add(shop); picks.push(r); break; }
+        if (!seenShops.has(shop)) {
+          seenShops.add(shop);
+          picks.push(r);
+          break;
+        }
       }
       ptr.set(cat, i);
       if (i < list.length) exhausted = false;
@@ -217,7 +225,8 @@ function extractVariationMeta(page) {
     const hasCouponBanner = [...document.images].some((i) =>
       (i.currentSrc || i.src || '').includes('rmc.contents.rakuten.co.jp'),
     );
-    const promoPattern = /クーポン|[%％]\s*OFF|オフ|ポイント\s*\d+\s*倍|P\d+倍|限定価格|マラソン|メガ割|半額|タイムセール/;
+    const promoPattern =
+      /クーポン|[%％]\s*OFF|オフ|ポイント\s*\d+\s*倍|P\d+倍|限定価格|マラソン|メガ割|半額|タイムセール/;
     const doublePricePattern = /通常価格|参考価格|希望小売価格|[⇒→]\s*[¥￥\d]/;
 
     return {
@@ -240,7 +249,10 @@ async function autoScroll(page) {
       const timer = setInterval(() => {
         window.scrollBy(0, step);
         y += step;
-        if (y >= document.body.scrollHeight - window.innerHeight) { clearInterval(timer); resolve(); }
+        if (y >= document.body.scrollHeight - window.innerHeight) {
+          clearInterval(timer);
+          resolve();
+        }
       }, 200);
     });
   });
@@ -255,9 +267,7 @@ async function main() {
   }
   const collectedAt = new Date().toISOString().slice(0, 10);
   const pool = await loadThumbnailRecords(args.only);
-  const samples = args.seedIds
-    ? await pickBySeed(args.seedIds, pool)
-    : pickRoundRobin(pool, args.limit);
+  const samples = args.seedIds ? await pickBySeed(args.seedIds, pool) : pickRoundRobin(pool, args.limit);
 
   // --refresh: 대상 상품의 구 detail 레코드를 먼저 제거한다.
   // 남겨두면 loadExistingIds()가 `_d1..d8`을 스킵해버려, 완화된 필터로 새로 잡힌
@@ -294,39 +304,48 @@ async function main() {
       await page.waitForTimeout(RENDER_WAIT_MS);
       await autoScroll(page);
       const imgs = (await extractDetailImages(page)).slice(0, args.maxImages);
-      let variation = { optionLabels: [], optionCount: 0, optionAxis: null, hasPromo: false, hasDoublePrice: false, priceRaw: '' };
+      let variation = {
+        optionLabels: [],
+        optionCount: 0,
+        optionAxis: null,
+        hasPromo: false,
+        hasDoublePrice: false,
+        priceRaw: '',
+      };
       try {
         variation = await extractVariationMeta(page);
       } catch (err) {
         logger.warn('옵션·가격 메타 추출 실패', { id: prod.id, reason: String(err.message ?? err) });
       }
 
-      const records = imgs.map((img, n) => ({
-        id: `${prod.id}_d${n + 1}`,
-        source: 'rakuten',
-        type: 'detail',
-        parentId: prod.id,
-        productName: prod.productName,
-        category: prod.category,
-        sourceUrl: prod.sourceUrl,
-        imageUrl: img.src,
-        localPath: `raw/product-detail/rakuten/${prod.id}/${n + 1}.jpg`,
-        // 블록 분류용 메타(v2) — sequenceIndex 는 DOM Y좌표 정렬 결과라 실제 세로 순서다
-        sequenceIndex: n + 1,
-        isMallBanner: img.isMallBanner,
-        naturalWidth: img.w,
-        naturalHeight: img.h,
-        optionCount: variation.optionCount,
-        optionAxis: variation.optionAxis,
-        optionLabels: variation.optionLabels,
-        hasPromo: variation.hasPromo,
-        hasDoublePrice: variation.hasDoublePrice,
-        priceRaw: variation.priceRaw,
-        collectedAt,
-        license: '브랜드/셀러 저작물 — 내부 분석용',
-        via: 'browser',
-        schemaVersion: 2,
-      })).filter((r) => !seenIds.has(r.id));
+      const records = imgs
+        .map((img, n) => ({
+          id: `${prod.id}_d${n + 1}`,
+          source: 'rakuten',
+          type: 'detail',
+          parentId: prod.id,
+          productName: prod.productName,
+          category: prod.category,
+          sourceUrl: prod.sourceUrl,
+          imageUrl: img.src,
+          localPath: `raw/product-detail/rakuten/${prod.id}/${n + 1}.jpg`,
+          // 블록 분류용 메타(v2) — sequenceIndex 는 DOM Y좌표 정렬 결과라 실제 세로 순서다
+          sequenceIndex: n + 1,
+          isMallBanner: img.isMallBanner,
+          naturalWidth: img.w,
+          naturalHeight: img.h,
+          optionCount: variation.optionCount,
+          optionAxis: variation.optionAxis,
+          optionLabels: variation.optionLabels,
+          hasPromo: variation.hasPromo,
+          hasDoublePrice: variation.hasDoublePrice,
+          priceRaw: variation.priceRaw,
+          collectedAt,
+          license: '브랜드/셀러 저작물 — 내부 분석용',
+          via: 'browser',
+          schemaVersion: 2,
+        }))
+        .filter((r) => !seenIds.has(r.id));
 
       records.forEach((r) => seenIds.add(r.id));
       await appendRecords(records);
@@ -347,7 +366,11 @@ async function main() {
     await browser.close();
   }
 
-  logger.info('완료', { products: processed, detailImages: totalDetailImgs, catalog: path.relative(REPO_ROOT, CATALOG_PATH) });
+  logger.info('완료', {
+    products: processed,
+    detailImages: totalDetailImgs,
+    catalog: path.relative(REPO_ROOT, CATALOG_PATH),
+  });
 }
 
 main().catch((err) => {

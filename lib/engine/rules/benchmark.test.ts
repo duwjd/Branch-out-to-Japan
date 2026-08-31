@@ -39,7 +39,10 @@ describe('buildBenchmark — customerStatus 3분기', () => {
     const footnote = result.comparisonRows.find((r) => r.device.includes('각주'));
     assert.equal(free?.customerStatus, '관찰됨');
     assert.equal(footnote?.customerStatus, '미관찰');
-    assert.ok(result.comparisonRows.every((r) => r.customerStatus !== '미확인'), '풀 모드에 미확인이 나오면 안 된다');
+    assert.ok(
+      result.comparisonRows.every((r) => r.customerStatus !== '미확인'),
+      '풀 모드에 미확인이 나오면 안 된다',
+    );
   });
 
   it('코퍼스 측 산출은 모드와 무관하게 동일하다 — 잠기는 건 대비뿐', () => {

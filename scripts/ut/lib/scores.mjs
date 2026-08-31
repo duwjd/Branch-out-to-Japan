@@ -7,10 +7,26 @@
 
 /** 페르소나 가격 상한(원) — `.claude/agents/persona_NN.md` 의 "가격 수용도" */
 export const PRICE_CEILING = {
-  P01: 500_000, P02: 500_000, P03: 1_000_000, P04: 500_000, P05: 500_000,
-  P06: 1_000_000, P07: 500_000, P08: 1_000_000, P09: 1_000_000, P10: 1_000_000,
-  P11: 1_000_000, P12: 500_000, P13: 1_000_000, P14: 1_000_000, P15: 1_000_000,
-  P16: 1_000_000, P17: 1_000_000, P18: 1_000_000, P19: 0, P20: 0,
+  P01: 500_000,
+  P02: 500_000,
+  P03: 1_000_000,
+  P04: 500_000,
+  P05: 500_000,
+  P06: 1_000_000,
+  P07: 500_000,
+  P08: 1_000_000,
+  P09: 1_000_000,
+  P10: 1_000_000,
+  P11: 1_000_000,
+  P12: 500_000,
+  P13: 1_000_000,
+  P14: 1_000_000,
+  P15: 1_000_000,
+  P16: 1_000_000,
+  P17: 1_000_000,
+  P18: 1_000_000,
+  P19: 0,
+  P20: 0,
 };
 
 /** 단독 결정이 불가능한 페르소나 — 품의형(§2 교차 렌즈) */
@@ -27,7 +43,9 @@ export function parseScores(markdown) {
     const line = rawLine.split('#')[0];
     // 한 줄에 `sat_T1=3  sat_T2=4` 처럼 여러 쌍이 올 수 있다
     // 키에 숫자가 들어간다(sat_T1·dropoff_T5) — 숫자를 빼면 그 줄이 통째로 안 잡힌다
-    for (const [, k, v] of line.matchAll(/([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*([^=]*?)(?=\s+[a-zA-Z_][a-zA-Z0-9_]*\s*=|$)/g)) {
+    for (const [, k, v] of line.matchAll(
+      /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*([^=]*?)(?=\s+[a-zA-Z_][a-zA-Z0-9_]*\s*=|$)/g,
+    )) {
       out[k] = v.trim();
     }
   }
@@ -36,7 +54,7 @@ export function parseScores(markdown) {
 
 const num = (v) => {
   const raw = String(v ?? '').replace(/[^\d.-]/g, '');
-  if (raw.trim() === '') return null;   // 빈칸은 0 이 아니라 '값 없음'이다
+  if (raw.trim() === '') return null; // 빈칸은 0 이 아니라 '값 없음'이다
   const n = Number(raw);
   return Number.isFinite(n) ? n : null;
 };
@@ -50,16 +68,58 @@ export function validityFlags(personaId, s, markdown) {
   const ceiling = PRICE_CEILING[personaId];
   const krw = num(s.wtp_krw) ?? 0;
   if (ceiling !== undefined && krw > ceiling) flags.push('price_overrun');
-  if (APPROVAL_REQUIRED.has(personaId) && String(s.wtp).toUpperCase() === 'Y' && !/품의|결재|사내|위에|대표님/.test(markdown ?? '')) {
+  if (
+    APPROVAL_REQUIRED.has(personaId) &&
+    String(s.wtp).toUpperCase() === 'Y' &&
+    !/품의|결재|사내|위에|대표님/.test(markdown ?? '')
+  ) {
     flags.push('approval_bypass');
   }
   if (AI_RESIST.has(personaId)) {
-    const axes = ['rep_acc', 'rep_act', 'rep_dif', 'rep_tru', 'thu_acc', 'thu_act', 'thu_dif', 'thu_tru', 'det_acc', 'det_act', 'det_dif', 'det_tru'].map((k) => num(s[k])).filter((n) => n !== null);
+    const axes = [
+      'rep_acc',
+      'rep_act',
+      'rep_dif',
+      'rep_tru',
+      'thu_acc',
+      'thu_act',
+      'thu_dif',
+      'thu_tru',
+      'det_acc',
+      'det_act',
+      'det_dif',
+      'det_tru',
+    ]
+      .map((k) => num(s[k]))
+      .filter((n) => n !== null);
     if (axes.length > 0 && axes.every((n) => n >= 4)) flags.push('ai_no_resist');
   }
-  const all = ['landing_appeal', 'landing_interest', 'landing_intent', 'sat_T1', 'sat_T2', 'sat_T3', 'sat_T4', 'sat_T5', 'sat_T6', 'sat_T7',
-    'rep_acc', 'rep_act', 'rep_dif', 'rep_tru',
-    'thu_acc', 'thu_act', 'thu_dif', 'thu_tru', 'det_acc', 'det_act', 'det_dif', 'det_tru'].map((k) => num(s[k])).filter((n) => n !== null);
+  const all = [
+    'landing_appeal',
+    'landing_interest',
+    'landing_intent',
+    'sat_T1',
+    'sat_T2',
+    'sat_T3',
+    'sat_T4',
+    'sat_T5',
+    'sat_T6',
+    'sat_T7',
+    'rep_acc',
+    'rep_act',
+    'rep_dif',
+    'rep_tru',
+    'thu_acc',
+    'thu_act',
+    'thu_dif',
+    'thu_tru',
+    'det_acc',
+    'det_act',
+    'det_dif',
+    'det_tru',
+  ]
+    .map((k) => num(s[k]))
+    .filter((n) => n !== null);
   if (all.length >= 10 && all.every((n) => n >= 4)) flags.push('positivity');
   return flags;
 }

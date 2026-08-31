@@ -53,7 +53,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const partnerTypes = Array.isArray(body.partnerTypes)
-    ? body.partnerTypes.filter((t): t is string => typeof t === 'string' && (PARTNER_TYPES as readonly string[]).includes(t))
+    ? body.partnerTypes.filter(
+        (t): t is string => typeof t === 'string' && (PARTNER_TYPES as readonly string[]).includes(t),
+      )
     : [];
   if (partnerTypes.length === 0) {
     return NextResponse.json({ error: '파트너 유형을 1개 이상 선택해 주세요.' }, { status: 400 });

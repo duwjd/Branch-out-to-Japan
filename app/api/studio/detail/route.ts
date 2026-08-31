@@ -37,7 +37,10 @@ export async function POST(request: Request): Promise<NextResponse> {
   const blocked = blockingReason(readiness);
   if (blocked) {
     logger.error('상세페이지 생성 차단 — 서버 준비 미완', { reason: blocked });
-    return NextResponse.json({ error: `이 서버에서는 아직 상세페이지를 만들 수 없습니다. ${blocked}`, readiness }, { status: 503 });
+    return NextResponse.json(
+      { error: `이 서버에서는 아직 상세페이지를 만들 수 없습니다. ${blocked}`, readiness },
+      { status: 503 },
+    );
   }
 
   const form = await request.formData();
@@ -107,7 +110,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       artDirectionEn = cached.artDirectionEn;
     } else {
       try {
-        const result = await runInputTranslate({ input: parsed.detailInput, note: parsed.note, brandKit: brand.brandKit });
+        const result = await runInputTranslate({
+          input: parsed.detailInput,
+          note: parsed.note,
+          brandKit: brand.brandKit,
+        });
         translated = result.fields;
         artDirectionEn = result.artDirectionEn;
       } catch (err) {

@@ -24,7 +24,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 
   const form = await request.formData();
-  const nameKr = String(form.get('nameKr') ?? '').trim().slice(0, 40);
+  const nameKr = String(form.get('nameKr') ?? '')
+    .trim()
+    .slice(0, 40);
   if (!nameKr) return NextResponse.json({ error: '제품명(KR)을 입력해 주세요.' }, { status: 400 });
 
   // 같은 브랜드 내 제품명 중복(자기 자신 제외)
@@ -71,13 +73,18 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   // 대표 = primaryPos(최종 배열 인덱스), 기본 첫 장(대표 삭제 시 첫 장 승계)
   if (images.length > 0) {
     const primaryPos = Number(form.get('primaryPos') ?? 0);
-    images[Number.isInteger(primaryPos) && primaryPos >= 0 && primaryPos < images.length ? primaryPos : 0].isPrimary = true;
+    images[Number.isInteger(primaryPos) && primaryPos >= 0 && primaryPos < images.length ? primaryPos : 0].isPrimary =
+      true;
   }
 
   await store.updateProduct(id, {
     nameKr,
-    nameJa: String(form.get('nameJa') ?? '').trim().slice(0, 60),
-    category: String(form.get('category') ?? '').trim().slice(0, 40),
+    nameJa: String(form.get('nameJa') ?? '')
+      .trim()
+      .slice(0, 60),
+    category: String(form.get('category') ?? '')
+      .trim()
+      .slice(0, 40),
     memo: String(form.get('memo') ?? '').slice(0, 500),
     images,
   });
@@ -85,7 +92,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
 

@@ -24,7 +24,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (!brand) return NextResponse.json({ error: '브랜드를 먼저 등록해 주세요.' }, { status: 400 });
 
   const form = await request.formData();
-  const nameKr = String(form.get('nameKr') ?? '').trim().slice(0, 40);
+  const nameKr = String(form.get('nameKr') ?? '')
+    .trim()
+    .slice(0, 40);
   if (!nameKr) return NextResponse.json({ error: '제품명(KR)을 입력해 주세요.' }, { status: 400 });
 
   const store = await getStore();
@@ -40,14 +42,21 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   // 대표 = primaryIndex(기본 첫 장). 생성은 전부 새 이미지라 업로드 순서 그대로
   const primaryIndex = Number(form.get('primaryIndex') ?? 0);
-  const images = saved.fileIds.map((fileId, i) => ({ fileId, isPrimary: i === (Number.isInteger(primaryIndex) ? primaryIndex : 0) }));
+  const images = saved.fileIds.map((fileId, i) => ({
+    fileId,
+    isPrimary: i === (Number.isInteger(primaryIndex) ? primaryIndex : 0),
+  }));
   if (images.length > 0 && !images.some((im) => im.isPrimary)) images[0].isPrimary = true;
 
   const product = await store.createProduct({
     brandProfileId: brand.id,
     nameKr,
-    nameJa: String(form.get('nameJa') ?? '').trim().slice(0, 60),
-    category: String(form.get('category') ?? '').trim().slice(0, 40),
+    nameJa: String(form.get('nameJa') ?? '')
+      .trim()
+      .slice(0, 60),
+    category: String(form.get('category') ?? '')
+      .trim()
+      .slice(0, 40),
     memo: String(form.get('memo') ?? '').slice(0, 500),
     images,
   });

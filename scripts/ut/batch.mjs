@@ -28,7 +28,10 @@ const PHASES = {
 
 const log = (m) => process.stdout.write(`${m}\n`);
 const warn = (m) => process.stderr.write(`${m}\n`);
-const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? (process.argv[i + 1] ?? d) : d; };
+const arg = (n, d = null) => {
+  const i = process.argv.indexOf(`--${n}`);
+  return i > -1 ? (process.argv[i + 1] ?? d) : d;
+};
 
 /** capture.mjs 한 번. 출력은 삼키고 요약만 돌려준다 — 4개가 동시에 떠들면 읽을 수 없다 */
 function runOne(personaId, tasks, base) {
@@ -36,8 +39,12 @@ function runOne(personaId, tasks, base) {
     const args = ['scripts/ut/capture.mjs', '--persona', personaId, '--tasks', tasks, '--base', base];
     const child = spawn(process.execPath, args, { cwd: ROOT });
     let out = '';
-    child.stdout.on('data', (b) => { out += b.toString(); });
-    child.stderr.on('data', (b) => { out += b.toString(); });
+    child.stdout.on('data', (b) => {
+      out += b.toString();
+    });
+    child.stderr.on('data', (b) => {
+      out += b.toString();
+    });
     child.on('close', (code) => resolve({ personaId, code, out }));
   });
 }
@@ -63,7 +70,9 @@ function summarize(personaId) {
   const p = runPaths(personaId);
   if (!existsSync(p.manifest)) return '(manifest 없음)';
   const m = JSON.parse(readFileSync(p.manifest, 'utf8'));
-  const tasks = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map((t) => `${t}:${(m.outcome[t] ?? '-').slice(0, 2)}`).join(' ');
+  const tasks = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
+    .map((t) => `${t}:${(m.outcome[t] ?? '-').slice(0, 2)}`)
+    .join(' ');
   const g = m.generations ?? {};
   const d = g.detail;
   const degraded = d?.degradedCuts ? ` ⚠강등 ${d.degradedCuts}컷` : '';
@@ -74,7 +83,7 @@ async function main() {
   const phaseArg = arg('phase');
   const phase = PHASES[phaseArg] ? phaseArg : Number(phaseArg);
   if (!PHASES[phase]) throw new Error('--phase 1|2|2r|3|4 가 필요합니다.');
-  const base = (arg('base', process.env.UT_BASE_URL ?? 'https://branch-out-to-japan.vercel.app')).replace(/\/$/, '');
+  const base = arg('base', process.env.UT_BASE_URL ?? 'https://branch-out-to-japan.vercel.app').replace(/\/$/, '');
   const registry = JSON.parse(readFileSync(path.join(ROOT, '.ut/accounts.json'), 'utf8'));
 
   let ids = registry.accounts.map((a) => a.personaId);
@@ -96,13 +105,22 @@ async function main() {
     const mark = r.code === 0 ? '✔' : '✘';
     log(`  ${mark} [${String(done).padStart(2)}/${ids.length}] ${pid}  ${summarize(pid)}`);
     if (r.code !== 0) {
-      for (const line of r.out.split('\n').filter((l) => /✘|✖|⚠/.test(l)).slice(0, 3)) warn(`        ${line.trim()}`);
+      for (const line of r.out
+        .split('\n')
+        .filter((l) => /✘|✖|⚠/.test(l))
+        .slice(0, 3))
+        warn(`        ${line.trim()}`);
     }
     return r;
   });
 
   log('');
-  log(`단계 ${phase} 완료 — ${Math.round((Date.now() - started) / 60_000)}분 · 실패 ${results.filter((r) => r.code !== 0).length}건`);
+  log(
+    `단계 ${phase} 완료 — ${Math.round((Date.now() - started) / 60_000)}분 · 실패 ${results.filter((r) => r.code !== 0).length}건`,
+  );
 }
 
-main().catch((err) => { warn(`\n✖ ${err?.message ?? err}`); process.exit(1); });
+main().catch((err) => {
+  warn(`\n✖ ${err?.message ?? err}`);
+  process.exit(1);
+});

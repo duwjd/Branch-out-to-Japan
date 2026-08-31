@@ -13,6 +13,8 @@
     "typecheck": "tsc --noEmit",
     "docs:check": "node scripts/docs/check-docs.mjs",
     "test": "tsc -p tsconfig.node.json && node --test \".tmp-node/lib/**/*.test.js\"",
+    "format": "prettier --write \"**/*.{ts,tsx,mjs}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,mjs}\"",
     "db:push": "node --env-file-if-exists=.env scripts/db-push.mjs",
     "db:check": "node --env-file-if-exists=.env scripts/db-push.mjs --check",
     "aggregate": "node scripts/aggregate/aggregate-benchmark.mjs",
@@ -51,6 +53,7 @@
     "pg": "^8.23.0",
     "playwright": "^1.49.0",
     "postcss": "^8.5.16",
+    "prettier": "^3.9.6",
     "tailwindcss": "^4.3.2",
     "typescript": "^5.9.3"
   }

@@ -54,7 +54,9 @@ export async function PATCH(
     .map(([k]) => k);
   if (hangulKeys.length > 0) {
     return NextResponse.json(
-      { error: `일본어로 입력해 주세요. 한글이 남아 있는 항목: ${hangulKeys.join(', ')} — 렌더 폰트가 한글을 그리지 못해 블록이 만들어지지 않습니다.` },
+      {
+        error: `일본어로 입력해 주세요. 한글이 남아 있는 항목: ${hangulKeys.join(', ')} — 렌더 폰트가 한글을 그리지 못해 블록이 만들어지지 않습니다.`,
+      },
       { status: 400 },
     );
   }
@@ -79,9 +81,12 @@ export async function POST(
   const ctx = await guard(id, blockId);
   if (!ctx) return NextResponse.json({ error: '블록을 찾을 수 없습니다.' }, { status: 404 });
 
-  const body = (await request.json().catch(() => null)) as
-    | { action?: string; mode?: string; note?: string; version?: number }
-    | null;
+  const body = (await request.json().catch(() => null)) as {
+    action?: string;
+    mode?: string;
+    note?: string;
+    version?: number;
+  } | null;
   const action = body?.action ?? 'regenerate';
 
   if (action === 'revert') {

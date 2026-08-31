@@ -78,9 +78,7 @@ export async function composeDetail(blocks: ComposeInput[], profile: OutputProfi
   const outWidth = Math.round(workWidth * scale);
   const outHeight = Math.round(totalHeight * scale);
   const scaledPng =
-    scale === 1
-      ? stackedPng
-      : await sharp(stackedPng).resize({ width: outWidth, kernel: 'lanczos3' }).png().toBuffer();
+    scale === 1 ? stackedPng : await sharp(stackedPng).resize({ width: outWidth, kernel: 'lanczos3' }).png().toBuffer();
 
   const master = await sharp(scaledPng)
     .jpeg({ quality: profile.quality, chromaSubsampling: '4:4:4', mozjpeg: true })

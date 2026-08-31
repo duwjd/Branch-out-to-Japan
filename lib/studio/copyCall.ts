@@ -88,7 +88,10 @@ function slotSpecLines(styleId: StyleId): { lines: string; requiredKeys: string[
   const lockedKeys = new Set<string>(PRICE_LOCKED_SLOTS);
   const entries = Object.entries(style.textSlots).filter(([key]) => !lockedKeys.has(key));
   const lines = entries
-    .map(([key, def]) => `- ${key} (${def.required ? '필수' : '선택'} · ${def.lang}): ${def.description} — 예: ${def.example}`)
+    .map(
+      ([key, def]) =>
+        `- ${key} (${def.required ? '필수' : '선택'} · ${def.lang}): ${def.description} — 예: ${def.example}`,
+    )
     .join('\n');
   const requiredKeys = entries.filter(([, def]) => def.required).map(([key]) => key);
   return { lines, requiredKeys };

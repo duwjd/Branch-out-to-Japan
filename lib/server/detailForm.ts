@@ -153,7 +153,10 @@ export function parseDetailForm(form: FormData, sourceImagePaths: string[]): Par
       normalPriceVerified: text(form, 'promoNormalPriceVerified') === 'true' && Boolean(normalPrice),
       discountRate: text(form, 'promoDiscountRate'),
       gift: text(form, 'promoGift'),
-      qualifierChips: text(form, 'promoQualifiers').split(',').map((s) => s.trim()).filter(Boolean),
+      qualifierChips: text(form, 'promoQualifiers')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
       footnote: text(form, 'promoFootnote'),
     };
   }

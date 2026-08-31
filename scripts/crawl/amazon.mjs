@@ -96,8 +96,14 @@ async function collectCategory(page, { category, keywords }, { perCategory, seen
       }
       await page.waitForTimeout(RENDER_WAIT_MS);
       const { rows, blocked } = await extractOnPage(page);
-      if (blocked) { logger.warn('CAPTCHA/차단 감지 — 다음 키워드', { keyword, p }); break; }
-      if (rows.length === 0) { logger.warn('상품 0개 — 결과끝/차단', { keyword, p }); break; }
+      if (blocked) {
+        logger.warn('CAPTCHA/차단 감지 — 다음 키워드', { keyword, p });
+        break;
+      }
+      if (rows.length === 0) {
+        logger.warn('상품 0개 — 결과끝/차단', { keyword, p });
+        break;
+      }
       for (const raw of rows) {
         const record = toRecord(raw, { category, collectedAt });
         if (seenIds.has(record.id)) continue;
@@ -118,7 +124,11 @@ async function main() {
   await ensureDirs(IMAGE_SUBDIR);
   const collectedAt = new Date().toISOString().slice(0, 10);
   const seenIds = await loadExistingIds();
-  logger.info('시작(Amazon)', { perCategory: args.perCategory, downloadImages: args.downloadImages, existing: seenIds.size });
+  logger.info('시작(Amazon)', {
+    perCategory: args.perCategory,
+    downloadImages: args.downloadImages,
+    existing: seenIds.size,
+  });
 
   const targets = args.only ? CATEGORIES.filter((c) => c.category === args.only) : CATEGORIES;
   if (targets.length === 0) {
@@ -130,7 +140,8 @@ async function main() {
   const ctx = await browser.newContext({ userAgent: USER_AGENT, locale: 'ja-JP' });
   const page = await ctx.newPage();
 
-  let totalNew = 0, totalImages = 0;
+  let totalNew = 0,
+    totalImages = 0;
   try {
     for (const cat of targets) {
       const records = await collectCategory(page, cat, { perCategory: args.perCategory, seenIds, collectedAt });
@@ -147,7 +158,11 @@ async function main() {
   } finally {
     await browser.close();
   }
-  logger.info('완료', { newRecords: totalNew, imagesDownloaded: totalImages, catalog: path.relative(REPO_ROOT, CATALOG_PATH) });
+  logger.info('완료', {
+    newRecords: totalNew,
+    imagesDownloaded: totalImages,
+    catalog: path.relative(REPO_ROOT, CATALOG_PATH),
+  });
 }
 
 main().catch((err) => {

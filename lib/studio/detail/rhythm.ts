@@ -45,8 +45,15 @@ export const DENSITY_GAP: Record<BandDensity, number> = { compact: 32, normal: 5
 
 /** 텍스트 블록의 대략 높이(px) — **총높이 가드 추정용**이다. 실제 높이는 센티넬이 잰다. */
 const TEXT_HEIGHT: Record<string, number> = {
-  stat: 620, head: 700, list: 1180, table: 980, chips: 620,
-  graph: 900, swatches: 780, card: 900, note: 520,
+  stat: 620,
+  head: 700,
+  list: 1180,
+  table: 980,
+  chips: 620,
+  graph: 900,
+  swatches: 780,
+  card: 900,
+  note: 520,
 };
 const TEXT_HEIGHT_DEFAULT = 800;
 
@@ -132,8 +139,13 @@ export function planLayout(blocks: BlockPlan[]): BandPlan[] {
   const guard = MAX_TOTAL_HEIGHT * HEIGHT_GUARD_RATIO;
   for (let pass = 0; pass < 2 && totalHeight(out) > guard; pass++) {
     for (const b of out) {
-      if (b.heightPreset === 'hero') { b.heightPreset = 'band'; b.height = VISUAL_HEIGHT.band; }
-      else if (b.heightPreset === 'band') { b.heightPreset = 'strip'; b.height = VISUAL_HEIGHT.strip; }
+      if (b.heightPreset === 'hero') {
+        b.heightPreset = 'band';
+        b.height = VISUAL_HEIGHT.band;
+      } else if (b.heightPreset === 'band') {
+        b.heightPreset = 'strip';
+        b.height = VISUAL_HEIGHT.strip;
+      }
     }
   }
 
@@ -208,31 +220,59 @@ export function surfaceFor(tone: BandTone, th: DetailTheme): BandSurfaceTokens {
     // surface 는 AI 배경컷 프롬프트용 연한 색이고, 그대로 밴드에 쓰면 흰색과 3.5% 차이라
     // 교대가 눈에 보이지 않는다 — 리듬 장치가 있는데 없는 것처럼 보이던 원인.
     return {
-      bg: mixWhite(th.accent, 0.9), ink: NEUTRAL_INK, body: NEUTRAL_BODY, mute: 'rgba(55,56,60,0.66)',
-      accent: th.accentStrong, fill: th.accent, rule: mixWhite(th.accent, 0.74), card: '#ffffff',
-      softFill: '#ffffff', softInk: th.accentStrong,
+      bg: mixWhite(th.accent, 0.9),
+      ink: NEUTRAL_INK,
+      body: NEUTRAL_BODY,
+      mute: 'rgba(55,56,60,0.66)',
+      accent: th.accentStrong,
+      fill: th.accent,
+      rule: mixWhite(th.accent, 0.74),
+      card: '#ffffff',
+      softFill: '#ffffff',
+      softInk: th.accentStrong,
     };
   }
   if (tone === 'accent') {
     // 배경은 원색이 아니라 accentBand — 4.5:1 이 나오도록 민 색이다.
     return {
-      bg: th.accentBand, ink: th.onAccent, body: th.onAccent, mute: fade(th.onAccent, 0.72),
-      accent: th.onAccent, fill: th.onAccent, rule: fade(th.onAccent, 0.24), card: '#ffffff',
+      bg: th.accentBand,
+      ink: th.onAccent,
+      body: th.onAccent,
+      mute: fade(th.onAccent, 0.72),
+      accent: th.onAccent,
+      fill: th.onAccent,
+      rule: fade(th.onAccent, 0.24),
+      card: '#ffffff',
       // 반투명 면(fade)을 쓰면 실제 대비를 계산할 수 없고 배지 글자가 밴드에 묻힌다.
       // 불투명 흰 알약 + accentStrong 글자가 강한 색면 위에서 가장 확실하게 읽힌다.
-      softFill: '#ffffff', softInk: th.accentStrong,
+      softFill: '#ffffff',
+      softInk: th.accentStrong,
     };
   }
   if (tone === 'ink') {
     return {
-      bg: NEUTRAL_INK, ink: '#ffffff', body: 'rgba(255,255,255,0.78)', mute: 'rgba(255,255,255,0.58)',
-      accent: mixWhite(th.accent, 0.35), fill: mixWhite(th.accent, 0.2), rule: 'rgba(255,255,255,0.18)', card: '#2b2b30',
-      softFill: '#2b2b30', softInk: mixWhite(th.accent, 0.35),
+      bg: NEUTRAL_INK,
+      ink: '#ffffff',
+      body: 'rgba(255,255,255,0.78)',
+      mute: 'rgba(255,255,255,0.58)',
+      accent: mixWhite(th.accent, 0.35),
+      fill: mixWhite(th.accent, 0.2),
+      rule: 'rgba(255,255,255,0.18)',
+      card: '#2b2b30',
+      softFill: '#2b2b30',
+      softInk: mixWhite(th.accent, 0.35),
     };
   }
   return {
-    bg: '#ffffff', ink: NEUTRAL_INK, body: NEUTRAL_BODY, mute: 'rgba(55,56,60,0.61)',
-    accent: th.accentStrong, fill: th.accent, rule: '#ebebeb', card: '#f7f7f8',
-    softFill: th.accentTint, softInk: th.accentStrong,
+    bg: '#ffffff',
+    ink: NEUTRAL_INK,
+    body: NEUTRAL_BODY,
+    mute: 'rgba(55,56,60,0.61)',
+    accent: th.accentStrong,
+    fill: th.accent,
+    rule: '#ebebeb',
+    card: '#f7f7f8',
+    softFill: th.accentTint,
+    softInk: th.accentStrong,
   };
 }

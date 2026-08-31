@@ -36,7 +36,8 @@ export function supabaseProjectRef(): string | null {
 /** 서버 전용(service role) Supabase 클라이언트를 반환한다 — env 없으면 throw(호출 전 hasSupabaseEnv 확인) */
 export function getSupabaseClient(): SupabaseClient {
   if (clientInstance) return clientInstance;
-  if (!hasSupabaseEnv()) throw new Error('Supabase env 미설정 — NEXT_PUBLIC_SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY 필요');
+  if (!hasSupabaseEnv())
+    throw new Error('Supabase env 미설정 — NEXT_PUBLIC_SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY 필요');
   // 끝 슬래시/개행이 남으면 클라이언트가 `//rest/v1/...`를 만들어 게이트웨이가
   // "Invalid path specified in request URL"로 거부한다(대시보드에서 값을 붙여넣을 때 흔한 실수).
   const url = normalizedUrl();

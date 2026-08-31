@@ -40,13 +40,12 @@ const TEMPLATES = [
 /** 샘플.png(1254²) 실측 좌표 — 지울 오버레이 사각형과 하단 카피 밴드 시작점 */
 const SRC = { size: 1254, bandTop: 1107 };
 const WIPE = [
-  { x0: 20, y0: 24, x1: 528, y1: 112 },   // 좌상단 "Chasin' Rabbits 公式ショップ" 칩
+  { x0: 20, y0: 24, x1: 528, y1: 112 }, // 좌상단 "Chasin' Rabbits 公式ショップ" 칩
   { x0: 26, y0: 992, x1: 766, y1: 1086 }, // 하단 스펙 칩 3종 (SPF50+ · PA++++ · 顔・からだ用)
 ];
 
 const dataUri = (p, mime) => `data:${mime};base64,${readFileSync(p).toString('base64')}`;
-const writeDataUrl = (file, url) =>
-  writeFileSync(file, Buffer.from(url.slice(url.indexOf(',') + 1), 'base64'));
+const writeDataUrl = (file, url) => writeFileSync(file, Buffer.from(url.slice(url.indexOf(',') + 1), 'base64'));
 
 mkdirSync(tplDir, { recursive: true });
 mkdirSync(smpDir, { recursive: true });

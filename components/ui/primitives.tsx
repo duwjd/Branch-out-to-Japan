@@ -15,9 +15,19 @@ const BADGE_TONE_CLASS: Record<BadgeTone, string> = {
 };
 
 /** 성숙도 배지 — "이용 가능 ○" 처럼 기호 포함 라벨을 넘긴다 */
-export function StatusBadge({ tone, children, className = '' }: { tone: BadgeTone; children: React.ReactNode; className?: string }) {
+export function StatusBadge({
+  tone,
+  children,
+  className = '',
+}: {
+  tone: BadgeTone;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <span className={`inline-flex h-[19px] items-center whitespace-nowrap rounded-full px-[7px] text-[10px] font-bold ${BADGE_TONE_CLASS[tone]} ${className}`}>
+    <span
+      className={`inline-flex h-[19px] items-center whitespace-nowrap rounded-full px-[7px] text-[10px] font-bold ${BADGE_TONE_CLASS[tone]} ${className}`}
+    >
       {children}
     </span>
   );
@@ -27,7 +37,9 @@ export function StatusBadge({ tone, children, className = '' }: { tone: BadgeTon
 export function AxisChip({ axis, className = '' }: { axis: 'report' | 'studio'; className?: string }) {
   const cls = axis === 'report' ? 'bg-coral-tint text-coral-strong' : 'bg-amber-bg text-amber-text';
   return (
-    <span className={`inline-flex h-[19px] items-center whitespace-nowrap rounded-full px-[7px] text-[10px] font-bold ${cls} ${className}`}>
+    <span
+      className={`inline-flex h-[19px] items-center whitespace-nowrap rounded-full px-[7px] text-[10px] font-bold ${cls} ${className}`}
+    >
       {axis === 'report' ? '① 리포트' : '② 스튜디오'}
     </span>
   );
@@ -37,9 +49,7 @@ export function AxisChip({ axis, className = '' }: { axis: 'report' | 'studio'; 
 export function chipClass(on: boolean): string {
   return [
     'inline-flex h-9 cursor-pointer items-center rounded-full border px-3.5 text-[13px] font-semibold transition-colors',
-    on
-      ? 'border-coral bg-coral-tint text-coral-strong'
-      : 'border-input-border bg-canvas text-ink-body hover:bg-n-100',
+    on ? 'border-coral bg-coral-tint text-coral-strong' : 'border-input-border bg-canvas text-ink-body hover:bg-n-100',
   ].join(' ');
 }
 
@@ -59,7 +69,8 @@ const BUTTON_VARIANT_CLASS: Record<ButtonVariant, string> = {
  * size: sm=34px(헤더 보조) · md=44px(일반) · lg=54px(폼 제출)
  */
 export function buttonClass(variant: ButtonVariant, size: 'sm' | 'md' | 'lg' = 'md', extra = ''): string {
-  const sizeCls = size === 'sm' ? 'h-[34px] px-3.5 text-[13px]' : size === 'lg' ? 'h-[54px] px-6 text-[15px]' : 'h-11 px-5 text-sm';
+  const sizeCls =
+    size === 'sm' ? 'h-[34px] px-3.5 text-[13px]' : size === 'lg' ? 'h-[54px] px-6 text-[15px]' : 'h-11 px-5 text-sm';
   return [
     'inline-flex cursor-pointer items-center justify-center gap-2 rounded-btn font-bold transition-colors',
     'disabled:cursor-default disabled:opacity-40',
@@ -157,13 +168,10 @@ export function EmptyState({
  */
 const FIELD_FOCUS = 'focus:border-coral focus:shadow-[0_0_0_3px_var(--color-coral-glow)] focus:outline-none';
 
-export const inputClass =
-  `h-10 w-full rounded-field border border-input-border bg-canvas px-3 text-[13.5px] text-ink placeholder:text-ink-faint ${FIELD_FOCUS}`;
+export const inputClass = `h-10 w-full rounded-field border border-input-border bg-canvas px-3 text-[13.5px] text-ink placeholder:text-ink-faint ${FIELD_FOCUS}`;
 
-export const textareaClass =
-  `w-full resize-y rounded-field border border-input-border bg-canvas px-3 py-2.5 text-[13.5px] leading-relaxed text-ink placeholder:text-ink-faint ${FIELD_FOCUS}`;
+export const textareaClass = `w-full resize-y rounded-field border border-input-border bg-canvas px-3 py-2.5 text-[13.5px] leading-relaxed text-ink placeholder:text-ink-faint ${FIELD_FOCUS}`;
 
-export const selectClass =
-  `h-10 rounded-field border border-input-border bg-canvas px-3 text-[13.5px] font-semibold text-ink ${FIELD_FOCUS}`;
+export const selectClass = `h-10 rounded-field border border-input-border bg-canvas px-3 text-[13.5px] font-semibold text-ink ${FIELD_FOCUS}`;
 
 export const fieldLabelClass = 'mb-1.5 block text-[12.5px] font-bold text-ink';

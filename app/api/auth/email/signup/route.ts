@@ -37,8 +37,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: '이미 가입된 이메일입니다. 로그인해 주세요.' }, { status: 409 });
   }
 
-  const name =
-    typeof body.name === 'string' && body.name.trim() ? body.name.trim().slice(0, 60) : email.split('@')[0];
+  const name = typeof body.name === 'string' && body.name.trim() ? body.name.trim().slice(0, 60) : email.split('@')[0];
   const user = await store.createUser({
     email,
     passwordHash: hashPassword(password),

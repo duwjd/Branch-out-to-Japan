@@ -22,7 +22,9 @@ const INPUT: BrandProductInput = {
   productName: '시카 앰플',
   productClass: '화장품',
   sourceType: 'text',
-  sourceText: '피부 진정에 탁월한 시카 앰플입니다. 즉각적인 효과를 느낄 수 있습니다. 민감한 피부도 안심하세요. '.repeat(4),
+  sourceText: '피부 진정에 탁월한 시카 앰플입니다. 즉각적인 효과를 느낄 수 있습니다. 민감한 피부도 안심하세요. '.repeat(
+    4,
+  ),
 };
 
 async function mockBlocks(): Promise<BlocksJson> {

@@ -42,7 +42,8 @@ export function PasswordChange({ email }: { email: string }) {
       <div role="status" className="text-[12.5px] leading-relaxed">
         <p className="font-semibold text-green-text">○ 재설정 링크를 이메일로 보냈어요</p>
         <p className="mt-1 text-ink-mute">
-          <span className="font-semibold text-ink-body">{email}</span>(으)로 보낸 메일의 링크로 비밀번호를 변경해 주세요.
+          <span className="font-semibold text-ink-body">{email}</span>(으)로 보낸 메일의 링크로 비밀번호를 변경해
+          주세요.
         </p>
         {devLink && <DevLink href={devLink} label="(dev) 재설정 링크 바로 열기" />}
       </div>
@@ -51,7 +52,12 @@ export function PasswordChange({ email }: { email: string }) {
 
   return (
     <div>
-      <button type="button" disabled={busy} onClick={() => void handleSend()} className={buttonClass('secondary', 'sm')}>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => void handleSend()}
+        className={buttonClass('secondary', 'sm')}
+      >
         {busy ? '보내는 중…' : '비밀번호 변경'}
       </button>
       {error && (

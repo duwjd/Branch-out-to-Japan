@@ -36,7 +36,9 @@ export function parseSeasonMemo(payload: unknown): ParsedMemo | { error: string 
   // 문자열 비교로 충분하다 — 고정폭 ISO 날짜는 사전순 = 시간순이고 타임존 해석이 끼지 않는다
   if (endDate && endDate < startDate) return { error: '종료 날짜가 시작 날짜보다 앞설 수 없습니다.' };
 
-  const body = String(raw.body ?? '').trim().slice(0, MEMO_MAX_LENGTH);
+  const body = String(raw.body ?? '')
+    .trim()
+    .slice(0, MEMO_MAX_LENGTH);
   if (!body) return { error: '메모 내용을 입력해 주세요.' };
 
   return { startDate, endDate, body };

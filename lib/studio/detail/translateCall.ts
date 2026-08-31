@@ -89,9 +89,7 @@ function groundingCategory(c: DetailInput['productCategory']): Category {
 /** 목 응답 — 데모 사전으로 옮기고, 사전에 없는 표현은 한글이 남아 실패 경로가 재현된다. */
 function mockResult(fields: TranslatableField[]): RawResult {
   return {
-    fields: fields
-      .filter((f) => f.path !== NOTE_PATH)
-      .map((f) => ({ path: f.path, ja: mockTranslate(f.kr) })),
+    fields: fields.filter((f) => f.path !== NOTE_PATH).map((f) => ({ path: f.path, ja: mockTranslate(f.kr) })),
     artDirectionEn: mockArtDirection(fields.find((f) => f.path === NOTE_PATH)?.kr ?? ''),
   };
 }

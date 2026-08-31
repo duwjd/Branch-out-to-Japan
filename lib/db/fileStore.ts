@@ -53,7 +53,7 @@ const AUTH_TOKENS = path.join(DATA_DIR, 'auth-tokens.json');
  */
 function toAssetSummary(a: GeneratedAssetRecord): GeneratedAssetSummary {
   const { detailInput, explanationJson, gateResult, proof, promoInput, promptUsed, slicePaths, ...summary } = a;
-  void detailInput, explanationJson, gateResult, proof, promoInput, promptUsed, slicePaths;
+  (void detailInput, explanationJson, gateResult, proof, promoInput, promptUsed, slicePaths);
   return summary;
 }
 
@@ -202,9 +202,7 @@ export function createFileStore(): Store {
     listRequests(brandProfileId: string) {
       return concurrent(async () => {
         const all = await readJson<DiagnosisRequestRecord[]>(REQUESTS, []);
-        return all
-          .filter((r) => brandOf(r) === brandProfileId)
-          .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        return all.filter((r) => brandOf(r) === brandProfileId).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       });
     },
 
@@ -222,9 +220,7 @@ export function createFileStore(): Store {
       return concurrent(async () => {
         // 구 브랜드(userId 없음)는 ownerOf가 demo-user로 귀속 — .data/brand-profiles.json은 재기록하지 않는다
         const all = await readBrands();
-        return all
-          .filter((b) => ownerOf(b) === userId)
-          .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        return all.filter((b) => ownerOf(b) === userId).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       });
     },
 
@@ -510,7 +506,10 @@ export function createFileStore(): Store {
     deleteProduct(id) {
       return serialized(async () => {
         const all = await readJson<ProductRecord[]>(PRODUCTS, []);
-        await writeJson(PRODUCTS, all.filter((pr) => pr.id !== id));
+        await writeJson(
+          PRODUCTS,
+          all.filter((pr) => pr.id !== id),
+        );
       });
     },
 
@@ -554,7 +553,10 @@ export function createFileStore(): Store {
     deleteSeasonMemo(id) {
       return serialized(async () => {
         const all = await readJson<SeasonMemoRecord[]>(SEASON_MEMOS, []);
-        await writeJson(SEASON_MEMOS, all.filter((m) => m.id !== id));
+        await writeJson(
+          SEASON_MEMOS,
+          all.filter((m) => m.id !== id),
+        );
       });
     },
 

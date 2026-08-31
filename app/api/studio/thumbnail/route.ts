@@ -55,7 +55,10 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   if (styleId === 'E' && !proof) {
     // 수상 실적 스택형은 배지가 본체 — proof 없이는 생성 자체가 성립하지 않는다(팩 legalNote)
-    return NextResponse.json({ error: '실적명·부문·집계일이 모두 있어야 이 템플릿을 생성할 수 있습니다.' }, { status: 400 });
+    return NextResponse.json(
+      { error: '실적명·부문·집계일이 모두 있어야 이 템플릿을 생성할 수 있습니다.' },
+      { status: 400 },
+    );
   }
 
   // F 모델+카피형 — 모델컷 1장 + 사용 권한 동의(체크) 둘 다 필수(HOME-02b). 임의 인물 합성 금지

@@ -138,8 +138,7 @@ export function SeasonCalendar({
   function barsForWeek(week: Date[]): Bar[] {
     const from = week[0].getTime();
     const to = week[6].getTime();
-    const colOf = (t: number): number =>
-      Math.min(6, Math.max(0, Math.round((t - from) / 86_400_000)));
+    const colOf = (t: number): number => Math.min(6, Math.max(0, Math.round((t - from) / 86_400_000)));
 
     const seasonBars = events
       .filter((e) => e.endsAt >= from && e.startsAt <= to)
@@ -184,7 +183,11 @@ export function SeasonCalendar({
             <Link href={ym(prev.y, prev.m)} aria-label={`${prev.y}년 ${prev.m}월 보기`} className={NAV_BTN}>
               <IconChevronLeft size={18} />
             </Link>
-            <Link href={ym(next.y, next.m)} aria-label={`${next.y}년 ${next.m}월 보기`} className={`${NAV_BTN} rotate-180`}>
+            <Link
+              href={ym(next.y, next.m)}
+              aria-label={`${next.y}년 ${next.m}월 보기`}
+              className={`${NAV_BTN} rotate-180`}
+            >
               <IconChevronLeft size={18} />
             </Link>
             <Link href="/app/season" className={buttonClass('secondary', 'sm', 'no-underline')}>
@@ -220,10 +223,9 @@ export function SeasonCalendar({
                     const isToday = iso === todayIso;
                     const dayEvents = eventsOn(iso);
                     const dayMemos = memosOn(iso);
-                    const summary = [
-                      ...dayEvents.map((e) => e.name),
-                      ...dayMemos.map((m) => `메모 ${m.body}`),
-                    ].join(', ');
+                    const summary = [...dayEvents.map((e) => e.name), ...dayMemos.map((m) => `메모 ${m.body}`)].join(
+                      ', ',
+                    );
                     return (
                       <button
                         key={iso}
@@ -239,11 +241,7 @@ export function SeasonCalendar({
                       >
                         <span
                           className={`tnum inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full px-1 text-[12px] font-bold ${
-                            isToday
-                              ? 'bg-coral text-white'
-                              : inMonth
-                                ? 'text-ink'
-                                : 'text-ink-faint'
+                            isToday ? 'bg-coral text-white' : inMonth ? 'text-ink' : 'text-ink-faint'
                           }`}
                         >
                           {d.getDate()}
@@ -471,14 +469,24 @@ function DayModal({
 
         <div className="mt-4 flex flex-wrap justify-end gap-2">
           {editing && (
-            <button type="button" onClick={() => loadForm(null)} className={buttonClass('ghost', 'md')} disabled={pending}>
+            <button
+              type="button"
+              onClick={() => loadForm(null)}
+              className={buttonClass('ghost', 'md')}
+              disabled={pending}
+            >
               새 메모로
             </button>
           )}
           <button type="button" onClick={onClose} className={buttonClass('secondary', 'md')} disabled={pending}>
             닫기
           </button>
-          <button type="button" onClick={save} className={buttonClass('primary', 'md')} disabled={pending || !body.trim()}>
+          <button
+            type="button"
+            onClick={save}
+            className={buttonClass('primary', 'md')}
+            disabled={pending || !body.trim()}
+          >
             {pending ? '저장 중…' : editing ? '메모 수정' : '메모 저장'}
           </button>
         </div>

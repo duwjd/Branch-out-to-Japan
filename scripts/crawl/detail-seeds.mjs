@@ -24,9 +24,11 @@ import { logger } from './lib/logger.mjs';
 import { REPO_ROOT, CATALOG_PATH } from './lib/catalog.mjs';
 
 /** 상품명에서 조건을 읽는 정규식 — 실제 44상품에서 매칭을 확인한 패턴. */
-const PROMO_RE = /クーポン|[%％]\s*OFF|オフ|ポイント\s*\d+\s*倍|P\d+倍|限定価格|マラソン|メガ割|半額|送料無料|[⇒→]\s*[¥￥\d]|\d[\d,]*円\s*[⇒→]/;
+const PROMO_RE =
+  /クーポン|[%％]\s*OFF|オフ|ポイント\s*\d+\s*倍|P\d+倍|限定価格|マラソン|メガ割|半額|送料無料|[⇒→]\s*[¥￥\d]|\d[\d,]*円\s*[⇒→]/;
 const COLOR_RE = /全\s*\d+\s*色|\d+\s*色|カラー(バリエーション|チャート)|シェード/;
-const LINEUP_RE = /選べる\s*\d*\s*種|各種選べる|セット|詰め替え|レフィル|大容量|\d+\s*mL\s*[\/･・]\s*\d+\s*mL|\(\s*\d+\s*種\s*\)/;
+const LINEUP_RE =
+  /選べる\s*\d*\s*種|各種選べる|セット|詰め替え|レフィル|大容量|\d+\s*mL\s*[\/･・]\s*\d+\s*mL|\(\s*\d+\s*種\s*\)/;
 
 const OUT_BY_SOURCE = {
   rakuten: 'data/processed/detail-seed-ids.txt',
@@ -53,7 +55,11 @@ async function loadCatalog() {
   for (const line of text.split('\n')) {
     if (!line.trim()) continue;
     let r;
-    try { r = JSON.parse(line); } catch { continue; }
+    try {
+      r = JSON.parse(line);
+    } catch {
+      continue;
+    }
     if (r.type === 'thumbnail') thumbs.push(r);
     else if (r.type === 'detail' && r.parentId) detailedParents.add(r.parentId);
   }
@@ -95,7 +101,7 @@ function buildSeeds(thumbs, detailedParents, perCell) {
       if (taken >= need) break;
       if (detailedParents.has(r.id)) continue; // 이미 상세 보유
       const shop = String(r.id).split('_')[1] ?? r.id;
-      if (seenShops.has(shop)) continue;       // 브랜드 편중 방지
+      if (seenShops.has(shop)) continue; // 브랜드 편중 방지
       seenShops.add(shop);
       picks.push({ ...r, cell: key });
       taken++;

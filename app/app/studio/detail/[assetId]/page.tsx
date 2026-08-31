@@ -217,7 +217,10 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
         <div className="mt-6">
           {asset.blockTotal > 0 ? (
             <div className="h-2 w-full overflow-hidden rounded-full bg-n-150">
-              <div className="h-full rounded-full bg-coral transition-[width] duration-500" style={{ width: `${pct}%` }} />
+              <div
+                className="h-full rounded-full bg-coral transition-[width] duration-500"
+                style={{ width: `${pct}%` }}
+              />
             </div>
           ) : (
             <IndetBar />
@@ -231,7 +234,13 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
                 <span
                   aria-hidden
                   className={`h-1.5 w-1.5 rounded-full ${
-                    b.status === 'done' ? 'bg-green' : b.status === 'failed' ? 'bg-danger' : b.status === 'generating' ? 'bg-coral' : 'bg-n-200'
+                    b.status === 'done'
+                      ? 'bg-green'
+                      : b.status === 'failed'
+                        ? 'bg-danger'
+                        : b.status === 'generating'
+                          ? 'bg-coral'
+                          : 'bg-n-200'
                   }`}
                 />
                 <span className={b.status === 'done' ? 'text-ink-body' : 'text-ink-mute'}>{b.nameKo}</span>
@@ -251,7 +260,9 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
       <main className="mx-auto max-w-[1280px] px-8 py-10">
         <div className={`${cardClass} border-danger/30 bg-danger-bg p-6`}>
           <h1 className="text-lg font-bold text-danger-text">생성하지 못했습니다</h1>
-          <p className="mt-2 text-sm leading-relaxed text-ink-body [text-wrap:pretty]">{asset.error ?? '알 수 없는 오류'}</p>
+          <p className="mt-2 text-sm leading-relaxed text-ink-body [text-wrap:pretty]">
+            {asset.error ?? '알 수 없는 오류'}
+          </p>
         </div>
         <Link href="/app/studio/detail" className={`${buttonClass('primary', 'md')} mt-5`}>
           다시 시도
@@ -318,7 +329,9 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
         <div>
           {asset.explanationJson?.styleReason && (
             <SectionCard title="이 구성을 고른 이유">
-              <p className="text-sm leading-relaxed text-ink-body [text-wrap:pretty]">{asset.explanationJson.styleReason}</p>
+              <p className="text-sm leading-relaxed text-ink-body [text-wrap:pretty]">
+                {asset.explanationJson.styleReason}
+              </p>
             </SectionCard>
           )}
 
@@ -343,12 +356,15 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
 
           {degradedBlocks.length > 0 && (
             <div className="mt-4 rounded-lg bg-amber-bg px-4 py-3 text-[13px] leading-relaxed text-amber-text">
-              블록 {degradedBlocks.length}개는 배경 이미지 생성에 실패해 <b>문자만으로</b> 만들었습니다. 카피·근거는 그대로 들어가 있고,
-              아래에서 &ldquo;이미지만 다시&rdquo;를 누르면 배경컷만 새로 붙습니다.
+              블록 {degradedBlocks.length}개는 배경 이미지 생성에 실패해 <b>문자만으로</b> 만들었습니다. 카피·근거는
+              그대로 들어가 있고, 아래에서 &ldquo;이미지만 다시&rdquo;를 누르면 배경컷만 새로 붙습니다.
             </div>
           )}
 
-          <SectionCard title={`블록 ${asset.blocks.length}개`} desc="마음에 들지 않는 블록만 다시 만들 수 있습니다. 문자만 있는 블록은 무료로 즉시 다시 그려집니다.">
+          <SectionCard
+            title={`블록 ${asset.blocks.length}개`}
+            desc="마음에 들지 않는 블록만 다시 만들 수 있습니다. 문자만 있는 블록은 무료로 즉시 다시 그려집니다."
+          >
             <ol className="space-y-3">
               {asset.blocks.map((b) => (
                 <li key={b.id} className="rounded-lg border border-card-border p-3">
@@ -398,7 +414,9 @@ export default function DetailResultPage({ params }: { params: Promise<{ assetId
                         )}
                       </div>
                       {b.error && (
-                        <p className={`mt-1.5 text-xs leading-relaxed [text-wrap:pretty] ${b.status === 'failed' ? 'text-danger-text' : 'text-amber-text'}`}>
+                        <p
+                          className={`mt-1.5 text-xs leading-relaxed [text-wrap:pretty] ${b.status === 'failed' ? 'text-danger-text' : 'text-amber-text'}`}
+                        >
                           {b.error}
                         </p>
                       )}

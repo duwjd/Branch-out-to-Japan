@@ -167,14 +167,14 @@ describe('seasonRunway', () => {
   it('진행 중·임박(7일 내) 시즌은 now 구간', () => {
     const steps = seasonRunway(now, 6);
     const autumn = steps.find((s) => s.id === 'autumn-shade'); // 진행 중
-    const xmas = steps.find((s) => s.id === 'xmas-coffret');   // 8/20 시작 = D-1
+    const xmas = steps.find((s) => s.id === 'xmas-coffret'); // 8/20 시작 = D-1
     assert.equal(autumn?.phase, 'now');
     assert.equal(xmas?.phase, 'now');
   });
 
   it('착수 권장 구간(leadDays) 안이면 prep, 밖이면 later', () => {
     const steps = seasonRunway(now, 6);
-    const mega9 = steps.find((s) => s.id === 'megawari-9');   // D-13 ≤ lead 30
+    const mega9 = steps.find((s) => s.id === 'megawari-9'); // D-13 ≤ lead 30
     const mega11 = steps.find((s) => s.id === 'megawari-11'); // D-74 > lead 30
     assert.equal(mega9?.phase, 'prep');
     assert.equal(mega11?.phase, 'later');

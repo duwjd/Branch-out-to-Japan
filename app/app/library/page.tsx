@@ -86,7 +86,9 @@ function CardOverlay({ label }: { label: string }) {
       aria-hidden
       className="absolute inset-0 flex items-center justify-center bg-[rgba(32,33,36,0.44)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
     >
-      <span className="inline-flex h-8 items-center rounded-lg bg-canvas px-3 text-[12.5px] font-bold text-ink">{label}</span>
+      <span className="inline-flex h-8 items-center rounded-lg bg-canvas px-3 text-[12.5px] font-bold text-ink">
+        {label}
+      </span>
     </span>
   );
 }
@@ -162,7 +164,10 @@ function GeneratingTile({ href, stageLabel, subLabel }: { href: string; stageLab
           className="absolute inset-0 animate-shimmer bg-[length:420px_100%] bg-no-repeat bg-[linear-gradient(100deg,transparent_20%,rgba(255,255,255,.75)_50%,transparent_80%)]"
         />
         <span className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 p-4 text-center">
-          <span aria-hidden className="h-[22px] w-[22px] animate-spin rounded-full border-[2.5px] border-coral border-t-transparent" />
+          <span
+            aria-hidden
+            className="h-[22px] w-[22px] animate-spin rounded-full border-[2.5px] border-coral border-t-transparent"
+          />
           <span className="text-[12.5px] leading-snug font-bold text-ink-body [text-wrap:pretty]">{stageLabel}</span>
         </span>
       </span>
@@ -219,8 +224,7 @@ export default async function LibraryPage({
   const detailInProgress = assets.filter((a) => a.kind === 'detail' && a.status === 'generating');
 
   // 빈 상태 판정은 기간 필터 이전 값으로 본다 — "최근 30일에 없음"과 "자산이 없음"은 다른 화면이다
-  const isEmpty =
-    requests.length + assets.filter((a) => a.status !== 'failed').length === 0;
+  const isEmpty = requests.length + assets.filter((a) => a.status !== 'failed').length === 0;
   const hasReport = requests.some((r) => r.status === 'published');
   const megawari = nextMegawari(new Date());
 
@@ -328,7 +332,10 @@ export default async function LibraryPage({
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <Link href="/app/season" className="text-[12.5px] font-semibold text-coral-strong no-underline hover:underline">
+                <Link
+                  href="/app/season"
+                  className="text-[12.5px] font-semibold text-coral-strong no-underline hover:underline"
+                >
                   시즌 캘린더에서 보기 →
                 </Link>
                 <Link
@@ -354,7 +361,9 @@ export default async function LibraryPage({
                       aria-label={genDot ? `${label} ${count}건 — 생성 진행 중` : undefined}
                       href={hrefFor({ tab: key })}
                       className={`relative -mb-px inline-flex h-[46px] items-center gap-2 border-b-2 px-4 text-sm transition-colors ${
-                        active ? 'border-coral font-bold text-ink' : 'border-transparent font-semibold text-ink-mute hover:text-ink'
+                        active
+                          ? 'border-coral font-bold text-ink'
+                          : 'border-transparent font-semibold text-ink-mute hover:text-ink'
                       }`}
                     >
                       {label}
@@ -365,7 +374,9 @@ export default async function LibraryPage({
                       >
                         {count}
                       </span>
-                      {genDot && <span aria-hidden className="h-[7px] w-[7px] rounded-full bg-coral animate-soft-pulse" />}
+                      {genDot && (
+                        <span aria-hidden className="h-[7px] w-[7px] rounded-full bg-coral animate-soft-pulse" />
+                      )}
                     </Link>
                   );
                 })}
@@ -412,7 +423,9 @@ export default async function LibraryPage({
                     ))}
                     {thumbnailCards.length + thumbnailInProgress.length === 0 && (
                       <TabEmpty
-                        text={activeRange === 'all' ? '생성한 썸네일이 없습니다.' : '이 기간에 생성한 썸네일이 없습니다.'}
+                        text={
+                          activeRange === 'all' ? '생성한 썸네일이 없습니다.' : '이 기간에 생성한 썸네일이 없습니다.'
+                        }
                         href="/app/studio/thumbnail"
                         linkLabel="스튜디오에서 첫 썸네일을 만들 수 있습니다"
                       />
@@ -435,7 +448,11 @@ export default async function LibraryPage({
                     ))}
                     {detailCards.length + detailInProgress.length === 0 && (
                       <TabEmpty
-                        text={activeRange === 'all' ? '생성한 상세페이지가 없습니다.' : '이 기간에 생성한 상세페이지가 없습니다.'}
+                        text={
+                          activeRange === 'all'
+                            ? '생성한 상세페이지가 없습니다.'
+                            : '이 기간에 생성한 상세페이지가 없습니다.'
+                        }
                         href="/app/studio/detail"
                         linkLabel="스튜디오에서 첫 상세페이지를 만들 수 있습니다"
                       />
@@ -459,7 +476,11 @@ export default async function LibraryPage({
                     ))}
                     {reportCards.length + reportInProgress.length === 0 && (
                       <TabEmpty
-                        text={activeRange === 'all' ? '발행한 진단 리포트가 없습니다.' : '이 기간에 발행한 진단 리포트가 없습니다.'}
+                        text={
+                          activeRange === 'all'
+                            ? '발행한 진단 리포트가 없습니다.'
+                            : '이 기간에 발행한 진단 리포트가 없습니다.'
+                        }
                         href="/app/report/new"
                         linkLabel="진단 입력에서 시작할 수 있습니다"
                       />

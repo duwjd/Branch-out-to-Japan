@@ -62,9 +62,13 @@ export interface Session {
  * 세션 쿠키 옵션 — remember면 30일 유지(maxAge), 아니면 브라우저 세션 쿠키(maxAge 생략).
  * secure는 프로덕션에서만(로컬 dev는 http라 secure면 쿠키가 안 실린다).
  */
-export function sessionCookieOptions(
-  remember: boolean,
-): { httpOnly: true; sameSite: 'lax'; path: '/'; secure: boolean; maxAge?: number } {
+export function sessionCookieOptions(remember: boolean): {
+  httpOnly: true;
+  sameSite: 'lax';
+  path: '/';
+  secure: boolean;
+  maxAge?: number;
+} {
   const base = {
     httpOnly: true as const,
     sameSite: 'lax' as const,
@@ -123,9 +127,7 @@ export async function getSession(): Promise<Session | null> {
  * 세션 상태 조회 — 레이아웃이 비로그인(→/login)과 만료(→/login?expired=1)를 구분하기 위한 3분기.
  * 쿠키 없음 → guest / 해석 성공 → session / 쿠키는 있으나 무효 → expired.
  */
-export async function getSessionState(): Promise<
-  { session: Session } | { expired: true } | { guest: true }
-> {
+export async function getSessionState(): Promise<{ session: Session } | { expired: true } | { guest: true }> {
   const jar = await cookies();
   const value = jar.get(SESSION_COOKIE)?.value;
   if (!value) return { guest: true };

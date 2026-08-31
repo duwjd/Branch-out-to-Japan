@@ -67,11 +67,11 @@ export type ReportBudgetStage = 'extract' | 'llmCalls' | 'call4' | 'persona' | '
  * **확정이 아니라 실측 갱신 대상이다** — 모델·effort를 바꾸면 여기부터 다시 잰다.
  */
 const STAGE_CEILING_MS: Record<ReportBudgetStage, number> = {
-  extract: 90_000,    // 콜⓪ 비전 추출(이미지 최대 10장, maxTokens 4000)
-  llmCalls: 150_000,  // 콜①·②·③ 병렬 — 셋 중 가장 느린 콜이 이 상한을 받는다
-  call4: 150_000,     // 콜④ 총평·재작성(maxTokens 16000 — 파이프라인에서 가장 무거운 콜)
-  persona: 150_000,   // 브랜드 진단의 콜③ 단독 — 유일한 LLM 산출이라 풀 파이프라인과 같은 폭을 준다
-  humanize: 90_000,   // 콜⑩ 윤문 — 청크 병렬이라 청크 하나가 아니라 전체가 이 상한 안에 든다
+  extract: 90_000, // 콜⓪ 비전 추출(이미지 최대 10장, maxTokens 4000)
+  llmCalls: 150_000, // 콜①·②·③ 병렬 — 셋 중 가장 느린 콜이 이 상한을 받는다
+  call4: 150_000, // 콜④ 총평·재작성(maxTokens 16000 — 파이프라인에서 가장 무거운 콜)
+  persona: 150_000, // 브랜드 진단의 콜③ 단독 — 유일한 LLM 산출이라 풀 파이프라인과 같은 폭을 준다
+  humanize: 90_000, // 콜⑩ 윤문 — 청크 병렬이라 청크 하나가 아니라 전체가 이 상한 안에 든다
 };
 
 /**

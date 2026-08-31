@@ -45,7 +45,10 @@ describe('aggregateScores (결정적 집계)', () => {
   it('전 항목 0점이면 종합 0점이고 Top3는 ID 순으로 결정적이다', () => {
     const result = aggregateScores('skincare', fixedItems('skincare', 0));
     assert.equal(result.overallScore, 0);
-    assert.deepEqual(result.top3.map((t) => t.itemId), ['A1', 'A2', 'A3']);
+    assert.deepEqual(
+      result.top3.map((t) => t.itemId),
+      ['A1', 'A2', 'A3'],
+    );
   });
 
   it('E군은 카테고리 해당 항목만 채점·분모 반영된다 (AC-2.3)', () => {

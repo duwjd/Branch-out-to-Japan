@@ -26,7 +26,6 @@ import {
 import { IconDoc } from '@/components/ui/icons';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 
-
 const JP_CHANNELS = [
   { value: 'qoo10', label: 'Qoo10' },
   { value: 'rakuten', label: '라쿠텐' },
@@ -69,13 +68,19 @@ export function BrandForm({
 
   function toggleTag(value: string) {
     setTags((prev) =>
-      prev.includes(value) ? prev.filter((t) => t !== value) : prev.length < POSITIONING_TAGS_MAX ? [...prev, value] : prev,
+      prev.includes(value)
+        ? prev.filter((t) => t !== value)
+        : prev.length < POSITIONING_TAGS_MAX
+          ? [...prev, value]
+          : prev,
     );
   }
 
   function toggleJpChannel(channel: string) {
     setJpChannels((prev) =>
-      prev.some((c) => c.channel === channel) ? prev.filter((c) => c.channel !== channel) : [...prev, { channel, url: '' }],
+      prev.some((c) => c.channel === channel)
+        ? prev.filter((c) => c.channel !== channel)
+        : [...prev, { channel, url: '' }],
     );
   }
 
@@ -275,7 +280,9 @@ export function BrandForm({
                 <p className={fieldLabelClass}>상세페이지 문서</p>
                 <div className="flex flex-wrap items-center gap-2.5 rounded-[10px] border border-card-border bg-n-50 px-3 py-2.5">
                   <IconDoc size={15} className="flex-none text-ink-mute" />
-                  <span className="flex-1 text-[12.5px] font-semibold text-ink">{detailDocName ?? '업로드된 문서 없음'}</span>
+                  <span className="flex-1 text-[12.5px] font-semibold text-ink">
+                    {detailDocName ?? '업로드된 문서 없음'}
+                  </span>
                   <input
                     ref={docInputRef}
                     type="file"
@@ -329,7 +336,13 @@ export function BrandForm({
                   {JP_CHANNELS.map((ch) => {
                     const on = jpChannels.some((c) => c.channel === ch.value);
                     return (
-                      <button key={ch.value} type="button" aria-pressed={on} onClick={() => toggleJpChannel(ch.value)} className={chipClass(on)}>
+                      <button
+                        key={ch.value}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => toggleJpChannel(ch.value)}
+                        className={chipClass(on)}
+                      >
                         {ch.label}
                       </button>
                     );
@@ -341,7 +354,10 @@ export function BrandForm({
                       .filter((c) => c.channel !== 'undecided')
                       .map((c) => (
                         <div key={c.channel}>
-                          <label htmlFor={`jpUrl-${c.channel}`} className="mb-1.5 block text-xs font-semibold text-ink-mute">
+                          <label
+                            htmlFor={`jpUrl-${c.channel}`}
+                            className="mb-1.5 block text-xs font-semibold text-ink-mute"
+                          >
                             {JP_CHANNELS.find((ch) => ch.value === c.channel)?.label} URL
                           </label>
                           <input
@@ -349,7 +365,9 @@ export function BrandForm({
                             type="url"
                             value={c.url}
                             onChange={(e) =>
-                              setJpChannels((prev) => prev.map((x) => (x.channel === c.channel ? { ...x, url: e.target.value } : x)))
+                              setJpChannels((prev) =>
+                                prev.map((x) => (x.channel === c.channel ? { ...x, url: e.target.value } : x)),
+                              )
                             }
                             placeholder="https://"
                             className={inputClass}
@@ -376,7 +394,9 @@ export function BrandForm({
                         value={row.kr}
                         placeholder="KR 제품명"
                         aria-label="KR 제품명"
-                        onChange={(e) => setProductNamesJa((prev) => prev.map((x, j) => (j === i ? { ...x, kr: e.target.value } : x)))}
+                        onChange={(e) =>
+                          setProductNamesJa((prev) => prev.map((x, j) => (j === i ? { ...x, kr: e.target.value } : x)))
+                        }
                         className={`${inputClass} flex-1`}
                       />
                       <span aria-hidden className="flex-none text-xs font-bold text-ink-faint">
@@ -388,7 +408,9 @@ export function BrandForm({
                         value={row.ja}
                         placeholder="JA 표기"
                         aria-label="JA 표기"
-                        onChange={(e) => setProductNamesJa((prev) => prev.map((x, j) => (j === i ? { ...x, ja: e.target.value } : x)))}
+                        onChange={(e) =>
+                          setProductNamesJa((prev) => prev.map((x, j) => (j === i ? { ...x, ja: e.target.value } : x)))
+                        }
                         className={`${inputClass} flex-1`}
                       />
                       <button
@@ -403,7 +425,8 @@ export function BrandForm({
                   ))}
                   {productNamesJa.length === 0 && (
                     <p className="text-[12.5px] text-ink-mute">
-                      아직 등록한 표기가 없습니다. 제품명을 일본어로 어떻게 쓸지 정해 두면 생성 문구가 흔들리지 않습니다.
+                      아직 등록한 표기가 없습니다. 제품명을 일본어로 어떻게 쓸지 정해 두면 생성 문구가 흔들리지
+                      않습니다.
                     </p>
                   )}
                 </div>
@@ -434,7 +457,11 @@ export function BrandForm({
                           value={row.term}
                           placeholder="금지 표현"
                           aria-label="금지 표현"
-                          onChange={(e) => setForbiddenTerms((prev) => prev.map((x, j) => (j === i ? { ...x, term: e.target.value } : x)))}
+                          onChange={(e) =>
+                            setForbiddenTerms((prev) =>
+                              prev.map((x, j) => (j === i ? { ...x, term: e.target.value } : x)),
+                            )
+                          }
                           className="h-6 w-28 bg-transparent px-1 text-xs font-bold text-danger-text placeholder:text-danger-text/50 focus:outline-none"
                         />
                       </span>
@@ -443,7 +470,11 @@ export function BrandForm({
                         value={row.reason}
                         placeholder="사유 (약기법·플랫폼 규정 등)"
                         aria-label="사유"
-                        onChange={(e) => setForbiddenTerms((prev) => prev.map((x, j) => (j === i ? { ...x, reason: e.target.value } : x)))}
+                        onChange={(e) =>
+                          setForbiddenTerms((prev) =>
+                            prev.map((x, j) => (j === i ? { ...x, reason: e.target.value } : x)),
+                          )
+                        }
                         className={`${inputClass} h-9 min-w-[220px] flex-1`}
                       />
                       <button
@@ -484,11 +515,12 @@ export function BrandForm({
                   placeholder="일본 고객 대상 톤 1~3문장"
                   className={textareaClass}
                 />
-                <p className="mt-1.5 text-[11.5px] text-ink-faint">다음 생성부터 입력으로 전달할 준비를 하고 있습니다.</p>
+                <p className="mt-1.5 text-[11.5px] text-ink-faint">
+                  다음 생성부터 입력으로 전달할 준비를 하고 있습니다.
+                </p>
               </div>
             </div>
           </SectionCard>
-
         </div>
       </div>
 
@@ -496,14 +528,24 @@ export function BrandForm({
       <div className="fixed inset-x-0 bottom-0 left-0 z-40 border-t border-hairline bg-canvas/95 px-6 py-3.5 backdrop-blur lg:left-sidebar">
         <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-3.5">
           <p role="status" className={`text-[12.5px] font-bold ${saveMsgClass}`}>
-            {error ? `✕ ${error}` : savedMsg ? `○ ${savedMsg}` : !canSave ? '브랜드명·카테고리·포지셔닝 1개 이상이 필요합니다' : ''}
+            {error
+              ? `✕ ${error}`
+              : savedMsg
+                ? `○ ${savedMsg}`
+                : !canSave
+                  ? '브랜드명·카테고리·포지셔닝 1개 이상이 필요합니다'
+                  : ''}
           </p>
-          <button type="button" disabled={!canSave || saving} onClick={() => void handleSave()} className={buttonClass('primary', 'md', 'ml-auto')}>
+          <button
+            type="button"
+            disabled={!canSave || saving}
+            onClick={() => void handleSave()}
+            className={buttonClass('primary', 'md', 'ml-auto')}
+          >
             {saving ? '저장 중…' : '저장'}
           </button>
         </div>
       </div>
-
     </main>
   );
 }

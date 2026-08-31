@@ -8,7 +8,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { buttonClass, chipClass, fieldLabelClass, inputClass, selectClass, textareaClass } from '@/components/ui/primitives';
+import {
+  buttonClass,
+  chipClass,
+  fieldLabelClass,
+  inputClass,
+  selectClass,
+  textareaClass,
+} from '@/components/ui/primitives';
 import type { ProductRecord } from '@/lib/db/store';
 
 const CATEGORY_OPTIONS = ['스킨케어', '메이크업', '선케어', '클렌징', '기타'];
@@ -177,7 +184,9 @@ export function ProductManager() {
       ) : products.length === 0 ? (
         <div className="rounded-[12px] border border-dashed border-input-border bg-n-50 p-6 text-center">
           <p className="text-[13px] font-semibold text-ink">아직 등록한 제품이 없습니다</p>
-          <p className="mt-1 text-[12px] text-ink-mute">제품을 등록하면 스튜디오 브랜드 자산 피커에서 제품컷을 고를 수 있습니다.</p>
+          <p className="mt-1 text-[12px] text-ink-mute">
+            제품을 등록하면 스튜디오 브랜드 자산 피커에서 제품컷을 고를 수 있습니다.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -185,13 +194,25 @@ export function ProductManager() {
             const primary = p.images.find((im) => im.isPrimary) ?? p.images[0];
             return (
               <div key={p.id} className="relative flex gap-3 rounded-[12px] border border-card-border bg-canvas p-3">
-                <button type="button" onClick={() => openEdit(p)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                <button
+                  type="button"
+                  onClick={() => openEdit(p)}
+                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                >
                   <span className="h-[52px] w-[52px] flex-none overflow-hidden rounded-[9px] border border-hairline bg-n-100">
                     {primary ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={`/api/files/${primary.fileId}`} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                      <img
+                        src={`/api/files/${primary.fileId}`}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
-                      <span className="flex h-full w-full items-center justify-center text-[9px] text-ink-faint">대표컷 없음</span>
+                      <span className="flex h-full w-full items-center justify-center text-[9px] text-ink-faint">
+                        대표컷 없음
+                      </span>
                     )}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -229,16 +250,31 @@ export function ProductManager() {
           <div className="grid gap-3 sm:grid-cols-2">
             <label className={fieldLabelClass}>
               제품명 KR <span className="text-coral-strong">*</span>
-              <input value={nameKr} onChange={(e) => setNameKr(e.target.value)} maxLength={40} className={`mt-1.5 ${inputClass}`} />
+              <input
+                value={nameKr}
+                onChange={(e) => setNameKr(e.target.value)}
+                maxLength={40}
+                className={`mt-1.5 ${inputClass}`}
+              />
             </label>
             <label className={fieldLabelClass}>
               제품명 JA <span className="font-normal text-ink-mute">(선택)</span>
-              <input lang="ja" value={nameJa} onChange={(e) => setNameJa(e.target.value)} maxLength={60} className={`mt-1.5 ${inputClass}`} />
+              <input
+                lang="ja"
+                value={nameJa}
+                onChange={(e) => setNameJa(e.target.value)}
+                maxLength={60}
+                className={`mt-1.5 ${inputClass}`}
+              />
             </label>
           </div>
           <label className={fieldLabelClass}>
             카테고리 <span className="font-normal text-ink-mute">(선택)</span>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className={`mt-1.5 w-full ${selectClass}`}>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className={`mt-1.5 w-full ${selectClass}`}
+            >
               <option value="">미지정</option>
               {CATEGORY_OPTIONS.map((c) => (
                 <option key={c} value={c}>
@@ -249,7 +285,13 @@ export function ProductManager() {
           </label>
           <label className={fieldLabelClass}>
             메모 <span className="font-normal text-ink-mute">(선택)</span>
-            <textarea value={memo} onChange={(e) => setMemo(e.target.value)} maxLength={500} rows={2} className={`mt-1.5 ${textareaClass}`} />
+            <textarea
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              maxLength={500}
+              rows={2}
+              className={`mt-1.5 ${textareaClass}`}
+            />
           </label>
 
           {/* 제품컷 — 다중 이미지, 대표 지정/삭제(BRAND-03b) */}
@@ -278,7 +320,9 @@ export function ProductManager() {
                     <img src={im.url} alt="" className="h-full w-full object-cover" />
                   </span>
                   {im.key === primaryKey ? (
-                    <span className="absolute top-0.5 left-0.5 rounded-[5px] bg-coral px-1 text-[8.5px] font-bold text-white">대표</span>
+                    <span className="absolute top-0.5 left-0.5 rounded-[5px] bg-coral px-1 text-[8.5px] font-bold text-white">
+                      대표
+                    </span>
                   ) : (
                     <button
                       type="button"
@@ -310,16 +354,29 @@ export function ProductManager() {
           </div>
 
           {error && (
-            <p role="alert" className="rounded-[8px] border border-danger bg-danger-bg p-2.5 text-[12.5px] text-danger-text">
+            <p
+              role="alert"
+              className="rounded-[8px] border border-danger bg-danger-bg p-2.5 text-[12.5px] text-danger-text"
+            >
               {error}
             </p>
           )}
         </div>
         <div className="mt-5 flex gap-2">
-          <button type="button" onClick={() => setOpen(false)} disabled={saving} className={buttonClass('secondary', 'md', 'flex-1')}>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            disabled={saving}
+            className={buttonClass('secondary', 'md', 'flex-1')}
+          >
             취소
           </button>
-          <button type="button" onClick={() => void save()} disabled={!canSave} className={buttonClass('primary', 'md', 'flex-1')}>
+          <button
+            type="button"
+            onClick={() => void save()}
+            disabled={!canSave}
+            className={buttonClass('primary', 'md', 'flex-1')}
+          >
             {saving ? '저장 중…' : '저장'}
           </button>
         </div>
@@ -331,13 +388,24 @@ export function ProductManager() {
           제품을 삭제할까요?
         </h2>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-body">
-          <b className="text-ink">{delTarget?.nameKr}</b>와(과) 제품컷 {delTarget?.images.length ?? 0}장이 삭제됩니다. 이미 생성된 썸네일·발행 리포트는 남습니다.
+          <b className="text-ink">{delTarget?.nameKr}</b>와(과) 제품컷 {delTarget?.images.length ?? 0}장이 삭제됩니다.
+          이미 생성된 썸네일·발행 리포트는 남습니다.
         </p>
         <div className="mt-5 flex gap-2">
-          <button type="button" onClick={() => setDelTarget(null)} disabled={deleting} className={buttonClass('secondary', 'md', 'flex-1')}>
+          <button
+            type="button"
+            onClick={() => setDelTarget(null)}
+            disabled={deleting}
+            className={buttonClass('secondary', 'md', 'flex-1')}
+          >
             취소
           </button>
-          <button type="button" onClick={() => void doDelete()} disabled={deleting} className={buttonClass('danger', 'md', 'flex-1')}>
+          <button
+            type="button"
+            onClick={() => void doDelete()}
+            disabled={deleting}
+            className={buttonClass('danger', 'md', 'flex-1')}
+          >
             {deleting ? '삭제 중…' : '삭제'}
           </button>
         </div>

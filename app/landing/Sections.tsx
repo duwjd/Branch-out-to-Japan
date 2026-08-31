@@ -34,7 +34,9 @@ export function ProblemGaps() {
               <div className="flex items-center justify-between gap-6">
                 <div className="min-w-0">
                   <p className="text-[14px] font-semibold tracking-[0.08em] text-lp-faint">{card.eyebrow}</p>
-                  <h3 className="mt-2.5 text-lp-h3 font-bold break-keep text-lp-ink max-sm:text-[22px]">{card.title}</h3>
+                  <h3 className="mt-2.5 text-lp-h3 font-bold break-keep text-lp-ink max-sm:text-[22px]">
+                    {card.title}
+                  </h3>
                 </div>
                 <Illustration
                   name={card.illustration}
@@ -73,8 +75,12 @@ export function CoreFlow() {
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className={`text-lp-h4 font-bold ${step.ready ? 'text-lp-coral' : 'text-lp-faint'}`}>{step.no}</span>
-                  <h3 className={`text-lp-h3 font-bold max-sm:text-[22px] ${step.ready ? 'text-lp-ink' : 'text-lp-muted'}`}>
+                  <span className={`text-lp-h4 font-bold ${step.ready ? 'text-lp-coral' : 'text-lp-faint'}`}>
+                    {step.no}
+                  </span>
+                  <h3
+                    className={`text-lp-h3 font-bold max-sm:text-[22px] ${step.ready ? 'text-lp-ink' : 'text-lp-muted'}`}
+                  >
                     {step.title}
                   </h3>
                   {'badge' in step && step.badge && (
@@ -304,7 +310,12 @@ function CreatePreview() {
             호출부에서 `w-[180px]`을 줘도 어느 쪽이 이길지 클래스 순서에 달리게 된다.
           */}
           <div className="w-[180px] flex-none max-sm:w-full">
-            <LandingShot name="studio-detail" alt={c.detailLabel} ratio="wide" className="rounded-lg border border-lp-coral" />
+            <LandingShot
+              name="studio-detail"
+              alt={c.detailLabel}
+              ratio="wide"
+              className="rounded-lg border border-lp-coral"
+            />
           </div>
           <div className="min-w-0">
             <p lang="ja" className="text-lp-h4 font-bold text-lp-ink">
@@ -395,7 +406,11 @@ export function ProductExample() {
               <p className="text-[13px] font-semibold text-lp-faint">{diagnose.altLabel}</p>
               <ul className="mt-2.5 flex list-none flex-col gap-2">
                 {diagnose.alts.map((alt) => (
-                  <li key={alt} lang="ja" className="rounded-lg bg-white px-3.5 py-2.5 text-[14px] font-semibold text-lp-ink">
+                  <li
+                    key={alt}
+                    lang="ja"
+                    className="rounded-lg bg-white px-3.5 py-2.5 text-[14px] font-semibold text-lp-ink"
+                  >
                     {alt}
                   </li>
                 ))}
@@ -590,7 +605,9 @@ export function PilotCta() {
           <h2 className="text-lp-h2 font-bold break-keep text-white max-sm:text-[30px] [text-wrap:pretty]">
             {PILOT_CTA.heading}
           </h2>
-          <p className="mt-5 text-lp-lead text-lp-on-navy-muted max-sm:text-[16px] [text-wrap:pretty]">{PILOT_CTA.lead}</p>
+          <p className="mt-5 text-lp-lead text-lp-on-navy-muted max-sm:text-[16px] [text-wrap:pretty]">
+            {PILOT_CTA.lead}
+          </p>
           <ul className="mt-5 flex list-none flex-wrap gap-2.5">
             {PILOT_CTA.items.map((item) => (
               <li key={item}>
