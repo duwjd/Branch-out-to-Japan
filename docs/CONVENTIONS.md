@@ -39,7 +39,7 @@ tags: [로드맵, 진척]
 | `title` | ✅ | 문서 제목. 본문 첫 `# ` 과 같게 유지한다 |
 | `space` | ✅ | 아래 §3 의 9개 중 하나 |
 | `status` | ✅ | `정본` · `초안` · `이력` · `폐기` (§4) |
-| `phase` | ✅ | 그 문서가 만들어진 Phase. 지금은 전부 `Phase 0` |
+| `phase` | ✅ | 그 문서가 만들어진 Phase (`Phase 0` · `Phase 1` …). 문서를 나중에 고쳐도 **만들어진 Phase 는 바뀌지 않는다** |
 | `updated` | ✅ | 마지막으로 **내용이 바뀐** 날 (`YYYY-MM-DD`). 오타 수정은 갱신이 아니다 |
 | `owner` | | 이 문서에 대해 답할 사람. 비워도 된다 |
 | `tags` | | 검색용 자유 태그. 없으면 생략 |
@@ -55,7 +55,7 @@ tags: [로드맵, 진척]
 | 영역 | 무엇이 들어가나 | 경로 | 인덱스 |
 |---|---|---|---|
 | `프로젝트 기준` | 저장소 진입점·팀 규칙·문서 규약 | 루트 `*.md` · `docs/README.md` · `docs/CONVENTIONS.md` | [README](README.md) |
-| `전략·제품` | 포지셔닝·경쟁·PRD·페르소나·로드맵·열린질문·가설 | `docs/00`~`06` | [README](README.md#전략제품) |
+| `전략·제품` | 포지셔닝·경쟁·PRD·페르소나·로드맵·열린질문·가설 · **스프린트** | `docs/00`~`06` · `docs/sprints/**` | [README](README.md#전략제품) · [sprints](sprints/README.md) |
 | `설계·개발` | IA·데이터플로우·개발 스펙·구현 현황·배포 | `docs/07`~`11` · `deploy-runbook` · `setup-supabase` | [README](README.md#설계개발) |
 | `화면 스펙` | 화면 단위 기획서·제품 스펙·프로토타입 | `docs/specs/**` | [specs/README](specs/README.md) |
 | `의사결정` | ADR — 되돌리기 어려운 결정의 기록 | `docs/decisions/**` | [decisions/README](decisions/README.md) |

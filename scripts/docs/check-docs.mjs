@@ -41,6 +41,7 @@ const INDEXES = [
   'docs/research/ut-agent/README.md',
   'docs/research/ut-agent/results/UT-리포트.md',
   'docs/experiments/README.md',
+  'docs/sprints/README.md',
   'docs/presentation/README.md',
   'design/README.md',
 ];
