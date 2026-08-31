@@ -12,11 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PLATFORMS, PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
-import {
-  StatusBadge,
-  buttonClass,
-  cardClass,
-} from '@/components/ui/primitives';
+import { StatusBadge, buttonClass, cardClass } from '@/components/ui/primitives';
 import { IconChevronDown, IconChevronUp, IconUpload } from '@/components/ui/icons';
 import { bytesUrl } from '@/lib/files/downloadUrl';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
@@ -88,7 +84,9 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
   });
   // 제품컷 소스(HOME-02) — 직접 업로드 | 브랜드 자산 피커. 브랜드 종속
   const [sourceTab, setSourceTab] = useState<'upload' | 'brand'>('upload');
-  const [products, setProducts] = useState<{ id: string; nameKr: string; images: { fileId: string; isPrimary: boolean }[] }[]>([]);
+  const [products, setProducts] = useState<
+    { id: string; nameKr: string; images: { fileId: string; isPrimary: boolean }[] }[]
+  >([]);
   const [pickedFileId, setPickedFileId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -202,7 +200,8 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
   const recommended = platform === 'unset' ? [] : (byPlatform[platform] ?? []);
 
   // 제출 활성 조건(HOME-06b) + 안내 우선순위(HOME-06c)
-  let guidance = '약 1~2분 걸립니다. 결과 화면에서 완성되는 과정을 볼 수 있고, 기다리지 않고 다른 작업을 하셔도 됩니다.';
+  let guidance =
+    '약 1~2분 걸립니다. 결과 화면에서 완성되는 과정을 볼 수 있고, 기다리지 않고 다른 작업을 하셔도 됩니다.';
   let canSubmit = true;
   if (!file) {
     guidance = '제품 이미지를 올리면 시작할 수 있어요.';
@@ -285,7 +284,9 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
             trailing={
               <>
                 {meta?.storeKind === 'file' && <StatusBadge tone="off">로컬 저장(dev)</StatusBadge>}
-                {meta && (meta.llmMode === 'mock' || meta.imageMode === 'mock') && <StatusBadge tone="off">목 모드(dev)</StatusBadge>}
+                {meta && (meta.llmMode === 'mock' || meta.imageMode === 'mock') && (
+                  <StatusBadge tone="off">목 모드(dev)</StatusBadge>
+                )}
               </>
             }
           />
@@ -308,10 +309,12 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
             label="제품컷 소스"
             value={sourceTab}
             onChange={setSourceTab}
-            options={[
-              { value: 'upload', label: '직접 업로드' },
-              { value: 'brand', label: '브랜드 자산에서 선택' },
-            ] as const}
+            options={
+              [
+                { value: 'upload', label: '직접 업로드' },
+                { value: 'brand', label: '브랜드 자산에서 선택' },
+              ] as const
+            }
           />
           {sourceTab === 'brand' ? (
             products.length === 0 ? (
@@ -339,20 +342,28 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                       >
                         <span className="block aspect-square bg-n-100">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={`/api/files/${im.fileId}`} alt={`${p.nameKr} 제품컷`} className="h-full w-full object-cover" />
+                          <img
+                            src={`/api/files/${im.fileId}`}
+                            alt={`${p.nameKr} 제품컷`}
+                            className="h-full w-full object-cover"
+                          />
                         </span>
                         {pickedFileId === im.fileId && (
                           <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-coral text-[11px] font-bold text-white">
                             ✓
                           </span>
                         )}
-                        <span className="block truncate bg-canvas px-1.5 py-1 text-[10px] font-semibold text-ink-mute">{p.nameKr}</span>
+                        <span className="block truncate bg-canvas px-1.5 py-1 text-[10px] font-semibold text-ink-mute">
+                          {p.nameKr}
+                        </span>
                       </button>
                     )),
                   )}
                 </div>
                 <p className="mt-2.5 text-[11.5px] text-ink-faint">
-                  {pickedFileId ? '브랜드 자산 · 선택한 제품컷으로 생성합니다.' : '여기서는 조회·선택만 합니다 — 등록·삭제는 브랜드 관리에서.'}
+                  {pickedFileId
+                    ? '브랜드 자산 · 선택한 제품컷으로 생성합니다.'
+                    : '여기서는 조회·선택만 합니다 — 등록·삭제는 브랜드 관리에서.'}
                 </p>
               </div>
             )
@@ -366,12 +377,18 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                 <p className="text-[12px] font-bold text-ink-mute">업로드한 이미지</p>
                 <p className="mt-1 text-[13.5px] font-bold break-all text-ink">
                   {file?.name}{' '}
-                  <span className="font-medium text-ink-mute">{file ? `· ${(file.size / 1024 / 1024).toFixed(1)}MB` : ''}</span>
+                  <span className="font-medium text-ink-mute">
+                    {file ? `· ${(file.size / 1024 / 1024).toFixed(1)}MB` : ''}
+                  </span>
                 </p>
                 <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
                   프로모 썸네일이면 기존 한국어 오버레이(카피·뱃지·테두리)는 걷어내고 일본 문법으로 재설계합니다.
                 </p>
-                <button type="button" onClick={() => fileInputRef.current?.click()} className={buttonClass('secondary', 'sm', 'mt-3')}>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className={buttonClass('secondary', 'sm', 'mt-3')}
+                >
                   이미지 교체
                 </button>
               </div>
@@ -393,14 +410,18 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                 if (f) acceptFile(f);
               }}
               className={`flex h-[295px] min-h-[240px] w-full cursor-pointer flex-col items-center justify-center gap-2.5 rounded-[14px] border-[1.5px] border-dashed p-7 text-center transition-colors ${
-                isDragOver ? 'border-coral bg-coral-tint' : 'border-input-border bg-n-50 hover:border-coral hover:bg-coral-tint'
+                isDragOver
+                  ? 'border-coral bg-coral-tint'
+                  : 'border-input-border bg-n-50 hover:border-coral hover:bg-coral-tint'
               }`}
             >
               <IconUpload size={34} className="text-ink-faint" />
               <p className="text-[14.5px] leading-[21.75px] font-semibold text-ink-body">
                 이미지를 끌어다 놓거나 <span className="text-coral-strong">클릭하여 업로드</span>
               </p>
-              <p className="text-[12.5px] leading-[20.3px] text-ink-mute">JPG · PNG · WebP / 10MB 이하 / 권장 1024px 이상 정방형</p>
+              <p className="text-[12.5px] leading-[20.3px] text-ink-mute">
+                JPG · PNG · WebP / 10MB 이하 / 권장 1024px 이상 정방형
+              </p>
             </button>
           )}
           {fileError && (
@@ -429,7 +450,11 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
             ))}
           </div>
 
-          <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-3 lg:grid-cols-4" role="radiogroup" aria-label="템플릿 8종">
+          <div
+            className="mt-1 grid grid-cols-2 gap-x-4 gap-y-3 lg:grid-cols-4"
+            role="radiogroup"
+            aria-label="템플릿 8종"
+          >
             {styles.map((s, styleIdx) => {
               const isRecommended = recommended.includes(s.id);
               const isDimmed = platform !== 'unset' && !isRecommended;
@@ -444,12 +469,20 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                   /* 카드가 순서대로 들어온다 — 마운트 1회뿐이라 선택할 때 다시 뜨지 않는다 */
                   style={{ animationDelay: `${styleIdx * 40}ms` }}
                   className={`relative flex animate-tile-in flex-col rounded-xl border p-2.5 text-left transition-colors ${
-                    isSelected ? 'border-[1.5px] border-coral bg-coral-tint' : 'border-card-border bg-canvas hover:border-coral'
+                    isSelected
+                      ? 'border-[1.5px] border-coral bg-coral-tint'
+                      : 'border-card-border bg-canvas hover:border-coral'
                   } ${isDimmed ? 'opacity-60 grayscale-[.4] hover:opacity-100 hover:grayscale-0 focus-visible:opacity-100 focus-visible:grayscale-0' : ''}`}
                 >
                   <span className="relative block aspect-square overflow-hidden rounded-[8px] border border-hairline">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.previewSrc} alt={`${s.nameKo} 실측 참고 컷`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                    <img
+                      src={s.previewSrc}
+                      alt={`${s.nameKo} 실측 참고 컷`}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                    />
                     {(isRecommended || isDimmed) && (
                       <span
                         className={`absolute top-1.5 left-1.5 z-1 inline-flex h-5 items-center rounded-full px-2 text-[10.5px] font-bold ${
@@ -472,7 +505,9 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                     )}
                   </span>
                   <span className="mt-2.5 block text-[13px] font-bold text-ink">{s.nameKo}</span>
-                  <span className="clamp-2 mt-[3px] block text-[11.5px] leading-snug text-ink-mute">{s.description}</span>
+                  <span className="clamp-2 mt-[3px] block text-[11.5px] leading-snug text-ink-mute">
+                    {s.description}
+                  </span>
                   <span className="mt-1.5 block text-[10.5px] font-semibold text-ink-mute">
                     {s.platformFit.map((f) => FIT_LABELS[f] ?? f).join(' · ')}
                   </span>
@@ -487,7 +522,8 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
           </div>
           {platform === 'amazon-jp' && (
             <p className="mt-3.5 rounded-[8px] bg-amber-bg px-3 py-2.5 text-[12.5px] leading-relaxed text-amber-text">
-              아마존JP에 부적합 {styles.length - recommended.length}종 — 아마존 메인 이미지는 오버레이(텍스트·배지) 금지 규정이 있습니다
+              아마존JP에 부적합 {styles.length - recommended.length}종 — 아마존 메인 이미지는 오버레이(텍스트·배지) 금지
+              규정이 있습니다
             </p>
           )}
           {platform !== 'unset' && platform !== 'amazon-jp' && recommended.length > 0 && (
@@ -526,7 +562,9 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
             ))}
           </div>
           {!proofComplete && (proof.rankTitle || proof.genre || proof.aggregationDate) && (
-            <p className="mt-3 text-[12.5px] font-semibold text-amber-text">실적명·부문·집계일이 모두 있어야 배지가 들어갑니다.</p>
+            <p className="mt-3 text-[12.5px] font-semibold text-amber-text">
+              실적명·부문·집계일이 모두 있어야 배지가 들어갑니다.
+            </p>
           )}
           <p className="text-[12px] leading-relaxed text-ink-mute">
             입력한 사실 그대로만 그립니다. 근거 없는 랭킹·수상 배지는 경품표시법 리스크가 있어 아예 만들지 않습니다.
@@ -600,7 +638,8 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                 className="mt-0.5 h-[18px] w-[18px] flex-none rounded-[5px] accent-coral"
               />
               <span className="text-[13px] leading-[1.5] text-ink-mute">
-                취소선 가격 이미지 만들기 — 정가로 <b className="font-semibold text-ink-body">실제 판매한 실적</b>이 있을 때만 체크해 주세요.
+                취소선 가격 이미지 만들기 — 정가로 <b className="font-semibold text-ink-body">실제 판매한 실적</b>이
+                있을 때만 체크해 주세요.
               </span>
             </label>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -685,7 +724,11 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                       {modelFile ? `· ${(modelFile.size / 1024 / 1024).toFixed(1)}MB` : ''}
                     </span>
                   </p>
-                  <button type="button" onClick={() => modelInputRef.current?.click()} className={buttonClass('secondary', 'sm', 'mt-3')}>
+                  <button
+                    type="button"
+                    onClick={() => modelInputRef.current?.click()}
+                    className={buttonClass('secondary', 'sm', 'mt-3')}
+                  >
                     모델컷 교체
                   </button>
                 </div>
@@ -717,7 +760,8 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
                 className="mt-0.5 h-4 w-4 flex-none accent-coral"
               />
               <span className="text-[12.5px] leading-relaxed text-ink-body">
-                <b className="font-bold text-ink">모델 사용 권한에 동의합니다.</b> 올린 모델컷을 이 브랜드의 썸네일 생성에 쓸 권한이 있습니다. 체크하지 않으면 만들 수 없습니다.
+                <b className="font-bold text-ink">모델 사용 권한에 동의합니다.</b> 올린 모델컷을 이 브랜드의 썸네일
+                생성에 쓸 권한이 있습니다. 체크하지 않으면 만들 수 없습니다.
               </span>
             </label>
           </StudioSection>
@@ -734,11 +778,14 @@ export function StudioForm({ styles, byPlatform }: { styles: StyleCard[]; byPlat
         {/* 재설계 고지(HOME-06a) */}
         <div className="mt-6 rounded-card border border-coral/35 bg-coral-tint p-5">
           <p className="text-[13px] leading-[1.7] text-ink-body [text-wrap:pretty]">
-            <b className="text-coral-strong">일본어 카피는 자동 번역이 아닙니다.</b> 한국 카피의 의도를 추출해 일본 고민 어휘·관례어로
-            재설계하고, <span lang="ja">薬機法</span> 1차 스크리닝을 통과한 문구만 이미지에 들어갑니다.
+            <b className="text-coral-strong">일본어 카피는 자동 번역이 아닙니다.</b> 한국 카피의 의도를 추출해 일본 고민
+            어휘·관례어로 재설계하고, <span lang="ja">薬機法</span> 1차 스크리닝을 통과한 문구만 이미지에 들어갑니다.
           </p>
           <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute">
-            「쿨톤 치트키」 → <span lang="ja" className="font-bold text-ink">「白浮きしない、透け感トーンアップUV」</span>{' '}
+            「쿨톤 치트키」 →{' '}
+            <span lang="ja" className="font-bold text-ink">
+              「白浮きしない、透け感トーンアップUV」
+            </span>{' '}
             <span className="ml-1 inline-flex h-[18px] items-center rounded-full bg-n-150 px-[7px] text-[10.5px] font-bold text-ink-mute">
               예시
             </span>

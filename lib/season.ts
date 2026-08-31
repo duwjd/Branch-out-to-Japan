@@ -425,8 +425,7 @@ export function seasonRunway(now: Date, limit = 6): SeasonRunwayStep[] {
 
   return upcomingEvents(now, limit).map((e) => {
     const leadDays = byId.get(e.id)?.leadDays ?? 30;
-    const phase: SeasonPhase =
-      e.inProgress || e.dDay <= IMMINENT_DAYS ? 'now' : e.dDay <= leadDays ? 'prep' : 'later';
+    const phase: SeasonPhase = e.inProgress || e.dDay <= IMMINENT_DAYS ? 'now' : e.dDay <= leadDays ? 'prep' : 'later';
     return { id: e.id, name: e.name, dDay: e.dDay, inProgress: e.inProgress, phase };
   });
 }

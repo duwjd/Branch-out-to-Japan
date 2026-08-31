@@ -69,9 +69,7 @@ function stageLabelOf(job: TrackedJob): string {
   if (!job.stage) return '대기 중';
   if (job.kind === 'detail') {
     const label = DETAIL_STAGE_LABELS[job.stage] ?? job.stage;
-    return job.stage === 'blocks' && job.blockTotal
-      ? `${label} (${job.blockDone ?? 0}/${job.blockTotal})`
-      : label;
+    return job.stage === 'blocks' && job.blockTotal ? `${label} (${job.blockDone ?? 0}/${job.blockTotal})` : label;
   }
   const map = job.kind === 'report' ? REPORT_STAGE_LABELS : STUDIO_STAGE_LABELS;
   return map[job.stage] ?? job.stage;
@@ -216,7 +214,10 @@ export function JobPanel({ jobs }: { jobs: DashboardJob[] }) {
           {tracked.map((job) =>
             job.state === 'running' ? (
               <div key={job.id} className="flex items-center gap-[11px] px-3.5 py-3">
-                <span aria-hidden className="relative h-10 w-10 flex-none overflow-hidden rounded-[9px] bg-linear-180 from-n-150 to-n-200">
+                <span
+                  aria-hidden
+                  className="relative h-10 w-10 flex-none overflow-hidden rounded-[9px] bg-linear-180 from-n-150 to-n-200"
+                >
                   <span className="absolute inset-0 bg-[linear-gradient(100deg,transparent_20%,rgba(255,255,255,0.75)_50%,transparent_80%)] bg-size-[300px_100%] bg-no-repeat animate-shimmer" />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -255,7 +256,9 @@ export function JobPanel({ jobs }: { jobs: DashboardJob[] }) {
                           : '썸네일을 만들지 못했습니다'}
                   </span>
                   <span className="mt-[3px] block truncate text-[11.5px] text-ink-mute">
-                    {job.state === 'done' && job.kind === 'thumbnail' ? '검수 게이트 통과 · 최근 자산에 추가됨' : job.name}
+                    {job.state === 'done' && job.kind === 'thumbnail'
+                      ? '검수 게이트 통과 · 최근 자산에 추가됨'
+                      : job.name}
                   </span>
                 </span>
                 <Link

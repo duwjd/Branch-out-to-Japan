@@ -103,11 +103,24 @@ export interface PreSignals {
 export type RubricGroup = 'A' | 'B' | 'C' | 'D' | 'E';
 
 export type RubricItemId =
-  | 'A1' | 'A2' | 'A3' | 'A4' | 'A5'
-  | 'B1' | 'B2'
-  | 'C1' | 'C2' | 'C3'
-  | 'D1' | 'D2' | 'D3' | 'D4'
-  | 'E1' | 'E2' | 'E3' | 'E4';
+  | 'A1'
+  | 'A2'
+  | 'A3'
+  | 'A4'
+  | 'A5'
+  | 'B1'
+  | 'B2'
+  | 'C1'
+  | 'C2'
+  | 'C3'
+  | 'D1'
+  | 'D2'
+  | 'D3'
+  | 'D4'
+  | 'E1'
+  | 'E2'
+  | 'E3'
+  | 'E4';
 
 /** 콜① 산출 — 항목별 판정(점수 합산은 코드가 한다) */
 export interface ScoredItem {

@@ -1,3 +1,13 @@
+---
+title: ① 진단 리포트 UI 기획
+space: 화면 스펙
+status: 초안
+phase: Phase 0
+updated: 2026-07-23
+owner:
+tags: [UI기획, 진단리포트]
+---
+
 # ① 진단 리포트 UI 기획
 
 | **작성일** | **작성자** | **비고** |

@@ -61,7 +61,14 @@ export async function settle(page, { networkIdleMs = 12_000 } = {}) {
       (ms) =>
         Promise.race([
           Promise.all(
-            [...document.images].filter((i) => !i.complete).map((i) => new Promise((r) => { i.onload = i.onerror = r; })),
+            [...document.images]
+              .filter((i) => !i.complete)
+              .map(
+                (i) =>
+                  new Promise((r) => {
+                    i.onload = i.onerror = r;
+                  }),
+              ),
           ),
           new Promise((r) => setTimeout(r, ms)),
         ]),
@@ -149,7 +156,10 @@ export async function captureStep(ctx, spec) {
     if (archival) {
       // 타일이 페르소나가 보는 실물이 된다 — step.png 는 첫 타일이 채운다
       step.archival = `${spec.id}-full.png`;
-      step.note = [step.note, `fullPage 는 축소 시 ${Math.round(shrunkWidth)}px 폭이라 판독 불가 — 런 루트에 보관만 하고 페르소나에게는 타일을 준다`]
+      step.note = [
+        step.note,
+        `fullPage 는 축소 시 ${Math.round(shrunkWidth)}px 폭이라 판독 불가 — 런 루트에 보관만 하고 페르소나에게는 타일을 준다`,
+      ]
         .filter(Boolean)
         .join(' · ');
     } else {

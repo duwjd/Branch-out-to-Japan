@@ -3,7 +3,15 @@
  * 구현 선택: SUPABASE_URL 있으면 Supabase(supabaseStore), 없으면 .data/ 파일 스토어(dev 폴백).
  */
 
-import type { BlocksJson, BrandProductClass, Category, ReportStatus, RubricGroup, RubricItemId, TierInput } from '../engine/types';
+import type {
+  BlocksJson,
+  BrandProductClass,
+  Category,
+  ReportStatus,
+  RubricGroup,
+  RubricItemId,
+  TierInput,
+} from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 import type { LeadKind, TrackEventType } from '../lead';
 
@@ -20,10 +28,10 @@ export const LEGACY_USER_ID = 'demo-user';
 
 /** 유저(실 인증 — 08 §6 USER). id는 레거시 'demo-user' 또는 uuid. */
 export interface UserRecord {
-  id: string;                    // 'demo-user'(레거시) 또는 uuid
-  email: string;                 // 소문자 정규화된 값으로 저장
-  passwordHash: string | null;   // null = 소셜(목) 계정
-  name: string;                  // 표시명(AppShell·마이페이지)
+  id: string; // 'demo-user'(레거시) 또는 uuid
+  email: string; // 소문자 정규화된 값으로 저장
+  passwordHash: string | null; // null = 소셜(목) 계정
+  name: string; // 표시명(AppShell·마이페이지)
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
@@ -31,7 +39,7 @@ export interface UserRecord {
 
 /** 이메일 검증·비밀번호 재설정 토큰 — 원문은 저장하지 않고 sha256 해시만 보관한다. */
 export interface AuthTokenRecord {
-  tokenHash: string;             // sha256(원문 토큰) hex — PK, 원문은 저장 안 함
+  tokenHash: string; // sha256(원문 토큰) hex — PK, 원문은 저장 안 함
   userId: string;
   kind: 'verify' | 'reset';
   expiresAt: string;
@@ -146,14 +154,14 @@ export interface ThumbnailProof {
  * 통상가 취소선은 normalPriceVerified가 true일 때만 렌더한다(실적 없는 이중가격 = 有利誤認 리스크).
  */
 export interface PromoInput {
-  setTitle: string;            // 세트명(필수)
-  salePrice: string;           // 판매가(필수, 숫자 문자열)
-  normalPrice: string;         // 통상가(선택)
-  normalPriceVerified: boolean;// "실제 판매 실적 있음" 체크 — true여야 통상가 취소선 반영(有利誤認 방지)
-  discountRate: string;        // 할인율(선택)
-  gift: string;                // GIFT(선택)
-  qualifierChips: string[];    // 한정 칩(선택)
-  footnote: string;            // ※각주(선택)
+  setTitle: string; // 세트명(필수)
+  salePrice: string; // 판매가(필수, 숫자 문자열)
+  normalPrice: string; // 통상가(선택)
+  normalPriceVerified: boolean; // "실제 판매 실적 있음" 체크 — true여야 통상가 취소선 반영(有利誤認 방지)
+  discountRate: string; // 할인율(선택)
+  gift: string; // GIFT(선택)
+  qualifierChips: string[]; // 한정 칩(선택)
+  footnote: string; // ※각주(선택)
 }
 
 /** 상세페이지 상품 카테고리 — 무드 프로파일·템플릿 선택의 축(② DETAIL-03) */
@@ -270,9 +278,9 @@ export interface GeneratedAssetRecord {
   gateResult: GateResult | null;
   explanationJson: ExplanationJson | null;
   proof: ThumbnailProof | null;
-  modelImagePath: string | null;   // F 모델컷 fileId (F 아니면 null)
-  modelConsent: boolean;           // 모델 사용 권한 동의(F 필수, 미체크 생성 불가)
-  promoInput: PromoInput | null;   // G 프로모 입력(G 아니면 null)
+  modelImagePath: string | null; // F 모델컷 fileId (F 아니면 null)
+  modelConsent: boolean; // 모델 사용 권한 동의(F 필수, 미체크 생성 불가)
+  promoInput: PromoInput | null; // G 프로모 입력(G 아니면 null)
   /** 제출 시점 브랜드명 물질화 — 킷 수정 불소급(tierInput 스냅샷 원칙과 동일) */
   brandNameSnapshot: string;
   // ── kind='detail' 전용 ────────────────────────────────────────────────
@@ -449,7 +457,12 @@ export interface Store {
   /** 유저 갱신 — 비밀번호 해시·이메일 검증 여부·표시명만 패치 */
   updateUser(id: string, patch: Partial<Pick<UserRecord, 'passwordHash' | 'emailVerified' | 'name'>>): Promise<void>;
   /** 인증 토큰 발급 — 원문 해시(sha256 hex)만 저장 */
-  createAuthToken(input: { tokenHash: string; userId: string; kind: 'verify' | 'reset'; expiresAt: string }): Promise<void>;
+  createAuthToken(input: {
+    tokenHash: string;
+    userId: string;
+    kind: 'verify' | 'reset';
+    expiresAt: string;
+  }): Promise<void>;
   /** 토큰 원자적 소비 — 미사용·미만료면 usedAt 마킹 후 레코드 반환, 아니면(없음/사용됨/만료) null */
   consumeAuthToken(tokenHash: string, kind: 'verify' | 'reset'): Promise<AuthTokenRecord | null>;
   /** 재발송 쿨다운용 — 해당 유저·kind의 최신 토큰 1건(사용 여부 무관) */
@@ -479,8 +492,16 @@ export interface Store {
     patch: Partial<
       Pick<
         GeneratedAssetRecord,
-        | 'status' | 'stage' | 'error' | 'imagePath' | 'promptUsed' | 'gateResult' | 'explanationJson'
-        | 'blockTotal' | 'blockDone' | 'slicePaths'
+        | 'status'
+        | 'stage'
+        | 'error'
+        | 'imagePath'
+        | 'promptUsed'
+        | 'gateResult'
+        | 'explanationJson'
+        | 'blockTotal'
+        | 'blockDone'
+        | 'slicePaths'
         // 해석된 테마·윤문 결과를 생성 중에 스냅샷한다(§2-7 · 콜⑨). 신규 컬럼 없이 detail_input jsonb 안에 담는다
         | 'detailInput'
       >
@@ -507,7 +528,16 @@ export interface Store {
     patch: Partial<
       Pick<
         AssetBlockRecord,
-        'seq' | 'status' | 'error' | 'slots' | 'promptUsed' | 'visualPath' | 'imagePath' | 'height' | 'version' | 'history'
+        | 'seq'
+        | 'status'
+        | 'error'
+        | 'slots'
+        | 'promptUsed'
+        | 'visualPath'
+        | 'imagePath'
+        | 'height'
+        | 'version'
+        | 'history'
       >
     >,
   ): Promise<void>;
@@ -541,10 +571,7 @@ export interface Store {
   listSeasonMemos(brandProfileId: string): Promise<SeasonMemoRecord[]>;
   getSeasonMemo(id: string): Promise<SeasonMemoRecord | null>;
   createSeasonMemo(input: Omit<SeasonMemoRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<SeasonMemoRecord>;
-  updateSeasonMemo(
-    id: string,
-    patch: Partial<Pick<SeasonMemoRecord, 'startDate' | 'endDate' | 'body'>>,
-  ): Promise<void>;
+  updateSeasonMemo(id: string, patch: Partial<Pick<SeasonMemoRecord, 'startDate' | 'endDate' | 'body'>>): Promise<void>;
   deleteSeasonMemo(id: string): Promise<void>;
 }
 

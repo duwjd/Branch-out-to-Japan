@@ -1,3 +1,13 @@
+---
+title: 스펙 · ① 일본 시장 진입 진단 리포트 (개발용 PRD)
+space: 화면 스펙
+status: 정본
+phase: Phase 0
+updated: 2026-08-19
+owner:
+tags: [진단리포트, 스펙, PRD]
+---
+
 # 스펙 · ① 일본 시장 진입 진단 리포트 (개발용 PRD)
 
 > 1차 개발(2026-07-11~07-17) 착수용 상세 스펙. `docs/02-product-spec.md` line 60 TODO를 채운다.

@@ -27,16 +27,26 @@ function splitRow(line) {
   let q = false;
   for (const ch of line) {
     if (ch === '"') q = !q;
-    else if (ch === ',' && !q) { cells.push(cur); cur = ''; }
-    else cur += ch;
+    else if (ch === ',' && !q) {
+      cells.push(cur);
+      cur = '';
+    } else cur += ch;
   }
   cells.push(cur);
   return cells;
 }
-const num = (v) => { const n = Number(String(v ?? '').replace(/[^\d.-]/g, '')); return Number.isFinite(n) && String(v ?? '').trim() !== '' ? n : null; };
+const num = (v) => {
+  const n = Number(String(v ?? '').replace(/[^\d.-]/g, ''));
+  return Number.isFinite(n) && String(v ?? '').trim() !== '' ? n : null;
+};
 const avg = (xs) => (xs.length ? Math.round((xs.reduce((a, b) => a + b, 0) / xs.length) * 100) / 100 : null);
 const col = (rows, k) => rows.map((r) => num(r[k])).filter((n) => n !== null);
-const count = (rows, k) => rows.reduce((m, r) => { const v = (r[k] ?? '').trim(); if (v) m[v] = (m[v] ?? 0) + 1; return m; }, {});
+const count = (rows, k) =>
+  rows.reduce((m, r) => {
+    const v = (r[k] ?? '').trim();
+    if (v) m[v] = (m[v] ?? 0) + 1;
+    return m;
+  }, {});
 
 const persona = readCsv('scores-persona.csv');
 const landing = readCsv('랜딩평가.csv');
@@ -47,7 +57,9 @@ const gen = readCsv('생성결과.csv');
 function reportRuns() {
   const runs = [];
   const dir = path.join(ROOT, '.ut/runs');
-  for (const d of readdirSync(dir).filter((x) => /^P\d\d$/.test(x)).sort()) {
+  for (const d of readdirSync(dir)
+    .filter((x) => /^P\d\d$/.test(x))
+    .sort()) {
     const f = path.join(dir, d, 'manifest.json');
     if (!existsSync(f)) continue;
     const g = JSON.parse(readFileSync(f, 'utf8'))?.generations?.report;
@@ -72,8 +84,14 @@ function reportRuns() {
 const runs = reportRuns();
 /** attach 재실행 건은 실측 시간이 아니다 — 시간 통계에서만 뺀다 */
 const timed = runs.filter((r) => r.sec != null && !r.attachRerun);
-const bp = timed.filter((r) => r.mode === 'brandProduct').map((r) => r.sec).sort((a, b) => a - b);
-const br = timed.filter((r) => r.mode === 'brand').map((r) => r.sec).sort((a, b) => a - b);
+const bp = timed
+  .filter((r) => r.mode === 'brandProduct')
+  .map((r) => r.sec)
+  .sort((a, b) => a - b);
+const br = timed
+  .filter((r) => r.mode === 'brand')
+  .map((r) => r.sec)
+  .sort((a, b) => a - b);
 const med = (xs) => (xs.length ? xs[Math.floor(xs.length / 2)] : null);
 
 const withReport = persona.filter((r) => num(r.rep_acc) !== null);
@@ -85,14 +103,29 @@ const data = {
     appeal: avg(col(landing, 'appeal')),
     interest: avg(col(landing, 'interest')),
     intent: avg(col(landing, 'intent')),
-    dist: { appeal: tally(col(landing, 'appeal')), interest: tally(col(landing, 'interest')), intent: tally(col(landing, 'intent')) },
+    dist: {
+      appeal: tally(col(landing, 'appeal')),
+      interest: tally(col(landing, 'interest')),
+      intent: tally(col(landing, 'intent')),
+    },
   },
-  taskSat: Object.fromEntries(TASKS.map((t) => {
-    const rows = task.filter((r) => r.task_id === t);
-    return [t, { avg: avg(col(rows, 'satisfaction')), n: col(rows, 'satisfaction').length, dropoff: count(rows, 'dropoff_step') }];
-  })),
+  taskSat: Object.fromEntries(
+    TASKS.map((t) => {
+      const rows = task.filter((r) => r.task_id === t);
+      return [
+        t,
+        {
+          avg: avg(col(rows, 'satisfaction')),
+          n: col(rows, 'satisfaction').length,
+          dropoff: count(rows, 'dropoff_step'),
+        },
+      ];
+    }),
+  ),
   axes: {
-    report: axis('rep'), thumbnail: axis('thu'), detail: axis('det'),
+    report: axis('rep'),
+    thumbnail: axis('thu'),
+    detail: axis('det'),
   },
   bestAsset: count(persona, 'best_asset'),
   wtp: {
@@ -112,10 +145,15 @@ const data = {
   },
   blocks: blockHeatmap(),
   generation: {
-    byKind: Object.fromEntries(['report', 'thumbnail', 'detail'].map((k) => {
-      const rows = gen.filter((r) => r.kind === k);
-      return [k, { total: rows.length, ok: rows.filter((r) => r.status === 'done' || r.status === 'published').length }];
-    })),
+    byKind: Object.fromEntries(
+      ['report', 'thumbnail', 'detail'].map((k) => {
+        const rows = gen.filter((r) => r.kind === k);
+        return [
+          k,
+          { total: rows.length, ok: rows.filter((r) => r.status === 'done' || r.status === 'published').length },
+        ];
+      }),
+    ),
     reportSec: {
       brandProduct: { n: bp.length, min: bp[0] ?? null, med: med(bp), max: bp[bp.length - 1] ?? null },
       brand: { n: br.length, min: br[0] ?? null, med: med(br), max: br[br.length - 1] ?? null },
@@ -123,9 +161,15 @@ const data = {
     },
     humanizeSkipped: runs.filter((r) => r.humanizeSkipped === true).length,
     precisionLimited: runs.filter((r) => r.precisionLimited === true).map((r) => r.pid),
-    modes: count(runs.map((r) => ({ m: r.mode })), 'm'),
+    modes: count(
+      runs.map((r) => ({ m: r.mode })),
+      'm',
+    ),
     slides: runs.filter((r) => r.slides).length,
-    scores: runs.filter((r) => r.score != null).map((r) => r.score).sort((a, b) => a - b),
+    scores: runs
+      .filter((r) => r.score != null)
+      .map((r) => r.score)
+      .sort((a, b) => a - b),
   },
   invalid: persona.filter((r) => (r.invalid_flags ?? '').trim()).length,
 };
@@ -154,7 +198,10 @@ function blockHeatmap() {
   const read = {};
   const skip = {};
   for (const r of withReport) {
-    for (const [key, bag] of [['rep_blocks_read', read], ['rep_blocks_skipped', skip]]) {
+    for (const [key, bag] of [
+      ['rep_blocks_read', read],
+      ['rep_blocks_skipped', skip],
+    ]) {
       const seen = new Set();
       for (const m of String(r[key] ?? '').matchAll(/블록\s*(\d)/g)) seen.add(m[1]);
       for (const b of seen) bag[b] = (bag[b] ?? 0) + 1;
@@ -163,7 +210,10 @@ function blockHeatmap() {
   return { read, skip, n: withReport.length };
 }
 
-if (process.argv.includes('--json')) { out(JSON.stringify(data, null, 2)); process.exit(0); }
+if (process.argv.includes('--json')) {
+  out(JSON.stringify(data, null, 2));
+  process.exit(0);
+}
 
 out(`■ 표본  페르소나 ${data.n.persona} · 리포트 평가 ${data.n.withReport} · 무효 ${data.invalid}`);
 out('');
@@ -181,7 +231,9 @@ for (const [k, v] of Object.entries(data.axes)) {
 }
 out(`   best_asset ${JSON.stringify(data.bestAsset)}`);
 out('');
-out(`■ 지불  WTP ${data.wtp.yes}/${data.wtp.total} · 금액 ${JSON.stringify(data.wtp.amounts)} · NPS ${data.wtp.nps.avg} ${JSON.stringify(data.wtp.nps.dist)}`);
+out(
+  `■ 지불  WTP ${data.wtp.yes}/${data.wtp.total} · 금액 ${JSON.stringify(data.wtp.amounts)} · NPS ${data.wtp.nps.avg} ${JSON.stringify(data.wtp.nps.dist)}`,
+);
 out('');
 out('■ 폐루프');
 for (const [k, v] of Object.entries(data.loop)) out(`   ${k.padEnd(16)} ${JSON.stringify(v)}`);
@@ -196,7 +248,9 @@ out('');
 out('■ 생성');
 for (const [k, v] of Object.entries(data.generation.byKind)) out(`   ${k.padEnd(10)} ${v.ok}/${v.total}`);
 const g = data.generation;
-out(`   리포트 소요 brandProduct ${g.reportSec.brandProduct.min}~${g.reportSec.brandProduct.max}초 (중앙 ${g.reportSec.brandProduct.med}, n=${g.reportSec.brandProduct.n}) · brand ${g.reportSec.brand.min}~${g.reportSec.brand.max}초 (n=${g.reportSec.brand.n}) · 예산 ${g.reportSec.budget}초`);
+out(
+  `   리포트 소요 brandProduct ${g.reportSec.brandProduct.min}~${g.reportSec.brandProduct.max}초 (중앙 ${g.reportSec.brandProduct.med}, n=${g.reportSec.brandProduct.n}) · brand ${g.reportSec.brand.min}~${g.reportSec.brand.max}초 (n=${g.reportSec.brand.n}) · 예산 ${g.reportSec.budget}초`,
+);
 out(`   humanizeSkipped ${g.humanizeSkipped} · 슬라이드 ${g.slides} · 모드 ${JSON.stringify(g.modes)}`);
 out(`   정밀도 제한 ${g.precisionLimited.join(',') || '없음'}`);
 out(`   종합점수 분포 ${JSON.stringify(g.scores)}`);

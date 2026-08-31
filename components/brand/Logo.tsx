@@ -84,13 +84,7 @@ function Sunrise({ uid, sun, lines }: { uid: string; sun: Sun; lines: Line[] }) 
         <rect key={y} x={x} y={y} width={width} height={height} rx={height / 2} fill={SUN_FROM} />
       ))}
       <g clipPath={`url(#${uid}-sun)`}>
-        <rect
-          x={sun.left}
-          y={sun.top}
-          width={sun.width}
-          height={sun.height}
-          fill={`url(#${uid}-grad)`}
-        />
+        <rect x={sun.left} y={sun.top} width={sun.width} height={sun.height} fill={`url(#${uid}-grad)`} />
       </g>
     </>
   );

@@ -9,7 +9,13 @@
  */
 
 import sharp from 'sharp';
-import { getStore, type AssetBlockRecord, type DetailInput, type GateResult, type GeneratedAssetRecord } from '../db/store';
+import {
+  getStore,
+  type AssetBlockRecord,
+  type DetailInput,
+  type GateResult,
+  type GeneratedAssetRecord,
+} from '../db/store';
 import { readStoredFile, saveFile } from '../files/storage';
 import { persistBlockImage, persistVisual } from '../studio/detail/persist';
 import { logger } from '../logger';
@@ -35,12 +41,7 @@ import { BlockVisualError, IMAGE_TIMEOUT_MS, generateBlockVisual } from '../stud
 import { limit } from '../studio/detail/limit';
 import { IMAGE_CONCURRENCY, outputProfile, type BlockType, type RenderKind } from '../studio/detail/output';
 import { renderBlock } from '../studio/detail/render';
-import {
-  buildRenderPlan,
-  promptContextOf,
-  renderContextOf,
-  visualHeightOf,
-} from '../studio/detail/renderContext';
+import { buildRenderPlan, promptContextOf, renderContextOf, visualHeightOf } from '../studio/detail/renderContext';
 import { toneSummary } from '../studio/detail/rhythm';
 import { analyzeSafeArea, type CopyPlacement } from '../studio/detail/safeArea';
 import { blockContent } from '../studio/detail/templates';
@@ -173,9 +174,10 @@ function detailGateResult(
   ];
 
   if (input?.promo) {
-    const note = input.promo.normalPrice.trim() && !input.promo.normalPriceVerified
-      ? '입력한 가격 문자열만 반영 — 통상가 미표기(실적 확인 없음)'
-      : '입력한 가격·특전 문자열만 반영(통상가 취소선은 실적 확인 시에만)';
+    const note =
+      input.promo.normalPrice.trim() && !input.promo.normalPriceVerified
+        ? '입력한 가격 문자열만 반영 — 통상가 미표기(실적 확인 없음)'
+        : '입력한 가격·특전 문자열만 반영(통상가 취소선은 실적 확인 시에만)';
     checks.push({ key: 'promoValues', label: '가격·특전 입력값 그대로', note });
   }
   if (input?.spec) {
@@ -440,11 +442,7 @@ export async function runDetailJob(assetId: string): Promise<void> {
             degraded = budgetDrop;
             logger.warn('이미지 예산 초과 — 텍스트 전용으로 강등', { assetId, blockType: row.blockType });
           } else if (kind !== 'text') {
-            const prompt = buildBlockPrompt(
-              blockId,
-              slots,
-              promptContextOf(rp, input, copy.isKoreanDetailInput, note),
-            );
+            const prompt = buildBlockPrompt(blockId, slots, promptContextOf(rp, input, copy.isKoreanDetailInput, note));
             promptUsed = prompt;
             // 제품이 등장하는 블록만 원본을 편집 모드로 넘긴다(라벨 보존). 목록은 팩이 소유한다
             const usesProduct = usesProductSource(blockId);
@@ -473,7 +471,8 @@ export async function runDetailJob(assetId: string): Promise<void> {
               placement = await analyzeSafeArea(gen.buf);
               logger.info('카피 배치 실측', { assetId, blockType: row.blockType, reason: placement.reason });
             } catch (err) {
-              const message = err instanceof BlockVisualError ? err.userMessage : String((err as Error)?.message ?? err);
+              const message =
+                err instanceof BlockVisualError ? err.userMessage : String((err as Error)?.message ?? err);
               // ai-visual 은 이미지가 곧 내용이라 남길 게 없다 — 여기서 던져 아래 catch 가 failed 로 기록한다.
               // hybrid 는 카피가 본체이고 모든 템플릿에 배경 없는 <Frame> 폴백이 있으므로,
               // 통째로 버리지 않고 강등해서 남긴다(버리면 서사와 각주가 함께 사라진다).
@@ -540,13 +539,15 @@ export async function runDetailJob(assetId: string): Promise<void> {
     // 렌더 결과를 근거로 다시 판정한다 — 슬롯 단계 검사만 믿으면 빠진 블록을 못 본다
     const dropped = created.filter((_, i) => rendered[i] === null).map((r) => getBlock(r.blockType).nameKo);
     const degradedNames = ok.filter((r) => r.degraded).map((r) => getBlock(r.row.blockType).nameKo);
-    const footnoteBlockMissing =
-      reg.entries.length > 0 && !ok.some((r) => r.row.blockType === 'footnote-block');
+    const footnoteBlockMissing = reg.entries.length > 0 && !ok.some((r) => r.row.blockType === 'footnote-block');
 
     // ── compose / slice ─────────────────────────────────────────────────
     await store.updateAsset(assetId, { stage: 'compose' });
     const profile = outputProfile(platform);
-    const composed = await composeDetail(ok.map((r) => ({ png: r.png, height: r.height })), profile);
+    const composed = await composeDetail(
+      ok.map((r) => ({ png: r.png, height: r.height })),
+      profile,
+    );
 
     await store.updateAsset(assetId, { stage: 'slice' });
     const masterPath = await saveFile(composed.master, 'jpg', 'detail');
@@ -560,7 +561,15 @@ export async function runDetailJob(assetId: string): Promise<void> {
       stage: null,
       imagePath: masterPath,
       slicePaths,
-      gateResult: detailGateResult(gateAsset, plan, footnote, composed.truncated, dropped, degradedNames, footnoteBlockMissing),
+      gateResult: detailGateResult(
+        gateAsset,
+        plan,
+        footnote,
+        composed.truncated,
+        dropped,
+        degradedNames,
+        footnoteBlockMissing,
+      ),
     });
 
     logger.info('상세페이지 잡 완료', {

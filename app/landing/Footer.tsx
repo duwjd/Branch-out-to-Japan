@@ -10,7 +10,8 @@ import { FOOTER } from './content';
 
 /** 앵커(#)는 같은 페이지 스크롤이라 <a>, 라우트·mailto는 각각 Link·<a>로 나눈다 */
 function FooterLink({ href, label }: { href: string; label: string }) {
-  const cls = 'text-[14px] text-lp-on-navy-muted no-underline transition-colors duration-150 ease-standard hover:text-white';
+  const cls =
+    'text-[14px] text-lp-on-navy-muted no-underline transition-colors duration-150 ease-standard hover:text-white';
   if (href.startsWith('#') || href.startsWith('mailto:')) {
     return (
       <a href={href} className={cls}>

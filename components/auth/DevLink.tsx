@@ -5,7 +5,10 @@
  */
 export function DevLink({ href, label = '(dev) 인증 링크 바로 열기' }: { href: string; label?: string }) {
   return (
-    <a href={href} className="mt-2.5 inline-block text-[12px] font-bold text-coral-strong underline-offset-2 hover:underline">
+    <a
+      href={href}
+      className="mt-2.5 inline-block text-[12px] font-bold text-coral-strong underline-offset-2 hover:underline"
+    >
       {label}
     </a>
   );

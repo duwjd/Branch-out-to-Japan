@@ -16,7 +16,15 @@
  * `deadlineAt` 이 없으면(CLI·테스트) 상한 없이 현행대로 돈다.
  */
 
-import type { BlocksJson, BrandOnlyInput, BrandProductInput, RewriteResult, RubricGroup, RubricItemId, TierInput } from './types';
+import type {
+  BlocksJson,
+  BrandOnlyInput,
+  BrandProductInput,
+  RewriteResult,
+  RubricGroup,
+  RubricItemId,
+  TierInput,
+} from './types';
 import { normalizeContent } from './rules/normalize';
 import { extractPreSignals } from './rules/presignals';
 import { aggregateScores } from './rules/aggregate';
@@ -195,15 +203,14 @@ async function runFullPipeline(tierInput: BrandProductInput, deps: PipelineDeps 
   ]);
 
   if (call2Result.status === 'rejected') {
-    throw new AuditFailedError(`약기법 감사(콜②) 실패 — 감사 없는 리포트는 발행할 수 없습니다: ${String(call2Result.reason)}`);
+    throw new AuditFailedError(
+      `약기법 감사(콜②) 실패 — 감사 없는 리포트는 발행할 수 없습니다: ${String(call2Result.reason)}`,
+    );
   }
   const audit = call2Result.value;
 
   // 콜① 실패 폴백: 전 항목 0점 + 정밀도 제한(블록5 축소) — 리포트는 계속
-  const scored =
-    call1Result.status === 'fulfilled'
-      ? call1Result.value.items
-      : [];
+  const scored = call1Result.status === 'fulfilled' ? call1Result.value.items : [];
   if (call1Result.status === 'rejected') {
     logger.warn('콜① 실패 — 블록5 축소(0점 폴백)', { reason: String(call1Result.reason) });
   }
@@ -237,7 +244,10 @@ async function runFullPipeline(tierInput: BrandProductInput, deps: PipelineDeps 
   } catch (err) {
     logger.warn('콜④ 실패 — 블록7·8 축소 폴백', { reason: String((err as Error)?.message ?? err) });
     rewrite = {
-      headline: { summary: '총평·재작성 생성에 실패했습니다. 저점 항목(블록 5)과 약기법 감사(블록 3)를 우선 확인하세요 — 재실행 시 이 블록이 채워집니다.' },
+      headline: {
+        summary:
+          '총평·재작성 생성에 실패했습니다. 저점 항목(블록 5)과 약기법 감사(블록 3)를 우선 확인하세요 — 재실행 시 이 블록이 채워집니다.',
+      },
       rewrites: [],
       sample: { targetSection: '', afterJaBlock: '', afterKrBlock: '', isDemo: false },
       benchmarkNarrative: '',

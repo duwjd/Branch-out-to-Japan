@@ -53,7 +53,9 @@ export default async function AccountPage() {
               </div>
               <p className="mt-[3px] text-[12.5px] text-ink-mute">{session.user.email}</p>
             </div>
-            <span className="tnum flex-none text-xs text-ink-faint">{session.user.joinedAt.replace(/-/g, '.')} 가입</span>
+            <span className="tnum flex-none text-xs text-ink-faint">
+              {session.user.joinedAt.replace(/-/g, '.')} 가입
+            </span>
           </div>
         </section>
 
@@ -224,7 +226,11 @@ export default async function AccountPage() {
             <LogoutButton />
             {/* 이메일 계정만 비밀번호 변경 노출 — 소셜 계정은 각 사에서 관리 */}
             {session.provider === 'email' && <PasswordChange email={session.user.email} />}
-            <WithdrawButton reportCount={reportCount} thumbnailCount={thumbnailCount} brandName={profile?.brandName ?? null} />
+            <WithdrawButton
+              reportCount={reportCount}
+              thumbnailCount={thumbnailCount}
+              brandName={profile?.brandName ?? null}
+            />
           </div>
         </section>
       </div>

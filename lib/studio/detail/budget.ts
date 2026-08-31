@@ -79,7 +79,8 @@ export function fitImageBudget(
   const keep = ordered.slice(0, keepCount);
   const drop = ordered.slice(keepCount).map((c) => ({
     blockId: c.blockId,
-    reason: '남은 생성 시간이 부족해 이 블록은 배경컷 없이 만들었습니다. 결과 화면에서 이 블록만 다시 만들 수 있습니다.',
+    reason:
+      '남은 생성 시간이 부족해 이 블록은 배경컷 없이 만들었습니다. 결과 화면에서 이 블록만 다시 만들 수 있습니다.',
   }));
 
   // 1콜 상한을 남은 시간에 맞춰 줄인다 — 한 콜이 매달려 예산을 통째로 먹지 않게.

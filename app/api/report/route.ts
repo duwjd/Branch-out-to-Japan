@@ -32,14 +32,17 @@ const PRODUCT_CLASSES: ProductClass[] = ['화장품', '의약외품', '미상'];
  * 브랜드 섹션 3종은 필수(400), 제품 섹션은 절삭 정규화만(에러 없음 — 선택 입력에 에러를 내지 않는다).
  * mode는 여기서 한 번 판정해 물질화한다(§3.3) — 콘텐츠가 있으면 brandProduct, 없으면 brand.
  */
-function parseTierInput(body: Record<string, unknown>, sourceImages: string[]): { input: TierInput } | { error: string } {
+function parseTierInput(
+  body: Record<string, unknown>,
+  sourceImages: string[],
+): { input: TierInput } | { error: string } {
   // ── 브랜드 섹션 (필수)
   const brandName = typeof body.brandName === 'string' ? body.brandName.trim().slice(0, 60) : '';
   if (!brandName) return { error: '브랜드명을 입력해 주세요.' };
 
-  const rawPositioning = (typeof body.positioning === 'object' && body.positioning !== null
-    ? body.positioning
-    : {}) as Record<string, unknown>;
+  const rawPositioning = (
+    typeof body.positioning === 'object' && body.positioning !== null ? body.positioning : {}
+  ) as Record<string, unknown>;
   const tags = Array.isArray(rawPositioning.tags)
     ? rawPositioning.tags
         .filter((t): t is string => typeof t === 'string' && isKnownPositioningTag(t))
@@ -52,9 +55,14 @@ function parseTierInput(body: Record<string, unknown>, sourceImages: string[]): 
   if (!CATEGORIES.includes(category)) return { error: '카테고리를 선택해 주세요.' };
 
   // ── 제품 섹션 (선택 — 절삭 정규화만)
-  const keyIngredients = typeof body.keyIngredients === 'string'
-    ? body.keyIngredients.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 8)
-    : [];
+  const keyIngredients =
+    typeof body.keyIngredients === 'string'
+      ? body.keyIngredients
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .slice(0, 8)
+      : [];
   const priceJpy = Number(body.priceJpy);
   const base = {
     brandName,
@@ -149,10 +157,13 @@ export async function POST(request: Request): Promise<NextResponse> {
     const files = form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
     if (files.length > 10) return NextResponse.json({ error: '최대 10장까지 올릴 수 있어요.' }, { status: 400 });
     for (const f of files) {
-      if (!IMAGE_MIMES.includes(f.type)) return NextResponse.json({ error: 'JPG·PNG·WebP 파일만 올릴 수 있어요.' }, { status: 400 });
-      if (f.size > MAX_IMAGE_BYTES) return NextResponse.json({ error: '장당 10MB 이하로 올려 주세요.' }, { status: 400 });
+      if (!IMAGE_MIMES.includes(f.type))
+        return NextResponse.json({ error: 'JPG·PNG·WebP 파일만 올릴 수 있어요.' }, { status: 400 });
+      if (f.size > MAX_IMAGE_BYTES)
+        return NextResponse.json({ error: '장당 10MB 이하로 올려 주세요.' }, { status: 400 });
       const ext = extForMime(f.type);
-      if (!ext || ext === 'pdf') return NextResponse.json({ error: '지원하지 않는 이미지 형식입니다.' }, { status: 400 });
+      if (!ext || ext === 'pdf')
+        return NextResponse.json({ error: '지원하지 않는 이미지 형식입니다.' }, { status: 400 });
       sourceImages.push(await saveFile(Buffer.from(await f.arrayBuffer()), ext, 'orig'));
     }
   }

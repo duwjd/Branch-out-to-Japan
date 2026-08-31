@@ -4,7 +4,13 @@
  * 검수 게이트 v1 = 구조적 보증 기록 — 비전 자동검수 없음, 라이브러리는 done만 조회한다.
  */
 
-import { getStore, type GateResult, type GeneratedAssetRecord, type PromoInput, type ThumbnailProof } from '../db/store';
+import {
+  getStore,
+  type GateResult,
+  type GeneratedAssetRecord,
+  type PromoInput,
+  type ThumbnailProof,
+} from '../db/store';
 import { readStoredFile, saveFile } from '../files/storage';
 import { runStudioCopy } from '../studio/copyCall';
 import { generateThumbnail } from '../studio/imageGen';
@@ -64,12 +70,22 @@ export async function createThumbnailAsset(input: ThumbnailJobInput): Promise<Ge
 function structuralGateResult(asset: GeneratedAssetRecord): GateResult {
   const hasProof = asset.proof !== null;
   const checks = [
-    { key: 'labelPreserved', label: '제품 라벨 보존', note: '원본 이미지 편집 모드(input_fidelity high)로 생성 — 제품 변형 금지 제약 포함' },
-    { key: 'noTypos', label: '오탈자 없음', note: '오버레이 텍스트는 검수 통과 슬롯 원문만 자단위 렌더하도록 프롬프트 강제' },
+    {
+      key: 'labelPreserved',
+      label: '제품 라벨 보존',
+      note: '원본 이미지 편집 모드(input_fidelity high)로 생성 — 제품 변형 금지 제약 포함',
+    },
+    {
+      key: 'noTypos',
+      label: '오탈자 없음',
+      note: '오버레이 텍스트는 검수 통과 슬롯 원문만 자단위 렌더하도록 프롬프트 강제',
+    },
     {
       key: 'noUnprovenBadges',
       label: '무단 배지 없음',
-      note: hasProof ? '입력된 실적 근거만 배지로 조립(코드 게이트)' : '실적 미입력 — 배지 문단을 프롬프트에서 제거(기본값 = 배지 없음)',
+      note: hasProof
+        ? '입력된 실적 근거만 배지로 조립(코드 게이트)'
+        : '실적 미입력 — 배지 문단을 프롬프트에서 제거(기본값 = 배지 없음)',
     },
   ];
   // 조건부 항목(RESULT-01b) — 해당 템플릿에서만 출력

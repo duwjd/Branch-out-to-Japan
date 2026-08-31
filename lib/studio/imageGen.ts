@@ -52,7 +52,9 @@ export interface GenerateThumbnailOptions {
  * 일본향 썸네일 1장 생성 — 원본을 유지하며 편집(input_fidelity high, 제품 라벨 보존의 핵심).
  * 목 모드는 프로토타입 실측 샘플 PNG를 반환한다(생성중 화면 확인용 지연 포함).
  */
-export async function generateThumbnail(opts: GenerateThumbnailOptions): Promise<{ buf: Buffer; model: string; mode: ImageMode }> {
+export async function generateThumbnail(
+  opts: GenerateThumbnailOptions,
+): Promise<{ buf: Buffer; model: string; mode: ImageMode }> {
   const mode = currentImageMode();
 
   if (mode === 'mock') {
@@ -72,7 +74,9 @@ export async function generateThumbnail(opts: GenerateThumbnailOptions): Promise
   let image: Awaited<ReturnType<typeof toFile>> | Awaited<ReturnType<typeof toFile>>[] = productFile;
   if (opts.model) {
     const modelType = opts.modelMediaType ?? 'image/png';
-    const modelFile = await toFile(opts.model, `model.${modelType === 'image/png' ? 'png' : 'jpg'}`, { type: modelType });
+    const modelFile = await toFile(opts.model, `model.${modelType === 'image/png' ? 'png' : 'jpg'}`, {
+      type: modelType,
+    });
     image = [productFile, modelFile];
   }
 

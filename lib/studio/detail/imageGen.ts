@@ -56,12 +56,12 @@ function getClient(): OpenAI {
 
 /** 배경컷 생성 실패 사유 — 사용자가 취할 조치가 서로 다르므로 나눈다. */
 export type ImageFailureKind =
-  | 'moderation'   // 안전 필터 — 프롬프트를 바꿔야 한다
-  | 'rate-limit'   // 429 — 잠시 후 재시도
-  | 'quota'        // 크레딧·결제 — 운영자 조치
-  | 'auth'         // 키 문제 — 운영자 조치
-  | 'timeout'      // 응답 지연
-  | 'transient'    // 5xx·네트워크
+  | 'moderation' // 안전 필터 — 프롬프트를 바꿔야 한다
+  | 'rate-limit' // 429 — 잠시 후 재시도
+  | 'quota' // 크레딧·결제 — 운영자 조치
+  | 'auth' // 키 문제 — 운영자 조치
+  | 'timeout' // 응답 지연
+  | 'transient' // 5xx·네트워크
   | 'unknown';
 
 /**
@@ -212,7 +212,9 @@ export async function generateBlockVisual(opts: GenerateBlockVisualOptions): Pro
   const useEdit = Boolean(opts.source);
   if (opts.source) {
     const mediaType = opts.sourceMediaType ?? 'image/png';
-    params.image = await toFile(opts.source, `source.${mediaType === 'image/png' ? 'png' : 'jpg'}`, { type: mediaType });
+    params.image = await toFile(opts.source, `source.${mediaType === 'image/png' ? 'png' : 'jpg'}`, {
+      type: mediaType,
+    });
     // 라벨·로고 보존 파라미터 — 썸네일 경로와 같은 가드를 공유한다. 기본 모델(gpt-image-2)은
     // 항상 고정밀이라 붙이지 않지만, OPENAI_IMAGE_MODEL 을 바꾸면 상세만 보존을 잃던 구멍이었다.
     if (!noInputFidelityModels.has(model)) params.input_fidelity = 'high';
@@ -224,7 +226,10 @@ export async function generateBlockVisual(opts: GenerateBlockVisualOptions): Pro
   const call = async (): Promise<OpenAI.ImagesResponse> =>
     (useEdit
       ? await getClient().images.edit(params as unknown as OpenAI.Images.ImageEditParams, reqOpts)
-      : await getClient().images.generate(params as unknown as OpenAI.Images.ImageGenerateParams, reqOpts)) as OpenAI.ImagesResponse;
+      : await getClient().images.generate(
+          params as unknown as OpenAI.Images.ImageGenerateParams,
+          reqOpts,
+        )) as OpenAI.ImagesResponse;
 
   const label = opts.blockNameKo ?? opts.blockType;
   let res: OpenAI.ImagesResponse;

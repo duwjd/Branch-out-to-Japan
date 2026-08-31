@@ -40,7 +40,13 @@ function fullInput(over: Partial<DetailInput> = {}): DetailInput {
     productCategory: 'skincare',
     sourceImagePaths: [],
     disabledBlocks: [],
-    spec: { volume: '30mL', category: '化粧品', manufacturer: '株式会社YOAKE', origin: '韓国', fullIngredients: '水、BG、グリセリン' },
+    spec: {
+      volume: '30mL',
+      category: '化粧品',
+      manufacturer: '株式会社YOAKE',
+      origin: '韓国',
+      fullIngredients: '水、BG、グリセリン',
+    },
     ingredients: [{ name: 'グリシルグリシン', percent: '6%', purpose: '整肌成分' }],
     freeOf: ['合成香料', '鉱物油'],
     specs: [{ label: 'SPF', value: '50+' }],
@@ -49,11 +55,23 @@ function fullInput(over: Partial<DetailInput> = {}): DetailInput {
     cautions: ['お肌に異常が生じないかよく注意してご使用ください。'],
     proof: { rankTitle: '楽天ランキング1位', genre: '美容液', aggregationDate: '2026/7/14更新' },
     sales: { count: '163,991個', period: '2022.5/19-2026.4/29' },
-    test: { name: '効能評価試験済み', condition: '連用試験', institution: '第三者機関', date: '2026.04.15', sampleSize: '21名' },
+    test: {
+      name: '効能評価試験済み',
+      condition: '連用試験',
+      institution: '第三者機関',
+      date: '2026.04.15',
+      sampleSize: '21名',
+    },
     reviews: [{ text: '使い心地がよかったです。', rating: '5', age: '30代' }],
     promo: {
-      setTitle: '2個セット', salePrice: '1,920', normalPrice: '2,610',
-      normalPriceVerified: true, discountRate: '26', gift: '', qualifierChips: [], footnote: '',
+      setTitle: '2個セット',
+      salePrice: '1,920',
+      normalPrice: '2,610',
+      normalPriceVerified: true,
+      discountRate: '26',
+      gift: '',
+      qualifierChips: [],
+      footnote: '',
     },
     modelConsent: false,
     ...over,
@@ -154,7 +172,12 @@ test('planBlocks — 옵션 개수에 따라 색상 블록이 단계적으로 �
 
 test('planBlocks — 비색상 옵션 2개 이상이면 라인업 비교가 붙는다', () => {
   const r = planBlocks(
-    fullInput({ options: [{ axis: 'size', name: '175mL' }, { axis: 'size', name: '450mL' }] }),
+    fullInput({
+      options: [
+        { axis: 'size', name: '175mL' },
+        { axis: 'size', name: '450mL' },
+      ],
+    }),
     'rakuten-official',
   );
   assert.ok(idsOf(r).includes('lineup-compare-chart'));
@@ -230,10 +253,7 @@ test('제품 노출 정책 — AI 블록은 전부 source·none 중 하나를 �
   const aiBlocks = getDetailPack().blockCatalog.filter((b) => b.renderKind !== 'text');
   assert.ok(aiBlocks.length > 0, 'AI 블록이 하나도 없음');
   for (const b of aiBlocks) {
-    assert.ok(
-      b.productPresence === 'source' || b.productPresence === 'none',
-      `${b.id}: productPresence 미지정`,
-    );
+    assert.ok(b.productPresence === 'source' || b.productPresence === 'none', `${b.id}: productPresence 미지정`);
   }
 });
 
@@ -278,7 +298,12 @@ test('슬롯 설명 — 번호 배지는 코드 소유임을 팩이 명시한다
 
 const ALL_TEMPLATES: TemplateId[] = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6'];
 const ALL_CATEGORIES: DetailInput['productCategory'][] = [
-  'skincare', 'suncare', 'makeup', 'cleansing', 'haircare', 'etc',
+  'skincare',
+  'suncare',
+  'makeup',
+  'cleansing',
+  'haircare',
+  'etc',
 ];
 
 /** 그 샷타입을 만드는 블록이 **배경컷을 받은 채로**(text 강등이 아니라) 들어갔는가. */
@@ -375,14 +400,25 @@ test('AI 예산 — 결정성: 같은 입력이면 같은 시퀀스와 같은 �
   const a = mk();
   const b = mk();
   assert.deepEqual(idsOf(a), idsOf(b));
-  assert.deepEqual(a.blocks.map((x) => x.renderKind), b.blocks.map((x) => x.renderKind));
+  assert.deepEqual(
+    a.blocks.map((x) => x.renderKind),
+    b.blocks.map((x) => x.renderKind),
+  );
 });
 
 // ── 연출 문법 · 드라마 친화도 ─────────────────────────────────────────
 
 test('shotGrammar — 같은 컷이라도 카테고리마다 연출이 갈린다', () => {
-  const skin = buildBlockPrompt('texture-shot', { textureDescription: 'x' }, { ...promptCtx(false), category: 'skincare' });
-  const sun = buildBlockPrompt('texture-shot', { textureDescription: 'x' }, { ...promptCtx(false), category: 'suncare' });
+  const skin = buildBlockPrompt(
+    'texture-shot',
+    { textureDescription: 'x' },
+    { ...promptCtx(false), category: 'skincare' },
+  );
+  const sun = buildBlockPrompt(
+    'texture-shot',
+    { textureDescription: 'x' },
+    { ...promptCtx(false), category: 'suncare' },
+  );
   assert.notEqual(skin, sun, '카테고리가 달라도 제형컷 지시가 같다');
   assert.match(sun, /white cast|sunlight/i, '선케어 제형컷에 백탁·직사광 문법이 없다');
 });

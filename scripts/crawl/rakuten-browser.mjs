@@ -161,7 +161,11 @@ async function main() {
 
   const collectedAt = new Date().toISOString().slice(0, 10);
   const seenIds = await loadExistingIds();
-  logger.info('시작(브라우저)', { perCategory: args.perCategory, downloadImages: args.downloadImages, existing: seenIds.size });
+  logger.info('시작(브라우저)', {
+    perCategory: args.perCategory,
+    downloadImages: args.downloadImages,
+    existing: seenIds.size,
+  });
 
   const targets = args.only ? CATEGORIES.filter((c) => c.category === args.only) : CATEGORIES;
   if (targets.length === 0) {
@@ -194,7 +198,11 @@ async function main() {
     await browser.close();
   }
 
-  logger.info('완료', { newRecords: totalNew, imagesDownloaded: totalImages, catalog: path.relative(REPO_ROOT, CATALOG_PATH) });
+  logger.info('완료', {
+    newRecords: totalNew,
+    imagesDownloaded: totalImages,
+    catalog: path.relative(REPO_ROOT, CATALOG_PATH),
+  });
 }
 
 main().catch((err) => {

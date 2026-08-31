@@ -50,7 +50,11 @@ async function loadPool() {
   for (const l of text.split('\n')) {
     if (!l.trim()) continue;
     let r;
-    try { r = JSON.parse(l); } catch { continue; }
+    try {
+      r = JSON.parse(l);
+    } catch {
+      continue;
+    }
     if (r.source !== 'qoo10' || r.type !== 'thumbnail') continue;
     // 랭킹 페이지 URL이 그대로 박힌 레코드는 상세 진입이 불가하므로 제외
     if (!r.sourceUrl || !/\/item\//.test(r.sourceUrl)) continue;
@@ -75,7 +79,8 @@ async function pickBySeed(seedPath, pool) {
   const missing = [];
   for (const id of wanted) {
     const r = byId.get(id);
-    if (r) picks.push(r); else missing.push(id);
+    if (r) picks.push(r);
+    else missing.push(id);
   }
   if (missing.length) logger.warn('시드 id 카탈로그에 없음', { count: missing.length, sample: missing.slice(0, 5) });
   return picks;
@@ -88,7 +93,8 @@ async function pickBySeed(seedPath, pool) {
 async function extractDetailImages(page) {
   const inFrame = (frame) =>
     frame.evaluate(() => {
-      const SELECTORS = '#div_goods_detail, .goods_detail, #goods_detail, [class*="detail_content"], #detail_page, .item_detail';
+      const SELECTORS =
+        '#div_goods_detail, .goods_detail, #goods_detail, [class*="detail_content"], #detail_page, .item_detail';
       const seen = new Map();
       const containers = document.querySelectorAll(SELECTORS);
       const scope = containers.length ? containers : [];
@@ -118,7 +124,9 @@ async function extractDetailImages(page) {
     try {
       const rows = await inFrame(frame);
       if (rows.length > 0) return rows;
-    } catch { /* 크로스오리진 프레임 무시 */ }
+    } catch {
+      /* 크로스오리진 프레임 무시 */
+    }
   }
   return [];
 }
@@ -188,7 +196,9 @@ async function hydrateLazyImages(page) {
           if (real && img.src !== real) img.src = real;
         }
       });
-    } catch { /* 크로스오리진 프레임 무시 */ }
+    } catch {
+      /* 크로스오리진 프레임 무시 */
+    }
   }
   // 교체한 src 들이 디코딩될 때까지 대기(완료 못한 것은 크기 필터가 걸러낸다)
   await page.waitForTimeout(2500);
@@ -247,38 +257,47 @@ async function main() {
         continue;
       }
 
-      let variation = { optionLabels: [], optionCount: 0, optionAxis: null, hasPromo: false, hasDoublePrice: false, priceRaw: '' };
+      let variation = {
+        optionLabels: [],
+        optionCount: 0,
+        optionAxis: null,
+        hasPromo: false,
+        hasDoublePrice: false,
+        priceRaw: '',
+      };
       try {
         variation = await extractVariationMeta(page);
       } catch (err) {
         logger.warn('옵션·가격 메타 추출 실패', { id: prod.id, reason: String(err.message ?? err) });
       }
 
-      const records = imgs.map((img, n) => ({
-        id: `${prod.id}_d${n + 1}`,
-        source: 'qoo10',
-        type: 'detail',
-        parentId: prod.id,
-        productName: prod.productName,
-        category: prod.category,
-        sourceUrl: prod.sourceUrl,
-        imageUrl: img.src,
-        localPath: `raw/product-detail/qoo10/${prod.id}/${n + 1}.jpg`,
-        sequenceIndex: n + 1,
-        isMallBanner: img.isMallBanner,
-        naturalWidth: img.w,
-        naturalHeight: img.h,
-        optionCount: variation.optionCount,
-        optionAxis: variation.optionAxis,
-        optionLabels: variation.optionLabels,
-        hasPromo: variation.hasPromo,
-        hasDoublePrice: variation.hasDoublePrice,
-        priceRaw: variation.priceRaw,
-        collectedAt,
-        license: '브랜드/셀러 저작물 — 내부 분석용',
-        via: 'browser',
-        schemaVersion: 2,
-      })).filter((r) => !seenIds.has(r.id));
+      const records = imgs
+        .map((img, n) => ({
+          id: `${prod.id}_d${n + 1}`,
+          source: 'qoo10',
+          type: 'detail',
+          parentId: prod.id,
+          productName: prod.productName,
+          category: prod.category,
+          sourceUrl: prod.sourceUrl,
+          imageUrl: img.src,
+          localPath: `raw/product-detail/qoo10/${prod.id}/${n + 1}.jpg`,
+          sequenceIndex: n + 1,
+          isMallBanner: img.isMallBanner,
+          naturalWidth: img.w,
+          naturalHeight: img.h,
+          optionCount: variation.optionCount,
+          optionAxis: variation.optionAxis,
+          optionLabels: variation.optionLabels,
+          hasPromo: variation.hasPromo,
+          hasDoublePrice: variation.hasDoublePrice,
+          priceRaw: variation.priceRaw,
+          collectedAt,
+          license: '브랜드/셀러 저작물 — 내부 분석용',
+          via: 'browser',
+          schemaVersion: 2,
+        }))
+        .filter((r) => !seenIds.has(r.id));
 
       records.forEach((r) => seenIds.add(r.id));
       await appendRecords(records);
@@ -299,7 +318,11 @@ async function main() {
     await browser.close();
   }
 
-  logger.info('완료', { products: processed, detailImages: totalDetailImgs, catalog: path.relative(REPO_ROOT, CATALOG_PATH) });
+  logger.info('완료', {
+    products: processed,
+    detailImages: totalDetailImgs,
+    catalog: path.relative(REPO_ROOT, CATALOG_PATH),
+  });
 }
 
 main().catch((err) => {

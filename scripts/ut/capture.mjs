@@ -51,7 +51,8 @@ function preflightFixture(fx, productImage) {
   if (t.styleId === 'F') bad.push('styleId F 는 모델컷·동의가 필요해 이번 UT 범위 밖이다');
   if (t.styleId === 'G' && !t.promo) bad.push('styleId G 인데 프로모션 입력이 없다');
   const d = fx.detail ?? {};
-  for (const k of ['specVolume', 'specCategory', 'specManufacturer']) if (!d[k]) bad.push(`${k} 공란 — 표시 의무 3항은 서버 400`);
+  for (const k of ['specVolume', 'specCategory', 'specManufacturer'])
+    if (!d[k]) bad.push(`${k} 공란 — 표시 의무 3항은 서버 400`);
   if (d.platform === 'amazon-jp' && d.promo) bad.push('아마존JP + 프로모션 = 규정상 400');
   const content = fx.report?.detailContent ?? '';
   const chars = content.replace(/\s/g, '').length;
@@ -62,8 +63,11 @@ function preflightFixture(fx, productImage) {
 async function main() {
   const personaId = arg('persona');
   if (!personaId) throw new Error('--persona P01 이 필요합니다.');
-  const base = (arg('base', process.env.UT_BASE_URL ?? DEFAULT_BASE)).replace(/\/$/, '');
-  const tasks = (arg('tasks', DEFAULT_TASKS.join(','))).split(',').map((s) => s.trim()).filter(Boolean);
+  const base = arg('base', process.env.UT_BASE_URL ?? DEFAULT_BASE).replace(/\/$/, '');
+  const tasks = arg('tasks', DEFAULT_TASKS.join(','))
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   const unknown = tasks.filter((t) => !TASKS[t]);
   if (unknown.length) throw new Error(`알 수 없는 과업: ${unknown.join(',')}`);
   const force = flag('force');
@@ -75,7 +79,9 @@ async function main() {
   if (!acc) throw new Error(`.ut/accounts.json 에 ${personaId} 가 없습니다.`);
   const account = { email: acc.email, password: acc.password ?? registry.password };
 
-  const fixtures = JSON.parse(readFileSync(path.join(ROOT, arg('fixtures', 'docs/research/ut-agent/fixtures/personas-input.json')), 'utf8'));
+  const fixtures = JSON.parse(
+    readFileSync(path.join(ROOT, arg('fixtures', 'docs/research/ut-agent/fixtures/personas-input.json')), 'utf8'),
+  );
   const fixture = fixtures.personas.find((p) => p.personaId === personaId);
   if (!fixture) throw new Error(`personas-input.json 에 ${personaId} 가 없습니다.`);
   const productImage = path.join(ROOT, fixture.productImage);
@@ -91,8 +97,18 @@ async function main() {
   ensureRunDirs(paths);
   if (existsSync(paths.lock)) {
     const held = JSON.parse(readFileSync(paths.lock, 'utf8'));
-    const alive = (() => { try { process.kill(held.pid, 0); return true; } catch { return false; } })();
-    if (alive) throw new Error(`${personaId} 이미 실행 중(pid ${held.pid}) — 같은 폴더를 두 프로세스가 쓰면 manifest 가 깨집니다.`);
+    const alive = (() => {
+      try {
+        process.kill(held.pid, 0);
+        return true;
+      } catch {
+        return false;
+      }
+    })();
+    if (alive)
+      throw new Error(
+        `${personaId} 이미 실행 중(pid ${held.pid}) — 같은 폴더를 두 프로세스가 쓰면 manifest 가 깨집니다.`,
+      );
   }
   writeFileSync(paths.lock, `${JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString(), tasks })}\n`);
 
@@ -104,8 +120,12 @@ async function main() {
   });
   const runStarted = Date.now();
   const run = beginRun(manifest, {
-    tasks, baseUrl: base, peers: Number(arg('peers', 1)),
-    startedAt: new Date().toISOString(), skipped: [], sessionSource: null,
+    tasks,
+    baseUrl: base,
+    peers: Number(arg('peers', 1)),
+    startedAt: new Date().toISOString(),
+    skipped: [],
+    sessionSource: null,
   });
 
   log(`▶ ${personaId} · ${fixture.brand.brandName} · ${account.email}`);
@@ -113,14 +133,33 @@ async function main() {
 
   const browser = await chromium.launch({ headless: !flag('headed'), slowMo: Number(arg('slowmo', 0)) });
   const ctx = {
-    base, account, fixture, productImage, paths, manifest, navTimeout,
+    base,
+    account,
+    fixture,
+    productImage,
+    paths,
+    manifest,
+    navTimeout,
     // 드라이버가 생성 도중 죽었을 때 이미 돌고 있는 잡에 다시 붙는다(중복 생성·중복 과금 방지)
     attach: { report: arg('attach-report'), thumbnail: arg('attach-thumbnail'), detail: arg('attach-detail') },
-    planPayload: null, page: null, context: null,
-    consoleErrors: [], failedRequests: [],
-    drainConsole() { const v = this.consoleErrors; this.consoleErrors = []; return v; },
-    drainFailed() { const v = this.failedRequests; this.failedRequests = []; return v; },
-    async saveState() { await this.context.storageState({ path: paths.state }); },
+    planPayload: null,
+    page: null,
+    context: null,
+    consoleErrors: [],
+    failedRequests: [],
+    drainConsole() {
+      const v = this.consoleErrors;
+      this.consoleErrors = [];
+      return v;
+    },
+    drainFailed() {
+      const v = this.failedRequests;
+      this.failedRequests = [];
+      return v;
+    },
+    async saveState() {
+      await this.context.storageState({ path: paths.state });
+    },
     async goto(url, { first = false } = {}) {
       const target = url.startsWith('http') ? url : `${base}${url}`;
       await this.page.goto(target, { waitUntil: 'domcontentloaded', timeout: first ? firstNavTimeout : navTimeout });
@@ -145,8 +184,12 @@ async function main() {
     const page = await context.newPage();
     page.setDefaultTimeout(25_000);
     page.setDefaultNavigationTimeout(navTimeout);
-    page.on('console', (m) => { if (m.type() === 'error') ctx.consoleErrors.push(m.text().slice(0, 400)); });
-    page.on('requestfailed', (r) => ctx.failedRequests.push(`${r.method()} ${r.url().slice(0, 200)} — ${r.failure()?.errorText ?? ''}`));
+    page.on('console', (m) => {
+      if (m.type() === 'error') ctx.consoleErrors.push(m.text().slice(0, 400));
+    });
+    page.on('requestfailed', (r) =>
+      ctx.failedRequests.push(`${r.method()} ${r.url().slice(0, 200)} — ${r.failure()?.errorText ?? ''}`),
+    );
     page.on('response', async (r) => {
       if (r.url().includes('/api/studio/detail/plan') && r.ok()) ctx.planPayload = await r.json().catch(() => null);
       // 폼 경로(/app/report/new)가 URL 정규식에 걸려 id 를 "new" 로 읽는 사고가 있었다 —
@@ -160,7 +203,8 @@ async function main() {
       if (r.request().method() === 'POST' && /\/api\/studio\/detail\/?$/.test(new URL(r.url()).pathname) && r.ok()) {
         ctx.submittedDetailId = (await r.json().catch(() => null))?.id ?? null;
       }
-      if (r.status() >= 500) ctx.failedRequests.push(`${r.request().method()} ${r.url().slice(0, 200)} — HTTP ${r.status()}`);
+      if (r.status() >= 500)
+        ctx.failedRequests.push(`${r.request().method()} ${r.url().slice(0, 200)} — HTTP ${r.status()}`);
     });
     return { context, page };
   }
@@ -168,10 +212,16 @@ async function main() {
   /** 세션 확보 — storageState 복원 → 살아 있는지 확인 → 죽었으면 조용히 재로그인 */
   async function ensureSession() {
     const res = await ctx.page.request.get(`${base}/api/brand`, { timeout: 60_000 }).catch(() => null);
-    if (res?.ok()) { run.sessionSource = run.sessionSource ?? 'restored'; return true; }
+    if (res?.ok()) {
+      run.sessionSource = run.sessionSource ?? 'restored';
+      return true;
+    }
     const r = await TASKS.T1.run(ctx);
     run.sessionSource = 'relogin';
-    if (r.outcome === '실패') { warn(`  ✖ 재로그인 실패: ${r.error}`); return false; }
+    if (r.outcome === '실패') {
+      warn(`  ✖ 재로그인 실패: ${r.error}`);
+      return false;
+    }
     return true;
   }
 
@@ -189,43 +239,62 @@ async function main() {
       const needsFresh = !def.needsSession && task === 'T0';
       if (needsFresh) {
         const c = await makeContext({ withSession: false });
-        ctx.context = c.context; ctx.page = c.page;
+        ctx.context = c.context;
+        ctx.page = c.page;
       } else if (!sessionCtx) {
         sessionCtx = await makeContext({ withSession: true });
-        ctx.context = sessionCtx.context; ctx.page = sessionCtx.page;
+        ctx.context = sessionCtx.context;
+        ctx.page = sessionCtx.page;
         if (def.needsSession && !(await ensureSession())) {
           mergeTask(manifest, task, { steps: [], outcome: '실패' });
           saveManifest(paths, manifest);
           break;
         }
       } else {
-        ctx.context = sessionCtx.context; ctx.page = sessionCtx.page;
+        ctx.context = sessionCtx.context;
+        ctx.page = sessionCtx.page;
         if (def.needsSession && !(await ensureSession())) break;
       }
 
       const t0 = Date.now();
       const result = await Promise.race([
         def.run(ctx).catch((err) => ({ steps: [], outcome: '실패', error: String(err?.message ?? err) })),
-        new Promise((r) => setTimeout(() => r({ steps: [], outcome: '실패', error: `과업 예산 ${def.budgetMs}ms 초과` }), def.budgetMs)),
+        new Promise((r) =>
+          setTimeout(() => r({ steps: [], outcome: '실패', error: `과업 예산 ${def.budgetMs}ms 초과` }), def.budgetMs),
+        ),
       ]);
       mergeTask(manifest, task, result);
       if (result.error) manifest.outcome[`${task}_error`] = result.error;
       saveManifest(paths, manifest);
-      log(`  ${result.outcome === '완료' ? '✔' : result.outcome === '부분완료' ? '△' : '✘'} ${task} ${result.outcome} (${Math.round((Date.now() - t0) / 1000)}초)${result.error ? ` — ${result.error}` : ''}`);
+      log(
+        `  ${result.outcome === '완료' ? '✔' : result.outcome === '부분완료' ? '△' : '✘'} ${task} ${result.outcome} (${Math.round((Date.now() - t0) / 1000)}초)${result.error ? ` — ${result.error}` : ''}`,
+      );
 
-      if (needsFresh) { await ctx.context.close(); ctx.context = null; ctx.page = null; }
-      else if (def.needsSession) await ctx.saveState();
+      if (needsFresh) {
+        await ctx.context.close();
+        ctx.context = null;
+        ctx.page = null;
+      } else if (def.needsSession) await ctx.saveState();
     }
 
     // env 메타 — 실행 모드가 목이면 산출물 평가가 통째로 무효라 반드시 남긴다
     if (sessionCtx) {
       ctx.page = sessionCtx.page;
-      const meta = await ctx.page.request.get(`${base}/api/studio/detail`, { timeout: 60_000 }).then((r) => r.json()).catch(() => null);
+      const meta = await ctx.page.request
+        .get(`${base}/api/studio/detail`, { timeout: 60_000 })
+        .then((r) => r.json())
+        .catch(() => null);
       if (meta) {
         manifest.env = {
-          baseUrl: base, llmMode: meta.llmMode, imageMode: meta.imageMode, imageModel: meta.imageModel,
-          imageQuality: arg('image-quality', 'medium'), imageQualitySource: 'cli 기본값(앱 미노출)',
-          store: meta.storeKind, detailReady: meta.readiness?.ready ?? null, capturedAt: new Date().toISOString(),
+          baseUrl: base,
+          llmMode: meta.llmMode,
+          imageMode: meta.imageMode,
+          imageModel: meta.imageModel,
+          imageQuality: arg('image-quality', 'medium'),
+          imageQualitySource: 'cli 기본값(앱 미노출)',
+          store: meta.storeKind,
+          detailReady: meta.readiness?.ready ?? null,
+          capturedAt: new Date().toISOString(),
         };
         if (meta.llmMode === 'mock' || meta.imageMode === 'mock') {
           manifest.env.invalidatesOutputEvaluation = true;
@@ -243,11 +312,21 @@ async function main() {
   log('');
   log(`  결과: ${ALL_TASKS.map((t) => `${t}=${manifest.outcome[t] ?? '-'}`).join(' ')}`);
   const g = manifest.generations;
-  log(`  생성: report=${g.report?.status ?? '-'} thumbnail=${g.thumbnail?.status ?? '-'} detail=${g.detail?.status ?? '-'}`);
-  log(`  이미지: ${manifest.imageCost.calls ?? '계기없음'}콜 · ${manifest.imageCost.usd != null ? `$${manifest.imageCost.usd}` : 'usd 없음'}`);
+  log(
+    `  생성: report=${g.report?.status ?? '-'} thumbnail=${g.thumbnail?.status ?? '-'} detail=${g.detail?.status ?? '-'}`,
+  );
+  log(
+    `  이미지: ${manifest.imageCost.calls ?? '계기없음'}콜 · ${manifest.imageCost.usd != null ? `$${manifest.imageCost.usd}` : 'usd 없음'}`,
+  );
   const failed = tasks.filter((t) => manifest.outcome[t] === '실패');
   process.exit(failed.length ? 1 : 0);
 }
 
-process.on('unhandledRejection', (e) => { warn(`\n✖ unhandledRejection: ${e}`); process.exit(1); });
-main().catch((err) => { warn(`\n✖ ${err?.message ?? err}`); process.exit(1); });
+process.on('unhandledRejection', (e) => {
+  warn(`\n✖ unhandledRejection: ${e}`);
+  process.exit(1);
+});
+main().catch((err) => {
+  warn(`\n✖ ${err?.message ?? err}`);
+  process.exit(1);
+});

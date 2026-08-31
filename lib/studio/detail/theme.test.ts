@@ -74,7 +74,10 @@ test('밴드 톤 4종 — accent·ink 밴드에서 본문이 AA 를 넘는다', 
   for (const tone of ['paper', 'tint', 'accent', 'ink'] as const) {
     const sf = surfaceFor(tone, t);
     assert.ok(contrastRatio(sf.ink, sf.bg) >= 4.5, `${tone}: ink ${contrastRatio(sf.ink, sf.bg).toFixed(2)}`);
-    assert.ok(contrastRatio(sf.softInk, sf.softFill) >= 4.5, `${tone}: softInk ${contrastRatio(sf.softInk, sf.softFill).toFixed(2)}`);
+    assert.ok(
+      contrastRatio(sf.softInk, sf.softFill) >= 4.5,
+      `${tone}: softInk ${contrastRatio(sf.softInk, sf.softFill).toFixed(2)}`,
+    );
   }
 });
 
@@ -122,7 +125,10 @@ function solid(hex: string, w = 8, h = 8): Uint8Array {
   const c = hexToRgb(hex);
   const buf = new Uint8Array(w * h * 4);
   for (let i = 0; i < w * h; i++) {
-    buf[i * 4] = c.r; buf[i * 4 + 1] = c.g; buf[i * 4 + 2] = c.b; buf[i * 4 + 3] = 255;
+    buf[i * 4] = c.r;
+    buf[i * 4 + 1] = c.g;
+    buf[i * 4 + 2] = c.b;
+    buf[i * 4 + 3] = 255;
   }
   return buf;
 }
@@ -164,7 +170,8 @@ test('무드·카테고리 키워드는 조명을 지시하지 않는다 — 연
   // 2026-08-18 실측: minimal-clean 의 `soft even light` 가 팩 dramaProfiles 의
   // "Avoid flat, evenly-lit catalogue lighting" 과 같은 프롬프트 안에서 충돌해
   // 결과가 밋밋한 쪽으로 무너졌다. 조명은 한 층(dramaProfiles·sceneConstraints·artDirection)만 소유한다.
-  const FLATTENING = /\b(even light|soft (?:even |day|morning )?light|diffused light|studio light|neutral light|bright light|soft shadow)\b/i;
+  const FLATTENING =
+    /\b(even light|soft (?:even |day|morning )?light|diffused light|studio light|neutral light|bright light|soft shadow)\b/i;
   for (const m of MOODS) {
     assert.ok(!FLATTENING.test(m.keywords), `무드 ${m.id} 에 조명 지시가 남음: ${m.keywords}`);
   }

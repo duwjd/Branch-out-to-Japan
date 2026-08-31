@@ -15,7 +15,15 @@ import {
   POSITIONING_TAGS_MAX,
   POSITIONING_TAGS_MIN,
 } from '@/lib/engine/rules/positioning';
-import { SectionCard, StatusBadge, buttonClass, chipClass, fieldLabelClass, inputClass, textareaClass } from '@/components/ui/primitives';
+import {
+  SectionCard,
+  StatusBadge,
+  buttonClass,
+  chipClass,
+  fieldLabelClass,
+  inputClass,
+  textareaClass,
+} from '@/components/ui/primitives';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 import { CATEGORY_LABELS, type Category } from '@/lib/engine/types';
 
@@ -32,15 +40,7 @@ const PRODUCT_CLASSES = [
 ] as const;
 
 /** 라디오형 칩(카테고리·제품 분류 공용) — role="radio" 버튼 */
-function RadioChip({
-  label,
-  checked,
-  onSelect,
-}: {
-  label: string;
-  checked: boolean;
-  onSelect: () => void;
-}) {
+function RadioChip({ label, checked, onSelect }: { label: string; checked: boolean; onSelect: () => void }) {
   return (
     <button type="button" role="radio" aria-checked={checked} onClick={onSelect} className={chipClass(checked)}>
       {label}
@@ -113,7 +113,9 @@ export default function ReportNewPage() {
         } else {
           setBrandName((prev) => prev || p.brandName || '');
           setCategory((prev) => prev || p.category || '');
-          setPositioningTags((prev) => (prev.length ? prev : Array.isArray(p.positioningTags) ? p.positioningTags : []));
+          setPositioningTags((prev) =>
+            prev.length ? prev : Array.isArray(p.positioningTags) ? p.positioningTags : [],
+          );
         }
         setPrefilled(Boolean(p.brandName));
       })
@@ -296,7 +298,13 @@ export default function ReportNewPage() {
                 {POSITIONING_TAGS.map((t) => {
                   const on = positioningTags.includes(t.value);
                   return (
-                    <button key={t.value} type="button" aria-pressed={on} onClick={() => toggleTag(t.value)} className={chipClass(on)}>
+                    <button
+                      key={t.value}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => toggleTag(t.value)}
+                      className={chipClass(on)}
+                    >
                       {t.label}
                     </button>
                   );
@@ -324,7 +332,12 @@ export default function ReportNewPage() {
               </span>
               <div role="radiogroup" aria-labelledby="category-label" className="flex flex-wrap gap-2">
                 {CATEGORIES.map((c) => (
-                  <RadioChip key={c.value} label={c.label} checked={category === c.value} onSelect={() => setCategory(c.value)} />
+                  <RadioChip
+                    key={c.value}
+                    label={c.label}
+                    checked={category === c.value}
+                    onSelect={() => setCategory(c.value)}
+                  />
                 ))}
               </div>
             </div>
@@ -358,10 +371,17 @@ export default function ReportNewPage() {
             }
           >
             <div>
-              <span id="class-label" className={fieldLabelClass}>제품 분류</span>
+              <span id="class-label" className={fieldLabelClass}>
+                제품 분류
+              </span>
               <div role="radiogroup" aria-labelledby="class-label" className="flex flex-wrap gap-2">
                 {PRODUCT_CLASSES.map((c) => (
-                  <RadioChip key={c.value} label={c.label} checked={productClass === c.value} onSelect={() => setProductClass(c.value)} />
+                  <RadioChip
+                    key={c.value}
+                    label={c.label}
+                    checked={productClass === c.value}
+                    onSelect={() => setProductClass(c.value)}
+                  />
                 ))}
               </div>
               {productClass === '미상' && (
@@ -373,14 +393,31 @@ export default function ReportNewPage() {
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="productName" className={fieldLabelClass}>제품명</label>
-                <input id="productName" value={productName} onChange={(e) => setProductName(e.target.value)} maxLength={120}
-                  placeholder="예: CICA 진정 앰플" className={inputClass} />
+                <label htmlFor="productName" className={fieldLabelClass}>
+                  제품명
+                </label>
+                <input
+                  id="productName"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                  maxLength={120}
+                  placeholder="예: CICA 진정 앰플"
+                  className={inputClass}
+                />
               </div>
               <div>
-                <label htmlFor="priceJpy" className={fieldLabelClass}>예상 판매가 (엔)</label>
-                <input id="priceJpy" type="number" min={0} value={priceJpy} onChange={(e) => setPriceJpy(e.target.value)}
-                  placeholder="2980" className={inputClass} />
+                <label htmlFor="priceJpy" className={fieldLabelClass}>
+                  예상 판매가 (엔)
+                </label>
+                <input
+                  id="priceJpy"
+                  type="number"
+                  min={0}
+                  value={priceJpy}
+                  onChange={(e) => setPriceJpy(e.target.value)}
+                  placeholder="2980"
+                  className={inputClass}
+                />
               </div>
             </div>
 
@@ -388,8 +425,13 @@ export default function ReportNewPage() {
               <label htmlFor="keyIngredients" className={fieldLabelClass}>
                 핵심 성분 <span className="font-normal text-ink-mute">(쉼표 구분 · 최대 8개)</span>
               </label>
-              <input id="keyIngredients" value={keyIngredients} onChange={(e) => setKeyIngredients(e.target.value)}
-                placeholder="예: 센텔라, 나이아신아마이드" className={inputClass} />
+              <input
+                id="keyIngredients"
+                value={keyIngredients}
+                onChange={(e) => setKeyIngredients(e.target.value)}
+                placeholder="예: 센텔라, 나이아신아마이드"
+                className={inputClass}
+              />
               <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-mute">
                 상세페이지 콘텐츠와 함께 제출될 때 루브릭 채점에 반영됩니다.
               </p>
@@ -405,7 +447,9 @@ export default function ReportNewPage() {
                   aria-pressed={sourceType === 'image'}
                   onClick={() => setSourceType('image')}
                   className={`h-[34px] rounded-lg px-4 text-[13.5px] transition-colors ${
-                    sourceType === 'image' ? 'bg-canvas font-bold text-ink shadow-card' : 'bg-transparent font-medium text-ink-mute'
+                    sourceType === 'image'
+                      ? 'bg-canvas font-bold text-ink shadow-card'
+                      : 'bg-transparent font-medium text-ink-mute'
                   }`}
                 >
                   이미지 업로드 (권장)
@@ -415,7 +459,9 @@ export default function ReportNewPage() {
                   aria-pressed={sourceType === 'text'}
                   onClick={() => setSourceType('text')}
                   className={`h-[34px] rounded-lg px-4 text-[13.5px] transition-colors ${
-                    sourceType === 'text' ? 'bg-canvas font-bold text-ink shadow-card' : 'bg-transparent font-medium text-ink-mute'
+                    sourceType === 'text'
+                      ? 'bg-canvas font-bold text-ink shadow-card'
+                      : 'bg-transparent font-medium text-ink-mute'
                   }`}
                 >
                   텍스트 붙여넣기
@@ -450,7 +496,9 @@ export default function ReportNewPage() {
                       <span className="text-[14px] font-semibold text-ink-body">
                         상세페이지 캡처를 끌어다 놓거나 <span className="text-coral-strong">클릭해서 선택</span>
                       </span>
-                      <span className="text-[12px] text-ink-mute">JPG · PNG · WebP / 장당 10MB / 1~10장 · 위에서부터 순서대로</span>
+                      <span className="text-[12px] text-ink-mute">
+                        JPG · PNG · WebP / 장당 10MB / 1~10장 · 위에서부터 순서대로
+                      </span>
                     </button>
                   ) : (
                     <div className="flex flex-wrap gap-2.5">
@@ -458,11 +506,19 @@ export default function ReportNewPage() {
                         <div key={im.key} className="relative w-[92px]">
                           <span className="block h-[92px] w-[92px] overflow-hidden rounded-[10px] border border-input-border">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={im.url} alt={`상세페이지 이미지 ${i + 1}`} className="h-full w-full object-cover" />
+                            <img
+                              src={im.url}
+                              alt={`상세페이지 이미지 ${i + 1}`}
+                              className="h-full w-full object-cover"
+                            />
                           </span>
-                          <span className="absolute top-1 left-1 rounded-[5px] bg-[rgba(16,18,20,.62)] px-1.5 text-[9px] font-bold text-white">{i + 1}</span>
+                          <span className="absolute top-1 left-1 rounded-[5px] bg-[rgba(16,18,20,.62)] px-1.5 text-[9px] font-bold text-white">
+                            {i + 1}
+                          </span>
                           {im.lowRes && (
-                            <span className="absolute bottom-1 left-1 rounded-[5px] bg-amber-bg px-1 text-[8.5px] font-bold text-amber-text">△ 저해상</span>
+                            <span className="absolute bottom-1 left-1 rounded-[5px] bg-amber-bg px-1 text-[8.5px] font-bold text-amber-text">
+                              △ 저해상
+                            </span>
                           )}
                           <button
                             type="button"
@@ -473,8 +529,24 @@ export default function ReportNewPage() {
                             ✕
                           </button>
                           <div className="mt-1 flex justify-center gap-1">
-                            <button type="button" aria-label="앞으로" disabled={i === 0} onClick={() => moveImage(i, -1)} className="text-[13px] text-ink-mute disabled:opacity-30">◀</button>
-                            <button type="button" aria-label="뒤로" disabled={i === sourceImages.length - 1} onClick={() => moveImage(i, 1)} className="text-[13px] text-ink-mute disabled:opacity-30">▶</button>
+                            <button
+                              type="button"
+                              aria-label="앞으로"
+                              disabled={i === 0}
+                              onClick={() => moveImage(i, -1)}
+                              className="text-[13px] text-ink-mute disabled:opacity-30"
+                            >
+                              ◀
+                            </button>
+                            <button
+                              type="button"
+                              aria-label="뒤로"
+                              disabled={i === sourceImages.length - 1}
+                              onClick={() => moveImage(i, 1)}
+                              className="text-[13px] text-ink-mute disabled:opacity-30"
+                            >
+                              ▶
+                            </button>
                           </div>
                         </div>
                       ))}
@@ -491,12 +563,15 @@ export default function ReportNewPage() {
                   )}
                   {imageError && <p className="mt-2 text-[12.5px] font-semibold text-danger-text">{imageError}</p>}
                   <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute">
-                    상세페이지를 위에서부터 순서대로 캡처해 올려 주세요. 글자가 보이면 충분해요. 이미지에서 문구를 읽어 진단합니다.
+                    상세페이지를 위에서부터 순서대로 캡처해 올려 주세요. 글자가 보이면 충분해요. 이미지에서 문구를 읽어
+                    진단합니다.
                   </p>
                 </div>
               ) : (
                 <div className="mt-3">
-                  <label htmlFor="sourceText" className="sr-only">상세페이지 카피</label>
+                  <label htmlFor="sourceText" className="sr-only">
+                    상세페이지 카피
+                  </label>
                   <textarea
                     id="sourceText"
                     value={sourceText}
@@ -506,7 +581,9 @@ export default function ReportNewPage() {
                     className={`${textareaClass} min-h-[150px] ${hardGateBlocked ? 'border-danger' : ''}`}
                   />
                   <div className="mt-2 flex flex-wrap items-center justify-between gap-2.5" aria-live="polite">
-                    <span className={`text-[12.5px] font-semibold ${hardGateBlocked ? 'text-danger-text' : 'font-medium text-ink-mute'}`}>
+                    <span
+                      className={`text-[12.5px] font-semibold ${hardGateBlocked ? 'text-danger-text' : 'font-medium text-ink-mute'}`}
+                    >
                       {charCount}자(공백 제외)
                     </span>
                     {hardGateBlocked && (
@@ -532,7 +609,10 @@ export default function ReportNewPage() {
           </SectionCard>
 
           {error && (
-            <p role="alert" className="rounded-[10px] border border-danger bg-danger-bg p-3 text-[13px] text-danger-text">
+            <p
+              role="alert"
+              className="rounded-[10px] border border-danger bg-danger-bg p-3 text-[13px] text-danger-text"
+            >
               {error}
             </p>
           )}
@@ -551,7 +631,8 @@ export default function ReportNewPage() {
               </p>
             ) : sourceType === 'image' && sourceImages.length > 0 ? (
               <p className="mt-3 text-center text-[13px] leading-relaxed text-ink-mute">
-                이미지 {sourceImages.length}장에서 문구를 읽어 진단합니다 — 글자를 읽지 못하면 텍스트 붙여넣기로 안내해 드려요.
+                이미지 {sourceImages.length}장에서 문구를 읽어 진단합니다 — 글자를 읽지 못하면 텍스트 붙여넣기로 안내해
+                드려요.
               </p>
             ) : !contentProvided ? (
               <p className="mt-3 text-center text-[13px] leading-relaxed text-ink-mute">

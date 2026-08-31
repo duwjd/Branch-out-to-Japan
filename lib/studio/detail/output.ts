@@ -12,33 +12,33 @@ import type { Platform } from '../platform';
 
 /** 상세페이지를 구성하는 블록 타입 — 정본은 docs/research/jp-detail-style-taxonomy.md */
 export type BlockType =
-  | 'mall-promo-banner'      // B01 몰 프로모 배너
-  | 'set-offer-table'        // B02 세트·수량 오퍼표
-  | 'hero-product'           // B03 히어로 제품컷·캐치카피
-  | 'ranking-stack'          // B04 랭킹·수상 스택
-  | 'cumulative-sales'       // B05 누적 판매·리뷰 수
-  | 'problem-hook'           // B06 문제 제기·공감
-  | 'cause-structure'        // B07 원인 구조화
-  | 'before-after-diagram'   // B08 비교 도해(일러스트)
-  | 'mechanism-explainer'    // B09 기전 도해
-  | 'ingredient-card'        // B10 성분 카드
-  | 'quant-data-graph'       // B11 정량 데이터·그래프
-  | 'test-evidence-label'    // B12 시험·근거 라벨
-  | 'point-list'             // B13 POINT 나열
-  | 'spec-panel'             // B14 스펙 수치 패널
-  | 'usage-scene'            // B15 사용 씬
-  | 'free-from-badges'       // B16 무첨가·프리 처방
-  | 'color-chip-grid'        // B17 컬러 칩 그리드
-  | 'color-chart-matrix'     // B18 컬러 차트 매트릭스
-  | 'personal-color-look'    // B19 퍼스널컬러 룩
-  | 'lineup-compare-chart'   // B20 라인업 비교 차트
-  | 'swatch-demo'            // B21 발색·텍스처 시연
-  | 'how-to-use'             // B22 사용법 STEP
-  | 'brand-story'            // B23 브랜드 스토리
-  | 'texture-shot'           // B24 텍스처·질감 컷
-  | 'customer-review'        // B25 리뷰·구매자 목소리
-  | 'product-spec-table'     // B26 제품 스펙표
-  | 'footnote-block';        // B27 각주 모음
+  | 'mall-promo-banner' // B01 몰 프로모 배너
+  | 'set-offer-table' // B02 세트·수량 오퍼표
+  | 'hero-product' // B03 히어로 제품컷·캐치카피
+  | 'ranking-stack' // B04 랭킹·수상 스택
+  | 'cumulative-sales' // B05 누적 판매·리뷰 수
+  | 'problem-hook' // B06 문제 제기·공감
+  | 'cause-structure' // B07 원인 구조화
+  | 'before-after-diagram' // B08 비교 도해(일러스트)
+  | 'mechanism-explainer' // B09 기전 도해
+  | 'ingredient-card' // B10 성분 카드
+  | 'quant-data-graph' // B11 정량 데이터·그래프
+  | 'test-evidence-label' // B12 시험·근거 라벨
+  | 'point-list' // B13 POINT 나열
+  | 'spec-panel' // B14 스펙 수치 패널
+  | 'usage-scene' // B15 사용 씬
+  | 'free-from-badges' // B16 무첨가·프리 처방
+  | 'color-chip-grid' // B17 컬러 칩 그리드
+  | 'color-chart-matrix' // B18 컬러 차트 매트릭스
+  | 'personal-color-look' // B19 퍼스널컬러 룩
+  | 'lineup-compare-chart' // B20 라인업 비교 차트
+  | 'swatch-demo' // B21 발색·텍스처 시연
+  | 'how-to-use' // B22 사용법 STEP
+  | 'brand-story' // B23 브랜드 스토리
+  | 'texture-shot' // B24 텍스처·질감 컷
+  | 'customer-review' // B25 리뷰·구매자 목소리
+  | 'product-spec-table' // B26 제품 스펙표
+  | 'footnote-block'; // B27 각주 모음
 
 /**
  * 렌더 경로.
@@ -130,23 +130,43 @@ export interface OutputProfile {
  */
 const PROFILES: Record<Platform, OutputProfile> = {
   'rakuten-official': {
-    width: 1200, sliceHeight: 1500, quality: 88, maxSlices: 20, maxBytesPerSlice: 2 * 1024 * 1024,
+    width: 1200,
+    sliceHeight: 1500,
+    quality: 88,
+    maxSlices: 20,
+    maxBytesPerSlice: 2 * 1024 * 1024,
     note: '라쿠텐은 이미지 1장당 3840px·2MB 제한이라, 분할본을 R-Cabinet에 올립니다.',
   },
   'rakuten-reseller': {
-    width: 1200, sliceHeight: 1500, quality: 88, maxSlices: 20, maxBytesPerSlice: 2 * 1024 * 1024,
+    width: 1200,
+    sliceHeight: 1500,
+    quality: 88,
+    maxSlices: 20,
+    maxBytesPerSlice: 2 * 1024 * 1024,
     note: '라쿠텐은 이미지 1장당 3840px·2MB 제한이라, 분할본을 R-Cabinet에 올립니다.',
   },
   qoo10: {
-    width: 800, sliceHeight: 2000, quality: 85, maxSlices: 10, maxBytesPerSlice: 2 * 1024 * 1024,
+    width: 800,
+    sliceHeight: 2000,
+    quality: 85,
+    maxSlices: 10,
+    maxBytesPerSlice: 2 * 1024 * 1024,
     note: 'Qoo10은 사용자 대부분이 모바일 앱이라 폭 800px로 맞춥니다.',
   },
   'amazon-jp': {
-    width: 970, sliceHeight: 1200, quality: 88, maxSlices: 12, maxBytesPerSlice: 2 * 1024 * 1024,
+    width: 970,
+    sliceHeight: 1200,
+    quality: 88,
+    maxSlices: 12,
+    maxBytesPerSlice: 2 * 1024 * 1024,
     note: 'A+ 콘텐츠는 모듈 폭 970px입니다. 프로모션·가격 블록은 규정상 넣지 않습니다.',
   },
   unset: {
-    width: 1200, sliceHeight: 1500, quality: 88, maxSlices: 20, maxBytesPerSlice: 2 * 1024 * 1024,
+    width: 1200,
+    sliceHeight: 1500,
+    quality: 88,
+    maxSlices: 20,
+    maxBytesPerSlice: 2 * 1024 * 1024,
     note: '플랫폼을 고르면 그 몰 규격에 맞춰 분할합니다.',
   },
 };

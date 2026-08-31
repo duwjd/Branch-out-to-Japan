@@ -101,7 +101,13 @@ export function MatchingView({
   const currentStepIdx = active ? STEPS.findIndex((s) => s.key === active.status) : -1;
   const stepperSteps = STEPS.map((s, i) => ({
     label: s.label,
-    date: active ? (i === 0 ? active.createdAt.slice(0, 10) : i === currentStepIdx ? active.updatedAt.slice(0, 10) : undefined) : undefined,
+    date: active
+      ? i === 0
+        ? active.createdAt.slice(0, 10)
+        : i === currentStepIdx
+          ? active.updatedAt.slice(0, 10)
+          : undefined
+      : undefined,
   }));
 
   return (
@@ -114,15 +120,15 @@ export function MatchingView({
         </div>
         <h1 className="mt-2.5 text-[28px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink">일본 기업 매칭</h1>
         <p className="mt-3 text-[14.5px] leading-[1.7] text-ink-body [text-wrap:pretty]">
-          진단·제작을 거친 브랜드를 일본 현지 기업과 연결합니다. 신청 내용을 검토해 적합한 파트너의 제안을
-          보내드립니다.
+          진단·제작을 거친 브랜드를 일본 현지 기업과 연결합니다. 신청 내용을 검토해 적합한 파트너의 제안을 보내드립니다.
         </p>
-        <p className="mt-2 text-xs leading-relaxed text-ink-faint">
-          운영팀이 브랜드 자산을 보고 직접 검토합니다.
-        </p>
+        <p className="mt-2 text-xs leading-relaxed text-ink-faint">운영팀이 브랜드 자산을 보고 직접 검토합니다.</p>
 
         {statusMsg && (
-          <p role="status" className="mt-4 rounded-[10px] border border-green/35 bg-green-bg p-3 text-sm font-semibold text-green-text">
+          <p
+            role="status"
+            className="mt-4 rounded-[10px] border border-green/35 bg-green-bg p-3 text-sm font-semibold text-green-text"
+          >
             {statusMsg}
           </p>
         )}
@@ -165,12 +171,20 @@ export function MatchingView({
               </legend>
               <div className="mt-3 flex flex-wrap gap-2">
                 {PARTNER_TYPES.map((t) => (
-                  <button key={t} type="button" aria-pressed={partnerTypes.includes(t)} onClick={() => toggle(partnerTypes, setPartnerTypes, t)} className={chipClass(partnerTypes.includes(t))}>
+                  <button
+                    key={t}
+                    type="button"
+                    aria-pressed={partnerTypes.includes(t)}
+                    onClick={() => toggle(partnerTypes, setPartnerTypes, t)}
+                    className={chipClass(partnerTypes.includes(t))}
+                  >
                     {t}
                   </button>
                 ))}
               </div>
-              {partnerTypes.length === 0 && <p className="mt-2 text-[12.5px] text-ink-mute">파트너 유형을 1개 이상 선택해 주세요</p>}
+              {partnerTypes.length === 0 && (
+                <p className="mt-2 text-[12.5px] text-ink-mute">파트너 유형을 1개 이상 선택해 주세요</p>
+              )}
             </fieldset>
 
             {/* 진출 채널·희망 시기(MATCH-02b — 선택) */}
@@ -180,7 +194,13 @@ export function MatchingView({
               </legend>
               <div className="mt-3 flex flex-wrap gap-2">
                 {MATCH_CHANNELS.map((c) => (
-                  <button key={c.value} type="button" aria-pressed={channels.includes(c.value)} onClick={() => toggle(channels, setChannels, c.value)} className={chipClass(channels.includes(c.value))}>
+                  <button
+                    key={c.value}
+                    type="button"
+                    aria-pressed={channels.includes(c.value)}
+                    onClick={() => toggle(channels, setChannels, c.value)}
+                    className={chipClass(channels.includes(c.value))}
+                  >
                     {c.label}
                   </button>
                 ))}
@@ -189,7 +209,12 @@ export function MatchingView({
                 <label htmlFor="timing" className="mb-1.5 block text-xs font-semibold text-ink-mute">
                   희망 시기
                 </label>
-                <select id="timing" value={timing} onChange={(e) => setTiming(e.target.value)} className={`${selectClass} w-[220px]`}>
+                <select
+                  id="timing"
+                  value={timing}
+                  onChange={(e) => setTiming(e.target.value)}
+                  className={`${selectClass} w-[220px]`}
+                >
                   {MATCH_TIMINGS.map((t) => (
                     <option key={t} value={t}>
                       {t}
@@ -217,7 +242,12 @@ export function MatchingView({
 
             {/* 제출(MATCH-02c·03) — 화면 유일 primary */}
             <div className="mt-7">
-              <button type="button" disabled={partnerTypes.length === 0 || busy} onClick={() => void handleSubmit()} className={buttonClass('primary', 'lg', 'w-full')}>
+              <button
+                type="button"
+                disabled={partnerTypes.length === 0 || busy}
+                onClick={() => void handleSubmit()}
+                className={buttonClass('primary', 'lg', 'w-full')}
+              >
                 {busy ? '신청 중…' : '매칭 신청'}
               </button>
               <p className="mt-2.5 text-center text-[12.5px] text-ink-mute">검토 후 연락드립니다. 처리 기한 (미정)</p>
@@ -239,7 +269,10 @@ export function MatchingView({
             </section>
 
             {active.status === 'proposed' && (
-              <section role="status" className="mt-4 rounded-card border border-green/35 bg-green-bg p-4 text-center text-[13px] font-bold text-green-text">
+              <section
+                role="status"
+                className="mt-4 rounded-card border border-green/35 bg-green-bg p-4 text-center text-[13px] font-bold text-green-text"
+              >
                 제안이 도착했습니다 ○ — 운영팀이 이메일로 상세를 안내합니다
               </section>
             )}
@@ -255,8 +288,10 @@ export function MatchingView({
                 <div className="flex gap-2">
                   <dt className="w-20 flex-none text-ink-mute">채널·시기</dt>
                   <dd className="text-ink">
-                    {active.channels.length ? active.channels.map((c) => MATCH_CHANNELS.find((x) => x.value === c)?.label ?? c).join(' · ') : '미정'} ·{' '}
-                    {active.timing || '미정'}
+                    {active.channels.length
+                      ? active.channels.map((c) => MATCH_CHANNELS.find((x) => x.value === c)?.label ?? c).join(' · ')
+                      : '미정'}{' '}
+                    · {active.timing || '미정'}
                   </dd>
                 </div>
                 {active.memo && (
@@ -295,12 +330,19 @@ export function MatchingView({
               <h2 id="cancelMatchTitle" className="text-base font-extrabold text-ink">
                 매칭 신청을 취소할까요?
               </h2>
-              <p className="mt-2.5 text-[13px] leading-relaxed text-ink-mute">취소하면 검토가 중단됩니다. 입력한 내용은 복원되지 않습니다.</p>
+              <p className="mt-2.5 text-[13px] leading-relaxed text-ink-mute">
+                취소하면 검토가 중단됩니다. 입력한 내용은 복원되지 않습니다.
+              </p>
               <div className="mt-5 flex justify-end gap-2">
                 <button type="button" onClick={() => setCancelOpen(false)} className={buttonClass('secondary', 'md')}>
                   돌아가기
                 </button>
-                <button type="button" disabled={busy} onClick={() => void handleCancel()} className={buttonClass('danger', 'md')}>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void handleCancel()}
+                  className={buttonClass('danger', 'md')}
+                >
                   {busy ? '취소 중…' : '신청 취소'}
                 </button>
               </div>

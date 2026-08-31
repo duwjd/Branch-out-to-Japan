@@ -195,10 +195,22 @@ export function EmailAuthPanel() {
     <div className="mt-6">
       {showTabs && (
         <div role="tablist" aria-label="이메일 로그인·회원가입" className="flex gap-1 rounded-[10px] bg-n-100 p-1">
-          <button type="button" role="tab" aria-selected={screen.kind === 'login'} onClick={() => goTab('login')} className={tabClass(screen.kind === 'login')}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={screen.kind === 'login'}
+            onClick={() => goTab('login')}
+            className={tabClass(screen.kind === 'login')}
+          >
             로그인
           </button>
-          <button type="button" role="tab" aria-selected={screen.kind === 'signup'} onClick={() => goTab('signup')} className={tabClass(screen.kind === 'signup')}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={screen.kind === 'signup'}
+            onClick={() => goTab('signup')}
+            className={tabClass(screen.kind === 'signup')}
+          >
             회원가입
           </button>
         </div>
@@ -242,7 +254,12 @@ export function EmailAuthPanel() {
             </p>
           )}
           <label className="mt-3 flex cursor-pointer items-center gap-2 text-[12.5px] text-ink-body">
-            <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-[15px] w-[15px] accent-coral" />
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="h-[15px] w-[15px] accent-coral"
+            />
             로그인 상태 유지
           </label>
           <button type="submit" disabled={loginBusy} className={buttonClass('primary', 'lg', 'mt-4 w-full')}>
@@ -315,18 +332,32 @@ export function EmailAuthPanel() {
             </p>
           )}
           {signupDuplicate && (
-            <button type="button" onClick={goLoginFromDuplicate} className="mt-2 block w-full text-center text-[12.5px] font-semibold text-coral-strong hover:underline">
+            <button
+              type="button"
+              onClick={goLoginFromDuplicate}
+              className="mt-2 block w-full text-center text-[12.5px] font-semibold text-coral-strong hover:underline"
+            >
               로그인 탭으로 이동 →
             </button>
           )}
           {/* LOGIN-03 · 이메일 가입은 명시적 동의 체크박스 필수 */}
           <label className="mt-3.5 flex cursor-pointer items-start gap-2 text-[12px] leading-relaxed text-ink-body">
-            <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-[15px] w-[15px] accent-coral" />
+            <input
+              type="checkbox"
+              checked={agree}
+              onChange={(e) => setAgree(e.target.checked)}
+              className="mt-0.5 h-[15px] w-[15px] accent-coral"
+            />
             <span>
-              <span className="font-bold text-coral-strong">[필수]</span> <span className="underline">이용약관</span> 및 <span className="underline">개인정보처리방침</span>에 동의합니다.
+              <span className="font-bold text-coral-strong">[필수]</span> <span className="underline">이용약관</span> 및{' '}
+              <span className="underline">개인정보처리방침</span>에 동의합니다.
             </span>
           </label>
-          <button type="submit" disabled={!signupValid || signupBusy} className={buttonClass('primary', 'lg', 'mt-4 w-full')}>
+          <button
+            type="submit"
+            disabled={!signupValid || signupBusy}
+            className={buttonClass('primary', 'lg', 'mt-4 w-full')}
+          >
             {signupBusy ? '가입 중…' : '회원가입'}
           </button>
         </form>
@@ -335,7 +366,9 @@ export function EmailAuthPanel() {
       {/* LOGIN-10 · 비밀번호 찾기 */}
       {screen.kind === 'forgot' && (
         <form onSubmit={submitForgot} className="mt-[18px] text-left">
-          <p className="mb-3.5 text-[13px] leading-relaxed text-ink-body">가입한 이메일을 입력하면 재설정 링크를 보내드립니다.</p>
+          <p className="mb-3.5 text-[13px] leading-relaxed text-ink-body">
+            가입한 이메일을 입력하면 재설정 링크를 보내드립니다.
+          </p>
           <label htmlFor="fg-email" className={fieldLabelClass}>
             이메일
           </label>
@@ -360,7 +393,11 @@ export function EmailAuthPanel() {
             {forgotBusy ? '보내는 중…' : '재설정 링크 보내기'}
           </button>
           <div className="mt-3.5 text-center">
-            <button type="button" onClick={() => goTab('login')} className="text-[12.5px] font-semibold text-ink-mute hover:underline">
+            <button
+              type="button"
+              onClick={() => goTab('login')}
+              className="text-[12.5px] font-semibold text-ink-mute hover:underline"
+            >
               ← 로그인으로
             </button>
           </div>
@@ -370,7 +407,9 @@ export function EmailAuthPanel() {
       {/* LOGIN-09 · 인증 메일 안내 (가입 완료 sent / 로그인 미인증 needed) */}
       {screen.kind === 'verify' && (
         <div className="mt-5 text-center">
-          <p className="text-[15px] font-bold text-ink">{screen.variant === 'sent' ? '인증 메일을 보냈어요' : '이메일 인증이 필요합니다'}</p>
+          <p className="text-[15px] font-bold text-ink">
+            {screen.variant === 'sent' ? '인증 메일을 보냈어요' : '이메일 인증이 필요합니다'}
+          </p>
           <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-mute">
             <span className="font-semibold text-ink-body">{screen.email}</span>{' '}
             {screen.variant === 'sent'
@@ -384,7 +423,11 @@ export function EmailAuthPanel() {
             className="mt-4 text-left"
           />
           <p className="mt-3.5 text-[11.5px] leading-relaxed text-ink-mute">인증을 마친 뒤 아래에서 로그인해 주세요.</p>
-          <button type="button" onClick={() => goTab('login')} className="mt-1 text-[12.5px] font-semibold text-coral-strong hover:underline">
+          <button
+            type="button"
+            onClick={() => goTab('login')}
+            className="mt-1 text-[12.5px] font-semibold text-coral-strong hover:underline"
+          >
             ← 로그인으로
           </button>
         </div>
@@ -394,10 +437,16 @@ export function EmailAuthPanel() {
       {screen.kind === 'forgotSent' && (
         <div className="mt-5 text-center">
           <p className="text-[15px] font-bold text-ink">메일을 보냈어요</p>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-mute">입력하신 주소가 가입돼 있다면 비밀번호 재설정 링크를 보냈습니다. 받은 편지함을 확인해 주세요.</p>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-mute">
+            입력하신 주소가 가입돼 있다면 비밀번호 재설정 링크를 보냈습니다. 받은 편지함을 확인해 주세요.
+          </p>
           {screen.devLink && <DevLink href={screen.devLink} label="(dev) 재설정 링크 바로 열기" />}
           <div className="mt-4">
-            <button type="button" onClick={() => goTab('login')} className="text-[12.5px] font-semibold text-coral-strong hover:underline">
+            <button
+              type="button"
+              onClick={() => goTab('login')}
+              className="text-[12.5px] font-semibold text-coral-strong hover:underline"
+            >
               ← 로그인으로
             </button>
           </div>

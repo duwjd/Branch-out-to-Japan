@@ -34,7 +34,11 @@ const FUNNEL = [
 /** 브랜드 진단용 퍼널 — 다음 단계 = 콘텐츠 제출로 풀 진단 열기. 브랜드 진단 가격은 미정(DECISIONS 🔴) */
 const FUNNEL_BRAND = [
   { step: '① 브랜드 진단', price: '(가격 미정)', note: '이 리포트 — 페르소나·USP 재설계' },
-  { step: '② 브랜드+제품 진단', price: '30만 원 (1회 고정가)', note: '상세페이지 카피 제출 시 — 약기법 전수 감사·문법 점수·재작성' },
+  {
+    step: '② 브랜드+제품 진단',
+    price: '30만 원 (1회 고정가)',
+    note: '상세페이지 카피 제출 시 — 약기법 전수 감사·문법 점수·재작성',
+  },
   { step: '③ 마케팅 스튜디오', price: '월 20만 원', note: '첫 달 진단비 공제 · 콘텐츠 제작' },
 ];
 
@@ -88,7 +92,8 @@ export function assembleBrandBlocks(input: AssembleBrandInput): BlocksJson {
       productClassLabel: '—(제품 정보 미입력)',
       priceLabel: '브랜드 진단 (가격 미정)',
       scope: `4카테고리 진단 엔진 중 ${categoryLabel} · 브랜드 진단 — 제품 콘텐츠 미제출(블록 1·3·5·7·8 데이터 잠금)`,
-      limitSummary: '약기법 감사·문법 점수 미산출(제품 콘텐츠 미제출) · 코퍼스 = 라쿠텐 단일 채널 표본 · 리뷰 서사 = 카테고리 일반형',
+      limitSummary:
+        '약기법 감사·문법 점수 미산출(제품 콘텐츠 미제출) · 코퍼스 = 라쿠텐 단일 채널 표본 · 리뷰 서사 = 카테고리 일반형',
       issuedAt,
     },
     block1: {
@@ -155,7 +160,8 @@ export function assembleBlocks(input: AssembleInput): BlocksJson {
       productClassLabel,
       priceLabel: '진단 리포트 · 고정가 30만 원',
       scope: `4카테고리 진단 엔진 중 ${CATEGORY_LABELS[tierInput.category]} · 티어 입력 기반(문장 ${content.sentences.length}건 전수 감사)`,
-      limitSummary: '약기법 감사 = 1차 스크리닝(법률 자문 아님) · 코퍼스 = 라쿠텐 단일 채널 표본 · 리뷰 서사 = 카테고리 일반형',
+      limitSummary:
+        '약기법 감사 = 1차 스크리닝(법률 자문 아님) · 코퍼스 = 라쿠텐 단일 채널 표본 · 리뷰 서사 = 카테고리 일반형',
       issuedAt,
     },
     block1: {
@@ -164,7 +170,11 @@ export function assembleBlocks(input: AssembleInput): BlocksJson {
       groupScores: aggregate.groupScores,
       top3: aggregate.top3,
       summaryText: rewrite.headline.summary,
-      trustBadges: ['채점 기준 공개', `라쿠텐 상세 ${benchmark.sampleCount || '—'}건 코퍼스 기준`, '약기법 1차 스크리닝'],
+      trustBadges: [
+        '채점 기준 공개',
+        `라쿠텐 상세 ${benchmark.sampleCount || '—'}건 코퍼스 기준`,
+        '약기법 1차 스크리닝',
+      ],
     },
     block2: persona,
     block3: {
@@ -198,7 +208,9 @@ export function assembleBlocks(input: AssembleInput): BlocksJson {
         '약기법 감사 = 1차 스크리닝 — 상시(上市) 전 약무 전문가·행정 확인 권고',
         '코퍼스 = 라쿠텐 단일 채널 표본(채널 편중·OCR 노이즈 존재)',
         '리뷰 서사 = 카테고리 일반형(실측 리뷰 분석은 v2)',
-        ...(content.precisionLimited ? ['입력 콘텐츠 200자 미만 — 일부 블록이 카테고리 일반형으로 산출됨(정밀도 제한)'] : []),
+        ...(content.precisionLimited
+          ? ['입력 콘텐츠 200자 미만 — 일부 블록이 카테고리 일반형으로 산출됨(정밀도 제한)']
+          : []),
       ],
       funnel: FUNNEL,
     },
