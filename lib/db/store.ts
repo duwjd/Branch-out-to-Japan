@@ -51,6 +51,13 @@ export interface DiagnosisRequestRecord {
   id: string;
   /** 소속 브랜드(스냅샷 원칙 — 제출 시점 활성 브랜드에 귀속) */
   brandProfileId: string;
+  /**
+   * 어느 제품의 진단인가(`products.id`). 기존 요청은 null 이다 — 소급해서 채우지 않는다.
+   *
+   * `tierInput.productName` 은 자유 입력 텍스트로 남아 있는 **레거시**다. 둘이 다르면
+   * **이 필드가 정본**이고 `productName` 은 제출 시점 스냅샷으로만 읽는다.
+   */
+  productId: string | null;
   tierInput: TierInput;
   precisionLimited: boolean;
   status: ReportStatus;
@@ -246,6 +253,17 @@ export interface DetailInput {
   /** 변환에 실패해 한국어가 남은 필드(게이트 기록용) */
   translationIssues?: { path: string; label: string; problem: string }[];
 
+  /**
+   * 선택한 제품의 일본어 제품명 스냅샷(`products.nameJa`).
+   *
+   * 히어로 블록의 상품명은 **이 값으로 고정**한다. 없으면 콜⑦이 지어내는데, 실제로 토너를
+   * `エッセンス` 로 바꿔 부르는 일이 있었다(UT-33). 자산에 스냅샷하는 이유는 블록 재생성이
+   * `detail_input` 만 읽기 때문이다 — 제품을 나중에 고쳐도 발행된 자산이 흔들리지 않는다.
+   *
+   * **비어 있으면 상품명을 넣지 않는다.** 한국어를 대신 찍는 것보다 낫다(UT-25).
+   */
+  productNameJa?: string;
+
   // ── 테마·윤문 스냅샷 (§2-7 · 콜⑨) ─────────────────────────────────────────
   // 같은 이유로 전부 optional 이다.
 
@@ -307,6 +325,13 @@ export interface GeneratedAssetRecord {
   id: string;
   /** 소속 브랜드(제출 시점 활성 브랜드 스냅샷) */
   brandProfileId: string;
+  /**
+   * 어느 제품으로 만들었는가(`products.id`). 기존 자산은 null 이다.
+   *
+   * 이 연결이 없어서 리포트와 스튜디오 산출물이 서로를 못 봤고, 폐루프가 화면에서
+   * 반증됐다(UT-58). 목록 요약에도 실린다 — 카드가 제품을 말해야 하기 때문이다.
+   */
+  productId: string | null;
   kind: 'thumbnail' | 'detail';
   /** 내부 스타일 ID A~H — 화면 비노출(라벨 정책), 표시는 styleName */
   styleCategory: string;
@@ -475,7 +500,7 @@ export type NewBrandProfile = Omit<BrandProfileRecord, 'id' | 'createdAt' | 'upd
 export interface Store {
   /** 어떤 구현이 동작 중인지 — UI에 "로컬 저장(dev)" 배지 표시용 */
   kind(): 'supabase' | 'file';
-  createRequest(input: TierInput, brandProfileId: string): Promise<DiagnosisRequestRecord>;
+  createRequest(input: TierInput, brandProfileId: string, productId?: string | null): Promise<DiagnosisRequestRecord>;
   getRequest(id: string): Promise<DiagnosisRequestRecord | null>;
   updateRequest(
     id: string,

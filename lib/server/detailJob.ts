@@ -63,6 +63,8 @@ export interface DetailJobInput {
   note: string;
   /** 퍼스널컬러 블록용 브랜드 보유 모델컷 */
   modelImagePath: string | null;
+  /** 어느 제품으로 만드는가(`products.id`). 폼이 반드시 고르게 한다 */
+  productId: string;
 }
 
 /** 잡 레코드 생성(generating) — 폼 POST가 호출. */
@@ -70,6 +72,7 @@ export async function createDetailAsset(input: DetailJobInput): Promise<Generate
   const store = await getStore();
   return store.createAsset({
     brandProfileId: input.brandProfileId,
+    productId: input.productId,
     kind: 'detail',
     styleCategory: input.templateId,
     styleName: getTemplate(input.templateId).nameKo,

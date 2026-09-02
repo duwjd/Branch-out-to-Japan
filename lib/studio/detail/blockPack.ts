@@ -623,6 +623,10 @@ export function assembleBlockSlots(
     case 'hero-product':
       out.volumeJa = input.spec.volume;
       out.functionLabelJa = input.spec.category === '医薬部外品' ? '医薬部外品' : (out.functionLabelJa ?? '');
+      // 상품명은 **선택한 제품의 것으로 고정**한다 — 콜⑦에 맡기면 제품 타입을 오판해
+      // 토너를 エッセンス 로 바꿔 부른다(UT-33). 근거 있는 값만 렌더한다는 관통 원칙 그대로다.
+      // 등록된 일본어 제품명이 없으면 **비운다**. 지어낸 이름보다 없는 편이 낫다.
+      out.productNameJa = input.productNameJa ?? '';
       break;
     case 'ranking-stack': {
       if (!input.proof) break;

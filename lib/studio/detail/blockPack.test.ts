@@ -6,7 +6,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  assembleBlockSlots,
   buildBlockPrompt,
+  createFootnoteRegistry,
   getBlock,
   getDetailPack,
   planBlocks,
@@ -482,4 +484,35 @@ test('팩 무결성 — 샷 정체성·연출 문법·샷 플랜이 서로 어�
       assert.ok(shots.has(shot), `categoryShotPlan[${category}] 의 ${shot} 를 만드는 블록이 없다`);
     }
   }
+});
+
+// ── 히어로 상품명·아이브로우 (UT-25 · UT-33) ────────────────────────────────
+// 콜⑦은 상품명을 지어낸다. 실제로 토너를 エッセンス 로 바꿔 불렀다(UT-33). 그래서 상품명은
+// 선택한 제품의 것으로 **코드가 덮어쓴다** — 법적 게이트가 사는 자리와 같은 곳이다.
+
+/** 히어로 슬롯을 조립한다. LLM 이 상품명을 지어냈다고 가정하고 넣는다 */
+function heroSlots(over: Partial<DetailInput>, llm: Record<string, string> = {}) {
+  const plan = planBlocks(fullInput(over), 'unset', 'D1', []).blocks.find((b) => b.blockId === 'hero-product');
+  assert.ok(plan, '히어로는 어떤 템플릿에도 반드시 있다');
+  return assembleBlockSlots(plan, { productNameJa: 'エッセンス', ...llm }, fullInput(over), createFootnoteRegistry());
+}
+
+test('히어로 상품명 — 등록된 일본어 제품명이 LLM 산출을 덮는다 (UT-33)', () => {
+  const out = heroSlots({ productNameJa: 'シカ鎮静アンプル' });
+  assert.equal(out.productNameJa, 'シカ鎮静アンプル', '제품 타입을 추론하지 않는다');
+});
+
+test('히어로 상품명 — 등록된 이름이 없으면 비운다. 지어낸 이름을 남기지 않는다 (UT-33)', () => {
+  const out = heroSlots({});
+  assert.equal(out.productNameJa, '', '지어낸 상품명이 그대로 나가면 다른 제품이 된다');
+});
+
+test('히어로 기능 라벨 — 医薬部外品 만 코드가 세운다', () => {
+  const yes = heroSlots({ spec: { ...fullInput().spec, category: '医薬部外品' } });
+  assert.equal(yes.functionLabelJa, '医薬部外品');
+
+  // 化粧品 이면 LLM 값이 있으면 그대로, 없으면 빈 문자열 — **한국어 브랜드명으로 채우지 않는다**.
+  // 렌더 쪽 폴백은 templates.tsx 가 제거했다(UT-25 · 12건 중 11건 재현).
+  const no = heroSlots({}, { functionLabelJa: '' });
+  assert.equal(no.functionLabelJa ?? '', '');
 });

@@ -453,7 +453,12 @@ export function blockContent(blockId: BlockType, slots: Record<string, string>, 
     case 'hero-product': {
       const inner = (
         <Stack>
-          {s('functionLabelJa') ? <Eyebrow text={s('functionLabelJa')} /> : <Eyebrow text={ctx.brandName} />}
+          {/*
+            ⚠ 여기에 `ctx.brandName` 폴백을 두지 않는다. 브랜드명은 한국어라 일본 상세페이지
+            히어로에 한글이 그대로 찍혔다(UT-25 · 12건 중 11건 재현). 기능 라벨이 없으면
+            아이브로우를 통째로 비운다 — 빈 자리가 한국어보다 낫다.
+          */}
+          {s('functionLabelJa') ? <Eyebrow text={s('functionLabelJa')} /> : null}
           <Headline text={s('catchCopyJa')} />
           {s('subCopyJa') ? <Body text={s('subCopyJa')} /> : null}
           <div style={{ display: 'flex', marginTop: 28, fontSize: z(26), color: T.mute }}>

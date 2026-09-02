@@ -7,6 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  restoreKoreanInput,
   applyGlossary,
   applyTranslations,
   collectForbidden,
@@ -398,4 +399,37 @@ test('getAt — 없는 경로는 undefined', () => {
   assert.equal(getAt(input, 'spec.volume'), '30mL');
   assert.equal(getAt(input, 'promo.setTitle'), undefined);
   assert.equal(getAt(input, 'ingredients[5].name'), undefined);
+});
+
+// ── restoreKoreanInput — 프리필이 일본어를 한국어 폼에 넣지 않게 ────────────
+// 저장된 DetailInput 은 이미 일본어다. 그대로 프리필하면 사용자가 자기가 쓴 적 없는 일본어를
+// 검토하게 되고, 재제출하면 콜⑧이 일본어를 또 일본어로 옮긴다.
+
+test('restoreKoreanInput — sourceKo 가 있는 필드는 한국어로 되돌린다', () => {
+  const ja: DetailInput = {
+    ...baseInput(),
+    spec: { ...baseInput().spec, volume: '30mL', manufacturer: '株式会社ヨアケ' },
+    sourceKo: [
+      { path: 'spec.volume', kr: '30밀리리터' },
+      { path: 'spec.manufacturer', kr: '주식회사 요아케' },
+    ],
+  };
+  const back = restoreKoreanInput(ja);
+  assert.equal(back.spec.volume, '30밀리리터');
+  assert.equal(back.spec.manufacturer, '주식회사 요아케');
+});
+
+test('restoreKoreanInput — 스냅샷이 없는 필드는 그대로 둔다', () => {
+  const ja: DetailInput = { ...baseInput(), spec: { ...baseInput().spec, origin: '韓国' }, sourceKo: [] };
+  assert.equal(restoreKoreanInput(ja).spec.origin, '韓国', '지우면 프리필이 입력을 없애는 일이 된다');
+});
+
+test('restoreKoreanInput — 원본을 변형하지 않는다', () => {
+  const ja: DetailInput = {
+    ...baseInput(),
+    spec: { ...baseInput().spec, volume: '30mL' },
+    sourceKo: [{ path: 'spec.volume', kr: '30밀리리터' }],
+  };
+  restoreKoreanInput(ja);
+  assert.equal(ja.spec.volume, '30mL');
 });

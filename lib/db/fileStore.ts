@@ -135,12 +135,13 @@ export function createFileStore(): Store {
   return {
     kind: () => 'file',
 
-    createRequest(input: TierInput, brandProfileId: string) {
+    createRequest(input: TierInput, brandProfileId: string, productId?: string | null) {
       return serialized(async () => {
         const now = new Date().toISOString();
         const record: DiagnosisRequestRecord = {
           id: randomUUID(),
           brandProfileId,
+          productId: productId ?? null,
           tierInput: input,
           precisionLimited: false,
           status: 'submitted',
