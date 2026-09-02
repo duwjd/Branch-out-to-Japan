@@ -92,6 +92,11 @@ export interface DetailCopyOptions {
   brandName: string;
   /** 제품컷·KR 상세 원본(위→아래 순서). 1~10장 */
   images: { mediaType: 'image/png' | 'image/jpeg' | 'image/webp'; dataBase64: string }[];
+  /**
+   * 이 콜의 벽시계 상한(재시도 포함). 생략하면 상한 없음 — SDK 기본(10분)이 함수 상한
+   * 300초보다 길어 콜 하나가 함수를 통째로 먹을 수 있다. 값은 `budget.callTimeout()` 이 준다.
+   */
+  timeoutMs?: number;
   onLog?: (entry: LlmCallLogEntry) => Promise<void> | void;
 }
 
@@ -228,6 +233,7 @@ export async function runDetailCopy(opts: DetailCopyOptions): Promise<DetailCopy
     images: opts.images,
     mockData: mockResult(opts),
     onLog: opts.onLog,
+    timeoutMs: opts.timeoutMs,
     validate: (data) => {
       const bySlot = new Map(data.blocks.map((b) => [b.blockId, new Map(b.slots.map((s) => [s.key, s.value]))]));
       const missing: string[] = [];

@@ -23,6 +23,7 @@ import {
   type TranslatedField,
 } from '@/lib/studio/detail/translate';
 import { runInputTranslate } from '@/lib/studio/detail/translateCall';
+import { callTimeout } from '@/lib/studio/detail/budget';
 import { logger } from '@/lib/logger';
 
 // after() 상세 잡(카피 1콜 + 이미지 최대 4콜 + 렌더·결합)이 이 예산 안에서 실행된다(11 §3)
@@ -114,6 +115,8 @@ export async function POST(request: Request): Promise<NextResponse> {
           input: parsed.detailInput,
           note: parsed.note,
           brandKit: brand.brandKit,
+          // 제출·미리보기 응답을 콜 하나가 매달려 잡아먹지 않게(스펙 §2-13)
+          timeoutMs: callTimeout('translate'),
         });
         translated = result.fields;
         artDirectionEn = result.artDirectionEn;

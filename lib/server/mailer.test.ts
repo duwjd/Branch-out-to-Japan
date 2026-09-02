@@ -28,15 +28,20 @@ async function captureLogs(fn: () => Promise<void>): Promise<string[]> {
   return lines;
 }
 
-/** NODE_ENV 를 잠시 바꿔 실행하고 원복한다 */
+/**
+ * NODE_ENV 를 잠시 바꿔 실행하고 원복한다.
+ * Next 타입에서 `process.env.NODE_ENV` 는 읽기 전용이라 인덱스 시그니처로 접근한다.
+ */
+const mutableEnv = process.env as Record<string, string | undefined>;
+
 async function withNodeEnv(value: string, fn: () => Promise<void>): Promise<void> {
-  const prev = process.env.NODE_ENV;
-  process.env.NODE_ENV = value;
+  const prev = mutableEnv.NODE_ENV;
+  mutableEnv.NODE_ENV = value;
   try {
     await fn();
   } finally {
-    if (prev === undefined) delete process.env.NODE_ENV;
-    else process.env.NODE_ENV = prev;
+    if (prev === undefined) delete mutableEnv.NODE_ENV;
+    else mutableEnv.NODE_ENV = prev;
   }
 }
 
