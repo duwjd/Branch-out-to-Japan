@@ -114,6 +114,8 @@ tags: [팀규칙, 에이전트]
 | `qa` | 배포/PR 전 검증 |
 
 슬래시 명령: `/kickoff`(온보딩) · `/spec` · `/localize` · `/design-page` · `/status`.
+스프린트: `/sprint-board` · `/sprint-standup` · `/sprint-kanban` · `/sprint-sync` · `/sprint-groom`(마일스톤 → 이슈 분해).
+스프린트 운영에는 **에이전트를 쓰지 않는다** — 세션 시작 훅이 보드를 메인 세션에 이미 넣어 주므로 격리 컨텍스트가 손해다. 운영법 정본은 `docs/sprints/운영-가이드.md`.
 
 > **오케스트레이션:** 실제 조율은 메인 세션이 한다. 에이전트가 다시 에이전트를 부르는 중첩은 비용이 크므로 지양한다. `lead-orchestrator`는 "분해+배분 계획"을 반환하는 용도.
 

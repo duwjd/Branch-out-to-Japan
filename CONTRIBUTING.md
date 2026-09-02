@@ -94,6 +94,20 @@ docs: 로드맵 Phase 0 구간 정리
 
 > 실제 조율은 메인 세션이 합니다. 큰 작업은 `lead-orchestrator` 로 작업 분해 계획을 받은 뒤 각 명령을 실행하세요.
 
+## 스프린트
+
+일감의 상태 정본은 **GitHub Issues**, 계획·회고 정본은 `docs/sprints/` 입니다.
+**어떻게 굴리는지는 [운영 가이드](docs/sprints/운영-가이드.md)를 보세요** — 하루 리듬·상태 바꾸는 법·새 스프린트 시작.
+
+- `/sprint-sync` — GitHub → 캐시 (아침에 한 번)
+- `/sprint-board` — 보드 + 문서 대조
+- `/sprint-standup` — 어제 / 오늘 / 블로커
+- `/sprint-kanban` — 칸반 HTML
+- `/sprint-groom <마일스톤>` — 마일스톤을 이슈로 분해 (초안만, 생성은 사람이)
+
+세션을 열면 보드가 자동으로 주입됩니다. **스프린트 운영에는 에이전트를 쓰지 않습니다** —
+격리 컨텍스트는 그 주입을 못 받아 같은 사실을 다시 조회하게 됩니다.
+
 ## Claude Code 설정
 - 팀 공용 설정: `.claude/settings.json` (커밋됨) — 자주 쓰는 명령 권한 등.
 - 개인 설정: `.claude/settings.local.json` (gitignore, 커밋 안 함).
