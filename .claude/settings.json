@@ -14,7 +14,11 @@
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git branch:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(node scripts/sprint/:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh label list:*)"
     ],
     "deny": [
       "Read(./.env)",
@@ -22,6 +26,19 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/sprint-session-start.mjs\"",
+            "timeout": 5,
+            "statusMessage": "Loading sprint board"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",

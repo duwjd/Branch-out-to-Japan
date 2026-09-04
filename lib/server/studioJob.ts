@@ -38,6 +38,8 @@ export async function createThumbnailAsset(input: ThumbnailJobInput): Promise<Ge
   const store = await getStore();
   return store.createAsset({
     brandProfileId: input.brandProfileId,
+    // 썸네일 폼에는 아직 제품 선택이 없다(상세만 M14 범위). 붙으면 여기에 실린다
+    productId: null,
     kind: 'thumbnail',
     styleCategory: input.styleId,
     styleName: getStyle(input.styleId).nameKo,

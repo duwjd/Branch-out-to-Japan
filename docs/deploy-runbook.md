@@ -3,7 +3,7 @@ title: 배포 운영 가이드 (Deploy Runbook)
 space: 설계·개발
 status: 정본
 phase: Phase 0
-updated: 2026-08-24
+updated: 2026-09-02
 owner:
 tags: [배포, 런북, 절차]
 ---
@@ -65,7 +65,6 @@ tags: [배포, 런북, 절차]
    | `ANTHROPIC_API_KEY` | Anthropic 키 | 미리 준비 |
    | `OPENAI_API_KEY` | OpenAI 키 | 미리 준비 |
    | `AUTH_SECRET` | 아래 명령 출력값 | 터미널 |
-   | `AUTH_MAIL_MODE` | `devlink` | 그대로 |
 
    - `AUTH_SECRET` 생성: 터미널에서 `openssl rand -base64 32` → 출력 문자열 통째 복사. **한 번 정하면 바꾸지 않는다**(바꾸면 모든 로그인 세션이 풀림).
    - ⚠️ `LLM_MODE`·`IMAGE_MODE`는 **넣지 않는다**(가짜 응답 강제 스위치). (선택) 이미지 비용 절감은 `OPENAI_IMAGE_QUALITY=low`.
@@ -191,7 +190,7 @@ git push
 
 ## 5. 환경변수 변경
 
-API 키 교체, `AUTH_MAIL_MODE` 조정, 새 키 추가 등.
+API 키 교체, 새 키 추가 등.
 
 1. Vercel → 프로젝트 → **Settings → Environment Variables**
 2. **스코프를 먼저 고른다** — `Production` = prd, `Preview` = stg. 환경 분리가 이 스코프 하나에 걸려 있다.
@@ -204,7 +203,7 @@ API 키 교체, `AUTH_MAIL_MODE` 조정, 새 키 추가 등.
 - Supabase URL·키를 바꿨다면 재배포 후 `GET /api/report` 의 `supabaseRef` 로 **의도한 프로젝트를 보는지** 확인한다.
 - 현재 Supabase 키는 Production·Preview가 **같은 값**이다(DB 분리 보류). 나중에 분리할 때 손댈 곳이 여기다.
 - 새 키를 코드에서 쓰기 시작했다면 `.env.example`에 **키 이름만** 추가하고(값 없음), 정본은 [[09-dev-spec]] §1 표에 문서화한다. (이 개발 머신은 `.env*` 편집이 차단돼 있어 사용자가 수동 반영)
-- 실메일(Resend)을 붙이면 `AUTH_MAIL_MODE=devlink`를 제거한다([[11-deploy-spec]] §8).
+- 실메일을 붙이면 운영에서 인증 링크 노출을 끈다([[11-deploy-spec]] §8 · [[decisions/2026-09-02-실메일-보류-devlink-정식화]]).
 
 ---
 
@@ -286,14 +285,14 @@ API 키 교체, `AUTH_MAIL_MODE` 조정, 새 키 추가 등.
 
 **2) 인증 링크가 화면에 안 뜨나 — 가입은 되는데 로그인이 "인증이 필요합니다"(403)**
 - 실메일 발송은 아직 미구현이라, 가입 완료 화면에 뜨는 **인증 링크를 눌러야** 로그인이 된다.
-- 링크가 안 보이면 → `AUTH_MAIL_MODE=devlink` 미설정. Vercel **Logs**에 `인증 링크 미노출(운영)…` error가 있으면 확정.
-- 해결: §5로 `AUTH_MAIL_MODE`=`devlink` 입력 → **Redeploy** → 다시 가입 → 링크 클릭 → 로그인.
+- 링크가 안 보이면 → 배포본이 2026-09-02 이전 코드다. **설정할 env 는 없다** — 최신을 Redeploy 한다.
+- Vercel **Logs**의 `실 메일 발송 없이 운영 중…` warn 은 정상이다(실 발송 미구현 고지 · 프로세스당 1회).
 
 **3) users 테이블이 없나 — Supabase는 붙었는데 가입이 500**
 - 옛 `schema.sql`을 부분 적용했을 때. Supabase → **Table Editor**에 `users`·`auth_tokens` 테이블이 있는지 확인.
 - 없으면: §6 방식으로 최신 `supabase/schema.sql` **전체**를 SQL Editor에 다시 Run(멱등이라 재실행 안전).
 
-> 이 셋(Supabase env 2종 + `AUTH_SECRET` + `AUTH_MAIL_MODE=devlink`)은 §1-B 첫 배포 때 한 번 넣으면 끝이다. `AUTH_SECRET`이 없으면 로그인은 되지만 세션 위조가 가능하니(로그에 error) 반드시 넣는다.
+> 이 둘(Supabase env 2종 + `AUTH_SECRET`)은 §1-B 첫 배포 때 한 번 넣으면 끝이다. `AUTH_SECRET`이 없으면 로그인은 되지만 세션 위조가 가능하니(로그에 error) 반드시 넣는다.
 
 ---
 

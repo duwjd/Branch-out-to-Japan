@@ -395,3 +395,19 @@ alter table season_memos enable row level security;
 
 alter table reports add column if not exists humanize_issues jsonb not null default '[]'::jsonb;
 alter table reports add column if not exists humanize_skipped text;
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 마이그레이션 · 2026-09-02 — ①② 제품 연결(products ↔ 리포트·생성 자산)
+-- generated_assets·diagnosis_requests 어느 쪽도 products 와 연결돼 있지 않았다. 이 미연결이
+-- "진단 결과가 그대로 제작의 입력값이 된다"는 폐루프가 화면에서 반증된 뿌리다(UT-58).
+-- null 허용 — 기존 자산·요청은 미연결로 남는다. 소급해서 채우지 않는다(어느 제품이었는지
+-- 알 수 있는 근거가 없고, 추측으로 채우면 폐루프가 거짓으로 이어진다).
+-- 제품이 지워져도 자산은 남아야 하므로 on delete set null 이다(cascade 아님).
+-- 멱등. 구 코드는 이 컬럼을 안 쓰므로 순서 무관하게 먼저 돌려도 안전하다.
+-- ───────────────────────────────────────────────────────────────────────────
+
+alter table generated_assets add column if not exists product_id uuid references products(id) on delete set null;
+alter table diagnosis_requests add column if not exists product_id uuid references products(id) on delete set null;
+
+create index if not exists idx_generated_assets_product on generated_assets(product_id);
+create index if not exists idx_diagnosis_requests_product on diagnosis_requests(product_id);

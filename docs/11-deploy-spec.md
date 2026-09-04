@@ -3,7 +3,7 @@ title: 11 · 배포 스펙 (Vercel Hobby + Supabase Free)
 space: 설계·개발
 status: 정본
 phase: Phase 0
-updated: 2026-08-31
+updated: 2026-09-02
 owner:
 tags: [배포, 인프라]
 ---
@@ -136,7 +136,6 @@ dev 환경은 배포하지 않고 각자 로컬에서 돈다(`.data/` 파일 스
 | `ANTHROPIC_API_KEY` | 필수 | 동일 키 사용 가능 | LLM 목 모드(가짜 리포트) |
 | `OPENAI_API_KEY` | 필수 | 동일 키 사용 가능 | 이미지 목 모드(샘플 이미지) |
 | `AUTH_SECRET` | 필수 — **한 번 정하면 바꾸지 않는다**(바꾸면 전원 로그아웃) | **stg 전용 신규 값** | 하드코딩 dev 시크릿 — **누구나 세션 위조 가능** |
-| `AUTH_MAIL_MODE` | `devlink` | `devlink` | 운영에서 인증 링크 미전달 → **가입 전원 차단**(실메일 미구현 — `lib/server/mailer.ts`) |
 | `OPENAI_IMAGE_QUALITY` | `medium`(기본) 또는 `low`(비용 절약) | 선택 | 코드 기본값 medium |
 
 > **`AUTH_SECRET`을 환경마다 다르게 두는 이유**: 같은 시크릿이면 stg 에서 발급된 세션 토큰이
@@ -150,7 +149,8 @@ dev 환경은 배포하지 않고 각자 로컬에서 돈다(`.data/` 파일 스
 > stg 와 prd 가 서로 다른 ref 를 답해야 하고, 같으면 분리가 안 된 것이다.
 > (지금은 공유 중이라 같게 나오는 것이 정상이다.)
 
-> `AUTH_MAIL_MODE=devlink`는 **실메일 미구현 상태의 폐쇄 UT용 임시 모드** — 가입 완료 화면에 인증 링크를 직접 노출한다. 실메일(Resend) 도입 시 제거(§8).
+> **인증 메일은 발송하지 않는다(2026-09-02 결정).** 가입 완료 화면이 인증 링크를 직접 노출하며, 이는 임시 플래그가 아니라 **현재의 정식 경로**다 — 설정할 env 가 없다.
+> 링크가 요청한 쪽으로 곧장 돌아가므로 **이메일 소유 검증이 성립하지 않는다.** 아는 사람만 부르는 폐쇄 UT 전제이며, **공개 모집 전에 실 발송이 선행돼야 한다** → [[decisions/2026-09-02-실메일-보류-devlink-정식화]].
 
 ## 5. 배포 절차
 
@@ -195,7 +195,7 @@ dev 환경은 배포하지 않고 각자 로컬에서 돈다(`.data/` 파일 스
 | 상세페이지 블록에 「남은 생성 시간이 부족해…」 사유가 붙는다 | 마감 예산 가드가 발동 — 앞단 LLM 콜이 오래 끌어 이미지 웨이브가 예산 밖으로 밀렸다 | **정상 동작이다**(잡 전체가 죽는 대신 사진 몇 장을 포기한 것). 반복되면 LLM 콜 소요를 로그에서 확인 |
 | 배경컷에 429(요청 제한)가 잦다 | 동시성 6이 OpenAI images 분당 제한에 닿았다 | `IMAGE_CONCURRENCY` 만 5로 내린다 — `MAX_AI_BLOCKS` 는 6으로 두고 `budget.ts` 가 2웨이브를 흡수한다 |
 | Supabase Storage 용량 경고 | 상세페이지가 건당 약 3MB 를 쓴다(§3-1) | 오래된 자산 정리(§8 백로그의 Storage 정리 잡) |
-| 가입 완료 화면에 **인증 링크가 없음** → 로그인 403 | `AUTH_MAIL_MODE` 미설정(실메일 미구현이라 링크 억제 시 아무도 인증 불가) | Vercel **로그**에 "인증 링크 미노출(운영)…" error 확인 → §4에서 `AUTH_MAIL_MODE=devlink` 설정 후 Redeploy |
+| 가입 완료 화면에 **인증 링크가 없음** → 로그인 403 | 코드가 오래됐다 — 2026-09-02 이후로는 링크가 항상 노출된다(설정할 env 없음) | 배포본이 최신인지 확인 후 Redeploy. Vercel **로그**의 "실 메일 발송 없이 운영 중…" warn 은 **정상**이다(§4 각주) |
 | Supabase "project paused" | 7일 무활동 | 대시보드에서 Restore(수 분) — UT 직전 접속으로 예방 |
 | 대역폭·빌드 한도 경고 | Hobby 100GB 초과 등 | Vercel Usage 확인 — UT 규모에서 도달 시 원인(대용량 이미지 반복 서빙) 먼저 제거 |
 | **유료 고객 발생** | Hobby 비상업 한정 위반 | **Pro 전환($20/월)** — 과금 전 팀 결정 |
@@ -203,13 +203,14 @@ dev 환경은 배포하지 않고 각자 로컬에서 돈다(`.data/` 파일 스
 
 ## 8. P1 백로그 (배포 후 개선)
 
-- **실메일 발송**: Resend 무료(100통/일) + 커스텀 도메인 검증 → `AUTH_MAIL_MODE=devlink` 제거(`mailer.ts` 내부만 교체 — 연결 지점 단일화 유지)
+- **실메일 발송(공개 모집 전 필수)**: 발신 도메인 확보 → `sendAuthMail` 내부에 발송 추가 + 운영에서 `devLink` 를 null 로(연결 지점 단일화 유지). Phase 1 에서 보류 → [[decisions/2026-09-02-실메일-보류-devlink-정식화]]
 - ~~**프로덕션 가드 강화**~~ **(2026-07-24 완료)**: Supabase env 누락 시 **파일 폴백 대신 명시적 throw**(`lib/db/store.ts`, 빌드 페이즈 제외) · `AUTH_MAIL_MODE` 억제 시 · `AUTH_SECRET` 미설정 시 운영 **error 로그** 승격(mailer·sessionToken) · `/api/report`에 `misconfigured` 플래그. (`AUTH_SECRET`은 throw 대신 로그 — verifySession no-throw 계약 유지)
 - **파일 서빙 서명 URL 직행**: `/api/files/[id]` 함수 경유 대신 Storage signed URL — 함수 호출·대역폭 절감
 - **커스텀 도메인** 연결(Vercel 무료 지원) — UT 이후
 - 실 OAuth·결제 게이트 집행 등 기능 잔여는 [[10-implementation-status]] §5 정본 유지
 
 ## 변경 이력
+- 2026-09-02 **인증 메일 — 임시 플래그 제거, 링크 노출을 정식 경로로**: `AUTH_MAIL_MODE` 를 §4 표·§7 트러블슈팅·§8 백로그에서 걷어냈다. 운영에서 이 값을 안 넣으면 **가입이 전원 차단**되는 구조였는데(링크 억제 + 실 발송 부재), 실 발송을 Phase 1 범위에서 제외하면서 그 분기의 전제가 사라졌다. **[코드]** `lib/server/mailer.ts` — 분기 제거·항상 링크 반환·운영 고지를 error→warn 으로 방향 전환 · `mailer.test.ts` 신설(4건). **[감수]** 이메일 소유 검증이 성립하지 않는다 — 폐쇄 UT 전제이며 공개 모집 전 해제 필수 → [[decisions/2026-09-02-실메일-보류-devlink-정식화]].
 - 2026-07-24 신규 작성: 호스팅 확정(Vercel Hobby + Supabase Free — [[decisions/2026-07-24-호스팅-배포-결정]])에 따른 배포 스펙 정본. P0 코드 6건(Storage 전환·devlink·트레이싱·maxDuration·engines·스테일 가드)과 같은 PR.
 - 2026-07-24 **인증 배포 가드 강화**: 배포본 이메일 가입/로그인 무동작(원인=Supabase env·`AUTH_MAIL_MODE` 미설정) 대응. **[코드]** 저장 팩토리 프로덕션 명시적 throw(침묵 파일 폴백 차단) · mailer/sessionToken 운영 error 로그 승격 · `/api/report` `misconfigured` 플래그 · `supabase/schema.sql` 상단 주석 함정(users 없음 오도) 교정. **[문서]** §7 트러블슈팅 3행 갱신 · §8 가드 항목 완료 표시. 필수 env(§4)는 코드 변경 아님 — 운영자가 Vercel에 설정(런북 §1-B).
 - 2026-07-24 **URL 형식 방어**(실장애 후속): 배포본 가입 500(로그 `Invalid path specified in request URL`) 원인 = `NEXT_PUBLIC_SUPABASE_URL` 끝슬래시/공백. **[코드]** `lib/db/supabaseClient.ts`가 URL 앞뒤 공백·끝슬래시 자동 제거 + 비표준 형식 경고. **[문서]** 런북 §8-1b · §7 트러블슈팅 1행 추가.

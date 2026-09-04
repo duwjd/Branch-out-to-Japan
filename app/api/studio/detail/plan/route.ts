@@ -18,6 +18,7 @@ import { MAX_AI_BLOCKS, outputProfile } from '@/lib/studio/detail/output';
 import { currentImageMode } from '@/lib/studio/imageGen';
 import { collectTranslatable, verifyClientTranslation, type TranslatedField } from '@/lib/studio/detail/translate';
 import { runInputTranslate } from '@/lib/studio/detail/translateCall';
+import { callTimeout } from '@/lib/studio/detail/budget';
 import { logger } from '@/lib/logger';
 
 /**
@@ -85,6 +86,8 @@ export async function POST(request: Request): Promise<NextResponse> {
           input: parsed.detailInput,
           note: parsed.note,
           brandKit: brand?.brandKit,
+          // 미리보기 응답을 콜 하나가 매달려 잡아먹지 않게(스펙 §2-13)
+          timeoutMs: callTimeout('translate'),
         });
         translation = { fields: result.fields, artDirectionEn: result.artDirectionEn };
       } catch (err) {

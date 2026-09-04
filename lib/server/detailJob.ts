@@ -33,7 +33,7 @@ import {
   type BlockPlanResult,
   type TemplateId,
 } from '../studio/detail/blockPack';
-import { JOB_BUDGET_MS, fitImageBudget } from '../studio/detail/budget';
+import { JOB_BUDGET_MS, callTimeout, fitImageBudget } from '../studio/detail/budget';
 import { composeDetail } from '../studio/detail/compose';
 import { runDetailCopy } from '../studio/detail/copyCall';
 import { runCopyHumanize, type HumanizeResult } from '../studio/detail/humanizeCall';
@@ -47,6 +47,7 @@ import { analyzeSafeArea, type CopyPlacement } from '../studio/detail/safeArea';
 import { blockContent } from '../studio/detail/templates';
 import { hasHangul } from '../studio/detail/translate';
 import { runInputTranslate } from '../studio/detail/translateCall';
+import type { DetailJobTimings } from '../db/store';
 
 export interface DetailJobInput {
   brandProfileId: string;
@@ -62,6 +63,8 @@ export interface DetailJobInput {
   note: string;
   /** 퍼스널컬러 블록용 브랜드 보유 모델컷 */
   modelImagePath: string | null;
+  /** 어느 제품으로 만드는가(`products.id`). 폼이 반드시 고르게 한다 */
+  productId: string;
 }
 
 /** 잡 레코드 생성(generating) — 폼 POST가 호출. */
@@ -69,6 +72,7 @@ export async function createDetailAsset(input: DetailJobInput): Promise<Generate
   const store = await getStore();
   return store.createAsset({
     brandProfileId: input.brandProfileId,
+    productId: input.productId,
     kind: 'detail',
     styleCategory: input.templateId,
     styleName: getTemplate(input.templateId).nameKo,
@@ -278,6 +282,50 @@ export async function runDetailJob(assetId: string): Promise<void> {
   // 예산을 늘리는 대신 **가진 예산을 결정적으로 쓴다**(budget.ts).
   const deadline = Date.now() + JOB_BUDGET_MS;
 
+  // ── 계기(§2-13) ─────────────────────────────────────────────────────────
+  // 실패가 재현되면 **어느 단계가 얼마를 먹었는지** 자산 레코드만 보고 말할 수 있어야 한다.
+  // 신규 컬럼 없이 detail_input jsonb 에 실어 성공·실패 양쪽 경로에서 한 번 쓴다.
+  const jobStartedAt = Date.now();
+  const stages: DetailJobTimings['stages'] = [];
+  const calls: DetailJobTimings['calls'] = [];
+  let imageStats: DetailJobTimings['images'];
+  let stage = 'analyze';
+  let stageAt = jobStartedAt;
+  /** 지금 단계를 닫고 다음 단계를 연다. `updateAsset({ stage })` 와 **짝으로** 호출한다 */
+  const enterStage = (next: string): void => {
+    stages.push({ stage, ms: Date.now() - stageAt });
+    stage = next;
+    stageAt = Date.now();
+  };
+  /** LLM 콜 하나를 잰다. **실패해도 시간은 남긴다** — 매달린 콜이 곧 알고 싶은 것이다 */
+  const timeCall = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
+    const at = Date.now();
+    try {
+      const out = await fn();
+      calls.push({ name, ms: Date.now() - at, ok: true });
+      return out;
+    } catch (err) {
+      calls.push({ name, ms: Date.now() - at, ok: false });
+      throw err;
+    }
+  };
+  /** 지금까지의 계기를 스냅샷한다. 열려 있는 단계도 닫아서 넣는다 */
+  const snapshotTimings = (failedAt?: string): DetailJobTimings => ({
+    startedAt: new Date(jobStartedAt).toISOString(),
+    totalMs: Date.now() - jobStartedAt,
+    stages: [...stages, { stage, ms: Date.now() - stageAt }],
+    calls,
+    ...(imageStats ? { images: imageStats } : {}),
+    ...(failedAt ? { failedAt } : {}),
+  });
+  /** 이 잡이 최종적으로 저장할 입력. 콜⑨ 스냅샷 전에 실패해도 원본으로 계기를 남긴다 */
+  let jobInput: DetailInput = input;
+  let imageCalls = 0;
+  let imageFailures = 0;
+  let imageMs = 0;
+  let degradedCount = 0;
+  let blockFailures = 0;
+
   try {
     const platform = asset.platform as Platform;
     const templateId = asset.styleCategory as TemplateId;
@@ -287,6 +335,7 @@ export async function runDetailJob(assetId: string): Promise<void> {
     const note = input.artDirectionEn ?? asset.promptUsed ?? '';
 
     // ── plan: 결정적 시퀀스 결정(LLM 미개입) ─────────────────────────────
+    enterStage('plan');
     await store.updateAsset(assetId, { stage: 'plan' });
     const plan = planBlocks(input, platform, templateId, input.disabledBlocks as BlockType[]);
     if (plan.blocks.length === 0) throw new Error('생성할 블록이 없습니다. 입력을 확인해 주세요.');
@@ -305,20 +354,26 @@ export async function runDetailJob(assetId: string): Promise<void> {
     });
 
     // ── copy: 콜⑦ 로 전 블록 슬롯을 한 번에 채운다 ───────────────────────
+    enterStage('copy');
     await store.updateAsset(assetId, { stage: 'copy' });
     // 제품 대표컷 + KR 상세 원본 전부를 비전 입력으로 넘긴다(위→아래 순서, 최대 10장)
     const images = await loadVisionImages(
       input.sourceImagePaths.length > 0 ? input.sourceImagePaths : [asset.originalImagePath],
     );
-    const copy = await runDetailCopy({
-      templateId: plan.templateId,
-      blocks: plan.blocks,
-      input,
-      platform,
-      brandName: asset.brandNameSnapshot,
-      images,
-      onLog: (entry) => store.saveLlmLog(null, entry),
-    });
+    const copy = await timeCall('detailCopy', () =>
+      runDetailCopy({
+        templateId: plan.templateId,
+        blocks: plan.blocks,
+        input,
+        platform,
+        brandName: asset.brandNameSnapshot,
+        images,
+        // 콜 하나가 함수를 통째로 먹지 않게 상한을 건다 — SDK 기본(10분)은 함수 상한(300초)보다 길다.
+        // 스케줄이 아니라 폭주 차단선이라 정상 소요는 이 선에 닿지 않는다(스펙 §2-13).
+        timeoutMs: callTimeout('copy', deadline - Date.now()),
+        onLog: (entry) => store.saveLlmLog(null, entry),
+      }),
+    );
 
     // ── 콜⑨ copyHumanize: 일본어 카피의 문체를 다듬는다 ──────────────────
     // assembleBlockSlots **이전에** 돈다 — 코드 소유 값(가격·실적·시험·전성분)이 섞이기 전이라
@@ -326,13 +381,16 @@ export async function runDetailJob(assetId: string): Promise<void> {
     const llmByBlock = new Map(
       copy.blocks.map((b) => [b.blockId, Object.fromEntries(b.slots.map((s) => [s.key, s.value]))]),
     );
-    const humanized: HumanizeResult = await runCopyHumanize({
-      blocks: plan.blocks,
-      slotsBySeq: plan.blocks.map((p) => llmByBlock.get(p.blockId) ?? {}),
-      input,
-      brandKit: input.brandKit,
-      onLog: (entry) => store.saveLlmLog(null, entry),
-    });
+    const humanized: HumanizeResult = await timeCall('copyHumanize', () =>
+      runCopyHumanize({
+        blocks: plan.blocks,
+        slotsBySeq: plan.blocks.map((p) => llmByBlock.get(p.blockId) ?? {}),
+        input,
+        brandKit: input.brandKit,
+        timeoutMs: callTimeout('humanize', deadline - Date.now()),
+        onLog: (entry) => store.saveLlmLog(null, entry),
+      }),
+    );
 
     // ── 슬롯 확정(법적 게이트) + 블록 행 생성 ────────────────────────────
     const reg = createFootnoteRegistry();
@@ -351,6 +409,7 @@ export async function runDetailJob(assetId: string): Promise<void> {
         .map((v) => ({ blockId: v.blockId, key: v.key, reason: v.rejectedReason ?? '검사 실패' })),
       ...(humanized.skippedReason ? { humanizeSkipped: humanized.skippedReason } : {}),
     };
+    jobInput = finalInput;
     await store.updateAsset(assetId, { detailInput: finalInput });
     // ⚠ `asset` 은 잡 시작 시점의 스냅샷이라 위 갱신이 반영돼 있지 않다.
     //   게이트에 그대로 넘기면 jpCopyNaturalness 가 **영원히 나타나지 않는다.**
@@ -386,6 +445,7 @@ export async function runDetailJob(assetId: string): Promise<void> {
     });
 
     // ── blocks: AI 배경컷(동시성 제한) → satori 렌더 ────────────────────
+    enterStage('blocks');
     await store.updateAsset(assetId, { stage: 'blocks' });
     const original = await readStoredFile(asset.originalImagePath);
     const gate = limit(IMAGE_CONCURRENCY);
@@ -406,6 +466,19 @@ export async function runDetailJob(assetId: string): Promise<void> {
       IMAGE_TIMEOUT_MS,
     );
     const budgetDropReason = new Map(budget.drop.map((d) => [d.blockId, d.reason]));
+    // 앞단이 얼마나 끌었는지는 이 시점의 잔여에 그대로 드러난다 — 강등의 원인을 여기서 읽는다
+    imageStats = {
+      keep: budget.keep.length,
+      drop: budget.drop.length,
+      waves: budget.waves,
+      perImageTimeoutMs: budget.perImageTimeoutMs,
+      remainingMs: deadline - Date.now(),
+      calls: 0,
+      failures: 0,
+      totalMs: 0,
+      degraded: 0,
+      blockFailures: 0,
+    };
     logger.info('이미지 예산 배분', {
       assetId,
       keep: budget.keep.length,
@@ -440,6 +513,7 @@ export async function runDetailJob(assetId: string): Promise<void> {
             // 사용자가 그 블록만 다시 만들게 한다(생성 실패 경로와 같은 처리).
             if (kind === 'ai-visual') throw new Error(budgetDrop);
             degraded = budgetDrop;
+            degradedCount += 1;
             logger.warn('이미지 예산 초과 — 텍스트 전용으로 강등', { assetId, blockType: row.blockType });
           } else if (kind !== 'text') {
             const prompt = buildBlockPrompt(blockId, slots, promptContextOf(rp, input, copy.isKoreanDetailInput, note));
@@ -454,16 +528,27 @@ export async function runDetailJob(assetId: string): Promise<void> {
               if (usesProduct && !original) {
                 throw new Error('제품컷 원본을 불러오지 못했습니다. 이 블록만 다시 만들어 주세요.');
               }
-              const gen = await gate(() =>
-                generateBlockVisual({
-                  prompt,
-                  blockType: blockId,
-                  blockNameKo: getBlock(blockId).nameKo,
-                  source: usesProduct ? original?.buf : undefined,
-                  sourceMediaType: usesProduct ? original?.contentType : undefined,
-                  timeoutMs: budget.perImageTimeoutMs,
-                }),
-              );
+              const gen = await gate(async () => {
+                // SDK 내부 재시도(최대 2회)는 여기서 셀 수 없다 — 실패 1건이 곧 그 재시도를
+                // 다 태웠다는 뜻이므로, 소요와 실패 수로 그 시간을 역산한다.
+                const at = Date.now();
+                imageCalls += 1;
+                try {
+                  return await generateBlockVisual({
+                    prompt,
+                    blockType: blockId,
+                    blockNameKo: getBlock(blockId).nameKo,
+                    source: usesProduct ? original?.buf : undefined,
+                    sourceMediaType: usesProduct ? original?.contentType : undefined,
+                    timeoutMs: budget.perImageTimeoutMs,
+                  });
+                } catch (err) {
+                  imageFailures += 1;
+                  throw err;
+                } finally {
+                  imageMs += Date.now() - at;
+                }
+              });
               visual = gen.buf;
               visualPath = await persistVisual(gen.buf);
               // 생성된 사진을 실제로 재서 제품이 없는 여백을 찾는다(§4b).
@@ -527,6 +612,7 @@ export async function runDetailJob(assetId: string): Promise<void> {
             blockType: row.blockType,
             reason: err instanceof BlockVisualError ? err.cause : reason,
           });
+          blockFailures += 1;
           await store.updateBlock(row.id, { status: 'failed', error: reason });
           return null;
         }
@@ -542,6 +628,7 @@ export async function runDetailJob(assetId: string): Promise<void> {
     const footnoteBlockMissing = reg.entries.length > 0 && !ok.some((r) => r.row.blockType === 'footnote-block');
 
     // ── compose / slice ─────────────────────────────────────────────────
+    enterStage('compose');
     await store.updateAsset(assetId, { stage: 'compose' });
     const profile = outputProfile(platform);
     const composed = await composeDetail(
@@ -549,18 +636,32 @@ export async function runDetailJob(assetId: string): Promise<void> {
       profile,
     );
 
+    enterStage('slice');
     await store.updateAsset(assetId, { stage: 'slice' });
     const masterPath = await saveFile(composed.master, 'jpg', 'detail');
     const slicePaths: string[] = [];
     for (const s of composed.slices) slicePaths.push(await saveFile(s, 'jpg', 'slice'));
 
     // ── gate ────────────────────────────────────────────────────────────
+    enterStage('gate');
     await store.updateAsset(assetId, { stage: 'gate' });
+    if (imageStats) {
+      imageStats = {
+        ...imageStats,
+        calls: imageCalls,
+        failures: imageFailures,
+        totalMs: imageMs,
+        degraded: degradedCount,
+        blockFailures,
+      };
+    }
     await store.updateAsset(assetId, {
       status: 'done',
       stage: null,
       imagePath: masterPath,
       slicePaths,
+      // 계기를 여기서 쓴다 — 위쪽 detailInput 갱신은 blocks 이전이라 뒷 단계가 비어 있다
+      detailInput: { ...jobInput, timings: snapshotTimings() },
       gateResult: detailGateResult(
         gateAsset,
         plan,
@@ -583,8 +684,33 @@ export async function runDetailJob(assetId: string): Promise<void> {
     });
   } catch (err) {
     const reason = String((err as Error)?.message ?? err);
-    logger.error('상세페이지 잡 실패', { assetId, reason });
-    await store.updateAsset(assetId, { status: 'failed', stage: null, error: reason });
+    logger.error('상세페이지 잡 실패', { assetId, reason, stage });
+    if (imageStats) {
+      imageStats = {
+        ...imageStats,
+        calls: imageCalls,
+        failures: imageFailures,
+        totalMs: imageMs,
+        degraded: degradedCount,
+        blockFailures,
+      };
+    }
+    // ⚠ **실패 경로에도 반드시 남긴다.** 안 남기면 정작 알고 싶은 케이스가 안 남는다(§2-13).
+    //   계기 저장이 실패해도 자산은 failed 로 확정돼야 하므로 따로 감싼다.
+    try {
+      await store.updateAsset(assetId, {
+        status: 'failed',
+        stage: null,
+        error: reason,
+        detailInput: { ...jobInput, timings: snapshotTimings(stage) },
+      });
+    } catch (persistErr) {
+      logger.error('계기 저장 실패 — 자산 상태만 확정한다', {
+        assetId,
+        reason: String((persistErr as Error)?.message ?? persistErr),
+      });
+      await store.updateAsset(assetId, { status: 'failed', stage: null, error: reason });
+    }
   }
 }
 
@@ -663,6 +789,8 @@ export async function regenerateBlock(
           note: artNote,
           brandKit: input.brandKit,
           onlyNote: true,
+          // 이 경로는 잡 예산 밖에서 도는 단발 콜이라 단계 상한 자체가 폭주 차단선이다
+          timeoutMs: callTimeout('translate'),
           onLog: (entry) => store.saveLlmLog(null, entry),
         });
         artNote = t.artDirectionEn;

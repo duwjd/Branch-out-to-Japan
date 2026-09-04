@@ -23,6 +23,7 @@ import {
   type TranslatedField,
 } from '@/lib/studio/detail/translate';
 import { runInputTranslate } from '@/lib/studio/detail/translateCall';
+import { callTimeout } from '@/lib/studio/detail/budget';
 import { logger } from '@/lib/logger';
 
 // after() 상세 잡(카피 1콜 + 이미지 최대 4콜 + 렌더·결합)이 이 예산 안에서 실행된다(11 §3)
@@ -114,6 +115,8 @@ export async function POST(request: Request): Promise<NextResponse> {
           input: parsed.detailInput,
           note: parsed.note,
           brandKit: brand.brandKit,
+          // 제출·미리보기 응답을 콜 하나가 매달려 잡아먹지 않게(스펙 §2-13)
+          timeoutMs: callTimeout('translate'),
         });
         translated = result.fields;
         artDirectionEn = result.artDirectionEn;
@@ -134,13 +137,26 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
   if (artDirectionEn) detailInput.artDirectionEn = artDirectionEn;
 
+  // 남의 브랜드 제품 id 를 넣어 제출하는 경로를 막는다 — 폼의 select 는 검증이 아니다
+  const products = await (await getStore()).listProducts(brand.id);
+  const product = products.find((p) => p.id === parsed.productId);
+  if (!product) {
+    return NextResponse.json({ error: '선택한 제품을 찾을 수 없습니다. 다시 골라 주세요.' }, { status: 400 });
+  }
+
   const record = await createDetailAsset({
     brandProfileId: brand.id,
     brandName: brand.brandName,
+    productId: product.id,
     sourceImagePaths,
     platform: parsed.platform,
     templateId: parsed.templateId,
-    detailInput: { ...detailInput, modelConsent: detailInput.modelConsent && Boolean(modelImagePath) },
+    detailInput: {
+      ...detailInput,
+      // 히어로 상품명을 고정하는 스냅샷 — 블록 재생성이 detail_input 만 읽으므로 여기 실어야 한다
+      productNameJa: product.nameJa,
+      modelConsent: detailInput.modelConsent && Boolean(modelImagePath),
+    },
     disabledBlocks: parsed.disabledBlocks,
     // promptUsed 에는 **한국어 원문**을 남긴다 — 화면이 사용자 입력을 그대로 되비추는 자리다.
     // 이미지 프롬프트에 실리는 영어 변환분은 detailInput.artDirectionEn 이 따로 들고 간다.

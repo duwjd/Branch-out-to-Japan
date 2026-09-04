@@ -27,7 +27,15 @@ export const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 /** 발급 주체 — 소셜(목) 3종 + 이메일 자체 로그인 */
 export type AuthProvider = 'kakao' | 'naver' | 'google' | 'email';
 
-/** 목 소셜 로그인 라우트 검증용 — 소셜 3종만(email은 자체 로그인 라우트가 다룬다) */
+/**
+ * 소셜 로그인 노출 스위치 — **2026-08-31 부터 꺼져 있다.**
+ * 실 OAuth 가 아니라 목 세션이었고, 그 경로가 인증 없이 세션을 발급했다(아래 §레거시 쿠키 참조).
+ * 되살리는 조건: 실 OAuth 연동 완료. 그때 이 값을 true 로 되돌리고 `/api/auth/login` 을 OAuth 콜백으로 교체한다.
+ * env 가 아니라 코드 상수인 이유는 이 개발 머신에서 `.env*` 편집이 차단돼 있어서다.
+ */
+export const SOCIAL_LOGIN_ENABLED = false;
+
+/** 소셜 3종(email은 자체 로그인 라우트가 다룬다). `SOCIAL_LOGIN_ENABLED` 가 false 면 실제로 쓰이지 않는다 */
 export const AUTH_PROVIDERS: readonly AuthProvider[] = ['kakao', 'naver', 'google'];
 
 export const PROVIDER_LABELS: Record<AuthProvider, string> = {
@@ -86,8 +94,12 @@ function toSessionUser(user: UserRecord): SessionUser {
 /**
  * 쿠키 원문값을 세션으로 해석한다(무효면 null). cookies() 접근과 분리해 getSession/getSessionState가 공유.
  * 1) 서명 세션(v1.) → verifySession → 유저 조회, 유저 없으면 null
- * 2) 레거시 소셜 쿠키(provider명) → demo-user 조회(없으면 DEMO_USER 폴백)로 세션 반환(항상 유효)
- * 3) 그 외 → null
+ * 2) 그 외 → null
+ *
+ * ⚠ **2026-08-31 제거:** 예전에는 쿠키값이 `kakao`·`naver`·`google` 이면 서명 검증 없이 `demo-user`
+ * 세션을 내주는 레거시 경로가 있었다(M2 이전 원시 provider 쿠키 호환). 브라우저에서 쿠키를
+ * `yoake_session=kakao` 로 세팅하기만 하면 누구나 로그인되는 상태였다. 이 경로를 지우면서 그때 만든
+ * 쿠키를 들고 있던 세션은 무효가 된다 — 애초에 인증된 적이 없으므로 의도한 결과다.
  */
 async function resolveSessionUncached(value: string): Promise<Session | null> {
   if (value.startsWith('v1.')) {
@@ -97,11 +109,6 @@ async function resolveSessionUncached(value: string): Promise<Session | null> {
     const user = await store.getUserById(payload.userId);
     if (!user) return null;
     return { user: toSessionUser(user), provider: payload.provider };
-  }
-  if (AUTH_PROVIDERS.includes(value as AuthProvider)) {
-    const store = await getStore();
-    const user = await store.getUserById('demo-user');
-    return { user: user ? toSessionUser(user) : DEMO_USER, provider: value as AuthProvider };
   }
   return null;
 }

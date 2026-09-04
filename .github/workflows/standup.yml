@@ -1,0 +1,69 @@
+# 데일리 스탠드업 — 매 작업일 아침, 어제/오늘/블로커를 이슈 코멘트로 남긴다.
+#
+# 왜 Actions 인가: 세션 크론은 Claude 가 떠 있는 동안만 살고, 로컬 크론은 맥이 켜져 있어야
+# 한다. 스프린트 리듬(docs/sprints §기간·리듬 "매 작업일")은 사람이 자리에 있든 없든
+# 돌아야 하므로 저장소 쪽에 둔다.
+#
+# 알아야 할 제약 — schedule 은 **default branch(main)에서만** 발화한다. 이 파일이
+# dev-jeongwon 에만 있으면 아무 일도 일어나지 않는다. main 까지 올라가야 시작된다.
+# 또한 Actions 스케줄은 부하에 따라 수십 분 늦거나 건너뛸 수 있고, 저장소가 60일간
+# 활동이 없으면 자동 비활성화된다. 정시성이 필요한 용도가 아니라 수용한다.
+name: 스프린트 스탠드업
+
+on:
+  schedule:
+    # UTC 00:13 = KST 09:13, 평일. 정각을 피한 건 전 세계 크론이 :00 에 몰리기 때문.
+    - cron: '13 0 * * 1-5'
+  workflow_dispatch: # main 머지 직후 수동으로 한 번 돌려 확인하는 용도
+
+permissions:
+  contents: read
+  issues: write # 코멘트를 달기 위해서만 필요하다
+
+jobs:
+  standup:
+    name: standup
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # fetch-depth: 0 — 모든 브랜치의 전체 히스토리가 필요하다. 작업은 dev-{이름} 에서
+      # 일어나는데 이 잡은 main 에서 돌기 때문에, 얕게 받으면 매일 "어제 한 일 없음"이 된다.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # npm ci 가 없다 — scripts/sprint/* 는 node: 빌트인만 쓰는 의존성 0 스크립트다.
+      - name: 이슈 동기화
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/sprint/sync.mjs
+
+      - name: 스탠드업 생성
+        run: node scripts/sprint/standup.mjs --format=markdown > standup.md
+
+      # 코멘트가 실패해도 실행 요약에는 남는다 — Actions 탭에서 항상 읽을 수 있다.
+      - name: 실행 요약에 기록
+        run: cat standup.md >> "$GITHUB_STEP_SUMMARY"
+
+      # 이슈 번호를 하드코딩하지 않는다. 스프린트마다 새 스탠드업 이슈를 열면
+      # 라벨만 붙여도 이 워크플로가 알아서 따라간다.
+      - name: 스탠드업 이슈에 코멘트
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NUMBER=$(gh issue list --label 스탠드업 --state open --limit 1 \
+            --json number --jq '.[0].number // empty')
+          if [ -z "$NUMBER" ]; then
+            echo "::warning::라벨 '스탠드업' 이 붙은 열린 이슈가 없어 코멘트를 건너뜁니다. 실행 요약을 보세요."
+            exit 0
+          fi
+          {
+            echo "### $(TZ=Asia/Seoul date '+%m/%d (%a)') 스탠드업"
+            echo
+            cat standup.md
+          } | gh issue comment "$NUMBER" --body-file -
+          echo "#$NUMBER 에 코멘트했습니다."
