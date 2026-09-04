@@ -1,3 +1,13 @@
+---
+title: 포지셔닝 — 3축 Japan Growth Studio vs ClaimOps
+space: 의사결정
+status: 정본
+phase: Phase 0
+updated: 2026-08-15
+owner:
+tags: [ADR, 포지셔닝]
+---
+
 # 포지셔닝 — 3축 Japan Growth Studio vs ClaimOps
 
 > 2026-08-14 제기 · **2026-08-15 결정 완료** · 배경: 서비스명을 YOAKE로 바꾸며 20분 발표 장표를 제작하는 과정에서, 장표의 제품 서술이 기존 문서의 3축 구조와 다르다는 점이 드러남

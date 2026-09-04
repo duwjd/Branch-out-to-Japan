@@ -42,12 +42,7 @@ import { currentLlmMode } from '../lib/engine/llm/client';
 import { composeDetail } from '../lib/studio/detail/compose';
 import { IMAGE_CONCURRENCY, outputProfile, type BlockType } from '../lib/studio/detail/output';
 import { renderBlock } from '../lib/studio/detail/render';
-import {
-  buildRenderPlan,
-  promptContextOf,
-  renderContextOf,
-  visualHeightOf,
-} from '../lib/studio/detail/renderContext';
+import { buildRenderPlan, promptContextOf, renderContextOf, visualHeightOf } from '../lib/studio/detail/renderContext';
 import { analyzeSafeArea, type CopyPlacement } from '../lib/studio/detail/safeArea';
 import { toneSummary } from '../lib/studio/detail/rhythm';
 import { blockContent } from '../lib/studio/detail/templates';
@@ -95,7 +90,13 @@ function demoInput(c: (typeof CASES)[number]): DetailInput {
       { name: 'ヒアルロン酸Na', percent: '—', purpose: '保湿成分' },
     ],
     freeOf: ['合成香料', '鉱物油', 'パラベン', 'エタノール', '合成着色料'],
-    specs: c.category === 'suncare' ? [{ label: 'SPF', value: '50+' }, { label: 'PA', value: '++++' }] : [],
+    specs:
+      c.category === 'suncare'
+        ? [
+            { label: 'SPF', value: '50+' },
+            { label: 'PA', value: '++++' },
+          ]
+        : [],
     howToSteps: [
       '洗顔後、化粧水で肌をととのえます。',
       '適量を手にとり、顔全体になじませます。',
@@ -114,7 +115,13 @@ function demoInput(c: (typeof CASES)[number]): DetailInput {
     // 프로모·실적 레이어는 끈다(파일 상단 주석 참조)
     proof: null,
     sales: null,
-    test: { name: '効能評価試験済み', condition: '4週間連用試験', institution: '第三者評価機関', date: '2026.04.15', sampleSize: '21名' },
+    test: {
+      name: '効能評価試験済み',
+      condition: '4週間連用試験',
+      institution: '第三者評価機関',
+      date: '2026.04.15',
+      sampleSize: '21名',
+    },
     reviews: [{ text: 'べたつかず、朝のメイクのりが安定しました。', rating: '★5', age: '30代' }],
     promo: null,
     modelConsent: false,
@@ -166,7 +173,9 @@ async function buildOne(
     writeFileSync(copyCache, JSON.stringify(flat, null, 2));
     llmByBlock = new Map(Object.entries(flat));
   } else if (cacheUsable) {
-    llmByBlock = new Map(Object.entries(JSON.parse(readFileSync(copyCache, 'utf8')) as Record<string, Record<string, string>>));
+    llmByBlock = new Map(
+      Object.entries(JSON.parse(readFileSync(copyCache, 'utf8')) as Record<string, Record<string, string>>),
+    );
   } else {
     // 목 모드이거나 캐시가 스테일인데 실 콜을 못 쓰는 경우 — 픽스처로 채워 빈 밴드를 만들지 않는다
     llmByBlock = new Map(plan.blocks.map((b) => [b.blockId, mockLlmSlots(b.blockId, input.productCategory, BRAND)]));
@@ -299,7 +308,8 @@ async function main() {
         `(카드 ${(card.length / 1024).toFixed(0)}KB) · ` +
         `블록 ${blocks}개 · 이미지 콜 ${aiCalls}회 · ${((Date.now() - t0) / 1000).toFixed(1)}s`,
     );
-    if (webp.length > 300 * 1024) console.log('  ⚠ 300KB 예산 초과 — PREVIEW_WIDTH 를 480 으로 낮추는 것을 검토하세요.');
+    if (webp.length > 300 * 1024)
+      console.log('  ⚠ 300KB 예산 초과 — PREVIEW_WIDTH 를 480 으로 낮추는 것을 검토하세요.');
   }
 
   console.log(

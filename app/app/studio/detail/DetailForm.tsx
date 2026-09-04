@@ -31,6 +31,16 @@ import { IconChevronDown, IconChevronUp, IconUpload } from '@/components/ui/icon
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 import { StudioActionBar } from '@/components/app/studioUi';
 import { MOODS, PALETTES, accentFromPixels, normalizeHex, EXTRACT } from '@/lib/studio/detail/theme';
+import { bytesUrl } from '@/lib/files/downloadUrl';
+
+/** 제품 선택(DETAIL-01b) 후보 — `GET /api/products` 응답에서 화면이 쓰는 것만 */
+interface ProductOption {
+  id: string;
+  nameKr: string;
+  nameJa: string;
+  category: string;
+  images: { fileId: string; isPrimary: boolean }[];
+}
 
 interface TemplateCard {
   id: string;
@@ -115,6 +125,16 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   const productRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<'form' | 'confirm'>('form');
+  // DETAIL-01b·01c — 제품 선택과 지난 입력 프리필
+  const [productId, setProductId] = useState('');
+  const [product, setProduct] = useState<ProductOption | null>(null);
+  const [prefill, setPrefill] = useState<{ count: number; lastAssetAt: string | null; choice: boolean } | null>(null);
+  /**
+   * 지금 제품컷이 **자동으로 넣은 대표컷**인가. 제품을 바꿀 때 교체 여부를 이 값이 가른다 —
+   * 사용자가 직접 올린 사진을 말없이 갈아치우면 안 되고, 자동으로 넣은 이전 제품 사진을
+   * 그대로 두어도 안 된다(엉뚱한 제품으로 생성된다).
+   */
+  const autoPrimaryRef = useRef(false);
   // 제품컷과 KR 상세 원본은 쓰임이 다르다 — 제품컷만 images.edit 의 base가 되고,
   // KR 원본은 비전(갭 진단) 입력으로만 간다. 한 칸으로 받으면 순서에 따라 결과가 흔들린다.
   const [productFile, setProductFile] = useState<File | null>(null);
@@ -187,6 +207,15 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   /** 템플릿 프리뷰 확대 — 카드는 상단만 보여주므로 전체를 볼 길이 있어야 한다 */
   const [zoom, setZoom] = useState<TemplateCard | null>(null);
 
+  /**
+   * 현재 선택의 거울. `applyPrefill` 은 deps 가 비어 있어(제품이 바뀔 때마다 새로 만들 이유가 없다)
+   * state 를 직접 읽지 못하므로, "이미 골랐는가" 판정을 이 두 ref 로 한다.
+   */
+  const templateIdRef = useRef(templateId);
+  templateIdRef.current = templateId;
+  const platformRef = useRef(platform);
+  platformRef.current = platform;
+
   const selected = useMemo(() => templates.find((t) => t.id === templateId) ?? null, [templates, templateId]);
   const amazonSelected = platform === 'amazon-jp';
 
@@ -203,9 +232,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   }, []);
 
   /** 제품컷 1장 교체 — 이전 blob URL을 revoke 한다 */
-  const acceptProduct = useCallback((incoming: FileList | null) => {
-    const file = incoming?.[0];
-    if (!file) return;
+  const acceptProductFile = useCallback((file: File) => {
     setProductPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
@@ -214,22 +241,154 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     setError(null);
   }, []);
 
+  const acceptProduct = useCallback(
+    (incoming: FileList | null) => {
+      const file = incoming?.[0];
+      if (!file) return;
+      acceptProductFile(file);
+      autoPrimaryRef.current = false;
+    },
+    [acceptProductFile],
+  );
+
+  /**
+   * 제품 자산의 대표컷을 제품컷 칸으로 가져온다(DETAIL-02 2d) — 매번 다시 올리지 않게.
+   * @param target 대상 제품. 생략하면 현재 선택. **제품을 고른 직후에는 반드시 넘긴다** —
+   *   그 시점의 `product` state 는 아직 이전 값이라 엉뚱한 사진을 가져온다.
+   */
+  const useProductPrimary = useCallback(
+    async (target?: ProductOption | null) => {
+      const p = target ?? product;
+      const primary = p?.images.find((im) => im.isPrimary) ?? p?.images[0];
+      if (!primary) return;
+      try {
+        const res = await fetch(bytesUrl(`/api/files/${primary.fileId}`));
+        if (!res.ok) return;
+        const blob = await res.blob();
+        acceptProductFile(new File([blob], `${p?.nameKr || 'product'}.png`, { type: blob.type }));
+        autoPrimaryRef.current = true;
+      } catch {
+        // 대표컷 재사용 실패는 생성을 막지 않는다 — 직접 올리는 길이 그대로 열려 있다
+      }
+    },
+    [product, acceptProductFile],
+  );
+
+  /**
+   * 프리필 적용(DETAIL-01c). 폼이 비제어 DOM 이라 값을 직접 넣는다.
+   * **이미 적은 칸은 건드리지 않고**, 채운 칸에는 표시를 남긴다 — 조용히 채우면 placeholder 로
+   * 오인해 그대로 제출한다(UT-31).
+   */
+  const applyPrefill = useCallback(async (pid: string) => {
+    setPrefill(null);
+    if (!pid) return;
+    try {
+      const res = await fetch(`/api/studio/detail/prefill?productId=${encodeURIComponent(pid)}`);
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        fields: Record<string, string>;
+        lastAssetAt: string | null;
+        lastChoice: { templateId: string; platform: string } | null;
+      };
+      const el = formRef.current;
+      if (!el) return;
+      let count = 0;
+      for (const [name, value] of Object.entries(data.fields)) {
+        // 제어 상태로 사는 두 칸은 setState 로 간다
+        if (name === 'productCategory') {
+          setCategory(value);
+          count += 1;
+          continue;
+        }
+        if (name === 'optionAxis') {
+          setOptionAxis(value);
+          count += 1;
+          continue;
+        }
+        const field = el.elements.namedItem(name);
+        if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) continue;
+        if (field.value.trim()) continue;
+        field.value = value;
+        field.dataset.prefilled = 'true';
+        field.classList.add('bg-coral-tint');
+        count += 1;
+      }
+      // 템플릿·채널은 칸이 아니라 **선택**이라 setState 로 간다. 아직 고르지 않았을 때만 —
+      // 사용자가 이미 고른 것을 지난 값으로 되돌리면 조작을 빼앗는 셈이 된다.
+      // ⚠ 판정을 setState 업데이터 안에서 하지 않는다 — 업데이터는 호출 시점이 아니라 렌더
+      //   시점에 돌아서, 바로 아래 `setPrefill` 이 항상 choice=false 를 보게 된다.
+      let choice = false;
+      const last = data.lastChoice;
+      if (last) {
+        if (!templateIdRef.current && last.templateId) {
+          setTemplateId(last.templateId);
+          choice = true;
+        }
+        if (platformRef.current === 'unset' && last.platform && last.platform !== 'unset') {
+          setPlatform(last.platform as Platform);
+          choice = true;
+        }
+      }
+      setPrefill({ count, lastAssetAt: data.lastAssetAt, choice });
+    } catch {
+      // 프리필 실패가 생성을 막지 않는다 — 채우기는 편의이고 입력은 사용자 것이다
+    }
+  }, []);
+
+  /** 프리필로 채운 칸만 되돌린다. 사용자가 고친 칸은 표시가 이미 사라져 있어 남는다 */
+  const clearPrefill = useCallback(() => {
+    const el = formRef.current;
+    if (el) {
+      for (const node of el.querySelectorAll<HTMLElement>('[data-prefilled]')) {
+        if (node instanceof HTMLInputElement || node instanceof HTMLTextAreaElement) node.value = '';
+        delete node.dataset.prefilled;
+        node.classList.remove('bg-coral-tint');
+      }
+    }
+    setPrefill(null);
+  }, []);
+
+  /**
+   * 제품을 고르면 프리필이 돌고 **대표컷이 자동으로 들어간다.**
+   * 자동으로 넣는 이유: 목표 2의 판정이 「필수 입력이 제품 선택 하나로 끝난다」이고,
+   * 버튼을 한 번 더 누르게 하면 그 판정이 성립하지 않는다.
+   * 직접 올린 사진은 건드리지 않고, 자동으로 넣었던 사진만 새 제품 것으로 바꾼다.
+   */
+  const selectProduct = useCallback(
+    (p: ProductOption | null) => {
+      setProductId(p?.id ?? '');
+      setProduct(p);
+      setError(null);
+      if (!p) {
+        setPrefill(null);
+        return;
+      }
+      void applyPrefill(p.id);
+      if (!productFile || autoPrimaryRef.current) void useProductPrimary(p);
+    },
+    [applyPrefill, productFile, useProductPrimary],
+  );
+
   const clearProduct = useCallback(() => {
     setProductPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
     setProductFile(null);
+    autoPrimaryRef.current = false;
     if (productRef.current) productRef.current.value = '';
   }, []);
 
-  const acceptFiles = useCallback((incoming: FileList | null) => {
-    if (!incoming) return;
-    const next = [...files, ...Array.from(incoming)].slice(0, MAX_KR_IMAGES);
-    setFiles(next);
-    replacePreviews(next);
-    setError(null);
-  }, [files, replacePreviews]);
+  const acceptFiles = useCallback(
+    (incoming: FileList | null) => {
+      if (!incoming) return;
+      const next = [...files, ...Array.from(incoming)].slice(0, MAX_KR_IMAGES);
+      setFiles(next);
+      replacePreviews(next);
+      setError(null);
+    },
+    [files, replacePreviews],
+  );
 
   const removeFile = (idx: number) => {
     const next = files.filter((_, i) => i !== idx);
@@ -333,7 +492,10 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   // 제출 가능 조건 — 서버와 같은 규칙
   let guidance = '이미지와 템플릿을 고르면 구성을 미리 볼 수 있어요.';
   let canPreview = true;
-  if (!productFile) {
+  if (!productId) {
+    guidance = '어느 제품인지 먼저 골라 주세요.';
+    canPreview = false;
+  } else if (!productFile) {
     guidance = '제품컷 1장을 올려 주세요. 제품 사진은 이 이미지를 기준으로 다시 그립니다.';
     canPreview = false;
   } else if (!templateId) {
@@ -402,7 +564,57 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
         ) : null}
 
         {/* 입력 폼 — 확인 단계에서도 DOM에 남겨 FormData 를 유지한다 */}
-        <form ref={formRef} className={step === 'confirm' ? 'hidden' : ''} onSubmit={(e) => e.preventDefault()}>
+        <form
+          ref={formRef}
+          className={step === 'confirm' ? 'hidden' : ''}
+          onSubmit={(e) => e.preventDefault()}
+          onInput={(e) => {
+            // 사용자가 손대는 순간 그 칸은 더 이상 "가져온 값"이 아니다
+            const t = e.target as HTMLElement;
+            if (t.dataset?.prefilled) {
+              delete t.dataset.prefilled;
+              t.classList.remove('bg-coral-tint');
+            }
+          }}
+        >
+          <input type="hidden" name="productId" value={productId} />
+
+          {/* DETAIL-01b 제품 선택 — 폼의 맨 앞. 이 칸이 없어서 생성기가 상품명을 지어냈다(UT-58) */}
+          <SectionCard
+            step={1}
+            title="제품"
+            pill="required"
+            desc="어느 제품인지 먼저 고르세요. 같은 제품으로 다시 만들 때 지난 입력을 그대로 가져옵니다."
+          >
+            <ProductPicker value={productId} onSelect={selectProduct} />
+            {prefill && (prefill.count > 0 || prefill.choice) && (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg bg-coral-tint px-4 py-3">
+                <p className="flex-1 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
+                  <b>
+                    지난 생성에서{' '}
+                    {[prefill.count > 0 ? `${prefill.count}개 칸` : '', prefill.choice ? '템플릿·채널' : '']
+                      .filter(Boolean)
+                      .join('과 ')}
+                    을 가져왔습니다.
+                  </b>
+                  {prefill.lastAssetAt ? ` (${new Date(prefill.lastAssetAt).toLocaleDateString('ko-KR')} 생성분)` : ''}{' '}
+                  {prefill.count > 0 ? '색이 들어간 칸이 가져온 값입니다. 그대로 두거나 고쳐 쓰세요.' : ''}
+                  {prefill.choice ? ' 템플릿·채널은 아래에서 바꿀 수 있습니다.' : ''}
+                </p>
+                {prefill.count > 0 && (
+                  <button type="button" onClick={clearPrefill} className={buttonClass('secondary', 'sm')}>
+                    가져온 값 지우기
+                  </button>
+                )}
+              </div>
+            )}
+            {prefill && prefill.count === 0 && !prefill.choice && (
+              <p className="mt-4 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+                이 제품의 첫 상세페이지입니다. 아래 항목을 채워 주세요.
+              </p>
+            )}
+          </SectionCard>
+
           {/*
             DETAIL-02 원본 이미지 — 2026-08-19 분리.
             제품컷은 images.edit 의 base라 제품 형상·라벨이 여기서 결정된다. 예전에는 한 칸에
@@ -410,7 +622,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
             순서로" 안내해서 텍스트가 얹힌 상세 스크린샷이 제품 자리를 차지하는 일이 있었다.
           */}
           <SectionCard
-            step={1}
+            step={2}
             title="제품컷"
             pill="required"
             desc="이 이미지를 기준으로 제품 사진을 다시 그립니다. 배경이 깔끔한 제품 단독컷 1장을 올려 주세요."
@@ -431,16 +643,39 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 className="sr-only"
                 onChange={(e) => acceptProduct(e.target.files)}
               />
-              <button type="button" onClick={() => productRef.current?.click()} className={buttonClass('secondary', 'md')}>
+              <button
+                type="button"
+                onClick={() => productRef.current?.click()}
+                className={buttonClass('secondary', 'md')}
+              >
                 <IconUpload /> {productFile ? '제품컷 바꾸기' : '제품컷 선택'}
               </button>
               <p className="mt-2 text-xs text-ink-mute">JPG · PNG · WebP · 10MB 이하</p>
             </div>
+            {/* DETAIL-02 2d — 고른 제품에 대표컷이 있으면 매번 다시 올리지 않게 한다 */}
+            {!productFile && product && product.images.length > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg bg-coral-tint px-4 py-3">
+                <p className="flex-1 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
+                  <b>{product.nameKr}</b>의 대표컷을 쓸까요?
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void useProductPrimary()}
+                  className={buttonClass('secondary', 'sm')}
+                >
+                  대표컷 쓰기
+                </button>
+              </div>
+            )}
             {productPreview && (
               <div className="mt-4 flex items-center gap-3.5">
                 <span className="relative">
                   {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
-                  <img src={productPreview} alt="제품컷 미리보기" className="h-24 w-24 rounded-lg border border-card-border object-cover" />
+                  <img
+                    src={productPreview}
+                    alt="제품컷 미리보기"
+                    className="h-24 w-24 rounded-lg border border-card-border object-cover"
+                  />
                   <button
                     type="button"
                     onClick={clearProduct}
@@ -459,7 +694,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
           {/* DETAIL-02b 한국 상세페이지 원본 — 비전(갭 진단) 입력 전용 */}
           <SectionCard
-            step={2}
+            step={3}
             title="한국 상세페이지 원본"
             pill="optional"
             pillTone="optional"
@@ -492,8 +727,14 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 {previews.map((src, i) => (
                   <li key={src} className="relative">
                     {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
-                    <img src={src} alt={`상세 원본 ${i + 1}`} className="h-24 w-24 rounded-lg border border-card-border object-cover" />
-                    <span className="absolute top-1 left-1 rounded bg-ink/70 px-1.5 text-[11px] font-bold text-white">{i + 1}</span>
+                    <img
+                      src={src}
+                      alt={`상세 원본 ${i + 1}`}
+                      className="h-24 w-24 rounded-lg border border-card-border object-cover"
+                    />
+                    <span className="absolute top-1 left-1 rounded bg-ink/70 px-1.5 text-[11px] font-bold text-white">
+                      {i + 1}
+                    </span>
                     <button
                       type="button"
                       onClick={() => removeFile(i)}
@@ -509,11 +750,21 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-03 카테고리·플랫폼 */}
-          <SectionCard step={3} title="상품 종류 · 타깃 플랫폼" pill="required" desc="상품 종류가 템플릿과 이미지 분위기를 정합니다.">
+          <SectionCard
+            step={4}
+            title="상품 종류 · 타깃 플랫폼"
+            pill="required"
+            desc="상품 종류가 템플릿과 이미지 분위기를 정합니다."
+          >
             <p className={fieldLabelClass}>상품 종류</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {CATEGORIES.map((c) => (
-                <button key={c.id} type="button" onClick={() => setCategory(c.id)} className={chipClass(category === c.id)}>
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setCategory(c.id)}
+                  className={chipClass(category === c.id)}
+                >
                   {c.label}
                 </button>
               ))}
@@ -535,7 +786,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
           {/* DETAIL-04 템플릿 */}
           <SectionCard
-            step={4}
+            step={5}
             title="템플릿"
             pill="required"
             desc="상세페이지는 순서가 핵심입니다. 미리보기는 이 템플릿을 실제로 돌려 만든 결과입니다."
@@ -574,7 +825,9 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                             </span>
                           ))}
                           {t.sequencePreview.length > 3 && (
-                            <span className="block text-[11px] text-ink-faint">외 {t.sequencePreview.length - 3}개</span>
+                            <span className="block text-[11px] text-ink-faint">
+                              외 {t.sequencePreview.length - 3}개
+                            </span>
                           )}
                         </span>
                       </span>
@@ -640,13 +893,15 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                         style={{ backgroundColor: extracted.accent }}
                       />
                       {extracted.ok ? (
-                        <>제품컷에서 <code className="text-ink">{extracted.accent}</code> 를 뽑았습니다.</>
+                        <>
+                          제품컷에서 <code className="text-ink">{extracted.accent}</code> 를 뽑았습니다.
+                        </>
                       ) : (
                         // 추출 실패를 조용히 넘기지 않는다 — 사용자가 직접 고를 수 있어야 한다
                         <>
                           제품컷이 무채색에 가까워 색을 뽑지 못했습니다. 상품 종류 기본색(
-                          <code className="text-ink">{extracted.accent}</code>)을 씁니다 — 원하는 색이 있으면 직접
-                          골라 주세요.
+                          <code className="text-ink">{extracted.accent}</code>)을 씁니다 — 원하는 색이 있으면 직접 골라
+                          주세요.
                         </>
                       )}
                     </>
@@ -737,7 +992,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
           {/* DETAIL-05 제품 스펙 */}
           <SectionCard
-            step={5}
+            step={6}
             title="제품 스펙"
             pill="required"
             desc="표시 의무 항목입니다. 내용을 고쳐 쓰지 않고, 한국어로 입력하시면 일본 표기로만 바꿔 넣습니다 — 바꾼 결과는 다음 단계에서 확인·수정하실 수 있습니다."
@@ -767,10 +1022,19 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-05b 성분·무첨가·사용법 */}
-          <SectionCard step={6} title="성분 · 무첨가 · 사용법" desc="성분을 입력하지 않으면 성분·기전 블록은 넣지 않습니다. 성분명을 지어내지 않습니다.">
+          <SectionCard
+            step={7}
+            title="성분 · 무첨가 · 사용법"
+            desc="성분을 입력하지 않으면 성분·기전 블록은 넣지 않습니다. 성분명을 지어내지 않습니다."
+          >
             <label className="block">
               <span className={fieldLabelClass}>성분 (한 줄에 하나 · 성분명|농도|배합목적)</span>
-              <textarea name="ingredientRows" rows={3} className={inputClass} placeholder={'ナイアシンアミド|2%|整肌成分\nヒアルロン酸Na||保湿成分'} />
+              <textarea
+                name="ingredientRows"
+                rows={3}
+                className={inputClass}
+                placeholder={'ナイアシンアミド|2%|整肌成分\nヒアルロン酸Na||保湿成分'}
+              />
             </label>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>무첨가 항목 (한 줄에 하나)</span>
@@ -782,7 +1046,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
             </label>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>사용법 STEP (한 줄에 하나)</span>
-              <textarea name="howToSteps" rows={3} className={inputClass} placeholder={'洗顔後、化粧水で肌をととのえます。'} />
+              <textarea
+                name="howToSteps"
+                rows={3}
+                className={inputClass}
+                placeholder={'洗顔後、化粧水で肌をととのえます。'}
+              />
             </label>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>주의사항 (한 줄에 하나)</span>
@@ -791,7 +1060,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-06 근거(접이식) */}
-          <Accordion open={openEvidence} onToggle={() => setOpenEvidence((v) => !v)} title="실적 · 시험 근거" hint="그룹별로 전부 채워야 해당 블록이 들어갑니다">
+          <Accordion
+            open={openEvidence}
+            onToggle={() => setOpenEvidence((v) => !v)}
+            title="실적 · 시험 근거"
+            hint="그룹별로 전부 채워야 해당 블록이 들어갑니다"
+          >
             <div className="grid gap-3 sm:grid-cols-3">
               <input name="proofRankTitle" className={inputClass} placeholder="실적명 (楽天ランキング1位)" />
               <input name="proofGenre" className={inputClass} placeholder="부문 (美容液部門)" />
@@ -816,7 +1090,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
 
           {/* DETAIL-06b 프로모(접이식) */}
           {!amazonSelected && (
-            <Accordion open={openPromo} onToggle={() => setOpenPromo((v) => !v)} title="프로모션" hint="세트명·판매가가 있어야 가격 블록이 들어갑니다">
+            <Accordion
+              open={openPromo}
+              onToggle={() => setOpenPromo((v) => !v)}
+              title="프로모션"
+              hint="세트명·판매가가 있어야 가격 블록이 들어갑니다"
+            >
               <div className="grid gap-3 sm:grid-cols-2">
                 <input name="promoSetTitle" className={inputClass} placeholder="세트명 (2個セット)" />
                 <input name="promoSalePrice" className={inputClass} placeholder="판매가 (1,920)" />
@@ -827,29 +1106,51 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
               </div>
               <label className="mt-3 flex items-start gap-2 text-[13px] leading-relaxed text-ink-body">
                 <input type="checkbox" name="promoNormalPriceVerified" value="true" className="mt-0.5" />
-                <span>통상가로 실제 판매한 실적이 있습니다. (체크하지 않으면 통상가 취소선을 넣지 않습니다 — 有利誤認 방지)</span>
+                <span>
+                  통상가로 실제 판매한 실적이 있습니다. (체크하지 않으면 통상가 취소선을 넣지 않습니다 — 有利誤認 방지)
+                </span>
               </label>
               <input name="promoFootnote" className={`${inputClass} mt-3`} placeholder="가격 조건 각주" />
             </Accordion>
           )}
 
           {/* DETAIL-06c 옵션(접이식) */}
-          <Accordion open={openOption} onToggle={() => setOpenOption((v) => !v)} title="옵션" hint="2개 이상이면 옵션 블록이 들어갑니다">
+          <Accordion
+            open={openOption}
+            onToggle={() => setOpenOption((v) => !v)}
+            title="옵션"
+            hint="2개 이상이면 옵션 블록이 들어갑니다"
+          >
             <p className={fieldLabelClass}>옵션 축</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {OPTION_AXES.map((a) => (
-                <button key={a.id} type="button" onClick={() => setOptionAxis(a.id)} className={chipClass(optionAxis === a.id)}>
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => setOptionAxis(a.id)}
+                  className={chipClass(optionAxis === a.id)}
+                >
                   {a.label}
                 </button>
               ))}
             </div>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>옵션 목록 (이름|색상값|품번)</span>
-              <textarea name="optionRows" rows={3} className={inputClass} placeholder={'01 ローズベージュ|#c86b5a|SHADE 1'} />
+              <textarea
+                name="optionRows"
+                rows={3}
+                className={inputClass}
+                placeholder={'01 ローズベージュ|#c86b5a|SHADE 1'}
+              />
             </label>
             <label className="mt-3 block">
               <span className={fieldLabelClass}>모델컷 (퍼스널컬러 블록용)</span>
-              <input type="file" name="modelImage" accept="image/jpeg,image/png,image/webp" className="mt-1 block text-sm" />
+              <input
+                type="file"
+                name="modelImage"
+                accept="image/jpeg,image/png,image/webp"
+                className="mt-1 block text-sm"
+              />
             </label>
             <label className="mt-2 flex items-start gap-2 text-[13px] leading-relaxed text-ink-body">
               <input type="checkbox" name="modelConsent" value="true" className="mt-0.5" />
@@ -858,7 +1159,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </Accordion>
 
           {/* DETAIL-07 추가 요청 */}
-          <SectionCard step={7} title="추가 요청" desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다.">
+          <SectionCard
+            step={8}
+            title="추가 요청"
+            desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다."
+          >
             <textarea name="note" rows={2} className={inputClass} placeholder="예: 전체적으로 더 밝고 화사하게" />
             <p className="mt-2 text-xs leading-relaxed text-ink-faint [text-wrap:pretty]">
               한국어로 쓰셔도 됩니다 — 이미지 생성 모델에는 영어로 바꿔 전달합니다.
@@ -866,10 +1171,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           <p className="mt-4 rounded-lg bg-coral-tint px-4 py-3 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
-            번역이 아니라 <b>일본 고객 관점의 메시지 재설계</b>입니다. 근거를 입력하지 않은 배지·가격·수치는 만들지 않습니다.
+            번역이 아니라 <b>일본 고객 관점의 메시지 재설계</b>입니다. 근거를 입력하지 않은 배지·가격·수치는 만들지
+            않습니다.
             <br />
-            입력은 <b>한국어로 하셔도 됩니다.</b> 사실 정보(성분·스펙·주의사항 등)는 일본 표기로 바꿔 넣고, 바꾼 결과를 다음
-            단계에서 보여 드립니다. 수치·가격은 원문 그대로 유지합니다.
+            입력은 <b>한국어로 하셔도 됩니다.</b> 사실 정보(성분·스펙·주의사항 등)는 일본 표기로 바꿔 넣고, 바꾼 결과를
+            다음 단계에서 보여 드립니다. 수치·가격은 원문 그대로 유지합니다.
           </p>
         </form>
       </div>
@@ -913,6 +1219,209 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       </StudioActionBar>
       <TemplateZoom template={zoom} onClose={() => setZoom(null)} />
     </main>
+  );
+}
+
+/**
+ * 제품 선택(DETAIL-01b).
+ *
+ * 제품이 없으면 **그 자리에서 만든다** — 브랜드 관리로 보내면 작성 중인 입력을 잃고 이탈한다.
+ * 바깥이 이미 `<form>` 이라 여기서 폼을 중첩하지 않는다. 등록은 FormData 를 직접 만들어 보낸다.
+ */
+function ProductPicker({ value, onSelect }: { value: string; onSelect: (p: ProductOption | null) => void }) {
+  const [products, setProducts] = useState<ProductOption[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [nameKr, setNameKr] = useState('');
+  const [nameJa, setNameJa] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch('/api/products');
+      if (!res.ok) {
+        setLoadError('제품 목록을 불러오지 못했습니다.');
+        setProducts([]);
+        return;
+      }
+      const data = (await res.json()) as { products: ProductOption[] };
+      setProducts(data.products);
+      setLoadError(null);
+      // 제품이 하나뿐이면 고르는 행위 자체가 의미 없다 — 바로 선택한다
+      if (data.products.length === 1) onSelect(data.products[0]);
+    } catch {
+      setLoadError('제품 목록을 불러오지 못했습니다.');
+      setProducts([]);
+    }
+  }, [onSelect]);
+
+  useEffect(() => {
+    void load();
+    // 최초 1회만 — onSelect 가 바뀔 때마다 다시 부르면 선택이 초기화된다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function create() {
+    const name = nameKr.trim();
+    if (!name) {
+      setCreateError('제품명(KR)을 입력해 주세요.');
+      return;
+    }
+    setBusy(true);
+    setCreateError(null);
+    try {
+      const fd = new FormData();
+      fd.set('nameKr', name);
+      fd.set('nameJa', nameJa.trim());
+      const res = await fetch('/api/products', { method: 'POST', body: fd });
+      const data = (await res.json()) as { product?: ProductOption; error?: string };
+      if (!res.ok || !data.product) {
+        setCreateError(data.error ?? '제품을 등록하지 못했습니다.');
+        return;
+      }
+      setProducts((prev) => [data.product as ProductOption, ...(prev ?? [])]);
+      onSelect(data.product);
+      setCreating(false);
+      setNameKr('');
+      setNameJa('');
+    } catch {
+      setCreateError('제품을 등록하지 못했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (products === null) {
+    return <div className="h-20 animate-pulse rounded-xl bg-card-border/40" aria-label="제품 목록 불러오는 중" />;
+  }
+
+  return (
+    <div>
+      {loadError && (
+        <p role="alert" className="mb-3 text-[13px] text-danger-text">
+          {loadError}
+        </p>
+      )}
+
+      {products.length === 0 && !creating && (
+        <div className="rounded-xl border border-dashed border-input-border p-6 text-center">
+          <p className="text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+            아직 등록한 제품이 없습니다. 여기서 바로 만들 수 있습니다.
+          </p>
+          <button type="button" onClick={() => setCreating(true)} className={buttonClass('secondary', 'md', 'mt-3')}>
+            제품 등록
+          </button>
+        </div>
+      )}
+
+      {products.length > 0 && (
+        <div role="radiogroup" aria-label="제품 선택" className="grid gap-2.5 sm:grid-cols-2">
+          {products.map((p) => {
+            const primary = p.images.find((im) => im.isPrimary) ?? p.images[0];
+            const selected = p.id === value;
+            return (
+              <label
+                key={p.id}
+                className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition ${
+                  selected ? 'border-coral bg-coral-tint' : 'border-card-border hover:border-coral/50'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="productPick"
+                  value={p.id}
+                  checked={selected}
+                  onChange={() => onSelect(p)}
+                  className="sr-only"
+                />
+                {primary ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- 저장소 fileId 직접 서빙
+                  <img
+                    src={`/api/files/${primary.fileId}`}
+                    alt=""
+                    className="h-12 w-12 flex-none rounded-lg border border-card-border object-cover"
+                  />
+                ) : (
+                  <span className="h-12 w-12 flex-none rounded-lg bg-card-border/40" aria-hidden />
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[14px] font-semibold text-ink">{p.nameKr}</span>
+                  <span className="block truncate text-xs text-ink-mute">
+                    {[p.nameJa, p.category].filter(Boolean).join(' · ') || '일본어 제품명 미입력'}
+                  </span>
+                </span>
+                {selected && (
+                  <span aria-hidden className="flex-none text-[15px] font-bold text-coral-strong">
+                    ✓
+                  </span>
+                )}
+              </label>
+            );
+          })}
+        </div>
+      )}
+
+      {products.length > 0 && !creating && (
+        <button type="button" onClick={() => setCreating(true)} className={buttonClass('ghost', 'sm', 'mt-3')}>
+          + 새 제품 등록
+        </button>
+      )}
+
+      {creating && (
+        <div className="mt-3 rounded-xl border border-card-border p-4">
+          <p className="text-[13px] font-semibold text-ink">새 제품 등록</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <span>
+              <label htmlFor="newProductKr" className={fieldLabelClass}>
+                제품명 (KR) · 필수
+              </label>
+              <input
+                id="newProductKr"
+                value={nameKr}
+                onChange={(e) => setNameKr(e.target.value)}
+                className={inputClass}
+                placeholder="예: 시카 진정 앰플"
+              />
+            </span>
+            <span>
+              <label htmlFor="newProductJa" className={fieldLabelClass}>
+                제품명 (JA)
+              </label>
+              <input
+                id="newProductJa"
+                value={nameJa}
+                onChange={(e) => setNameJa(e.target.value)}
+                className={inputClass}
+                placeholder="例: シカ鎮静アンプル"
+              />
+            </span>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-ink-faint [text-wrap:pretty]">
+            일본어 제품명은 히어로 블록의 상품명으로 <b>그대로</b> 들어갑니다. 비워 두면 상품명을 넣지 않습니다 —
+            한국어를 대신 찍지 않기 위해서입니다.
+          </p>
+          {createError && (
+            <p role="alert" className="mt-2 text-xs text-danger-text">
+              {createError}
+            </p>
+          )}
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void create()}
+              className={buttonClass('primary', 'sm')}
+            >
+              {busy ? '등록 중…' : '등록하고 선택'}
+            </button>
+            <button type="button" onClick={() => setCreating(false)} className={buttonClass('secondary', 'sm')}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1051,8 +1560,8 @@ function TranslationPanel({
           <h3 className="text-sm font-bold text-ink">한국어로 입력하신 항목이 있습니다</h3>
         </div>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-          일본 표기로 바꿔서 넣습니다. 바꾼 결과를 미리 확인·수정하시려면 로그인해 주세요. 로그인하지 않고 생성하면 변환은
-          그대로 적용되지만 검토 단계를 건너뛰게 됩니다.
+          일본 표기로 바꿔서 넣습니다. 바꾼 결과를 미리 확인·수정하시려면 로그인해 주세요. 로그인하지 않고 생성하면
+          변환은 그대로 적용되지만 검토 단계를 건너뛰게 됩니다.
         </p>
       </section>
     );
@@ -1066,8 +1575,8 @@ function TranslationPanel({
           <h3 className="text-sm font-bold text-ink">한국어 입력을 일본어로 바꾸지 못했습니다</h3>
         </div>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-          이대로 생성하면 한국어가 남은 항목의 블록이 만들어지지 않습니다. 잠시 후 다시 시도하시거나, 해당 항목을 일본어로 직접
-          입력해 주세요.
+          이대로 생성하면 한국어가 남은 항목의 블록이 만들어지지 않습니다. 잠시 후 다시 시도하시거나, 해당 항목을
+          일본어로 직접 입력해 주세요.
         </p>
       </section>
     );
@@ -1091,8 +1600,8 @@ function TranslationPanel({
         )}
       </div>
       <p className="mt-1.5 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-        한국어로 입력하신 항목을 일본 표기로 바꿨습니다. 수치·가격은 원문과 같은지 자동으로 대조했고, 아래에서 직접 고치실 수
-        있습니다.
+        한국어로 입력하신 항목을 일본 표기로 바꿨습니다. 수치·가격은 원문과 같은지 자동으로 대조했고, 아래에서 직접
+        고치실 수 있습니다.
       </p>
 
       {alwaysOpen.length > 0 && (
@@ -1131,7 +1640,9 @@ function TranslationPanel({
 function TranslationRow({ field, onEdit }: { field: TranslatedField; onEdit: (path: string, ja: string) => void }) {
   const inputId = `tr-${field.path.replace(/[^\w-]/g, '-')}`;
   return (
-    <li className={`rounded-lg border px-4 py-3 ${field.ok ? 'border-card-border bg-n-50' : 'border-danger bg-danger-bg'}`}>
+    <li
+      className={`rounded-lg border px-4 py-3 ${field.ok ? 'border-card-border bg-n-50' : 'border-danger bg-danger-bg'}`}
+    >
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[13px] font-semibold text-ink-body">{field.label}</span>
         {field.kind === 'regulated' && <StatusBadge tone="warn">표시 의무 — 반드시 확인</StatusBadge>}
@@ -1179,7 +1690,12 @@ function Accordion({
 }) {
   return (
     <section className={`${cardClass} mt-4 overflow-hidden`}>
-      <button type="button" onClick={onToggle} aria-expanded={open} className="flex w-full items-center justify-between px-5 py-4 text-left">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between px-5 py-4 text-left"
+      >
         <span>
           <span className="text-sm font-bold text-ink">{title}</span>
           <span className="ml-2 text-xs text-ink-mute">{hint}</span>
@@ -1212,12 +1728,17 @@ function ConfirmStep({
     <div className="mt-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-ink">블록 구성 확인</h2>
-        <button type="button" onClick={onBack} className="text-[13px] font-medium text-coral-strong underline-offset-2 hover:underline">
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-[13px] font-medium text-coral-strong underline-offset-2 hover:underline"
+        >
           입력으로 돌아가기
         </button>
       </div>
       <p className="mt-1.5 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-        약 {minutes}분 걸립니다 · 블록 {plan.blocks.length}개 (이미지 생성 {plan.aiBlockCount}개) · 출력 폭 {plan.output.width}px
+        약 {minutes}분 걸립니다 · 블록 {plan.blocks.length}개 (이미지 생성 {plan.aiBlockCount}개) · 출력 폭{' '}
+        {plan.output.width}px
       </p>
       <p className="mt-2 rounded-lg bg-n-50 px-3 py-2 text-xs leading-relaxed text-ink-mute">{plan.output.note}</p>
 

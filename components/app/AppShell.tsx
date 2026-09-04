@@ -23,14 +23,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { YoakeLogo, YoakeMark } from '@/components/brand/Logo';
 import { StatusBadge, type BadgeTone } from '@/components/ui/primitives';
-import {
-  IconCamera,
-  IconChevronLeft,
-  IconChevronUp,
-  IconHome,
-  IconReport,
-  IconSliders,
-} from '@/components/ui/icons';
+import { IconCamera, IconChevronLeft, IconChevronUp, IconHome, IconReport, IconSliders } from '@/components/ui/icons';
 
 interface ShellProps {
   /** 로그인 세션 유저 — /app 이하는 로그인 필수라 항상 존재한다 */

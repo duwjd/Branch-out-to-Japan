@@ -73,12 +73,7 @@ export const LEAD_KINDS: readonly LeadKind[] = ['consultation', 'resource'];
 
 /** 전환 퍼널 이벤트 — 방문→CTA클릭→영상재생→신청 */
 export type TrackEventType = 'pageview' | 'cta_click' | 'video_play' | 'lead_submit';
-export const TRACK_EVENT_TYPES: readonly TrackEventType[] = [
-  'pageview',
-  'cta_click',
-  'video_play',
-  'lead_submit',
-];
+export const TRACK_EVENT_TYPES: readonly TrackEventType[] = ['pageview', 'cta_click', 'video_play', 'lead_submit'];
 
 const CHANNEL_VALUES = [
   ...LEAD_CHANNELS.map((c) => c.value as string),
@@ -101,9 +96,7 @@ export function isKnownPainPoint(v: unknown): v is string {
 /** 채널/단계 value → 라벨(대시보드·확인 화면 표시용) */
 export function channelLabel(value: string): string {
   return (
-    LEAD_CHANNELS.find((c) => c.value === value)?.label ??
-    PILOT_CHANNELS.find((c) => c.value === value)?.label ??
-    value
+    LEAD_CHANNELS.find((c) => c.value === value)?.label ?? PILOT_CHANNELS.find((c) => c.value === value)?.label ?? value
   );
 }
 export function stageLabel(value: string): string {

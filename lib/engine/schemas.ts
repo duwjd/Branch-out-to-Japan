@@ -11,6 +11,8 @@
 
 import type { RubricItemId } from './types';
 
+// 루브릭 id 목록 — 18개를 한 줄로 두어야 rubric.ts 표와 대조된다
+// prettier-ignore
 const RUBRIC_ITEM_IDS: RubricItemId[] = [
   'A1', 'A2', 'A3', 'A4', 'A5', 'B1', 'B2', 'C1', 'C2', 'C3', 'D1', 'D2', 'D3', 'D4', 'E1', 'E2', 'E3', 'E4',
 ];
@@ -30,9 +32,15 @@ export const CALL1_OUTPUT_SCHEMA = {
         properties: {
           itemId: { type: 'string', enum: RUBRIC_ITEM_IDS },
           score: { type: 'integer', enum: [0, 1, 2] },
-          evidenceQuote: { type: 'string', description: '고객 원문에서 판정 근거 문장을 그대로 인용(원문 언어 유지). 없으면 빈 문자열' },
+          evidenceQuote: {
+            type: 'string',
+            description: '고객 원문에서 판정 근거 문장을 그대로 인용(원문 언어 유지). 없으면 빈 문자열',
+          },
           criterionRef: { type: 'string', description: '(한국어) 적용한 통과기준 요약' },
-          corpusRef: { type: 'string', description: '(일본어 인용 가능) 대비한 코퍼스 관례 근거 — 사전집계 안의 표현만 그대로 인용' },
+          corpusRef: {
+            type: 'string',
+            description: '(일본어 인용 가능) 대비한 코퍼스 관례 근거 — 사전집계 안의 표현만 그대로 인용',
+          },
         },
       },
     },
@@ -54,9 +62,15 @@ export const CALL2_OUTPUT_SCHEMA = {
         properties: {
           sentenceId: { type: 'string' },
           verdict: { type: 'string', enum: ['불가', '조건부', '가능'] },
-          reason: { type: 'string', description: '(한국어) 왜 이 판정인지 — 재설계 관점 설명. 일본어 표현을 짚을 때만 「」로 인용' },
+          reason: {
+            type: 'string',
+            description: '(한국어) 왜 이 판정인지 — 재설계 관점 설명. 일본어 표현을 짚을 때만 「」로 인용',
+          },
           clauseRefs: { type: 'array', items: { type: 'string' }, description: '규정 요약의 조항 id만 사용' },
-          altTextJa: { type: 'string', description: '(일본어) 소구 유지 합법 대체표현. 한글을 남기지 말 것. 가능 판정이면 빈 문자열' },
+          altTextJa: {
+            type: 'string',
+            description: '(일본어) 소구 유지 합법 대체표현. 한글을 남기지 말 것. 가능 판정이면 빈 문자열',
+          },
         },
       },
     },
@@ -83,15 +97,35 @@ export const CALL3_OUTPUT_SCHEMA = {
     persona: {
       type: 'object',
       additionalProperties: false,
-      required: ['name', 'ageRange', 'skinConcerns', 'buyingMotive', 'checkBehaviors', 'priceSensitivity', 'trustTriggers'],
+      required: [
+        'name',
+        'ageRange',
+        'skinConcerns',
+        'buyingMotive',
+        'checkBehaviors',
+        'priceSensitivity',
+        'trustTriggers',
+      ],
       properties: {
         name: { type: 'string', description: '(일본어) 일본인 페르소나의 이름. 예: ユイ' },
         ageRange: { type: 'string', description: '(한국어) 예: 20대 후반~30대 초반' },
-        skinConcerns: { type: 'array', items: { type: 'string' }, description: '(일본어 어휘) 일본 고객이 실제로 쓰는 고민어. 예: 乾燥 · 肌あれ · 毛穴' },
+        skinConcerns: {
+          type: 'array',
+          items: { type: 'string' },
+          description: '(일본어 어휘) 일본 고객이 실제로 쓰는 고민어. 예: 乾燥 · 肌あれ · 毛穴',
+        },
         buyingMotive: { type: 'string', description: '(한국어) 무엇이 보일 때 사는가 — 한국 담당자가 읽는 서술' },
-        checkBehaviors: { type: 'array', items: { type: 'string' }, description: '(한국어 서술 + 일본 관례어) 예: @cosme·LIPS 리뷰 확인' },
+        checkBehaviors: {
+          type: 'array',
+          items: { type: 'string' },
+          description: '(한국어 서술 + 일본 관례어) 예: @cosme·LIPS 리뷰 확인',
+        },
         priceSensitivity: { type: 'string', description: '(한국어) 가격 미제공이면 빈 문자열(추론 금지)' },
-        trustTriggers: { type: 'array', items: { type: 'string' }, description: '(일본어 어휘) 신뢰를 만드는 일본 관례 표기. 예: 効能評価試験済み' },
+        trustTriggers: {
+          type: 'array',
+          items: { type: 'string' },
+          description: '(일본어 어휘) 신뢰를 만드는 일본 관례 표기. 예: 効能評価試験済み',
+        },
       },
     },
     journey: {
@@ -99,7 +133,11 @@ export const CALL3_OUTPUT_SCHEMA = {
       additionalProperties: false,
       required: ['stages', 'finalConfidencePoint'],
       properties: {
-        stages: { type: 'array', items: { type: 'string' }, description: '(한국어) 인지→탐색→구매 3단계 서술. 일본 관례어는 그대로 섞어도 되지만 문장은 한국어' },
+        stages: {
+          type: 'array',
+          items: { type: 'string' },
+          description: '(한국어) 인지→탐색→구매 3단계 서술. 일본 관례어는 그대로 섞어도 되지만 문장은 한국어',
+        },
         finalConfidencePoint: { type: 'string', description: '(한국어) 무엇에서 최종 확신을 얻는가' },
       },
     },
@@ -110,7 +148,10 @@ export const CALL3_OUTPUT_SCHEMA = {
         additionalProperties: false,
         required: ['question', 'why'],
         properties: {
-          question: { type: 'string', description: '(일본어) 일본 고객이 머릿속에 떠올리는 의문의 원문. 예: 「化粧品でそんな効果出るの?」' },
+          question: {
+            type: 'string',
+            description: '(일본어) 일본 고객이 머릿속에 떠올리는 의문의 원문. 예: 「化粧品でそんな効果出るの?」',
+          },
           why: { type: 'string', description: '(한국어) 왜 그런 의문이 생기는지 — 한국 담당자가 읽는 설명' },
         },
       },
@@ -123,8 +164,15 @@ export const CALL3_OUTPUT_SCHEMA = {
         required: ['krAppeal', 'jpReading', 'redefinedUsp'],
         properties: {
           krAppeal: { type: 'string', description: '(한국어) 지금 한국식 소구가 무엇인가' },
-          jpReading: { type: 'string', description: '(한국어) 그 소구가 일본 고객에게 어떻게 읽히는지(리스크)를 **한국어로 설명**. 일본어를 적는 칸이 아니다' },
-          redefinedUsp: { type: 'string', description: '(한국어) 재정의된 구매이유를 **한국어로 설명**. 일본어 카피안은 블록7 afterJa 의 몫이다' },
+          jpReading: {
+            type: 'string',
+            description:
+              '(한국어) 그 소구가 일본 고객에게 어떻게 읽히는지(리스크)를 **한국어로 설명**. 일본어를 적는 칸이 아니다',
+          },
+          redefinedUsp: {
+            type: 'string',
+            description: '(한국어) 재정의된 구매이유를 **한국어로 설명**. 일본어 카피안은 블록7 afterJa 의 몫이다',
+          },
         },
       },
     },
@@ -136,7 +184,10 @@ export const CALL3_OUTPUT_SCHEMA = {
         required: ['infoGap', 'distrustSignal', 'dropOff'],
         properties: {
           infoGap: { type: 'string', description: '(한국어) 진단된 정보 공백' },
-          distrustSignal: { type: 'string', description: '(한국어) 고객이 떠올리는 의문. 일본어 의문은 「」로 인용하고 문장은 한국어' },
+          distrustSignal: {
+            type: 'string',
+            description: '(한국어) 고객이 떠올리는 의문. 일본어 의문은 「」로 인용하고 문장은 한국어',
+          },
           dropOff: { type: 'string', description: '(한국어) 어느 단계에서 이탈하는가' },
         },
       },
@@ -167,9 +218,17 @@ export const CALL4_OUTPUT_SCHEMA = {
           beforeKr: { type: 'string', description: '고객 원문을 그대로 인용(원문 언어 유지)' },
           problem: { type: 'string', description: '(한국어) 어느 루브릭·약기법 이슈인지 + 왜' },
           afterJa: { type: 'string', description: '(일본어) 일본향 재설계안. 한글을 남기지 말 것' },
-          afterKr: { type: 'string', description: '(한국어) After의 역문 — 직역이 아니라 "이 일본어가 일본 고객에게 전하는 의미". 일본어 문장을 쓰지 말 것' },
+          afterKr: {
+            type: 'string',
+            description:
+              '(한국어) After의 역문 — 직역이 아니라 "이 일본어가 일본 고객에게 전하는 의미". 일본어 문장을 쓰지 말 것',
+          },
           reason: { type: 'string', description: '(한국어) 무엇을 왜 바꿨는가' },
-          whatAdded: { type: 'array', items: { type: 'string' }, description: '(한국어) 무엇을 더했는가 — 근거 라벨·각주·성분 정량 등' },
+          whatAdded: {
+            type: 'array',
+            items: { type: 'string' },
+            description: '(한국어) 무엇을 더했는가 — 근거 라벨·각주·성분 정량 등',
+          },
           uspRowIndex: { type: 'integer', description: 'USP 표에서 실행하는 행 인덱스(0부터). 없으면 -1' },
         },
       },

@@ -79,11 +79,7 @@ function extractOnPage(page) {
       if (!img) continue;
       // Qoo10은 gd_src 에 실제 URL을 담고 src 에는 로딩 플레이스홀더를 넣는다.
       // 실측(2026-08-10): 200 타일 중 180개가 미로드 상태 — gd_src 를 먼저 봐야 한다.
-      const src = img.getAttribute('gd_src')
-        || img.getAttribute('data-original')
-        || img.currentSrc
-        || img.src
-        || '';
+      const src = img.getAttribute('gd_src') || img.getAttribute('data-original') || img.currentSrc || img.src || '';
       if (!/gd\.image-qoo10\.jp/.test(src)) continue;
       // 상품명은 이미지 alt 가 가장 온전하다(타일 텍스트는 가격·배지가 섞인다)
       const name = (img.alt || a.textContent || '').trim().replace(/\s+/g, ' ');
@@ -156,7 +152,11 @@ async function main() {
         await sleep(400);
       }
     }
-    logger.info('완료', { newRecords: collected.length, imagesDownloaded: totalImages, catalog: path.relative(REPO_ROOT, CATALOG_PATH) });
+    logger.info('완료', {
+      newRecords: collected.length,
+      imagesDownloaded: totalImages,
+      catalog: path.relative(REPO_ROOT, CATALOG_PATH),
+    });
   } finally {
     await browser.close();
   }

@@ -1,3 +1,13 @@
+---
+title: CLAUDE.md — YOAKE (일본 시장 진출 브랜드 전환 스튜디오)
+space: 프로젝트 기준
+status: 정본
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [팀규칙, 에이전트]
+---
+
 # CLAUDE.md — YOAKE (일본 시장 진출 브랜드 전환 스튜디오)
 
 > 이 파일은 **팀 전원과 모든 Claude Code 세션·에이전트가 공유하는 프로젝트 규칙**이다.
@@ -28,16 +38,24 @@
 - **① + ②가 현재 MVP다.** 진단 리포트만 MVP인 것처럼 쓰지 않는다.
 - **③ 운영 서비스는 MVP 이후 확장 가설** — 브랜드에게 적합한 **일본 마케팅 회사·유통 채널을 소개·연결**하는 서비스로 재정의(2026-08-15). 현재 구현된 기능처럼 쓰지 않으며, `MVP 이후`·`확장 가설`로 표시한다. YOAKE가 광고 집행이나 유통을 직접 수행하지 않고, **유통 입점·광고 성과·판매 실적을 보장하지 않는다**.
 
-## 현재 단계
-- **빌드(개발 스프린트) 단계** — 3축 서비스를 **직접 개발**하기로 확정(2026-07-04, `docs/decisions/DECISIONS.md`). 개발 스프린트: 주말 리서치(7/5~7/6) → 데이터 수집·정제 → IA·플로우 설계 → 1차 개발(리포트 7/11~17 · 스튜디오 7/18~24 · 운영 7/25~31) → UT(8/1~8/3) → 개선·완성(8/4~8/9) → 발표.
-- 자세히: `docs/04-roadmap.md`. 상품 구조: `docs/decisions/2026-07-04-상품-구조-구체화.md`.
-- ① 진단 리포트 설계 자산(2026-07-08): 스펙 `docs/specs/01-report-spec.md`(9블록·티어 입력) · 심화 샘플 `docs/specs/01-report-sample-cica-ampoule.md` · 메시지 관례 루브릭 `docs/research/jp-detail-message-patterns.md` · 페르소나 검증 `docs/research/simulations/리포트샘플-페르소나-검증.md`. 데이터: `data/processed/detail-ocr.jsonl`·`sns-lexicon.csv`.
-- 데이터 플로우 정본(2026-07-09): `docs/08-data-flow.md` — 입력→가공→출력 E2E, LLM 콜별 요청/응답 계약(§4), 엔티티·저장(§6), 화면↔데이터 매핑(§7). 개발 시 `01-report-spec.md`와 함께 참조.
-- 개발 스펙(2026-07-09): `docs/09-dev-spec.md` — 스택·라우트 맵·모듈 구조 + ① 스프린트 마일스톤 M0~M4(엔진 우선). "어떻게 짓는가"는 이 문서, 내용·계약은 01/08 정본.
-- **구현 현황(2026-07-09): `docs/10-implementation-status.md`** — 기능 검증 빌드 완료: 랜딩 + ① 리포트 한 사이클(입력→LLM 4콜 파이프라인→9블록 뷰→발행) 실 LLM E2E 통과. 실행 방법(⚠ 한글 경로 차단 → `C:\dev\jgs-run` 미러, CONTRIBUTING 참조)·코드 맵·잔여 작업은 이 문서.
-- **배포 정본(2026-07-24): `docs/11-deploy-spec.md`** — Vercel Hobby + Supabase Free 무료 스택("왜·무엇"). 운영 절차(첫 배포·업데이트·롤백·정지 복구)는 `docs/deploy-runbook.md`("어떻게 클릭"), 결정 근거는 `docs/decisions/2026-07-24-호스팅-배포-결정.md`. UT(8/1~8/3) 전 실사용자 접속 배포가 목표.
-- 참고 자산: 페르소나 검증 랜딩 시안 `persona-simulation/landing/index.html`(비배포), 근거 문서 `docs/research/archive/페르소나-검증형-MVP-실행안.md`.
-- ※ 이전의 "컨시어지형 MVP · 랜딩 검증(Phase 1/2)" 로드맵은 빌드 전환 결정으로 대체됨. 기존 Next.js 앱 코드는 git 이력에 보존.
+## 현재 단계 — Phase 0 종료 (2026-08-31)
+
+- **지금까지의 개발 전체 = `Phase 0` (MVP 빌드, 2026-07-02 ~ 08-31).** 3축을 직접 개발하기로 확정(2026-07-04)한 뒤 배포·UT·리브랜딩·협업 기반 정비까지가 한 덩어리다. **Phase 1 은 아직 정하지 않았다** — Phase 1 의 내용을 확정된 것처럼 쓰지 않는다.
+- **Phase 정본 = `docs/04-roadmap.md`.** 구간(0-A~0-G)·무엇을 만들었나·종료 시점 미해결이 전부 여기 있다. 마일스톤 `M0~M12` 는 Phase 0 의 **실행 단위**이며 상세는 `docs/09-dev-spec.md` §4~§4d.
+- **Phase 0 종료 판정:** 배포본에서 3축이 돌고 UT 를 마쳤다. 다만 **검증되지 않은 채로 종료했다** — 실사용자 수요·폐루프·지불 의사는 미검증이며 미결정 정본은 `docs/decisions/DECISIONS.md` "미결정" 절이다.
+- **문서를 찾을 때는 지식베이스 홈 `docs/README.md` 부터 본다.** 영역별 인덱스와 문서 상태(정본/초안/이력/폐기)가 거기 있다. 문서 규약은 `docs/CONVENTIONS.md`.
+
+**주제별 정본 (자주 쓰는 것)**
+- 제품 정의 — `docs/00-positioning.md` · 상품 구조 `docs/decisions/2026-07-04-상품-구조-구체화.md`
+- ① 진단 리포트 — 스펙 `docs/specs/01-report-spec.md` · 심화 샘플 `docs/specs/01-report-sample-cica-ampoule.md` · 메시지 관례 루브릭 `docs/research/jp-detail-message-patterns.md`
+- 데이터 계약 — `docs/08-data-flow.md` (입력→가공→출력 E2E · LLM 콜별 요청/응답 §4 · 엔티티·저장 §6 · 화면↔데이터 §7)
+- 어떻게 짓는가 — `docs/09-dev-spec.md` (스택·라우트 맵·모듈 구조·마일스톤)
+- 무엇이 실제로 도는가 — `docs/10-implementation-status.md` (Phase 0 종료 시점 스냅샷 · 실행 방법 · 잔여)
+- 배포 — `docs/11-deploy-spec.md`("왜·무엇") · `docs/deploy-runbook.md`("어떻게 클릭") · 환경 축 브랜치 `docs/decisions/2026-08-22-환경분리-브랜치전략.md`
+- 검증 결과 — `docs/research/ut-agent/results/UT-리포트.md`
+- 참고 자산: 페르소나 검증 랜딩 시안 `persona-simulation/landing/index.html`(비배포)
+
+> ※ 2026-07-04 이전의 컨시어지 로드맵도 단계를 `Phase 1`·`Phase 2` 로 불렀다. **위 Phase 0/1 과 무관한 번호**다 — 옛 문서에서 만나면 "컨시어지 로드맵"으로 읽고, 신규 산출물에는 쓰지 않는다.
 
 ## 절대 하지 말 것 (금지 포지션)
 아래로 흐르는 산출물/기획/카피는 즉시 교정한다. 각각 강력한 경쟁사와 정면충돌한다.
@@ -59,10 +77,29 @@
 - 빌드 스택: Next.js (App Router) · TypeScript · Tailwind CSS · npm. 저장소 루트 = 앱 루트.
 - 페르소나 검증용 랜딩 시안은 의존성 없는 단일 HTML(`persona-simulation/`, 비배포).
 
+## 문서를 찾는 법 (지식베이스)
+
+**`docs/README.md` 가 문서의 출발점이다.** 폴더를 뒤지지 말고 거기서 시작한다 — 영역별 인덱스와 각 문서의 상태가 있다.
+
+모든 문서는 상단 속성에 **상태**를 달고 있다(규약: `docs/CONVENTIONS.md`).
+
+| 상태 | 어떻게 다루나 |
+|---|---|
+| **정본** | 지금 기준. 다른 문서와 어긋나면 이쪽이 맞다 |
+| **초안** | 참고는 하되 **근거로 인용하지 않는다** |
+| **이력** | 그 시점의 기록. 현재 기준으로 쓰지 않는다 |
+| **폐기** | 읽지 말고 `superseded_by` 가 가리키는 문서로 간다 |
+
+**어긋날 때 무엇이 이기나** — 무엇을 만드는가 `docs/00-positioning.md` · 지금 어느 단계인가 `docs/04-roadmap.md` · 무엇이 **실제로** 도는가 `docs/10-implementation-status.md` · 무엇을 만들기로 **했는가** `docs/09-dev-spec.md`·`docs/specs/` · 데이터 계약 `docs/08-data-flow.md` · 색·컴포넌트 `design/lp-components-spec.md` · 왜 그렇게 했는가 `docs/decisions/DECISIONS.md`.
+**스펙과 코드가 다르면 코드가 사실이고 스펙이 의도다.**
+
+문서를 새로 만들면 **해당 영역 인덱스에 한 줄 등재한다**. 등재되지 않으면 `npm run docs:check` 가 고아 문서로 잡는다.
+
 ## 폴더 맵
-- `docs/` — 기획 산출물(포지셔닝·리서치·PRD·페르소나·로드맵·열린질문·의사결정)
+- `docs/` — 기획·설계·리서치·의사결정 문서 (**지식베이스 홈 = `docs/README.md`**)
 - `design/` — 디자인(디자인시스템·카피·와이어프레임) / `design/brand/logo/` — **로고 정본 자산·사용 규칙**
 - `persona-simulation/` — 페르소나 검증용 랜딩 시안·카피 팩·스크린샷·결과 기록 (비배포)
+- `scripts/docs/check-docs.mjs` — 문서 규약 검사 (`npm run docs:check`)
 - `.claude/agents/` — 역할별 에이전트, `.claude/commands/` — 슬래시 명령
 
 ## 에이전트 팀 & 호출 시점
@@ -77,6 +114,8 @@
 | `qa` | 배포/PR 전 검증 |
 
 슬래시 명령: `/kickoff`(온보딩) · `/spec` · `/localize` · `/design-page` · `/status`.
+스프린트: `/sprint-board` · `/sprint-standup` · `/sprint-kanban` · `/sprint-sync` · `/sprint-groom`(마일스톤 → 이슈 분해).
+스프린트 운영에는 **에이전트를 쓰지 않는다** — 세션 시작 훅이 보드를 메인 세션에 이미 넣어 주므로 격리 컨텍스트가 손해다. 운영법 정본은 `docs/sprints/운영-가이드.md`.
 
 > **오케스트레이션:** 실제 조율은 메인 세션이 한다. 에이전트가 다시 에이전트를 부르는 중첩은 비용이 크므로 지양한다. `lead-orchestrator`는 "분해+배분 계획"을 반환하는 용도.
 
@@ -92,9 +131,10 @@
 KR→JP는 **번역이 아니다**. 일본 고객의 신뢰 요소·구매 이유·소구점을 처음부터 재설계한다. 카피는 `jp-localizer`를 통해 다룬다.
 
 ## 협업 규칙
-- **브랜치는 작업자가 아니라 환경으로 나눈다** — `main`(=prd, 보호) · `stg`(=QA 배포, 보호) · `dev`(=통합, 배포 없음).
-  작업 브랜치는 `feat/…` · `docs/…` · `fix/…` 이고 **base 는 `dev`** 다. 승격은 `dev`→`stg`→`main` 순서이며 **merge commit**으로만 한다(squash 금지 — 다음 승격에서 유령 충돌이 난다).
-  `main`에 뭔가 들어가면 즉시 `main`→`stg`→`dev` 역병합한다. **브랜치 규칙 정본은 `CONTRIBUTING.md`.**
+- **브랜치에 축이 둘이다** — **환경 축** `main`(=prd, 보호) · `stg`(=QA 배포, 보호) · `dev`(=통합, 배포 없음) 이 "어디까지 검증됐는가"를, **사람 축** `dev-jeongwon` · `dev-hanna` 가 "누가 만지는가"를 나타낸다.
+  **기능마다 브랜치를 파지 않는다** — 각자 자기 `dev-{이름}` 에서 작업하고 base 를 `dev` 로 PR 한다. 개인 브랜치는 하나이고 병합 후에도 계속 산다.
+  **모든 병합은 merge commit 이다(squash 금지)** — 장수 브랜치를 squash 하면 다음 병합마다 유령 충돌이 난다. `dev-{이름}` 은 **rebase 하지 않고** `dev` 를 merge 해서 최신화한다.
+  `main`에 뭔가 들어가면 즉시 `main`→`stg`→`dev`→`dev-{이름}` 역병합한다. **브랜치 규칙 정본은 `CONTRIBUTING.md`** · 근거 `docs/decisions/2026-08-31-개인-브랜치-복귀.md`.
 - 커밋: Conventional Commits(`feat:`, `fix:`, `docs:`, `chore:` …).
 - PR로 병합, 리뷰 1인 이상. 템플릿(`.github/pull_request_template.md`) 사용.
 - 자세한 협업 방법: `CONTRIBUTING.md` (개발 머신 트러블슈팅 포함)

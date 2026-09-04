@@ -69,6 +69,11 @@ export interface InputTranslateOptions {
    * 그때 `input` 의 필드들은 이미 일본어로 확정돼 있고, 여기서 다시 바꿔도 자산에 반영되지
    * 않으므로 콜에 실을 이유가 없다.
    */
+  /**
+   * 이 콜의 벽시계 상한(재시도 포함). 생략하면 상한 없음 — SDK 기본(10분)이 함수 상한
+   * 300초보다 길어 콜 하나가 함수를 통째로 먹을 수 있다. 값은 `budget.callTimeout()` 이 준다.
+   */
+  timeoutMs?: number;
   onlyNote?: boolean;
   onLog?: (entry: LlmCallLogEntry) => Promise<void> | void;
 }
@@ -89,9 +94,7 @@ function groundingCategory(c: DetailInput['productCategory']): Category {
 /** 목 응답 — 데모 사전으로 옮기고, 사전에 없는 표현은 한글이 남아 실패 경로가 재현된다. */
 function mockResult(fields: TranslatableField[]): RawResult {
   return {
-    fields: fields
-      .filter((f) => f.path !== NOTE_PATH)
-      .map((f) => ({ path: f.path, ja: mockTranslate(f.kr) })),
+    fields: fields.filter((f) => f.path !== NOTE_PATH).map((f) => ({ path: f.path, ja: mockTranslate(f.kr) })),
     artDirectionEn: mockArtDirection(fields.find((f) => f.path === NOTE_PATH)?.kr ?? ''),
   };
 }
@@ -140,6 +143,7 @@ export async function runInputTranslate(opts: InputTranslateOptions): Promise<In
 
   const raw = await runStructuredCall<RawResult>({
     callName: 'inputTranslate',
+    timeoutMs: opts.timeoutMs,
     system: buildStableGrounding('inputTranslate', groundingCategory(opts.input.productCategory), '화장품'),
     userPayload: payload,
     schema: TRANSLATE_SCHEMA as unknown as object,

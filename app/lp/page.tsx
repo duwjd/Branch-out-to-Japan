@@ -50,8 +50,16 @@ const FAQ_ROWS = [
 
 const HOW_STEPS = [
   { n: '01', t: '브랜드 자산 연결', d: '상세페이지·SNS·광고 문구를 그대로 보내주세요. 새로 배울 도구는 없습니다.' },
-  { n: '02', t: '전문가가 확정, AI가 속도', d: '일본 고객 관점의 진단·재설계를 사람이 확정하고, 반복 작업은 AI가 빠르게 처리합니다.' },
-  { n: '03', t: '한국어 역해설과 함께 도착', d: '무엇이 왜 바뀌었는지 한국어 해설이 붙은 리포트를 받습니다. 그대로 검수·적용하면 됩니다.' },
+  {
+    n: '02',
+    t: '전문가가 확정, AI가 속도',
+    d: '일본 고객 관점의 진단·재설계를 사람이 확정하고, 반복 작업은 AI가 빠르게 처리합니다.',
+  },
+  {
+    n: '03',
+    t: '한국어 역해설과 함께 도착',
+    d: '무엇이 왜 바뀌었는지 한국어 해설이 붙은 리포트를 받습니다. 그대로 검수·적용하면 됩니다.',
+  },
 ];
 
 /** 코랄 primary CTA — large/bold + white(대비 트레이드오프, 호버 시 강한 코랄로 보강) */
@@ -81,7 +89,11 @@ export default function LpPage() {
       {/* 헤더 */}
       <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/85 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <Link href="/lp" aria-label="YOAKE 홈" className="rounded-md focus-visible:outline-2 focus-visible:outline-coral">
+          <Link
+            href="/lp"
+            aria-label="YOAKE 홈"
+            className="rounded-md focus-visible:outline-2 focus-visible:outline-coral"
+          >
             <YoakeLogo height={30} />
           </Link>
           <TrackedCta
@@ -110,7 +122,8 @@ export default function LpPage() {
                 <br />왜 안 팔릴까?
               </h1>
               <p className="mt-5 max-w-[46ch] text-[17px] leading-relaxed text-ink-body">
-                한국에서 잘 팔리던 문구를 그대로 옮기면, 문법은 맞아도 일본 고객은 &lsquo;살 이유&rsquo;를 못 찾습니다. 상세페이지를
+                한국에서 잘 팔리던 문구를 그대로 옮기면, 문법은 맞아도 일본 고객은 &lsquo;살 이유&rsquo;를 못 찾습니다.
+                상세페이지를
                 <b className="font-semibold text-ink"> 일본 고객 관점으로 다시 설계</b>합니다.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -193,8 +206,8 @@ export default function LpPage() {
             일본 고객은 <span className="text-coral-strong">&lsquo;사는 이유&rsquo;</span>를 다른 데서 봅니다.
           </p>
           <p className="mt-6 max-w-[60ch] text-[17px] leading-relaxed text-ink-body">
-            근거 표기 방식, 성분을 말하는 순서, 리뷰에서 쓰는 말투 — 신뢰의 조건이 한국과 다릅니다. 그래서 문장을 옮기는 게 아니라, 사는
-            이유를 처음부터 다시 설계합니다.
+            근거 표기 방식, 성분을 말하는 순서, 리뷰에서 쓰는 말투 — 신뢰의 조건이 한국과 다릅니다. 그래서 문장을 옮기는
+            게 아니라, 사는 이유를 처음부터 다시 설계합니다.
           </p>
         </Reveal>
       </Section>
@@ -204,7 +217,8 @@ export default function LpPage() {
         <Reveal>
           <H2>직역과 재설계, 무엇이 다른가</H2>
           <p className="mt-3 max-w-[58ch] text-[16px] leading-relaxed text-ink-body">
-            카테고리를 눌러 실제 예시를 넘겨보세요. 같은 제품, 문구 한 줄이 어떻게 &lsquo;사는 이유&rsquo;로 바뀌는지 보입니다.
+            카테고리를 눌러 실제 예시를 넘겨보세요. 같은 제품, 문구 한 줄이 어떻게 &lsquo;사는 이유&rsquo;로 바뀌는지
+            보입니다.
           </p>
           <div className="mt-8">
             <BeforeAfterShowcase />
@@ -217,8 +231,8 @@ export default function LpPage() {
         <Reveal>
           <H2>점수만 던지지 않습니다</H2>
           <p className="mt-3 max-w-[58ch] text-[16px] leading-relaxed text-ink-body">
-            항목마다 통과 기준·내 문장·코퍼스 근거를 함께 열고, 약기법 판정에는 규정 조항을 각주로 답니다. 근거를 보고 직접 판단하실 수
-            있습니다.
+            항목마다 통과 기준·내 문장·코퍼스 근거를 함께 열고, 약기법 판정에는 규정 조항을 각주로 답니다. 근거를 보고
+            직접 판단하실 수 있습니다.
           </p>
 
           <div className="mt-8 rounded-card border border-card-border bg-canvas p-6 shadow-card sm:p-8">
@@ -237,7 +251,9 @@ export default function LpPage() {
               </div>
               <div>
                 <dt className="text-[12px] font-bold uppercase tracking-wide text-ink-faint">통과 기준</dt>
-                <dd className="mt-1.5 text-[15px] text-ink-body">효과 단정 대신 &lsquo;생성 억제·예방&rsquo; 표준 문형</dd>
+                <dd className="mt-1.5 text-[15px] text-ink-body">
+                  효과 단정 대신 &lsquo;생성 억제·예방&rsquo; 표준 문형
+                </dd>
               </div>
               <div>
                 <dt className="text-[12px] font-bold uppercase tracking-wide text-ink-faint">코퍼스 근거</dt>
@@ -251,8 +267,8 @@ export default function LpPage() {
             <div className="mt-5 rounded-xl border border-coral/25 bg-coral-tint p-4">
               <p className="text-[12px] font-bold uppercase tracking-wide text-coral-strong">한국어 역해설</p>
               <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink-body">
-                &lsquo;기미가 사라진다&rsquo;는 일본에서 효과 보증으로 걸립니다. &lsquo;멜라닌 생성을 억제·예방&rsquo; 문형으로 바꾸고,
-                의약외품 승인이 없으면 &lsquo;밝은 인상으로&rsquo;처럼 더 낮춰 씁니다.
+                &lsquo;기미가 사라진다&rsquo;는 일본에서 효과 보증으로 걸립니다. &lsquo;멜라닌 생성을 억제·예방&rsquo;
+                문형으로 바꾸고, 의약외품 승인이 없으면 &lsquo;밝은 인상으로&rsquo;처럼 더 낮춰 씁니다.
               </p>
             </div>
           </div>
@@ -263,16 +279,20 @@ export default function LpPage() {
       <Section id="pricing" tint>
         <Reveal>
           <div className="overflow-hidden rounded-card border border-coral/25 bg-coral-tint p-8 sm:p-10">
-            <p className="text-[13px] font-bold text-coral-strong">지금 파일럿 모집 중 · 선착순 {PILOT_OFFER.pilotSeats}팀</p>
+            <p className="text-[13px] font-bold text-coral-strong">
+              지금 파일럿 모집 중 · 선착순 {PILOT_OFFER.pilotSeats}팀
+            </p>
             <div className="mt-4 flex flex-wrap items-end gap-x-4 gap-y-1">
               <span className="text-[22px] font-semibold text-ink-faint line-through">
                 {formatKrw(PILOT_OFFER.reportListPrice)}
               </span>
-              <span className="text-[clamp(2.5rem,7vw,3.5rem)] font-extrabold leading-none text-coral-strong">무료</span>
+              <span className="text-[clamp(2.5rem,7vw,3.5rem)] font-extrabold leading-none text-coral-strong">
+                무료
+              </span>
             </div>
             <p className="mt-5 max-w-[52ch] text-[16px] leading-relaxed text-ink-body">
-              파일럿에 참여하는 브랜드에는 정가 {formatKrw(PILOT_OFFER.reportListPrice)} 진단 리포트를 무료로 제공합니다. 광고에 큰돈
-              쓰기 전에, 무엇을 바꿔야 하는지부터 확인하세요.
+              파일럿에 참여하는 브랜드에는 정가 {formatKrw(PILOT_OFFER.reportListPrice)} 진단 리포트를 무료로
+              제공합니다. 광고에 큰돈 쓰기 전에, 무엇을 바꿔야 하는지부터 확인하세요.
             </p>
             <TrackedCta cta="pricing-consult" targetId="lead" className={`${CTA_PRIMARY} mt-7`}>
               파일럿 신청하기
@@ -332,7 +352,8 @@ export default function LpPage() {
             <Reveal>
               <H2>파일럿, 지금 신청하세요</H2>
               <p className="mt-4 max-w-[46ch] text-[17px] leading-relaxed text-ink-body">
-                실제 카피를 넣으면 문장 단위 진단과 재설계안이 담긴 리포트가 생성됩니다. 무엇을 바꿔야 하는지부터 확인하세요.
+                실제 카피를 넣으면 문장 단위 진단과 재설계안이 담긴 리포트가 생성됩니다. 무엇을 바꿔야 하는지부터
+                확인하세요.
               </p>
               <ul className="mt-6 space-y-3 text-[15px] text-ink-body">
                 <li className="flex items-start gap-2.5">

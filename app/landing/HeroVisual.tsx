@@ -133,7 +133,10 @@ function DiagnosePanel() {
       <ul className="flex list-none flex-col gap-3">
         {c.checks.map((item) => (
           <li key={item} className="flex items-center gap-2 text-[13px] leading-[1.5] text-lp-body">
-            <span aria-hidden className="h-[11px] w-[11px] flex-none rounded-[3px] border border-lp-line-strong bg-white" />
+            <span
+              aria-hidden
+              className="h-[11px] w-[11px] flex-none rounded-[3px] border border-lp-line-strong bg-white"
+            />
             <span className="[text-wrap:pretty]">{item}</span>
           </li>
         ))}

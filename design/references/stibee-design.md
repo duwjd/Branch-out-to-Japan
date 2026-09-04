@@ -1,4 +1,12 @@
 ---
+title: Stibee — 외부 디자인 레퍼런스 기록
+space: 디자인
+status: 정본
+phase: Phase 0
+updated: 2026-07-07
+owner:
+tags: [디자인, 레퍼런스]
+# ↓ 이 아래는 이 문서가 원래 갖고 있던 메타데이터다
 id: stibee
 name: Stibee
 display_name_kr: 스티비

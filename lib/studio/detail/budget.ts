@@ -1,5 +1,7 @@
 /**
- * 마감 예산 가드 — 300초 안에 이미지를 **몇 장까지** 만들 수 있는지 결정한다.
+ * 마감 예산 가드 — 300초 안에서 잡이 완주하도록 두 가지를 결정한다.
+ *  ① 이미지를 **몇 장까지** 만들 수 있는가 (`fitImageBudget`)
+ *  ② 앞단 LLM 콜(⑦⑧⑨) 하나에 **얼마를 허용하는가** (`callTimeout`)
  *
  * 왜 필요한가: `maxDuration = 300` 은 Vercel Hobby(Fluid Compute)의 **플랫폼 상한**이라
  * 올릴 수 없다(11 §2). 이미지 캡을 4 → 6으로 올리면서 동시성도 6으로 맞춰 한 웨이브를 유지했지만,
@@ -28,6 +30,47 @@ export const COMPOSE_RESERVE_MS = 30_000;
  * 낙관적으로 잡으면 가드가 늦게 걸려 존재 이유가 사라지므로 **비관값**을 쓴다.
  */
 export const IMAGE_WAVE_MS = 90_000;
+
+/**
+ * 시간 상한을 거는 LLM 콜. 규칙 단계(plan·layout·compose·slice)는 LLM 을 타지 않아 대상이 아니다.
+ * 이미지 콜은 `fitImageBudget` 이 `perImageTimeoutMs` 로 따로 준다.
+ */
+export type DetailCallStage = 'translate' | 'copy' | 'humanize';
+
+/**
+ * 콜 1회의 벽시계 상한(재시도 포함).
+ *
+ * ## 이 상한은 스케줄이 아니라 **폭주 차단선**이다
+ *
+ * 단계 상한을 "다음 단계들이 쓸 시간을 뺀 값"으로 잡으면 정상 소요까지 잘라 버려
+ * 가드가 오히려 실패를 만든다. 그래서 상한은 **실측 최악값에 여유를 얹은 값**으로 두고,
+ * 거기에 "결합·분할 몫은 어떤 콜도 먹지 못한다"는 하드캡만 겹친다(`callTimeout`).
+ * 정상 실행은 이 가드를 스치지도 않는다. 매달린 콜 하나만 잘린다.
+ *
+ * **확정이 아니라 실측 갱신 대상이다** — 모델·effort·이미지 캡을 바꾸면 여기부터 다시 잰다.
+ * 값은 ① 리포트 `reportBudget.STAGE_CEILING_MS` 와 같은 규칙으로 잡았다.
+ */
+const CALL_CEILING_MS: Record<DetailCallStage, number> = {
+  translate: 90_000, // 콜⑧ inputTranslate — 이미지 없음, 필드 텍스트만
+  copy: 150_000, // 콜⑦ detailCopy — maxTokens 12000 + 비전 최대 10장. 파이프라인에서 가장 무겁다
+  humanize: 90_000, // 콜⑨ copyHumanize — 슬롯 텍스트만(maxTokens 6000)
+};
+
+/**
+ * 이 콜에 허용할 벽시계 상한(ms).
+ *
+ * 0 을 돌려줄 수 있다 — "이 콜을 걸 시간이 없다"는 뜻이고, `runStructuredCall` 이 시도 없이
+ * 실패로 접어 상위 폴백(콜⑧ 원문 유지 · 콜⑨ 원문 유지)에 도달한다.
+ *
+ * @param stage 지금 거는 콜
+ * @param remainingMs 잡 마감까지 남은 시간. **마감이 없는 경로는 생략한다**(제출·미리보기·블록
+ *   재생성 라우트 — 잡 예산 밖에서 도는 단발 콜이라 단계 상한 자체가 폭주 차단선이 된다)
+ */
+export function callTimeout(stage: DetailCallStage, remainingMs?: number): number {
+  const ceiling = CALL_CEILING_MS[stage];
+  if (remainingMs === undefined) return ceiling;
+  return Math.max(0, Math.min(ceiling, remainingMs - COMPOSE_RESERVE_MS));
+}
 
 /** 예산 배분 후보 1개. `planBlocks` 가 이미 계산해 둔 값을 그대로 받는다. */
 export interface ImageCandidate {
@@ -79,7 +122,8 @@ export function fitImageBudget(
   const keep = ordered.slice(0, keepCount);
   const drop = ordered.slice(keepCount).map((c) => ({
     blockId: c.blockId,
-    reason: '남은 생성 시간이 부족해 이 블록은 배경컷 없이 만들었습니다. 결과 화면에서 이 블록만 다시 만들 수 있습니다.',
+    reason:
+      '남은 생성 시간이 부족해 이 블록은 배경컷 없이 만들었습니다. 결과 화면에서 이 블록만 다시 만들 수 있습니다.',
   }));
 
   // 1콜 상한을 남은 시간에 맞춰 줄인다 — 한 콜이 매달려 예산을 통째로 먹지 않게.

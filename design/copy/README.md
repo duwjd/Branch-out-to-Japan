@@ -1,3 +1,13 @@
+---
+title: copy/ — 카피 산출물
+space: 디자인
+status: 정본
+phase: Phase 0
+updated: 2026-07-02
+owner:
+tags: [카피, 인덱스]
+---
+
 # copy/ — 카피 산출물
 
 `jp-localizer` 에이전트(`/localize`)의 산출물을 보관한다.

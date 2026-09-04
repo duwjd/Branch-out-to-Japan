@@ -400,6 +400,24 @@ export function applyTranslations(input: DetailInput, fields: TranslatedField[])
   return next;
 }
 
+/**
+ * `applyTranslations` 의 **역방향** — 스냅샷된 한국어 원문을 되돌린다.
+ *
+ * 저장된 `DetailInput` 의 필드들은 이미 **일본어**다. 그것을 한국어 입력 폼에 그대로 채우면
+ * 사용자가 자기가 쓴 적 없는 일본어를 다시 검토하게 되고, 재제출하면 콜⑧이 일본어를 또
+ * 일본어로 옮긴다. `sourceKo` 는 바로 이 되돌리기를 위해 남겨 둔 것이다(08 §4.8).
+ *
+ * 스냅샷이 없는 필드(변환 대상이 아니었거나 이 기능 이전에 만든 자산)는 **그대로 둔다** —
+ * 지우면 프리필이 입력을 되살리는 게 아니라 없애는 일이 된다.
+ */
+export function restoreKoreanInput(input: DetailInput): DetailInput {
+  const next = structuredClone(input);
+  for (const { path, kr } of input.sourceKo ?? []) {
+    if (kr.trim()) setAt(next, path, kr);
+  }
+  return next;
+}
+
 /** 원문 보존용 스냅샷 — `detail_input.sourceKo` 에 들어간다(감사·되돌리기). */
 export function sourceSnapshot(fields: TranslatedField[]): { path: string; kr: string }[] {
   return fields.filter((f) => f.ok && f.path !== NOTE_PATH).map((f) => ({ path: f.path, kr: f.kr }));

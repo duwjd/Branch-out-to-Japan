@@ -357,9 +357,10 @@ export function renderDeckHtml(spec: DeckSpec, blocks: BlocksJson): string {
     })
     .join('\n');
 
-  const mockNote = blocks.meta.llmMode === 'mock'
-    ? '<p class="fine" style="position:fixed;top:8px;left:12px;z-index:9">목(mock) 모드 — 판정은 데모용입니다</p>'
-    : '';
+  const mockNote =
+    blocks.meta.llmMode === 'mock'
+      ? '<p class="fine" style="position:fixed;top:8px;left:12px;z-index:9">목(mock) 모드 — 판정은 데모용입니다</p>'
+      : '';
 
   return [
     '<!doctype html>',

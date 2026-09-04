@@ -7,6 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  restoreKoreanInput,
   applyGlossary,
   applyTranslations,
   collectForbidden,
@@ -30,7 +31,13 @@ function baseInput(over: Partial<DetailInput> = {}): DetailInput {
     productCategory: 'skincare',
     sourceImagePaths: [],
     disabledBlocks: [],
-    spec: { volume: '30mL', category: '化粧品', manufacturer: '株式会社HARUON', origin: '韓国', fullIngredients: '水、BG' },
+    spec: {
+      volume: '30mL',
+      category: '化粧品',
+      manufacturer: '株式会社HARUON',
+      origin: '韓国',
+      fullIngredients: '水、BG',
+    },
     ingredients: [],
     freeOf: [],
     specs: [],
@@ -120,7 +127,13 @@ test('collectTranslatable — 일본어만 입력하면 빈 배열(콜 0)', () =
 
 test('collectTranslatable — 한글 필드만 경로와 함께 모은다', () => {
   const input = baseInput({
-    spec: { volume: '30mL', category: '의약외품', manufacturer: '株式会社HARUON', origin: '한국', fullIngredients: '水、BG' },
+    spec: {
+      volume: '30mL',
+      category: '의약외품',
+      manufacturer: '株式会社HARUON',
+      origin: '한국',
+      fullIngredients: '水、BG',
+    },
     ingredients: [
       { name: '나이아신아마이드', percent: '2%', purpose: '피부결 정돈' },
       { name: 'ヒアルロン酸Na', percent: '—', purpose: '保湿成分' },
@@ -130,16 +143,19 @@ test('collectTranslatable — 한글 필드만 경로와 함께 모은다', () =
   });
   const paths = collectTranslatable(input, '더 밝고 화사하게').map((f) => f.path);
 
-  assert.deepEqual(paths.sort(), [
-    'cautions[0]',
-    'ingredients[0].name',
-    'ingredients[0].purpose',
-    'note',
-    'reviews[0].age',
-    'reviews[0].text',
-    'spec.category',
-    'spec.origin',
-  ].sort());
+  assert.deepEqual(
+    paths.sort(),
+    [
+      'cautions[0]',
+      'ingredients[0].name',
+      'ingredients[0].purpose',
+      'note',
+      'reviews[0].age',
+      'reviews[0].text',
+      'spec.category',
+      'spec.origin',
+    ].sort(),
+  );
 
   // 일본어로 이미 쓴 항목은 섞이지 않는다
   assert.ok(!paths.includes('ingredients[1].name'));
@@ -153,7 +169,13 @@ test('collectTranslatable — null 그룹(proof·sales·test·promo)은 건너�
 
 test('collectTranslatable — kind 분류가 취급을 가른다', () => {
   const input = baseInput({
-    spec: { volume: '30밀리리터', category: '의약외품', manufacturer: '한국법인', origin: '한국', fullIngredients: '정제수, 부틸렌글라이콜' },
+    spec: {
+      volume: '30밀리리터',
+      category: '의약외품',
+      manufacturer: '한국법인',
+      origin: '한국',
+      fullIngredients: '정제수, 부틸렌글라이콜',
+    },
   });
   const byPath = new Map(collectTranslatable(input, '밝게').map((f) => [f.path, f.kind]));
   assert.equal(byPath.get('spec.category'), 'regulated');
@@ -174,7 +196,10 @@ test('preTranslate — 区分은 LLM 없이 확정된다', () => {
   assert.equal(resolved.length, 1);
   assert.equal(resolved[0].ja, '医薬部外品');
   assert.equal(resolved[0].via, 'kubun');
-  assert.deepEqual(remaining.map((f) => f.path), ['spec.origin']);
+  assert.deepEqual(
+    remaining.map((f) => f.path),
+    ['spec.origin'],
+  );
 });
 
 test('preTranslate — 용어집이 완전히 해소하면 확정, 일부만 바꾸면 콜⑧으로', () => {
@@ -188,9 +213,16 @@ test('preTranslate — 용어집이 완전히 해소하면 확정, 일부만 바
     { path: 'cautions[0]', label: '주의사항 1', kr: '세라마이드 크림을 바른 뒤 주의하세요', kind: 'free' },
   ];
   const { resolved, remaining } = preTranslate(fields, kit);
-  assert.deepEqual(resolved.map((f) => f.path), ['options[0].name']);
+  assert.deepEqual(
+    resolved.map((f) => f.path),
+    ['options[0].name'],
+  );
   assert.equal(resolved[0].via, 'glossary');
-  assert.deepEqual(remaining.map((f) => f.path), ['cautions[0]'], '한글이 남으면 모델이 마저 처리한다');
+  assert.deepEqual(
+    remaining.map((f) => f.path),
+    ['cautions[0]'],
+    '한글이 남으면 모델이 마저 처리한다',
+  );
 });
 
 // ── 사후 검사 ────────────────────────────────────────────────────────────────
@@ -217,16 +249,33 @@ test('verifyTranslation — 한글 잔존·숫자 변조는 채택하지 않는�
 });
 
 test('verifyTranslation — artDirection 은 영어이므로 숫자 검사를 하지 않는다', () => {
-  const f: TranslatableField = { path: 'note', label: '추가 요청', kr: '전체적으로 더 밝고 화사하게', kind: 'artDirection' };
+  const f: TranslatableField = {
+    path: 'note',
+    label: '추가 요청',
+    kr: '전체적으로 더 밝고 화사하게',
+    kind: 'artDirection',
+  };
   const r = verifyTranslation(f, 'Brighter, airier overall tone with soft daylight.');
   assert.equal(r.ok, true);
   assert.equal(verifyTranslation(f, '더 밝게 brighter').ok, false, '한글이 남으면 실패');
 });
 
 test('collectForbidden — 금지 표현은 수집만 하고 변환을 되돌리지 않는다', () => {
-  const kit: BrandKit = { productNamesJa: [], forbiddenTerms: [{ term: '完全', reason: '단정 표현 금지' }], toneGuide: '' };
+  const kit: BrandKit = {
+    productNamesJa: [],
+    forbiddenTerms: [{ term: '完全', reason: '단정 표현 금지' }],
+    toneGuide: '',
+  };
   const fields: TranslatedField[] = [
-    { path: 'cautions[0]', label: '주의사항 1', kr: '완전 차단', ja: '完全にブロック', kind: 'free', ok: true, via: 'llm' },
+    {
+      path: 'cautions[0]',
+      label: '주의사항 1',
+      kr: '완전 차단',
+      ja: '完全にブロック',
+      kind: 'free',
+      ok: true,
+      via: 'llm',
+    },
     { path: 'cautions[1]', label: '주의사항 2', kr: '보습', ja: '保湿', kind: 'free', ok: true, via: 'llm' },
   ];
   const hits = collectForbidden(fields, kit);
@@ -244,10 +293,34 @@ test('applyTranslations — 경로대로 되쓰고 원본은 건드리지 않는
     cautions: ['상처 부위 사용 금지', '直射日光を避ける'],
   });
   const fields: TranslatedField[] = [
-    { path: 'spec.category', label: '구분(区分)', kr: '의약외품', ja: '医薬部外品', kind: 'regulated', ok: true, via: 'kubun' },
+    {
+      path: 'spec.category',
+      label: '구분(区分)',
+      kr: '의약외품',
+      ja: '医薬部外品',
+      kind: 'regulated',
+      ok: true,
+      via: 'kubun',
+    },
     { path: 'spec.origin', label: '원산지', kr: '한국', ja: '韓国', kind: 'free', ok: true, via: 'llm' },
-    { path: 'ingredients[0].name', label: '성분 1 성분명', kr: '나이아신아마이드', ja: 'ナイアシンアミド', kind: 'free', ok: true, via: 'llm' },
-    { path: 'cautions[0]', label: '주의사항 1', kr: '상처 부위 사용 금지', ja: '傷のある部位には使用しないでください', kind: 'free', ok: true, via: 'llm' },
+    {
+      path: 'ingredients[0].name',
+      label: '성분 1 성분명',
+      kr: '나이아신아마이드',
+      ja: 'ナイアシンアミド',
+      kind: 'free',
+      ok: true,
+      via: 'llm',
+    },
+    {
+      path: 'cautions[0]',
+      label: '주의사항 1',
+      kr: '상처 부위 사용 금지',
+      ja: '傷のある部位には使用しないでください',
+      kind: 'free',
+      ok: true,
+      via: 'llm',
+    },
   ];
 
   const next = applyTranslations(input, fields);
@@ -264,7 +337,16 @@ test('applyTranslations — 경로대로 되쓰고 원본은 건드리지 않는
 test('applyTranslations — ok:false 는 적용하지 않는다', () => {
   const input = baseInput({ sales: { count: '누적 163,991개', period: '2022년' } });
   const next = applyTranslations(input, [
-    { path: 'sales.count', label: '누적 판매', kr: '누적 163,991개', ja: '累計163,000個', kind: 'numeric', ok: false, problem: '숫자', via: 'llm' },
+    {
+      path: 'sales.count',
+      label: '누적 판매',
+      kr: '누적 163,991개',
+      ja: '累計163,000個',
+      kind: 'numeric',
+      ok: false,
+      problem: '숫자',
+      via: 'llm',
+    },
   ]);
   assert.equal(next.sales?.count, '누적 163,991개', '검사 실패분은 원문이 남아 확인 패널에서 고쳐진다');
 });
@@ -317,4 +399,37 @@ test('getAt — 없는 경로는 undefined', () => {
   assert.equal(getAt(input, 'spec.volume'), '30mL');
   assert.equal(getAt(input, 'promo.setTitle'), undefined);
   assert.equal(getAt(input, 'ingredients[5].name'), undefined);
+});
+
+// ── restoreKoreanInput — 프리필이 일본어를 한국어 폼에 넣지 않게 ────────────
+// 저장된 DetailInput 은 이미 일본어다. 그대로 프리필하면 사용자가 자기가 쓴 적 없는 일본어를
+// 검토하게 되고, 재제출하면 콜⑧이 일본어를 또 일본어로 옮긴다.
+
+test('restoreKoreanInput — sourceKo 가 있는 필드는 한국어로 되돌린다', () => {
+  const ja: DetailInput = {
+    ...baseInput(),
+    spec: { ...baseInput().spec, volume: '30mL', manufacturer: '株式会社ヨアケ' },
+    sourceKo: [
+      { path: 'spec.volume', kr: '30밀리리터' },
+      { path: 'spec.manufacturer', kr: '주식회사 요아케' },
+    ],
+  };
+  const back = restoreKoreanInput(ja);
+  assert.equal(back.spec.volume, '30밀리리터');
+  assert.equal(back.spec.manufacturer, '주식회사 요아케');
+});
+
+test('restoreKoreanInput — 스냅샷이 없는 필드는 그대로 둔다', () => {
+  const ja: DetailInput = { ...baseInput(), spec: { ...baseInput().spec, origin: '韓国' }, sourceKo: [] };
+  assert.equal(restoreKoreanInput(ja).spec.origin, '韓国', '지우면 프리필이 입력을 없애는 일이 된다');
+});
+
+test('restoreKoreanInput — 원본을 변형하지 않는다', () => {
+  const ja: DetailInput = {
+    ...baseInput(),
+    spec: { ...baseInput().spec, volume: '30mL' },
+    sourceKo: [{ path: 'spec.volume', kr: '30밀리리터' }],
+  };
+  restoreKoreanInput(ja);
+  assert.equal(ja.spec.volume, '30mL');
 });

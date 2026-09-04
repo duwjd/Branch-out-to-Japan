@@ -23,15 +23,24 @@ export function mockCall1(items: RubricItem[], signals: PreSignals, sentences: S
   const firstQuote = sentences[0]?.text ?? '';
   const scoreFor = (item: RubricItem): 0 | 1 | 2 => {
     switch (item.id) {
-      case 'A2': return signals.hasFootnoteMark ? 1 : 0;
-      case 'A4': return signals.hasThirdPartyProof ? 1 : 0;
-      case 'B1': return signals.hasFreeLabel ? 1 : 0;
-      case 'B2': return signals.hasFreeLabel ? 1 : 0;
-      case 'D1': return signals.hasIngredientPercent ? 2 : 0;
-      case 'D4': return 1;
-      case 'C1': return 1;
-      case 'E1': return signals.hasSpfPa ? 2 : 0;
-      default: return 0;
+      case 'A2':
+        return signals.hasFootnoteMark ? 1 : 0;
+      case 'A4':
+        return signals.hasThirdPartyProof ? 1 : 0;
+      case 'B1':
+        return signals.hasFreeLabel ? 1 : 0;
+      case 'B2':
+        return signals.hasFreeLabel ? 1 : 0;
+      case 'D1':
+        return signals.hasIngredientPercent ? 2 : 0;
+      case 'D4':
+        return 1;
+      case 'C1':
+        return 1;
+      case 'E1':
+        return signals.hasSpfPa ? 2 : 0;
+      default:
+        return 0;
     }
   };
   return {
@@ -96,9 +105,21 @@ export function mockCall2(sentences: Sentence[]): AuditResult {
     }
     const cond = CONDITIONAL_PATTERNS.find((p) => p.pattern.test(s.text));
     if (cond) {
-      return { sentenceId: s.id, verdict: '조건부', reason: cond.reason, clauseRefs: cond.clauses, altTextJa: cond.alt };
+      return {
+        sentenceId: s.id,
+        verdict: '조건부',
+        reason: cond.reason,
+        clauseRefs: cond.clauses,
+        altTextJa: cond.alt,
+      };
     }
-    return { sentenceId: s.id, verdict: '가능', reason: '규정 저촉 신호 미관찰(목 모드 판정)', clauseRefs: [], altTextJa: '' };
+    return {
+      sentenceId: s.id,
+      verdict: '가능',
+      reason: '규정 저촉 신호 미관찰(목 모드 판정)',
+      clauseRefs: [],
+      altTextJa: '',
+    };
   });
   const ngCount = results.filter((r) => r.verdict === '불가').length;
   const conditionalCount = results.filter((r) => r.verdict === '조건부').length;
@@ -134,9 +155,21 @@ export function mockCall3(category: Category): PersonaResult {
       { question: '「口コミ本当?集計日は?」', why: '자화자찬 실적은 집계일·출처 없으면 불신 트리거' },
     ],
     uspTable: [
-      { krAppeal: '즉각 효과 강조', jpReading: '근거 없는 단정 = 과장으로 읽혀 감점', redefinedUsp: '근거 라벨+각주로 "검증된 안심"을 판다' },
-      { krAppeal: '감성 형용사 소구', jpReading: '정보가 없다고 읽힘', redefinedUsp: '성분 정량·기전 등 정보 구조로 재설계' },
-      { krAppeal: '판매 실적 과시', jpReading: '집계일 없는 실적 = 의심 유발', redefinedUsp: '集計時点 명기한 제3자 검증 프레임' },
+      {
+        krAppeal: '즉각 효과 강조',
+        jpReading: '근거 없는 단정 = 과장으로 읽혀 감점',
+        redefinedUsp: '근거 라벨+각주로 "검증된 안심"을 판다',
+      },
+      {
+        krAppeal: '감성 형용사 소구',
+        jpReading: '정보가 없다고 읽힘',
+        redefinedUsp: '성분 정량·기전 등 정보 구조로 재설계',
+      },
+      {
+        krAppeal: '판매 실적 과시',
+        jpReading: '집계일 없는 실적 = 의심 유발',
+        redefinedUsp: '集計時点 명기한 제3자 검증 프레임',
+      },
     ],
     reviewNarrative: [
       {
@@ -176,7 +209,8 @@ export function mockCall4(audit: AuditResult, sentences: Sentence[]): RewriteRes
     sample: {
       targetSection: '히어로 카피 블록',
       afterJaBlock: 'ゆらぎがちな肌に、うるおいという選択を。\n角層のすみずみ※まで満たすCICAアンプル。\n※角質層まで',
-      afterKrBlock: '(목 모드) 흔들리기 쉬운 피부에, 수분이라는 선택을. 각질층 구석구석까지 채우는 CICA 앰플. — 공감→약속 구조.',
+      afterKrBlock:
+        '(목 모드) 흔들리기 쉬운 피부에, 수분이라는 선택을. 각질층 구석구석까지 채우는 CICA 앰플. — 공감→약속 구조.',
       isDemo: false,
     },
     benchmarkNarrative:
@@ -231,12 +265,20 @@ export function mockCall5(mode: ReportMode = 'brandProduct'): DeckSpec {
     score: {
       heading: '어느 축이 비었는가',
       lead: '(목 모드) 점수가 낮은 축은 번역 품질이 아니라 신뢰 장치의 부재를 가리킵니다.',
-      bullets: ['근거 라벨·조건 각주가 관찰되지 않음', '무첨가·안전 소구가 부재', '축별 통과 기준과 내 문장을 리포트에 공개'],
+      bullets: [
+        '근거 라벨·조건 각주가 관찰되지 않음',
+        '무첨가·안전 소구가 부재',
+        '축별 통과 기준과 내 문장을 리포트에 공개',
+      ],
     },
     risk: {
       heading: '상장 전에 걸러야 할 문장',
       lead: '(목 모드) 광고 정지·수정 리스크를 상품 등록 전에 제거하는 것이 이 진단의 첫 값어치입니다.',
-      bullets: ['문장별로 불가·조건부·가능을 판정', '판정마다 규정 조항을 각주로 제시', '1차 스크리닝이며 상장 전 약무 전문가 확인 권고'],
+      bullets: [
+        '문장별로 불가·조건부·가능을 판정',
+        '판정마다 규정 조항을 각주로 제시',
+        '1차 스크리닝이며 상장 전 약무 전문가 확인 권고',
+      ],
     },
     benchmark: {
       heading: '일본 상위 제품과 무엇이 다른가',
@@ -257,7 +299,10 @@ export function mockCall5(mode: ReportMode = 'brandProduct'): DeckSpec {
 }
 
 /** 체커 목: 콜② 휴리스틱의 경량판 */
-export function mockChecker(text: string): { violations: { quote: string; verdict: '불가' | '조건부'; clauseRef: string; shortHint: string }[]; okCount: number } {
+export function mockChecker(text: string): {
+  violations: { quote: string; verdict: '불가' | '조건부'; clauseRef: string; shortHint: string }[];
+  okCount: number;
+} {
   const violations: { quote: string; verdict: '불가' | '조건부'; clauseRef: string; shortHint: string }[] = [];
   for (const p of NG_PATTERNS) {
     const m = text.match(p.pattern);

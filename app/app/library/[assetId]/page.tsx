@@ -80,7 +80,11 @@ function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
           )}
 
           {/* 다운로드(DETAIL-03 — ② RESULT-04와 동일 파일·파일명) */}
-          <a href={`/api/files/${asset.imagePath}`} download={downloadName} className={buttonClass('primary', 'lg', 'mt-4 w-full no-underline')}>
+          <a
+            href={`/api/files/${asset.imagePath}`}
+            download={downloadName}
+            className={buttonClass('primary', 'lg', 'mt-4 w-full no-underline')}
+          >
             이미지 다운로드 (PNG)
           </a>
           <p className="mt-2.5 text-xs leading-relaxed text-ink-mute [text-wrap:pretty]">
@@ -89,7 +93,10 @@ function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
 
           {/* 축 이동(DETAIL-04) — 어디로 가는지만 버튼 옆에 밝힌다 */}
           <div className="mt-4.5 border-t border-hairline pt-4">
-            <Link href={`/app/studio/thumbnail?from=${asset.id}`} className={buttonClass('secondary', 'sm', 'no-underline')}>
+            <Link
+              href={`/app/studio/thumbnail?from=${asset.id}`}
+              className={buttonClass('secondary', 'sm', 'no-underline')}
+            >
               같은 이미지로 다른 템플릿 생성
             </Link>
             <p className="mt-2 text-[11.5px] text-ink-mute">② 마케팅 스튜디오에서 새로 생성합니다.</p>
@@ -184,8 +191,8 @@ function ThumbnailDetail({ asset }: { asset: GeneratedAssetRecord }) {
               )}
 
               <p className="mt-4.5 text-[11px] leading-relaxed text-ink-faint">
-                이 해설은 축약판입니다. 원본 요소 처리 표를 포함한 전체 해설은 생성 직후 ② 결과 화면에서 볼 수 있는
-                것과 같은 데이터입니다.
+                이 해설은 축약판입니다. 원본 요소 처리 표를 포함한 전체 해설은 생성 직후 ② 결과 화면에서 볼 수 있는 것과
+                같은 데이터입니다.
               </p>
             </>
           )}
@@ -202,7 +209,15 @@ function reportTitle(request: DiagnosisRequestRecord): string {
 }
 
 /** 요약 통계 타일 — 약기법 판정 3종처럼 수치 하나 + 라벨 한 줄 */
-function SummaryTile({ value, label, tone }: { value: React.ReactNode; label: string; tone?: 'danger' | 'amber' | 'green' }) {
+function SummaryTile({
+  value,
+  label,
+  tone,
+}: {
+  value: React.ReactNode;
+  label: string;
+  tone?: 'danger' | 'amber' | 'green';
+}) {
   const toneCls =
     tone === 'danger'
       ? 'bg-danger-bg text-danger-text'
@@ -245,15 +260,7 @@ function SummaryHeading({ children }: { children: React.ReactNode }) {
  * 이미 손에 든 데이터로 "리포트를 열기 전에 알아야 할 것"을 채운다.
  * 전체 열람은 여전히 ① 리포트 화면 몫이다 — 여기서 9블록을 다 펼치지 않는다.
  */
-function ReportSummaryDetail({
-  requestId,
-  name,
-  report,
-}: {
-  requestId: string;
-  name: string;
-  report: ReportRecord;
-}) {
+function ReportSummaryDetail({ requestId, name, report }: { requestId: string; name: string; report: ReportRecord }) {
   const b = report.blocksJson;
   const scored = b.block1.scored;
   const audit = b.block3?.summary ?? null;
@@ -266,16 +273,14 @@ function ReportSummaryDetail({
     <DetailShell>
       <div className="grid grid-cols-[minmax(0,340px)_minmax(0,1fr)] items-start gap-9 max-lg:grid-cols-1">
         <figure className={cardClass('relative aspect-square overflow-hidden p-0 max-lg:max-w-[340px]')}>
-          <ReportCoverPreview
-            score={report.overallScore}
-            groupScores={report.groupScores}
-            top3={report.top3}
-          />
+          <ReportCoverPreview score={report.overallScore} groupScores={report.groupScores} top3={report.top3} />
         </figure>
 
         <div className="min-w-0">
           <p className="text-[13px] font-bold tracking-[0.02em] text-coral-strong">자산 상세 · 리포트 요약</p>
-          <h1 className="mt-2 text-2xl leading-[1.35] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">{name}</h1>
+          <h1 className="mt-2 text-2xl leading-[1.35] font-extrabold tracking-[-0.02em] text-ink [text-wrap:pretty]">
+            {name}
+          </h1>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <AxisChip axis="report" />
             <span className="text-[12.5px] text-ink-mute">
@@ -302,7 +307,9 @@ function ReportSummaryDetail({
                 <span className="inline-flex h-[26px] items-center rounded-full bg-n-150 px-[11px] text-[12px] font-bold text-ink-mute">
                   종합점수 없음 · brand 모드
                 </span>
-                <p className="mt-3 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">{b.block1.summaryText}</p>
+                <p className="mt-3 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
+                  {b.block1.summaryText}
+                </p>
                 <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
                   {b.block1.lockedReason} — {b.block1.unlockHint}
                 </p>
@@ -340,7 +347,10 @@ function ReportSummaryDetail({
                             aria-label={`${GROUP_LABELS_PREFIXED[g]} ${pct}% ${BAND_LABEL[band]}`}
                             className="h-1.5 flex-1 overflow-hidden rounded-full bg-n-150"
                           >
-                            <span className={`block h-full rounded-full ${BAND_BAR[band]}`} style={{ width: `${pct}%` }} />
+                            <span
+                              className={`block h-full rounded-full ${BAND_BAR[band]}`}
+                              style={{ width: `${pct}%` }}
+                            />
                           </span>
                           <b className="tnum w-8 flex-none text-right text-[11px] font-bold text-ink">{pct}%</b>
                         </dd>
@@ -384,7 +394,11 @@ function ReportSummaryDetail({
               {audit ? (
                 <>
                   <div className="mt-3 grid grid-cols-3 gap-2">
-                    <SummaryTile value={audit.ngCount} label="표현 불가 ✕" tone={audit.ngCount > 0 ? 'danger' : undefined} />
+                    <SummaryTile
+                      value={audit.ngCount}
+                      label="표현 불가 ✕"
+                      tone={audit.ngCount > 0 ? 'danger' : undefined}
+                    />
                     <SummaryTile
                       value={audit.conditionalCount}
                       label="조건부 △"
@@ -413,8 +427,8 @@ function ReportSummaryDetail({
                 <span className="text-[13px] font-semibold text-ink-faint">/ {rows.length} 장치 관찰됨 ○</span>
               </p>
               <p className="mt-2.5 text-[12px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-                라쿠텐 상세 {b.block4.sampleCount}건 코퍼스 기준. 관찰되지 않은 장치는 리포트 전체의 비교표에서
-                항목별로 확인합니다.
+                라쿠텐 상세 {b.block4.sampleCount}건 코퍼스 기준. 관찰되지 않은 장치는 리포트 전체의 비교표에서 항목별로
+                확인합니다.
               </p>
             </section>
           </div>
@@ -431,7 +445,10 @@ function ReportSummaryDetail({
             {persona.skinConcerns.length > 0 && (
               <ul className="mt-2.5 flex list-none flex-wrap gap-1.5 p-0">
                 {persona.skinConcerns.slice(0, 4).map((c) => (
-                  <li key={c} className="inline-flex h-[22px] items-center rounded-full bg-n-100 px-2.5 text-[11.5px] font-semibold text-ink-body">
+                  <li
+                    key={c}
+                    className="inline-flex h-[22px] items-center rounded-full bg-n-100 px-2.5 text-[11.5px] font-semibold text-ink-body"
+                  >
                     {c}
                   </li>
                 ))}

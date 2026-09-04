@@ -113,7 +113,9 @@ export function WithdrawButton({
             <h3 id={titleId} className="text-base font-extrabold text-ink">
               정말 탈퇴하시겠어요?
             </h3>
-            <p className="mt-2.5 text-[13px] leading-relaxed text-ink-body">탈퇴하면 아래 데이터가 삭제되며 되돌릴 수 없습니다.</p>
+            <p className="mt-2.5 text-[13px] leading-relaxed text-ink-body">
+              탈퇴하면 아래 데이터가 삭제되며 되돌릴 수 없습니다.
+            </p>
             <ul className="mt-2.5 list-none p-0 text-[12.5px] leading-[1.8] text-ink-body">
               <li>
                 · 진단 리포트 {reportCount}건 · 생성 썸네일 {thumbnailCount}건

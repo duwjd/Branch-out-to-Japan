@@ -212,7 +212,8 @@ export async function runCall2(
       if (missing.length) return `문장 누락: [${missing.join(',')}] — 모든 문장을 판정하라.`;
       const valid = validClauseIds();
       const badRefs = data.sentences.flatMap((s) => s.clauseRefs.filter((r) => !valid.has(r)));
-      if (badRefs.length) return `유효하지 않은 조항 id: [${[...new Set(badRefs)].join(',')}] — 제공된 조항 id만 사용하라.`;
+      if (badRefs.length)
+        return `유효하지 않은 조항 id: [${[...new Set(badRefs)].join(',')}] — 제공된 조항 id만 사용하라.`;
       return null;
     },
   });
@@ -378,10 +379,11 @@ export function runCall5(
       return Promise.reject(new Error('브랜드+제품 리포트의 blocksJson이 불완전합니다(점수·감사 블록 누락).'));
     }
     const top3 = blocks.block1.top3.map((t) => `${t.itemId} ${t.title}(${t.score}점)`).join(' · ');
-    const gaps = blocks.block4.comparisonRows
-      .filter((r) => r.customerStatus !== '관찰됨')
-      .map((r) => `${r.device}: ${r.gapNote}`)
-      .join('\n') || '(관찰된 갭 없음)';
+    const gaps =
+      blocks.block4.comparisonRows
+        .filter((r) => r.customerStatus !== '관찰됨')
+        .map((r) => `${r.device}: ${r.gapNote}`)
+        .join('\n') || '(관찰된 갭 없음)';
     const firstRewrite = blocks.block7.rewrites[0];
     const rewriteLine = firstRewrite
       ? `Before "${firstRewrite.beforeKr}" → After(JP) "${firstRewrite.afterJa}" / 역해설 "${firstRewrite.afterKr}" (문제: ${firstRewrite.problem})`
@@ -397,14 +399,20 @@ export function runCall5(
       `[재작성 대표 1건]`,
       rewriteLine,
       funnelLine,
-      `[요청] 위 진단 결과를 상사 품의용 슬라이드 7장의 한국어 카피로 옮겨라. 각 장에 heading·lead·bullets(2~3개). ` + guardrailLine,
+      `[요청] 위 진단 결과를 상사 품의용 슬라이드 7장의 한국어 카피로 옮겨라. 각 장에 heading·lead·bullets(2~3개). ` +
+        guardrailLine,
     ].join('\n\n');
   }
 
   return runStructuredCall<DeckSpec>({
     callName: 'call5',
     // call5 프리픽스는 productClass 미사용('미상' 폴백 안전). 골격은 모드별 2종 — 각 모드 안에서 캐시 안정
-    system: buildStableGrounding('call5', input.category, input.mode === 'brandProduct' ? input.productClass : '미상', mode),
+    system: buildStableGrounding(
+      'call5',
+      input.category,
+      input.mode === 'brandProduct' ? input.productClass : '미상',
+      mode,
+    ),
     userPayload: payload,
     schema: mode === 'brand' ? CALL5_OUTPUT_SCHEMA_BRAND : CALL5_OUTPUT_SCHEMA_FULL,
     ...CALL_TUNING.call5,

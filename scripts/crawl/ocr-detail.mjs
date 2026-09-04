@@ -35,7 +35,7 @@ const MODEL = 'claude-sonnet-5';
 const MAX_TOKENS = 4000; // 색상 변형 등 텍스트 밀도 높은 상세 이미지의 JSON 잘림 방지
 const POLL_INTERVAL_MS = 60000;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // Claude 비전 이미지당 바이트 한도
-const MAX_EDGE = 8000;                    // Claude 비전 한 변 최대 px
+const MAX_EDGE = 8000; // Claude 비전 한 변 최대 px
 // Batch API 는 요청 1건이 아니라 **배치 전체**가 256MB 를 넘으면 413 을 낸다.
 // base64 는 원본의 약 1.33배라 1,000장이면 수백 MB가 된다 → 크기 기준으로 나눠 순차 처리한다.
 const MAX_BATCH_BYTES = 180 * 1024 * 1024; // 256MB 상한에 여유
@@ -130,8 +130,16 @@ const OUTPUT_SCHEMA = {
     },
   },
   required: [
-    'rawText', 'appeals', 'ingredients', 'trustBadges',
-    'blockType', 'footnotes', 'numericClaims', 'optionLabels', 'priceTerms', 'legalFlags',
+    'rawText',
+    'appeals',
+    'ingredients',
+    'trustBadges',
+    'blockType',
+    'footnotes',
+    'numericClaims',
+    'optionLabels',
+    'priceTerms',
+    'legalFlags',
   ],
 };
 
@@ -142,7 +150,8 @@ const PROMPT =
   '3) ingredients: 記載された成分\n' +
   '4) trustBadges: 信頼バッジ・認証（医薬部外品・ランキング1位・無添加など）\n' +
   '5) blockType: この画像が詳細ページで担う役割を次から1つ選ぶ。\n' +
-  BLOCK_TYPES.map(([id, ko]) => `   ${id} = ${ko}`).join('\n') + '\n' +
+  BLOCK_TYPES.map(([id, ko]) => `   ${id} = ${ko}`).join('\n') +
+  '\n' +
   '   商品と無関係・判別不能なら noise。\n' +
   '6) footnotes: ※・＊ の注釈。marker は表記のまま、text は注釈本文。\n' +
   '7) numericClaims: 数値主張（濃度・倍数・日数・人数など）。例 value="6", unit="%", context="グリシルグリシン6%配合"\n' +
@@ -174,7 +183,9 @@ async function loadDetailRecords() {
     try {
       const r = JSON.parse(line);
       if (r.type === 'detail') out.push(r);
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
   return out;
 }
@@ -194,7 +205,9 @@ async function loadDoneIds(force = false) {
     try {
       const r = JSON.parse(line);
       if ((r.schemaVersion ?? 1) >= SCHEMA_VERSION) ids.add(r.id);
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
   return ids;
 }
@@ -212,7 +225,11 @@ async function compactOcrFile() {
   for (const line of text.split('\n')) {
     if (!line.trim()) continue;
     let r;
-    try { r = JSON.parse(line); } catch { continue; }
+    try {
+      r = JSON.parse(line);
+    } catch {
+      continue;
+    }
     total++;
     byId.set(r.id, line);
   }
@@ -228,7 +245,8 @@ function detectMediaType(buf) {
   if (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
   if (buf.length >= 4 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'image/png';
   if (buf.length >= 3 && buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46) return 'image/gif';
-  if (buf.length >= 12 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') return 'image/webp';
+  if (buf.length >= 12 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP')
+    return 'image/webp';
   return null;
 }
 
@@ -239,7 +257,9 @@ function imageDims(abs) {
     const w = Number(out.match(/pixelWidth:\s*(\d+)/)?.[1]);
     const h = Number(out.match(/pixelHeight:\s*(\d+)/)?.[1]);
     return Number.isFinite(w) && Number.isFinite(h) ? { w, h } : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -255,7 +275,9 @@ function normalizeViaSips(abs, safeId, resample) {
     argv.push(abs, '--out', out);
     execFileSync('sips', argv, { stdio: 'ignore' });
     return out;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 /** detail 레코드 → Batch 요청 1건(이미지 base64 포함). 처리 불가 이미지는 null 반환(스킵). */
@@ -390,7 +412,10 @@ async function main() {
 
   const byId = new Map(details.map((r) => [r.id, r]));
   const collectedAt = new Date().toISOString().slice(0, 10);
-  let succeeded = 0, empty = 0, failed = 0, skipped = 0;
+  let succeeded = 0,
+    empty = 0,
+    failed = 0,
+    skipped = 0;
 
   /** 배치 1건을 끝까지 처리한다(폴링 → 결과 수집 → append). */
   async function drainBatch(batchId) {
@@ -412,10 +437,14 @@ async function main() {
         continue;
       }
       const parsed = parseResultMessage(result.result.message);
-      if (!parsed) { failed++; continue; }
+      if (!parsed) {
+        failed++;
+        continue;
+      }
       const row = buildRow(rec, parsed, collectedAt);
       await appendFile(OCR_PATH, JSON.stringify(row) + '\n', 'utf8');
-      if (row.rawText.trim()) succeeded++; else empty++;
+      if (row.rawText.trim()) succeeded++;
+      else empty++;
     }
     if (existsSync(STATE_PATH)) await unlink(STATE_PATH);
   }
@@ -428,7 +457,9 @@ async function main() {
         logger.info('진행 중 배치 재개', { batchId: st.batchId });
         await drainBatch(st.batchId);
       }
-    } catch { /* 손상 상태파일 무시 */ }
+    } catch {
+      /* 손상 상태파일 무시 */
+    }
   }
 
   // 크기 기준 청크로 나눠 순차 처리
@@ -456,7 +487,10 @@ async function main() {
 
   for (const rec of pending) {
     const req = await toBatchRequest(rec);
-    if (!req) { skipped++; continue; }
+    if (!req) {
+      skipped++;
+      continue;
+    }
     const size = JSON.stringify(req).length;
     if (chunk.length > 0 && (chunkBytes + size > MAX_BATCH_BYTES || chunk.length >= MAX_BATCH_REQUESTS)) {
       await flushChunk();

@@ -18,6 +18,7 @@ import { MAX_AI_BLOCKS, outputProfile } from '@/lib/studio/detail/output';
 import { currentImageMode } from '@/lib/studio/imageGen';
 import { collectTranslatable, verifyClientTranslation, type TranslatedField } from '@/lib/studio/detail/translate';
 import { runInputTranslate } from '@/lib/studio/detail/translateCall';
+import { callTimeout } from '@/lib/studio/detail/budget';
 import { logger } from '@/lib/logger';
 
 /**
@@ -40,13 +41,15 @@ export async function POST(request: Request): Promise<NextResponse> {
   const form = await request.formData();
   // 이 라우트는 이미지 바이트를 저장하지도 읽지도 않는다 — 개수·형식·크기만 본다.
   // 화면은 그래서 파일 대신 메타(imageMeta)만 보낸다. 옛 클라이언트(파일 첨부)도 그대로 받는다.
-  const meta =
-    parseImageMeta(form) ?? form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
+  const meta = parseImageMeta(form) ?? form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
   const imageError = validateImages(meta);
   if (imageError) return NextResponse.json({ error: imageError }, { status: 400 });
 
   // 미리보기는 저장하지 않는다 — 경로는 개수만 맞춘 자리표시자
-  const parsed = parseDetailForm(form, meta.map((_, i) => `preview-${i}`));
+  const parsed = parseDetailForm(
+    form,
+    meta.map((_, i) => `preview-${i}`),
+  );
   if ('error' in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
   const plan = planBlocks(parsed.detailInput, parsed.platform, parsed.templateId, parsed.disabledBlocks);
@@ -83,6 +86,8 @@ export async function POST(request: Request): Promise<NextResponse> {
           input: parsed.detailInput,
           note: parsed.note,
           brandKit: brand?.brandKit,
+          // 미리보기 응답을 콜 하나가 매달려 잡아먹지 않게(스펙 §2-13)
+          timeoutMs: callTimeout('translate'),
         });
         translation = { fields: result.fields, artDirectionEn: result.artDirectionEn };
       } catch (err) {

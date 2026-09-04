@@ -229,7 +229,12 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
             <div className="mx-auto mt-5 h-[298px] w-[298px] max-w-full overflow-hidden rounded-[18px] border border-card-border bg-n-200 shadow-card">
               <div className="relative h-full w-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={asset.originalUrl} alt="" aria-hidden className="h-full w-full scale-110 object-cover opacity-70 blur-[9px]" />
+                <img
+                  src={asset.originalUrl}
+                  alt=""
+                  aria-hidden
+                  className="h-full w-full scale-110 object-cover opacity-70 blur-[9px]"
+                />
                 <span
                   aria-hidden
                   className="absolute inset-y-0 left-0 w-1/3 animate-sweep bg-[linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent)]"
@@ -270,7 +275,9 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <p className="text-[18px] font-bold text-coral-strong">썸네일 생성 실패</p>
-                  <p className="text-[13px] leading-[1.5] text-cool-50 [text-wrap:pretty]">{failureCopy(asset.error)}</p>
+                  <p className="text-[13px] leading-[1.5] text-cool-50 [text-wrap:pretty]">
+                    {failureCopy(asset.error)}
+                  </p>
                 </div>
               </div>
 
@@ -310,8 +317,12 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
 
             {/* 목 모드 이미지 고지(RESULT-01) — 작은 배지로 흘리지 않고 상단 배너로 명시 */}
             {asset.imageMode === 'mock' && (
-              <div role="note" className="rounded-[10px] border border-amber bg-amber-bg px-4 py-3 text-[12.5px] leading-relaxed text-amber-text">
-                <b className="font-bold">데모 이미지입니다.</b> 올린 제품컷이 반영되지 않은 샘플이며 다운로드 파일명에 <code>-demo</code>가 붙습니다. 이미지 API를 연결하면 실제 생성이 동작합니다.
+              <div
+                role="note"
+                className="rounded-[10px] border border-amber bg-amber-bg px-4 py-3 text-[12.5px] leading-relaxed text-amber-text"
+              >
+                <b className="font-bold">데모 이미지입니다.</b> 올린 제품컷이 반영되지 않은 샘플이며 다운로드 파일명에{' '}
+                <code>-demo</code>가 붙습니다. 이미지 API를 연결하면 실제 생성이 동작합니다.
               </div>
             )}
 
@@ -347,7 +358,9 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={asset.modelImageUrl} alt="올린 모델컷" className="h-full w-full object-cover" />
                         </div>
-                        <figcaption className="mt-1.5 text-center text-[11.5px] font-bold text-ink-mute">모델컷</figcaption>
+                        <figcaption className="mt-1.5 text-center text-[11.5px] font-bold text-ink-mute">
+                          모델컷
+                        </figcaption>
                       </figure>
                     )}
                     {asset.gateResult && (
@@ -375,11 +388,15 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
                           {hasPlatform ? `${platformLabel} · ` : ''}
                           {asset.createdAt.slice(0, 10)}
                         </span>
-                        {asset.llmMode === 'mock' && <StatusBadge tone="warn">데모 해설 · 실제 진단이 아닙니다</StatusBadge>}
+                        {asset.llmMode === 'mock' && (
+                          <StatusBadge tone="warn">데모 해설 · 실제 진단이 아닙니다</StatusBadge>
+                        )}
                       </div>
                     </div>
                     {explanation?.beforeSummary && (
-                      <p className="text-[14px] leading-[1.6] text-ink-body [text-wrap:pretty]">{explanation.beforeSummary}</p>
+                      <p className="text-[14px] leading-[1.6] text-ink-body [text-wrap:pretty]">
+                        {explanation.beforeSummary}
+                      </p>
                     )}
                   </div>
 
@@ -397,7 +414,11 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
                   <div className="mt-6 flex-1" aria-hidden />
 
                   <div className="flex flex-col gap-2.5">
-                    <button type="button" onClick={() => void handleDownload()} className={studioButtonClass('primary', 'w-full')}>
+                    <button
+                      type="button"
+                      onClick={() => void handleDownload()}
+                      className={studioButtonClass('primary', 'w-full')}
+                    >
                       <IconDownload size={18} />
                       이미지 다운로드
                     </button>
@@ -462,7 +483,8 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
 
                     {!asset.proof && (
                       <p className="mt-4 rounded-[8px] bg-amber-bg px-3.5 py-3 text-[12.5px] leading-relaxed text-amber-text">
-                        실적을 입력하지 않아 배지 없이 만들었습니다. 배지 없음이 기본값이고 근거를 입력하면 배지가 들어갑니다.
+                        실적을 입력하지 않아 배지 없이 만들었습니다. 배지 없음이 기본값이고 근거를 입력하면 배지가
+                        들어갑니다.
                       </p>
                     )}
 
@@ -485,7 +507,9 @@ export default function StudioResultPage({ params }: { params: Promise<{ assetId
                                   <tr key={i} className="border-t border-n-200 align-top">
                                     <td className="py-2.5 pr-2.5">{row.element}</td>
                                     <td className="py-2.5 pr-2.5">
-                                      <span className={`inline-flex h-[21px] items-center rounded-full px-2 text-[11px] font-bold ${badge.cls}`}>
+                                      <span
+                                        className={`inline-flex h-[21px] items-center rounded-full px-2 text-[11px] font-bold ${badge.cls}`}
+                                      >
                                         {badge.mark} {row.action}
                                       </span>
                                     </td>

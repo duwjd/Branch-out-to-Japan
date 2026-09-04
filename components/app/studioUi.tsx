@@ -26,7 +26,9 @@ export function StudioPageHeading({
         <h1 className="pt-2.5 text-[30px] leading-[39px] font-extrabold tracking-[-0.02em] text-ink">{title}</h1>
         <p
           className={`mt-1 ${
-            descTone === 'ink' ? 'text-[16px] leading-[1.5] font-semibold text-black' : 'text-[14px] leading-[1.6] text-ink-mute'
+            descTone === 'ink'
+              ? 'text-[16px] leading-[1.5] font-semibold text-black'
+              : 'text-[14px] leading-[1.6] text-ink-mute'
           } [text-wrap:pretty]`}
         >
           {desc}
@@ -74,7 +76,13 @@ export function StudioSection({
 }
 
 /** 콘텐츠 배지 — 낮은 위계의 분류 표시. tone=violet은 결과 화면 템플릿명 */
-export function ContentBadge({ children, tone = 'neutral' }: { children: React.ReactNode; tone?: 'neutral' | 'violet' }) {
+export function ContentBadge({
+  children,
+  tone = 'neutral',
+}: {
+  children: React.ReactNode;
+  tone?: 'neutral' | 'violet';
+}) {
   if (tone === 'violet') {
     return (
       <span className="relative inline-flex items-center justify-center rounded-[8px] px-2 py-[5px] text-[13px] leading-[1.385] font-medium text-violet">
@@ -114,7 +122,9 @@ export function SegmentedControl<T extends string>({
             aria-selected={on}
             onClick={() => onChange(opt.value)}
             className={`relative flex h-full flex-1 cursor-pointer items-center justify-center rounded-[10px] p-[9px] text-[16px] leading-[1.5] font-semibold transition-colors ${
-              on ? 'bg-canvas text-coral-strong shadow-[0px_0px_4px_0px_rgba(0,0,0,0.08)]' : 'text-ink-mute hover:text-ink-body'
+              on
+                ? 'bg-canvas text-coral-strong shadow-[0px_0px_4px_0px_rgba(0,0,0,0.08)]'
+                : 'text-ink-mute hover:text-ink-body'
             }`}
           >
             {opt.label}

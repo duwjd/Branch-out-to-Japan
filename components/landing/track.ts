@@ -17,10 +17,7 @@ export function getSource(): string {
  * 퍼널 이벤트를 /api/track으로 전송한다. source·path는 지정하지 않으면 자동으로 채운다.
  * navigator.sendBeacon을 우선 쓰고(언로드 중에도 전송 보장), 지원하지 않으면 keepalive fetch로 대체한다.
  */
-export function sendTrack(
-  type: TrackEventType,
-  opts?: { cta?: string; source?: string; path?: string }
-): void {
+export function sendTrack(type: TrackEventType, opts?: { cta?: string; source?: string; path?: string }): void {
   if (typeof window === 'undefined') return;
 
   const payload = {

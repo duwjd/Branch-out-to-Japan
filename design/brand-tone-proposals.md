@@ -1,3 +1,14 @@
+---
+title: 브랜드 무드·컬러 톤 제안 (3안)
+space: 디자인
+status: 폐기
+phase: Phase 0
+updated: 2026-07-09
+owner:
+tags: [디자인, 브랜드]
+superseded_by: design/design-system.md
+---
+
 # 브랜드 무드·컬러 톤 제안 (3안)
 
 > ⚠ **SUPERSEDED (2026-07-09):** 톤은 **코랄**(`design/DESIGN.md`)로 확정됨. 이 3안(네이비 A안 포함) 제안은 **이력 보존용**이며 더 이상 기준이 아니다. 디자인 단일 기준 = `design/DESIGN.md`.

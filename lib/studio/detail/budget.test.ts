@@ -8,7 +8,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { COMPOSE_RESERVE_MS, IMAGE_WAVE_MS, fitImageBudget, type ImageCandidate } from './budget';
+import {
+  COMPOSE_RESERVE_MS,
+  IMAGE_WAVE_MS,
+  JOB_BUDGET_MS,
+  callTimeout,
+  fitImageBudget,
+  type ImageCandidate,
+} from './budget';
 
 const TIMEOUT = 120_000;
 
@@ -48,7 +55,10 @@ test('웨이브가 줄어들 때만 후보를 자른다', () => {
 test('버리는 순서는 우선순위 역순 — 카테고리 필수 컷이 서명 블록보다 오래 버틴다', () => {
   const r = fitImageBudget(CANDIDATES, IMAGE_WAVE_MS * 2 + COMPOSE_RESERVE_MS, 2, TIMEOUT);
   assert.deepEqual(r.keep, ['hero-product', 'texture-shot', 'problem-hook', 'usage-scene']);
-  assert.deepEqual(r.drop.map((d) => d.blockId), ['before-after-diagram']);
+  assert.deepEqual(
+    r.drop.map((d) => d.blockId),
+    ['before-after-diagram'],
+  );
 });
 
 test('히어로는 시간이 아무리 없어도 남는다 — 제품이 한 번도 안 서는 페이지는 실패한 페이지다', () => {
@@ -91,4 +101,42 @@ test('후보가 없으면 조용히 빈 결과 — 텍스트 전용 페이지도
   const r = fitImageBudget([], 200_000, 6, TIMEOUT);
   assert.deepEqual(r.keep, []);
   assert.deepEqual(r.drop, []);
+});
+
+// ── callTimeout — 앞단 LLM 콜(⑦⑧⑨)의 폭주 차단선 ──────────────────────────
+// SDK 기본 타임아웃(10분)이 함수 상한(300초)보다 길어, 상한이 없으면 콜 하나가 함수를
+// 통째로 먹고 이미지 웨이브는 시작조차 못 한다. 리포트를 20/20 죽였던 원인이다.
+
+test('마감이 없는 경로는 단계 상한을 그대로 받는다', () => {
+  // 제출·미리보기·블록 재생성 라우트 — 잡 예산 밖에서 도는 단발 콜
+  assert.equal(callTimeout('translate'), 90_000);
+  assert.equal(callTimeout('copy'), 150_000);
+  assert.equal(callTimeout('humanize'), 90_000);
+});
+
+test('여유가 충분하면 단계 상한이 그대로다 — 정상 실행은 가드를 스치지 않는다', () => {
+  assert.equal(callTimeout('copy', 250_000), 150_000);
+  assert.equal(callTimeout('humanize', 250_000), 90_000);
+});
+
+test('마감이 가까우면 결합·분할 몫을 남긴 나머지로 조인다', () => {
+  // 남은 100초 - 결합 몫 30초 = 70초. 단계 상한(150초)보다 작으므로 이쪽이 이긴다
+  assert.equal(callTimeout('copy', 100_000), 100_000 - COMPOSE_RESERVE_MS);
+});
+
+test('결합·분할 몫은 어떤 콜도 침범하지 못한다', () => {
+  // 남은 시간이 예약분 이하면 0 — "이 콜을 걸 시간이 없다"
+  assert.equal(callTimeout('copy', COMPOSE_RESERVE_MS), 0);
+  assert.equal(callTimeout('humanize', 10_000), 0);
+});
+
+test('마감이 이미 지나도 음수를 돌려주지 않는다', () => {
+  // 음수 timeout 을 SDK 에 넘기면 동작이 정의되지 않는다. 0 이어야 시도 없이 폴백으로 간다
+  assert.equal(callTimeout('copy', -50_000), 0);
+});
+
+test('상한은 잡 예산을 넘지 않는다 — 한 콜이 전체를 먹을 수 없다', () => {
+  for (const stage of ['translate', 'copy', 'humanize'] as const) {
+    assert.ok(callTimeout(stage) < JOB_BUDGET_MS, `${stage} 상한이 잡 예산 이상이면 그 콜 하나로 마감이 끝난다`);
+  }
 });

@@ -14,10 +14,7 @@ import { logger } from '@/lib/logger';
 // after() 잡이 함수 타임아웃 등으로 죽으면 generating이 영구 고착된다 — 폴링 시점에 실패 전환(11 §3)
 const STALE_JOB_MS = 10 * 60 * 1000;
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-): Promise<NextResponse> {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   const { id } = await params;
   const store = await getStore();
   const asset = await store.getAsset(id);

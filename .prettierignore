@@ -1,0 +1,22 @@
+# 빌드·실행 산출물
+.next/
+.tmp-node/
+.data/
+.ut/
+node_modules/
+package-lock.json
+
+# 문서는 손으로 조판한다 — Prettier 가 한국어 표·문단을 재배치하면 읽기 나빠진다
+*.md
+
+# 데이터 정본·수집 원자료 — 포맷을 바꾸면 diff 가 무의미해지고 파일이 커진다
+data/
+public/
+design/
+
+# 커밋된 렌더 산출물·픽스처
+docs/specs/**/assets/
+
+# 외부 스킬·에이전트 자산 — 우리 코드가 아니다
+.claude/
+persona-simulation/

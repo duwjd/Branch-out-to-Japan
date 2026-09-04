@@ -1,3 +1,13 @@
+---
+title: AI 에이전트 UT 결과 — YOAKE 실서비스 (2026-08-21)
+space: 검증·실험
+status: 정본
+phase: Phase 0
+updated: 2026-08-21
+owner:
+tags: [UT, 결과]
+---
+
 # AI 에이전트 UT 결과 — YOAKE 실서비스 (2026-08-21)
 
 > 대상: **배포본 https://branch-out-to-japan.vercel.app** (Vercel Hobby + Fluid Compute · Supabase Free)

@@ -34,7 +34,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
   const { id } = await params;
   const found = await ownedMemo(id);
   if (found.status === 401) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });

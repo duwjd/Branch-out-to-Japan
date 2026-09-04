@@ -38,7 +38,10 @@ const FIXTURE_INPUT: TierInput = {
   mode: 'brandProduct',
   // 브랜드 섹션 (스펙 §3.1 v4)
   brandName: 'HARUON',
-  positioning: { tags: ['calming', 'sensitive', 'ingredientLed'], note: '민감성 피부를 위한 병풀 진정 앰플 중심 스킨케어' },
+  positioning: {
+    tags: ['calming', 'sensitive', 'ingredientLed'],
+    note: '민감성 피부를 위한 병풀 진정 앰플 중심 스킨케어',
+  },
   category: 'skincare',
   targetMemo: '민감성 피부, 20~30대',
   // 제품 섹션
@@ -120,9 +123,7 @@ async function main(): Promise<void> {
     // 요약만 출력(전체는 --out으로)
     process.stdout.write('\n[블록1 총평]\n' + b.block1.summaryText + '\n');
     process.stdout.write('\n[블록3 감사 요약] ' + JSON.stringify(b.block3?.summary ?? null) + '\n');
-    process.stdout.write(
-      '\n[블록7 재작성 1건 예시]\n' + JSON.stringify(b.block7?.rewrites[0] ?? null, null, 2) + '\n',
-    );
+    process.stdout.write('\n[블록7 재작성 1건 예시]\n' + JSON.stringify(b.block7?.rewrites[0] ?? null, null, 2) + '\n');
   }
 }
 

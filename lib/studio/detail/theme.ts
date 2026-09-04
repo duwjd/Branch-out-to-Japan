@@ -77,8 +77,17 @@ export function hsvToRgb(h: number, s: number, v: number): { r: number; g: numbe
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = v - c;
   const t =
-    h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x]
-    : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+    h < 60
+      ? [c, x, 0]
+      : h < 120
+        ? [x, c, 0]
+        : h < 180
+          ? [0, c, x]
+          : h < 240
+            ? [0, x, c]
+            : h < 300
+              ? [x, 0, c]
+              : [c, 0, x];
   return { r: (t[0] + m) * 255, g: (t[1] + m) * 255, b: (t[2] + m) * 255 };
 }
 
@@ -201,6 +210,8 @@ export interface PaletteDef {
  * `#ff6f61`(YOAKE 일출 코랄)은 **넣지 않는다** — 고객이 우연히 우리 색을 고르는 것과
  * 우리가 강요하는 것은 다르다. 필요하면 `rose-coral` 이 그 자리를 대신한다.
  */
+// 팔레트 카탈로그 — id·라벨·accent 를 나란히 놓고 색을 고른다
+// prettier-ignore
 export const PALETTES: readonly PaletteDef[] = [
   { id: 'neutral-greige', labelKo: '뉴트럴 그레이지', accent: '#8a7f76', nameEn: 'warm greige' },
   { id: 'clinical-blue', labelKo: '클리니컬 블루', accent: '#3d6fb5', nameEn: 'deep clinical blue' },
@@ -229,6 +240,8 @@ export interface MoodDef {
  * 이 층이 말하는 것은 **팔레트 · 소재 · 스타일링**이다.
  * 그림자의 성격(`deep controlled shadows`·`high-contrast`)은 연출 층과 방향이 같으므로 남긴다.
  */
+// 무드 카탈로그 — 위와 같은 이유
+// prettier-ignore
 export const MOODS: readonly MoodDef[] = [
   { id: 'minimal-clean', labelKo: '미니멀 클린', keywords: 'minimal clean styling, generous negative space, matte neutral props, restrained palette' },
   { id: 'clinical', labelKo: '클리니컬', keywords: 'clinical precision, cool neutral palette, laboratory-clean glass and brushed steel, restrained styling' },
@@ -515,7 +528,8 @@ export function resolveTheme(input: ThemeInput | undefined, category?: ProductCa
 
   let raw: string | null = null;
   if (t.source === 'custom') raw = normalizeHex(t.customAccent);
-  else if (t.source === 'palette') raw = paletteById(t.paletteId).accent; // 화이트리스트 통과분만
+  else if (t.source === 'palette')
+    raw = paletteById(t.paletteId).accent; // 화이트리스트 통과분만
   else raw = normalizeHex(t.extracted);
   if (!raw) raw = paletteById(CATEGORY_FALLBACK[cat] ?? 'neutral-greige').accent;
 

@@ -1,3 +1,13 @@
+---
+title: ⓪ 메인(앱 홈) UI 기획
+space: 화면 스펙
+status: 초안
+phase: Phase 0
+updated: 2026-08-20
+owner:
+tags: [UI기획, 메인]
+---
+
 # ⓪ 메인(앱 홈) UI 기획
 
 | **작성일** | **작성자** | **비고** |

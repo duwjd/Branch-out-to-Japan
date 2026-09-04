@@ -32,6 +32,8 @@ interface RequestRow {
   id: string;
   brand_profile_id: string | null;
   tier_input: TierInput;
+  /** 제품 연결 — 2026-09-02 마이그레이션. 구 행은 null 이다 */
+  product_id: string | null;
   precision_limited: boolean;
   status: ReportStatus;
   stage: string | null;
@@ -58,6 +60,7 @@ function toRequestRecord(row: RequestRow): DiagnosisRequestRecord {
   return {
     id: row.id,
     brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
+    productId: row.product_id ?? null,
     tierInput: row.tier_input,
     precisionLimited: row.precision_limited,
     status: row.status,
@@ -72,7 +75,8 @@ function toRequestRecord(row: RequestRow): DiagnosisRequestRecord {
  * 목록용 리포트 컬럼 — `blocks_json`(9블록 본문)을 뺀다. 라이브러리·홈 카드는 점수·발행일만 쓴다.
  * 컬럼을 추가할 땐 ReportSummaryRow 와 함께 고친다(둘이 어긋나면 런타임에 undefined 가 샌다).
  */
-const REPORT_SUMMARY_COLUMNS = 'request_id, brand_profile_id, overall_score, group_scores, top3, published_at, created_at';
+const REPORT_SUMMARY_COLUMNS =
+  'request_id, brand_profile_id, overall_score, group_scores, top3, published_at, created_at';
 
 type ReportSummaryRow = Omit<ReportRow, 'blocks_json'>;
 
@@ -205,6 +209,8 @@ interface GeneratedAssetRow {
   model_consent: boolean | null;
   promo_input: GeneratedAssetRecord['promoInput'];
   brand_name_snapshot: string;
+  /** 제품 연결 — 2026-09-02 마이그레이션. 구 행은 null 이다 */
+  product_id: string | null;
   detail_input: GeneratedAssetRecord['detailInput'];
   block_total: number | null;
   block_done: number | null;
@@ -273,6 +279,7 @@ function toAssetSummary(row: GeneratedAssetSummaryRow): GeneratedAssetSummary {
   return {
     id: row.id,
     brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
+    productId: row.product_id ?? null,
     kind: row.kind,
     styleCategory: row.style_category,
     styleName: row.style_name,
@@ -296,6 +303,7 @@ function toAssetRecord(row: GeneratedAssetRow): GeneratedAssetRecord {
   return {
     id: row.id,
     brandProfileId: row.brand_profile_id ?? LEGACY_BRAND_ID,
+    productId: row.product_id ?? null,
     kind: row.kind,
     styleCategory: row.style_category,
     styleName: row.style_name,
@@ -464,10 +472,15 @@ export function createSupabaseStore(): Store {
   return {
     kind: () => 'supabase',
 
-    async createRequest(input: TierInput, brandProfileId: string) {
+    async createRequest(input: TierInput, brandProfileId: string, productId?: string | null) {
       const result = await client
         .from('diagnosis_requests')
-        .insert({ tier_input: input, status: 'submitted', brand_profile_id: brandProfileId })
+        .insert({
+          tier_input: input,
+          status: 'submitted',
+          brand_profile_id: brandProfileId,
+          product_id: productId ?? null,
+        })
         .select()
         .single<RequestRow>();
       return toRequestRecord(must(result, 'createRequest'));
@@ -642,6 +655,7 @@ export function createSupabaseStore(): Store {
           model_consent: input.modelConsent,
           promo_input: input.promoInput,
           brand_name_snapshot: input.brandNameSnapshot,
+          product_id: input.productId,
           detail_input: input.detailInput,
           block_total: input.blockTotal,
           block_done: input.blockDone,
@@ -698,7 +712,9 @@ export function createSupabaseStore(): Store {
         )
         .select()
         .returns<AssetBlockRow[]>();
-      return must(result, 'createBlocks').map(toBlockRecord).sort((a, b) => a.seq - b.seq);
+      return must(result, 'createBlocks')
+        .map(toBlockRecord)
+        .sort((a, b) => a.seq - b.seq);
     },
 
     async listBlocks(assetId) {
@@ -749,7 +765,11 @@ export function createSupabaseStore(): Store {
       // 함수가 없는 환경(구 스키마)에서는 읽고-쓰기로 폴백한다(단일 워커라 실사용상 안전).
       const rpc = await client.rpc('increment_block_done', { p_asset_id: assetId });
       if (!rpc.error) return;
-      const cur = await client.from('generated_assets').select('block_done').eq('id', assetId).maybeSingle<{ block_done: number | null }>();
+      const cur = await client
+        .from('generated_assets')
+        .select('block_done')
+        .eq('id', assetId)
+        .maybeSingle<{ block_done: number | null }>();
       if (cur.error) throw new Error(`supabase incrementBlockDone 실패: ${cur.error.message}`);
       const next = (cur.data?.block_done ?? 0) + 1;
       const upd = await client.from('generated_assets').update({ block_done: next }).eq('id', assetId);
@@ -762,10 +782,20 @@ export function createSupabaseStore(): Store {
         .from('generated_assets')
         .select('id, brand_profile_id, kind, status, stage, error, block_total, block_done, updated_at')
         .eq('id', id)
-        .maybeSingle<Pick<
-          GeneratedAssetRow,
-          'id' | 'brand_profile_id' | 'kind' | 'status' | 'stage' | 'error' | 'block_total' | 'block_done' | 'updated_at'
-        >>();
+        .maybeSingle<
+          Pick<
+            GeneratedAssetRow,
+            | 'id'
+            | 'brand_profile_id'
+            | 'kind'
+            | 'status'
+            | 'stage'
+            | 'error'
+            | 'block_total'
+            | 'block_done'
+            | 'updated_at'
+          >
+        >();
       if (result.error) throw new Error(`supabase getAssetStatus 실패: ${result.error.message}`);
       const row = result.data;
       if (!row) return null;

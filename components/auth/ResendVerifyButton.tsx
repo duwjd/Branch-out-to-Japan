@@ -79,7 +79,12 @@ export function ResendVerifyButton({
 
   return (
     <div className={className}>
-      <button type="button" onClick={() => void handleResend()} disabled={disabled} className={buttonClass('secondary', 'md', 'w-full')}>
+      <button
+        type="button"
+        onClick={() => void handleResend()}
+        disabled={disabled}
+        className={buttonClass('secondary', 'md', 'w-full')}
+      >
         {busy ? '보내는 중…' : cooldown > 0 ? `다시 보내기 (${cooldown}초)` : '인증 메일 다시 보내기'}
       </button>
       {devLink && <DevLink href={devLink} />}

@@ -66,6 +66,9 @@ next-env.d.ts
 # impeccable 디자인 훅 캐시 (도구 생성물 — 커밋하지 않음)
 .impeccable/
 
+# 스프린트 캐시·칸반 (GitHub 이슈에서 재생성 — 정본이 아니다)
+/.sprint/
+
 # humanize-korean 윤문 작업 폴더 (런타임 산출물)
 /_workspace/
 

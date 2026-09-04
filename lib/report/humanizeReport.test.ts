@@ -123,8 +123,9 @@ const BRAND_PRODUCT: BrandProductInput = {
   productClass: '화장품',
   sourceType: 'text',
   sourceText:
-    '피부 진정에 탁월한 시카 앰플입니다. 즉각적인 효과를 느낄 수 있습니다. 민감한 피부도 안심하고 사용하세요. '
-      .repeat(4),
+    '피부 진정에 탁월한 시카 앰플입니다. 즉각적인 효과를 느낄 수 있습니다. 민감한 피부도 안심하고 사용하세요. '.repeat(
+      4,
+    ),
 };
 
 const BRAND_ONLY: BrandOnlyInput = {
@@ -148,8 +149,14 @@ describe('collectKoreanNarrative', () => {
 
     assert.ok(paths.length > 0, '대상이 하나도 없다');
     // 모아야 하는 것
-    assert.ok(paths.some((p) => p.startsWith('block2.uspTable')), 'USP 재정의 미수집');
-    assert.ok(paths.some((p) => p.startsWith('block6.narrative')), '정보 공백 미수집');
+    assert.ok(
+      paths.some((p) => p.startsWith('block2.uspTable')),
+      'USP 재정의 미수집',
+    );
+    assert.ok(
+      paths.some((p) => p.startsWith('block6.narrative')),
+      '정보 공백 미수집',
+    );
 
     // 모으면 안 되는 것 — 템플릿 문구·원문 인용·일본어 산출물
     for (const forbidden of ['block0', 'block9', 'afterJa', 'originalText', 'evidenceQuote', 'corpusRef']) {
@@ -161,7 +168,11 @@ describe('collectKoreanNarrative', () => {
     }
     // 일본어가 값 자체인 필드
     for (const forbidden of ['persona.name', 'skinConcerns', 'trustTriggers', 'objections[0].question']) {
-      assert.equal(paths.some((p) => p.includes(forbidden)), false, `${forbidden} 은 윤문 대상이 아니다`);
+      assert.equal(
+        paths.some((p) => p.includes(forbidden)),
+        false,
+        `${forbidden} 은 윤문 대상이 아니다`,
+      );
     }
   });
 
@@ -170,7 +181,11 @@ describe('collectKoreanNarrative', () => {
     const paths = collectKoreanNarrative(blocks).map((t) => t.path);
     assert.ok(paths.length > 0);
     for (const locked of ['block3', 'block7', 'block8']) {
-      assert.equal(paths.some((p) => p.startsWith(locked)), false, `${locked} 은 null 이라 대상이 아니다`);
+      assert.equal(
+        paths.some((p) => p.startsWith(locked)),
+        false,
+        `${locked} 은 null 이라 대상이 아니다`,
+      );
     }
   });
 

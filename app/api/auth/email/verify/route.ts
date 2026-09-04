@@ -18,8 +18,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const token = String(body.token ?? '');
-  const invalid = () =>
-    NextResponse.json({ error: '인증 링크가 만료되었거나 유효하지 않습니다.' }, { status: 400 });
+  const invalid = () => NextResponse.json({ error: '인증 링크가 만료되었거나 유효하지 않습니다.' }, { status: 400 });
   if (!token) return invalid();
 
   const store = await getStore();

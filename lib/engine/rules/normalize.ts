@@ -30,10 +30,7 @@ export function splitSentences(plainText: string): Sentence[] {
  * 제품 콘텐츠(source)를 정규화 산출물로 변환한다 — 브랜드+제품 진단 전용(스펙 §3.3).
  * 이미지 모드는 콜⓪ 비전 추출 결과(extractedText)를 파이프라인이 넘겨준다(v7). 텍스트 모드는 붙여넣기 원문.
  */
-export async function normalizeContent(
-  input: BrandProductInput,
-  extractedText?: string,
-): Promise<NormalizedContent> {
+export async function normalizeContent(input: BrandProductInput, extractedText?: string): Promise<NormalizedContent> {
   const raw = input.sourceType === 'image' ? (extractedText ?? '').trim() : (input.sourceText ?? '').trim();
 
   const plainText = raw.replace(/\r/g, '');

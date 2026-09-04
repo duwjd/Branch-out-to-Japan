@@ -3,7 +3,15 @@
  * 구현 선택: SUPABASE_URL 있으면 Supabase(supabaseStore), 없으면 .data/ 파일 스토어(dev 폴백).
  */
 
-import type { BlocksJson, BrandProductClass, Category, ReportStatus, RubricGroup, RubricItemId, TierInput } from '../engine/types';
+import type {
+  BlocksJson,
+  BrandProductClass,
+  Category,
+  ReportStatus,
+  RubricGroup,
+  RubricItemId,
+  TierInput,
+} from '../engine/types';
 import type { LlmCallLogEntry } from '../engine/llm/client';
 import type { LeadKind, TrackEventType } from '../lead';
 
@@ -20,10 +28,10 @@ export const LEGACY_USER_ID = 'demo-user';
 
 /** 유저(실 인증 — 08 §6 USER). id는 레거시 'demo-user' 또는 uuid. */
 export interface UserRecord {
-  id: string;                    // 'demo-user'(레거시) 또는 uuid
-  email: string;                 // 소문자 정규화된 값으로 저장
-  passwordHash: string | null;   // null = 소셜(목) 계정
-  name: string;                  // 표시명(AppShell·마이페이지)
+  id: string; // 'demo-user'(레거시) 또는 uuid
+  email: string; // 소문자 정규화된 값으로 저장
+  passwordHash: string | null; // null = 소셜(목) 계정
+  name: string; // 표시명(AppShell·마이페이지)
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
@@ -31,7 +39,7 @@ export interface UserRecord {
 
 /** 이메일 검증·비밀번호 재설정 토큰 — 원문은 저장하지 않고 sha256 해시만 보관한다. */
 export interface AuthTokenRecord {
-  tokenHash: string;             // sha256(원문 토큰) hex — PK, 원문은 저장 안 함
+  tokenHash: string; // sha256(원문 토큰) hex — PK, 원문은 저장 안 함
   userId: string;
   kind: 'verify' | 'reset';
   expiresAt: string;
@@ -43,6 +51,13 @@ export interface DiagnosisRequestRecord {
   id: string;
   /** 소속 브랜드(스냅샷 원칙 — 제출 시점 활성 브랜드에 귀속) */
   brandProfileId: string;
+  /**
+   * 어느 제품의 진단인가(`products.id`). 기존 요청은 null 이다 — 소급해서 채우지 않는다.
+   *
+   * `tierInput.productName` 은 자유 입력 텍스트로 남아 있는 **레거시**다. 둘이 다르면
+   * **이 필드가 정본**이고 `productName` 은 제출 시점 스냅샷으로만 읽는다.
+   */
+  productId: string | null;
   tierInput: TierInput;
   precisionLimited: boolean;
   status: ReportStatus;
@@ -146,14 +161,14 @@ export interface ThumbnailProof {
  * 통상가 취소선은 normalPriceVerified가 true일 때만 렌더한다(실적 없는 이중가격 = 有利誤認 리스크).
  */
 export interface PromoInput {
-  setTitle: string;            // 세트명(필수)
-  salePrice: string;           // 판매가(필수, 숫자 문자열)
-  normalPrice: string;         // 통상가(선택)
-  normalPriceVerified: boolean;// "실제 판매 실적 있음" 체크 — true여야 통상가 취소선 반영(有利誤認 방지)
-  discountRate: string;        // 할인율(선택)
-  gift: string;                // GIFT(선택)
-  qualifierChips: string[];    // 한정 칩(선택)
-  footnote: string;            // ※각주(선택)
+  setTitle: string; // 세트명(필수)
+  salePrice: string; // 판매가(필수, 숫자 문자열)
+  normalPrice: string; // 통상가(선택)
+  normalPriceVerified: boolean; // "실제 판매 실적 있음" 체크 — true여야 통상가 취소선 반영(有利誤認 방지)
+  discountRate: string; // 할인율(선택)
+  gift: string; // GIFT(선택)
+  qualifierChips: string[]; // 한정 칩(선택)
+  footnote: string; // ※각주(선택)
 }
 
 /** 상세페이지 상품 카테고리 — 무드 프로파일·템플릿 선택의 축(② DETAIL-03) */
@@ -161,6 +176,44 @@ export type DetailProductCategory = 'skincare' | 'suncare' | 'makeup' | 'cleansi
 
 /** 옵션 축 — 색상이면 컬러 블록, 그 외면 라인업 비교 블록이 붙는다 */
 export type DetailOptionAxis = 'color' | 'size' | 'set' | 'variant';
+
+/**
+ * 상세페이지 잡의 단계별 소요·강등 계기(스펙 §2-13).
+ *
+ * **신규 컬럼을 만들지 않고** `detail_input` jsonb 안에 산다(`theme`·`humanizeIssues` 선례).
+ * 목록 타입 `GeneratedAssetSummary` 에는 들어가지 않는다 — 이미 무거운 타입이다.
+ *
+ * 실패로 끝난 잡에도 반드시 남는다. 안 남기면 정작 알고 싶은 케이스가 안 남는다.
+ */
+export interface DetailJobTimings {
+  startedAt: string;
+  /** 잡 시작부터 기록 시점까지(ms) */
+  totalMs: number;
+  /** 단계별 소요. 이름은 `stage` 컬럼 값과 같다. **마지막 항목이 잡이 멈춘 단계**다 */
+  stages: { stage: string; ms: number }[];
+  /** LLM 콜 개별 소요 — 단계 안에서 무엇이 시간을 먹었는지. 실패한 콜도 남긴다 */
+  calls: { name: string; ms: number; ok: boolean }[];
+  /** 이미지 예산 판정과 실제 소비 */
+  images?: {
+    keep: number;
+    drop: number;
+    waves: number;
+    perImageTimeoutMs: number;
+    /** 예산을 판정한 시점의 잔여 — 앞단이 얼마나 끌었는지가 여기서 드러난다 */
+    remainingMs: number;
+    /** 실제 건 이미지 콜 수 · 그중 실패 */
+    calls: number;
+    failures: number;
+    /** 이미지 콜 소요 합. 동시 실행이라 벽시계와 다르다 */
+    totalMs: number;
+    /** 배경컷 없이 텍스트로 강등된 블록 수 */
+    degraded: number;
+    /** 렌더 자체가 실패한 블록 수 */
+    blockFailures: number;
+  };
+  /** 실패로 끝났다면 그 단계 */
+  failedAt?: string;
+}
 
 /**
  * 상세페이지 생성 입력(② DETAIL-02~06d) — 시퀀스 결정에 쓰이는 **사실**들.
@@ -200,6 +253,17 @@ export interface DetailInput {
   /** 변환에 실패해 한국어가 남은 필드(게이트 기록용) */
   translationIssues?: { path: string; label: string; problem: string }[];
 
+  /**
+   * 선택한 제품의 일본어 제품명 스냅샷(`products.nameJa`).
+   *
+   * 히어로 블록의 상품명은 **이 값으로 고정**한다. 없으면 콜⑦이 지어내는데, 실제로 토너를
+   * `エッセンス` 로 바꿔 부르는 일이 있었다(UT-33). 자산에 스냅샷하는 이유는 블록 재생성이
+   * `detail_input` 만 읽기 때문이다 — 제품을 나중에 고쳐도 발행된 자산이 흔들리지 않는다.
+   *
+   * **비어 있으면 상품명을 넣지 않는다.** 한국어를 대신 찍는 것보다 낫다(UT-25).
+   */
+  productNameJa?: string;
+
   // ── 테마·윤문 스냅샷 (§2-7 · 콜⑨) ─────────────────────────────────────────
   // 같은 이유로 전부 optional 이다.
 
@@ -213,6 +277,12 @@ export interface DetailInput {
   humanizeIssues?: { blockId: string; key: string; reason: string }[];
   /** 콜⑨ 가 아예 돌지 않았다면 그 사유 */
   humanizeSkipped?: string;
+
+  /**
+   * 단계별 소요·강등 계기(§2-13). 잡이 끝날 때(성공·실패 모두) 한 번 쓴다.
+   * 상수를 다시 잡으려면 실측이 먼저다 — 데이터 없이 `budget.ts` 상수를 만지지 않는다.
+   */
+  timings?: DetailJobTimings;
 }
 
 /** 블록 상태 — 자산 상태와 별개로 블록별로 진행·실패가 기록된다 */
@@ -255,6 +325,13 @@ export interface GeneratedAssetRecord {
   id: string;
   /** 소속 브랜드(제출 시점 활성 브랜드 스냅샷) */
   brandProfileId: string;
+  /**
+   * 어느 제품으로 만들었는가(`products.id`). 기존 자산은 null 이다.
+   *
+   * 이 연결이 없어서 리포트와 스튜디오 산출물이 서로를 못 봤고, 폐루프가 화면에서
+   * 반증됐다(UT-58). 목록 요약에도 실린다 — 카드가 제품을 말해야 하기 때문이다.
+   */
+  productId: string | null;
   kind: 'thumbnail' | 'detail';
   /** 내부 스타일 ID A~H — 화면 비노출(라벨 정책), 표시는 styleName */
   styleCategory: string;
@@ -270,9 +347,9 @@ export interface GeneratedAssetRecord {
   gateResult: GateResult | null;
   explanationJson: ExplanationJson | null;
   proof: ThumbnailProof | null;
-  modelImagePath: string | null;   // F 모델컷 fileId (F 아니면 null)
-  modelConsent: boolean;           // 모델 사용 권한 동의(F 필수, 미체크 생성 불가)
-  promoInput: PromoInput | null;   // G 프로모 입력(G 아니면 null)
+  modelImagePath: string | null; // F 모델컷 fileId (F 아니면 null)
+  modelConsent: boolean; // 모델 사용 권한 동의(F 필수, 미체크 생성 불가)
+  promoInput: PromoInput | null; // G 프로모 입력(G 아니면 null)
   /** 제출 시점 브랜드명 물질화 — 킷 수정 불소급(tierInput 스냅샷 원칙과 동일) */
   brandNameSnapshot: string;
   // ── kind='detail' 전용 ────────────────────────────────────────────────
@@ -423,7 +500,7 @@ export type NewBrandProfile = Omit<BrandProfileRecord, 'id' | 'createdAt' | 'upd
 export interface Store {
   /** 어떤 구현이 동작 중인지 — UI에 "로컬 저장(dev)" 배지 표시용 */
   kind(): 'supabase' | 'file';
-  createRequest(input: TierInput, brandProfileId: string): Promise<DiagnosisRequestRecord>;
+  createRequest(input: TierInput, brandProfileId: string, productId?: string | null): Promise<DiagnosisRequestRecord>;
   getRequest(id: string): Promise<DiagnosisRequestRecord | null>;
   updateRequest(
     id: string,
@@ -449,7 +526,12 @@ export interface Store {
   /** 유저 갱신 — 비밀번호 해시·이메일 검증 여부·표시명만 패치 */
   updateUser(id: string, patch: Partial<Pick<UserRecord, 'passwordHash' | 'emailVerified' | 'name'>>): Promise<void>;
   /** 인증 토큰 발급 — 원문 해시(sha256 hex)만 저장 */
-  createAuthToken(input: { tokenHash: string; userId: string; kind: 'verify' | 'reset'; expiresAt: string }): Promise<void>;
+  createAuthToken(input: {
+    tokenHash: string;
+    userId: string;
+    kind: 'verify' | 'reset';
+    expiresAt: string;
+  }): Promise<void>;
   /** 토큰 원자적 소비 — 미사용·미만료면 usedAt 마킹 후 레코드 반환, 아니면(없음/사용됨/만료) null */
   consumeAuthToken(tokenHash: string, kind: 'verify' | 'reset'): Promise<AuthTokenRecord | null>;
   /** 재발송 쿨다운용 — 해당 유저·kind의 최신 토큰 1건(사용 여부 무관) */
@@ -479,8 +561,16 @@ export interface Store {
     patch: Partial<
       Pick<
         GeneratedAssetRecord,
-        | 'status' | 'stage' | 'error' | 'imagePath' | 'promptUsed' | 'gateResult' | 'explanationJson'
-        | 'blockTotal' | 'blockDone' | 'slicePaths'
+        | 'status'
+        | 'stage'
+        | 'error'
+        | 'imagePath'
+        | 'promptUsed'
+        | 'gateResult'
+        | 'explanationJson'
+        | 'blockTotal'
+        | 'blockDone'
+        | 'slicePaths'
         // 해석된 테마·윤문 결과를 생성 중에 스냅샷한다(§2-7 · 콜⑨). 신규 컬럼 없이 detail_input jsonb 안에 담는다
         | 'detailInput'
       >
@@ -507,7 +597,16 @@ export interface Store {
     patch: Partial<
       Pick<
         AssetBlockRecord,
-        'seq' | 'status' | 'error' | 'slots' | 'promptUsed' | 'visualPath' | 'imagePath' | 'height' | 'version' | 'history'
+        | 'seq'
+        | 'status'
+        | 'error'
+        | 'slots'
+        | 'promptUsed'
+        | 'visualPath'
+        | 'imagePath'
+        | 'height'
+        | 'version'
+        | 'history'
       >
     >,
   ): Promise<void>;
@@ -541,10 +640,7 @@ export interface Store {
   listSeasonMemos(brandProfileId: string): Promise<SeasonMemoRecord[]>;
   getSeasonMemo(id: string): Promise<SeasonMemoRecord | null>;
   createSeasonMemo(input: Omit<SeasonMemoRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<SeasonMemoRecord>;
-  updateSeasonMemo(
-    id: string,
-    patch: Partial<Pick<SeasonMemoRecord, 'startDate' | 'endDate' | 'body'>>,
-  ): Promise<void>;
+  updateSeasonMemo(id: string, patch: Partial<Pick<SeasonMemoRecord, 'startDate' | 'endDate' | 'body'>>): Promise<void>;
   deleteSeasonMemo(id: string): Promise<void>;
 }
 

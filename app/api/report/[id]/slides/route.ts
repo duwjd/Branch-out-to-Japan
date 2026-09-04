@@ -21,10 +21,7 @@ function safeFileName(brandName: string): string {
   return `${base || 'YOAKE'}-일본진출진단-보고용.html`;
 }
 
-export async function GET(
-  _request: Request,
-  context: { params: Promise<{ id: string }> },
-): Promise<NextResponse> {
+export async function GET(_request: Request, context: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   const { id } = await context.params;
   const store = await getStore();
 

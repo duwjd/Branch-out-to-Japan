@@ -32,12 +32,7 @@ import { currentLlmMode } from '../lib/engine/llm/client';
 import { composeDetail } from '../lib/studio/detail/compose';
 import { IMAGE_CONCURRENCY, outputProfile, type BlockType } from '../lib/studio/detail/output';
 import { renderBlock } from '../lib/studio/detail/render';
-import {
-  buildRenderPlan,
-  promptContextOf,
-  renderContextOf,
-  visualHeightOf,
-} from '../lib/studio/detail/renderContext';
+import { buildRenderPlan, promptContextOf, renderContextOf, visualHeightOf } from '../lib/studio/detail/renderContext';
 import { analyzeSafeArea, type CopyPlacement } from '../lib/studio/detail/safeArea';
 import { toneSummary } from '../lib/studio/detail/rhythm';
 import { blockContent } from '../lib/studio/detail/templates';
@@ -60,7 +55,16 @@ interface Args {
 }
 
 function parseArgs(argv: string[]): Args {
-  const out: Args = { category: 'skincare', platform: 'rakuten-official', colors: 0, promo: true, proof: true, brand: 'HARUON', image: null, reuseVisuals: false };
+  const out: Args = {
+    category: 'skincare',
+    platform: 'rakuten-official',
+    colors: 0,
+    promo: true,
+    proof: true,
+    brand: 'HARUON',
+    image: null,
+    reuseVisuals: false,
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--category') out.category = argv[++i] as ProductCategory;
@@ -93,25 +97,52 @@ function demoInput(args: Args): DetailInput {
       { name: 'ヒアルロン酸Na', percent: '—', purpose: '保湿成分' },
     ],
     freeOf: ['合成香料', '鉱物油', 'パラベン', 'エタノール', '合成着色料'],
-    specs: args.category === 'suncare' ? [{ label: 'SPF', value: '50+' }, { label: 'PA', value: '++++' }] : [],
-    howToSteps: ['洗顔後、化粧水で肌をととのえます。', '適量を手にとり、顔全体になじませます。', '気になる部分は重ねづけしてください。'],
+    specs:
+      args.category === 'suncare'
+        ? [
+            { label: 'SPF', value: '50+' },
+            { label: 'PA', value: '++++' },
+          ]
+        : [],
+    howToSteps: [
+      '洗顔後、化粧水で肌をととのえます。',
+      '適量を手にとり、顔全体になじませます。',
+      '気になる部分は重ねづけしてください。',
+    ],
     options: Array.from({ length: args.colors }, (_, i) => ({
       axis: 'color' as const,
       name: `カラー${String(i + 1).padStart(2, '0')}`,
       swatchHex: ['#c86b5a', '#b8564d', '#d98a76', '#a34b58', '#e0a08c', '#8f4550', '#cf7d6b', '#b96a72'][i % 8],
       sku: `SHADE ${i + 1}`,
     })),
-    cautions: ['お肌に異常が生じないかよく注意してご使用ください。', '傷やはれもの、湿疹等、異常のある部位にはお使いにならないでください。'],
-    proof: args.proof ? { rankTitle: '楽天ランキング1位', genre: '美容液部門', aggregationDate: '2026年7月14日更新' } : null,
+    cautions: [
+      'お肌に異常が生じないかよく注意してご使用ください。',
+      '傷やはれもの、湿疹等、異常のある部位にはお使いにならないでください。',
+    ],
+    proof: args.proof
+      ? { rankTitle: '楽天ランキング1位', genre: '美容液部門', aggregationDate: '2026年7月14日更新' }
+      : null,
     sales: args.proof ? { count: '累計163,991個', period: '2022.5/19-2026.4/29' } : null,
     test: args.proof
-      ? { name: '効能評価試験済み', condition: '4週間連用試験', institution: '第三者評価機関', date: '2026.04.15', sampleSize: '21名' }
+      ? {
+          name: '効能評価試験済み',
+          condition: '4週間連用試験',
+          institution: '第三者評価機関',
+          date: '2026.04.15',
+          sampleSize: '21名',
+        }
       : null,
     reviews: [{ text: 'べたつかず、朝のメイクのりが安定しました。', rating: '★5', age: '30代' }],
     promo: args.promo
       ? {
-          setTitle: '2個セット', salePrice: '1,920', normalPrice: '2,610', normalPriceVerified: true,
-          discountRate: '26', gift: 'ミニサイズ1本', qualifierChips: ['7/7 0:00〜7/11 9:59'], footnote: 'クーポン適用時の価格です。',
+          setTitle: '2個セット',
+          salePrice: '1,920',
+          normalPrice: '2,610',
+          normalPriceVerified: true,
+          discountRate: '26',
+          gift: 'ミニサイズ1本',
+          qualifierChips: ['7/7 0:00〜7/11 9:59'],
+          footnote: 'クーポン適用時の価格です。',
         }
       : null,
     modelConsent: false,
@@ -131,7 +162,8 @@ async function main() {
   console.log('포함:', plan.blocks.map((b) => `${b.code} ${b.nameKo}`).join(' → '));
   if (plan.excluded.length) {
     console.log('제외:');
-    for (const e of plan.excluded) console.log(`  - ${e.code} ${e.nameKo}: ${e.reason}${e.fixHint ? ` [${e.fixHint}]` : ''}`);
+    for (const e of plan.excluded)
+      console.log(`  - ${e.code} ${e.nameKo}: ${e.reason}${e.fixHint ? ` [${e.fixHint}]` : ''}`);
   }
 
   const llmMode = currentLlmMode();
@@ -139,7 +171,9 @@ async function main() {
   console.log(`모드 — LLM ${llmMode} · 이미지 ${imageMode}`);
 
   // 제품 대표컷(선택) — 실 모드에서 비전 입력·배경컷 편집 원본이 된다
-  const productBuf = args.image ? readFileSync(path.isAbsolute(args.image) ? args.image : path.join(process.cwd(), args.image)) : null;
+  const productBuf = args.image
+    ? readFileSync(path.isAbsolute(args.image) ? args.image : path.join(process.cwd(), args.image))
+    : null;
   const productMediaType = args.image?.endsWith('.png') ? 'image/png' : 'image/jpeg';
 
   // 슬롯 채움 — 실 모드면 콜⑦, 아니면 픽스처
@@ -153,21 +187,27 @@ async function main() {
       input,
       platform: args.platform,
       brandName: args.brand,
-      images: [{ mediaType: productMediaType as 'image/png' | 'image/jpeg', dataBase64: productBuf.toString('base64') }],
+      images: [
+        { mediaType: productMediaType as 'image/png' | 'image/jpeg', dataBase64: productBuf.toString('base64') },
+      ],
     });
     llmByBlock = new Map(copy.blocks.map((b) => [b.blockId, Object.fromEntries(b.slots.map((x) => [x.key, x.value]))]));
     narrativeReason = copy.narrativeReason;
     console.log(`콜⑦ detailCopy — ${Date.now() - tCopy}ms · 블록 ${copy.blocks.length}개 슬롯 채움`);
     console.log(`  구성 근거: ${narrativeReason}`);
   } else {
-    llmByBlock = new Map(plan.blocks.map((b) => [b.blockId, mockLlmSlots(b.blockId, input.productCategory, args.brand)]));
+    llmByBlock = new Map(
+      plan.blocks.map((b) => [b.blockId, mockLlmSlots(b.blockId, input.productCategory, args.brand)]),
+    );
   }
 
   const reg = createFootnoteRegistry();
   const slotsBySeq = plan.blocks.map((b) => assembleBlockSlots(b, llmByBlock.get(b.blockId) ?? {}, input, reg));
 
   const integrity = checkFootnoteIntegrity(slotsBySeq, reg);
-  console.log(`각주 정합: ${integrity.ok ? 'OK' : 'FAIL'} (등록 ${reg.entries.length} · 고아 ${integrity.orphans.length} · 미사용 ${integrity.unused.length})`);
+  console.log(
+    `각주 정합: ${integrity.ok ? 'OK' : 'FAIL'} (등록 ${reg.entries.length} · 고아 ${integrity.orphans.length} · 미사용 ${integrity.unused.length})`,
+  );
   if (!integrity.ok) console.log('  고아 마커:', integrity.orphans.join(', '));
 
   // AI 배경컷 — 동시성 제한. 텍스트 블록은 콜 0
@@ -198,7 +238,9 @@ async function main() {
         }),
       ),
     );
-    console.log(`배경컷 ${aiBlocks.length}장 (동시성 ${IMAGE_CONCURRENCY}${args.reuseVisuals ? ' · 캐시 재사용' : ''}) — ${Date.now() - tImg}ms`);
+    console.log(
+      `배경컷 ${aiBlocks.length}장 (동시성 ${IMAGE_CONCURRENCY}${args.reuseVisuals ? ' · 캐시 재사용' : ''}) — ${Date.now() - tImg}ms`,
+    );
   }
 
   // 블록 렌더
@@ -238,10 +280,22 @@ async function main() {
   const t1 = Date.now();
   const composed = await composeDetail(rendered, profile);
   writeFileSync(path.join(OUT_DIR, 'master.jpg'), composed.master);
-  composed.slices.forEach((s, i) => writeFileSync(path.join(OUT_DIR, `slice-${String(i + 1).padStart(2, '0')}.jpg`), s));
+  composed.slices.forEach((s, i) =>
+    writeFileSync(path.join(OUT_DIR, `slice-${String(i + 1).padStart(2, '0')}.jpg`), s),
+  );
   writeFileSync(
     path.join(OUT_DIR, 'plan.json'),
-    JSON.stringify({ plan, narrativeReason, footnotes: reg.entries, integrity, output: { ...composed, master: undefined, slices: composed.slices.length } }, null, 2),
+    JSON.stringify(
+      {
+        plan,
+        narrativeReason,
+        footnotes: reg.entries,
+        integrity,
+        output: { ...composed, master: undefined, slices: composed.slices.length },
+      },
+      null,
+      2,
+    ),
   );
 
   console.log(
