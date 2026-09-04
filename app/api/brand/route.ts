@@ -9,16 +9,11 @@ import { getSession } from '@/lib/server/session';
 import { getActiveBrand, setActiveBrand } from '@/lib/server/activeBrand';
 import { getStore, type BrandProductClass, type BrandProfileRecord } from '@/lib/db/store';
 import { BRAND_PRODUCT_CLASSES } from '@/lib/engine/types';
-import {
-  POSITIONING_TAGS_MAX,
-  POSITIONING_TAGS_MIN,
-  isKnownPositioningTag,
-} from '@/lib/engine/rules/positioning';
+import { POSITIONING_TAGS_MAX, POSITIONING_TAGS_MIN, isKnownPositioningTag } from '@/lib/engine/rules/positioning';
 import type { Category } from '@/lib/engine/types';
 import { logger } from '@/lib/logger';
 
 const CATEGORIES: Category[] = ['skincare', 'makeup', 'suncare', 'cleansing'];
-
 
 export async function GET(): Promise<NextResponse> {
   const store = await getStore();
@@ -26,7 +21,11 @@ export async function GET(): Promise<NextResponse> {
 }
 
 /** 폼 입력을 서버에서 재검증해 프로필로 정규화한다(클라이언트와 동일 규칙 이중 적용) */
-function parseProfile(body: Record<string, unknown>): { input: Omit<BrandProfileRecord, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'detailDocPath' | 'detailDocName'> } | { error: string } {
+function parseProfile(
+  body: Record<string, unknown>,
+):
+  | { input: Omit<BrandProfileRecord, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'detailDocPath' | 'detailDocName'> }
+  | { error: string } {
   const brandName = typeof body.brandName === 'string' ? body.brandName.trim().slice(0, 60) : '';
   if (!brandName) return { error: '브랜드명을 입력해 주세요.' };
 
@@ -38,11 +37,16 @@ function parseProfile(body: Record<string, unknown>): { input: Omit<BrandProfile
     : '미상';
 
   const positioningTags = Array.isArray(body.positioningTags)
-    ? body.positioningTags.filter((t): t is string => typeof t === 'string' && isKnownPositioningTag(t)).slice(0, POSITIONING_TAGS_MAX)
+    ? body.positioningTags
+        .filter((t): t is string => typeof t === 'string' && isKnownPositioningTag(t))
+        .slice(0, POSITIONING_TAGS_MAX)
     : [];
   if (positioningTags.length < POSITIONING_TAGS_MIN) return { error: '브랜드 포지셔닝을 1개 이상 선택해 주세요.' };
 
-  const rawChannels = (typeof body.channels === 'object' && body.channels !== null ? body.channels : {}) as Record<string, unknown>;
+  const rawChannels = (typeof body.channels === 'object' && body.channels !== null ? body.channels : {}) as Record<
+    string,
+    unknown
+  >;
   const jp = Array.isArray(rawChannels.jp)
     ? rawChannels.jp
         .filter((c): c is { channel: string; url: string } => typeof c === 'object' && c !== null)
@@ -51,16 +55,25 @@ function parseProfile(body: Record<string, unknown>): { input: Omit<BrandProfile
         .slice(0, 8)
     : [];
 
-  const rawKit = (typeof body.brandKit === 'object' && body.brandKit !== null ? body.brandKit : {}) as Record<string, unknown>;
+  const rawKit = (typeof body.brandKit === 'object' && body.brandKit !== null ? body.brandKit : {}) as Record<
+    string,
+    unknown
+  >;
   const productNamesJa = Array.isArray(rawKit.productNamesJa)
     ? rawKit.productNamesJa
-        .map((r) => ({ kr: String((r as Record<string, unknown>)?.kr ?? '').slice(0, 120), ja: String((r as Record<string, unknown>)?.ja ?? '').slice(0, 120) }))
+        .map((r) => ({
+          kr: String((r as Record<string, unknown>)?.kr ?? '').slice(0, 120),
+          ja: String((r as Record<string, unknown>)?.ja ?? '').slice(0, 120),
+        }))
         .filter((r) => r.kr || r.ja)
         .slice(0, 30)
     : [];
   const forbiddenTerms = Array.isArray(rawKit.forbiddenTerms)
     ? rawKit.forbiddenTerms
-        .map((r) => ({ term: String((r as Record<string, unknown>)?.term ?? '').slice(0, 60), reason: String((r as Record<string, unknown>)?.reason ?? '').slice(0, 200) }))
+        .map((r) => ({
+          term: String((r as Record<string, unknown>)?.term ?? '').slice(0, 60),
+          reason: String((r as Record<string, unknown>)?.reason ?? '').slice(0, 200),
+        }))
         // 사유 없이 등록하지 않는다 — 근거 병기(증거 원칙, BRAND-05b)
         .filter((r) => r.term && r.reason)
         .slice(0, 30)

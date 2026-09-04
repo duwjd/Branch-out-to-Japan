@@ -31,11 +31,16 @@ const HIDE_PROTOTYPE_CHROME =
 const SHOTS = [
   // ── ⓪ 메인(앱 홈) ──────────────────────────────────
   {
-    id: 'idx-main', file: '00-main/index.html', vw: 1180,
+    id: 'idx-main',
+    file: '00-main/index.html',
+    vw: 1180,
     clip: 'main > section:nth-of-type(1)',
   },
   ...['first', 'default'].map((st) => ({
-    id: `m-home-${st}`, file: '00-main/1-home.html', vw: 1280, full: true,
+    id: `m-home-${st}`,
+    file: '00-main/1-home.html',
+    vw: 1280,
+    full: true,
     act: async (p) => {
       await p.click(`.st-btn[data-st="${st}"]`);
       await p.mouse.move(8, 300); // 스트립 숨김 후 마우스가 내비 위에 남아 hover가 찍히는 것 방지
@@ -43,7 +48,11 @@ const SHOTS = [
     },
   })),
   {
-    id: 'm-home-generating', file: '00-main/1-home.html', vw: 1280, full: true, motion: true,
+    id: 'm-home-generating',
+    file: '00-main/1-home.html',
+    vw: 1280,
+    full: true,
+    motion: true,
     act: async (p) => {
       await p.click('.st-btn[data-st="generating"]');
       await p.mouse.move(8, 300);
@@ -51,7 +60,9 @@ const SHOTS = [
     },
   },
   {
-    id: 'm-home-toast', file: '00-main/1-home.html', vw: 1280,
+    id: 'm-home-toast',
+    file: '00-main/1-home.html',
+    vw: 1280,
     // 생성 완료 → 최근 자산 crossfade + 플로팅 패널 완료 행(축 횡단 서사). 8초 뒤 자동 소멸.
     act: async (p) => {
       await p.click('.st-btn[data-st="generating"]');
@@ -61,25 +72,40 @@ const SHOTS = [
     },
   },
   {
-    id: 'm-home-switcher', file: '00-main/1-home.html', vw: 1280,
+    id: 'm-home-switcher',
+    file: '00-main/1-home.html',
+    vw: 1280,
     // 브랜드 프로필 스위처 드롭다운 열림 — 사이드바 상단(#swWrap) + 메뉴 영역만 세로로 자른다.
-    act: async (p) => { await p.click('#swBtn'); await p.waitForTimeout(300); },
+    act: async (p) => {
+      await p.click('#swBtn');
+      await p.waitForTimeout(300);
+    },
     clip: '#swWrap',
     pad: { top: 10, bottom: 250, left: 16, right: 16 },
   },
 
   // ── ① 진단 리포트 ──────────────────────────────────
   {
-    id: 'idx-report', file: '01-report/index.html', vw: 1180,
+    id: 'idx-report',
+    file: '01-report/index.html',
+    vw: 1180,
     clip: 'main > section:nth-of-type(1)',
   },
   { id: 'r-input-empty', file: '01-report/1-input.html', vw: 1260, full: true },
   {
-    id: 'r-input-filled', file: '01-report/1-input.html', vw: 1260, full: true,
-    act: async (p) => { await p.click('#fillExample'); await p.waitForTimeout(300); },
+    id: 'r-input-filled',
+    file: '01-report/1-input.html',
+    vw: 1260,
+    full: true,
+    act: async (p) => {
+      await p.click('#fillExample');
+      await p.waitForTimeout(300);
+    },
   },
   {
-    id: 'r-input-gate', file: '01-report/1-input.html', vw: 1260,
+    id: 'r-input-gate',
+    file: '01-report/1-input.html',
+    vw: 1260,
     // 50자 미만 → 적색 게이트 + 제출 잠금. 폼 하단 콘텐츠 영역만 잘라 게이트를 크게 보인다.
     act: async (p) => {
       await p.fill('#contentText', '민감 피부를 위한 시카 앰플입니다.');
@@ -91,12 +117,20 @@ const SHOTS = [
     pad: { top: 90, bottom: 320, left: 40, right: 40 },
   },
   {
-    id: 'r-process', file: '01-report/2-process.html', vw: 1080, motion: true,
+    id: 'r-process',
+    file: '01-report/2-process.html',
+    vw: 1080,
+    motion: true,
     // 진행 중 상태가 이 화면의 본질 — 애니메이션을 살리고 중간 단계에서 찍는다.
-    act: async (p) => { await p.waitForTimeout(2600); },
+    act: async (p) => {
+      await p.waitForTimeout(2600);
+    },
   },
   ...[0, 1, 2, 3, 4].map((i) => ({
-    id: `r-tab${i + 1}`, file: '01-report/3-report.html', vw: 1460, full: true,
+    id: `r-tab${i + 1}`,
+    file: '01-report/3-report.html',
+    vw: 1460,
+    full: true,
     act: async (p) => {
       await p.click(`#tabBtn${i}`);
       await p.waitForTimeout(900); // 점수 카운트업·차트 트윈 안착 대기
@@ -106,19 +140,31 @@ const SHOTS = [
   })),
   {
     // 탭1 상단(점수 도넛 + 스탯 타일)만 확대용으로 따로.
-    id: 'r-tab1-score', file: '01-report/3-report.html', vw: 1460,
-    act: async (p) => { await p.click('#tabBtn0'); await p.waitForTimeout(1100); },
+    id: 'r-tab1-score',
+    file: '01-report/3-report.html',
+    vw: 1460,
+    act: async (p) => {
+      await p.click('#tabBtn0');
+      await p.waitForTimeout(1100);
+    },
     clip: '#tabPanel0 > *:nth-child(1)',
   },
   {
-    id: 'r-tabnav', file: '01-report/3-report.html', vw: 1460,
-    act: async (p) => { await p.click('#tabBtn0'); await p.waitForTimeout(400); },
+    id: 'r-tabnav',
+    file: '01-report/3-report.html',
+    vw: 1460,
+    act: async (p) => {
+      await p.click('#tabBtn0');
+      await p.waitForTimeout(400);
+    },
     clip: '#tabBtn0',
     pad: { top: 18, bottom: 18, left: 0, right: 1200 },
   },
   {
     // 오버레이 상단바(파일명 + 고지)가 좁으면 겹쳐 렌더되므로 넓게 잡는다.
-    id: 'r-slides', file: '01-report/3-report.html', vw: 1760,
+    id: 'r-slides',
+    file: '01-report/3-report.html',
+    vw: 1760,
     act: async (p) => {
       await p.locator('.js-slide-btn').first().click();
       await p.waitForSelector('#slideModal', { state: 'visible' });
@@ -128,11 +174,16 @@ const SHOTS = [
 
   // ── ② 마케팅 스튜디오 (홈=생성 · 2026-07-21 IA 개편) ──
   {
-    id: 'idx-studio', file: '02-studio/index.html', vw: 1180,
+    id: 'idx-studio',
+    file: '02-studio/index.html',
+    vw: 1180,
     clip: 'main > section:nth-of-type(1)',
   },
   ...['empty', 'default'].map((st) => ({
-    id: `s-home-${st}`, file: '02-studio/1-home.html', vw: 1540, full: true,
+    id: `s-home-${st}`,
+    file: '02-studio/1-home.html',
+    vw: 1540,
+    full: true,
     act: async (p) => {
       await p.click(`.st-btn[data-st="${st}"]`);
       await p.mouse.move(8, 300);
@@ -141,7 +192,10 @@ const SHOTS = [
   })),
   {
     // 최근 생성 스트립의 생성중 타일(보조 표면) — 정본 생성중 뷰는 s-result-generating.
-    id: 's-home-generating', file: '02-studio/1-home.html', vw: 1540, motion: true,
+    id: 's-home-generating',
+    file: '02-studio/1-home.html',
+    vw: 1540,
+    motion: true,
     act: async (p) => {
       await p.click('.st-btn[data-st="generating"]');
       await p.mouse.move(8, 300);
@@ -149,7 +203,9 @@ const SHOTS = [
     },
   },
   {
-    id: 's-home-toast', file: '02-studio/1-home.html', vw: 1540,
+    id: 's-home-toast',
+    file: '02-studio/1-home.html',
+    vw: 1540,
     // 생성 완료 → 스트립 타일 전환 + 토스트. 토스트는 5초 뒤 사라지므로 타이밍이 좁다.
     act: async (p) => {
       await p.click('.st-btn[data-st="generating"]');
@@ -160,11 +216,20 @@ const SHOTS = [
   },
   {
     // 홈=생성 폼의 채움 상태 (구 2-create.html 캡처의 후계 — 샷 ID는 덱 참조 보존을 위해 유지)
-    id: 's-create', file: '02-studio/1-home.html', vw: 1540, full: true,
-    act: async (p) => { await p.click('#fillExample'); await p.mouse.move(8, 300); await p.waitForTimeout(500); },
+    id: 's-create',
+    file: '02-studio/1-home.html',
+    vw: 1540,
+    full: true,
+    act: async (p) => {
+      await p.click('#fillExample');
+      await p.mouse.move(8, 300);
+      await p.waitForTimeout(500);
+    },
   },
   {
-    id: 's-create-tpl', file: '02-studio/1-home.html', vw: 1540,
+    id: 's-create-tpl',
+    file: '02-studio/1-home.html',
+    vw: 1540,
     // 템플릿 그리드의 선택/추천/부적합 3상태가 함께 보이도록:
     // 플랫폼을 고르면 추천 배지와 △ 부적합 딤이 칠해지고, 카드 하나를 눌러 선택 상태를 만든다.
     act: async (p) => {
@@ -180,7 +245,9 @@ const SHOTS = [
     pad: { top: 70, bottom: 20, left: 24, right: 24 },
   },
   {
-    id: 's-create-proof', file: '02-studio/1-home.html', vw: 1540,
+    id: 's-create-proof',
+    file: '02-studio/1-home.html',
+    vw: 1540,
     act: async (p) => {
       await p.click('#fillExample');
       await p.waitForTimeout(400);
@@ -195,13 +262,17 @@ const SHOTS = [
   },
   {
     // 폼 아래 최근 생성 스트립만 — "만드는 곳은 ②, 보관은 ③" 서사용.
-    id: 's-home-strip', file: '02-studio/1-home.html', vw: 1540,
+    id: 's-home-strip',
+    file: '02-studio/1-home.html',
+    vw: 1540,
     clip: '#recentStrip',
     pad: { top: 20, bottom: 20, left: 24, right: 24 },
   },
   { id: 's-result', file: '02-studio/2-result.html', vw: 1540, full: true },
   {
-    id: 's-result-copy', file: '02-studio/2-result.html', vw: 1540,
+    id: 's-result-copy',
+    file: '02-studio/2-result.html',
+    vw: 1540,
     // 카피 재설계 슬롯(KR 원문 → 의도 → JP 재설계) 확대.
     clip: 'main',
     pad: { top: 0, bottom: 0, left: 0, right: 0 },
@@ -215,14 +286,21 @@ const SHOTS = [
   },
   {
     // 결과 화면의 생성중 시작 상태 — 생성 로딩의 정본 표면 (RESULT-06 격상).
-    id: 's-result-generating', file: '02-studio/2-result.html', vw: 1540, full: true, motion: true,
+    id: 's-result-generating',
+    file: '02-studio/2-result.html',
+    vw: 1540,
+    full: true,
+    motion: true,
     act: async (p) => {
       await p.click('.st-btn[data-st="generating"]');
       await p.waitForTimeout(2600); // 5단계 중 중간 단계에서
     },
   },
   {
-    id: 's-result-failed', file: '02-studio/2-result.html', vw: 1540, full: true,
+    id: 's-result-failed',
+    file: '02-studio/2-result.html',
+    vw: 1540,
+    full: true,
     act: async (p) => {
       await p.click('.st-btn[data-st="failed"]');
       await p.waitForTimeout(400);
@@ -231,12 +309,17 @@ const SHOTS = [
 
   // ── ③ 운영(자산 라이브러리 · 자산 상세 · 기업 매칭) ──
   {
-    id: 'idx-ops', file: '04-operations/index.html', vw: 1180,
+    id: 'idx-ops',
+    file: '04-operations/index.html',
+    vw: 1180,
     clip: 'main > section:nth-of-type(1)',
   },
   ...['empty', 'default'].map((st) => ({
     // 기본 = 진단 리포트 탭 (LIB-04 · 07.21 칩→탭 개편)
-    id: `o-home-${st}`, file: '04-operations/1-home.html', vw: 1540, full: true,
+    id: `o-home-${st}`,
+    file: '04-operations/1-home.html',
+    vw: 1540,
+    full: true,
     act: async (p) => {
       await p.click(`.st-btn[data-st="${st}"]`);
       await p.mouse.move(8, 300);
@@ -245,7 +328,10 @@ const SHOTS = [
   })),
   {
     // 썸네일 탭 — 타입 탭 전환 컷 (덱 종합 흐름 슬라이드용)
-    id: 'o-home-thumb', file: '04-operations/1-home.html', vw: 1540, full: true,
+    id: 'o-home-thumb',
+    file: '04-operations/1-home.html',
+    vw: 1540,
+    full: true,
     act: async (p) => {
       await p.click('.st-btn[data-st="default"]');
       await p.click('#tabThumb');
@@ -255,16 +341,25 @@ const SHOTS = [
   },
   {
     // 축 횡단 생성중 카드 — ②에서 만든 잡이 ③ 썸네일 탭에 함께 표시되는 서사(runJob이 탭 자동 전환).
-    id: 'o-home-generating', file: '04-operations/1-home.html', vw: 1540, motion: true,
+    id: 'o-home-generating',
+    file: '04-operations/1-home.html',
+    vw: 1540,
+    motion: true,
     act: async (p) => {
       await p.click('.st-btn[data-st="generating"]');
       await p.mouse.move(8, 300);
       await p.waitForTimeout(3000);
     },
   },
-  ...[['default', 'o-brand-default'], ['blank', 'o-brand-empty']].map(([st, id]) => ({
+  ...[
+    ['default', 'o-brand-default'],
+    ['blank', 'o-brand-empty'],
+  ].map(([st, id]) => ({
     // 브랜드 관리 (BRAND-00~09 · 07.21 신설) — 기본(작성 완료) / 미작성 빈 상태
-    id, file: '04-operations/3-brand.html', vw: 1540, full: true,
+    id,
+    file: '04-operations/3-brand.html',
+    vw: 1540,
+    full: true,
     act: async (p) => {
       await p.click(`.st-btn[data-st="${st}"]`);
       // fullPage 캡처에서 sticky 저장 바가 본문 중간에 찍히는 것 방지 — 캡처 한정 정적 배치
@@ -275,16 +370,32 @@ const SHOTS = [
   })),
   {
     // 자산 상세 · 썸네일 모드 (기본 asset=a1) — 카드 클릭 시 축 이동 없음이 개편 포인트.
-    id: 'o-detail-thumb', file: '04-operations/2-detail.html', vw: 1540, full: true,
-    act: async (p) => { await p.mouse.move(8, 300); await p.waitForTimeout(400); },
+    id: 'o-detail-thumb',
+    file: '04-operations/2-detail.html',
+    vw: 1540,
+    full: true,
+    act: async (p) => {
+      await p.mouse.move(8, 300);
+      await p.waitForTimeout(400);
+    },
   },
   {
     // 자산 상세 · 리포트 요약 모드 — "리포트 전체 보기"로만 ① 이동.
-    id: 'o-detail-report', file: '04-operations/2-detail.html', query: '?asset=r1', vw: 1540, full: true,
-    act: async (p) => { await p.mouse.move(8, 300); await p.waitForTimeout(400); },
+    id: 'o-detail-report',
+    file: '04-operations/2-detail.html',
+    query: '?asset=r1',
+    vw: 1540,
+    full: true,
+    act: async (p) => {
+      await p.mouse.move(8, 300);
+      await p.waitForTimeout(400);
+    },
   },
   ...['form', 'review', 'proposal'].map((st) => ({
-    id: `o-match-${st}`, file: '04-operations/4-matching.html', vw: 1540, full: true,
+    id: `o-match-${st}`,
+    file: '04-operations/4-matching.html',
+    vw: 1540,
+    full: true,
     act: async (p) => {
       await p.click(`.st-btn[data-st="${st}"]`);
       await p.mouse.move(8, 300);
@@ -294,16 +405,25 @@ const SHOTS = [
 
   // ── 03 계정(로그인·마이페이지) ───────────────────────
   {
-    id: 'idx-account', file: '03-account/index.html', vw: 1180,
+    id: 'idx-account',
+    file: '03-account/index.html',
+    vw: 1180,
     clip: 'main > section:nth-of-type(1)',
   },
   {
-    id: 'a-login', file: '03-account/1-login.html', vw: 1180,
+    id: 'a-login',
+    file: '03-account/1-login.html',
+    vw: 1180,
     // 셸 없는 센터 카드 — 카드 주변 여백까지 보이도록 전폭 뷰포트 그대로 찍는다.
-    act: async (p) => { await p.mouse.move(8, 8); await p.waitForTimeout(300); },
+    act: async (p) => {
+      await p.mouse.move(8, 8);
+      await p.waitForTimeout(300);
+    },
   },
   {
-    id: 'a-login-fail', file: '03-account/1-login.html', vw: 1180,
+    id: 'a-login-fail',
+    file: '03-account/1-login.html',
+    vw: 1180,
     act: async (p) => {
       await p.click('.st-btn[data-st="fail"]');
       await p.click('.social-btn[data-provider="kakao"]');
@@ -313,7 +433,10 @@ const SHOTS = [
     },
   },
   ...['default', 'free', 'failed'].map((st) => ({
-    id: `a-mypage-${st}`, file: '03-account/2-mypage.html', vw: 1280, full: true,
+    id: `a-mypage-${st}`,
+    file: '03-account/2-mypage.html',
+    vw: 1280,
+    full: true,
     act: async (p) => {
       await p.click(`.st-btn[data-st="${st}"]`);
       await p.mouse.move(8, 300); // 스트립 숨김 후 마우스가 내비 위에 남아 hover가 찍히는 것 방지
@@ -321,7 +444,9 @@ const SHOTS = [
     },
   })),
   {
-    id: 'a-mypage-withdraw', file: '03-account/2-mypage.html', vw: 1280,
+    id: 'a-mypage-withdraw',
+    file: '03-account/2-mypage.html',
+    vw: 1280,
     // 탈퇴 확인 모달 — 위험 액션의 확인 게이트가 이 화면의 핵심 상태 중 하나.
     act: async (p) => {
       await p.click('#withdrawBtn');

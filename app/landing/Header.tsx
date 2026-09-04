@@ -34,7 +34,11 @@ export function LandingHeader() {
 
         <nav aria-label="주요 메뉴" className="flex items-center gap-9 max-lg:hidden">
           {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href} className="text-[15px] font-medium text-lp-body no-underline hover:text-lp-ink">
+            <a
+              key={link.href}
+              href={link.href}
+              className="text-[15px] font-medium text-lp-body no-underline hover:text-lp-ink"
+            >
               {link.label}
             </a>
           ))}

@@ -74,9 +74,7 @@ const SIGNED_URL_TTL_SEC = 60 * 60;
 export async function getSignedFileUrl(fileId: string): Promise<string | null> {
   if (!FILE_ID_RE.test(fileId)) return null;
   if (!hasSupabaseEnv()) return null;
-  const { data, error } = await getSupabaseClient()
-    .storage.from(BUCKET)
-    .createSignedUrl(fileId, SIGNED_URL_TTL_SEC);
+  const { data, error } = await getSupabaseClient().storage.from(BUCKET).createSignedUrl(fileId, SIGNED_URL_TTL_SEC);
   if (error || !data?.signedUrl) return null;
   return data.signedUrl;
 }

@@ -17,13 +17,7 @@ export type { DetailInput } from '../../db/store';
 export type ProductCategory = DetailProductCategory;
 export type OptionAxis = DetailOptionAxis;
 import type { Platform } from '../platform';
-import {
-  MAX_AI_BLOCKS,
-  TEXT_ONLY_BLOCKS,
-  allowsPromoLayer,
-  type BlockType,
-  type RenderKind,
-} from './output';
+import { MAX_AI_BLOCKS, TEXT_ONLY_BLOCKS, allowsPromoLayer, type BlockType, type RenderKind } from './output';
 
 export type TemplateId = 'D1' | 'D2' | 'D3' | 'D4' | 'D5' | 'D6';
 
@@ -136,7 +130,10 @@ interface DetailPack {
    */
   categoryShotPlan: Record<string, { must: ShotType[]; prefer: ShotType[]; note?: string }>;
   blockCatalog: BlockDef[];
-  conditionalLayers: Record<'promo' | 'proof' | 'option', { insertAt: 'head' | 'body'; blocks: BlockType[]; note: string }>;
+  conditionalLayers: Record<
+    'promo' | 'proof' | 'option',
+    { insertAt: 'head' | 'body'; blocks: BlockType[]; note: string }
+  >;
   templates: TemplateDef[];
   selectionGuide: {
     byCategory: Record<string, TemplateId[]>;
@@ -256,17 +253,11 @@ function checkRequirement(token: string, input: DetailInput): { reason: string; 
         ? null
         : { reason: '성분 데이터가 없어 넣지 않았습니다. 성분명을 지어내지 않습니다.', fixHint: '성분 데이터' };
     case 'freeOf':
-      return input.freeOf.length > 0
-        ? null
-        : { reason: '무첨가 항목이 입력되지 않았습니다.', fixHint: '무첨가 항목' };
+      return input.freeOf.length > 0 ? null : { reason: '무첨가 항목이 입력되지 않았습니다.', fixHint: '무첨가 항목' };
     case 'specs':
-      return input.specs.length > 0
-        ? null
-        : { reason: '스펙 수치가 입력되지 않았습니다.', fixHint: '제품 스펙' };
+      return input.specs.length > 0 ? null : { reason: '스펙 수치가 입력되지 않았습니다.', fixHint: '제품 스펙' };
     case 'howToSteps':
-      return input.howToSteps.length > 0
-        ? null
-        : { reason: '사용법 STEP이 입력되지 않았습니다.', fixHint: '사용법' };
+      return input.howToSteps.length > 0 ? null : { reason: '사용법 STEP이 입력되지 않았습니다.', fixHint: '사용법' };
     case 'reviews':
       return input.reviews.length > 0
         ? null
@@ -276,9 +267,7 @@ function checkRequirement(token: string, input: DetailInput): { reason: string; 
         ? null
         : { reason: '모델컷 사용 권한 동의가 없어 넣지 않았습니다.', fixHint: '모델컷 동의' };
     case 'options.color>=2':
-      return colorOptionCount(input) >= 2
-        ? null
-        : { reason: '색상 옵션이 2개 미만입니다.', fixHint: '옵션 정보' };
+      return colorOptionCount(input) >= 2 ? null : { reason: '색상 옵션이 2개 미만입니다.', fixHint: '옵션 정보' };
     case 'options.color>=6':
       return colorOptionCount(input) >= 6
         ? null
@@ -293,7 +282,10 @@ function checkRequirement(token: string, input: DetailInput): { reason: string; 
       const label = field === 'setTitle' ? '세트명' : '판매가';
       return input.promo && input.promo[field].trim()
         ? null
-        : { reason: `프로모션 ${label}이 없어 가격 블록을 넣지 않았습니다. 가격은 지어내지 않습니다.`, fixHint: '프로모션 입력' };
+        : {
+            reason: `프로모션 ${label}이 없어 가격 블록을 넣지 않았습니다. 가격은 지어내지 않습니다.`,
+            fixHint: '프로모션 입력',
+          };
     }
     case 'proof.rankTitle':
     case 'proof.genre':
@@ -324,7 +316,10 @@ function checkRequirement(token: string, input: DetailInput): { reason: string; 
       const label = { volume: '내용량', category: '구분', manufacturer: '판매원' }[field];
       return input.spec[field].trim()
         ? null
-        : { reason: `제품 스펙의 ${label}이 비어 있습니다. 표시 의무 항목이라 원문이 필요합니다.`, fixHint: '제품 스펙' };
+        : {
+            reason: `제품 스펙의 ${label}이 비어 있습니다. 표시 의무 항목이라 원문이 필요합니다.`,
+            fixHint: '제품 스펙',
+          };
     }
     default:
       // 미지 토큰은 통과시키지 않는다 — 팩 오타가 조용히 게이트를 무력화하면 안 된다
@@ -628,6 +623,10 @@ export function assembleBlockSlots(
     case 'hero-product':
       out.volumeJa = input.spec.volume;
       out.functionLabelJa = input.spec.category === '医薬部外品' ? '医薬部外品' : (out.functionLabelJa ?? '');
+      // 상품명은 **선택한 제품의 것으로 고정**한다 — 콜⑦에 맡기면 제품 타입을 오판해
+      // 토너를 エッセンス 로 바꿔 부른다(UT-33). 근거 있는 값만 렌더한다는 관통 원칙 그대로다.
+      // 등록된 일본어 제품명이 없으면 **비운다**. 지어낸 이름보다 없는 편이 낫다.
+      out.productNameJa = input.productNameJa ?? '';
       break;
     case 'ranking-stack': {
       if (!input.proof) break;
@@ -691,7 +690,10 @@ export function assembleBlockSlots(
         .join('\n');
       break;
     case 'lineup-compare-chart':
-      out.itemRows = input.options.filter((o) => o.axis !== 'color').map((o) => o.name).join('\n');
+      out.itemRows = input.options
+        .filter((o) => o.axis !== 'color')
+        .map((o) => o.name)
+        .join('\n');
       out.benchmarkFootnoteJa = `${addFootnote(reg, '比較は当社内基準によるものです')} 比較は当社内基準によるものです`;
       break;
     case 'before-after-diagram':
@@ -793,11 +795,7 @@ function colorPhrase(hex: string, nameEn: string): string {
  * 카테고리 키워드를 대체하지 않는 이유: 선케어의 `water droplets, summer air` 같은 값은
  * 그 상품에 맞는 장면 문법이라 브랜드 무드가 지워선 안 된다(§2-7).
  */
-export function buildBlockPrompt(
-  blockId: BlockType,
-  slots: Record<string, string>,
-  ctx: BlockPromptContext,
-): string {
+export function buildBlockPrompt(blockId: BlockType, slots: Record<string, string>, ctx: BlockPromptContext): string {
   const pack = getDetailPack();
   const def = getBlock(blockId);
   if (!def.promptTemplate) throw new Error(`block has no AI prompt: ${blockId}`);

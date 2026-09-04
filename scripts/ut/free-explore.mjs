@@ -40,7 +40,9 @@ const pad2 = (n) => String(n).padStart(2, '0');
  */
 async function applyAction(page, action, base) {
   if (action.kind === 'goto') {
-    await page.goto(action.target.startsWith('http') ? action.target : `${base}${action.target}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(action.target.startsWith('http') ? action.target : `${base}${action.target}`, {
+      waitUntil: 'domcontentloaded',
+    });
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
     await page.waitForTimeout(500);
     return;
@@ -49,7 +51,13 @@ async function applyAction(page, action, base) {
     const byRole = page.getByRole('button', { name: action.target, exact: false }).first();
     const byLink = page.getByRole('link', { name: action.target, exact: false }).first();
     const byText = page.getByText(action.target, { exact: false }).first();
-    const found = (await byRole.count()) ? byRole : (await byLink.count()) ? byLink : (await byText.count()) ? byText : null;
+    const found = (await byRole.count())
+      ? byRole
+      : (await byLink.count())
+        ? byLink
+        : (await byText.count())
+          ? byText
+          : null;
     if (!found) throw new Error(`화면에 "${action.target}" 이(가) 없습니다.`);
     const before = page.url();
     await safeClick(found);
@@ -78,7 +86,9 @@ async function applyAction(page, action, base) {
  * @returns {{kind:'click'|'fill'|'goto'|'stop', target?:string, value?:string}}
  */
 export function parseAction(line) {
-  const s = String(line ?? '').replace(/^NEXT:\s*/i, '').trim();
+  const s = String(line ?? '')
+    .replace(/^NEXT:\s*/i, '')
+    .trim();
   if (/^stop\b/i.test(s)) return { kind: 'stop' };
   let m = /^click\s+["“](.+?)["”]\s*$/i.exec(s);
   if (m) return { kind: 'click', target: m[1] };
@@ -92,7 +102,7 @@ export function parseAction(line) {
 async function main() {
   const personaId = arg('persona');
   if (!personaId) throw new Error('--persona P03 이 필요합니다.');
-  const base = (arg('base', process.env.UT_BASE_URL ?? DEFAULT_BASE)).replace(/\/$/, '');
+  const base = arg('base', process.env.UT_BASE_URL ?? DEFAULT_BASE).replace(/\/$/, '');
   const init = flag('init');
   const turn = Number(arg('turn', init ? 1 : 0));
   if (!init && !turn) throw new Error('--init 또는 --turn N 이 필요합니다.');
@@ -112,18 +122,25 @@ async function main() {
 
   const browser = await chromium.launch({ headless: !flag('headed') });
   const context = await browser.newContext({
-    viewport: VIEWPORT, deviceScaleFactor: 2, reducedMotion: 'reduce',
-    locale: 'ko-KR', timezoneId: 'Asia/Seoul', acceptDownloads: true,
+    viewport: VIEWPORT,
+    deviceScaleFactor: 2,
+    reducedMotion: 'reduce',
+    locale: 'ko-KR',
+    timezoneId: 'Asia/Seoul',
+    acceptDownloads: true,
     storageState: !init && existsSync(statePath) ? statePath : undefined,
   });
   const page = await context.newPage();
   page.setDefaultTimeout(25_000);
   page.setDefaultNavigationTimeout(60_000);
   const consoleErrors = [];
-  page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 300)); });
+  page.on('console', (m) => {
+    if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 300));
+  });
 
   const ctx = {
-    page, base,
+    page,
+    base,
     paths: { run: runDir, screens: turnDir, artifacts: turnDir },
     drainConsole: () => consoleErrors.splice(0, consoleErrors.length),
     drainFailed: () => [],
@@ -172,11 +189,20 @@ async function main() {
     }
 
     const step = await captureStep(ctx, {
-      seq: turn, id: 'screen', task: 'B', label: note, action: 'goto', tiles: true, maxTiles: 8, text: 'main',
+      seq: turn,
+      id: 'screen',
+      task: 'B',
+      label: note,
+      action: 'goto',
+      tiles: true,
+      maxTiles: 8,
+      text: 'main',
     });
     await context.storageState({ path: statePath });
 
-    const history = existsSync(logPath) ? JSON.parse(readFileSync(logPath, 'utf8')) : { personaId, base, turns: [], stateActions: [] };
+    const history = existsSync(logPath)
+      ? JSON.parse(readFileSync(logPath, 'utf8'))
+      : { personaId, base, turns: [], stateActions: [] };
     // 같은 화면에서 한 입력·선택만 쌓는다. 화면이 바뀌면 비운다(새 화면엔 재생할 상태가 없다)
     history.stateActions = init
       ? []
@@ -184,14 +210,29 @@ async function main() {
         ? [...(history.stateActions ?? []), actionLine]
         : [];
     history.turns = history.turns.filter((t) => t.turn !== turn);
-    history.turns.push({ turn, at: new Date().toISOString(), action: init ? '(초기 진입)' : actionLine, url: step.url, dir: `turns/${pad2(turn)}`, pngs: step.pngs, txt: step.txt, consoleErrors: step.consoleErrors, error: step.error });
+    history.turns.push({
+      turn,
+      at: new Date().toISOString(),
+      action: init ? '(초기 진입)' : actionLine,
+      url: step.url,
+      dir: `turns/${pad2(turn)}`,
+      pngs: step.pngs,
+      txt: step.txt,
+      consoleErrors: step.consoleErrors,
+      error: step.error,
+    });
     history.turns.sort((a, b) => a.turn - b.turn);
     writeFileSync(logPath, `${JSON.stringify(history, null, 2)}\n`);
 
-    log(`${personaId} 턴 ${turn} · ${step.url} · ${step.pngs.length}장 캡처${step.error ? ` · 오류 ${step.error}` : ''}`);
+    log(
+      `${personaId} 턴 ${turn} · ${step.url} · ${step.pngs.length}장 캡처${step.error ? ` · 오류 ${step.error}` : ''}`,
+    );
   } finally {
     await browser.close().catch(() => {});
   }
 }
 
-main().catch((err) => { warn(`\n✖ ${err?.message ?? err}`); process.exit(1); });
+main().catch((err) => {
+  warn(`\n✖ ${err?.message ?? err}`);
+  process.exit(1);
+});

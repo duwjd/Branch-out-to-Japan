@@ -2,7 +2,14 @@
 
 import { useState, type FormEvent } from 'react';
 import { LEAD_CHANNELS, LEAD_STAGES, PAIN_POINTS } from '@/lib/lead';
-import { buttonClass, chipClass, fieldLabelClass, inputClass, selectClass, textareaClass } from '@/components/ui/primitives';
+import {
+  buttonClass,
+  chipClass,
+  fieldLabelClass,
+  inputClass,
+  selectClass,
+  textareaClass,
+} from '@/components/ui/primitives';
 import { getSource, sendTrack } from '@/components/landing/track';
 
 /** 칩(복수 선택) 토글 헬퍼 */
@@ -26,7 +33,10 @@ async function submitLead(body: Record<string, unknown>): Promise<void> {
 /** 접수 완료 안내 — 처리기한은 단정하지 않는다 */
 function DoneNotice({ children }: { children: string }) {
   return (
-    <p role="status" className="rounded-[10px] border border-green/35 bg-green-bg p-4 text-[13.5px] font-semibold text-green-text">
+    <p
+      role="status"
+      className="rounded-[10px] border border-green/35 bg-green-bg p-4 text-[13.5px] font-semibold text-green-text"
+    >
       {children}
     </p>
   );
@@ -98,7 +108,12 @@ function ConsultationForm() {
         <label htmlFor="c-contactName" className={fieldLabelClass}>
           담당자명 <span className="text-[11px] font-semibold text-ink-faint">선택</span>
         </label>
-        <input id="c-contactName" value={contactName} onChange={(e) => setContactName(e.target.value)} className={inputClass} />
+        <input
+          id="c-contactName"
+          value={contactName}
+          onChange={(e) => setContactName(e.target.value)}
+          className={inputClass}
+        />
       </div>
 
       <div>
@@ -119,7 +134,12 @@ function ConsultationForm() {
         <label htmlFor="c-stage" className={fieldLabelClass}>
           현재 단계 <span className="text-[11px] font-semibold text-ink-faint">선택</span>
         </label>
-        <select id="c-stage" value={stage} onChange={(e) => setStage(e.target.value)} className={`${selectClass} w-full`}>
+        <select
+          id="c-stage"
+          value={stage}
+          onChange={(e) => setStage(e.target.value)}
+          className={`${selectClass} w-full`}
+        >
           <option value="">선택 안 함</option>
           {LEAD_STAGES.map((s) => (
             <option key={s.value} value={s.value}>
@@ -293,7 +313,9 @@ export function LeadForm() {
           aria-selected={mode === 'consultation'}
           onClick={() => setMode('consultation')}
           className={`-mb-px border-b-2 px-4 py-2.5 text-[13.5px] font-bold transition-colors ${
-            mode === 'consultation' ? 'border-coral text-coral-strong' : 'border-transparent text-ink-mute hover:text-ink'
+            mode === 'consultation'
+              ? 'border-coral text-coral-strong'
+              : 'border-transparent text-ink-mute hover:text-ink'
           }`}
         >
           무료 상담 신청

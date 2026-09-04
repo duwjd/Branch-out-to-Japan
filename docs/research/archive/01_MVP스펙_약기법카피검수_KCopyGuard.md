@@ -1,3 +1,14 @@
+---
+title: MVP 스펙 — K-Copy Guard (약기법 광고·표시 카피 자동 검수)
+space: 리서치
+status: 폐기
+phase: Phase 0
+updated: 2026-08-21
+owner:
+tags: [보존물, 피벗이전]
+superseded_by: 2026-07-02 일본 시장 피벗으로 대체 — 맥락 추적용. docs/research/archive/README.md
+---
+
 # MVP 스펙 — K-Copy Guard (약기법 광고·표시 카피 자동 검수)
 
 > Top 5 중 **1위** 아이디어의 구체화. 대상: 1인 개발자.

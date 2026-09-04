@@ -23,8 +23,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const email = normalizeEmail(String(body.email ?? ''));
   const password = String(body.password ?? '');
   // 계정 존재 비노출 — 없음/소셜계정(passwordHash null)/비번불일치 모두 같은 문구
-  const invalid = () =>
-    NextResponse.json({ error: '이메일 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 });
+  const invalid = () => NextResponse.json({ error: '이메일 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 });
 
   const store = await getStore();
   const user = await store.getUserByEmail(email);

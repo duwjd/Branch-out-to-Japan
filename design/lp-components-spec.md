@@ -1,3 +1,13 @@
+---
+title: LP_Components — 스펙 추출 (2026-08-18)
+space: 디자인
+status: 정본
+phase: Phase 0
+updated: 2026-08-21
+owner:
+tags: [디자인, 토큰, 실측]
+---
+
 # LP_Components — 스펙 추출 (2026-08-18)
 
 > 원본: [references/LP_Components.svg](references/LP_Components.svg) (1600×4903, Figma export)

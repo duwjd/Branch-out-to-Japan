@@ -9,7 +9,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { buttonClass, cardClass, chipClass, fieldLabelClass, inputClass, selectClass } from '@/components/ui/primitives';
+import {
+  buttonClass,
+  cardClass,
+  chipClass,
+  fieldLabelClass,
+  inputClass,
+  selectClass,
+} from '@/components/ui/primitives';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 import { BRAND_PRODUCT_CLASSES, CATEGORY_LABELS, type Category } from '@/lib/engine/types';
 
@@ -130,7 +137,10 @@ export function BrandOnboarding() {
           </div>
 
           {error && (
-            <p role="alert" className="mt-4 rounded-[10px] border border-danger bg-danger-bg p-3 text-[13px] text-danger-text">
+            <p
+              role="alert"
+              className="mt-4 rounded-[10px] border border-danger bg-danger-bg p-3 text-[13px] text-danger-text"
+            >
               {error}
             </p>
           )}
@@ -139,7 +149,9 @@ export function BrandOnboarding() {
             {submitting ? '등록 중…' : '진단 준비 시작 →'}
           </button>
           <p className="mt-2.5 text-center text-[13px] leading-relaxed text-ink-mute">
-            {brandName.trim() && category ? '등록하면 홈 셋업 가이드로 이어집니다.' : '브랜드명·카테고리를 입력하면 시작할 수 있어요.'}
+            {brandName.trim() && category
+              ? '등록하면 홈 셋업 가이드로 이어집니다.'
+              : '브랜드명·카테고리를 입력하면 시작할 수 있어요.'}
           </p>
           <p className="mt-4 border-t border-n-150 pt-4 text-center text-[12px] leading-relaxed text-ink-mute [text-wrap:pretty]">
             여기서 정한 브랜드를 ① 진단 · ② 생성 · ③ 운영 세 곳에서 그대로 씁니다.

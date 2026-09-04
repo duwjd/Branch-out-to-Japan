@@ -1,3 +1,13 @@
+---
+title: "03 · 타깃 & 페르소나"
+space: 전략·제품
+status: 정본
+phase: Phase 0
+updated: 2026-07-06
+owner:
+tags: [페르소나, 타깃]
+---
+
 # 03 · 타깃 & 페르소나
 
 > 초기 타깃 후보와 1순위. 세부 페르소나는 `pm-planner`가 확장한다.

@@ -34,10 +34,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const elapsedSec = (Date.now() - new Date(latest.createdAt).getTime()) / 1000;
     if (elapsedSec < RESEND_COOLDOWN_SEC) {
       const retryAfterSec = Math.ceil(RESEND_COOLDOWN_SEC - elapsedSec);
-      return NextResponse.json(
-        { error: '잠시 후 다시 시도해 주세요.', retryAfterSec },
-        { status: 429 },
-      );
+      return NextResponse.json({ error: '잠시 후 다시 시도해 주세요.', retryAfterSec }, { status: 429 });
     }
   }
 

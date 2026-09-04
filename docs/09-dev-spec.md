@@ -1,6 +1,17 @@
+---
+title: 09 · 개발 스펙 (어떻게 · 어떤 순서로 짓는가)
+space: 설계·개발
+status: 정본
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [개발스펙, 마일스톤, 라우트]
+---
+
 # 09 · 개발 스펙 (어떻게 · 어떤 순서로 짓는가)
 
-> 작성: 2026-07-09 · 최종 갱신 2026-08-21 · 상태: **개발 스프린트 종료 — M0~M11 반영 완료 · M12(UT 대응) 착수 대기**
+> 작성: 2026-07-09 · 최종 갱신 2026-08-31 · 상태: **Phase 0 종료 — M0~M11 반영 완료 · M12-A 완료 · M12-B~E 미착수**
+> **여기의 마일스톤 `M0~M12` 는 [[04-roadmap]] Phase 0 의 실행 단위다.** Phase 축 정본은 로드맵, 마일스톤 상세는 이 문서.
 > **이 문서는 "어떻게·어떤 순서로"만 담는다.** 무엇을 만드는지 = [[specs/01-report-spec]] · 데이터 계약(입출력·LLM 콜 스키마·엔티티) = [[08-data-flow]] · 일정 = [[04-roadmap]]. **여기에 스키마·공식·화면 명세를 재기술하지 않는다** — 충돌 시 정본(§6)을 따른다.
 >
 > 전제: [[08-data-flow]] §8의 **D1(저장=Supabase)·D6(재현성 전략) 기본안 채택** — ⚠ **7/11 팀 확정 필요**. 변경되면 이 문서 §1·§3만 고치면 된다.
@@ -14,7 +25,7 @@
 | 프레임워크 | Next.js(App Router) · TypeScript · Tailwind · npm — 저장소 루트 = 앱 루트 (CLAUDE.md 확정) |
 | 스캐폴딩 | `create-next-app` 후 **기존 자산 병합 유지**: `package.json`의 `crawl:*`·`build:lexicon` 스크립트, `@anthropic-ai/sdk`·`playwright` devDeps, `scripts/`·`data/` 그대로 |
 | 저장·인증·파일 | Supabase (Postgres + Auth + Storage) — 엔티티는 [[08-data-flow]] §6. **스프린트 2 잠정(2026-07-21):** 인증 = **목 세션**(실 OAuth·이메일 인증 미연동 — §4b M5), 파일 = **로컬 `.data/files/` 우선**(`/api/files/[id]` 서빙, DB에는 fileId만 — Supabase Storage 전환 경계 유지, 08 §6.2). **스펙(2026-07-23)은 소셜 3종 + 이메일/비밀번호 병행 · 비회원 열람 + 실행 직전 게이트로 확대**(구현 잔여 — `specs/03-account/03-account-ui-기획서` §1·§3) |
-| 시크릿 | `.env`(비커밋) + `.env.example`에 키 이름 문서화: `ANTHROPIC_API_KEY` · `LLM_MODE`(mock 강제) · `NEXT_PUBLIC_SUPABASE_URL` · `SUPABASE_SERVICE_ROLE_KEY`(anon 키는 코드가 읽지 않으므로 넣지 않는다) · (② 스프린트 2) `OPENAI_API_KEY`(없으면 이미지 목 모드) · `IMAGE_MODE`(mock 강제) · `OPENAI_IMAGE_MODEL`(기본값 코드 상수 — 무배포 교체용) · `OPENAI_IMAGE_QUALITY`(기본 medium — 개발 비용 절약) · (배포 2026-07-24) `AUTH_SECRET`(세션 서명 — **프로덕션 필수**, 미설정 시 dev 시크릿 폴백) · `AUTH_MAIL_MODE`(`devlink` = 운영에서도 인증 링크 화면 노출 — 폐쇄 UT용 임시, [[11-deploy-spec]] §4) · (2026-08-19) `SUPABASE_DB_URL`(**선택** — `npm run db:push` 마이그레이션 자동화용 DB 접속 문자열. Session pooler URI 이며 service_role 키와 다른 값이다. **`.env` 전용 — Vercel 런타임에 넣지 않는다**(DB 가 운영 하나뿐이라 `npm run db:push` 는 곧바로 운영 스키마를 바꾼다 — 실행 전 출력되는 대상 ref 를 확인할 것): 앱은 읽지 않고, 서버리스 콜드 스타트가 동시에 뜨면 런타임 DDL이 병렬 실행된다. 미설정 시 대시보드 SQL Editor 경로 사용 — [setup-supabase.md](setup-supabase.md) §5) |
+| 시크릿 | `.env`(비커밋) + `.env.example`에 키 이름 문서화: `ANTHROPIC_API_KEY` · `LLM_MODE`(mock 강제) · `NEXT_PUBLIC_SUPABASE_URL` · `SUPABASE_SERVICE_ROLE_KEY`(anon 키는 코드가 읽지 않으므로 넣지 않는다) · (② 스프린트 2) `OPENAI_API_KEY`(없으면 이미지 목 모드) · `IMAGE_MODE`(mock 강제) · `OPENAI_IMAGE_MODEL`(기본값 코드 상수 — 무배포 교체용) · `OPENAI_IMAGE_QUALITY`(기본 medium — 개발 비용 절약) · (배포 2026-07-24) `AUTH_SECRET`(세션 서명 — **프로덕션 필수**, 미설정 시 dev 시크릿 폴백) · (2026-08-19) `SUPABASE_DB_URL`(**선택** — `npm run db:push` 마이그레이션 자동화용 DB 접속 문자열. Session pooler URI 이며 service_role 키와 다른 값이다. **`.env` 전용 — Vercel 런타임에 넣지 않는다**(DB 가 운영 하나뿐이라 `npm run db:push` 는 곧바로 운영 스키마를 바꾼다 — 실행 전 출력되는 대상 ref 를 확인할 것): 앱은 읽지 않고, 서버리스 콜드 스타트가 동시에 뜨면 런타임 DDL이 병렬 실행된다. 미설정 시 대시보드 SQL Editor 경로 사용 — [setup-supabase.md](setup-supabase.md) §5) |
 | 배포 | **Vercel Hobby + Supabase Free** — 정본 [[11-deploy-spec]](아키텍처·한도·환경변수·절차·스모크) · 결정 [[decisions/2026-07-24-호스팅-배포-결정]] |
 | 로컬 검증 | `npm run typecheck` 기본. ⚠ 한글 경로 머신은 대용량 JS 실행이 차단됨 — **영문 경로 미러(`C:\dev\jgs-run`)에서 실행** ([CONTRIBUTING 트러블슈팅](../CONTRIBUTING.md)) |
 | 테스트 | **node 내장 러너**(`npm run test` = tsc 컴파일 → `node --test`) — vitest/tsx는 esbuild 네이티브가 한글 경로에서 차단되어 제외(2026-07-09 규명). typescript는 5.x 고정(7은 네이티브) |
@@ -102,7 +113,7 @@ scripts/
 
 > `detail:previews` 는 **실 파이프라인 산출물**이라 템플릿 정의·블록 렌더 트리를 바꾸면 다시 구워야 한다. 두 키가 모두 필요하고, 전체 1회에 gpt-image-2 약 18콜 + Claude 6콜이 든다. 중간물은 `.data/detail-previews/` 에 캐시되므로 `--force` 없이 재실행하면 이미지 콜이 0이다. 자산 규약은 `docs/specs/02-studio/assets/README.md`.
 
-## 4. ① 리포트 스프린트 마일스톤 (7/11~17 · 엔진 우선)
+## 4. ① 리포트 스프린트 마일스톤 (Phase 0-B · 7/11~17 · 엔진 우선)
 
 > 접근: **엔진(파이프라인)을 CLI로 먼저 완성·검증 → 화면 연결.** 리스크(LLM 품질·비용)가 엔진에 있으므로 M1~M2에서 확인하고, 화면(M3)은 검증된 엔진에 붙인다. 로드맵 완료 기준 = "진단 리포트 한 사이클 작동".
 > **진척 스냅샷·실행 방법·검증 결과 = [[10-implementation-status]]** (2026-07-09 기능 검증 빌드로 M0~M4 대부분 선행 완료 — 실 LLM E2E 통과).
@@ -143,7 +154,7 @@ scripts/
 - [ ] *(stretch)* 무료 체커 `/checker`(+비로그인 3회 — 08 §8-D8) — 랜딩 `/`는 완료
 - **DoD(2026-07-16 개정):** ~~needsReview → 서명 → published · 서명 없는 발행 불가~~ **폐기** → **파이프라인 성공 = 발행**(`processing → published`, 사람 개입 0) ✅ · 슬라이드: `published`에서 버튼 → 외부 리소스 0건인 단일 HTML 다운로드(AC-10.1~10.3) · PDF 잔여
 
-## 4b. 스프린트 2 마일스톤 (2026-07-21 확정 — ② 실생성 + ③ 운영 + 계정)
+## 4b. 스프린트 2 마일스톤 (Phase 0-C · 2026-07-21 확정 — ② 실생성 + ③ 운영 + 계정)
 
 > 목표: **실제 API 호출로 리포트와 이미지가 생성되는 동작 서비스.** 확정 결정 4건 — (1) 이미지 생성 = OpenAI gpt-image 실호출(키 없으면 목 모드), (2) 파일 = 로컬 `.data/files/` 우선, (3) 소셜 로그인 = **목 세션**(실 OAuth 금지 — 버튼 클릭 = 로그인 가정), (4) 최대한 간단하게 — **기존 패턴 복제가 곧 설계다**(studioJob = reportJob 미러, 이미지 목 모드 = `LLM_MODE=mock` 미러, 폴링 화면 = `/app/report/[id]` 미러).
 > 엔진 우선 관례는 **스튜디오(M6)에만** 적용 — 리스크(OpenAI 연동·프롬프트 품질)가 거기에만 있다. 운영·계정은 CRUD 화면이라 화면 우선.
@@ -181,7 +192,7 @@ scripts/
 - [ ] `supabase/schema.sql` 3테이블(brand_profiles·generated_assets·match_requests) 멱등 추가 + supabaseStore 실구현 검증
 - **DoD:** Supabase 키 켠 상태에서 M7·M8 동선 재통과 (파일은 여전히 로컬)
 
-## 4c. 2차 개발 마일스톤 (2026-07-22 확정 — 기획서·와이어프레임 선반영 완료분의 코드화)
+## 4c. 2차 개발 마일스톤 (Phase 0-D · 2026-07-22 확정 — 기획서·와이어프레임 선반영 완료분의 코드화)
 
 정본: `specs/02-studio/02-studio-ui-기획서.md`(2026-07-22 개정 · HOME-02b·05b·07) · `specs/02-thumbnail-converter-spec.md` §1 입력 계약·§2-④·§2-⑥·§4 · `08-data-flow.md` §4.7·§6.1.
 
@@ -213,10 +224,12 @@ middleware.ts / User 엔티티·실 OAuth·이메일 인증·비회원 열람 �
 
 **M10 추가분** — 모델컷 계약서 업로드·사용 기간 관리(동의는 체크박스 자기 신고까지) / 모델컷 다건·배리에이션 그리드 / 쿠폰 조건부 가격 계산·검증(각주 문자열까지) / 가격 텍스트의 코드 오버레이(하이브리드) — 전부 (추후 기획)
 
-## 4d. UT 대응 마일스톤 (2026-08-21 확정 — AI 에이전트 UT P0 해소)
+## 4d. UT 대응 마일스톤 (Phase 0-F 착수 · 2026-08-21 확정 — AI 에이전트 UT P0 해소)
 
 > 근거 = `docs/research/ut-agent/results/UT-리포트.md`(합성 페르소나 20인 · 2세션 · 무효 응답 0건) · [이슈-백로그.md](research/ut-agent/results/이슈-백로그.md) §E(P0 14 · P1 37 · P2 20).
 > P0 14건 중 **9건이 "말과 화면이 다르다" 한 가지 유형**이다. **기능을 더 만들기 전에 이미 한 말을 화면과 맞추는 것**이 이 마일스톤의 전부다.
+>
+> **Phase 경계.** M12-A 만 Phase 0 안에서 끝났다(`c1f3d30`). **M12-B~E 는 미착수이며 [[04-roadmap]] §Phase 1 의 입력값 후보**다 — 후보이지 확정 범위가 아니다. Phase 1 범위는 아직 정해지지 않았다([[decisions/DECISIONS]] 미결정).
 
 ### M12-A · 리포트 파이프라인 시간 예산 — ✅ 완료 (`c1f3d30` · 2026-08-21)
 - [x] `StructuredCallOptions` 에 `timeoutMs` 추가 → `lib/engine/llm/client.ts` 의 `messages.create(p)` 를 `messages.create(p, { timeout })` 로

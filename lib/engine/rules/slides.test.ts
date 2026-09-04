@@ -43,7 +43,9 @@ function persona(): PersonaResult {
       { krAppeal: '고농축', jpReading: '수치 없이 과장으로 읽힘', redefinedUsp: '배합률을 명시한 성분 설계' },
       { krAppeal: '병원급 케어', jpReading: '의약품 오인 표현', redefinedUsp: '피부과 테스트 완료 표기' },
     ],
-    reviewNarrative: [{ infoGap: '저자극 근거 부재', distrustSignal: '리뷰에서 자극 여부 질문 반복', dropOff: '장바구니 이탈' }],
+    reviewNarrative: [
+      { infoGap: '저자극 근거 부재', distrustSignal: '리뷰에서 자극 여부 질문 반복', dropOff: '장바구니 이탈' },
+    ],
   };
 }
 
@@ -153,7 +155,11 @@ function brandBlocks(): BlocksJson {
     block3: null,
     block4: {
       ...base.block4,
-      comparisonRows: base.block4.comparisonRows.map((r) => ({ ...r, customerStatus: '미확인', gapNote: '콘텐츠 미제출' })),
+      comparisonRows: base.block4.comparisonRows.map((r) => ({
+        ...r,
+        customerStatus: '미확인',
+        gapNote: '콘텐츠 미제출',
+      })),
     },
     block5: null,
     block7: null,
@@ -168,7 +174,11 @@ describe('renderDeckHtml — 브랜드+제품 덱(7장)', () => {
 
     // 렌더 결과는 blocksJson의 값을 쓴다
     assert.match(html, /<span class="n">18<\/span>/, '종합점수는 block1.overallScore(18)이어야 한다');
-    assert.match(html, /<span class="n">6<\/span><span class="l">불가<\/span>/, '불가 건수는 block3.summary.ngCount(6)이어야 한다');
+    assert.match(
+      html,
+      /<span class="n">6<\/span><span class="l">불가<\/span>/,
+      '불가 건수는 block3.summary.ngCount(6)이어야 한다',
+    );
     assert.match(html, /<span class="n">5<\/span><span class="l">조건부<\/span>/);
     assert.match(html, /라쿠텐 상세 90건/, '표본 수는 block4.sampleCount여야 한다');
     assert.match(html, /30만 원/, '가격은 block9.funnel에서 와야 한다');

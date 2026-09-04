@@ -36,8 +36,18 @@ let cachedRanges: [number, number][] | null = null;
 export function jpFonts(): LoadedFont[] {
   if (!cachedFonts) {
     cachedFonts = [
-      { name: JP_FONT_FAMILY, data: readFileSync(path.join(FONT_DIR, 'NotoSansJP-Regular.otf')), weight: 400, style: 'normal' },
-      { name: JP_FONT_FAMILY, data: readFileSync(path.join(FONT_DIR, 'NotoSansJP-Bold.otf')), weight: 700, style: 'normal' },
+      {
+        name: JP_FONT_FAMILY,
+        data: readFileSync(path.join(FONT_DIR, 'NotoSansJP-Regular.otf')),
+        weight: 400,
+        style: 'normal',
+      },
+      {
+        name: JP_FONT_FAMILY,
+        data: readFileSync(path.join(FONT_DIR, 'NotoSansJP-Bold.otf')),
+        weight: 700,
+        style: 'normal',
+      },
     ];
   }
   return cachedFonts;
@@ -157,11 +167,7 @@ export function uncoveredGlyphs(text: string): string[] {
  * 여기서 못 고치는 글자는 호출부가 uncoveredGlyphs()로 걸러 실패시킨다.
  */
 export function normalizeForFont(text: string): string {
-  let out = text
-    .replace(/㈱/g, '(株)')
-    .replace(/㈲/g, '(有)')
-    .replace(/℡/g, 'TEL')
-    .replace(/～/g, '〜');
+  let out = text.replace(/㈱/g, '(株)').replace(/㈲/g, '(有)').replace(/℡/g, 'TEL').replace(/～/g, '〜');
   // 원문자 ①~⑳ → "1." 형태(각주·STEP 번호에서 흔하다)
   out = out.replace(/[①-⑳]/g, (c) => `${c.codePointAt(0)! - 0x245f}.`);
   // 로마숫자 Ⅰ~Ⅹ

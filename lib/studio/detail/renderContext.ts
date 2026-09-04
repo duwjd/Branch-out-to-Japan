@@ -27,11 +27,7 @@ export interface DetailRenderPlan {
  * 시퀀스 + 리듬 + 테마를 한 번에 확정한다.
  * 재생성 경로도 **같은 함수를 같은 순서에** 적용해야 색·톤이 흔들리지 않는다(§2-6).
  */
-export function buildRenderPlan(
-  input: DetailInput,
-  platform: Platform,
-  templateId: TemplateId,
-): DetailRenderPlan {
+export function buildRenderPlan(input: DetailInput, platform: Platform, templateId: TemplateId): DetailRenderPlan {
   const plan = planBlocks(input, platform, templateId, input.disabledBlocks as BlockType[]);
   return {
     templateId,
@@ -92,9 +88,7 @@ export function renderContextOf(args: {
   const isPhoto = band?.surface === 'photo' && hasBackground;
   const placement = isPhoto ? (args.placement ?? INSET_PLACEMENT) : undefined;
   // satori 는 명시 폭이 필요하다 — 사진 밴드는 실측 여백의 폭이, 색면 밴드는 캔버스 폭이 기준이다
-  const availableWidth = placement
-    ? Math.round(CANVAS_WIDTH * placement.zone.width)
-    : CANVAS_WIDTH;
+  const availableWidth = placement ? Math.round(CANVAS_WIDTH * placement.zone.width) : CANVAS_WIDTH;
   return {
     brandName: args.brandName,
     hasBackground,

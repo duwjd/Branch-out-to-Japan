@@ -30,19 +30,20 @@ const CELL = 32;
  * @param busy 제품이 있다고 볼 영역(px)
  * @param base 여백의 밝기 0~255
  */
-async function synth(
-  busy: { left: number; top: number; width: number; height: number },
-  base = 235,
-): Promise<Buffer> {
+async function synth(busy: { left: number; top: number; width: number; height: number }, base = 235): Promise<Buffer> {
   const px = Buffer.alloc(W * H * 3, base);
   for (let y = busy.top; y < busy.top + busy.height; y++) {
     for (let x = busy.left; x < busy.left + busy.width; x++) {
       const v = (Math.floor(x / CELL) + Math.floor(y / CELL)) % 2 === 0 ? 12 : 246;
       const i = (y * W + x) * 3;
-      px[i] = v; px[i + 1] = v; px[i + 2] = v;
+      px[i] = v;
+      px[i + 1] = v;
+      px[i + 2] = v;
     }
   }
-  return sharp(px, { raw: { width: W, height: H, channels: 3 } }).png().toBuffer();
+  return sharp(px, { raw: { width: W, height: H, channels: 3 } })
+    .png()
+    .toBuffer();
 }
 
 test('제품이 상단이면 카피는 하단으로 간다', async () => {
@@ -53,7 +54,9 @@ test('제품이 상단이면 카피는 하단으로 간다', async () => {
 });
 
 test('제품이 하단이면 카피는 상단으로 간다 — 하단 고정이 아니라는 증거', async () => {
-  const p = await analyzeSafeArea(await synth({ left: 0, top: Math.round(H * 0.4), width: W, height: Math.round(H * 0.6) }));
+  const p = await analyzeSafeArea(
+    await synth({ left: 0, top: Math.round(H * 0.4), width: W, height: Math.round(H * 0.6) }),
+  );
   assert.equal(p.zone.top, 0, `하단(${p.zone.top})에 그대로 앉았다 — ${p.reason}`);
   assert.equal(p.vAlign, 'top');
   assert.equal(p.scrim.direction, 'to bottom');
@@ -68,7 +71,9 @@ test('제품이 좌측이면 카피는 제품과 겹치지 않는 우측으로 �
 });
 
 test('제품이 우측이면 카피는 제품과 겹치지 않는 좌측으로 간다', async () => {
-  const p = await analyzeSafeArea(await synth({ left: Math.round(W * 0.5), top: 0, width: Math.round(W * 0.5), height: H }));
+  const p = await analyzeSafeArea(
+    await synth({ left: Math.round(W * 0.5), top: 0, width: Math.round(W * 0.5), height: H }),
+  );
   assert.ok(p.zone.left + p.zone.width <= 0.5 + 1e-9, `우측(${p.zone.left})으로 갔다 — ${p.reason}`);
   assert.equal(p.hAlign, 'left');
 });

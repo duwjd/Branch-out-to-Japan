@@ -135,7 +135,9 @@ async function main() {
   const client = new OpenAI({ timeout: 180_000, maxRetries: 2 });
 
   const usagePath = path.join(OUT_DIR, 'usage.json');
-  const ledger = existsSync(usagePath) ? JSON.parse(readFileSync(usagePath, 'utf8')) : { model: MODEL, quality: QUALITY, size: SIZE, calls: [] };
+  const ledger = existsSync(usagePath)
+    ? JSON.parse(readFileSync(usagePath, 'utf8'))
+    : { model: MODEL, quality: QUALITY, size: SIZE, calls: [] };
 
   for (const p of PRODUCTS) {
     if (only && !only.includes(p.id)) continue;

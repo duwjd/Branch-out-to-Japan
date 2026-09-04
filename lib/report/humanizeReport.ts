@@ -349,7 +349,11 @@ export async function runReportHumanize(opts: KoHumanizeOptions): Promise<KoHuma
   const chunks = chunkTargets(targets);
   // 카테고리·제품분류는 이 콜의 grounding 에서 쓰이지 않는다(문체만 보는 콜이라 코퍼스·렉시콘·규정을
   // 주입하지 않는다) — 청크 전체가 **같은 문자열**을 공유해 캐시 프리픽스를 하나로 고정한다.
-  const system = buildStableGrounding('reportHumanize', opts.blocksJson.meta.category, opts.blocksJson.meta.productClass);
+  const system = buildStableGrounding(
+    'reportHumanize',
+    opts.blocksJson.meta.category,
+    opts.blocksJson.meta.productClass,
+  );
 
   const settled = await Promise.allSettled(
     chunks.map((chunk, i) =>
@@ -394,7 +398,12 @@ export async function runReportHumanize(opts: KoHumanizeOptions): Promise<KoHuma
   }
 
   const adopted = verdicts.filter((v) => v.adopted).length;
-  logger.info('리포트 윤문 완료', { targets: targets.length, chunks: chunks.length, changed: verdicts.length, adopted });
+  logger.info('리포트 윤문 완료', {
+    targets: targets.length,
+    chunks: chunks.length,
+    changed: verdicts.length,
+    adopted,
+  });
   return {
     blocksJson: next,
     verdicts,

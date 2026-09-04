@@ -11,11 +11,36 @@ import { getBlock, shotGrammarFor, type ProductCategory } from './blockPack';
 
 /** 카테고리별 데모 카피 축 — 무드가 상품 종류에 따라 달라진다는 요구를 목 모드에서도 지킨다. */
 const AXIS: Record<ProductCategory, { concern: string; benefit: string; scene: string; texture: string }> = {
-  skincare: { concern: '毛穴の目立ち', benefit: 'キメの整った肌印象へ', scene: '朝と夜のスキンケア', texture: 'とろみのある美容液' },
-  suncare: { concern: '日焼けと乾燥', benefit: '白浮きしない仕上がり', scene: '通勤・レジャー・スポーツ', texture: 'みずみずしいミルク' },
-  makeup: { concern: '色選びの迷い', benefit: '肌なじみのよい発色', scene: 'デイリーメイク', texture: 'なめらかなクリーム' },
-  cleansing: { concern: 'メイクの洗い残し', benefit: 'つっぱらない洗い上がり', scene: '一日の終わりに', texture: 'やわらかなバーム' },
-  haircare: { concern: '髪のパサつき', benefit: '指通りのよい髪へ', scene: 'バスタイム', texture: 'とろけるトリートメント' },
+  skincare: {
+    concern: '毛穴の目立ち',
+    benefit: 'キメの整った肌印象へ',
+    scene: '朝と夜のスキンケア',
+    texture: 'とろみのある美容液',
+  },
+  suncare: {
+    concern: '日焼けと乾燥',
+    benefit: '白浮きしない仕上がり',
+    scene: '通勤・レジャー・スポーツ',
+    texture: 'みずみずしいミルク',
+  },
+  makeup: {
+    concern: '色選びの迷い',
+    benefit: '肌なじみのよい発色',
+    scene: 'デイリーメイク',
+    texture: 'なめらかなクリーム',
+  },
+  cleansing: {
+    concern: 'メイクの洗い残し',
+    benefit: 'つっぱらない洗い上がり',
+    scene: '一日の終わりに',
+    texture: 'やわらかなバーム',
+  },
+  haircare: {
+    concern: '髪のパサつき',
+    benefit: '指通りのよい髪へ',
+    scene: 'バスタイム',
+    texture: 'とろけるトリートメント',
+  },
   etc: { concern: '肌の揺らぎ', benefit: '心地よい使用感', scene: '毎日のケア', texture: '軽やかなテクスチャー' },
 };
 
@@ -49,7 +74,9 @@ export function mockLlmSlots(blockId: BlockType, category: ProductCategory, bran
     case 'problem-hook':
       return {
         hookQuestionJa: 'こんなお悩みありませんか？',
-        painPointsJa: [`${a.concern}が続いている`, '朝のメイクのりが安定しない', '季節の変わり目に揺らぎやすい'].join('\n'),
+        painPointsJa: [`${a.concern}が続いている`, '朝のメイクのりが安定しない', '季節の変わり目に揺らぎやすい'].join(
+          '\n',
+        ),
         empathyCopyJa: 'その原因は、ひとつではないかもしれません。',
         sceneDescription: mockStaging('problem-hook', category),
         copyZone: 'left',
@@ -105,7 +132,10 @@ export function mockLlmSlots(blockId: BlockType, category: ProductCategory, bran
       return { headlineJa: '肌なじみで選べるカラー' };
     case 'personal-color-look':
       return {
-        looksJa: ['01|ブルベ冬におすすめ|クリアで澄んだ印象に', '02|イエベ秋におすすめ|やわらかく落ち着いた印象に'].join('\n'),
+        looksJa: [
+          '01|ブルベ冬におすすめ|クリアで澄んだ印象に',
+          '02|イエベ秋におすすめ|やわらかく落ち着いた印象に',
+        ].join('\n'),
         lookDescription: mockStaging('personal-color-look', category),
       };
     case 'lineup-compare-chart':

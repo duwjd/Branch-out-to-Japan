@@ -52,7 +52,11 @@ async function loadPool() {
   for (const l of text.split('\n')) {
     if (!l.trim()) continue;
     let r;
-    try { r = JSON.parse(l); } catch { continue; }
+    try {
+      r = JSON.parse(l);
+    } catch {
+      continue;
+    }
     if (r.source !== 'amazon' || r.type !== 'thumbnail') continue;
     if (!r.sourceUrl || !/\/dp\//.test(r.sourceUrl)) continue;
     if (!byCat.has(r.category)) byCat.set(r.category, []);
@@ -65,7 +69,10 @@ async function loadPool() {
     let added = false;
     for (const c of cats) {
       const list = byCat.get(c);
-      if (i < list.length) { out.push(list[i]); added = true; }
+      if (i < list.length) {
+        out.push(list[i]);
+        added = true;
+      }
     }
     if (!added) break;
   }
@@ -88,7 +95,8 @@ async function pickBySeed(seedPath, pool) {
   const missing = [];
   for (const id of wanted) {
     const r = byId.get(id);
-    if (r) picks.push(r); else missing.push(id);
+    if (r) picks.push(r);
+    else missing.push(id);
   }
   if (missing.length) logger.warn('시드 id 카탈로그에 없음', { count: missing.length, sample: missing.slice(0, 5) });
   return picks;
@@ -107,7 +115,8 @@ function fullResImage(url) {
 function extractDetailImages(page) {
   return page.evaluate(() => {
     const blocked = /検証|ロボットではありません|captcha|Enter the characters/i.test(document.body?.innerText || '');
-    const SELECTORS = '#aplus, #aplus_feature_div, #aplusBrandStory_feature_div, #productDescription, [class*="aplus-module"]';
+    const SELECTORS =
+      '#aplus, #aplus_feature_div, #aplusBrandStory_feature_div, #productDescription, [class*="aplus-module"]';
     const seen = new Map();
     for (const c of document.querySelectorAll(SELECTORS)) {
       for (const img of c.querySelectorAll('img')) {
@@ -229,38 +238,47 @@ async function main() {
         continue;
       }
 
-      let variation = { optionLabels: [], optionCount: 0, optionAxis: null, hasPromo: false, hasDoublePrice: false, priceRaw: '' };
+      let variation = {
+        optionLabels: [],
+        optionCount: 0,
+        optionAxis: null,
+        hasPromo: false,
+        hasDoublePrice: false,
+        priceRaw: '',
+      };
       try {
         variation = await extractVariationMeta(page);
       } catch (err) {
         logger.warn('옵션 메타 추출 실패', { id: prod.id, reason: String(err.message ?? err) });
       }
 
-      const records = imgs.map((img, n) => ({
-        id: `${prod.id}_d${n + 1}`,
-        source: 'amazon',
-        type: 'detail',
-        parentId: prod.id,
-        productName: prod.productName,
-        category: prod.category,
-        sourceUrl: prod.sourceUrl,
-        imageUrl: fullResImage(img.src),
-        localPath: `raw/product-detail/amazon-jp/${prod.id}/${n + 1}.jpg`,
-        sequenceIndex: n + 1,
-        isMallBanner: false,
-        naturalWidth: img.w,
-        naturalHeight: img.h,
-        optionCount: variation.optionCount,
-        optionAxis: variation.optionAxis,
-        optionLabels: variation.optionLabels,
-        hasPromo: false,
-        hasDoublePrice: false,
-        priceRaw: '',
-        collectedAt,
-        license: '브랜드/셀러 저작물 — 내부 분석용',
-        via: 'browser',
-        schemaVersion: 2,
-      })).filter((r) => !seenIds.has(r.id));
+      const records = imgs
+        .map((img, n) => ({
+          id: `${prod.id}_d${n + 1}`,
+          source: 'amazon',
+          type: 'detail',
+          parentId: prod.id,
+          productName: prod.productName,
+          category: prod.category,
+          sourceUrl: prod.sourceUrl,
+          imageUrl: fullResImage(img.src),
+          localPath: `raw/product-detail/amazon-jp/${prod.id}/${n + 1}.jpg`,
+          sequenceIndex: n + 1,
+          isMallBanner: false,
+          naturalWidth: img.w,
+          naturalHeight: img.h,
+          optionCount: variation.optionCount,
+          optionAxis: variation.optionAxis,
+          optionLabels: variation.optionLabels,
+          hasPromo: false,
+          hasDoublePrice: false,
+          priceRaw: '',
+          collectedAt,
+          license: '브랜드/셀러 저작물 — 내부 분석용',
+          via: 'browser',
+          schemaVersion: 2,
+        }))
+        .filter((r) => !seenIds.has(r.id));
 
       records.forEach((r) => seenIds.add(r.id));
       await appendRecords(records);

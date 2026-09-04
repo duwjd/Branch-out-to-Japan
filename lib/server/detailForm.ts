@@ -16,10 +16,17 @@ export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 export const MAX_SOURCE_IMAGES = 10;
 export const IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
-const CATEGORIES: DetailProductCategory[] = ['skincare', 'suncare', 'makeup', 'cleansing', 'haircare', 'etc'];
+/** 상세 폼이 받는 상품 종류 6종. `products.category`(자유 텍스트)와 다르다 — 프리필이 이걸로 대조한다 */
+export const CATEGORIES: DetailProductCategory[] = ['skincare', 'suncare', 'makeup', 'cleansing', 'haircare', 'etc'];
 const OPTION_AXES: DetailOptionAxis[] = ['color', 'size', 'set', 'variant'];
 
 export interface ParsedDetailForm {
+  /**
+   * 어느 제품으로 만드는가(`products.id`). **필수** — 이 칸이 없어서 생성기가 일본어
+   * 상품명을 지어냈다(UT-58). 실제로 그 브랜드의 제품인지는 호출부가 확인한다
+   * (여기는 FormData 만 보므로 저장소를 알지 못한다).
+   */
+  productId: string;
   templateId: TemplateId;
   platform: Platform;
   note: string;
@@ -79,6 +86,9 @@ function rows(form: FormData, key: string, cols: number): string[][] {
  * 이미지 저장은 하지 않는다 — 호출부(제출 라우트)가 담당하고, 미리보기는 저장 없이 돈다.
  */
 export function parseDetailForm(form: FormData, sourceImagePaths: string[]): ParsedDetailForm | { error: string } {
+  const productId = text(form, 'productId');
+  if (!productId) return { error: '어느 제품인지 먼저 골라 주세요.' };
+
   const templateId = text(form, 'templateId');
   const knownTemplates = getDetailPack().templates.map((t) => t.id as string);
   if (!knownTemplates.includes(templateId)) return { error: '템플릿을 1개 선택해 주세요.' };
@@ -153,7 +163,10 @@ export function parseDetailForm(form: FormData, sourceImagePaths: string[]): Par
       normalPriceVerified: text(form, 'promoNormalPriceVerified') === 'true' && Boolean(normalPrice),
       discountRate: text(form, 'promoDiscountRate'),
       gift: text(form, 'promoGift'),
-      qualifierChips: text(form, 'promoQualifiers').split(',').map((s) => s.trim()).filter(Boolean),
+      qualifierChips: text(form, 'promoQualifiers')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
       footnote: text(form, 'promoFootnote'),
     };
   }
@@ -199,6 +212,7 @@ export function parseDetailForm(form: FormData, sourceImagePaths: string[]): Par
   };
 
   return {
+    productId,
     templateId: templateId as TemplateId,
     platform,
     note: text(form, 'note'),
@@ -206,6 +220,68 @@ export function parseDetailForm(form: FormData, sourceImagePaths: string[]): Par
     disabledBlocks,
     clientTranslation: parseTranslationJson(form),
   };
+}
+
+/**
+ * `parseDetailForm` 의 **역방향** — 저장된 입력을 폼 필드 값으로 편다(DETAIL-01c 프리필).
+ *
+ * 여기가 `parseDetailForm` 과 **같은 파일에 사는 이유**는 둘이 하나의 계약이기 때문이다.
+ * 필드 이름을 한쪽에서만 바꾸면 프리필이 조용히 빈 칸을 채우게 된다.
+ *
+ * 파일 입력(`productImage`·`images`·`modelImage`)은 **넣지 않는다** — 프로그램으로 채울 수 없다.
+ * 제어 상태로 사는 값(`templateId`·`platform`·테마)도 대상이 아니다. 여기는 **텍스트 칸만** 편다.
+ */
+export function toFormFields(input: DetailInput): Record<string, string> {
+  const out: Record<string, string> = {
+    productCategory: input.productCategory,
+    specVolume: input.spec.volume,
+    specCategory: input.spec.category,
+    specManufacturer: input.spec.manufacturer,
+    specOrigin: input.spec.origin,
+    specFullIngredients: input.spec.fullIngredients,
+    ingredientRows: input.ingredients.map((i) => [i.name, i.percent, i.purpose].join(' | ')).join('\n'),
+    freeOf: input.freeOf.join('\n'),
+    specRows: input.specs.map((s) => [s.label, s.value].join(' | ')).join('\n'),
+    howToSteps: input.howToSteps.join('\n'),
+    optionAxis: input.options[0]?.axis ?? 'color',
+    optionRows: input.options.map((o) => [o.name, o.swatchHex ?? '', o.sku ?? ''].join(' | ')).join('\n'),
+    cautions: input.cautions.join('\n'),
+    reviewRows: input.reviews.map((r) => [r.text, r.rating, r.age].join(' | ')).join('\n'),
+  };
+
+  // 근거는 그룹 단위라 부분만 채우면 블록이 안 붙는다 — 있는 그룹만 통째로 편다
+  if (input.proof) {
+    out.proofRankTitle = input.proof.rankTitle;
+    out.proofGenre = input.proof.genre;
+    out.proofDate = input.proof.aggregationDate;
+  }
+  if (input.sales) {
+    out.salesCount = input.sales.count;
+    out.salesPeriod = input.sales.period;
+    out.salesReviewCount = input.sales.reviewCount ?? '';
+    out.salesRating = input.sales.rating ?? '';
+  }
+  if (input.test) {
+    out.testName = input.test.name;
+    out.testCondition = input.test.condition;
+    out.testInstitution = input.test.institution;
+    out.testDate = input.test.date;
+    out.testSampleSize = input.test.sampleSize;
+  }
+  if (input.promo) {
+    out.promoSetTitle = input.promo.setTitle;
+    out.promoSalePrice = input.promo.salePrice;
+    out.promoNormalPrice = input.promo.normalPrice;
+    // 실적 확인 체크는 **되살리지 않는다.** 통상가 취소선은 사람이 매번 확인해야 하는
+    // 有利誤認 방지 장치라, 지난 생성의 체크를 자동으로 물려주면 그 장치가 무력해진다.
+    out.promoDiscountRate = input.promo.discountRate;
+    out.promoGift = input.promo.gift;
+    out.promoQualifiers = input.promo.qualifierChips.join(', ');
+    out.promoFootnote = input.promo.footnote;
+  }
+
+  // 빈 값은 아예 내려보내지 않는다 — 프리필이 사용자가 이미 적은 칸을 지우지 않게 한다
+  return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== ''));
 }
 
 /** 업로드 파일 유효성 — 저장 전에 검사한다. */

@@ -39,7 +39,10 @@ function mockSlotValues(styleId: StyleId, brandName: string): { key: string; val
     case 'C':
       return [
         { key: 'brandName', value: brandName },
-        { key: 'backgroundVisual', value: 'a clear summer sky — soft gradient from deep blue to white, wispy clouds near the bottom' },
+        {
+          key: 'backgroundVisual',
+          value: 'a clear summer sky — soft gradient from deep blue to white, wispy clouds near the bottom',
+        },
         { key: 'catchCopyJa', value: '白浮きしない、透明感トーンアップUV' },
         { key: 'featureChipsJa', value: 'SPF50+ / PA++++ / 顔・からだ用' },
         { key: 'accentColor', value: 'sky blue (#3D8FDD)' },
@@ -48,7 +51,10 @@ function mockSlotValues(styleId: StyleId, brandName: string): { key: string; val
       return [
         { key: 'catchCopyJa', value: '白浮きしない、透け感トーンアップUV' },
         { key: 'copyColor', value: 'deep sky blue (#2E6FB7)' },
-        { key: 'ingredientVisual', value: 'fresh translucent water spheres and a soft white tone-up cream smear floating around the tube' },
+        {
+          key: 'ingredientVisual',
+          value: 'fresh translucent water spheres and a soft white tone-up cream smear floating around the tube',
+        },
         { key: 'featureChipJa', value: '顔・からだ用' },
         { key: 'footnoteJa', value: '※メーキャップ効果による' },
         { key: 'backgroundColor', value: 'a clear sky-blue gradient fading to white at the bottom' },
@@ -70,8 +76,15 @@ function mockSlotValues(styleId: StyleId, brandName: string): { key: string; val
       ];
     case 'H':
       return [
-        { key: 'sceneDescription', value: 'a sunlit windowsill with sheer linen curtains, the tube standing on a warm stone pedestal' },
-        { key: 'verticalCopyParagraph', value: "On the right side, render the copy '白浮きしない、透け感トーンアップUV' vertically (tategaki) in elegant mincho serif, dark grey." },
+        {
+          key: 'sceneDescription',
+          value: 'a sunlit windowsill with sheer linen curtains, the tube standing on a warm stone pedestal',
+        },
+        {
+          key: 'verticalCopyParagraph',
+          value:
+            "On the right side, render the copy '白浮きしない、透け感トーンアップUV' vertically (tategaki) in elegant mincho serif, dark grey.",
+        },
         { key: 'moodKeywords', value: 'quiet luxury, morning freshness, editorial stillness' },
       ];
   }

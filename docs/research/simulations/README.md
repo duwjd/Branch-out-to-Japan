@@ -1,3 +1,13 @@
+---
+title: research/simulations/ — 검증·시뮬 이력
+space: 리서치
+status: 정본
+phase: Phase 0
+updated: 2026-07-09
+owner:
+tags: [인덱스, 시뮬레이션]
+---
+
 # research/simulations/ — 검증·시뮬 이력
 
 합성 페르소나 시뮬레이션·재시뮬·페르소나 검증·핸드오프 등 **과정/이력 기록**이다. 스펙·결정의 **근거**로 참조되며, 결론은 각 스펙·`DECISIONS.md`에 반영되어 있다.

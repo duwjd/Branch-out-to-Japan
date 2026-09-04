@@ -73,7 +73,10 @@ function SlideExport({ id, size = 'md' }: { id: string; size?: 'md' | 'lg' }) {
         {busy ? '만드는 중… (20초쯤 걸려요)' : '보고용 슬라이드 만들기'}
       </button>
       {error && (
-        <p role="alert" className="mt-2 max-w-xs rounded-[8px] border border-danger bg-danger-bg p-2 text-xs text-danger-text">
+        <p
+          role="alert"
+          className="mt-2 max-w-xs rounded-[8px] border border-danger bg-danger-bg p-2 text-xs text-danger-text"
+        >
           {error}
         </p>
       )}
@@ -118,9 +121,15 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       <main className="animate-fade-up flex min-h-[70vh] items-center justify-center px-6 py-12">
         <div className="w-full max-w-[560px]">
           <p className="mb-3.5">
-            <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">← 새 진단</Link>
+            <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">
+              ← 새 진단
+            </Link>
           </p>
-          <div role="status" aria-live="polite" className="rounded-card border border-card-border bg-canvas p-11 text-center shadow-card">
+          <div
+            role="status"
+            aria-live="polite"
+            className="rounded-card border border-card-border bg-canvas p-11 text-center shadow-card"
+          >
             <h1 className="text-xl font-extrabold tracking-[-0.01em] text-ink">진단 리포트를 생성하고 있습니다…</h1>
             <p className="mt-2.5 text-[14.5px] font-semibold text-coral-strong">
               {payload.stage ? (REPORT_STAGE_LABELS[payload.stage] ?? payload.stage) : '대기 중'}
@@ -135,13 +144,18 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
               몇 분 걸릴 수 있습니다. 화면을 떠나도 진행됩니다.
             </p>
             {fetchError && (
-              <p role="alert" className="mt-4 rounded-[8px] border border-danger bg-danger-bg p-2.5 text-xs text-danger-text">
+              <p
+                role="alert"
+                className="mt-4 rounded-[8px] border border-danger bg-danger-bg p-2.5 text-xs text-danger-text"
+              >
                 {fetchError}
               </p>
             )}
           </div>
           {payload.storeKind === 'file' && (
-            <p className="mt-3 text-center"><StatusBadge tone="off">로컬 저장(dev)</StatusBadge></p>
+            <p className="mt-3 text-center">
+              <StatusBadge tone="off">로컬 저장(dev)</StatusBadge>
+            </p>
           )}
         </div>
       </main>
@@ -154,7 +168,9 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       <main className="animate-fade-up flex min-h-[70vh] items-center justify-center px-6 py-12">
         <div className="w-full max-w-[560px]">
           <p className="mb-3.5">
-            <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">← 새 진단</Link>
+            <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">
+              ← 새 진단
+            </Link>
           </p>
           <section role="alert" className="rounded-card border border-danger bg-danger-bg p-8">
             <h1 className="text-lg font-extrabold text-danger-text">✕ 진단 생성에 실패했습니다</h1>
@@ -187,7 +203,9 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       <main className="animate-fade-up">
         <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
           <p className="mb-4">
-            <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">← 새 진단</Link>
+            <Link href="/app/report/new" className="text-[12.5px] font-bold text-coral-strong hover:underline">
+              ← 새 진단
+            </Link>
           </p>
 
           {/* 히어로 */}
@@ -197,7 +215,9 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
                 <span aria-hidden className="inline-block h-0.5 w-[18px] bg-coral" />
                 일본 시장 진입 진단 리포트
               </p>
-              <h1 className="mt-3 text-[36px] leading-[1.15] font-extrabold tracking-[-0.02em] text-ink">{b.block0.brandName}</h1>
+              <h1 className="mt-3 text-[36px] leading-[1.15] font-extrabold tracking-[-0.02em] text-ink">
+                {b.block0.brandName}
+              </h1>
               <p className="mt-2 text-[14.5px] text-ink-mute">
                 {b.block0.productName} · {b.block0.categoryLabel} · 발행 {payload.report.publishedAt?.slice(0, 10)}
               </p>
@@ -206,7 +226,9 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           </div>
 
           {payload.storeKind === 'file' && (
-            <p className="mt-3"><StatusBadge tone="off">로컬 저장(dev)</StatusBadge></p>
+            <p className="mt-3">
+              <StatusBadge tone="off">로컬 저장(dev)</StatusBadge>
+            </p>
           )}
 
           <ReportView blocks={b} slideExportSlot={<SlideExport id={id} size="lg" />} />
@@ -218,7 +240,11 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
   // ── 로딩 전/오류 ─────────────────────────────────────────────────────
   return (
     <main className="animate-fade-up flex min-h-[50vh] items-center justify-center px-6 py-12">
-      {!payload && !fetchError && <p role="status" className="text-sm text-ink-mute">불러오는 중…</p>}
+      {!payload && !fetchError && (
+        <p role="status" className="text-sm text-ink-mute">
+          불러오는 중…
+        </p>
+      )}
       {fetchError && (
         <p role="alert" className="rounded-[10px] border border-danger bg-danger-bg p-3 text-[13px] text-danger-text">
           {fetchError}

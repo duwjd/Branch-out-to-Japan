@@ -1,3 +1,14 @@
+---
+title: 페르소나 검증형 MVP 실행안 (컨시어지 시절)
+space: 리서치
+status: 폐기
+phase: Phase 0
+updated: 2026-07-09
+owner:
+tags: [보존물, 피벗이전]
+superseded_by: 2026-07-02 일본 시장 피벗으로 대체 — 맥락 추적용. docs/research/archive/README.md
+---
+
 ```jsx
 한국 온라인 사업 기회분석 결과를 토대로 생존자들 MVP에서 빌드업 할 수 있는 인사이트가 있는지 검토해줘.
 ```

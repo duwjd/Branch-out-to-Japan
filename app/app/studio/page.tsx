@@ -26,7 +26,11 @@ const ITEMS: StudioMenuItem[] = [
     title: '썸네일 만들기',
     desc: '제품 이미지를 일본향 스타일의 썸네일 이미지로 변환',
     shape: 'stack',
-    images: ['/studio-templates/06-model.jpg', '/studio-templates/07-promo.jpg', '/studio-templates/04-copy-ingredient.jpg'],
+    images: [
+      '/studio-templates/06-model.jpg',
+      '/studio-templates/07-promo.jpg',
+      '/studio-templates/04-copy-ingredient.jpg',
+    ],
     ready: true,
   },
   {
@@ -34,7 +38,11 @@ const ITEMS: StudioMenuItem[] = [
     title: '상세페이지 만들기',
     desc: '한국형 쇼핑몰 상세페이지를 일본향 스타일의 상세페이지로 변환',
     shape: 'row',
-    images: ['/detail-templates/preview-D1-card.webp', '/detail-templates/preview-D2-card.webp', '/detail-templates/preview-D6-card.webp'],
+    images: [
+      '/detail-templates/preview-D1-card.webp',
+      '/detail-templates/preview-D2-card.webp',
+      '/detail-templates/preview-D6-card.webp',
+    ],
     ready: true,
   },
   {
@@ -49,7 +57,8 @@ const ITEMS: StudioMenuItem[] = [
 
 /** 겹쳐 놓은 정사각 참고 컷 3장 — 좌우가 살짝 기울고 가운데가 위로 올라온다 */
 function StackPreview({ images, alt }: { images: string[]; alt: string }) {
-  const box = 'absolute size-[171px] rounded-[8px] border border-line-neutral object-cover shadow-[0px_8px_12px_6px_rgba(0,0,0,0.15),0px_4px_4px_0px_rgba(0,0,0,0.3)]';
+  const box =
+    'absolute size-[171px] rounded-[8px] border border-line-neutral object-cover shadow-[0px_8px_12px_6px_rgba(0,0,0,0.15),0px_4px_4px_0px_rgba(0,0,0,0.3)]';
   return (
     <div aria-hidden className="relative h-[190px] w-[513px] max-w-full">
       {/* eslint-disable @next/next/no-img-element */}

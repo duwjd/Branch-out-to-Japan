@@ -1,3 +1,13 @@
+---
+title: 온보딩(브랜드 미등록 first-run) · 상태 커버리지 UI 기획
+space: 화면 스펙
+status: 초안
+phase: Phase 0
+updated: 2026-07-23
+owner:
+tags: [UI기획, 온보딩]
+---
+
 # 온보딩(브랜드 미등록 first-run) · 상태 커버리지 UI 기획
 
 | **작성일** | **작성자** | **비고** |

@@ -1,3 +1,13 @@
+---
+title: 디자인 시스템 (확정 · YOAKE 일출 코랄)
+space: 디자인
+status: 정본
+phase: Phase 0
+updated: 2026-08-19
+owner:
+tags: [디자인, 토큰]
+---
+
 # 디자인 시스템 (확정 · YOAKE 일출 코랄)
 
 > **2026-08-18 전환.** 정본은 `LP_Components` 시트 → [references/LP_Components.svg](references/LP_Components.svg), 실측 스펙 [lp-components-spec.md](lp-components-spec.md), 결정 근거 [2026-08-18-일출코랄-DS전환.md](../docs/decisions/2026-08-18-일출코랄-DS전환.md).

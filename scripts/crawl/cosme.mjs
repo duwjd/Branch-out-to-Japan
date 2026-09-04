@@ -93,7 +93,11 @@ async function main() {
           queue.push(link);
         }
       }
-      logger.info('수집', { url: url.replace('https://www.cosme.net', ''), totalTerms: terms.size, queued: queue.length });
+      logger.info('수집', {
+        url: url.replace('https://www.cosme.net', ''),
+        totalTerms: terms.size,
+        queued: queue.length,
+      });
       await sleep(NAV_DELAY_MS);
     }
   } finally {

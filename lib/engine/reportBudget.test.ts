@@ -11,13 +11,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import {
-  HUMANIZE_MIN_MS,
-  REPORT_BUDGET_MS,
-  SAVE_RESERVE_MS,
-  callTimeout,
-  canHumanize,
-} from './reportBudget';
+import { HUMANIZE_MIN_MS, REPORT_BUDGET_MS, SAVE_RESERVE_MS, callTimeout, canHumanize } from './reportBudget';
 
 test('예산 시작 시점에는 단계 상한을 그대로 준다', () => {
   // 270초 남은 상태 — 저장 몫(20초)을 빼도 250초라 단계 상한이 그대로 통과한다

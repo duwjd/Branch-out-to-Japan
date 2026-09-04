@@ -6,7 +6,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  assembleBlockSlots,
   buildBlockPrompt,
+  createFootnoteRegistry,
   getBlock,
   getDetailPack,
   planBlocks,
@@ -40,7 +42,13 @@ function fullInput(over: Partial<DetailInput> = {}): DetailInput {
     productCategory: 'skincare',
     sourceImagePaths: [],
     disabledBlocks: [],
-    spec: { volume: '30mL', category: '化粧品', manufacturer: '株式会社YOAKE', origin: '韓国', fullIngredients: '水、BG、グリセリン' },
+    spec: {
+      volume: '30mL',
+      category: '化粧品',
+      manufacturer: '株式会社YOAKE',
+      origin: '韓国',
+      fullIngredients: '水、BG、グリセリン',
+    },
     ingredients: [{ name: 'グリシルグリシン', percent: '6%', purpose: '整肌成分' }],
     freeOf: ['合成香料', '鉱物油'],
     specs: [{ label: 'SPF', value: '50+' }],
@@ -49,11 +57,23 @@ function fullInput(over: Partial<DetailInput> = {}): DetailInput {
     cautions: ['お肌に異常が生じないかよく注意してご使用ください。'],
     proof: { rankTitle: '楽天ランキング1位', genre: '美容液', aggregationDate: '2026/7/14更新' },
     sales: { count: '163,991個', period: '2022.5/19-2026.4/29' },
-    test: { name: '効能評価試験済み', condition: '連用試験', institution: '第三者機関', date: '2026.04.15', sampleSize: '21名' },
+    test: {
+      name: '効能評価試験済み',
+      condition: '連用試験',
+      institution: '第三者機関',
+      date: '2026.04.15',
+      sampleSize: '21名',
+    },
     reviews: [{ text: '使い心地がよかったです。', rating: '5', age: '30代' }],
     promo: {
-      setTitle: '2個セット', salePrice: '1,920', normalPrice: '2,610',
-      normalPriceVerified: true, discountRate: '26', gift: '', qualifierChips: [], footnote: '',
+      setTitle: '2個セット',
+      salePrice: '1,920',
+      normalPrice: '2,610',
+      normalPriceVerified: true,
+      discountRate: '26',
+      gift: '',
+      qualifierChips: [],
+      footnote: '',
     },
     modelConsent: false,
     ...over,
@@ -154,7 +174,12 @@ test('planBlocks — 옵션 개수에 따라 색상 블록이 단계적으로 �
 
 test('planBlocks — 비색상 옵션 2개 이상이면 라인업 비교가 붙는다', () => {
   const r = planBlocks(
-    fullInput({ options: [{ axis: 'size', name: '175mL' }, { axis: 'size', name: '450mL' }] }),
+    fullInput({
+      options: [
+        { axis: 'size', name: '175mL' },
+        { axis: 'size', name: '450mL' },
+      ],
+    }),
     'rakuten-official',
   );
   assert.ok(idsOf(r).includes('lineup-compare-chart'));
@@ -230,10 +255,7 @@ test('제품 노출 정책 — AI 블록은 전부 source·none 중 하나를 �
   const aiBlocks = getDetailPack().blockCatalog.filter((b) => b.renderKind !== 'text');
   assert.ok(aiBlocks.length > 0, 'AI 블록이 하나도 없음');
   for (const b of aiBlocks) {
-    assert.ok(
-      b.productPresence === 'source' || b.productPresence === 'none',
-      `${b.id}: productPresence 미지정`,
-    );
+    assert.ok(b.productPresence === 'source' || b.productPresence === 'none', `${b.id}: productPresence 미지정`);
   }
 });
 
@@ -278,7 +300,12 @@ test('슬롯 설명 — 번호 배지는 코드 소유임을 팩이 명시한다
 
 const ALL_TEMPLATES: TemplateId[] = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6'];
 const ALL_CATEGORIES: DetailInput['productCategory'][] = [
-  'skincare', 'suncare', 'makeup', 'cleansing', 'haircare', 'etc',
+  'skincare',
+  'suncare',
+  'makeup',
+  'cleansing',
+  'haircare',
+  'etc',
 ];
 
 /** 그 샷타입을 만드는 블록이 **배경컷을 받은 채로**(text 강등이 아니라) 들어갔는가. */
@@ -375,14 +402,25 @@ test('AI 예산 — 결정성: 같은 입력이면 같은 시퀀스와 같은 �
   const a = mk();
   const b = mk();
   assert.deepEqual(idsOf(a), idsOf(b));
-  assert.deepEqual(a.blocks.map((x) => x.renderKind), b.blocks.map((x) => x.renderKind));
+  assert.deepEqual(
+    a.blocks.map((x) => x.renderKind),
+    b.blocks.map((x) => x.renderKind),
+  );
 });
 
 // ── 연출 문법 · 드라마 친화도 ─────────────────────────────────────────
 
 test('shotGrammar — 같은 컷이라도 카테고리마다 연출이 갈린다', () => {
-  const skin = buildBlockPrompt('texture-shot', { textureDescription: 'x' }, { ...promptCtx(false), category: 'skincare' });
-  const sun = buildBlockPrompt('texture-shot', { textureDescription: 'x' }, { ...promptCtx(false), category: 'suncare' });
+  const skin = buildBlockPrompt(
+    'texture-shot',
+    { textureDescription: 'x' },
+    { ...promptCtx(false), category: 'skincare' },
+  );
+  const sun = buildBlockPrompt(
+    'texture-shot',
+    { textureDescription: 'x' },
+    { ...promptCtx(false), category: 'suncare' },
+  );
   assert.notEqual(skin, sun, '카테고리가 달라도 제형컷 지시가 같다');
   assert.match(sun, /white cast|sunlight/i, '선케어 제형컷에 백탁·직사광 문법이 없다');
 });
@@ -446,4 +484,35 @@ test('팩 무결성 — 샷 정체성·연출 문법·샷 플랜이 서로 어�
       assert.ok(shots.has(shot), `categoryShotPlan[${category}] 의 ${shot} 를 만드는 블록이 없다`);
     }
   }
+});
+
+// ── 히어로 상품명·아이브로우 (UT-25 · UT-33) ────────────────────────────────
+// 콜⑦은 상품명을 지어낸다. 실제로 토너를 エッセンス 로 바꿔 불렀다(UT-33). 그래서 상품명은
+// 선택한 제품의 것으로 **코드가 덮어쓴다** — 법적 게이트가 사는 자리와 같은 곳이다.
+
+/** 히어로 슬롯을 조립한다. LLM 이 상품명을 지어냈다고 가정하고 넣는다 */
+function heroSlots(over: Partial<DetailInput>, llm: Record<string, string> = {}) {
+  const plan = planBlocks(fullInput(over), 'unset', 'D1', []).blocks.find((b) => b.blockId === 'hero-product');
+  assert.ok(plan, '히어로는 어떤 템플릿에도 반드시 있다');
+  return assembleBlockSlots(plan, { productNameJa: 'エッセンス', ...llm }, fullInput(over), createFootnoteRegistry());
+}
+
+test('히어로 상품명 — 등록된 일본어 제품명이 LLM 산출을 덮는다 (UT-33)', () => {
+  const out = heroSlots({ productNameJa: 'シカ鎮静アンプル' });
+  assert.equal(out.productNameJa, 'シカ鎮静アンプル', '제품 타입을 추론하지 않는다');
+});
+
+test('히어로 상품명 — 등록된 이름이 없으면 비운다. 지어낸 이름을 남기지 않는다 (UT-33)', () => {
+  const out = heroSlots({});
+  assert.equal(out.productNameJa, '', '지어낸 상품명이 그대로 나가면 다른 제품이 된다');
+});
+
+test('히어로 기능 라벨 — 医薬部外品 만 코드가 세운다', () => {
+  const yes = heroSlots({ spec: { ...fullInput().spec, category: '医薬部外品' } });
+  assert.equal(yes.functionLabelJa, '医薬部外品');
+
+  // 化粧品 이면 LLM 값이 있으면 그대로, 없으면 빈 문자열 — **한국어 브랜드명으로 채우지 않는다**.
+  // 렌더 쪽 폴백은 templates.tsx 가 제거했다(UT-25 · 12건 중 11건 재현).
+  const no = heroSlots({}, { functionLabelJa: '' });
+  assert.equal(no.functionLabelJa ?? '', '');
 });

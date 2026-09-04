@@ -133,11 +133,17 @@ describe('LANGUAGE_POLICY — 실측 표류를 잡는다', () => {
   });
 
   it('일본어여야 하는 objections[].question 은 위반이 아니다', () => {
-    assert.equal(report.violations.some((v) => v.path === 'objections[0].question'), false);
+    assert.equal(
+      report.violations.some((v) => v.path === 'objections[0].question'),
+      false,
+    );
   });
 
   it('빈 값(priceSensitivity)은 위반으로 세지 않는다 — 정당한 빈 값이 있다', () => {
-    assert.equal(report.violations.some((v) => v.path === 'persona.priceSensitivity'), false);
+    assert.equal(
+      report.violations.some((v) => v.path === 'persona.priceSensitivity'),
+      false,
+    );
   });
 
   it('교정 지시에 위반 경로가 그대로 담긴다', () => {

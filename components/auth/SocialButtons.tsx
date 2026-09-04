@@ -70,9 +70,24 @@ interface SocialButtonSpec {
 }
 
 const BUTTONS: SocialButtonSpec[] = [
-  { provider: 'kakao', label: '카카오로 계속하기', className: 'bg-[#FEE500] text-[#191919] hover:bg-[#F2DA00]', Symbol: KakaoSymbol },
-  { provider: 'naver', label: '네이버로 계속하기', className: 'bg-[#03C75A] text-white hover:bg-[#02B350]', Symbol: NaverSymbol },
-  { provider: 'google', label: 'Google로 계속하기', className: 'border border-input-border bg-canvas text-ink-body hover:bg-n-50', Symbol: GoogleSymbol },
+  {
+    provider: 'kakao',
+    label: '카카오로 계속하기',
+    className: 'bg-[#FEE500] text-[#191919] hover:bg-[#F2DA00]',
+    Symbol: KakaoSymbol,
+  },
+  {
+    provider: 'naver',
+    label: '네이버로 계속하기',
+    className: 'bg-[#03C75A] text-white hover:bg-[#02B350]',
+    Symbol: NaverSymbol,
+  },
+  {
+    provider: 'google',
+    label: 'Google로 계속하기',
+    className: 'border border-input-border bg-canvas text-ink-body hover:bg-n-50',
+    Symbol: GoogleSymbol,
+  },
 ];
 
 export function SocialButtons() {

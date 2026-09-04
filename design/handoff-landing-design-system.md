@@ -1,3 +1,14 @@
+---
+title: Handoff — Landing Design System (Phase 1)
+space: 디자인
+status: 이력
+phase: Phase 0
+updated: 2026-08-31
+owner:
+tags: [디자인, 랜딩, 핸드오프]
+superseded_by: design/lp-components-spec.md (색값 한정 — CTA 정책·node id 는 계속 유효)
+---
+
 # Handoff — Landing Design System (Phase 1)
 
 > **⚠ 색값은 전환 이전 기록이다 (2026-08-18).** 이 문서의 코랄 팔레트(`#FF6464`·`#D93636`·`#FFF8F8`)는 폐기됐다.
@@ -16,7 +27,7 @@
 - **Stibee coral palette 반영** — primary `#FF6464` 등 coral 팔레트로 재정의.
 - **접근성 토큰 추가** — `primary-strong #D93636` (interactive용, white 텍스트 AA ≈4.6:1). 적용값(CTA/link/focus/selection/active)까지 정리.
 - **Figma Color System 보드 완성** — `Color System — Stibee Coral` 페이지(Primitive/Semantic/Component/Marketing/Do·Don't). 스와치는 Variables에 바인딩(승격) 완료.
-- **Phase 1 랜딩용 최소 디자인 시스템 구축** — Variables/Styles + Core/Section 컴포넌트 + Landing draft.
+- **Phase 1 랜딩용 최소 디자인 시스템 구축**(※ 여기서 "Phase 1" 은 **폐기된 컨시어지 로드맵**의 단계다 — 현행 [[../docs/04-roadmap]] Phase 0/1 과 무관) — Variables/Styles + Core/Section 컴포넌트 + Landing draft.
 - **페이지 생성** — Foundations / Components / Sections / Landing.
 - **`design/design-system-plan.md` 커밋 완료** (계획 + as-built 결과, node id 포함).
 

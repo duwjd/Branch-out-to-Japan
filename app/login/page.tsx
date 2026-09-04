@@ -17,7 +17,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="main-glow flex min-h-screen flex-col items-center justify-center px-6 py-12">
       {expired === '1' && (
-        <div role="status" className="mb-3.5 w-full max-w-[400px] rounded-[10px] border border-amber bg-amber-bg px-3.5 py-3 text-[12.5px] leading-relaxed text-amber-text animate-fade-up">
+        <div
+          role="status"
+          className="mb-3.5 w-full max-w-[400px] rounded-[10px] border border-amber bg-amber-bg px-3.5 py-3 text-[12.5px] leading-relaxed text-amber-text animate-fade-up"
+        >
           세션이 만료되었습니다 △ — 다시 로그인해 주세요.
         </div>
       )}

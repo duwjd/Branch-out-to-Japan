@@ -67,7 +67,9 @@ export function VerifyEmailCard({ token }: { token: string | null }) {
       <p className="text-center text-[18px] font-extrabold tracking-[-0.01em] text-ink">
         {status === 'noToken' ? '인증 링크가 올바르지 않습니다' : '링크가 만료되었거나 유효하지 않습니다'}
       </p>
-      <p className="mt-2 text-center text-[13px] leading-relaxed text-ink-mute">인증 메일을 다시 받으려면 가입한 이메일을 입력해 주세요.</p>
+      <p className="mt-2 text-center text-[13px] leading-relaxed text-ink-mute">
+        인증 메일을 다시 받으려면 가입한 이메일을 입력해 주세요.
+      </p>
       <label htmlFor="vf-email" className={`${fieldLabelClass} mt-5`}>
         이메일
       </label>

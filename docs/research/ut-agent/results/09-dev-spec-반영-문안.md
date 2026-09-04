@@ -1,3 +1,14 @@
+---
+title: "`docs/09-dev-spec.md` 반영 문안 (제안) — UT P0 대응"
+space: 검증·실험
+status: 이력
+phase: Phase 0
+updated: 2026-08-21
+owner:
+tags: [UT, 제안문안]
+superseded_by: docs/09-dev-spec.md (반영 완료 2026-08-21)
+---
+
 # `docs/09-dev-spec.md` 반영 문안 (제안) — UT P0 대응
 
 > ✅ **2026-08-21 반영 완료.** 아래 문안은 [[../../../09-dev-spec]] §4d · §1 · §5 · 변경 이력에 들어갔다. **이 파일은 그 제안본의 이력 보존용이며, 정본은 `docs/09-dev-spec.md` 다.**

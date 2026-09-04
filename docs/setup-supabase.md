@@ -1,3 +1,13 @@
+---
+title: Supabase 셋업 (4단계 · 약 7분)
+space: 설계·개발
+status: 정본
+phase: Phase 0
+updated: 2026-08-24
+owner:
+tags: [배포, Supabase, 셋업]
+---
+
 # Supabase 셋업 (4단계 · 약 7분)
 
 > 저장 계층 기본안(08 §8-D1). **키를 채우기 전까지는 `.data/` 로컬 파일 스토어로 자동 폴백**되며, 화면에 "로컬 저장(dev)" 배지가 표시된다. 배포(프로덕션)에서는 폴백이 동작하지 않으므로 필수([[11-deploy-spec]] §1).

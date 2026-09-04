@@ -1,3 +1,14 @@
+---
+title: Design System Build Plan — Phase 1 Landing (최소치)
+space: 디자인
+status: 이력
+phase: Phase 0
+updated: 2026-08-19
+owner:
+tags: [디자인, 토큰]
+superseded_by: design/design-system.md
+---
+
 # Design System Build Plan — Phase 1 Landing (최소치)
 
 > **⚠ 색값은 전환 이전 기록이다 (2026-08-18).** 이 문서의 코랄 팔레트(`#FF6464`·`#D93636`·`#FFF8F8`)는 폐기됐다.

@@ -1,3 +1,13 @@
+---
+title: 01 · 경쟁사 리서치
+space: 전략·제품
+status: 정본
+phase: Phase 0
+updated: 2026-07-04
+owner:
+tags: [경쟁, 리서치]
+---
+
 # 01 · 경쟁사 리서치
 
 > 팀 초기 리서치 원문을 자산으로 보존한 문서. 결론은 [[00-positioning]] 에 요약되어 있다.

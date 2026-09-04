@@ -85,7 +85,10 @@ describe('checkReportReadiness — 점검이 진단을 막지 않는다', () => 
         .then((r) => { process.stdout.write(JSON.stringify(r.checks.find((c) => c.key === 'store'))); })
         .catch((e) => { process.stdout.write('THREW:' + e.message); });
     `;
-    const out = execFileSync(process.execPath, ['-e', script], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    const out = execFileSync(process.execPath, ['-e', script], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
 
     assert.ok(!out.startsWith('THREW:'), `점검이 예외로 새어 나갔다: ${out}`);
     const store = JSON.parse(out);
