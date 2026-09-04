@@ -104,7 +104,7 @@ export function shortTitle(issue, max = 44) {
 // ---------------------------------------------------------------- 스프린트 문서
 
 /**
- * 스프린트 문서 파일명 규칙 (docs/sprints/README.md §규칙) — `YYYY-MM-{phase}.md`.
+ * 스프린트 문서 파일명 규칙 (docs/sprints/README.md §규칙) — `YYYY-MM-sp{n}.md`.
  * 이 패턴으로 좁히지 않으면 폴더에 같이 사는 가이드·회고 문서가 스프린트로 오인된다.
  * (한글 파일명은 숫자보다 뒤로 정렬돼 이름순 마지막을 가로챈다.)
  */
@@ -112,7 +112,7 @@ const SPRINT_DOC_RE = /^\d{4}-\d{2}-.+\.md$/;
 
 /**
  * 현재 스프린트 문서를 찾는다 — 파일명 규칙에 맞는 것 중 이름순 마지막.
- * 파일명이 YYYY-MM-{phase}.md 라 이름순이 곧 시간순이다.
+ * 파일명이 YYYY-MM-sp{n}.md 라 이름순이 곧 시간순이다.
  * @returns {{path: string, text: string, name: string} | null}
  */
 export function readSprintDoc() {

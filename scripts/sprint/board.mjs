@@ -36,7 +36,7 @@ function milestoneDescriptions(issues) {
   return map;
 }
 
-/** 문서 제목에서 기간만 뽑는다 — "스프린트 · Phase 1 (2026-08-31 ~ 09-11)" → 뒤 괄호. */
+/** 문서 제목에서 기간만 뽑는다 — "스프린트 · SP1 (2026-08-31 ~ 09-04)" → 뒤 괄호. */
 function sprintHeading() {
   const doc = readSprintDoc();
   if (!doc) return { title: '스프린트', period: '' };
