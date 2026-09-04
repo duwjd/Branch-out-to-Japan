@@ -49,14 +49,17 @@ export async function GET(request: Request): Promise<NextResponse> {
   const summaries = await store.listAssets(brand.id);
   const lastDone = summaries.find((a) => a.kind === 'detail' && a.status === 'done' && a.productId === productId);
   let lastAssetAt: string | null = null;
-  if (lastDone) {
-    // 목록 요약에는 detailInput 이 없다(무거운 jsonb 는 빠져 있다) — 전체 레코드를 따로 받는다
-    const full = await store.getAsset(lastDone.id);
-    if (full?.detailInput) {
-      // ⚠ 저장된 입력은 **일본어**다. 한국어 폼에 그대로 넣지 않는다 — sourceKo 로 되돌린다
-      put(toFormFields(restoreKoreanInput(full.detailInput)), 'lastAsset');
-      lastAssetAt = full.createdAt;
-    }
+  /** 지난 생성에서 이어받을 **선택**(칸이 아니라 라디오·카드다) — 화면이 setState 로 적용한다 */
+  let lastChoice: { templateId: string; platform: string } | null = null;
+  // 목록 요약에는 detailInput 이 없다(무거운 jsonb 는 빠져 있다) — 전체 레코드를 따로 받는다
+  const full = lastDone ? await store.getAsset(lastDone.id) : null;
+  if (full?.detailInput) {
+    // ⚠ 저장된 입력은 **일본어**다. 한국어 폼에 그대로 넣지 않는다 — sourceKo 로 되돌린다
+    put(toFormFields(restoreKoreanInput(full.detailInput)), 'lastAsset');
+    lastAssetAt = full.createdAt;
+    // `styleCategory` 가 곧 템플릿 ID 다(`runDetailJob` 이 그렇게 읽는다). 채널도 같이 잇는다 —
+    // 이 둘이 빠지면 2회차에도 카드를 다시 고르게 되어 「제품 선택 하나」가 성립하지 않는다.
+    lastChoice = { templateId: full.styleCategory, platform: full.platform };
   }
 
   // ② 제품 자산 — `products.category` 는 자유 텍스트("토너"·"앰플"…)라 폼의 6종과 다르다.
@@ -81,5 +84,6 @@ export async function GET(request: Request): Promise<NextResponse> {
     sources,
     /** 지난 생성이 언제였는지 — 화면이 "8/21 생성분에서 가져왔습니다"로 말한다 */
     lastAssetAt,
+    lastChoice,
   });
 }

@@ -128,7 +128,13 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   // DETAIL-01b·01c — 제품 선택과 지난 입력 프리필
   const [productId, setProductId] = useState('');
   const [product, setProduct] = useState<ProductOption | null>(null);
-  const [prefill, setPrefill] = useState<{ count: number; lastAssetAt: string | null } | null>(null);
+  const [prefill, setPrefill] = useState<{ count: number; lastAssetAt: string | null; choice: boolean } | null>(null);
+  /**
+   * 지금 제품컷이 **자동으로 넣은 대표컷**인가. 제품을 바꿀 때 교체 여부를 이 값이 가른다 —
+   * 사용자가 직접 올린 사진을 말없이 갈아치우면 안 되고, 자동으로 넣은 이전 제품 사진을
+   * 그대로 두어도 안 된다(엉뚱한 제품으로 생성된다).
+   */
+  const autoPrimaryRef = useRef(false);
   // 제품컷과 KR 상세 원본은 쓰임이 다르다 — 제품컷만 images.edit 의 base가 되고,
   // KR 원본은 비전(갭 진단) 입력으로만 간다. 한 칸으로 받으면 순서에 따라 결과가 흔들린다.
   const [productFile, setProductFile] = useState<File | null>(null);
@@ -201,6 +207,15 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   /** 템플릿 프리뷰 확대 — 카드는 상단만 보여주므로 전체를 볼 길이 있어야 한다 */
   const [zoom, setZoom] = useState<TemplateCard | null>(null);
 
+  /**
+   * 현재 선택의 거울. `applyPrefill` 은 deps 가 비어 있어(제품이 바뀔 때마다 새로 만들 이유가 없다)
+   * state 를 직접 읽지 못하므로, "이미 골랐는가" 판정을 이 두 ref 로 한다.
+   */
+  const templateIdRef = useRef(templateId);
+  templateIdRef.current = templateId;
+  const platformRef = useRef(platform);
+  platformRef.current = platform;
+
   const selected = useMemo(() => templates.find((t) => t.id === templateId) ?? null, [templates, templateId]);
   const amazonSelected = platform === 'amazon-jp';
 
@@ -229,24 +244,35 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   const acceptProduct = useCallback(
     (incoming: FileList | null) => {
       const file = incoming?.[0];
-      if (file) acceptProductFile(file);
+      if (!file) return;
+      acceptProductFile(file);
+      autoPrimaryRef.current = false;
     },
     [acceptProductFile],
   );
 
-  /** 제품 자산의 대표컷을 제품컷 칸으로 가져온다(DETAIL-02 2d) — 매번 다시 올리지 않게 */
-  const useProductPrimary = useCallback(async () => {
-    const primary = product?.images.find((im) => im.isPrimary) ?? product?.images[0];
-    if (!primary) return;
-    try {
-      const res = await fetch(bytesUrl(`/api/files/${primary.fileId}`));
-      if (!res.ok) return;
-      const blob = await res.blob();
-      acceptProductFile(new File([blob], `${product?.nameKr || 'product'}.png`, { type: blob.type }));
-    } catch {
-      // 대표컷 재사용 실패는 생성을 막지 않는다 — 직접 올리는 길이 그대로 열려 있다
-    }
-  }, [product, acceptProductFile]);
+  /**
+   * 제품 자산의 대표컷을 제품컷 칸으로 가져온다(DETAIL-02 2d) — 매번 다시 올리지 않게.
+   * @param target 대상 제품. 생략하면 현재 선택. **제품을 고른 직후에는 반드시 넘긴다** —
+   *   그 시점의 `product` state 는 아직 이전 값이라 엉뚱한 사진을 가져온다.
+   */
+  const useProductPrimary = useCallback(
+    async (target?: ProductOption | null) => {
+      const p = target ?? product;
+      const primary = p?.images.find((im) => im.isPrimary) ?? p?.images[0];
+      if (!primary) return;
+      try {
+        const res = await fetch(bytesUrl(`/api/files/${primary.fileId}`));
+        if (!res.ok) return;
+        const blob = await res.blob();
+        acceptProductFile(new File([blob], `${p?.nameKr || 'product'}.png`, { type: blob.type }));
+        autoPrimaryRef.current = true;
+      } catch {
+        // 대표컷 재사용 실패는 생성을 막지 않는다 — 직접 올리는 길이 그대로 열려 있다
+      }
+    },
+    [product, acceptProductFile],
+  );
 
   /**
    * 프리필 적용(DETAIL-01c). 폼이 비제어 DOM 이라 값을 직접 넣는다.
@@ -259,7 +285,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     try {
       const res = await fetch(`/api/studio/detail/prefill?productId=${encodeURIComponent(pid)}`);
       if (!res.ok) return;
-      const data = (await res.json()) as { fields: Record<string, string>; lastAssetAt: string | null };
+      const data = (await res.json()) as {
+        fields: Record<string, string>;
+        lastAssetAt: string | null;
+        lastChoice: { templateId: string; platform: string } | null;
+      };
       const el = formRef.current;
       if (!el) return;
       let count = 0;
@@ -283,7 +313,23 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
         field.classList.add('bg-coral-tint');
         count += 1;
       }
-      setPrefill({ count, lastAssetAt: data.lastAssetAt });
+      // 템플릿·채널은 칸이 아니라 **선택**이라 setState 로 간다. 아직 고르지 않았을 때만 —
+      // 사용자가 이미 고른 것을 지난 값으로 되돌리면 조작을 빼앗는 셈이 된다.
+      // ⚠ 판정을 setState 업데이터 안에서 하지 않는다 — 업데이터는 호출 시점이 아니라 렌더
+      //   시점에 돌아서, 바로 아래 `setPrefill` 이 항상 choice=false 를 보게 된다.
+      let choice = false;
+      const last = data.lastChoice;
+      if (last) {
+        if (!templateIdRef.current && last.templateId) {
+          setTemplateId(last.templateId);
+          choice = true;
+        }
+        if (platformRef.current === 'unset' && last.platform && last.platform !== 'unset') {
+          setPlatform(last.platform as Platform);
+          choice = true;
+        }
+      }
+      setPrefill({ count, lastAssetAt: data.lastAssetAt, choice });
     } catch {
       // 프리필 실패가 생성을 막지 않는다 — 채우기는 편의이고 입력은 사용자 것이다
     }
@@ -302,16 +348,25 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     setPrefill(null);
   }, []);
 
-  /** 제품을 고르면 프리필이 돌고 대표컷 재사용 안내가 뜬다 */
+  /**
+   * 제품을 고르면 프리필이 돌고 **대표컷이 자동으로 들어간다.**
+   * 자동으로 넣는 이유: 목표 2의 판정이 「필수 입력이 제품 선택 하나로 끝난다」이고,
+   * 버튼을 한 번 더 누르게 하면 그 판정이 성립하지 않는다.
+   * 직접 올린 사진은 건드리지 않고, 자동으로 넣었던 사진만 새 제품 것으로 바꾼다.
+   */
   const selectProduct = useCallback(
     (p: ProductOption | null) => {
       setProductId(p?.id ?? '');
       setProduct(p);
       setError(null);
-      if (p) void applyPrefill(p.id);
-      else setPrefill(null);
+      if (!p) {
+        setPrefill(null);
+        return;
+      }
+      void applyPrefill(p.id);
+      if (!productFile || autoPrimaryRef.current) void useProductPrimary(p);
     },
-    [applyPrefill],
+    [applyPrefill, productFile, useProductPrimary],
   );
 
   const clearProduct = useCallback(() => {
@@ -320,6 +375,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       return null;
     });
     setProductFile(null);
+    autoPrimaryRef.current = false;
     if (productRef.current) productRef.current.value = '';
   }, []);
 
@@ -531,21 +587,28 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
             desc="어느 제품인지 먼저 고르세요. 같은 제품으로 다시 만들 때 지난 입력을 그대로 가져옵니다."
           >
             <ProductPicker value={productId} onSelect={selectProduct} />
-            {prefill && prefill.count > 0 && (
+            {prefill && (prefill.count > 0 || prefill.choice) && (
               <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg bg-coral-tint px-4 py-3">
                 <p className="flex-1 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
-                  <b>지난 생성에서 {prefill.count}개 칸을 가져왔습니다.</b>
-                  {prefill.lastAssetAt
-                    ? ` (${new Date(prefill.lastAssetAt).toLocaleDateString('ko-KR')} 생성분)`
-                    : ''}{' '}
-                  색이 들어간 칸이 가져온 값입니다. 그대로 두거나 고쳐 쓰세요.
+                  <b>
+                    지난 생성에서{' '}
+                    {[prefill.count > 0 ? `${prefill.count}개 칸` : '', prefill.choice ? '템플릿·채널' : '']
+                      .filter(Boolean)
+                      .join('과 ')}
+                    을 가져왔습니다.
+                  </b>
+                  {prefill.lastAssetAt ? ` (${new Date(prefill.lastAssetAt).toLocaleDateString('ko-KR')} 생성분)` : ''}{' '}
+                  {prefill.count > 0 ? '색이 들어간 칸이 가져온 값입니다. 그대로 두거나 고쳐 쓰세요.' : ''}
+                  {prefill.choice ? ' 템플릿·채널은 아래에서 바꿀 수 있습니다.' : ''}
                 </p>
-                <button type="button" onClick={clearPrefill} className={buttonClass('secondary', 'sm')}>
-                  가져온 값 지우기
-                </button>
+                {prefill.count > 0 && (
+                  <button type="button" onClick={clearPrefill} className={buttonClass('secondary', 'sm')}>
+                    가져온 값 지우기
+                  </button>
+                )}
               </div>
             )}
-            {prefill && prefill.count === 0 && (
+            {prefill && prefill.count === 0 && !prefill.choice && (
               <p className="mt-4 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
                 이 제품의 첫 상세페이지입니다. 아래 항목을 채워 주세요.
               </p>
