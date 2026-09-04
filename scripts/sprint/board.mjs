@@ -23,6 +23,7 @@ import {
   STATUS_ORDER,
   sortMilestones,
   hasFlag,
+  parseBoardRows,
 } from './lib.mjs';
 
 /** 라벨 설명에서 마일스톤 한 줄 설명을 모은다 (M13 → "상세페이지 시간 예산"). */
@@ -45,9 +46,32 @@ function sprintHeading() {
   return { title: title.replace(/\s*\([^)]*\)\s*$/, ''), period: m ? m[1] : '' };
 }
 
+/**
+ * 이번 스프린트의 이슈만 남긴다 — §작업 보드가 가리키는 번호가 곧 이 스프린트의 범위다.
+ *
+ * 이렇게 좁히지 않으면 완료율이 "지금까지 닫은 전부 / 지금까지 만든 전부"가 되어,
+ * **새 스프린트 0일차에 41% 완료 같은 숫자가 뜬다**(SP2 시작 시 실제로 그랬다).
+ * 첫 스프린트에서는 두 값이 우연히 같아 드러나지 않았다.
+ *
+ * 보드에 이슈 링크가 하나도 없으면(문서를 아직 안 썼다면) 좁히지 않고 전부 보여준다 —
+ * 화면이 텅 비는 것보다 낫다.
+ */
+function scopeToSprint(issues) {
+  const doc = readSprintDoc();
+  if (!doc) return issues;
+  const numbers = new Set(
+    parseBoardRows(doc.text)
+      .map((r) => r.issueNumber)
+      .filter(Boolean),
+  );
+  if (numbers.size === 0) return issues;
+  return issues.filter((i) => numbers.has(i.number));
+}
+
 function main() {
   const compact = hasFlag(process.argv.slice(2), '--compact');
-  const { issues, meta } = readCache();
+  const { issues: allIssues, meta } = readCache();
+  const issues = scopeToSprint(allIssues);
   const { title, period } = sprintHeading();
   const descriptions = milestoneDescriptions(issues);
 
