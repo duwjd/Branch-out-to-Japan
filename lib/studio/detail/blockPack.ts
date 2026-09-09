@@ -161,6 +161,12 @@ export interface ExcludedBlock {
   reason: string;
   /** 어떤 입력을 채우면 살아나는지(없으면 입력으로 해결 불가) */
   fixHint: string | null;
+  /**
+   * 이 블록을 되살리는 **폼 필드 `name`** 목록(DETAIL-01e 1e-5).
+   * 화면은 이 배열을 따라 그 블록에 필요한 칸만 연다.
+   * **빈 배열 = 입력으로 되살릴 수 없다** — 보드가 ⛔ 로 분류하는 기준이 이 길이다.
+   */
+  fields: string[];
 }
 
 export interface BlockPlanResult {
@@ -245,8 +251,70 @@ function nonColorOptionCount(input: DetailInput): number {
   return input.options.filter((o) => o.axis !== 'color').length;
 }
 
+/** 그룹이 다 차야 블록이 서는 근거들 — 한 칸만 가리키면 채워도 블록이 붙지 않는다. */
+const PROOF_FIELDS = ['proofRankTitle', 'proofGenre', 'proofDate'];
+const SALES_FIELDS = ['salesCount', 'salesPeriod'];
+const TEST_FIELDS = ['testName', 'testInstitution', 'testDate', 'testSampleSize'];
+const PROMO_FIELDS = ['promoSetTitle', 'promoSalePrice'];
+
+/**
+ * requires 토큰 → 그 토큰을 푸는 **폼 필드 `name`**(DETAIL-01e 1e-5).
+ *
+ * 사람이 읽는 라벨(`fixHint: '성분 데이터'`)만으로는 화면이 해당 입력으로 데려갈 수 없다.
+ * 필드 이름의 정본은 `lib/server/detailForm.ts` 의 파서다 — 한쪽에서만 바꾸면 보드가 엉뚱한 칸을 연다.
+ *
+ * **빈 배열은 "입력으로 되살릴 수 없다"는 뜻**이고 보드가 ⛔ 로 분류한다.
+ */
+const REQUIREMENT_FIELDS: Record<string, string[]> = {
+  ingredients: ['ingredientRows'],
+  freeOf: ['freeOf'],
+  specs: ['specRows'],
+  howToSteps: ['howToSteps'],
+  reviews: ['reviewRows'],
+  modelConsent: ['modelConsent'],
+  'options.color>=2': ['optionRows'],
+  // 6개 미만이어도 칩으로는 들어간다. 차트가 빠질 뿐이라 채우라고 요구할 일이 아니다(1e-6)
+  'options.color>=6': [],
+  'options.nonColor>=2': ['optionRows'],
+  'promo.setTitle': PROMO_FIELDS,
+  'promo.salePrice': PROMO_FIELDS,
+  'proof.rankTitle': PROOF_FIELDS,
+  'proof.genre': PROOF_FIELDS,
+  'proof.aggregationDate': PROOF_FIELDS,
+  'sales.count': SALES_FIELDS,
+  'sales.period': SALES_FIELDS,
+  'test.name': TEST_FIELDS,
+  'test.condition': TEST_FIELDS,
+  'test.institution': TEST_FIELDS,
+  'test.date': TEST_FIELDS,
+  'test.sampleSize': TEST_FIELDS,
+  'spec.volume': ['specVolume'],
+  'spec.category': ['specCategory'],
+  'spec.manufacturer': ['specManufacturer'],
+};
+
+/** 미충족 판정 1건 — 사유·해결 힌트·되살리는 폼 필드. */
+interface BlockedRequirement {
+  reason: string;
+  fixHint: string | null;
+  fields: string[];
+}
+
+/**
+ * requires 토큰 1개를 평가하고 되살리는 폼 필드를 붙인다.
+ * 충족이면 null, 아니면 {사유, 해결 힌트, 필드}.
+ */
+function checkRequirement(token: string, input: DetailInput): BlockedRequirement | null {
+  const blocked = evaluateRequirement(token, input);
+  if (!blocked) return null;
+  const fields = REQUIREMENT_FIELDS[token];
+  // 스위치에는 넣고 맵에는 안 넣으면 보드가 "채우면 붙는다"를 조용히 ⛔ 로 강등한다
+  if (!fields) throw new Error(`requirement token has no field mapping: ${token}`);
+  return { ...blocked, fields };
+}
+
 /** requires 토큰 1개를 평가한다. 충족이면 null, 아니면 {사유, 해결 힌트}. */
-function checkRequirement(token: string, input: DetailInput): { reason: string; fixHint: string | null } | null {
+function evaluateRequirement(token: string, input: DetailInput): { reason: string; fixHint: string | null } | null {
   switch (token) {
     case 'ingredients':
       return input.ingredients.length > 0
@@ -406,10 +474,12 @@ export function planBlocks(
   const body: BlockType[] = [...template.blockSequence];
   const excluded: ExcludedBlock[] = [];
 
-  const pushExcluded = (id: BlockType, reason: string, fixHint: string | null) => {
+  // fields 기본값이 빈 배열인 이유 — 여기로 오는 제외(플랫폼 규정·사용자가 끈 블록)는
+  // 입력으로 되살릴 수 없다. 보드는 그것을 ⛔ 로 읽는다(DETAIL-01e 1e-6)
+  const pushExcluded = (id: BlockType, reason: string, fixHint: string | null, fields: string[] = []) => {
     if (excluded.some((e) => e.blockId === id)) return;
     const def = getBlock(id);
-    excluded.push({ blockId: id, code: def.code, nameKo: def.nameKo, reason, fixHint });
+    excluded.push({ blockId: id, code: def.code, nameKo: def.nameKo, reason, fixHint, fields });
   };
 
   // ── 조건부 레이어 삽입 ─────────────────────────────────────────────
@@ -469,13 +539,13 @@ export function planBlocks(
     if (excluded.some((e) => e.blockId === id)) continue;
 
     const def = getBlock(id);
-    let blocked: { reason: string; fixHint: string | null } | null = null;
+    let blocked: BlockedRequirement | null = null;
     for (const token of def.requires) {
       blocked = checkRequirement(token, input);
       if (blocked) break;
     }
     if (blocked) {
-      pushExcluded(id, blocked.reason, blocked.fixHint);
+      pushExcluded(id, blocked.reason, blocked.fixHint, blocked.fields);
       continue;
     }
     passed.push(id);

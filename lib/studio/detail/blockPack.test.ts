@@ -18,6 +18,7 @@ import {
   type TemplateId,
 } from './blockPack';
 import { MAX_AI_BLOCKS } from './output';
+import { toFormFields } from '../../server/detailForm';
 import { resolveTheme } from './theme';
 
 /**
@@ -515,4 +516,96 @@ test('히어로 기능 라벨 — 医薬部外品 만 코드가 세운다', () =
   // 렌더 쪽 폴백은 templates.tsx 가 제거했다(UT-25 · 12건 중 11건 재현).
   const no = heroSlots({}, { functionLabelJa: '' });
   assert.equal(no.functionLabelJa ?? '', '');
+});
+
+/**
+ * 아래 4개는 블록 보드(DETAIL-01e)가 서는 계약이다.
+ * 화면은 `fields` 길이로 "채우면 붙는다"와 "이 건에는 넣지 않는다"를 가른다 — 길이가 곧 분류다.
+ */
+
+test('planBlocks — 제외 블록은 되살리는 폼 필드를 필드 단위로 알려준다', () => {
+  const r = planBlocks(fullInput({ ingredients: [] }), 'rakuten-official', 'D2');
+  const card = r.excluded.find((e) => e.blockId === 'ingredient-card');
+  assert.deepEqual(card?.fields, ['ingredientRows']);
+
+  // 그룹 근거는 한 칸만 가리키면 안 된다 — 하나만 채워도 블록이 붙지 않기 때문
+  const proof = planBlocks(
+    fullInput({ proof: { rankTitle: '楽天ランキング1位', genre: '美容液', aggregationDate: '  ' } }),
+    'rakuten-official',
+  ).excluded.find((e) => e.blockId === 'ranking-stack');
+  assert.deepEqual(proof?.fields, ['proofRankTitle', 'proofGenre', 'proofDate']);
+
+  const promo = planBlocks(fullInput({ promo: null }), 'rakuten-official').excluded.find(
+    (e) => e.blockId === 'set-offer-table',
+  );
+  assert.deepEqual(promo?.fields, ['promoSetTitle', 'promoSalePrice']);
+});
+
+test('planBlocks — fields 가 비면 입력으로 되살릴 수 없는 제외다', () => {
+  // 플랫폼 규정 — 아마존JP A+ 는 무엇을 채워도 프로모 블록이 못 들어간다
+  const amazon = planBlocks(fullInput(), 'amazon-jp');
+  const promoBlocks = amazon.excluded.filter((e) => /promo|set-offer/.test(e.blockId));
+  assert.ok(promoBlocks.length > 0, '아마존JP 프로모 차단이 사라졌다');
+  for (const e of promoBlocks) assert.deepEqual(e.fields, [], `${e.blockId}: 규정 차단인데 채울 칸을 제시함`);
+
+  // 색상 6개 미만은 차트만 빠지고 칩으로는 들어간다 — 채우라고 요구할 일이 아니다
+  const colors = [1, 2].map((i) => ({ axis: 'color' as const, name: `色${i}`, swatchHex: '#aabbcc', sku: `SKU${i}` }));
+  const chart = planBlocks(
+    fullInput({ options: colors, productCategory: 'makeup' }),
+    'rakuten-official',
+    'D4',
+  ).excluded.find((e) => e.blockId === 'color-chart-matrix');
+  assert.deepEqual(chart?.fields, [], '칩으로 들어가는 건은 ⛔ 로 분류돼야 한다');
+});
+
+test('planBlocks — fields 는 실제 폼 필드 이름이다(파서와 같은 계약)', () => {
+  // 이름이 파서 쪽에서만 바뀌면 보드가 엉뚱한 칸을 연다. 여기서 대조로 잡는다.
+  // toFormFields 는 빈 값을 아예 내려보내지 않으므로 기준 입력은 모든 그룹이 차 있어야 한다.
+  // modelConsent 는 체크박스라 toFormFields(텍스트 칸만 편다) 대상이 아니다
+  const filled = fullInput({
+    options: [1, 2].map((i) => ({ axis: 'color' as const, name: `色${i}`, swatchHex: '#aabbcc', sku: `SKU${i}` })),
+  });
+  const known = new Set([...Object.keys(toFormFields(filled)), 'modelConsent']);
+  const r = planBlocks(
+    fullInput({
+      ingredients: [],
+      freeOf: [],
+      specs: [],
+      howToSteps: [],
+      reviews: [],
+      promo: null,
+      proof: null,
+      sales: null,
+      test: null,
+      modelConsent: false,
+    }),
+    'rakuten-official',
+    'D2',
+  );
+  const seen = new Set<string>();
+  for (const e of r.excluded) for (const f of e.fields) seen.add(f);
+  assert.ok(seen.size > 0, '아무 필드도 안 나왔다 — 대조가 무의미해짐');
+  for (const f of seen) assert.ok(known.has(f), `폼에 없는 필드 이름: ${f}`);
+});
+
+test('planBlocks — requires 토큰은 전부 필드 매핑을 갖는다', () => {
+  // 토큰을 스위치에만 넣고 맵에 안 넣으면 "채우면 붙는다"가 조용히 ⛔ 로 강등된다.
+  // 팩의 모든 토큰이 빈 입력에서 한 번씩 평가되도록 카탈로그를 훑는다.
+  const empty = fullInput({
+    ingredients: [],
+    freeOf: [],
+    specs: [],
+    howToSteps: [],
+    reviews: [],
+    options: [],
+    promo: null,
+    proof: null,
+    sales: null,
+    test: null,
+    modelConsent: false,
+    spec: { volume: '', category: '', manufacturer: '', origin: '', fullIngredients: '' },
+  });
+  for (const t of getDetailPack().templates) {
+    assert.doesNotThrow(() => planBlocks(empty, 'rakuten-official', t.id), `${t.id}: 매핑 없는 토큰`);
+  }
 });
