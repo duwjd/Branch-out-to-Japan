@@ -208,6 +208,25 @@ export function IconAlertTriangle({ size, ...rest }: IconProps) {
 }
 
 /** 체크 — 카피 해설 근거 행(RESULT-02) */
+/** 블록 보드의 "채우면 늘어납니다" 표식(DETAIL-01e 1e-4) */
+export function IconPlus({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size ?? 18, rest)}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+/** 블록 보드의 "이 건에는 넣지 않습니다" 표식 — 입력으로 되살릴 수 없다는 뜻 */
+export function IconBlocked({ size, ...rest }: IconProps) {
+  return (
+    <svg {...baseProps(size ?? 18, rest)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m6 6 12 12" />
+    </svg>
+  );
+}
+
 export function IconCheck({ size, ...rest }: IconProps) {
   return (
     <svg {...baseProps(size ?? 18, rest)}>

@@ -27,7 +27,16 @@ import {
 } from '@/components/ui/primitives';
 // 순수 함수 잎 노드(node:fs 미사용) — 확인 패널이 서버와 **같은 검사**를 즉시 돌린다
 import { verifyTranslation, type TranslatedField } from '@/lib/studio/detail/translate';
-import { IconChevronDown, IconChevronUp, IconUpload } from '@/components/ui/icons';
+import {
+  IconAlertTriangle,
+  IconBlocked,
+  IconCheck,
+  IconChevronDown,
+  IconChevronUp,
+  IconPlus,
+  IconSpinner,
+  IconUpload,
+} from '@/components/ui/icons';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 import { StudioActionBar } from '@/components/app/studioUi';
 import { MOODS, PALETTES, accentFromPixels, normalizeHex, EXTRACT } from '@/lib/studio/detail/theme';
@@ -1946,7 +1955,12 @@ function TranslationRow({ field, onEdit }: { field: TranslatedField; onEdit: (pa
   );
 }
 
-/** 확인 단계(CONFIRM-01~05) — 들어가는 블록과 **빠진 블록의 사유**를 접지 않고 보여준다 */
+/**
+ * 확인 단계(CONFIRM-01~06) — 들어가는 블록과 제외 사유를 보여준다.
+ *
+ * 제외 목록은 폼의 블록 보드가 이미 보여준 것이라 여기서는 접힌 요약이 기본이다(CONFIRM-03 3d).
+ * 이 단계에서 처음 알게 되는 것이 없어야 한다.
+ */
 function ConfirmStep({
   plan,
   disabled,
@@ -2017,24 +2031,54 @@ function ConfirmStep({
         })}
       </ol>
 
-      {plan.excluded.length > 0 && (
-        <section className="mt-6">
-          <h3 className="text-sm font-bold text-ink">빠진 블록 {plan.excluded.length}개</h3>
-          <p className="mt-1 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-            근거가 없으면 그 블록을 넣지 않는 것이 기본 동작입니다. 입력을 채우면 다시 들어갑니다.
-          </p>
-          <ul className="mt-3 space-y-2">
-            {plan.excluded.map((e) => (
-              <li key={e.blockId} className="rounded-lg border border-card-border bg-n-50 px-4 py-3">
-                <p className="text-[13px] font-semibold text-ink-body">{e.nameKo}</p>
-                <p className="mt-1 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">{e.reason}</p>
-                {e.fixHint && <p className="mt-1 text-xs text-coral-strong">필요한 입력: {e.fixHint}</p>}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      {plan.excluded.length > 0 && <ExcludedSummary excluded={plan.excluded} onBack={onBack} />}
     </div>
+  );
+}
+
+/**
+ * 확인 단계의 제외 목록(CONFIRM-03 3d~3g) — **접힌 요약 한 줄**이 기본이다.
+ *
+ * 종전에는 카드 10~13장이 여기서 처음 펼쳐졌고, 사용자는 그것을 "내가 채워야 할 숙제"로 읽었다
+ * (UT 관찰 지점 2위 · P15·P20). 같은 정보를 이제 폼의 블록 보드가 입력하는 동안 보여주므로,
+ * 이 단계에서 **처음 알게 되는 것이 없어야 한다.** 접는 것은 목록이고 원칙이 아니다.
+ */
+function ExcludedSummary({ excluded, onBack }: { excluded: PlanResult['excluded']; onBack: () => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section className="mt-6">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls="confirm-excluded-list"
+          className="flex items-center gap-1.5 text-sm font-bold text-ink"
+        >
+          이 건에 넣지 않는 블록 <span className="tnum">{excluded.length}</span>개
+          {open ? <IconChevronUp size={15} /> : <IconChevronDown size={15} />}
+        </button>
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-[13px] font-medium text-coral-strong underline-offset-2 hover:underline"
+        >
+          폼으로 돌아가 채우기
+        </button>
+      </div>
+      <p className="mt-1 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+        근거가 없으면 그 블록을 넣지 않는 것이 기본 동작입니다. 입력을 채우면 다시 들어갑니다.
+      </p>
+      <ul id="confirm-excluded-list" hidden={!open} className="mt-3 space-y-2">
+        {excluded.map((e) => (
+          <li key={e.blockId} className="rounded-lg border border-card-border bg-n-50 px-4 py-3">
+            <p className="text-[13px] font-semibold text-ink-body">{e.nameKo}</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">{e.reason}</p>
+            {e.fixHint && <p className="mt-1 text-xs text-coral-strong">{e.fixHint}을 넣으면 들어갑니다</p>}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -2044,7 +2088,8 @@ function ConfirmStep({
  * 3분류는 서버가 확정해 주지 않는다. 재료(`blocks`·`excluded[].fields`)만 받고 가르는 것은 여기다 —
  * 판정 규칙을 서버와 화면 두 곳에 두면 반드시 갈린다.
  *
- * 색만으로 분류를 구분하지 않는다(1e-12). 색 + 기호 + 글자 셋을 함께 쓴다.
+ * 색만으로 분류를 구분하지 않는다(1e-12). 아이콘 + 글자 + 색 셋을 함께 쓴다.
+ * 좁은 화면에서는 요약 한 줄로 접힌다 — 보드가 폼 위에 통째로 쌓이면 입력까지 스크롤이 길어진다.
  */
 function BlockBoard({
   outline,
@@ -2064,50 +2109,82 @@ function BlockBoard({
   waiting: boolean;
   onOpenFields: (fields: string[]) => void;
 }) {
+  // 좁은 화면 전용 접힘. 넓은 화면에서는 항상 펼쳐져 있어 이 상태를 보지 않는다
+  const [openNarrow, setOpenNarrow] = useState(false);
   const now = outline?.blocks.length ?? 0;
+
   return (
     <aside className="w-[320px] shrink-0 max-lg:w-full">
-      <div className={cardClass('sticky top-[72px] p-5')}>
-        <h2 className="text-[15px] font-bold text-ink">이 페이지에 들어갈 블록</h2>
-
-        {waiting ? (
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-            제품과 템플릿을 고르면 어떤 블록이 들어가는지 여기에 보여 드립니다.
-          </p>
-        ) : (
-          <>
-            {/* 숫자가 바뀌는 것을 스크린리더도 알아야 한다 */}
-            <p aria-live="polite" className="mt-1 text-[13px] text-ink-mute">
-              <b className="text-[15px] text-ink">지금 {now}블록</b>
-              {gainable.length > 0 && <span> · {gainable.length}블록 더 넣을 수 있습니다</span>}
-              {busy && <span className="ml-1 text-ink-faint">갱신 중…</span>}
-            </p>
-
-            {error && <p className="mt-2 text-[12px] text-amber-text">{error}</p>}
-
-            <BoardGroup mark="✅" label="지금 들어갑니다" tone="text-ink">
-              {outline?.blocks.map((b) => (
-                <li key={b.blockId} className="flex gap-2 py-1 text-[13px] text-ink-body">
-                  <span aria-hidden className="text-ink-faint">
-                    ✅
+      {/* 스크롤은 카드 안에서만 일어난다 — 블록이 20개를 넘어도 sticky 가 깨지지 않는다 */}
+      <div className={cardClass('sticky top-[72px] max-h-[calc(100vh-96px)] overflow-y-auto p-5 max-lg:static')}>
+        <div className="flex items-start gap-2">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-[15px] font-bold text-ink">이 페이지에 들어갈 블록</h2>
+            {waiting ? (
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+                제품과 템플릿을 고르면 어떤 블록이 들어가는지 여기에 보여 드립니다.
+              </p>
+            ) : (
+              // 숫자가 바뀌는 것을 스크린리더도 알아야 한다
+              <p aria-live="polite" className="mt-1 text-[13px] leading-relaxed text-ink-mute">
+                <b className="tnum text-[15px] text-ink">지금 {now}블록</b>
+                {gainable.length > 0 && <span className="tnum"> · {gainable.length}블록 더 넣을 수 있습니다</span>}
+                {busy && (
+                  <span className="ml-1.5 inline-flex items-center gap-1 align-middle text-ink-faint">
+                    <IconSpinner size={12} className="animate-spin" />
+                    <span className="sr-only">블록 수를 다시 세는 중</span>
                   </span>
+                )}
+              </p>
+            )}
+          </div>
+          {!waiting && (
+            <button
+              type="button"
+              onClick={() => setOpenNarrow((v) => !v)}
+              aria-expanded={openNarrow}
+              aria-controls="block-board-list"
+              className="-mr-1 flex-none rounded-lg p-1 text-ink-mute lg:hidden"
+            >
+              {openNarrow ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
+              <span className="sr-only">블록 목록 {openNarrow ? '접기' : '펼치기'}</span>
+            </button>
+          )}
+        </div>
+
+        {error && (
+          <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-relaxed text-amber-text">
+            <IconAlertTriangle size={13} className="mt-px flex-none" />
+            {error}
+          </p>
+        )}
+
+        {!waiting && (
+          <div id="block-board-list" className={openNarrow ? '' : 'max-lg:hidden'}>
+            <BoardGroup icon={<IconCheck size={14} />} label="지금 들어갑니다" tone="text-ink">
+              {outline?.blocks.map((b) => (
+                <li key={b.blockId} className="flex items-start gap-2 py-1 text-[13px] leading-relaxed text-ink-body">
+                  <IconCheck size={14} className="mt-0.5 flex-none text-ink-faint" aria-hidden />
                   <span className="min-w-0 flex-1">{b.nameKo}</span>
                 </li>
               ))}
             </BoardGroup>
 
             {gainable.length > 0 && (
-              <BoardGroup mark="➕" label="채우면 늘어납니다" tone="text-coral-strong">
+              <BoardGroup
+                icon={<IconPlus size={14} />}
+                label="채우면 늘어납니다"
+                tone="text-coral-strong"
+                count={gainable.length}
+              >
                 {gainable.map((e) => (
                   <li key={e.blockId}>
                     <button
                       type="button"
                       onClick={() => onOpenFields(e.fields)}
-                      className="flex w-full gap-2 rounded-lg py-1 text-left text-[13px] text-ink-body transition-colors hover:bg-n-100"
+                      className="flex w-full items-start gap-2 rounded-lg px-1 py-1 text-left text-[13px] leading-relaxed text-ink-body transition-colors hover:bg-n-100"
                     >
-                      <span aria-hidden className="text-coral-strong">
-                        ➕
-                      </span>
+                      <IconPlus size={14} className="mt-0.5 flex-none text-coral-strong" aria-hidden />
                       <span className="min-w-0 flex-1">
                         {e.nameKo}
                         {e.fixHint && <span className="text-ink-mute"> — {e.fixHint}을 넣으면 들어갑니다</span>}
@@ -2119,39 +2196,48 @@ function BlockBoard({
             )}
 
             {blocked.length > 0 && (
-              <BoardGroup mark="⛔" label="이 건에는 넣지 않습니다" tone="text-ink-mute">
+              <BoardGroup icon={<IconBlocked size={14} />} label="이 건에는 넣지 않습니다" tone="text-ink-mute">
                 {blocked.map((e) => (
-                  <li key={e.blockId} className="flex gap-2 py-1 text-[13px] text-ink-mute">
-                    <span aria-hidden>⛔</span>
-                    <span className="min-w-0 flex-1">{e.nameKo}</span>
+                  <li key={e.blockId} className="flex items-start gap-2 py-1 text-[13px] leading-relaxed text-ink-mute">
+                    <IconBlocked size={14} className="mt-0.5 flex-none" aria-hidden />
+                    <span className="min-w-0 flex-1">
+                      {e.nameKo}
+                      {/* 사유만 적고 해결을 요구하지 않는다(1e-13) */}
+                      <span className="text-ink-faint"> — {e.reason}</span>
+                    </span>
                   </li>
                 ))}
               </BoardGroup>
             )}
-          </>
+          </div>
         )}
       </div>
     </aside>
   );
 }
 
-/** 보드의 한 분류 — 기호·글자·색을 함께 얹어 색맹 사용자도 분류를 읽을 수 있게 한다 */
+/** 보드의 한 분류 — 아이콘·글자·색을 함께 얹어 색으로만 구분하지 않는다(1e-12) */
 function BoardGroup({
-  mark,
+  icon,
   label,
   tone,
+  count,
   children,
 }: {
-  mark: string;
+  icon: React.ReactNode;
   label: string;
   tone: string;
+  count?: number;
   children: React.ReactNode;
 }) {
   return (
     <div className="mt-4 border-t border-hairline pt-3">
-      <p className={`text-[12px] font-bold ${tone}`}>
-        <span aria-hidden>{mark} </span>
+      <p className={`flex items-center gap-1.5 text-[12px] font-bold ${tone}`}>
+        <span aria-hidden className="flex-none">
+          {icon}
+        </span>
         {label}
+        {count !== undefined && <span className="tnum font-normal text-ink-faint">{count}</span>}
       </p>
       <ul className="mt-1.5">{children}</ul>
     </div>
