@@ -15,7 +15,7 @@
 
 import { NextResponse } from 'next/server';
 import { parseDetailForm, parseImageMeta, validateImages } from '@/lib/server/detailForm';
-import { planBlocks } from '@/lib/studio/detail/blockPack';
+import { planBlocks, templateSignatureStates } from '@/lib/studio/detail/blockPack';
 
 /** 결정적 계산만 돈다. 콜⑧이 없으므로 `/plan` 의 60초 연장이 필요 없다. */
 export const maxDuration = 10;
@@ -53,5 +53,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       signature: b.signature,
     })),
     excluded: plan.excluded,
+    // 템플릿 카드의 「추천」 배지와 핵심 블록 한 줄이 쓰는 재료(DETAIL-04 4k·4l · UT-26).
+    // 고른 템플릿만이 아니라 6종 전부를 내려보낸다 — 배지는 **고르기 전에** 판정돼야 한다
+    templates: templateSignatureStates(parsed.detailInput),
   });
 }

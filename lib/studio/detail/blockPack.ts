@@ -223,6 +223,11 @@ export interface TemplateUiMeta {
   dominantCategories: ProductCategory[];
   /** 카드에 그릴 미니 블록 시퀀스(한국어 블록명) */
   sequencePreview: string[];
+  /**
+   * 이 템플릿의 핵심 블록 이름. 카드는 이것을 **고르는 시점에** 항상 보여준다 —
+   * 이름이 「컬러 배리에이션형」인데 컬러 블록이 전부 빠진 채로 나오는 일을 막는다(UT-26).
+   */
+  signatureNames: string[];
 }
 
 export function templateUiMetas(): TemplateUiMeta[] {
@@ -235,7 +240,48 @@ export function templateUiMetas(): TemplateUiMeta[] {
     platformFit: t.platformFit,
     dominantCategories: t.dominantCategories,
     sequencePreview: t.blockSequence.map((b) => getBlock(b).nameKo),
+    /** 카드가 "핵심 블록"을 항상 말할 수 있게 한다(DETAIL-04 4l · UT-26) */
+    signatureNames: t.signatureBlocks.map((b) => getBlock(b).nameKo),
   }));
+}
+
+/** 템플릿 하나의 시그니처 블록 상태 — 카드가 배지와 조건 한 줄을 정하는 재료(UT-26). */
+export interface TemplateSignatureState {
+  id: TemplateId;
+  blocks: { blockId: BlockType; nameKo: string; met: boolean; fixHint: string | null; fields: string[] }[];
+  /** 하나라도 지금 입력으로 충족되는가. 이게 false 면 카드에 "추천" 배지를 붙이지 않는다 */
+  anyMet: boolean;
+}
+
+/**
+ * 템플릿 6종의 시그니처 블록이 **현재 입력으로 서는지** 판정한다(DETAIL-04 4k·4l).
+ *
+ * "컬러 배리에이션형"을 골랐는데 색상 옵션이 없으면 컬러 블록이 전부 빠진 페이지가 나온다.
+ * 그런데도 카테고리가 색조면 그 템플릿이 "추천" 배지로 유도됐다 — D4 배정 4명 중 3명이 그랬다(UT-26).
+ * 배지의 판정축을 하나 더 늘려 그 유도를 끊고, 조건은 **고르는 시점에** 카드가 말한다.
+ *
+ * `planBlocks` 를 6번 돌리지 않는 이유 — 필요한 것은 시그니처 블록의 게이트뿐이고,
+ * 시퀀스·레이어·AI 상한은 배지 판정과 무관하다.
+ */
+export function templateSignatureStates(input: DetailInput): TemplateSignatureState[] {
+  return getDetailPack().templates.map((t) => {
+    const blocks = t.signatureBlocks.map((id) => {
+      const def = getBlock(id);
+      let blocked: BlockedRequirement | null = null;
+      for (const token of def.requires) {
+        blocked = checkRequirement(token, input);
+        if (blocked) break;
+      }
+      return {
+        blockId: id,
+        nameKo: def.nameKo,
+        met: !blocked,
+        fixHint: blocked?.fixHint ?? null,
+        fields: blocked?.fields ?? [],
+      };
+    });
+    return { id: t.id, blocks, anyMet: blocks.some((b) => b.met) };
+  });
 }
 
 /** proof 3필드 완비 여부 — 썸네일 badgeParagraphs 와 같은 판정. */

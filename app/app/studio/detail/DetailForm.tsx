@@ -46,6 +46,12 @@ interface OutlineResult {
     fixHint: string | null;
     fields: string[];
   }[];
+  /** 템플릿 6종의 시그니처 블록 상태(UT-26) — 고르기 전에 배지를 판정하려면 전부 필요하다 */
+  templates: {
+    id: string;
+    blocks: { blockId: string; nameKo: string; met: boolean; fixHint: string | null; fields: string[] }[];
+    anyMet: boolean;
+  }[];
 }
 
 /** 제품 선택(DETAIL-01b) 후보 — `GET /api/products` 응답에서 화면이 쓰는 것만 */
@@ -67,6 +73,8 @@ interface TemplateCard {
   /** 추천 배지 판정에 쓴다 — 플랫폼만 보면 라쿠텐에서 6장 전부에 배지가 붙는다 */
   dominantCategories: string[];
   sequencePreview: string[];
+  /** 이 템플릿의 핵심 블록 이름 — 고르는 시점에 조건을 말하기 위해 항상 필요하다(UT-26) */
+  signatureNames: string[];
   /** `npm run detail:previews` 산출물(전체 세로 스트립) — 확대 모달용. 없으면 카드가 블록 목록만 보여준다 */
   previewSrc: string | null;
   /** 같은 산출물의 카드용 상단 크롭본(148×336) — 그리드는 이걸 쓴다 */
@@ -985,11 +993,17 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 <ul className="grid gap-3 sm:grid-cols-2">
                   {templates.map((t) => {
                     const active = t.id === templateId;
-                    // 플랫폼만 보면 라쿠텐에서 6장 전부에 배지가 붙어 아무것도 구분하지 못한다
+                    const sig = outline?.templates.find((x) => x.id === t.id) ?? null;
+                    // 아직 못 채운 핵심 블록. 이게 이름값을 못 하는 템플릿을 가려낸다
+                    const unmet = sig?.blocks.filter((b) => !b.met) ?? [];
+                    // 판정축 셋 — 플랫폼만 보면 라쿠텐에서 6장 전부에 배지가 붙어 아무것도 구분하지
+                    // 못한다. 카테고리까지 봐도 색조 브랜드가 옵션을 안 넣은 D4 를 추천하게 된다(UT-26).
+                    // 그래서 **핵심 블록이 하나라도 지금 입력으로 서는가**를 마지막 축으로 둔다.
                     const fits =
                       platform !== 'unset' &&
                       t.platformFit.includes(platform) &&
-                      t.dominantCategories.includes(category);
+                      t.dominantCategories.includes(category) &&
+                      Boolean(sig?.anyMet);
                     return (
                       // 확대 버튼은 선택 버튼 **바깥**에 둔다 — 버튼 안에 버튼을 넣으면 유효하지 않은
                       // 마크업이고, 스크린리더가 두 조작을 하나로 읽는다
@@ -1011,6 +1025,17 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                             </span>
                             <span className="mt-2 block text-[11px] text-ink-faint">
                               블록 {t.sequencePreview.length}개
+                            </span>
+                            {/* 고르는 시점에 "이 템플릿이 텅 빌 수 있다"를 말한다(DETAIL-04 4l · UT-26) */}
+                            <span className="mt-1 block text-[11px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+                              핵심 블록 : {t.signatureNames.join(' · ')}
+                              {unmet.length > 0 && (
+                                <span className="text-coral-strong">
+                                  {' '}
+                                  — {[...new Set(unmet.map((b) => b.fixHint).filter(Boolean))].join(' · ')}이 있어야
+                                  들어갑니다
+                                </span>
+                              )}
                             </span>
                             <span className="mt-2 block space-y-1">
                               {t.sequencePreview.slice(0, 3).map((b, i) => (
@@ -1203,7 +1228,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="block">
                     <span className={fieldLabelClass}>내용량</span>
-                    <input name="specVolume" className={inputClass} placeholder="30mL" />
+                    <input name="specVolume" className={inputClass} placeholder="예 : 숫자 + 단위" />
                   </label>
                   <label className="block">
                     <span className={fieldLabelClass}>구분</span>
@@ -1211,11 +1236,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                   </label>
                   <label className="block">
                     <span className={fieldLabelClass}>판매원</span>
-                    <input name="specManufacturer" className={inputClass} placeholder="株式会社◯◯" />
+                    <input name="specManufacturer" className={inputClass} placeholder="예 : 회사 이름" />
                   </label>
                   <label className="block">
                     <span className={fieldLabelClass}>원산국</span>
-                    <input name="specOrigin" className={inputClass} placeholder="韓国" />
+                    <input name="specOrigin" className={inputClass} placeholder="예 : 나라 이름" />
                   </label>
                 </div>
                 <label className="mt-3 block">
@@ -1224,7 +1249,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                     name="specFullIngredients"
                     rows={3}
                     className={inputClass}
-                    placeholder="水、BG、グリセリン…"
+                    placeholder="예 : 전성분 표기 그대로"
                   />
                 </label>
               </SectionCard>
@@ -1246,16 +1271,16 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                     name="ingredientRows"
                     rows={3}
                     className={inputClass}
-                    placeholder={'ナイアシンアミド|2%|整肌成分\nヒアルロン酸Na||保湿成分'}
+                    placeholder="예 : 성분명 | 농도 | 배합목적"
                   />
                 </label>
                 <label className="mt-3 block">
                   <span className={fieldLabelClass}>무첨가 항목 (한 줄에 하나)</span>
-                  <textarea name="freeOf" rows={2} className={inputClass} placeholder={'合成香料\n鉱物油'} />
+                  <textarea name="freeOf" rows={2} className={inputClass} placeholder="예 : 항목 이름 (한 줄에 하나)" />
                 </label>
                 <label className="mt-3 block">
                   <span className={fieldLabelClass}>스펙 수치 (라벨|값)</span>
-                  <textarea name="specRows" rows={2} className={inputClass} placeholder={'SPF|50+\nPA|++++'} />
+                  <textarea name="specRows" rows={2} className={inputClass} placeholder="예 : 라벨 | 값" />
                 </label>
                 <label className="mt-3 block">
                   <span className={fieldLabelClass}>사용법 STEP (한 줄에 하나)</span>
@@ -1263,7 +1288,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                     name="howToSteps"
                     rows={3}
                     className={inputClass}
-                    placeholder={'洗顔後、化粧水で肌をととのえます。'}
+                    placeholder="예 : STEP 설명 (한 줄에 하나)"
                   />
                 </label>
                 <label className="mt-3 block">
@@ -1284,20 +1309,20 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 desc="그룹을 다 채운 근거만 블록으로 들어갑니다."
               >
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <input name="proofRankTitle" className={inputClass} placeholder="실적명 (楽天ランキング1位)" />
-                  <input name="proofGenre" className={inputClass} placeholder="부문 (美容液部門)" />
-                  <input name="proofDate" className={inputClass} placeholder="집계일 (2026年7月14日更新)" />
+                  <input name="proofRankTitle" className={inputClass} placeholder="예 : 몰 이름 + 순위" />
+                  <input name="proofGenre" className={inputClass} placeholder="예 : 카테고리 이름" />
+                  <input name="proofDate" className={inputClass} placeholder="예 : YYYY년 M월 D일 기준" />
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <input name="salesCount" className={inputClass} placeholder="누적 판매 (累計163,991個)" />
-                  <input name="salesPeriod" className={inputClass} placeholder="집계 기간" />
+                  <input name="salesCount" className={inputClass} placeholder="예 : 숫자만" />
+                  <input name="salesPeriod" className={inputClass} placeholder="예 : 기간" />
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <input name="testName" className={inputClass} placeholder="시험명 (効能評価試験済み)" />
-                  <input name="testCondition" className={inputClass} placeholder="시험 조건" />
-                  <input name="testInstitution" className={inputClass} placeholder="시험기관" />
-                  <input name="testDate" className={inputClass} placeholder="시험 시점" />
-                  <input name="testSampleSize" className={inputClass} placeholder="대상 인원 (21名)" />
+                  <input name="testName" className={inputClass} placeholder="예 : 시험 이름" />
+                  <input name="testCondition" className={inputClass} placeholder="예 : 시험 조건" />
+                  <input name="testInstitution" className={inputClass} placeholder="예 : 기관 이름" />
+                  <input name="testDate" className={inputClass} placeholder="예 : YYYY년 M월" />
+                  <input name="testSampleSize" className={inputClass} placeholder="예 : 숫자만" />
                 </div>
                 <label className="mt-3 block">
                   <span className={fieldLabelClass}>고객 리뷰 원문 (본문|평점|연령대) — 실제 리뷰만 넣습니다</span>
@@ -1318,12 +1343,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                   desc="세트명·판매가가 있어야 가격 블록이 들어갑니다."
                 >
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <input name="promoSetTitle" className={inputClass} placeholder="세트명 (2個セット)" />
-                    <input name="promoSalePrice" className={inputClass} placeholder="판매가 (1,920)" />
-                    <input name="promoNormalPrice" className={inputClass} placeholder="통상가 (2,610)" />
-                    <input name="promoDiscountRate" className={inputClass} placeholder="할인율 (26)" />
-                    <input name="promoGift" className={inputClass} placeholder="증정품" />
-                    <input name="promoQualifiers" className={inputClass} placeholder="한정 조건 (쉼표 구분)" />
+                    <input name="promoSetTitle" className={inputClass} placeholder="예 : 세트 이름" />
+                    <input name="promoSalePrice" className={inputClass} placeholder="예 : 숫자만" />
+                    <input name="promoNormalPrice" className={inputClass} placeholder="예 : 숫자만" />
+                    <input name="promoDiscountRate" className={inputClass} placeholder="예 : 숫자만" />
+                    <input name="promoGift" className={inputClass} placeholder="예 : 증정품 이름" />
+                    <input name="promoQualifiers" className={inputClass} placeholder="예 : 조건, 조건 (쉼표 구분)" />
                   </div>
                   <label className="mt-3 flex items-start gap-2 text-[13px] leading-relaxed text-ink-body">
                     <input type="checkbox" name="promoNormalPriceVerified" value="true" className="mt-0.5" />
@@ -1332,7 +1357,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                       방지)
                     </span>
                   </label>
-                  <input name="promoFootnote" className={`${inputClass} mt-3`} placeholder="가격 조건 각주" />
+                  <input name="promoFootnote" className={`${inputClass} mt-3`} placeholder="예 : 가격 조건 설명" />
                 </SectionCard>
               )}
 
@@ -1366,7 +1391,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                     name="optionRows"
                     rows={3}
                     className={inputClass}
-                    placeholder={'01 ローズベージュ|#c86b5a|SHADE 1'}
+                    placeholder="예 : 옵션 이름 | 색상값 | 품번"
                   />
                 </label>
                 <label className="mt-3 block">

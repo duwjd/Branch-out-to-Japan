@@ -12,6 +12,7 @@ import {
   getBlock,
   getDetailPack,
   planBlocks,
+  templateSignatureStates,
   templateUiMetas,
   usesProductSource,
   type DetailInput,
@@ -608,4 +609,33 @@ test('planBlocks — requires 토큰은 전부 필드 매핑을 갖는다', () =
   for (const t of getDetailPack().templates) {
     assert.doesNotThrow(() => planBlocks(empty, 'rakuten-official', t.id), `${t.id}: 매핑 없는 토큰`);
   }
+});
+
+test('templateSignatureStates — 색상 옵션이 없으면 D4 의 시그니처가 서지 않는다(UT-26)', () => {
+  // 이름은 "컬러 배리에이션형"인데 컬러 블록이 전부 빠진 채로 나오던 그 조합.
+  // anyMet 이 false 면 카드는 "추천" 배지를 붙이지 않는다.
+  const noColor = fullInput({ productCategory: 'makeup', options: [] });
+  const d4 = templateSignatureStates(noColor).find((t) => t.id === 'D4');
+  assert.equal(d4?.anyMet, false);
+  assert.ok(d4?.blocks.every((b) => !b.met));
+  // 카드가 조건을 말할 수 있어야 한다 — 이름과 필요한 입력이 함께 온다
+  assert.ok(d4?.blocks[0].nameKo);
+  assert.deepEqual(d4?.blocks[0].fields, ['optionRows']);
+
+  // 색상 2개를 넣으면 같은 템플릿이 살아난다 — 판정이 옵션 유무 때문임을 대조로 확인
+  const withColor = fullInput({
+    productCategory: 'makeup',
+    options: [1, 2].map((i) => ({ axis: 'color' as const, name: `色${i}`, swatchHex: '#aabbcc', sku: `SKU${i}` })),
+  });
+  assert.equal(templateSignatureStates(withColor).find((t) => t.id === 'D4')?.anyMet, true);
+});
+
+test('templateSignatureStates — 템플릿 6종을 전부 판정한다(고르기 전에 배지가 정해진다)', () => {
+  const states = templateSignatureStates(fullInput());
+  assert.equal(states.length, getDetailPack().templates.length);
+  for (const t of states) assert.ok(t.blocks.length > 0, `${t.id}: 시그니처 블록이 없다`);
+});
+
+test('templateUiMetas — 카드가 핵심 블록 이름을 항상 들고 있다(UT-26 4l)', () => {
+  for (const m of templateUiMetas()) assert.ok(m.signatureNames.length > 0, `${m.id}: 핵심 블록 이름 없음`);
 });
