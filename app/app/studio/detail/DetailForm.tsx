@@ -33,6 +33,21 @@ import { StudioActionBar } from '@/components/app/studioUi';
 import { MOODS, PALETTES, accentFromPixels, normalizeHex, EXTRACT } from '@/lib/studio/detail/theme';
 import { bytesUrl } from '@/lib/files/downloadUrl';
 
+/** 블록 보드(DETAIL-01e)가 쓰는 `/api/studio/detail/outline` 응답 */
+interface OutlineResult {
+  templateId: string;
+  aiBlockCount: number;
+  blocks: { blockId: string; code: string; nameKo: string; renderKind: string; signature: boolean }[];
+  excluded: {
+    blockId: string;
+    code: string;
+    nameKo: string;
+    reason: string;
+    fixHint: string | null;
+    fields: string[];
+  }[];
+}
+
 /** 제품 선택(DETAIL-01b) 후보 — `GET /api/products` 응답에서 화면이 쓰는 것만 */
 interface ProductOption {
   id: string;
@@ -120,9 +135,14 @@ const SECTION_FIELDS: Record<string, string[]> = {
     'promoQualifiers',
     'promoFootnote',
   ],
-  option: ['optionRows'],
+  option: ['optionRows', 'modelConsent'],
   note: ['note'],
 };
+
+/** 폼 필드 `name` → 그 칸이 사는 섹션. 보드가 블록을 눌렀을 때 어느 섹션을 열지 정한다(1e-7). */
+const SECTION_OF_FIELD: Record<string, string> = Object.fromEntries(
+  Object.entries(SECTION_FIELDS).flatMap(([id, names]) => names.map((n) => [n, id])),
+);
 
 /** 서버가 400 으로 막는 표시 의무 3칸(DETAIL-05 5c) — 비어 있으면 스펙 섹션을 펼친 채로 둔다 */
 const SPEC_GATE_FIELDS = ['specVolume', 'specCategory', 'specManufacturer'];
@@ -200,14 +220,60 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   const toggleSection = useCallback((id: string) => setOpenSections((v) => ({ ...v, [id]: !v[id] })), []);
   /** 섹션별 채워진 칸 수 — 접힌 헤더 한 줄이 쓴다 */
   const [filled, setFilled] = useState<Record<string, number>>({});
+  /** 블록 보드(DETAIL-01e). 실패해도 직전 결과를 지우지 않는다 — 보드가 비면 화면이 흔들린다 */
+  const [outline, setOutline] = useState<OutlineResult | null>(null);
+  const [outlineBusy, setOutlineBusy] = useState(false);
+  const [outlineError, setOutlineError] = useState<string | null>(null);
+  /** 입력이 바뀔 때마다 올라간다 — 디바운스 재계산의 트리거 */
+  const [outlineTick, setOutlineTick] = useState(0);
+  const bumpOutline = useCallback(() => setOutlineTick((v) => v + 1), []);
+
   /**
-   * 접힌 섹션 헤더 한 줄(DETAIL-01d 1d-7). 숫자는 폼에서 센 값이다.
-   * **블록 수를 여기에 하드코딩하지 않는다** — 템플릿마다 시퀀스가 달라 고정 수치는 거짓이 된다(1d-8).
+   * 3분류(1e-4·1e-5). 판정 재료는 서버가 주고 **가르는 것은 화면**이다 —
+   * `fields` 가 1개 이상이면 채워서 되살릴 수 있고, 0개면 입력으로 어쩔 수 없다.
+   */
+  const gainable = useMemo(() => (outline?.excluded ?? []).filter((e) => e.fields.length > 0), [outline]);
+  const blocked = useMemo(() => (outline?.excluded ?? []).filter((e) => e.fields.length === 0), [outline]);
+
+  /** 섹션마다 "여기를 채우면 몇 블록이 늘어나는가". 헤더 한 줄이 쓴다(1d-8) */
+  const gainBySection = useMemo(() => {
+    const out: Record<string, number> = {};
+    for (const e of gainable) {
+      const ids = new Set(e.fields.map((f) => SECTION_OF_FIELD[f]).filter(Boolean));
+      for (const id of ids) out[id] = (out[id] ?? 0) + 1;
+    }
+    return out;
+  }, [gainable]);
+
+  /**
+   * 접힌 섹션 헤더 한 줄(DETAIL-01d 1d-7). 칸 수는 폼에서 세고 **블록 수는 보드가 준다** —
+   * 템플릿마다 시퀀스가 달라 고정 수치를 적으면 거짓이 된다(1d-8).
    */
   const sectionSummary = useCallback(
-    (id: string) => (filled[id] ? `${filled[id]}칸 입력됨` : '채우면 블록이 늘어납니다'),
-    [filled],
+    (id: string) => {
+      if (filled[id]) return `${filled[id]}칸 입력됨`;
+      const gain = gainBySection[id];
+      return gain ? `${gain}블록이 늘어납니다` : '채우면 블록이 늘어납니다';
+    },
+    [filled, gainBySection],
   );
+
+  /**
+   * 보드에서 블록을 눌렀을 때 **그 블록에 필요한 칸만** 연다(1e-7).
+   * 섹션 전체를 펼치지 않는다 — 여는 이유가 블록이지 섹션이 아니다.
+   */
+  const openFields = useCallback((fields: string[]) => {
+    const ids = fields.map((f) => SECTION_OF_FIELD[f]).filter(Boolean);
+    if (ids.length > 0) setOpenSections((v) => ({ ...v, ...Object.fromEntries(ids.map((id) => [id, true])) }));
+    // 섹션이 실제로 펼쳐진 다음 페인트에서 포커스한다 — 숨겨진 요소는 focus 가 먹지 않는다
+    requestAnimationFrame(() => {
+      const el = formRef.current?.elements.namedItem(fields[0]);
+      if (el instanceof HTMLElement) {
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        el.focus({ preventScroll: true });
+      }
+    });
+  }, []);
 
   /**
    * 제품 대표컷에서 브랜드색을 뽑는다.
@@ -325,6 +391,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     [product, acceptProductFile],
   );
 
+  // 칩·파일·템플릿은 폼 onInput 을 태우지 않는다(제어 상태) — 여기서 따로 보드를 흔든다
+  useEffect(() => {
+    bumpOutline();
+  }, [productId, productFile, files, templateId, platform, category, optionAxis, bumpOutline]);
+
   /**
    * 접힌 섹션 헤더가 쓸 "채워진 칸 수"를 다시 센다(DETAIL-01d 1d-7).
    * 폼이 비제어 DOM 이라 상태가 아니라 폼에서 읽는다.
@@ -338,11 +409,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       next[id] = names.filter((n) => String(data.get(n) ?? '').trim()).length;
     }
     setFilled(next);
+    bumpOutline();
     // 표시 의무 3칸이 다 차면 스펙 섹션을 접는다 — 2회차 사용자는 이 섹션을 볼 일이 없다
     if (SPEC_GATE_FIELDS.every((n) => String(data.get(n) ?? '').trim())) {
       setOpenSections((v) => (v.spec === false ? v : { ...v, spec: false }));
     }
-  }, []);
+  }, [bumpOutline]);
 
   /**
    * 프리필 적용(DETAIL-01c). 폼이 비제어 DOM 이라 값을 직접 넣는다.
@@ -512,6 +584,37 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     [productFile, files, platform, category, templateId, optionAxis, disabled, translation],
   );
 
+  /**
+   * 블록 보드 갱신(DETAIL-01e 1e-9·1e-10). 500ms 디바운스로 LLM 없는 경량 라우트를 부른다.
+   * `/plan` 은 콜⑧ 번역을 태워 최악 22초·과금이라 타이핑할 때마다 부를 수 없다.
+   */
+  useEffect(() => {
+    // 제품·템플릿이 없으면 서버가 계산할 기준이 없다. 보드는 쉬는 상태를 보여준다
+    if (!productId || !templateId) return;
+    setOutlineBusy(true);
+    const timer = setTimeout(() => {
+      void (async () => {
+        const fd = buildFormData({ withImages: false });
+        if (!fd) return;
+        try {
+          const res = await fetch('/api/studio/detail/outline', { method: 'POST', body: fd });
+          if (!res.ok) {
+            // 직전 결과를 지우지 않는다 — 보드가 비면 레이아웃이 흔들리고 사용자가 맥락을 잃는다
+            setOutlineError('블록 수를 갱신하지 못했습니다.');
+            return;
+          }
+          setOutline((await res.json()) as OutlineResult);
+          setOutlineError(null);
+        } catch {
+          setOutlineError('블록 수를 갱신하지 못했습니다.');
+        } finally {
+          setOutlineBusy(false);
+        }
+      })();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [outlineTick, productId, templateId, buildFormData]);
+
   /** 1단계 → 확인 단계. 서버가 계산한 구성을 그대로 보여준다(화면이 따로 추론하지 않는다). */
   const handlePreview = async () => {
     // 입력이 바뀌었을 수 있으므로 캐시를 보내지 않는다 — 서버가 새로 번역한다
@@ -637,653 +740,691 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           />
         ) : null}
 
-        {/* 입력 폼 — 확인 단계에서도 DOM에 남겨 FormData 를 유지한다 */}
-        <form
-          ref={formRef}
-          className={step === 'confirm' ? 'hidden' : ''}
-          onSubmit={(e) => e.preventDefault()}
-          onInput={(e) => {
-            // 사용자가 손대는 순간 그 칸은 더 이상 "가져온 값"이 아니다
-            const t = e.target as HTMLElement;
-            if (t.dataset?.prefilled) {
-              delete t.dataset.prefilled;
-              t.classList.remove('bg-coral-tint');
-            }
-            recountSections();
-          }}
-        >
-          <input type="hidden" name="productId" value={productId} />
+        {/* 좌측 폼 · 우측 블록 보드(DETAIL-01e 1e-2). 좁은 화면은 보드를 폼 위로 접어 올린다 */}
+        <div className={`flex gap-6 max-lg:flex-col-reverse ${step === 'confirm' ? '' : 'mt-6'}`}>
+          <div className="min-w-0 flex-1">
+            {/* 입력 폼 — 확인 단계에서도 DOM에 남겨 FormData 를 유지한다 */}
+            <form
+              ref={formRef}
+              className={step === 'confirm' ? 'hidden' : ''}
+              onSubmit={(e) => e.preventDefault()}
+              onInput={(e) => {
+                // 사용자가 손대는 순간 그 칸은 더 이상 "가져온 값"이 아니다
+                const t = e.target as HTMLElement;
+                if (t.dataset?.prefilled) {
+                  delete t.dataset.prefilled;
+                  t.classList.remove('bg-coral-tint');
+                }
+                recountSections();
+              }}
+            >
+              <input type="hidden" name="productId" value={productId} />
 
-          {/* DETAIL-01b 제품 선택 — 폼의 맨 앞. 이 칸이 없어서 생성기가 상품명을 지어냈다(UT-58) */}
-          <SectionCard
-            step={1}
-            title="제품"
-            pill="required"
-            desc="어느 제품인지 먼저 고르세요. 같은 제품으로 다시 만들 때 지난 입력을 그대로 가져옵니다."
-          >
-            <ProductPicker value={productId} onSelect={selectProduct} />
-            {prefill && (prefill.count > 0 || prefill.choice) && (
-              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg bg-coral-tint px-4 py-3">
-                <p className="flex-1 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
-                  <b>
-                    지난 생성에서{' '}
-                    {[prefill.count > 0 ? `${prefill.count}개 칸` : '', prefill.choice ? '템플릿·채널' : '']
-                      .filter(Boolean)
-                      .join('과 ')}
-                    을 가져왔습니다.
-                  </b>
-                  {prefill.lastAssetAt ? ` (${new Date(prefill.lastAssetAt).toLocaleDateString('ko-KR')} 생성분)` : ''}{' '}
-                  {prefill.count > 0 ? '색이 들어간 칸이 가져온 값입니다. 그대로 두거나 고쳐 쓰세요.' : ''}
-                  {prefill.choice ? ' 템플릿·채널은 아래에서 바꿀 수 있습니다.' : ''}
-                </p>
-                {prefill.count > 0 && (
-                  <button type="button" onClick={clearPrefill} className={buttonClass('secondary', 'sm')}>
-                    가져온 값 지우기
-                  </button>
+              {/* DETAIL-01b 제품 선택 — 폼의 맨 앞. 이 칸이 없어서 생성기가 상품명을 지어냈다(UT-58) */}
+              <SectionCard
+                step={1}
+                title="제품"
+                pill="required"
+                desc="어느 제품인지 먼저 고르세요. 같은 제품으로 다시 만들 때 지난 입력을 그대로 가져옵니다."
+              >
+                <ProductPicker value={productId} onSelect={selectProduct} />
+                {prefill && (prefill.count > 0 || prefill.choice) && (
+                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg bg-coral-tint px-4 py-3">
+                    <p className="flex-1 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
+                      <b>
+                        지난 생성에서{' '}
+                        {[prefill.count > 0 ? `${prefill.count}개 칸` : '', prefill.choice ? '템플릿·채널' : '']
+                          .filter(Boolean)
+                          .join('과 ')}
+                        을 가져왔습니다.
+                      </b>
+                      {prefill.lastAssetAt
+                        ? ` (${new Date(prefill.lastAssetAt).toLocaleDateString('ko-KR')} 생성분)`
+                        : ''}{' '}
+                      {prefill.count > 0 ? '색이 들어간 칸이 가져온 값입니다. 그대로 두거나 고쳐 쓰세요.' : ''}
+                      {prefill.choice ? ' 템플릿·채널은 아래에서 바꿀 수 있습니다.' : ''}
+                    </p>
+                    {prefill.count > 0 && (
+                      <button type="button" onClick={clearPrefill} className={buttonClass('secondary', 'sm')}>
+                        가져온 값 지우기
+                      </button>
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
-            {prefill && prefill.count === 0 && !prefill.choice && (
-              <p className="mt-4 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-                이 제품의 첫 상세페이지입니다. 아래 항목을 채워 주세요.
-              </p>
-            )}
-          </SectionCard>
+                {prefill && prefill.count === 0 && !prefill.choice && (
+                  <p className="mt-4 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+                    이 제품의 첫 상세페이지입니다. 아래 항목을 채워 주세요.
+                  </p>
+                )}
+              </SectionCard>
 
-          {/*
+              {/*
             DETAIL-02 원본 이미지 — 2026-08-19 분리.
             제품컷은 images.edit 의 base라 제품 형상·라벨이 여기서 결정된다. 예전에는 한 칸에
             제품컷과 KR 상세 원본을 섞어 받고 첫 장을 base로 썼는데, 폼이 "상세 원본을 위→아래
             순서로" 안내해서 텍스트가 얹힌 상세 스크린샷이 제품 자리를 차지하는 일이 있었다.
           */}
-          <SectionCard
-            step={2}
-            title="제품컷"
-            pill="required"
-            desc="이 이미지를 기준으로 제품 사진을 다시 그립니다. 배경이 깔끔한 제품 단독컷 1장을 올려 주세요."
-          >
-            <div
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                acceptProduct(e.dataTransfer.files);
-              }}
-              className="rounded-xl border border-dashed border-input-border p-6 text-center"
-            >
-              <input
-                ref={productRef}
-                type="file"
-                name="productImage"
-                accept="image/jpeg,image/png,image/webp"
-                className="sr-only"
-                onChange={(e) => acceptProduct(e.target.files)}
-              />
-              <button
-                type="button"
-                onClick={() => productRef.current?.click()}
-                className={buttonClass('secondary', 'md')}
+              <SectionCard
+                step={2}
+                title="제품컷"
+                pill="required"
+                desc="이 이미지를 기준으로 제품 사진을 다시 그립니다. 배경이 깔끔한 제품 단독컷 1장을 올려 주세요."
               >
-                <IconUpload /> {productFile ? '제품컷 바꾸기' : '제품컷 선택'}
-              </button>
-              <p className="mt-2 text-xs text-ink-mute">JPG · PNG · WebP · 10MB 이하</p>
-            </div>
-            {/* DETAIL-02 2d — 고른 제품에 대표컷이 있으면 매번 다시 올리지 않게 한다 */}
-            {!productFile && product && product.images.length > 0 && (
-              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg bg-coral-tint px-4 py-3">
-                <p className="flex-1 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
-                  <b>{product.nameKr}</b>의 대표컷을 쓸까요?
-                </p>
-                <button
-                  type="button"
-                  onClick={() => void useProductPrimary()}
-                  className={buttonClass('secondary', 'sm')}
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    acceptProduct(e.dataTransfer.files);
+                  }}
+                  className="rounded-xl border border-dashed border-input-border p-6 text-center"
                 >
-                  대표컷 쓰기
-                </button>
-              </div>
-            )}
-            {productPreview && (
-              <div className="mt-4 flex items-center gap-3.5">
-                <span className="relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
-                  <img
-                    src={productPreview}
-                    alt="제품컷 미리보기"
-                    className="h-24 w-24 rounded-lg border border-card-border object-cover"
+                  <input
+                    ref={productRef}
+                    type="file"
+                    name="productImage"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="sr-only"
+                    onChange={(e) => acceptProduct(e.target.files)}
                   />
                   <button
                     type="button"
-                    onClick={clearProduct}
-                    aria-label="제품컷 제거"
-                    className="absolute -top-1.5 -right-1.5 h-5 w-5 cursor-pointer rounded-full bg-ink text-xs text-white"
+                    onClick={() => productRef.current?.click()}
+                    className={buttonClass('secondary', 'md')}
                   >
-                    ×
+                    <IconUpload /> {productFile ? '제품컷 바꾸기' : '제품컷 선택'}
                   </button>
-                </span>
-                <p className="text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-                  제품이 등장하는 컷(히어로 · 사용 장면 · 텍스처 · 스와치)은 이 사진을 편집해 만듭니다.
-                </p>
-              </div>
-            )}
-          </SectionCard>
-
-          {/* DETAIL-02b 한국 상세페이지 원본 — 비전(갭 진단) 입력 전용 */}
-          <SectionCard
-            step={3}
-            title="한국 상세페이지 원본"
-            pill="optional"
-            pillTone="optional"
-            desc={`위→아래 순서로 올리면 한국 상세의 메시지 갭을 진단하는 데 씁니다. 제품 사진의 기준이 되지는 않습니다. 최대 ${MAX_KR_IMAGES}장.`}
-          >
-            <div
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                acceptFiles(e.dataTransfer.files);
-              }}
-              className="rounded-xl border border-dashed border-input-border p-6 text-center"
-            >
-              <input
-                ref={fileRef}
-                type="file"
-                name="images"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                className="sr-only"
-                onChange={(e) => acceptFiles(e.target.files)}
-              />
-              <button type="button" onClick={() => fileRef.current?.click()} className={buttonClass('secondary', 'md')}>
-                <IconUpload /> 상세 원본 선택
-              </button>
-              <p className="mt-2 text-xs text-ink-mute">JPG · PNG · WebP · 10MB 이하</p>
-            </div>
-            {previews.length > 0 && (
-              <ul className="mt-4 flex flex-wrap gap-3">
-                {previews.map((src, i) => (
-                  <li key={src} className="relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
-                    <img
-                      src={src}
-                      alt={`상세 원본 ${i + 1}`}
-                      className="h-24 w-24 rounded-lg border border-card-border object-cover"
-                    />
-                    <span className="absolute top-1 left-1 rounded bg-ink/70 px-1.5 text-[11px] font-bold text-white">
-                      {i + 1}
-                    </span>
+                  <p className="mt-2 text-xs text-ink-mute">JPG · PNG · WebP · 10MB 이하</p>
+                </div>
+                {/* DETAIL-02 2d — 고른 제품에 대표컷이 있으면 매번 다시 올리지 않게 한다 */}
+                {!productFile && product && product.images.length > 0 && (
+                  <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg bg-coral-tint px-4 py-3">
+                    <p className="flex-1 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
+                      <b>{product.nameKr}</b>의 대표컷을 쓸까요?
+                    </p>
                     <button
                       type="button"
-                      onClick={() => removeFile(i)}
-                      aria-label={`${i + 1}번 이미지 제거`}
-                      className="absolute -top-1.5 -right-1.5 h-5 w-5 cursor-pointer rounded-full bg-ink text-xs text-white"
+                      onClick={() => void useProductPrimary()}
+                      className={buttonClass('secondary', 'sm')}
                     >
-                      ×
+                      대표컷 쓰기
                     </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </SectionCard>
-
-          {/* DETAIL-03 카테고리·플랫폼 */}
-          <SectionCard
-            step={4}
-            title="상품 종류 · 타깃 플랫폼"
-            id="section-catalog"
-            collapsible
-            open={isOpen('catalog')}
-            onToggle={() => toggleSection('catalog')}
-            summary={`${CATEGORIES.find((c) => c.id === category)?.label ?? ''} · ${PLATFORM_LABELS[platform]}`}
-            desc="상품 종류는 고른 제품에서 따라옵니다. 플랫폼은 고르지 않아도 만들 수 있습니다."
-          >
-            <p className={fieldLabelClass}>상품 종류</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {CATEGORIES.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setCategory(c.id)}
-                  className={chipClass(category === c.id)}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
-            <p className={`${fieldLabelClass} mt-5`}>타깃 플랫폼</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {PLATFORMS.map((p) => (
-                <button key={p} type="button" onClick={() => setPlatform(p)} className={chipClass(platform === p)}>
-                  {PLATFORM_LABELS[p]}
-                </button>
-              ))}
-            </div>
-            {amazonSelected && (
-              <p className="mt-3 rounded-lg bg-amber-bg px-3 py-2 text-[13px] leading-relaxed text-amber-text">
-                아마존JP A+ 콘텐츠는 가격·프로모션 표기가 규정상 금지라, 프로모션 블록은 넣지 않습니다.
-              </p>
-            )}
-          </SectionCard>
-
-          {/* DETAIL-04 템플릿 */}
-          <SectionCard
-            step={5}
-            title="템플릿"
-            pill="required"
-            desc="상세페이지는 순서가 핵심입니다. 미리보기는 이 템플릿을 실제로 돌려 만든 결과입니다."
-          >
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {templates.map((t) => {
-                const active = t.id === templateId;
-                // 플랫폼만 보면 라쿠텐에서 6장 전부에 배지가 붙어 아무것도 구분하지 못한다
-                const fits =
-                  platform !== 'unset' && t.platformFit.includes(platform) && t.dominantCategories.includes(category);
-                return (
-                  // 확대 버튼은 선택 버튼 **바깥**에 둔다 — 버튼 안에 버튼을 넣으면 유효하지 않은
-                  // 마크업이고, 스크린리더가 두 조작을 하나로 읽는다
-                  <li key={t.id} className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setTemplateId(t.id)}
-                      aria-pressed={active}
-                      className={`${cardClass} flex w-full gap-3.5 p-4 text-left transition ${active ? 'border-coral ring-2 ring-coral/25' : 'hover:border-input-border'}`}
-                    >
-                      <TemplatePreview src={t.cardSrc ?? t.previewSrc} nameKo={t.nameKo} />
-                      <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-ink">{t.nameKo}</span>
-                          {fits && <StatusBadge tone="ok">추천</StatusBadge>}
-                        </span>
-                        <span className="mt-1.5 block text-xs leading-relaxed text-ink-mute [text-wrap:pretty]">
-                          {t.description}
-                        </span>
-                        <span className="mt-2 block text-[11px] text-ink-faint">블록 {t.sequencePreview.length}개</span>
-                        <span className="mt-2 block space-y-1">
-                          {t.sequencePreview.slice(0, 3).map((b, i) => (
-                            <span key={`${t.id}-${i}`} className="flex items-center gap-1.5 text-[11px] text-ink-mute">
-                              <span className="h-1 w-1 shrink-0 rounded-full bg-coral" aria-hidden />
-                              {b}
-                            </span>
-                          ))}
-                          {t.sequencePreview.length > 3 && (
-                            <span className="block text-[11px] text-ink-faint">
-                              외 {t.sequencePreview.length - 3}개
-                            </span>
-                          )}
-                        </span>
-                      </span>
-                    </button>
-                    {t.previewSrc && (
+                  </div>
+                )}
+                {productPreview && (
+                  <div className="mt-4 flex items-center gap-3.5">
+                    <span className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
+                      <img
+                        src={productPreview}
+                        alt="제품컷 미리보기"
+                        className="h-24 w-24 rounded-lg border border-card-border object-cover"
+                      />
                       <button
                         type="button"
-                        onClick={() => setZoom(t)}
-                        className="absolute bottom-5 left-5 rounded-full bg-ink/75 px-2 py-[3px] text-[10px] font-bold text-white backdrop-blur transition hover:bg-ink"
+                        onClick={clearProduct}
+                        aria-label="제품컷 제거"
+                        className="absolute -top-1.5 -right-1.5 h-5 w-5 cursor-pointer rounded-full bg-ink text-xs text-white"
                       >
-                        전체 보기
+                        ×
                       </button>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-3 text-[11px] leading-relaxed text-ink-faint [text-wrap:pretty]">
-              미리보기는 데모 입력으로 실제 생성한 결과이고, 제품컷은 실존 제품이 아닌 가상 브랜드용 이미지입니다. 실제
-              산출물은 입력하신 내용과 이미지로 만들어집니다.
-            </p>
+                    </span>
+                    <p className="text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+                      제품이 등장하는 컷(히어로 · 사용 장면 · 텍스처 · 스와치)은 이 사진을 편집해 만듭니다.
+                    </p>
+                  </div>
+                )}
+              </SectionCard>
 
-            {/* DETAIL-04b 산출물 색 — 결과물은 고객 브랜드의 색으로 나온다(§2-7) */}
-            <div className="mt-6 border-t border-hairline pt-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[13px] font-bold text-ink">산출물 색</span>
-                <span className="text-[11px] text-ink-faint">
-                  상세페이지에 쓰이는 색입니다. YOAKE 화면 색과는 무관합니다.
-                </span>
-              </div>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                {(
-                  [
-                    ['auto', '제품컷에서 자동'],
-                    ['palette', '팔레트에서 선택'],
-                    ['custom', '직접 입력'],
-                  ] as const
-                ).map(([id, label]) => (
+              {/* DETAIL-02b 한국 상세페이지 원본 — 비전(갭 진단) 입력 전용 */}
+              <SectionCard
+                step={3}
+                title="한국 상세페이지 원본"
+                pill="optional"
+                pillTone="optional"
+                desc={`위→아래 순서로 올리면 한국 상세의 메시지 갭을 진단하는 데 씁니다. 제품 사진의 기준이 되지는 않습니다. 최대 ${MAX_KR_IMAGES}장.`}
+              >
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    acceptFiles(e.dataTransfer.files);
+                  }}
+                  className="rounded-xl border border-dashed border-input-border p-6 text-center"
+                >
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    name="images"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="sr-only"
+                    onChange={(e) => acceptFiles(e.target.files)}
+                  />
                   <button
-                    key={id}
                     type="button"
-                    onClick={() => setThemeSource(id)}
-                    aria-pressed={themeSource === id}
-                    className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
-                      themeSource === id
-                        ? 'border-coral bg-coral-tint text-coral-strong'
-                        : 'border-input-border text-ink-mute hover:border-ink-faint'
-                    }`}
+                    onClick={() => fileRef.current?.click()}
+                    className={buttonClass('secondary', 'md')}
                   >
-                    {label}
+                    <IconUpload /> 상세 원본 선택
                   </button>
-                ))}
-              </div>
+                  <p className="mt-2 text-xs text-ink-mute">JPG · PNG · WebP · 10MB 이하</p>
+                </div>
+                {previews.length > 0 && (
+                  <ul className="mt-4 flex flex-wrap gap-3">
+                    {previews.map((src, i) => (
+                      <li key={src} className="relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element -- blob 미리보기 */}
+                        <img
+                          src={src}
+                          alt={`상세 원본 ${i + 1}`}
+                          className="h-24 w-24 rounded-lg border border-card-border object-cover"
+                        />
+                        <span className="absolute top-1 left-1 rounded bg-ink/70 px-1.5 text-[11px] font-bold text-white">
+                          {i + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeFile(i)}
+                          aria-label={`${i + 1}번 이미지 제거`}
+                          className="absolute -top-1.5 -right-1.5 h-5 w-5 cursor-pointer rounded-full bg-ink text-xs text-white"
+                        >
+                          ×
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </SectionCard>
 
-              {themeSource === 'auto' && (
-                <p className="mt-3 flex items-center gap-2 text-[12px] text-ink-mute">
-                  {extracted ? (
-                    <>
-                      <span
-                        aria-hidden
-                        className="inline-block h-4 w-4 shrink-0 rounded-full border border-hairline"
-                        style={{ backgroundColor: extracted.accent }}
-                      />
-                      {extracted.ok ? (
+              {/* DETAIL-03 카테고리·플랫폼 */}
+              <SectionCard
+                step={4}
+                title="상품 종류 · 타깃 플랫폼"
+                id="section-catalog"
+                collapsible
+                open={isOpen('catalog')}
+                onToggle={() => toggleSection('catalog')}
+                summary={`${CATEGORIES.find((c) => c.id === category)?.label ?? ''} · ${PLATFORM_LABELS[platform]}`}
+                desc="상품 종류는 고른 제품에서 따라옵니다. 플랫폼은 고르지 않아도 만들 수 있습니다."
+              >
+                <p className={fieldLabelClass}>상품 종류</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {CATEGORIES.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setCategory(c.id)}
+                      className={chipClass(category === c.id)}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+                <p className={`${fieldLabelClass} mt-5`}>타깃 플랫폼</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {PLATFORMS.map((p) => (
+                    <button key={p} type="button" onClick={() => setPlatform(p)} className={chipClass(platform === p)}>
+                      {PLATFORM_LABELS[p]}
+                    </button>
+                  ))}
+                </div>
+                {amazonSelected && (
+                  <p className="mt-3 rounded-lg bg-amber-bg px-3 py-2 text-[13px] leading-relaxed text-amber-text">
+                    아마존JP A+ 콘텐츠는 가격·프로모션 표기가 규정상 금지라, 프로모션 블록은 넣지 않습니다.
+                  </p>
+                )}
+              </SectionCard>
+
+              {/* DETAIL-04 템플릿 */}
+              <SectionCard
+                step={5}
+                title="템플릿"
+                pill="required"
+                desc="상세페이지는 순서가 핵심입니다. 미리보기는 이 템플릿을 실제로 돌려 만든 결과입니다."
+              >
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {templates.map((t) => {
+                    const active = t.id === templateId;
+                    // 플랫폼만 보면 라쿠텐에서 6장 전부에 배지가 붙어 아무것도 구분하지 못한다
+                    const fits =
+                      platform !== 'unset' &&
+                      t.platformFit.includes(platform) &&
+                      t.dominantCategories.includes(category);
+                    return (
+                      // 확대 버튼은 선택 버튼 **바깥**에 둔다 — 버튼 안에 버튼을 넣으면 유효하지 않은
+                      // 마크업이고, 스크린리더가 두 조작을 하나로 읽는다
+                      <li key={t.id} className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setTemplateId(t.id)}
+                          aria-pressed={active}
+                          className={`${cardClass} flex w-full gap-3.5 p-4 text-left transition ${active ? 'border-coral ring-2 ring-coral/25' : 'hover:border-input-border'}`}
+                        >
+                          <TemplatePreview src={t.cardSrc ?? t.previewSrc} nameKo={t.nameKo} />
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-ink">{t.nameKo}</span>
+                              {fits && <StatusBadge tone="ok">추천</StatusBadge>}
+                            </span>
+                            <span className="mt-1.5 block text-xs leading-relaxed text-ink-mute [text-wrap:pretty]">
+                              {t.description}
+                            </span>
+                            <span className="mt-2 block text-[11px] text-ink-faint">
+                              블록 {t.sequencePreview.length}개
+                            </span>
+                            <span className="mt-2 block space-y-1">
+                              {t.sequencePreview.slice(0, 3).map((b, i) => (
+                                <span
+                                  key={`${t.id}-${i}`}
+                                  className="flex items-center gap-1.5 text-[11px] text-ink-mute"
+                                >
+                                  <span className="h-1 w-1 shrink-0 rounded-full bg-coral" aria-hidden />
+                                  {b}
+                                </span>
+                              ))}
+                              {t.sequencePreview.length > 3 && (
+                                <span className="block text-[11px] text-ink-faint">
+                                  외 {t.sequencePreview.length - 3}개
+                                </span>
+                              )}
+                            </span>
+                          </span>
+                        </button>
+                        {t.previewSrc && (
+                          <button
+                            type="button"
+                            onClick={() => setZoom(t)}
+                            className="absolute bottom-5 left-5 rounded-full bg-ink/75 px-2 py-[3px] text-[10px] font-bold text-white backdrop-blur transition hover:bg-ink"
+                          >
+                            전체 보기
+                          </button>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p className="mt-3 text-[11px] leading-relaxed text-ink-faint [text-wrap:pretty]">
+                  미리보기는 데모 입력으로 실제 생성한 결과이고, 제품컷은 실존 제품이 아닌 가상 브랜드용 이미지입니다.
+                  실제 산출물은 입력하신 내용과 이미지로 만들어집니다.
+                </p>
+
+                {/* DETAIL-04b 산출물 색 — 결과물은 고객 브랜드의 색으로 나온다(§2-7) */}
+                <div className="mt-6 border-t border-hairline pt-5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[13px] font-bold text-ink">산출물 색</span>
+                    <span className="text-[11px] text-ink-faint">
+                      상세페이지에 쓰이는 색입니다. YOAKE 화면 색과는 무관합니다.
+                    </span>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {(
+                      [
+                        ['auto', '제품컷에서 자동'],
+                        ['palette', '팔레트에서 선택'],
+                        ['custom', '직접 입력'],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setThemeSource(id)}
+                        aria-pressed={themeSource === id}
+                        className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
+                          themeSource === id
+                            ? 'border-coral bg-coral-tint text-coral-strong'
+                            : 'border-input-border text-ink-mute hover:border-ink-faint'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {themeSource === 'auto' && (
+                    <p className="mt-3 flex items-center gap-2 text-[12px] text-ink-mute">
+                      {extracted ? (
                         <>
-                          제품컷에서 <code className="text-ink">{extracted.accent}</code> 를 뽑았습니다.
+                          <span
+                            aria-hidden
+                            className="inline-block h-4 w-4 shrink-0 rounded-full border border-hairline"
+                            style={{ backgroundColor: extracted.accent }}
+                          />
+                          {extracted.ok ? (
+                            <>
+                              제품컷에서 <code className="text-ink">{extracted.accent}</code> 를 뽑았습니다.
+                            </>
+                          ) : (
+                            // 추출 실패를 조용히 넘기지 않는다 — 사용자가 직접 고를 수 있어야 한다
+                            <>
+                              제품컷이 무채색에 가까워 색을 뽑지 못했습니다. 상품 종류 기본색(
+                              <code className="text-ink">{extracted.accent}</code>)을 씁니다 — 원하는 색이 있으면 직접
+                              골라 주세요.
+                            </>
+                          )}
                         </>
                       ) : (
-                        // 추출 실패를 조용히 넘기지 않는다 — 사용자가 직접 고를 수 있어야 한다
-                        <>
-                          제품컷이 무채색에 가까워 색을 뽑지 못했습니다. 상품 종류 기본색(
-                          <code className="text-ink">{extracted.accent}</code>)을 씁니다 — 원하는 색이 있으면 직접 골라
-                          주세요.
-                        </>
+                        <>제품컷을 올리면 대표색을 뽑아 보여 드립니다.</>
                       )}
-                    </>
-                  ) : (
-                    <>제품컷을 올리면 대표색을 뽑아 보여 드립니다.</>
+                    </p>
                   )}
-                </p>
-              )}
 
-              {themeSource === 'palette' && (
-                <ul className="mt-3 flex flex-wrap gap-2">
-                  {PALETTES.map((p) => (
-                    <li key={p.id}>
-                      <button
-                        type="button"
-                        onClick={() => setThemePaletteId(p.id)}
-                        aria-pressed={themePaletteId === p.id}
-                        className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] transition ${
-                          themePaletteId === p.id
-                            ? 'border-ink font-semibold text-ink'
-                            : 'border-input-border text-ink-mute hover:border-ink-faint'
-                        }`}
-                      >
-                        <span
-                          aria-hidden
-                          className="inline-block h-3.5 w-3.5 shrink-0 rounded-full"
-                          style={{ backgroundColor: p.accent }}
-                        />
-                        {p.labelKo}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {themeSource === 'custom' && (
-                <div className="mt-3 flex items-center gap-2">
-                  <label htmlFor="themeCustomAccent" className="text-[12px] text-ink-mute">
-                    브랜드 색(HEX)
-                  </label>
-                  <input
-                    id="themeCustomAccent"
-                    type="text"
-                    value={themeCustomAccent}
-                    onChange={(e) => setThemeCustomAccent(e.target.value)}
-                    placeholder="#8a7f76"
-                    aria-invalid={normalizeHex(themeCustomAccent) === null}
-                    className="w-32 rounded-lg border border-input-border px-2.5 py-1.5 font-mono text-[12px] text-ink"
-                  />
-                  <span
-                    aria-hidden
-                    className="inline-block h-6 w-6 shrink-0 rounded-md border border-hairline"
-                    style={{ backgroundColor: normalizeHex(themeCustomAccent) ?? 'transparent' }}
-                  />
-                  {normalizeHex(themeCustomAccent) === null && (
-                    <span className="text-[11px] text-coral-strong">#RRGGBB 형식으로 입력해 주세요.</span>
+                  {themeSource === 'palette' && (
+                    <ul className="mt-3 flex flex-wrap gap-2">
+                      {PALETTES.map((p) => (
+                        <li key={p.id}>
+                          <button
+                            type="button"
+                            onClick={() => setThemePaletteId(p.id)}
+                            aria-pressed={themePaletteId === p.id}
+                            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12px] transition ${
+                              themePaletteId === p.id
+                                ? 'border-ink font-semibold text-ink'
+                                : 'border-input-border text-ink-mute hover:border-ink-faint'
+                            }`}
+                          >
+                            <span
+                              aria-hidden
+                              className="inline-block h-3.5 w-3.5 shrink-0 rounded-full"
+                              style={{ backgroundColor: p.accent }}
+                            />
+                            {p.labelKo}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   )}
+
+                  {themeSource === 'custom' && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <label htmlFor="themeCustomAccent" className="text-[12px] text-ink-mute">
+                        브랜드 색(HEX)
+                      </label>
+                      <input
+                        id="themeCustomAccent"
+                        type="text"
+                        value={themeCustomAccent}
+                        onChange={(e) => setThemeCustomAccent(e.target.value)}
+                        placeholder="#8a7f76"
+                        aria-invalid={normalizeHex(themeCustomAccent) === null}
+                        className="w-32 rounded-lg border border-input-border px-2.5 py-1.5 font-mono text-[12px] text-ink"
+                      />
+                      <span
+                        aria-hidden
+                        className="inline-block h-6 w-6 shrink-0 rounded-md border border-hairline"
+                        style={{ backgroundColor: normalizeHex(themeCustomAccent) ?? 'transparent' }}
+                      />
+                      {normalizeHex(themeCustomAccent) === null && (
+                        <span className="text-[11px] text-coral-strong">#RRGGBB 형식으로 입력해 주세요.</span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="mt-4">
+                    <span className="text-[12px] text-ink-mute">분위기</span>
+                    <ul className="mt-2 flex flex-wrap gap-2">
+                      {MOODS.map((m) => (
+                        <li key={m.id}>
+                          <button
+                            type="button"
+                            onClick={() => setThemeMoodId(m.id)}
+                            aria-pressed={themeMoodId === m.id}
+                            className={`rounded-full border px-3 py-1.5 text-[12px] transition ${
+                              themeMoodId === m.id
+                                ? 'border-ink font-semibold text-ink'
+                                : 'border-input-border text-ink-mute hover:border-ink-faint'
+                            }`}
+                          >
+                            {m.labelKo}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 text-[11px] text-ink-faint [text-wrap:pretty]">
+                      배경컷 연출에 반영됩니다. 템플릿이 정한 시각 언어 위에 얹히는 값이라, 템플릿을 바꾸면 결과의
+                      인상도 함께 달라집니다.
+                    </p>
+                  </div>
                 </div>
+              </SectionCard>
+
+              {/* DETAIL-05 제품 스펙 */}
+              <SectionCard
+                step={6}
+                title="제품 스펙"
+                id="section-spec"
+                collapsible
+                open={isOpen('spec')}
+                onToggle={() => toggleSection('spec')}
+                summary={filled.spec ? `${filled.spec}칸 입력됨` : '표시 의무 항목입니다'}
+                pill="required"
+                desc="표시 의무 항목입니다. 내용을 고쳐 쓰지 않고, 한국어로 입력하시면 일본 표기로만 바꿔 넣습니다 — 바꾼 결과는 다음 단계에서 확인·수정하실 수 있습니다."
+              >
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className={fieldLabelClass}>내용량</span>
+                    <input name="specVolume" className={inputClass} placeholder="30mL" />
+                  </label>
+                  <label className="block">
+                    <span className={fieldLabelClass}>구분</span>
+                    <input name="specCategory" className={inputClass} placeholder="化粧品 / 医薬部外品" />
+                  </label>
+                  <label className="block">
+                    <span className={fieldLabelClass}>판매원</span>
+                    <input name="specManufacturer" className={inputClass} placeholder="株式会社◯◯" />
+                  </label>
+                  <label className="block">
+                    <span className={fieldLabelClass}>원산국</span>
+                    <input name="specOrigin" className={inputClass} placeholder="韓国" />
+                  </label>
+                </div>
+                <label className="mt-3 block">
+                  <span className={fieldLabelClass}>전성분</span>
+                  <textarea
+                    name="specFullIngredients"
+                    rows={3}
+                    className={inputClass}
+                    placeholder="水、BG、グリセリン…"
+                  />
+                </label>
+              </SectionCard>
+
+              {/* DETAIL-05b 성분·무첨가·사용법 */}
+              <SectionCard
+                step={7}
+                title="성분 · 무첨가 · 사용법"
+                id="section-ingredients"
+                collapsible
+                open={isOpen('ingredients')}
+                onToggle={() => toggleSection('ingredients')}
+                summary={sectionSummary('ingredients')}
+                desc="성분을 넣으면 성분·기전 블록이 들어갑니다. 성분명을 지어내지 않습니다."
+              >
+                <label className="block">
+                  <span className={fieldLabelClass}>성분 (한 줄에 하나 · 성분명|농도|배합목적)</span>
+                  <textarea
+                    name="ingredientRows"
+                    rows={3}
+                    className={inputClass}
+                    placeholder={'ナイアシンアミド|2%|整肌成分\nヒアルロン酸Na||保湿成分'}
+                  />
+                </label>
+                <label className="mt-3 block">
+                  <span className={fieldLabelClass}>무첨가 항목 (한 줄에 하나)</span>
+                  <textarea name="freeOf" rows={2} className={inputClass} placeholder={'合成香料\n鉱物油'} />
+                </label>
+                <label className="mt-3 block">
+                  <span className={fieldLabelClass}>스펙 수치 (라벨|값)</span>
+                  <textarea name="specRows" rows={2} className={inputClass} placeholder={'SPF|50+\nPA|++++'} />
+                </label>
+                <label className="mt-3 block">
+                  <span className={fieldLabelClass}>사용법 STEP (한 줄에 하나)</span>
+                  <textarea
+                    name="howToSteps"
+                    rows={3}
+                    className={inputClass}
+                    placeholder={'洗顔後、化粧水で肌をととのえます。'}
+                  />
+                </label>
+                <label className="mt-3 block">
+                  <span className={fieldLabelClass}>주의사항 (한 줄에 하나)</span>
+                  <textarea name="cautions" rows={2} className={inputClass} />
+                </label>
+              </SectionCard>
+
+              {/* DETAIL-06 근거(접이식) */}
+              <SectionCard
+                step={9}
+                title="실적 · 시험 근거"
+                id="section-evidence"
+                collapsible
+                open={isOpen('evidence')}
+                onToggle={() => toggleSection('evidence')}
+                summary={sectionSummary('evidence')}
+                desc="그룹을 다 채운 근거만 블록으로 들어갑니다."
+              >
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <input name="proofRankTitle" className={inputClass} placeholder="실적명 (楽天ランキング1位)" />
+                  <input name="proofGenre" className={inputClass} placeholder="부문 (美容液部門)" />
+                  <input name="proofDate" className={inputClass} placeholder="집계일 (2026年7月14日更新)" />
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <input name="salesCount" className={inputClass} placeholder="누적 판매 (累計163,991個)" />
+                  <input name="salesPeriod" className={inputClass} placeholder="집계 기간" />
+                </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <input name="testName" className={inputClass} placeholder="시험명 (効能評価試験済み)" />
+                  <input name="testCondition" className={inputClass} placeholder="시험 조건" />
+                  <input name="testInstitution" className={inputClass} placeholder="시험기관" />
+                  <input name="testDate" className={inputClass} placeholder="시험 시점" />
+                  <input name="testSampleSize" className={inputClass} placeholder="대상 인원 (21名)" />
+                </div>
+                <label className="mt-3 block">
+                  <span className={fieldLabelClass}>고객 리뷰 원문 (본문|평점|연령대) — 실제 리뷰만 넣습니다</span>
+                  <textarea name="reviewRows" rows={2} className={inputClass} />
+                </label>
+              </SectionCard>
+
+              {/* DETAIL-06b 프로모(접이식) */}
+              {!amazonSelected && (
+                <SectionCard
+                  step={10}
+                  title="프로모션"
+                  id="section-promo"
+                  collapsible
+                  open={isOpen('promo')}
+                  onToggle={() => toggleSection('promo')}
+                  summary={sectionSummary('promo')}
+                  desc="세트명·판매가가 있어야 가격 블록이 들어갑니다."
+                >
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <input name="promoSetTitle" className={inputClass} placeholder="세트명 (2個セット)" />
+                    <input name="promoSalePrice" className={inputClass} placeholder="판매가 (1,920)" />
+                    <input name="promoNormalPrice" className={inputClass} placeholder="통상가 (2,610)" />
+                    <input name="promoDiscountRate" className={inputClass} placeholder="할인율 (26)" />
+                    <input name="promoGift" className={inputClass} placeholder="증정품" />
+                    <input name="promoQualifiers" className={inputClass} placeholder="한정 조건 (쉼표 구분)" />
+                  </div>
+                  <label className="mt-3 flex items-start gap-2 text-[13px] leading-relaxed text-ink-body">
+                    <input type="checkbox" name="promoNormalPriceVerified" value="true" className="mt-0.5" />
+                    <span>
+                      통상가로 실제 판매한 실적이 있습니다. (체크하지 않으면 통상가 취소선을 넣지 않습니다 — 有利誤認
+                      방지)
+                    </span>
+                  </label>
+                  <input name="promoFootnote" className={`${inputClass} mt-3`} placeholder="가격 조건 각주" />
+                </SectionCard>
               )}
 
-              <div className="mt-4">
-                <span className="text-[12px] text-ink-mute">분위기</span>
-                <ul className="mt-2 flex flex-wrap gap-2">
-                  {MOODS.map((m) => (
-                    <li key={m.id}>
-                      <button
-                        type="button"
-                        onClick={() => setThemeMoodId(m.id)}
-                        aria-pressed={themeMoodId === m.id}
-                        className={`rounded-full border px-3 py-1.5 text-[12px] transition ${
-                          themeMoodId === m.id
-                            ? 'border-ink font-semibold text-ink'
-                            : 'border-input-border text-ink-mute hover:border-ink-faint'
-                        }`}
-                      >
-                        {m.labelKo}
-                      </button>
-                    </li>
+              {/* DETAIL-06c 옵션(접이식) */}
+              <SectionCard
+                step={11}
+                title="옵션"
+                id="section-option"
+                collapsible
+                open={isOpen('option')}
+                onToggle={() => toggleSection('option')}
+                summary={sectionSummary('option')}
+                desc="2개 이상이면 옵션 블록이 들어갑니다."
+              >
+                <p className={fieldLabelClass}>옵션 축</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {OPTION_AXES.map((a) => (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => setOptionAxis(a.id)}
+                      className={chipClass(optionAxis === a.id)}
+                    >
+                      {a.label}
+                    </button>
                   ))}
-                </ul>
-                <p className="mt-2 text-[11px] text-ink-faint [text-wrap:pretty]">
-                  배경컷 연출에 반영됩니다. 템플릿이 정한 시각 언어 위에 얹히는 값이라, 템플릿을 바꾸면 결과의 인상도
-                  함께 달라집니다.
+                </div>
+                <label className="mt-3 block">
+                  <span className={fieldLabelClass}>옵션 목록 (이름|색상값|품번)</span>
+                  <textarea
+                    name="optionRows"
+                    rows={3}
+                    className={inputClass}
+                    placeholder={'01 ローズベージュ|#c86b5a|SHADE 1'}
+                  />
+                </label>
+                <label className="mt-3 block">
+                  <span className={fieldLabelClass}>모델컷 (퍼스널컬러 블록용)</span>
+                  <input
+                    type="file"
+                    name="modelImage"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="mt-1 block text-sm"
+                  />
+                </label>
+                <label className="mt-2 flex items-start gap-2 text-[13px] leading-relaxed text-ink-body">
+                  <input type="checkbox" name="modelConsent" value="true" className="mt-0.5" />
+                  <span>
+                    업로드한 모델컷을 사용할 권한이 있습니다. (미체크 시 해당 블록만 빠지고 생성은 계속됩니다)
+                  </span>
+                </label>
+              </SectionCard>
+
+              {/* DETAIL-07 추가 요청 */}
+              <SectionCard
+                step={8}
+                title="추가 요청"
+                id="section-note"
+                collapsible
+                open={isOpen('note')}
+                onToggle={() => toggleSection('note')}
+                summary={filled.note ? '입력됨' : '이미지 분위기 요청'}
+                desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다."
+              >
+                <textarea name="note" rows={2} className={inputClass} placeholder="예: 전체적으로 더 밝고 화사하게" />
+                <p className="mt-2 text-xs leading-relaxed text-ink-faint [text-wrap:pretty]">
+                  한국어로 쓰셔도 됩니다 — 이미지 생성 모델에는 영어로 바꿔 전달합니다.
                 </p>
-              </div>
-            </div>
-          </SectionCard>
+              </SectionCard>
 
-          {/* DETAIL-05 제품 스펙 */}
-          <SectionCard
-            step={6}
-            title="제품 스펙"
-            id="section-spec"
-            collapsible
-            open={isOpen('spec')}
-            onToggle={() => toggleSection('spec')}
-            summary={filled.spec ? `${filled.spec}칸 입력됨` : '표시 의무 항목입니다'}
-            pill="required"
-            desc="표시 의무 항목입니다. 내용을 고쳐 쓰지 않고, 한국어로 입력하시면 일본 표기로만 바꿔 넣습니다 — 바꾼 결과는 다음 단계에서 확인·수정하실 수 있습니다."
-          >
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className={fieldLabelClass}>내용량</span>
-                <input name="specVolume" className={inputClass} placeholder="30mL" />
-              </label>
-              <label className="block">
-                <span className={fieldLabelClass}>구분</span>
-                <input name="specCategory" className={inputClass} placeholder="化粧品 / 医薬部外品" />
-              </label>
-              <label className="block">
-                <span className={fieldLabelClass}>판매원</span>
-                <input name="specManufacturer" className={inputClass} placeholder="株式会社◯◯" />
-              </label>
-              <label className="block">
-                <span className={fieldLabelClass}>원산국</span>
-                <input name="specOrigin" className={inputClass} placeholder="韓国" />
-              </label>
-            </div>
-            <label className="mt-3 block">
-              <span className={fieldLabelClass}>전성분</span>
-              <textarea name="specFullIngredients" rows={3} className={inputClass} placeholder="水、BG、グリセリン…" />
-            </label>
-          </SectionCard>
+              <p className="mt-4 rounded-lg bg-coral-tint px-4 py-3 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
+                번역이 아니라 <b>일본 고객 관점의 메시지 재설계</b>입니다. 근거를 입력하지 않은 배지·가격·수치는 만들지
+                않습니다.
+                <br />
+                입력은 <b>한국어로 하셔도 됩니다.</b> 사실 정보(성분·스펙·주의사항 등)는 일본 표기로 바꿔 넣고, 바꾼
+                결과를 다음 단계에서 보여 드립니다. 수치·가격은 원문 그대로 유지합니다.
+              </p>
+            </form>
+          </div>
 
-          {/* DETAIL-05b 성분·무첨가·사용법 */}
-          <SectionCard
-            step={7}
-            title="성분 · 무첨가 · 사용법"
-            id="section-ingredients"
-            collapsible
-            open={isOpen('ingredients')}
-            onToggle={() => toggleSection('ingredients')}
-            summary={sectionSummary('ingredients')}
-            desc="성분을 넣으면 성분·기전 블록이 들어갑니다. 성분명을 지어내지 않습니다."
-          >
-            <label className="block">
-              <span className={fieldLabelClass}>성분 (한 줄에 하나 · 성분명|농도|배합목적)</span>
-              <textarea
-                name="ingredientRows"
-                rows={3}
-                className={inputClass}
-                placeholder={'ナイアシンアミド|2%|整肌成分\nヒアルロン酸Na||保湿成分'}
-              />
-            </label>
-            <label className="mt-3 block">
-              <span className={fieldLabelClass}>무첨가 항목 (한 줄에 하나)</span>
-              <textarea name="freeOf" rows={2} className={inputClass} placeholder={'合成香料\n鉱物油'} />
-            </label>
-            <label className="mt-3 block">
-              <span className={fieldLabelClass}>스펙 수치 (라벨|값)</span>
-              <textarea name="specRows" rows={2} className={inputClass} placeholder={'SPF|50+\nPA|++++'} />
-            </label>
-            <label className="mt-3 block">
-              <span className={fieldLabelClass}>사용법 STEP (한 줄에 하나)</span>
-              <textarea
-                name="howToSteps"
-                rows={3}
-                className={inputClass}
-                placeholder={'洗顔後、化粧水で肌をととのえます。'}
-              />
-            </label>
-            <label className="mt-3 block">
-              <span className={fieldLabelClass}>주의사항 (한 줄에 하나)</span>
-              <textarea name="cautions" rows={2} className={inputClass} />
-            </label>
-          </SectionCard>
-
-          {/* DETAIL-06 근거(접이식) */}
-          <SectionCard
-            step={9}
-            title="실적 · 시험 근거"
-            id="section-evidence"
-            collapsible
-            open={isOpen('evidence')}
-            onToggle={() => toggleSection('evidence')}
-            summary={sectionSummary('evidence')}
-            desc="그룹을 다 채운 근거만 블록으로 들어갑니다."
-          >
-            <div className="grid gap-3 sm:grid-cols-3">
-              <input name="proofRankTitle" className={inputClass} placeholder="실적명 (楽天ランキング1位)" />
-              <input name="proofGenre" className={inputClass} placeholder="부문 (美容液部門)" />
-              <input name="proofDate" className={inputClass} placeholder="집계일 (2026年7月14日更新)" />
-            </div>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <input name="salesCount" className={inputClass} placeholder="누적 판매 (累計163,991個)" />
-              <input name="salesPeriod" className={inputClass} placeholder="집계 기간" />
-            </div>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <input name="testName" className={inputClass} placeholder="시험명 (効能評価試験済み)" />
-              <input name="testCondition" className={inputClass} placeholder="시험 조건" />
-              <input name="testInstitution" className={inputClass} placeholder="시험기관" />
-              <input name="testDate" className={inputClass} placeholder="시험 시점" />
-              <input name="testSampleSize" className={inputClass} placeholder="대상 인원 (21名)" />
-            </div>
-            <label className="mt-3 block">
-              <span className={fieldLabelClass}>고객 리뷰 원문 (본문|평점|연령대) — 실제 리뷰만 넣습니다</span>
-              <textarea name="reviewRows" rows={2} className={inputClass} />
-            </label>
-          </SectionCard>
-
-          {/* DETAIL-06b 프로모(접이식) */}
-          {!amazonSelected && (
-            <SectionCard
-              step={10}
-              title="프로모션"
-              id="section-promo"
-              collapsible
-              open={isOpen('promo')}
-              onToggle={() => toggleSection('promo')}
-              summary={sectionSummary('promo')}
-              desc="세트명·판매가가 있어야 가격 블록이 들어갑니다."
-            >
-              <div className="grid gap-3 sm:grid-cols-2">
-                <input name="promoSetTitle" className={inputClass} placeholder="세트명 (2個セット)" />
-                <input name="promoSalePrice" className={inputClass} placeholder="판매가 (1,920)" />
-                <input name="promoNormalPrice" className={inputClass} placeholder="통상가 (2,610)" />
-                <input name="promoDiscountRate" className={inputClass} placeholder="할인율 (26)" />
-                <input name="promoGift" className={inputClass} placeholder="증정품" />
-                <input name="promoQualifiers" className={inputClass} placeholder="한정 조건 (쉼표 구분)" />
-              </div>
-              <label className="mt-3 flex items-start gap-2 text-[13px] leading-relaxed text-ink-body">
-                <input type="checkbox" name="promoNormalPriceVerified" value="true" className="mt-0.5" />
-                <span>
-                  통상가로 실제 판매한 실적이 있습니다. (체크하지 않으면 통상가 취소선을 넣지 않습니다 — 有利誤認 방지)
-                </span>
-              </label>
-              <input name="promoFootnote" className={`${inputClass} mt-3`} placeholder="가격 조건 각주" />
-            </SectionCard>
+          {step === 'form' && (
+            <BlockBoard
+              outline={outline}
+              gainable={gainable}
+              blocked={blocked}
+              busy={outlineBusy}
+              error={outlineError}
+              waiting={!productId || !templateId}
+              onOpenFields={openFields}
+            />
           )}
-
-          {/* DETAIL-06c 옵션(접이식) */}
-          <SectionCard
-            step={11}
-            title="옵션"
-            id="section-option"
-            collapsible
-            open={isOpen('option')}
-            onToggle={() => toggleSection('option')}
-            summary={sectionSummary('option')}
-            desc="2개 이상이면 옵션 블록이 들어갑니다."
-          >
-            <p className={fieldLabelClass}>옵션 축</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {OPTION_AXES.map((a) => (
-                <button
-                  key={a.id}
-                  type="button"
-                  onClick={() => setOptionAxis(a.id)}
-                  className={chipClass(optionAxis === a.id)}
-                >
-                  {a.label}
-                </button>
-              ))}
-            </div>
-            <label className="mt-3 block">
-              <span className={fieldLabelClass}>옵션 목록 (이름|색상값|품번)</span>
-              <textarea
-                name="optionRows"
-                rows={3}
-                className={inputClass}
-                placeholder={'01 ローズベージュ|#c86b5a|SHADE 1'}
-              />
-            </label>
-            <label className="mt-3 block">
-              <span className={fieldLabelClass}>모델컷 (퍼스널컬러 블록용)</span>
-              <input
-                type="file"
-                name="modelImage"
-                accept="image/jpeg,image/png,image/webp"
-                className="mt-1 block text-sm"
-              />
-            </label>
-            <label className="mt-2 flex items-start gap-2 text-[13px] leading-relaxed text-ink-body">
-              <input type="checkbox" name="modelConsent" value="true" className="mt-0.5" />
-              <span>업로드한 모델컷을 사용할 권한이 있습니다. (미체크 시 해당 블록만 빠지고 생성은 계속됩니다)</span>
-            </label>
-          </SectionCard>
-
-          {/* DETAIL-07 추가 요청 */}
-          <SectionCard
-            step={8}
-            title="추가 요청"
-            id="section-note"
-            collapsible
-            open={isOpen('note')}
-            onToggle={() => toggleSection('note')}
-            summary={filled.note ? '입력됨' : '이미지 분위기 요청'}
-            desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다."
-          >
-            <textarea name="note" rows={2} className={inputClass} placeholder="예: 전체적으로 더 밝고 화사하게" />
-            <p className="mt-2 text-xs leading-relaxed text-ink-faint [text-wrap:pretty]">
-              한국어로 쓰셔도 됩니다 — 이미지 생성 모델에는 영어로 바꿔 전달합니다.
-            </p>
-          </SectionCard>
-
-          <p className="mt-4 rounded-lg bg-coral-tint px-4 py-3 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
-            번역이 아니라 <b>일본 고객 관점의 메시지 재설계</b>입니다. 근거를 입력하지 않은 배지·가격·수치는 만들지
-            않습니다.
-            <br />
-            입력은 <b>한국어로 하셔도 됩니다.</b> 사실 정보(성분·스펙·주의사항 등)는 일본 표기로 바꿔 넣고, 바꾼 결과를
-            다음 단계에서 보여 드립니다. 수치·가격은 원문 그대로 유지합니다.
-          </p>
-        </form>
+        </div>
       </div>
 
       {/* 하단 sticky 액션 바 */}
@@ -1296,7 +1437,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
               onClick={() => void handlePreview()}
               className={buttonClass('primary', 'lg', 'w-full')}
             >
-              {busy ? '구성 확인 중…' : '블록 구성 확인'}
+              {busy ? '구성 확인 중…' : outline ? `블록 ${outline.blocks.length}개로 확인하기` : '블록 구성 확인'}
             </button>
             <p className="mt-2.5 text-center text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
               {readiness.ready ? guidance : '서버 설정이 끝나야 생성할 수 있습니다. 위 안내를 확인해 주세요.'}
@@ -1868,6 +2009,126 @@ function ConfirmStep({
           </ul>
         </section>
       )}
+    </div>
+  );
+}
+
+/**
+ * 블록 보드(DETAIL-01e) — 이 화면의 주어를 입력에서 **결과물**로 바꾸는 자리.
+ *
+ * 3분류는 서버가 확정해 주지 않는다. 재료(`blocks`·`excluded[].fields`)만 받고 가르는 것은 여기다 —
+ * 판정 규칙을 서버와 화면 두 곳에 두면 반드시 갈린다.
+ *
+ * 색만으로 분류를 구분하지 않는다(1e-12). 색 + 기호 + 글자 셋을 함께 쓴다.
+ */
+function BlockBoard({
+  outline,
+  gainable,
+  blocked,
+  busy,
+  error,
+  waiting,
+  onOpenFields,
+}: {
+  outline: OutlineResult | null;
+  gainable: OutlineResult['excluded'];
+  blocked: OutlineResult['excluded'];
+  busy: boolean;
+  error: string | null;
+  /** 제품·템플릿을 아직 고르지 않아 계산 기준이 없는 상태 */
+  waiting: boolean;
+  onOpenFields: (fields: string[]) => void;
+}) {
+  const now = outline?.blocks.length ?? 0;
+  return (
+    <aside className="w-[320px] shrink-0 max-lg:w-full">
+      <div className={cardClass('sticky top-[72px] p-5')}>
+        <h2 className="text-[15px] font-bold text-ink">이 페이지에 들어갈 블록</h2>
+
+        {waiting ? (
+          <p className="mt-3 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+            제품과 템플릿을 고르면 어떤 블록이 들어가는지 여기에 보여 드립니다.
+          </p>
+        ) : (
+          <>
+            {/* 숫자가 바뀌는 것을 스크린리더도 알아야 한다 */}
+            <p aria-live="polite" className="mt-1 text-[13px] text-ink-mute">
+              <b className="text-[15px] text-ink">지금 {now}블록</b>
+              {gainable.length > 0 && <span> · {gainable.length}블록 더 넣을 수 있습니다</span>}
+              {busy && <span className="ml-1 text-ink-faint">갱신 중…</span>}
+            </p>
+
+            {error && <p className="mt-2 text-[12px] text-amber-text">{error}</p>}
+
+            <BoardGroup mark="✅" label="지금 들어갑니다" tone="text-ink">
+              {outline?.blocks.map((b) => (
+                <li key={b.blockId} className="flex gap-2 py-1 text-[13px] text-ink-body">
+                  <span aria-hidden className="text-ink-faint">
+                    ✅
+                  </span>
+                  <span className="min-w-0 flex-1">{b.nameKo}</span>
+                </li>
+              ))}
+            </BoardGroup>
+
+            {gainable.length > 0 && (
+              <BoardGroup mark="➕" label="채우면 늘어납니다" tone="text-coral-strong">
+                {gainable.map((e) => (
+                  <li key={e.blockId}>
+                    <button
+                      type="button"
+                      onClick={() => onOpenFields(e.fields)}
+                      className="flex w-full gap-2 rounded-lg py-1 text-left text-[13px] text-ink-body transition-colors hover:bg-n-100"
+                    >
+                      <span aria-hidden className="text-coral-strong">
+                        ➕
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        {e.nameKo}
+                        {e.fixHint && <span className="text-ink-mute"> — {e.fixHint}을 넣으면 들어갑니다</span>}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </BoardGroup>
+            )}
+
+            {blocked.length > 0 && (
+              <BoardGroup mark="⛔" label="이 건에는 넣지 않습니다" tone="text-ink-mute">
+                {blocked.map((e) => (
+                  <li key={e.blockId} className="flex gap-2 py-1 text-[13px] text-ink-mute">
+                    <span aria-hidden>⛔</span>
+                    <span className="min-w-0 flex-1">{e.nameKo}</span>
+                  </li>
+                ))}
+              </BoardGroup>
+            )}
+          </>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+/** 보드의 한 분류 — 기호·글자·색을 함께 얹어 색맹 사용자도 분류를 읽을 수 있게 한다 */
+function BoardGroup({
+  mark,
+  label,
+  tone,
+  children,
+}: {
+  mark: string;
+  label: string;
+  tone: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mt-4 border-t border-hairline pt-3">
+      <p className={`text-[12px] font-bold ${tone}`}>
+        <span aria-hidden>{mark} </span>
+        {label}
+      </p>
+      <ul className="mt-1.5">{children}</ul>
     </div>
   );
 }

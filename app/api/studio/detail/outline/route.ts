@@ -24,8 +24,12 @@ export async function POST(request: Request): Promise<NextResponse> {
   const form = await request.formData();
   // 이미지 바이트를 저장하지도 읽지도 않는다 — 개수·형식·크기만 본다(`/plan` 과 동일)
   const meta = parseImageMeta(form) ?? form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
-  const imageError = validateImages(meta);
-  if (imageError) return NextResponse.json({ error: imageError }, { status: 400 });
+  // 장수 0을 막지 않는다 — 보드는 제품컷을 올리기 전에도 "이 템플릿이면 몇 블록"을 말해야 한다
+  // (DETAIL-01e 1e-11). `planBlocks` 는 이미지에 게이트를 걸지 않는다. 형식·크기만 본다.
+  if (meta.length > 0) {
+    const imageError = validateImages(meta);
+    if (imageError) return NextResponse.json({ error: imageError }, { status: 400 });
+  }
 
   const parsed = parseDetailForm(
     form,
