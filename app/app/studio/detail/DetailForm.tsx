@@ -91,6 +91,42 @@ interface PlanResult {
   translationNeedsLogin: boolean;
 }
 
+/**
+ * 접힌 섹션 헤더가 "몇 칸 채워졌는가"를 말하려면 폼 값을 알아야 한다(DETAIL-01d 1d-7).
+ * 필드 이름의 정본은 `lib/server/detailForm.ts` 파서다 — 여기만 바꾸면 헤더가 거짓말을 한다.
+ */
+const SECTION_FIELDS: Record<string, string[]> = {
+  spec: ['specVolume', 'specCategory', 'specManufacturer', 'specOrigin', 'specFullIngredients'],
+  ingredients: ['ingredientRows', 'freeOf', 'specRows', 'howToSteps', 'cautions'],
+  evidence: [
+    'proofRankTitle',
+    'proofGenre',
+    'proofDate',
+    'salesCount',
+    'salesPeriod',
+    'testName',
+    'testCondition',
+    'testInstitution',
+    'testDate',
+    'testSampleSize',
+    'reviewRows',
+  ],
+  promo: [
+    'promoSetTitle',
+    'promoSalePrice',
+    'promoNormalPrice',
+    'promoDiscountRate',
+    'promoGift',
+    'promoQualifiers',
+    'promoFootnote',
+  ],
+  option: ['optionRows'],
+  note: ['note'],
+};
+
+/** 서버가 400 으로 막는 표시 의무 3칸(DETAIL-05 5c) — 비어 있으면 스펙 섹션을 펼친 채로 둔다 */
+const SPEC_GATE_FIELDS = ['specVolume', 'specCategory', 'specManufacturer'];
+
 const CATEGORIES: { id: string; label: string }[] = [
   { id: 'skincare', label: '스킨케어' },
   { id: 'suncare', label: '선케어' },
@@ -154,9 +190,24 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   /** auto 일 때 제품 대표컷에서 뽑은 값 + 신뢰도 */
   const [extracted, setExtracted] = useState<{ accent: string; moodId: string; ok: boolean } | null>(null);
 
-  const [openEvidence, setOpenEvidence] = useState(false);
-  const [openOption, setOpenOption] = useState(false);
-  const [openPromo, setOpenPromo] = useState(false);
+  /**
+   * 섹션 접힘(DETAIL-01d 1d-6). 필수 셋(제품·제품컷·템플릿) 밖은 전부 접고 시작한다.
+   * `spec` 만 펼친 채 시작하는 이유 — 표시 의무 3칸이 비면 서버가 400 으로 막는다.
+   * 상태를 한 곳에 모아 둔 이유는 블록 보드가 밖에서 특정 섹션을 열어야 하기 때문이다(1e-7).
+   */
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ spec: true });
+  const isOpen = useCallback((id: string) => openSections[id] ?? false, [openSections]);
+  const toggleSection = useCallback((id: string) => setOpenSections((v) => ({ ...v, [id]: !v[id] })), []);
+  /** 섹션별 채워진 칸 수 — 접힌 헤더 한 줄이 쓴다 */
+  const [filled, setFilled] = useState<Record<string, number>>({});
+  /**
+   * 접힌 섹션 헤더 한 줄(DETAIL-01d 1d-7). 숫자는 폼에서 센 값이다.
+   * **블록 수를 여기에 하드코딩하지 않는다** — 템플릿마다 시퀀스가 달라 고정 수치는 거짓이 된다(1d-8).
+   */
+  const sectionSummary = useCallback(
+    (id: string) => (filled[id] ? `${filled[id]}칸 입력됨` : '채우면 블록이 늘어납니다'),
+    [filled],
+  );
 
   /**
    * 제품 대표컷에서 브랜드색을 뽑는다.
@@ -275,65 +326,88 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   );
 
   /**
+   * 접힌 섹션 헤더가 쓸 "채워진 칸 수"를 다시 센다(DETAIL-01d 1d-7).
+   * 폼이 비제어 DOM 이라 상태가 아니라 폼에서 읽는다.
+   */
+  const recountSections = useCallback(() => {
+    const el = formRef.current;
+    if (!el) return;
+    const data = new FormData(el);
+    const next: Record<string, number> = {};
+    for (const [id, names] of Object.entries(SECTION_FIELDS)) {
+      next[id] = names.filter((n) => String(data.get(n) ?? '').trim()).length;
+    }
+    setFilled(next);
+    // 표시 의무 3칸이 다 차면 스펙 섹션을 접는다 — 2회차 사용자는 이 섹션을 볼 일이 없다
+    if (SPEC_GATE_FIELDS.every((n) => String(data.get(n) ?? '').trim())) {
+      setOpenSections((v) => (v.spec === false ? v : { ...v, spec: false }));
+    }
+  }, []);
+
+  /**
    * 프리필 적용(DETAIL-01c). 폼이 비제어 DOM 이라 값을 직접 넣는다.
    * **이미 적은 칸은 건드리지 않고**, 채운 칸에는 표시를 남긴다 — 조용히 채우면 placeholder 로
    * 오인해 그대로 제출한다(UT-31).
    */
-  const applyPrefill = useCallback(async (pid: string) => {
-    setPrefill(null);
-    if (!pid) return;
-    try {
-      const res = await fetch(`/api/studio/detail/prefill?productId=${encodeURIComponent(pid)}`);
-      if (!res.ok) return;
-      const data = (await res.json()) as {
-        fields: Record<string, string>;
-        lastAssetAt: string | null;
-        lastChoice: { templateId: string; platform: string } | null;
-      };
-      const el = formRef.current;
-      if (!el) return;
-      let count = 0;
-      for (const [name, value] of Object.entries(data.fields)) {
-        // 제어 상태로 사는 두 칸은 setState 로 간다
-        if (name === 'productCategory') {
-          setCategory(value);
+  const applyPrefill = useCallback(
+    async (pid: string) => {
+      setPrefill(null);
+      if (!pid) return;
+      try {
+        const res = await fetch(`/api/studio/detail/prefill?productId=${encodeURIComponent(pid)}`);
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          fields: Record<string, string>;
+          lastAssetAt: string | null;
+          lastChoice: { templateId: string; platform: string } | null;
+        };
+        const el = formRef.current;
+        if (!el) return;
+        let count = 0;
+        for (const [name, value] of Object.entries(data.fields)) {
+          // 제어 상태로 사는 두 칸은 setState 로 간다
+          if (name === 'productCategory') {
+            setCategory(value);
+            count += 1;
+            continue;
+          }
+          if (name === 'optionAxis') {
+            setOptionAxis(value);
+            count += 1;
+            continue;
+          }
+          const field = el.elements.namedItem(name);
+          if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) continue;
+          if (field.value.trim()) continue;
+          field.value = value;
+          field.dataset.prefilled = 'true';
+          field.classList.add('bg-coral-tint');
           count += 1;
-          continue;
         }
-        if (name === 'optionAxis') {
-          setOptionAxis(value);
-          count += 1;
-          continue;
+        // 템플릿·채널은 칸이 아니라 **선택**이라 setState 로 간다. 아직 고르지 않았을 때만 —
+        // 사용자가 이미 고른 것을 지난 값으로 되돌리면 조작을 빼앗는 셈이 된다.
+        // ⚠ 판정을 setState 업데이터 안에서 하지 않는다 — 업데이터는 호출 시점이 아니라 렌더
+        //   시점에 돌아서, 바로 아래 `setPrefill` 이 항상 choice=false 를 보게 된다.
+        let choice = false;
+        const last = data.lastChoice;
+        if (last) {
+          if (!templateIdRef.current && last.templateId) {
+            setTemplateId(last.templateId);
+            choice = true;
+          }
+          if (platformRef.current === 'unset' && last.platform && last.platform !== 'unset') {
+            setPlatform(last.platform as Platform);
+            choice = true;
+          }
         }
-        const field = el.elements.namedItem(name);
-        if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) continue;
-        if (field.value.trim()) continue;
-        field.value = value;
-        field.dataset.prefilled = 'true';
-        field.classList.add('bg-coral-tint');
-        count += 1;
+        setPrefill({ count, lastAssetAt: data.lastAssetAt, choice });
+        recountSections();
+      } catch {
+        // 프리필 실패가 생성을 막지 않는다 — 채우기는 편의이고 입력은 사용자 것이다
       }
-      // 템플릿·채널은 칸이 아니라 **선택**이라 setState 로 간다. 아직 고르지 않았을 때만 —
-      // 사용자가 이미 고른 것을 지난 값으로 되돌리면 조작을 빼앗는 셈이 된다.
-      // ⚠ 판정을 setState 업데이터 안에서 하지 않는다 — 업데이터는 호출 시점이 아니라 렌더
-      //   시점에 돌아서, 바로 아래 `setPrefill` 이 항상 choice=false 를 보게 된다.
-      let choice = false;
-      const last = data.lastChoice;
-      if (last) {
-        if (!templateIdRef.current && last.templateId) {
-          setTemplateId(last.templateId);
-          choice = true;
-        }
-        if (platformRef.current === 'unset' && last.platform && last.platform !== 'unset') {
-          setPlatform(last.platform as Platform);
-          choice = true;
-        }
-      }
-      setPrefill({ count, lastAssetAt: data.lastAssetAt, choice });
-    } catch {
-      // 프리필 실패가 생성을 막지 않는다 — 채우기는 편의이고 입력은 사용자 것이다
-    }
-  }, []);
+    },
+    [recountSections],
+  );
 
   /** 프리필로 채운 칸만 되돌린다. 사용자가 고친 칸은 표시가 이미 사라져 있어 남는다 */
   const clearPrefill = useCallback(() => {
@@ -575,6 +649,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
               delete t.dataset.prefilled;
               t.classList.remove('bg-coral-tint');
             }
+            recountSections();
           }}
         >
           <input type="hidden" name="productId" value={productId} />
@@ -753,8 +828,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           <SectionCard
             step={4}
             title="상품 종류 · 타깃 플랫폼"
-            pill="required"
-            desc="상품 종류가 템플릿과 이미지 분위기를 정합니다."
+            id="section-catalog"
+            collapsible
+            open={isOpen('catalog')}
+            onToggle={() => toggleSection('catalog')}
+            summary={`${CATEGORIES.find((c) => c.id === category)?.label ?? ''} · ${PLATFORM_LABELS[platform]}`}
+            desc="상품 종류는 고른 제품에서 따라옵니다. 플랫폼은 고르지 않아도 만들 수 있습니다."
           >
             <p className={fieldLabelClass}>상품 종류</p>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -994,6 +1073,11 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           <SectionCard
             step={6}
             title="제품 스펙"
+            id="section-spec"
+            collapsible
+            open={isOpen('spec')}
+            onToggle={() => toggleSection('spec')}
+            summary={filled.spec ? `${filled.spec}칸 입력됨` : '표시 의무 항목입니다'}
             pill="required"
             desc="표시 의무 항목입니다. 내용을 고쳐 쓰지 않고, 한국어로 입력하시면 일본 표기로만 바꿔 넣습니다 — 바꾼 결과는 다음 단계에서 확인·수정하실 수 있습니다."
           >
@@ -1025,7 +1109,12 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           <SectionCard
             step={7}
             title="성분 · 무첨가 · 사용법"
-            desc="성분을 입력하지 않으면 성분·기전 블록은 넣지 않습니다. 성분명을 지어내지 않습니다."
+            id="section-ingredients"
+            collapsible
+            open={isOpen('ingredients')}
+            onToggle={() => toggleSection('ingredients')}
+            summary={sectionSummary('ingredients')}
+            desc="성분을 넣으면 성분·기전 블록이 들어갑니다. 성분명을 지어내지 않습니다."
           >
             <label className="block">
               <span className={fieldLabelClass}>성분 (한 줄에 하나 · 성분명|농도|배합목적)</span>
@@ -1060,11 +1149,15 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           </SectionCard>
 
           {/* DETAIL-06 근거(접이식) */}
-          <Accordion
-            open={openEvidence}
-            onToggle={() => setOpenEvidence((v) => !v)}
+          <SectionCard
+            step={9}
             title="실적 · 시험 근거"
-            hint="그룹별로 전부 채워야 해당 블록이 들어갑니다"
+            id="section-evidence"
+            collapsible
+            open={isOpen('evidence')}
+            onToggle={() => toggleSection('evidence')}
+            summary={sectionSummary('evidence')}
+            desc="그룹을 다 채운 근거만 블록으로 들어갑니다."
           >
             <div className="grid gap-3 sm:grid-cols-3">
               <input name="proofRankTitle" className={inputClass} placeholder="실적명 (楽天ランキング1位)" />
@@ -1086,15 +1179,19 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
               <span className={fieldLabelClass}>고객 리뷰 원문 (본문|평점|연령대) — 실제 리뷰만 넣습니다</span>
               <textarea name="reviewRows" rows={2} className={inputClass} />
             </label>
-          </Accordion>
+          </SectionCard>
 
           {/* DETAIL-06b 프로모(접이식) */}
           {!amazonSelected && (
-            <Accordion
-              open={openPromo}
-              onToggle={() => setOpenPromo((v) => !v)}
+            <SectionCard
+              step={10}
               title="프로모션"
-              hint="세트명·판매가가 있어야 가격 블록이 들어갑니다"
+              id="section-promo"
+              collapsible
+              open={isOpen('promo')}
+              onToggle={() => toggleSection('promo')}
+              summary={sectionSummary('promo')}
+              desc="세트명·판매가가 있어야 가격 블록이 들어갑니다."
             >
               <div className="grid gap-3 sm:grid-cols-2">
                 <input name="promoSetTitle" className={inputClass} placeholder="세트명 (2個セット)" />
@@ -1111,15 +1208,19 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 </span>
               </label>
               <input name="promoFootnote" className={`${inputClass} mt-3`} placeholder="가격 조건 각주" />
-            </Accordion>
+            </SectionCard>
           )}
 
           {/* DETAIL-06c 옵션(접이식) */}
-          <Accordion
-            open={openOption}
-            onToggle={() => setOpenOption((v) => !v)}
+          <SectionCard
+            step={11}
             title="옵션"
-            hint="2개 이상이면 옵션 블록이 들어갑니다"
+            id="section-option"
+            collapsible
+            open={isOpen('option')}
+            onToggle={() => toggleSection('option')}
+            summary={sectionSummary('option')}
+            desc="2개 이상이면 옵션 블록이 들어갑니다."
           >
             <p className={fieldLabelClass}>옵션 축</p>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -1156,12 +1257,17 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
               <input type="checkbox" name="modelConsent" value="true" className="mt-0.5" />
               <span>업로드한 모델컷을 사용할 권한이 있습니다. (미체크 시 해당 블록만 빠지고 생성은 계속됩니다)</span>
             </label>
-          </Accordion>
+          </SectionCard>
 
           {/* DETAIL-07 추가 요청 */}
           <SectionCard
             step={8}
             title="추가 요청"
+            id="section-note"
+            collapsible
+            open={isOpen('note')}
+            onToggle={() => toggleSection('note')}
+            summary={filled.note ? '입력됨' : '이미지 분위기 요청'}
             desc="이미지 분위기에 대한 요청만 반영합니다. 근거가 필요한 값(가격·실적·성분)은 위 항목으로만 들어갑니다."
           >
             <textarea name="note" rows={2} className={inputClass} placeholder="예: 전체적으로 더 밝고 화사하게" />
@@ -1671,39 +1777,6 @@ function TranslationRow({ field, onEdit }: { field: TranslatedField; onEdit: (pa
         </p>
       )}
     </li>
-  );
-}
-
-/** 접이식 섹션 — 선택 입력 그룹을 접어 첫 화면의 인지 부하를 줄인다 */
-function Accordion({
-  open,
-  onToggle,
-  title,
-  hint,
-  children,
-}: {
-  open: boolean;
-  onToggle: () => void;
-  title: string;
-  hint: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className={`${cardClass} mt-4 overflow-hidden`}>
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="flex w-full items-center justify-between px-5 py-4 text-left"
-      >
-        <span>
-          <span className="text-sm font-bold text-ink">{title}</span>
-          <span className="ml-2 text-xs text-ink-mute">{hint}</span>
-        </span>
-        {open ? <IconChevronUp /> : <IconChevronDown />}
-      </button>
-      {open && <div className="border-t border-hairline px-5 py-4">{children}</div>}
-    </section>
   );
 }
 

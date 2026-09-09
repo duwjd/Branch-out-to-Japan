@@ -85,13 +85,24 @@ export function cardClass(extra = ''): string {
   return `rounded-card border border-card-border bg-canvas shadow-card ${extra}`;
 }
 
-/** 섹션 카드 — 폼 화면의 스텝 번호 + 제목 + 필수/선택 pill 패턴 */
+/**
+ * 섹션 카드 — 폼 화면의 스텝 번호 + 제목 + 필수/선택 pill 패턴.
+ *
+ * `collapsible` 을 주면 헤더가 토글 버튼이 된다(DETAIL-01d). 접혀도 **children 은 그대로 마운트**되고
+ * `hidden` 으로 가릴 뿐이다 — 언마운트하면 `new FormData(form)` 이 그 칸을 통째로 빠뜨린다.
+ * 열림 상태를 부모가 쥐는 이유는 블록 보드가 특정 섹션을 밖에서 열어야 하기 때문이다(DETAIL-01e 1e-7).
+ */
 export function SectionCard({
   step,
   title,
   pill,
   pillTone = 'required',
   desc,
+  summary,
+  collapsible = false,
+  open = true,
+  onToggle,
+  id,
   children,
   className = '',
 }: {
@@ -102,33 +113,64 @@ export function SectionCard({
   pill?: string;
   pillTone?: 'required' | 'optional';
   desc?: React.ReactNode;
+  /** 접혔을 때 헤더에 남는 한 줄 — "무엇을 넣으면 무엇이 늘어나는가"(DETAIL-01d 1d-7) */
+  summary?: React.ReactNode;
+  collapsible?: boolean;
+  open?: boolean;
+  onToggle?: () => void;
+  /** 밖에서 스크롤·포커스를 걸기 위한 앵커 */
+  id?: string;
   children: React.ReactNode;
   className?: string;
 }) {
+  const bodyId = id ? `${id}-body` : undefined;
+  const header = (
+    <>
+      {step !== undefined && (
+        <span
+          aria-hidden
+          className="inline-flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full border border-coral/35 bg-coral-tint text-[11.5px] font-extrabold text-coral-strong"
+        >
+          {step}
+        </span>
+      )}
+      <h2 className="text-[17px] font-bold text-ink">{title}</h2>
+      {pill && (
+        <span
+          className={`inline-flex h-[19px] items-center rounded-full px-[7px] text-[10px] font-bold ${
+            pillTone === 'required' ? 'bg-coral-tint text-coral-strong' : 'bg-n-150 text-ink-mute'
+          }`}
+        >
+          {pill}
+        </span>
+      )}
+    </>
+  );
+
   return (
-    <section className={cardClass(`p-6 sm:p-8 ${className}`)}>
-      <div className="flex flex-wrap items-center gap-2.5">
-        {step !== undefined && (
-          <span
-            aria-hidden
-            className="inline-flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full border border-coral/35 bg-coral-tint text-[11.5px] font-extrabold text-coral-strong"
-          >
-            {step}
+    <section id={id} className={cardClass(`p-6 sm:p-8 ${className}`)}>
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          aria-controls={bodyId}
+          className="flex w-full items-center gap-2.5 text-left"
+        >
+          {header}
+          {summary && <span className="ml-auto text-[12px] text-ink-mute">{summary}</span>}
+          <span aria-hidden className={`flex-none text-ink-faint ${summary ? '' : 'ml-auto'}`}>
+            {open ? '▾' : '▸'}
           </span>
-        )}
-        <h2 className="text-[17px] font-bold text-ink">{title}</h2>
-        {pill && (
-          <span
-            className={`inline-flex h-[19px] items-center rounded-full px-[7px] text-[10px] font-bold ${
-              pillTone === 'required' ? 'bg-coral-tint text-coral-strong' : 'bg-n-150 text-ink-mute'
-            }`}
-          >
-            {pill}
-          </span>
-        )}
+        </button>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2.5">{header}</div>
+      )}
+      {desc && (!collapsible || open) && <p className="mt-2 text-[13px] leading-relaxed text-ink-mute">{desc}</p>}
+      {/* 접혀도 언마운트하지 않는다 — 폼이 통째로 제출되므로 값이 사라지면 안 된다 */}
+      <div id={bodyId} hidden={collapsible && !open} className="mt-5">
+        {children}
       </div>
-      {desc && <p className="mt-2 text-[13px] leading-relaxed text-ink-mute">{desc}</p>}
-      <div className="mt-5">{children}</div>
     </section>
   );
 }
