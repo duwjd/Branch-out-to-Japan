@@ -35,7 +35,7 @@ export const IMAGE_WAVE_MS = 90_000;
  * 시간 상한을 거는 LLM 콜. 규칙 단계(plan·layout·compose·slice)는 LLM 을 타지 않아 대상이 아니다.
  * 이미지 콜은 `fitImageBudget` 이 `perImageTimeoutMs` 로 따로 준다.
  */
-export type DetailCallStage = 'translate' | 'copy' | 'humanize';
+export type DetailCallStage = 'translate' | 'copy' | 'humanize' | 'extract';
 
 /**
  * 콜 1회의 벽시계 상한(재시도 포함).
@@ -54,6 +54,10 @@ const CALL_CEILING_MS: Record<DetailCallStage, number> = {
   translate: 90_000, // 콜⑧ inputTranslate — 이미지 없음, 필드 텍스트만
   copy: 150_000, // 콜⑦ detailCopy — maxTokens 12000 + 비전 최대 10장. 파이프라인에서 가장 무겁다
   humanize: 90_000, // 콜⑨ copyHumanize — 슬롯 텍스트만(maxTokens 6000)
+  // 콜⑩ specExtract — 비전 최대 10장이지만 뽑는 것은 짧은 필드 7개다(§2-14).
+  // 이 콜만 **잡 예산 밖**에서 돈다 — 폼 단계라 사용자가 화면 앞에서 기다린다.
+  // 그래서 remainingMs 없이 이 천장이 곧 상한이다.
+  extract: 60_000,
 };
 
 /**
