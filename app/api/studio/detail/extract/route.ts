@@ -41,12 +41,13 @@ export async function POST(request: Request): Promise<NextResponse> {
   const wanted = wantedRaw.filter((f): f is ExtractField => (EXTRACT_FIELDS as readonly string[]).includes(f));
 
   // ── 걸지 않는 경로 3종. 비용·지연 0 이어야 한다 ─────────────────────────
-  if (files.length === 0) {
-    return NextResponse.json({ fields: {}, missing: [], skipped: 'no-source' });
-  }
-  if (wanted.length === 0) {
-    return NextResponse.json({ fields: {}, missing: [], skipped: 'already-filled' });
-  }
+  // 걸지 않은 것도 로그에 남긴다 — 이 콜이 언제 안 도는지를 모르면 비용을 읽을 수 없다(§2-14)
+  const skip = (reason: 'no-source' | 'already-filled') => {
+    logger.info('입력 자동 추출 건너뜀', { extractSkipped: reason });
+    return NextResponse.json({ fields: {}, missing: [], skipped: reason });
+  };
+  if (files.length === 0) return skip('no-source');
+  if (wanted.length === 0) return skip('already-filled');
 
   const started = Date.now();
   try {

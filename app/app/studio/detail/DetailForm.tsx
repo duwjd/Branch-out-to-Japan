@@ -571,10 +571,21 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
     const fd = new FormData();
     for (const f of files) fd.append('images', f);
     fd.set('wanted', wanted.join(','));
+
+    // 실패하면 같은 이미지로 **다시 시도할 수 있어야 한다.** 키를 걸어 둔 채로 두면
+    // 한 번 실패한 묶음은 영영 못 읽는다
+    const failed = (message: string) => {
+      extractedKeyRef.current = '';
+      setExtract({ busy: false, missing: [], error: message });
+    };
+    // 라우트 상한(90초)을 넘겨도 화면이 계속 돌지 않게 한다 — busy 가 안 풀리면
+    // 사용자는 무엇을 기다리는지 모른 채 멈춰 있다
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), 95_000);
     try {
-      const res = await fetch('/api/studio/detail/extract', { method: 'POST', body: fd });
+      const res = await fetch('/api/studio/detail/extract', { method: 'POST', body: fd, signal: abort.signal });
       if (!res.ok) {
-        setExtract({ busy: false, missing: [], error: '원본에서 입력을 읽지 못했습니다. 직접 입력하실 수 있습니다.' });
+        failed('원본에서 입력을 읽지 못했습니다. 직접 입력하실 수 있습니다.');
         return;
       }
       const data = (await res.json()) as {
@@ -594,11 +605,15 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
         namesFilled.push(name);
       }
       setAutoFilled((prev) => [...new Set([...prev, ...namesFilled])]);
+      // 서버가 내부 폴백으로 사유만 실어 보낸 경우도 다시 걸 수 있게 둔다
+      if (data.error) extractedKeyRef.current = '';
       setExtract({ busy: false, missing: data.missing ?? [], error: data.error ?? null });
       recountSections();
     } catch {
       // 추출 실패가 생성을 막지 X — 폼은 그대로 열려 있고 수동 입력이 가능하다
-      setExtract({ busy: false, missing: [], error: '원본에서 입력을 읽지 못했습니다. 직접 입력하실 수 있습니다.' });
+      failed('원본에서 입력을 읽지 못했습니다. 직접 입력하실 수 있습니다.');
+    } finally {
+      clearTimeout(timer);
     }
   }, [files, recountSections]);
 
@@ -1345,6 +1360,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                   autoFilled={autoFilled}
                   reviewed={reviewed}
                   onReview={(name) => setReviewed((prev) => [...new Set([...prev, name])])}
+                  onRetry={extract.error ? () => void runExtract() : undefined}
                 />
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="block">
@@ -2163,6 +2179,7 @@ function ExtractNotice({
   autoFilled,
   reviewed,
   onReview,
+  onRetry,
 }: {
   busy: boolean;
   missing: { field: string; reason: string }[];
@@ -2170,6 +2187,8 @@ function ExtractNotice({
   autoFilled: string[];
   reviewed: string[];
   onReview: (name: string) => void;
+  /** 실패했을 때만 준다 — 같은 이미지로 다시 걸 수 있다 */
+  onRetry?: () => void;
 }) {
   /** 확인을 기다리는 규정 민감 칸 — 이 칸이 남아 있으면 그 블록이 서지 않는다 */
   const waiting = REVIEW_REQUIRED_FIELDS.filter((f) => autoFilled.includes(f) && !reviewed.includes(f));
@@ -2189,7 +2208,20 @@ function ExtractNotice({
               <b>원본에서 {autoFilled.length}개 칸을 읽어 왔습니다.</b> 표시된 칸은 그대로 쓰셔도 되고 고치셔도 됩니다.
             </p>
           )}
-          {error && <p className="text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">{error}</p>}
+          {error && (
+            <p className="flex flex-wrap items-center gap-2 text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
+              {error}
+              {onRetry && (
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  className="rounded-lg border border-coral/40 px-2.5 py-1 text-[12px] font-bold text-coral-strong transition-colors hover:bg-coral-tint"
+                >
+                  다시 시도
+                </button>
+              )}
+            </p>
+          )}
 
           {/* 못 읽은 칸은 사유를 남긴다 — 왜 비었는지 모르면 사용자가 원본을 의심한다 */}
           {missing.length > 0 && (
