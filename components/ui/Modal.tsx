@@ -17,12 +17,15 @@ export function Modal({
   open,
   onClose,
   labelledBy,
+  size = 'default',
   children,
 }: {
   open: boolean;
   onClose: () => void;
   /** 모달 제목 요소의 id (aria-labelledby) */
   labelledBy: string;
+  /** 입력이 많은 모달(제품 등록 등)은 `wide`. 기본 420px 에서는 두 열이 서로를 짓누른다 */
+  size?: 'default' | 'wide';
   children: React.ReactNode;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -65,7 +68,11 @@ export function Modal({
         aria-modal="true"
         aria-labelledby={labelledBy}
         tabIndex={-1}
-        className="w-full max-w-[420px] rounded-2xl bg-canvas p-6 shadow-2 animate-modal-in focus:outline-none"
+        // 카드 안에서만 스크롤한다 — 상한이 없으면 내용이 긴 모달은 뷰포트 밖으로 잘려
+        // 「저장」에 닿을 수 없다. 바깥 스크림은 그대로 잠겨 있다
+        className={`max-h-[calc(100vh-48px)] w-full overflow-y-auto rounded-2xl bg-canvas p-6 shadow-2 animate-modal-in focus:outline-none ${
+          size === 'wide' ? 'max-w-[560px]' : 'max-w-[420px]'
+        }`}
       >
         {children}
       </div>

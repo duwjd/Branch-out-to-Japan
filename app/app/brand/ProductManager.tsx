@@ -420,92 +420,22 @@ export function ProductManager() {
       )}
 
       {/* 추가·편집 모달(BRAND-03b) */}
-      <Modal open={open} onClose={() => !saving && setOpen(false)} labelledBy="productModalTitle">
+      <Modal open={open} onClose={() => !saving && setOpen(false)} labelledBy="productModalTitle" size="wide">
         <h2 id="productModalTitle" className="text-lg font-extrabold text-ink">
           {editing ? '제품 편집' : '제품 추가'}
         </h2>
-        <div className="mt-4 space-y-4">
-          <CandidatePanel busy={identifyBusy} candidates={candidates} note={identifyNote} onPick={applyCandidate} />
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+          제품컷을 올리면 이 제품이 무엇인지 웹에서 찾아 이름을 채워 드립니다. 기다리지 않고 직접 입력하셔도 됩니다.
+        </p>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className={fieldLabelClass}>
-              제품명 KR <span className="text-coral-strong">*</span>
-              <input
-                value={nameKr}
-                onChange={(e) => {
-                  setNameKr(e.target.value);
-                  touched('nameKr');
-                }}
-                maxLength={40}
-                className={`mt-1.5 ${inputClass} ${origins.nameKr ? 'bg-coral-tint' : ''}`}
-              />
-              <OriginNote origin={origins.nameKr} />
-            </label>
-            <label className={fieldLabelClass}>
-              제품명 JA <span className="font-normal text-ink-mute">(선택)</span>
-              <input
-                lang="ja"
-                value={nameJa}
-                onChange={(e) => {
-                  setNameJa(e.target.value);
-                  touched('nameJa');
-                }}
-                maxLength={60}
-                className={`mt-1.5 ${inputClass} ${origins.nameJa ? 'bg-coral-tint' : ''}`}
-              />
-              <OriginNote origin={origins.nameJa} />
-            </label>
-          </div>
-          <label className={fieldLabelClass}>
-            카테고리 <span className="font-normal text-ink-mute">(선택)</span>
-            <select
-              value={category}
-              onChange={(e) => {
-                setCategory(e.target.value);
-                touched('category');
-              }}
-              className={`mt-1.5 w-full ${selectClass} ${origins.category ? 'bg-coral-tint' : ''}`}
-            >
-              <option value="">미지정</option>
-              {CATEGORY_OPTIONS.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            <OriginNote origin={origins.category} />
-          </label>
-          <label className={fieldLabelClass}>
-            메모 <span className="font-normal text-ink-mute">(선택)</span>
-            <textarea
-              value={memo}
-              onChange={(e) => setMemo(e.target.value)}
-              maxLength={500}
-              rows={2}
-              className={`mt-1.5 ${textareaClass}`}
-            />
-          </label>
-
-          {/* KR 상세 원본 판독(BRAND-03b 3b-6) — 제품컷과 다른 칸이다 */}
-          <SpecPanel
-            busy={specBusy}
-            spec={spec}
-            origins={origins}
-            reviewed={specReviewed}
-            missing={specMissing}
-            note={specNote}
-            inputRef={sourceRef}
-            onPick={readSource}
-            onEdit={(name, value) => {
-              setSpec((prev) => ({ ...prev, [name]: value }));
-              touched(name);
-            }}
-            onReview={(name) => setSpecReviewed((prev) => [...new Set([...prev, name])])}
-          />
-
-          {/* 제품컷 — 다중 이미지, 대표 지정/삭제(BRAND-03b) */}
+        <div className="mt-5 space-y-6">
+          {/* ① 제품컷(BRAND-03b 3b-2) — 검색을 여는 자리라 맨 앞에 둔다. 올린 곳과 결과가
+              나오는 곳이 멀면 사용자는 무엇 때문에 후보가 떴는지 알 수 없다 */}
           <div>
             <p className={fieldLabelClass}>제품컷</p>
+            <p className="mt-1 text-[12px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+              배경이 깔끔한 제품 단독컷을 올려 주세요. 첫 장으로 이 제품을 웹에서 찾습니다.
+            </p>
             <input
               ref={fileRef}
               type="file"
@@ -560,6 +490,90 @@ export function ProductManager() {
               </button>
             </div>
             <p className="mt-1.5 text-[11px] text-ink-faint">첫 장이 자동 대표입니다. JPG·PNG·WebP / 10MB 이하.</p>
+          </div>
+
+          <CandidatePanel busy={identifyBusy} candidates={candidates} note={identifyNote} onPick={applyCandidate} />
+
+          {/* ② 제품 정보 — 후보를 고르면 위 셋이 차고, 안 골라도 직접 쓸 수 있다 */}
+          <div className="space-y-4 border-t border-hairline pt-5">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className={fieldLabelClass}>
+                제품명 KR <span className="text-coral-strong">*</span>
+                <input
+                  value={nameKr}
+                  onChange={(e) => {
+                    setNameKr(e.target.value);
+                    touched('nameKr');
+                  }}
+                  maxLength={40}
+                  className={`mt-1.5 ${inputClass} ${origins.nameKr ? 'bg-coral-tint' : ''}`}
+                />
+                <OriginNote origin={origins.nameKr} />
+              </label>
+              <label className={fieldLabelClass}>
+                제품명 JA <span className="font-normal text-ink-mute">(선택)</span>
+                <input
+                  lang="ja"
+                  value={nameJa}
+                  onChange={(e) => {
+                    setNameJa(e.target.value);
+                    touched('nameJa');
+                  }}
+                  maxLength={60}
+                  className={`mt-1.5 ${inputClass} ${origins.nameJa ? 'bg-coral-tint' : ''}`}
+                />
+                <OriginNote origin={origins.nameJa} />
+              </label>
+            </div>
+            <label className={fieldLabelClass}>
+              카테고리 <span className="font-normal text-ink-mute">(선택)</span>
+              <select
+                value={category}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  touched('category');
+                }}
+                className={`mt-1.5 w-full ${selectClass} ${origins.category ? 'bg-coral-tint' : ''}`}
+              >
+                <option value="">미지정</option>
+                {CATEGORY_OPTIONS.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              <OriginNote origin={origins.category} />
+            </label>
+            <label className={fieldLabelClass}>
+              메모 <span className="font-normal text-ink-mute">(선택)</span>
+              <textarea
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+                maxLength={500}
+                rows={2}
+                className={`mt-1.5 ${textareaClass}`}
+              />
+            </label>
+          </div>
+
+          {/* ③ KR 상세 원본 판독(3b-6) — 제품컷과 **다른 칸**이다. 제품컷은 배경이 깔끔한
+              단독컷이고 여기 올리는 것은 글자가 박힌 상세 스크린샷이다 */}
+          <div className="border-t border-hairline pt-5">
+            <SpecPanel
+              busy={specBusy}
+              spec={spec}
+              origins={origins}
+              reviewed={specReviewed}
+              missing={specMissing}
+              note={specNote}
+              inputRef={sourceRef}
+              onPick={readSource}
+              onEdit={(name, value) => {
+                setSpec((prev) => ({ ...prev, [name]: value }));
+                touched(name);
+              }}
+              onReview={(name) => setSpecReviewed((prev) => [...new Set([...prev, name])])}
+            />
           </div>
 
           {error && (
