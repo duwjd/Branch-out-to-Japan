@@ -161,6 +161,23 @@ const SECTION_OF_FIELD: Record<string, string> = Object.fromEntries(
   Object.entries(SECTION_FIELDS).flatMap(([id, names]) => names.map((n) => [n, id])),
 );
 
+/**
+ * 입력 자동 추출(§2-14) 대상 7칸. 정본은 `lib/studio/detail/extractCall.ts` 의 `EXTRACT_FIELDS` 다 —
+ * 서버 모듈이라 클라이언트가 import 할 수 없어 이름만 옮겨 적는다.
+ */
+const EXTRACT_FIELDS = [
+  'specVolume',
+  'specManufacturer',
+  'specOrigin',
+  'specFullIngredients',
+  'ingredientRows',
+  'howToSteps',
+  'cautions',
+] as const;
+
+/** 확인 전까지 해당 블록을 세우지 않는 칸(§2-14 규정 가드). 서버가 같은 판정을 다시 한다 */
+const REVIEW_REQUIRED_FIELDS = ['specFullIngredients', 'ingredientRows'];
+
 /** 서버가 400 으로 막는 표시 의무 3칸(DETAIL-05 5c) — 비어 있으면 스펙 섹션을 펼친 채로 둔다 */
 const SPEC_GATE_FIELDS = ['specVolume', 'specCategory', 'specManufacturer'];
 
@@ -237,6 +254,20 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   const toggleSection = useCallback((id: string) => setOpenSections((v) => ({ ...v, [id]: !v[id] })), []);
   /** 섹션별 채워진 칸 수 — 접힌 헤더 한 줄이 쓴다 */
   const [filled, setFilled] = useState<Record<string, number>>({});
+  /**
+   * 입력 자동 추출(§2-14) 상태. `autoFilled` 는 이번에 원본에서 읽어 채운 칸,
+   * `reviewed` 는 그중 사용자가 확인한 칸이다. 둘 다 제출 때 서버로 함께 간다 —
+   * 화면 잠금에 기대지 않고 서버가 같은 판정을 다시 내린다.
+   */
+  const [autoFilled, setAutoFilled] = useState<string[]>([]);
+  const [reviewed, setReviewed] = useState<string[]>([]);
+  const [extract, setExtract] = useState<{
+    busy: boolean;
+    missing: { field: string; reason: string }[];
+    error: string | null;
+  }>({ busy: false, missing: [], error: null });
+  /** 같은 이미지 묶음으로 두 번 걸지 않는다(§2-14 「걸지 않을 경로」) */
+  const extractedKeyRef = useRef<string>('');
   /** 블록 보드(DETAIL-01e). 실패해도 직전 결과를 지우지 않는다 — 보드가 비면 화면이 흔들린다 */
   const [outline, setOutline] = useState<OutlineResult | null>(null);
   const [outlineBusy, setOutlineBusy] = useState(false);
@@ -512,6 +543,72 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
   }, []);
 
   /**
+   * 입력 자동 추출(§2-14 · 콜⑩). KR 상세 원본을 올리면 스펙 7칸의 후보값을 읽어 온다.
+   *
+   * **조용히 채우지 X.** 채운 칸에는 출처 표시가 붙고, 규정 민감 칸은 확인 전까지 그 블록이
+   * 서지 않는다. UT-31 선례 — 출처가 안 보이면 자동 채움은 "AI 가 뭔가 지어내는 것 아니냐"는
+   * 의심을 정당화한다.
+   */
+  const runExtract = useCallback(async () => {
+    const el = formRef.current;
+    if (!el || files.length === 0) return;
+
+    // 이미 찬 칸은 싣지 않는다 — 덮지 않을 값을 읽어 올 이유가 없다
+    const wanted = EXTRACT_FIELDS.filter((name) => {
+      const field = el.elements.namedItem(name);
+      const has = (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) && field.value.trim();
+      return !has;
+    });
+    if (wanted.length === 0) return;
+
+    // 같은 이미지 묶음 + 같은 요청 칸이면 다시 걸지 X. 폼의 다른 칸을 고쳤다고 재호출하면
+    // 그때부터 이 콜은 모든 생성에 붙는 고정 비용이 된다
+    const key = `${files.map((f) => `${f.name}:${f.size}`).join('|')}::${wanted.join(',')}`;
+    if (extractedKeyRef.current === key) return;
+    extractedKeyRef.current = key;
+
+    setExtract({ busy: true, missing: [], error: null });
+    const fd = new FormData();
+    for (const f of files) fd.append('images', f);
+    fd.set('wanted', wanted.join(','));
+    try {
+      const res = await fetch('/api/studio/detail/extract', { method: 'POST', body: fd });
+      if (!res.ok) {
+        setExtract({ busy: false, missing: [], error: '원본에서 입력을 읽지 못했습니다. 직접 입력하실 수 있습니다.' });
+        return;
+      }
+      const data = (await res.json()) as {
+        fields: Record<string, string>;
+        missing: { field: string; reason: string }[];
+        error?: string;
+      };
+      const namesFilled: string[] = [];
+      for (const [name, value] of Object.entries(data.fields)) {
+        const field = el.elements.namedItem(name);
+        if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) continue;
+        if (field.value.trim()) continue; // 그 사이 사용자가 적었으면 덮지 X
+        field.value = value;
+        // 프리필과 같은 표시 관례를 쓴다(DETAIL-01c) — 손대는 순간 표시가 사라진다
+        field.dataset.prefilled = 'true';
+        field.classList.add('bg-coral-tint');
+        namesFilled.push(name);
+      }
+      setAutoFilled((prev) => [...new Set([...prev, ...namesFilled])]);
+      setExtract({ busy: false, missing: data.missing ?? [], error: data.error ?? null });
+      recountSections();
+    } catch {
+      // 추출 실패가 생성을 막지 X — 폼은 그대로 열려 있고 수동 입력이 가능하다
+      setExtract({ busy: false, missing: [], error: '원본에서 입력을 읽지 못했습니다. 직접 입력하실 수 있습니다.' });
+    }
+  }, [files, recountSections]);
+
+  // KR 상세 원본이 올라오면 자동 추출을 건다. 원본이 없으면 콜 자체를 만들지 X
+  useEffect(() => {
+    if (files.length === 0) return;
+    void runExtract();
+  }, [files, runExtract]);
+
+  /**
    * 제품을 고르면 프리필이 돌고 **대표컷이 자동으로 들어간다.**
    * 자동으로 넣는 이유: 목표 2의 판정이 「필수 입력이 제품 선택 하나로 끝난다」이고,
    * 버튼을 한 번 더 누르게 하면 그 판정이 성립하지 않는다.
@@ -591,6 +688,10 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       fd.set('themeMoodId', themeMoodId);
       fd.set('themeExtracted', extracted?.accent ?? '');
       fd.set('disabledBlocks', [...disabled].join(','));
+      // 규정 가드(§2-14) — 서버가 미확인 규정 민감 값을 빈 값으로 접는다.
+      // 화면 잠금에 기대지 않고 두 목록을 그대로 넘겨 서버가 같은 판정을 내리게 한다
+      fd.set('autoFilledFields', autoFilled.join(','));
+      fd.set('reviewedFields', reviewed.join(','));
       // 원문(kr)을 함께 보낸다 — 서버가 현재 입력과 대조해, 입력이 바뀌었으면 캐시를 버리고
       // 다시 번역한다. 이게 없으면 숫자 없는 필드에서 엉뚱한 일본어가 조용히 들어간다.
       if (opts?.withTranslation && translation.length > 0) {
@@ -598,7 +699,7 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
       }
       return fd;
     },
-    [productFile, files, platform, category, templateId, optionAxis, disabled, translation],
+    [productFile, files, platform, category, templateId, optionAxis, disabled, translation, autoFilled, reviewed],
   );
 
   /**
@@ -771,6 +872,9 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 if (t.dataset?.prefilled) {
                   delete t.dataset.prefilled;
                   t.classList.remove('bg-coral-tint');
+                  // 직접 고친 칸은 더 이상 "읽어 온 값"이 아니다 — 확인한 것과 같다(§2-14)
+                  const name = (t as HTMLInputElement).name;
+                  if (name) setAutoFilled((prev) => prev.filter((n) => n !== name));
                 }
                 recountSections();
               }}
@@ -1234,6 +1338,14 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
                 pill="required"
                 desc="표시 의무 항목입니다. 내용을 고쳐 쓰지 않고, 한국어로 입력하시면 일본 표기로만 바꿔 넣습니다 — 바꾼 결과는 다음 단계에서 확인·수정하실 수 있습니다."
               >
+                <ExtractNotice
+                  busy={extract.busy}
+                  missing={extract.missing}
+                  error={extract.error}
+                  autoFilled={autoFilled}
+                  reviewed={reviewed}
+                  onReview={(name) => setReviewed((prev) => [...new Set([...prev, name])])}
+                />
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="block">
                     <span className={fieldLabelClass}>내용량</span>
@@ -2032,6 +2144,88 @@ function ConfirmStep({
       </ol>
 
       {plan.excluded.length > 0 && <ExcludedSummary excluded={plan.excluded} onBack={onBack} />}
+    </div>
+  );
+}
+
+/**
+ * 입력 자동 추출 안내(§2-14) — 무엇을 원본에서 읽었고 무엇을 못 읽었는지, 무엇이 확인을
+ * 기다리는지 한 자리에서 말한다.
+ *
+ * **조용히 채우지 않는 것이 이 컴포넌트의 존재 이유다.** UT-31 에서 placeholder 를 실제
+ * 입력값으로 오인한 사용자가 "AI 가 뭔가 지어내는 것 아니냐"는 의심을 품었다(P05).
+ * 출처를 보이지 않으면 자동 채움은 그 의심을 정당화한다.
+ */
+function ExtractNotice({
+  busy,
+  missing,
+  error,
+  autoFilled,
+  reviewed,
+  onReview,
+}: {
+  busy: boolean;
+  missing: { field: string; reason: string }[];
+  error: string | null;
+  autoFilled: string[];
+  reviewed: string[];
+  onReview: (name: string) => void;
+}) {
+  /** 확인을 기다리는 규정 민감 칸 — 이 칸이 남아 있으면 그 블록이 서지 않는다 */
+  const waiting = REVIEW_REQUIRED_FIELDS.filter((f) => autoFilled.includes(f) && !reviewed.includes(f));
+  if (!busy && !error && autoFilled.length === 0 && missing.length === 0) return null;
+
+  return (
+    <div className="mb-5 rounded-lg bg-coral-tint px-4 py-3">
+      {busy ? (
+        <p className="flex items-center gap-2 text-[13px] text-ink-body">
+          <IconSpinner size={13} className="animate-spin" />
+          올려 주신 한국 상세페이지 원본에서 입력을 읽고 있습니다.
+        </p>
+      ) : (
+        <>
+          {autoFilled.length > 0 && (
+            <p className="text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
+              <b>원본에서 {autoFilled.length}개 칸을 읽어 왔습니다.</b> 표시된 칸은 그대로 쓰셔도 되고 고치셔도 됩니다.
+            </p>
+          )}
+          {error && <p className="text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">{error}</p>}
+
+          {/* 못 읽은 칸은 사유를 남긴다 — 왜 비었는지 모르면 사용자가 원본을 의심한다 */}
+          {missing.length > 0 && (
+            <ul className="mt-1.5 space-y-0.5">
+              {missing.map((m) => (
+                <li key={m.field} className="text-[12px] leading-relaxed text-ink-mute">
+                  {m.reason}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {waiting.length > 0 && (
+            <div className="mt-3 border-t border-coral/20 pt-3">
+              <p className="text-[13px] leading-relaxed text-ink-body [text-wrap:pretty]">
+                <b>확인이 필요한 칸이 있습니다.</b> 전성분과 성분표는 표시 의무·효능 주장의 근거라, 확인하시기 전까지
+                해당 블록을 넣지 않습니다.
+              </p>
+              <ul className="mt-2 space-y-1.5">
+                {waiting.map((f) => (
+                  <li key={f} className="flex flex-wrap items-center gap-2">
+                    <span className="text-[13px] text-ink-body">{f === 'ingredientRows' ? '성분표' : '전성분'}</span>
+                    <button
+                      type="button"
+                      onClick={() => onReview(f)}
+                      className="rounded-lg border border-coral/40 px-2.5 py-1 text-[12px] font-bold text-coral-strong transition-colors hover:bg-coral-tint"
+                    >
+                      원본과 같은지 확인했습니다
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

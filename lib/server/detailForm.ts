@@ -10,6 +10,7 @@ import { PLATFORMS, type Platform } from '../studio/platform';
 import { getDetailPack, type TemplateId } from '../studio/detail/blockPack';
 import { resolveTheme } from '../studio/detail/theme';
 import { allowsPromoLayer, type BlockType } from '../studio/detail/output';
+import { REVIEW_REQUIRED_FIELDS } from '../studio/detail/extractCall';
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 /** 비전 콜 계약(client.ts images 1~10장) */
@@ -66,6 +67,14 @@ function text(form: FormData, key: string): string {
 }
 
 /** 줄 단위 입력 → 배열(빈 줄 제거). textarea 계약. */
+/** 쉼표로 이어 보낸 이름 목록을 읽는다(`autoFilledFields`·`reviewedFields`). */
+function csv(form: FormData, key: string): string[] {
+  return String(form.get(key) ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 function lines(form: FormData, key: string): string[] {
   return String(form.get(key) ?? '')
     .split('\n')
@@ -100,13 +109,32 @@ export function parseDetailForm(form: FormData, sourceImagePaths: string[]): Par
   if (!(CATEGORIES as string[]).includes(categoryRaw)) return { error: '상품 카테고리를 선택해 주세요.' };
   const productCategory = categoryRaw as DetailProductCategory;
 
+  /**
+   * 규정 가드(§2-14) — **자동으로 채웠고 아직 확인하지 않은** 규정 민감 칸을 빈 값으로 접는다.
+   *
+   * 全成分은 표시 의무 항목이고 성분표는 효능 주장의 근거다. 자동으로 찼다는 사실만으로
+   * 블록을 세우면 그게 곧 규정 사고다. 값을 접어 두면 관통 원칙 2번이 이미 하는 일에 얹혀
+   * 그 블록이 서지 않는다 — **새 게이트를 만들지 X.**
+   *
+   * 화면 잠금에 기대지 않는다. 폼이 두 목록을 보내지 않아도(구 클라이언트·우회 제출) 서버가
+   * 같은 판정을 내린다.
+   */
+  const autoFilled = new Set(csv(form, 'autoFilledFields'));
+  const reviewed = new Set(csv(form, 'reviewedFields'));
+  const pendingReview: string[] = REVIEW_REQUIRED_FIELDS.filter(
+    (f) => autoFilled.has(f) && !reviewed.has(f) && String(form.get(f) ?? '').trim() !== '',
+  );
+  const pending = new Set(pendingReview);
+  /** 확인 대기 칸은 빈 값으로 읽는다 */
+  const guarded = (key: string) => (pending.has(key) ? '' : text(form, key));
+
   // 약기법 표시 의무 영역 — 원문 그대로 받고 재가공하지 않는다
   const spec = {
     volume: text(form, 'specVolume'),
     category: text(form, 'specCategory'),
     manufacturer: text(form, 'specManufacturer'),
     origin: text(form, 'specOrigin'),
-    fullIngredients: text(form, 'specFullIngredients'),
+    fullIngredients: guarded('specFullIngredients'),
   };
   if (!spec.volume || !spec.category || !spec.manufacturer) {
     return { error: '내용량·구분·판매원은 표시 의무 항목이라 반드시 필요합니다.' };
@@ -184,7 +212,11 @@ export function parseDetailForm(form: FormData, sourceImagePaths: string[]): Par
     sourceImagePaths,
     disabledBlocks,
     spec,
-    ingredients: rows(form, 'ingredientRows', 3).map(([name, percent, purpose]) => ({ name, percent, purpose })),
+    ingredients: pending.has('ingredientRows')
+      ? []
+      : rows(form, 'ingredientRows', 3).map(([name, percent, purpose]) => ({ name, percent, purpose })),
+    // 접은 칸의 이름을 남긴다 — checkRequirement 가 사유를 확인용으로 바꾼다(§2-14)
+    pendingReview,
     freeOf: lines(form, 'freeOf'),
     specs: rows(form, 'specRows', 2).map(([label, value]) => ({ label, value })),
     howToSteps: lines(form, 'howToSteps'),

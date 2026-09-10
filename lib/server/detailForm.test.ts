@@ -111,3 +111,56 @@ test('빈 값은 내려보내지 않는다 — 프리필이 사용자가 적은 
   assert.equal(fields.testName, undefined);
   assert.equal(fields.promoSetTitle, undefined);
 });
+
+/**
+ * 규정 가드(§2-14) — 자동으로 채웠고 아직 확인하지 않은 全成分·성분표를 **서버가 빈 값으로 접는다.**
+ *
+ * 화면 잠금에 기대지 않는 것이 이 판정의 존재 이유다. 구 클라이언트나 우회 제출이 두 목록을
+ * 보내지 않아도, 보내더라도 확인 표시가 없으면 서버가 같은 결론을 낸다.
+ */
+function guardForm(over: Record<string, string>): FormData {
+  const fd = formOf(sample());
+  for (const [k, v] of Object.entries(over)) fd.set(k, v);
+  return fd;
+}
+
+test('규정 가드 — 자동으로 채운 전성분은 확인 전까지 빈 값으로 접힌다', () => {
+  const parsed = parseDetailForm(
+    guardForm({ autoFilledFields: 'specFullIngredients,ingredientRows', reviewedFields: '' }),
+    [],
+  );
+  assert.ok(!('error' in parsed), 'error' in parsed ? parsed.error : '');
+  if ('error' in parsed) return;
+  assert.equal(parsed.detailInput.spec.fullIngredients, '');
+  assert.deepEqual(parsed.detailInput.ingredients, []);
+  // 접은 칸의 이름이 남아야 checkRequirement 가 사유를 확인용으로 바꿀 수 있다
+  assert.deepEqual(parsed.detailInput.pendingReview, ['specFullIngredients', 'ingredientRows']);
+});
+
+test('규정 가드 — 확인한 칸은 접지 않는다', () => {
+  const parsed = parseDetailForm(
+    guardForm({ autoFilledFields: 'specFullIngredients', reviewedFields: 'specFullIngredients' }),
+    [],
+  );
+  if ('error' in parsed) throw new Error(parsed.error);
+  assert.equal(parsed.detailInput.spec.fullIngredients, '水、BG、グリセリン');
+  assert.deepEqual(parsed.detailInput.pendingReview, []);
+});
+
+test('규정 가드 — 사용자가 직접 적은 값은 접지 않는다', () => {
+  // autoFilledFields 에 없으면 자동 채움이 아니다. 손으로 적은 값을 확인 대기로 묶으면
+  // 지금까지 잘 쓰던 사용자의 블록이 갑자기 사라진다
+  const parsed = parseDetailForm(guardForm({}), []);
+  if ('error' in parsed) throw new Error(parsed.error);
+  assert.equal(parsed.detailInput.spec.fullIngredients, '水、BG、グリセリン');
+  assert.deepEqual(parsed.detailInput.pendingReview, []);
+});
+
+test('규정 가드 — 표시 의무 3칸은 접지 않는다(서버 400 이 먼저 걸린다)', () => {
+  // 内容量·区分·販売元 을 접으면 파서가 400 을 내고 생성 경로가 통째로 막힌다.
+  // 규정 민감 목록에 이 셋이 들어가면 안 되는 이유가 이것이다
+  const parsed = parseDetailForm(guardForm({ autoFilledFields: 'specVolume,specManufacturer' }), []);
+  if ('error' in parsed) throw new Error(parsed.error);
+  assert.equal(parsed.detailInput.spec.volume, '50mL');
+  assert.deepEqual(parsed.detailInput.pendingReview, []);
+});

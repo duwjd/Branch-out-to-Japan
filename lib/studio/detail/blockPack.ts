@@ -356,6 +356,18 @@ function checkRequirement(token: string, input: DetailInput): BlockedRequirement
   const fields = REQUIREMENT_FIELDS[token];
   // 스위치에는 넣고 맵에는 안 넣으면 보드가 "채우면 붙는다"를 조용히 ⛔ 로 강등한다
   if (!fields) throw new Error(`requirement token has no field mapping: ${token}`);
+
+  // 자동으로 읽었지만 아직 확인하지 않아 접힌 칸이면(§2-14 규정 가드) 사유를 확인용으로 바꾼다.
+  // 값이 비어서 막힌 게 아니라 **확인을 기다려서** 막힌 것이라, "넣으면 들어갑니다"는 거짓말이다.
+  const pending = input.pendingReview ?? [];
+  const waiting = fields.filter((f) => pending.includes(f));
+  if (waiting.length > 0) {
+    return {
+      reason: '원본에서 읽은 값입니다. 확인하시면 이 블록을 넣습니다.',
+      fixHint: '읽어 온 값 확인',
+      fields: waiting,
+    };
+  }
   return { ...blocked, fields };
 }
 

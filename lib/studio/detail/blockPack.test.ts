@@ -639,3 +639,33 @@ test('templateSignatureStates — 템플릿 6종을 전부 판정한다(고르�
 test('templateUiMetas — 카드가 핵심 블록 이름을 항상 들고 있다(UT-26 4l)', () => {
   for (const m of templateUiMetas()) assert.ok(m.signatureNames.length > 0, `${m.id}: 핵심 블록 이름 없음`);
 });
+
+/**
+ * 규정 가드(§2-14) — 자동으로 읽은 全成分·성분표는 **확인 전까지 블록을 세우지 않는다.**
+ * 새 게이트를 만들지 않고 관통 원칙 2번에 얹었으므로, 그 얹힘이 실제로 작동하는지 여기서 지킨다.
+ */
+test('planBlocks — 확인 대기 중인 성분표는 블록을 세우지 않는다', () => {
+  const input = fullInput({ pendingReview: ['ingredientRows'] });
+  // 값 자체는 파서가 이미 비워서 넘긴다(detailForm 이 접는다) — 여기서는 같은 상태를 재현한다
+  const pending = planBlocks({ ...input, ingredients: [] }, 'rakuten-official', 'D2');
+  const card = pending.excluded.find((e) => e.blockId === 'ingredient-card');
+  assert.ok(card, '성분 카드가 제외되지 않았다');
+  assert.match(card?.reason ?? '', /확인하시면/);
+  assert.deepEqual(card?.fields, ['ingredientRows']);
+
+  // 확인이 끝나면(pendingReview 에서 빠지면) 원래 사유로 돌아간다 — 값이 비었으니 여전히 제외
+  const confirmed = planBlocks({ ...input, ingredients: [], pendingReview: [] }, 'rakuten-official', 'D2');
+  assert.match(confirmed.excluded.find((e) => e.blockId === 'ingredient-card')?.reason ?? '', /지어내지 않습니다/);
+});
+
+test('planBlocks — 확인 대기는 ⛔ 가 아니라 ➕ 다(보드 분류가 넷으로 늘지 않는다)', () => {
+  // fields 가 비면 보드는 "이 건에는 넣지 않습니다"로 읽는다. 확인은 사용자가 할 수 있는 일이므로
+  // fields 가 반드시 있어야 한다 — M16 이 세운 3분류를 그대로 쓴다
+  const r = planBlocks(
+    { ...fullInput({ pendingReview: ['ingredientRows'] }), ingredients: [] },
+    'rakuten-official',
+    'D2',
+  );
+  const card = r.excluded.find((e) => e.blockId === 'ingredient-card');
+  assert.ok((card?.fields.length ?? 0) > 0, '확인 대기가 ⛔ 로 강등됐다');
+});

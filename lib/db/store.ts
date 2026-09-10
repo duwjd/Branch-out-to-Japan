@@ -240,6 +240,18 @@ export interface DetailInput {
   promo: PromoInput | null;
   modelConsent: boolean;
 
+  /**
+   * 자동으로 채웠으나 사용자가 아직 확인하지 않아 **빈 값으로 접은** 칸의 폼 필드 이름(§2-14).
+   *
+   * 全成分·성분표는 표시 의무·효능 주장의 근거라, 자동으로 찼다는 사실만으로 블록을 세우지 X.
+   * 값을 접어 두면 관통 원칙 2번(근거가 없으면 그 블록이 없는 것이 정상)이 이미 하는 일에
+   * 얹힌다 — 새 게이트를 만들지 않는 대신, `checkRequirement` 가 사유만 확인용으로 바꾼다.
+   *
+   * optional 인 이유는 이 기능 이전에 만든 자산의 블록 재생성이 `detail_input` 을 그대로
+   * 읽기 때문이다(콜⑧ 스냅샷 필드들과 같은 이유).
+   */
+  pendingReview?: string[];
+
   // ── 콜⑧ inputTranslate 스냅샷 (08 §4.8) ────────────────────────────────────
   // 전부 optional 이다. regenerateBlock 이 **구 자산의 detail_input 을 그대로** 읽으므로,
   // required 로 두면 이 기능 이전에 만든 자산의 블록 재생성이 죽는다.
