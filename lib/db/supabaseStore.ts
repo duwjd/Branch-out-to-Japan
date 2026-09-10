@@ -418,6 +418,8 @@ interface ProductRow {
   category: string;
   memo: string;
   images: ProductRecord['images'];
+  /** BRAND-03b 3b-6 — 마이그레이션 전 행은 null 이다 */
+  spec: ProductRecord['spec'] | null;
   created_at: string;
   updated_at: string;
 }
@@ -431,6 +433,7 @@ function toProductRecord(row: ProductRow): ProductRecord {
     category: row.category,
     memo: row.memo,
     images: row.images ?? [],
+    ...(row.spec ? { spec: row.spec } : {}),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -936,6 +939,7 @@ export function createSupabaseStore(): Store {
           category: input.category,
           memo: input.memo,
           images: input.images,
+          ...(input.spec ? { spec: input.spec } : {}),
         })
         .select()
         .single<ProductRow>();
@@ -949,6 +953,7 @@ export function createSupabaseStore(): Store {
       if (patch.category !== undefined) row.category = patch.category;
       if (patch.memo !== undefined) row.memo = patch.memo;
       if (patch.images !== undefined) row.images = patch.images;
+      if (patch.spec !== undefined) row.spec = patch.spec;
       const result = await client.from('products').update(row).eq('id', id);
       if (result.error) throw new Error(`supabase updateProduct 실패: ${result.error.message}`);
     },

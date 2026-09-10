@@ -433,8 +433,28 @@ export interface ProductRecord {
   category: string;
   memo: string;
   images: ProductImage[];
+  /**
+   * KR 상세 원본에서 읽은 스펙(BRAND-03b 3b-6 · 콜⑩ §2-14). 없으면 undefined.
+   *
+   * **왜 제품에 사는가** — 스펙은 생성마다 바뀌는 값이 아니라 제품에 붙는 값이다.
+   * 생성할 때마다 읽으면 같은 비전 콜을 매번 지불한다. 제품컷을 제품에 둔 것과 같은 이유다.
+   */
+  spec?: ProductSpec;
   createdAt: string;
   updatedAt: string;
+}
+
+/** 제품에 붙는 스펙 스냅샷 — 상세 폼이 프리필로 가져간다(DETAIL-01c 우선순위 2단) */
+export interface ProductSpec {
+  /** 폼 필드 `name` 을 키로 쓴다 — 프리필이 그대로 펴 넣을 수 있게 */
+  fields: Record<string, string>;
+  /**
+   * 사용자가 원본과 대조해 확인한 규정 민감 칸(§2-14 규정 가드).
+   * 여기서 확인한 칸은 상세 폼이 다시 묻지 X.
+   */
+  reviewed: string[];
+  /** 언제 읽었는지 — 화면이 "언제 가져온 값인지" 말할 수 있게 */
+  extractedAt: string;
 }
 
 export type MatchStatus = 'submitted' | 'reviewing' | 'proposed' | 'cancelled';
@@ -644,7 +664,7 @@ export interface Store {
   createProduct(input: Omit<ProductRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<ProductRecord>;
   updateProduct(
     id: string,
-    patch: Partial<Pick<ProductRecord, 'nameKr' | 'nameJa' | 'category' | 'memo' | 'images'>>,
+    patch: Partial<Pick<ProductRecord, 'nameKr' | 'nameJa' | 'category' | 'memo' | 'images' | 'spec'>>,
   ): Promise<void>;
   deleteProduct(id: string): Promise<void>;
   // ── 시즌 캘린더 메모(SEASON-03) — 브랜드별 스코핑 ──────────────────────────

@@ -411,3 +411,18 @@ alter table diagnosis_requests add column if not exists product_id uuid referenc
 
 create index if not exists idx_generated_assets_product on generated_assets(product_id);
 create index if not exists idx_diagnosis_requests_product on diagnosis_requests(product_id);
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 마이그레이션 · 2026-09-10 — 제품에 스펙 저장 (Phase 1 M18-3 · BRAND-03b 3b-6)
+--
+-- KR 상세 원본에서 콜⑩ specExtract 로 읽은 스펙 7칸을 **제품에** 보관한다.
+-- 스펙은 생성마다 바뀌는 값이 아니라 제품에 붙는 값이라, 생성할 때마다 읽으면
+-- 같은 비전 콜을 매번 지불한다. 제품컷을 제품에 둔 2026-07-22 개정과 같은 논리다.
+--
+-- 형태: { fields: {폼필드명: 값}, reviewed: [규정 민감 칸 중 확인한 것], extractedAt: ISO }
+-- 키를 폼 필드 이름으로 두는 이유는 상세 폼 프리필이 그대로 펴 넣기 때문이다.
+--
+-- 멱등. 구 코드는 이 컬럼을 안 쓰므로 순서 무관하게 먼저 돌려도 안전하다.
+-- ───────────────────────────────────────────────────────────────────────────
+
+alter table products add column if not exists spec jsonb;

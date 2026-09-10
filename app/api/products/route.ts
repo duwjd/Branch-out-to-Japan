@@ -8,6 +8,7 @@ import { getSession } from '@/lib/server/session';
 import { getActiveBrand, getActiveBrandId } from '@/lib/server/activeBrand';
 import { getStore } from '@/lib/db/store';
 import { saveProductImages } from '@/lib/server/productImages';
+import { parseProductSpec } from '@/lib/server/productSpec';
 import { logger } from '@/lib/logger';
 
 export async function GET(): Promise<NextResponse> {
@@ -59,6 +60,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       .slice(0, 40),
     memo: String(form.get('memo') ?? '').slice(0, 500),
     images,
+    // KR 원본에서 읽은 스펙(BRAND-03b 3b-6). 없으면 undefined — 필수가 아니다
+    spec: parseProductSpec(form.get('spec')),
   });
   logger.info('제품 자산 생성', { productId: product.id, brandProfileId: brand.id, nameKr });
   return NextResponse.json({ product }, { status: 201 });

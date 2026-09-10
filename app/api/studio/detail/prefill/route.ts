@@ -68,6 +68,10 @@ export async function GET(request: Request): Promise<NextResponse> {
     put({ productCategory: product.category }, 'product');
   }
 
+  //    제품에 저장된 스펙(BRAND-03b 3b-6)도 여기서 얹는다. 제품 등록에서 KR 원본을 한 번
+  //    읽어 뒀다면 상세 폼이 그 값을 그대로 가져가므로, 같은 비전 콜을 생성마다 지불하지 X.
+  if (product.spec) put(product.spec.fields, 'product');
+
   // ③ 브랜드 킷 — **지금은 채울 것이 없다.** 킷이 들고 있는 값(productNamesJa·forbiddenTerms·
   //    toneGuide)은 어느 것도 이 폼의 칸이 아니다. 우선순위 자리만 남겨 둔다.
 
@@ -85,5 +89,10 @@ export async function GET(request: Request): Promise<NextResponse> {
     /** 지난 생성이 언제였는지 — 화면이 "8/21 생성분에서 가져왔습니다"로 말한다 */
     lastAssetAt,
     lastChoice,
+    /**
+     * 제품 등록에서 이미 확인한 규정 민감 칸(§2-14). 상세 폼이 **다시 묻지 X** —
+     * 같은 값을 두 번 확인시키면 확인이 형식이 되고, 그러면 가드가 의미를 잃는다.
+     */
+    reviewedFields: product.spec?.reviewed ?? [],
   });
 }

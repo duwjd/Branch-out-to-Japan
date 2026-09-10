@@ -480,7 +480,13 @@ export function DetailForm({ templates, readiness }: { templates: TemplateCard[]
           fields: Record<string, string>;
           lastAssetAt: string | null;
           lastChoice: { templateId: string; platform: string } | null;
+          reviewedFields?: string[];
         };
+        // 제품 등록에서 이미 확인한 칸은 다시 묻지 X(§2-14) — 두 번 확인시키면 확인이 형식이 된다
+        if (data.reviewedFields?.length) {
+          const already = data.reviewedFields;
+          setReviewed((prev) => [...new Set([...prev, ...already])]);
+        }
         const el = formRef.current;
         if (!el) return;
         let count = 0;

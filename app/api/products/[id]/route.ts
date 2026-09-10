@@ -8,6 +8,7 @@ import { getSession } from '@/lib/server/session';
 import { sessionOwnsBrand } from '@/lib/server/ownership';
 import { getStore, type ProductImage } from '@/lib/db/store';
 import { saveProductImages } from '@/lib/server/productImages';
+import { parseProductSpec } from '@/lib/server/productSpec';
 import { logger } from '@/lib/logger';
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
@@ -87,6 +88,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       .slice(0, 40),
     memo: String(form.get('memo') ?? '').slice(0, 500),
     images,
+    // 스펙은 보낸 경우에만 갱신한다 — 안 보내면 이미 저장된 값을 지우지 X
+    ...(form.has('spec') ? { spec: parseProductSpec(form.get('spec')) } : {}),
   });
   logger.info('제품 자산 편집', { productId: id, nameKr });
   return NextResponse.json({ ok: true });
