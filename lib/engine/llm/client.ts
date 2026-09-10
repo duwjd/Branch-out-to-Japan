@@ -356,3 +356,120 @@ export async function runStructuredCall<T>(opts: StructuredCallOptions<T>): Prom
   });
   throw new Error(`${opts.callName} 실패: ${lastError}`);
 }
+
+// ───────────────────────────────────────────────────────────────────────────
+// 웹 검색 서버 툴 콜
+// ───────────────────────────────────────────────────────────────────────────
+
+/** 검색 결과의 출처 1건 — 후보와 함께 화면에 노출한다(값이 어디서 왔는지 말하기 위해). */
+export interface WebSearchSource {
+  url: string;
+  title: string;
+}
+
+export interface WebSearchCallOptions<T> {
+  callName: string;
+  system: string;
+  userPayload: string;
+  images?: { mediaType: 'image/png' | 'image/jpeg' | 'image/webp'; dataBase64: string }[];
+  /** 검색 횟수 상한 — 없으면 모델이 원하는 만큼 돈다 */
+  maxUses?: number;
+  /** 검색 지역. 일본 등재명을 찾을 때는 일본으로 둔다 */
+  userLocation?: { type: 'approximate'; country: string };
+  maxTokens?: number;
+  /** **필수** — 생략하면 SDK 기본 10분이 라우트 상한보다 길어 콜 하나가 함수를 통째로 먹는다 */
+  timeoutMs: number;
+  mockData: T;
+  mockSources?: WebSearchSource[];
+}
+
+/**
+ * 응답 본문에서 **마지막** 텍스트 블록의 JSON 을 읽는다.
+ *
+ * `parseTextJson` 과 다른 이유: 서버 툴을 쓰면 모델이 검색 전후로 텍스트를 흘린다.
+ * 첫 블록은 "검색해 보겠습니다" 같은 서두일 수 있어, 첫 블록을 집으면 조용히 깨진다.
+ */
+function parseLastTextJson<T>(message: Anthropic.Message): T {
+  const texts = message.content.filter((b): b is Anthropic.TextBlock => b.type === 'text');
+  if (texts.length === 0) throw new Error('응답에 텍스트 블록 없음');
+  const raw = texts[texts.length - 1].text.trim();
+  // 툴을 쓰면 output_config 를 못 걸어 코드펜스가 섞여 올 수 있다
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+  return JSON.parse(fenced ? fenced[1] : raw) as T;
+}
+
+/**
+ * 서버 툴이 돌려준 출처를 모은다.
+ *
+ * ⚠ **서버 툴 오류는 예외를 던지지 않는다.** HTTP 200 에 `web_search_tool_result` 가 실려 오고,
+ * 성공이면 `content` 가 **배열**, 실패면 **객체**(`{type: 'web_search_tool_result_error', error_code}`)다.
+ * 인덱싱 전에 `Array.isArray` 로 분기하지 않으면 조용히 깨진다.
+ */
+function collectSearchSources(message: Anthropic.Message): { sources: WebSearchSource[]; toolError: string | null } {
+  const sources: WebSearchSource[] = [];
+  let toolError: string | null = null;
+  for (const block of message.content as unknown as { type: string; content?: unknown }[]) {
+    if (block.type !== 'web_search_tool_result') continue;
+    const content = block.content;
+    if (!Array.isArray(content)) {
+      toolError = String((content as { error_code?: string } | undefined)?.error_code ?? 'unknown');
+      continue;
+    }
+    for (const r of content as { type?: string; url?: string; title?: string }[]) {
+      if (r?.url) sources.push({ url: r.url, title: r.title ?? r.url });
+    }
+  }
+  return { sources, toolError };
+}
+
+/**
+ * 웹 검색 서버 툴을 태운 1회 콜. 구조화 출력(`output_config.format`)은 걸지 않는다 —
+ * 툴 사용과 함께 쓸 수 없어, JSON 형식은 프롬프트로 요구하고 마지막 텍스트 블록을 파싱한다.
+ *
+ * 재시도하지 않는다. 검색은 **보조**라 실패하면 수동 경로가 이미 열려 있고,
+ * 재시도는 상한(`timeoutMs`)을 배로 쓰면서 얻는 게 적다.
+ */
+export async function runWebSearchCall<T>(
+  opts: WebSearchCallOptions<T>,
+): Promise<{ data: T; sources: WebSearchSource[]; toolError: string | null }> {
+  if (currentLlmMode() === 'mock') {
+    logger.info('웹 검색 콜(목 모드)', { call: opts.callName });
+    return { data: opts.mockData, sources: opts.mockSources ?? [], toolError: null };
+  }
+
+  const imgs = opts.images ?? [];
+  const content: Anthropic.ContentBlockParam[] = [
+    ...imgs.map((im): Anthropic.ContentBlockParam => ({
+      type: 'image',
+      source: { type: 'base64', media_type: im.mediaType, data: im.dataBase64 },
+    })),
+    { type: 'text', text: opts.userPayload },
+  ];
+
+  const params = {
+    model: LLM_MODEL,
+    max_tokens: opts.maxTokens ?? 4000,
+    system: [{ type: 'text', text: opts.system, cache_control: { type: 'ephemeral' } }],
+    tools: [
+      {
+        type: 'web_search_20260209',
+        name: 'web_search',
+        ...(opts.maxUses ? { max_uses: opts.maxUses } : {}),
+        ...(opts.userLocation ? { user_location: opts.userLocation } : {}),
+      },
+    ],
+    messages: [{ role: 'user', content }],
+  } as unknown as Anthropic.MessageCreateParamsNonStreaming;
+
+  const started = Date.now();
+  // maxRetries: 0 — 재시도는 상한을 배로 쓴다(runStructuredCall 주석과 같은 이유)
+  const message = await getClient().messages.create(params, { timeout: opts.timeoutMs, maxRetries: 0 });
+  const { sources, toolError } = collectSearchSources(message);
+  logger.info('웹 검색 콜', {
+    call: opts.callName,
+    durationMs: Date.now() - started,
+    sources: sources.length,
+    ...(toolError ? { toolError } : {}),
+  });
+  return { data: parseLastTextJson<T>(message), sources, toolError };
+}
