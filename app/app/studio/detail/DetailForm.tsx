@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/icons';
 import { EXPIRED_LOGIN_PATH } from '@/components/auth/authUtils';
 import { StudioActionBar } from '@/components/app/studioUi';
+import { CandidatePanel, OriginNote, type Candidate, type FieldOrigin } from '@/components/product/registerHelpers';
 import { MOODS, PALETTES, accentFromPixels, normalizeHex, EXTRACT } from '@/lib/studio/detail/theme';
 import { bytesUrl } from '@/lib/files/downloadUrl';
 
@@ -1652,6 +1653,67 @@ function ProductPicker({ value, onSelect }: { value: string; onSelect: (p: Produ
   const [busy, setBusy] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
+  // ── 등록 도우미(BRAND-03b 3b-5) — 브랜드 관리와 같은 컴포넌트·같은 문구를 쓴다 ──
+  /**
+   * 대표컷. 기획서 1b-4 가 인라인 폼에 두라고 한 칸인데 코드에 빠져 있었다.
+   * 여기서 올린 사진은 ① 제품 후보 검색의 입력이 되고 ② 등록 뒤 상세 폼 제품컷으로 그대로 들어간다 —
+   * 한 번 올려 두 번 쓰므로 인라인 등록이 느려지지 X.
+   */
+  const [shot, setShot] = useState<File | null>(null);
+  const [shotUrl, setShotUrl] = useState<string | null>(null);
+  const [origins, setOrigins] = useState<Record<string, FieldOrigin>>({});
+  const [candidates, setCandidates] = useState<Candidate[] | null>(null);
+  const [identifyBusy, setIdentifyBusy] = useState(false);
+  const [identifyNote, setIdentifyNote] = useState<string | null>(null);
+  const shotRef = useRef<HTMLInputElement>(null);
+  const identifiedRef = useRef<string>('');
+
+  /** 사용자가 칸을 고치면 그 칸은 더 이상 "가져온 값"이 아니다(3b-7) */
+  const clearOrigin = (name: string) =>
+    setOrigins((prev) => {
+      if (!prev[name]) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+
+  /**
+   * 대표컷으로 제품 후보를 찾는다(3b-5).
+   * **폼을 잠그지 X** — 인라인 등록의 존재 이유는 작성 중인 입력을 잃지 않는 것이라(1b-4),
+   * 여기에 대기가 붙으면 그 이유가 무너진다.
+   */
+  async function identify(file: File) {
+    const key = `${file.name}:${file.size}`;
+    if (identifiedRef.current === key) return;
+    identifiedRef.current = key;
+    setIdentifyBusy(true);
+    setIdentifyNote(null);
+    try {
+      const fd = new FormData();
+      fd.set('image', file);
+      if (nameKr.trim()) fd.set('nameHint', nameKr.trim());
+      const res = await fetch('/api/products/identify', { method: 'POST', body: fd });
+      const data = res.ok ? ((await res.json()) as { candidates?: Candidate[] }) : { candidates: [] };
+      const list = data.candidates ?? [];
+      setCandidates(list);
+      // 후보 0건은 정상 경로다 — 실패로 표시하지 X
+      if (list.length === 0) setIdentifyNote('웹에서 이 제품을 찾지 못했습니다. 직접 입력해 주세요.');
+    } catch {
+      identifiedRef.current = '';
+      setCandidates([]);
+      setIdentifyNote('웹에서 이 제품을 찾지 못했습니다. 직접 입력해 주세요.');
+    } finally {
+      setIdentifyBusy(false);
+    }
+  }
+
+  function pickShot(file: File) {
+    if (shotUrl) URL.revokeObjectURL(shotUrl);
+    setShot(file);
+    setShotUrl(URL.createObjectURL(file));
+    void identify(file);
+  }
+
   const load = useCallback(async () => {
     try {
       const res = await fetch('/api/products');
@@ -1689,6 +1751,8 @@ function ProductPicker({ value, onSelect }: { value: string; onSelect: (p: Produ
       const fd = new FormData();
       fd.set('nameKr', name);
       fd.set('nameJa', nameJa.trim());
+      // 대표컷은 등록과 함께 저장된다 — 상세 폼이 곧바로 제품컷으로 가져간다(DETAIL-02 2d)
+      if (shot) fd.append('images', shot);
       const res = await fetch('/api/products', { method: 'POST', body: fd });
       const data = (await res.json()) as { product?: ProductOption; error?: string };
       if (!res.ok || !data.product) {
@@ -1700,6 +1764,13 @@ function ProductPicker({ value, onSelect }: { value: string; onSelect: (p: Produ
       setCreating(false);
       setNameKr('');
       setNameJa('');
+      setShot(null);
+      if (shotUrl) URL.revokeObjectURL(shotUrl);
+      setShotUrl(null);
+      setOrigins({});
+      setCandidates(null);
+      setIdentifyNote(null);
+      identifiedRef.current = '';
     } catch {
       setCreateError('제품을 등록하지 못했습니다.');
     } finally {
@@ -1786,6 +1857,60 @@ function ProductPicker({ value, onSelect }: { value: string; onSelect: (p: Produ
       {creating && (
         <div className="mt-3 rounded-xl border border-card-border p-4">
           <p className="text-[13px] font-semibold text-ink">새 제품 등록</p>
+
+          {/* 대표컷 — 이 사진으로 제품을 찾고, 등록 뒤 제품컷으로 그대로 들어간다 */}
+          <div className="mt-3 flex items-center gap-3">
+            <input
+              ref={shotRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="sr-only"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) pickShot(f);
+                e.target.value = '';
+              }}
+            />
+            {shotUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- 로컬 objectURL 미리보기
+              <img
+                src={shotUrl}
+                alt=""
+                className="h-14 w-14 flex-none rounded-lg border border-card-border object-cover"
+              />
+            ) : (
+              <span aria-hidden className="h-14 w-14 flex-none rounded-lg bg-card-border/40" />
+            )}
+            <span className="min-w-0 flex-1">
+              <button type="button" onClick={() => shotRef.current?.click()} className={buttonClass('secondary', 'sm')}>
+                {shot ? '대표컷 바꾸기' : '대표컷 올리기'}
+              </button>
+              <span className="mt-1.5 block text-xs leading-relaxed text-ink-faint [text-wrap:pretty]">
+                올리면 이 제품이 무엇인지 웹에서 찾아 이름을 채워 드립니다. 등록 뒤 제품컷으로도 그대로 씁니다.
+              </span>
+            </span>
+          </div>
+
+          <div className="mt-3">
+            <CandidatePanel
+              busy={identifyBusy}
+              candidates={candidates}
+              note={identifyNote}
+              onPick={(c) => {
+                const next: Record<string, FieldOrigin> = { ...origins };
+                if (c.nameKr) {
+                  setNameKr(c.nameKr);
+                  next.nameKr = 'web';
+                }
+                if (c.nameJa) {
+                  setNameJa(c.nameJa);
+                  next.nameJa = 'web';
+                }
+                setOrigins(next);
+              }}
+            />
+          </div>
+
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <span>
               <label htmlFor="newProductKr" className={fieldLabelClass}>
@@ -1794,10 +1919,14 @@ function ProductPicker({ value, onSelect }: { value: string; onSelect: (p: Produ
               <input
                 id="newProductKr"
                 value={nameKr}
-                onChange={(e) => setNameKr(e.target.value)}
-                className={inputClass}
+                onChange={(e) => {
+                  setNameKr(e.target.value);
+                  clearOrigin('nameKr');
+                }}
+                className={`${inputClass} ${origins.nameKr ? 'bg-coral-tint' : ''}`}
                 placeholder="예: 시카 진정 앰플"
               />
+              <OriginNote origin={origins.nameKr} />
             </span>
             <span>
               <label htmlFor="newProductJa" className={fieldLabelClass}>
@@ -1806,10 +1935,14 @@ function ProductPicker({ value, onSelect }: { value: string; onSelect: (p: Produ
               <input
                 id="newProductJa"
                 value={nameJa}
-                onChange={(e) => setNameJa(e.target.value)}
-                className={inputClass}
+                onChange={(e) => {
+                  setNameJa(e.target.value);
+                  clearOrigin('nameJa');
+                }}
+                className={`${inputClass} ${origins.nameJa ? 'bg-coral-tint' : ''}`}
                 placeholder="例: シカ鎮静アンプル"
               />
+              <OriginNote origin={origins.nameJa} />
             </span>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-ink-faint [text-wrap:pretty]">
