@@ -169,6 +169,11 @@ export interface GenerateBlockVisualOptions {
    * 생략하면 클라이언트 기본값(IMAGE_TIMEOUT_MS)을 쓴다.
    */
   timeoutMs?: number;
+  /**
+   * 이 콜에 허용할 SDK 재시도 횟수(잔여 예산 연동 — `budget.fitImageBudget` 이 준다).
+   * 생략하면 클라이언트 기본값(2)이 쓰인다.
+   */
+  maxRetries?: number;
 }
 
 export interface GeneratedVisual {
@@ -220,9 +225,16 @@ export async function generateBlockVisual(opts: GenerateBlockVisualOptions): Pro
     if (!noInputFidelityModels.has(model)) params.input_fidelity = 'high';
   }
 
-  // 요청별 timeout — 클라이언트는 프로세스당 1개라 기본값을 바꿀 수 없다.
-  // 잡의 남은 예산이 짧으면 이 값이 내려와, 한 콜이 매달려 예산을 통째로 먹는 일을 막는다.
-  const reqOpts = opts.timeoutMs ? { timeout: opts.timeoutMs } : undefined;
+  // 요청별 timeout·재시도 — 클라이언트는 프로세스당 1개라 기본값을 바꿀 수 없다.
+  // 잡의 남은 예산이 짧으면 두 값이 함께 내려와, 한 콜이 매달리거나 재시도가 예산을
+  // 통째로 먹는 일을 막는다. 여태 재시도만 생성자에 박혀 있어 예산과 무관했다.
+  const reqOpts =
+    opts.timeoutMs || opts.maxRetries !== undefined
+      ? {
+          ...(opts.timeoutMs ? { timeout: opts.timeoutMs } : {}),
+          ...(opts.maxRetries !== undefined ? { maxRetries: opts.maxRetries } : {}),
+        }
+      : undefined;
   const call = async (): Promise<OpenAI.ImagesResponse> =>
     (useEdit
       ? await getClient().images.edit(params as unknown as OpenAI.Images.ImageEditParams, reqOpts)

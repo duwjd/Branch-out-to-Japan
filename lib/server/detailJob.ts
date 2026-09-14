@@ -446,6 +446,8 @@ export async function runDetailJob(assetId: string): Promise<void> {
       drop: budget.drop.length,
       waves: budget.waves,
       perImageTimeoutMs: budget.perImageTimeoutMs,
+      // 재시도 상한도 남긴다 — 0 이 찍힌 잡이 늘면 예산이 빠듯하다는 뜻이다
+      retries: budget.retries,
       remainingMs: deadline - Date.now(),
       calls: 0,
       failures: 0,
@@ -459,6 +461,8 @@ export async function runDetailJob(assetId: string): Promise<void> {
       drop: budget.drop.length,
       waves: budget.waves,
       perImageTimeoutMs: budget.perImageTimeoutMs,
+      // 재시도 상한도 남긴다 — 0 이 찍힌 잡이 늘면 예산이 빠듯하다는 뜻이다
+      retries: budget.retries,
       remainingMs: deadline - Date.now(),
     });
 
@@ -515,6 +519,7 @@ export async function runDetailJob(assetId: string): Promise<void> {
                     source: usesProduct ? original?.buf : undefined,
                     sourceMediaType: usesProduct ? original?.contentType : undefined,
                     timeoutMs: budget.perImageTimeoutMs,
+                    maxRetries: budget.retries,
                   });
                 } catch (err) {
                   imageFailures += 1;

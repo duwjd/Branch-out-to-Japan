@@ -140,3 +140,41 @@ test('상한은 잡 예산을 넘지 않는다 — 한 콜이 전체를 먹을 �
     assert.ok(callTimeout(stage) < JOB_BUDGET_MS, `${stage} 상한이 잡 예산 이상이면 그 콜 하나로 마감이 끝난다`);
   }
 });
+
+/**
+ * 재시도 상한 — 잔여 예산 연동(M13-3).
+ *
+ * 여태 이 값은 OpenAI 클라이언트 생성자에 2로 박혀 있어 **예산과 무관했다.**
+ * 동시성 6에 재시도 2면 한 웨이브가 최악 3배로 늘어 270초를 그대로 넘는다.
+ * UT 에서 재시도 12건이 시간을 먹은 자리가 여기다.
+ */
+
+test('여유가 없으면 재시도를 사지 않는다', () => {
+  // 계획한 웨이브를 최악값으로 다 쓰면 남는 게 없다 — 그때 재시도는 마감을 넘기는 값이다
+  const tight = fitImageBudget(CANDIDATES, COMPOSE_RESERVE_MS + IMAGE_WAVE_MS, 6, TIMEOUT);
+  assert.equal(tight.retries, 0);
+});
+
+test('여유가 넉넉하면 재시도를 허용하되 상한을 넘지 않는다', () => {
+  const roomy = fitImageBudget(CANDIDATES, 600_000, 6, TIMEOUT);
+  assert.ok(roomy.retries > 0, '여유가 있는데도 재시도를 0 으로 막으면 429 를 그냥 잃는다');
+  assert.ok(roomy.retries <= 2, '재시도 상한을 넘으면 한 콜이 예산을 통째로 먹는다');
+});
+
+test('재시도는 음수가 되지 않는다', () => {
+  // 음수를 SDK 에 넘기면 동작이 정의되지 않는다
+  for (const left of [0, -1000, COMPOSE_RESERVE_MS, 1]) {
+    assert.ok(fitImageBudget(CANDIDATES, left, 6, TIMEOUT).retries >= 0, `remaining=${left}`);
+  }
+});
+
+test('예산이 모자라도 강등으로 끝난다 — keep 이 비지 않는다', () => {
+  // DoD: 예산 초과가 failed 가 아니라 강등으로 끝난다.
+  // 히어로가 살아 있고 나머지는 사유와 함께 drop 으로 간다 — 블록이 사라지는 게 아니라 사진만 빠진다
+  for (const left of [0, 1000, COMPOSE_RESERVE_MS, 60_000]) {
+    const r = fitImageBudget(CANDIDATES, left, 6, TIMEOUT);
+    assert.ok(r.keep.length >= 1, `remaining=${left}: 한 장도 안 남으면 제품이 한 번도 서지 않는다`);
+    for (const d of r.drop) assert.ok(d.reason.length > 5, `${d.blockId}: 사유 없이 버렸다`);
+    assert.ok(r.perImageTimeoutMs >= 30_000, '1콜 상한 하한이 깨지면 정상 호출까지 잘린다');
+  }
+});

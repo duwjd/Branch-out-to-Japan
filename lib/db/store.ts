@@ -199,6 +199,8 @@ export interface DetailJobTimings {
     drop: number;
     waves: number;
     perImageTimeoutMs: number;
+    /** 이번 실행에서 허용한 SDK 재시도 상한(잔여 예산 연동). 0 이 잦으면 예산이 빠듯하다는 뜻 */
+    retries: number;
     /** 예산을 판정한 시점의 잔여 — 앞단이 얼마나 끌었는지가 여기서 드러난다 */
     remainingMs: number;
     /** 실제 건 이미지 콜 수 · 그중 실패 */

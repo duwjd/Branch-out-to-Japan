@@ -92,9 +92,26 @@ export interface ImageBudgetResult {
   drop: { blockId: BlockType; reason: string }[];
   /** 이번 실행에서 이미지 1콜에 허용할 최대 시간(ms). SDK 요청별 timeout 으로 넘긴다 */
   perImageTimeoutMs: number;
+  /**
+   * 이번 실행에서 이미지 1콜에 허용할 **SDK 재시도 횟수**. 요청별 `maxRetries` 로 넘긴다.
+   *
+   * 여태 이 값은 클라이언트 생성자에 2로 박혀 있어 **잔여 예산과 무관**했다. 동시성 6에
+   * 재시도 2면 한 웨이브가 최악 3배로 늘어 270초 예산을 그대로 넘긴다 — UT 에서 재시도
+   * 12건이 시간을 먹은 자리가 여기다.
+   */
+  retries: number;
   /** 몇 웨이브로 돌 예정인가(로그·진단용) */
   waves: number;
 }
+
+/**
+ * 이미지 1콜에 허용할 SDK 재시도 상한.
+ *
+ * 재시도는 **여유가 있을 때만 허용한다.** 429·5xx 를 한 번 더 걸어 살리는 것은 좋지만,
+ * 그 대가로 마감을 넘기면 살린 한 장 때문에 페이지 전체를 잃는다. 강등 경로가 이미
+ * "사진만 빠지고 블록은 남는" 결과를 보장하므로, 시간이 빠듯하면 재시도를 포기하는 쪽이 싸다.
+ */
+const IMAGE_RETRY_CEILING = 2;
 
 /**
  * 남은 시간에 맞춰 이미지 후보를 자른다.
@@ -135,5 +152,11 @@ export function fitImageBudget(
   const perWave = keep.length > 0 ? Math.floor(usable / wavesFor(keep.length)) : imageTimeoutMs;
   const perImageTimeoutMs = Math.max(30_000, Math.min(imageTimeoutMs, perWave));
 
-  return { keep: keep.map((c) => c.blockId), drop, perImageTimeoutMs, waves: wavesFor(keep.length) };
+  // 계획한 웨이브를 최악값으로 다 쓰고 남는 여유로만 재시도를 산다.
+  // 재시도 1회는 다시 한 번의 1콜 상한을 쓴다고 본다(백오프는 그 위에 얹히므로 보수적이다).
+  const waves = wavesFor(keep.length);
+  const slack = usable - waves * perImageTimeoutMs;
+  const retries = Math.max(0, Math.min(IMAGE_RETRY_CEILING, Math.floor(slack / perImageTimeoutMs)));
+
+  return { keep: keep.map((c) => c.blockId), drop, perImageTimeoutMs, retries, waves };
 }
