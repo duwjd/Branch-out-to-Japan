@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getSession } from '@/lib/server/session';
+import { getDemoAccount } from '@/lib/server/demoAccount';
 import { YoakeLogo } from '@/components/brand/Logo';
 import { cardClass } from '@/components/ui/primitives';
 import { LoginCard } from './LoginCard';
@@ -34,7 +35,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           하나의 계정으로 시작합니다.
         </p>
 
-        <LoginCard />
+        <LoginCard showDemo={getDemoAccount() !== null} />
       </section>
 
       <Link href="/" className="mt-[18px] text-[12.5px] text-ink-mute no-underline hover:underline">
