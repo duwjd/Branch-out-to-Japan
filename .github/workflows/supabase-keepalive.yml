@@ -1,0 +1,164 @@
+# Supabase 무료 플랜 정지 방지 — 매일 프로덕션을 한 번 찔러 DB 를 깨운다.
+#
+# 왜 필요한가: Supabase Free 는 **7일간 요청이 없으면 프로젝트를 자동 일시정지**한다.
+# 정지되면 저장·조회가 전부 실패하고 사람이 대시보드에서 수동 Restore 를 눌러야 풀린다
+# (docs/deploy-runbook.md §4-A). 그전까지 예방책은 "중요한 날 전날 한 번 접속해 둔다"는
+# 수동 절차뿐이었다 — 사람이 기억해야 하고, 시연 일정이 없는 기간에는 아무도 안 누른다.
+#
+# 왜 전용 라우트를 안 만들었나: `GET /api/report` 가 이미 인증 없이 실 DB 를 두드린다
+# (checkReportReadiness → checkSchema → reports 테이블 select). 깨우기에 필요한 것이
+# 이미 있으므로 새 라우트도 새 시크릿도 만들지 않는다.
+#
+# 알아야 할 제약 —
+#   1. schedule 은 **default branch(main)에서만** 발화한다. 개인 브랜치에 있으면 아무 일도
+#      일어나지 않는다. 이 파일이 main 에 있어야 시작된다.
+#   2. Actions 스케줄은 부하에 따라 수십 분 늦거나 건너뛸 수 있다. 그래서 7일 한도에
+#      **매일** 친다 — 한 번 건너뛰어도 6일의 여유가 남는다.
+#   3. **저장소가 60일간 활동이 없으면 예약 워크플로가 자동 비활성화된다.** 그러면 이
+#      방어선이 조용히 사라진다. 이중화하지 않고 런북 §7 의 월 1회 점검으로 수용했다.
+#   4. 현재 Supabase 프로젝트는 1개다(stg 가 운영 DB 를 공유 — 2026-08-22 환경분리 결정 §4).
+#      stg 가 자기 프로젝트를 갖게 되면 strategy.matrix 로 URL 을 늘린다.
+name: Supabase keepalive
+
+on:
+  schedule:
+    # UTC 15:41 = KST 익일 00:41, 매일. 정각을 피한 건 전 세계 크론이 :00 에 몰리기 때문.
+    - cron: '41 15 * * *'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: '핑 대상 (비우면 프로덕션). 실패 경로를 시험할 때 엉뚱한 URL 을 넣는다'
+        required: false
+
+permissions:
+  contents: read
+  issues: write # 정지·장애를 이슈로 알리기 위해서만 필요하다
+
+jobs:
+  keepalive:
+    name: keepalive
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # checkout 하지 않는다 — curl 과 gh 뿐이라 저장소 파일이 필요 없다.
+      # 대신 gh 가 어느 저장소인지 알아야 하므로 GH_REPO 로 알려준다.
+      GH_REPO: ${{ github.repository }}
+      BASE_URL: ${{ inputs.base_url || 'https://branch-out-to-japan.vercel.app' }}
+      LABEL: keepalive
+    steps:
+      - name: 핑 (Supabase 를 깨운다)
+        id: ping
+        run: |
+          set -euo pipefail
+
+          # 실패 사유를 다음 스텝(이슈 알림)에 넘기고 죽는다. 사유가 곧 복구 절차의 분기다.
+          die() {
+            echo "reason=$1" >>"$GITHUB_OUTPUT"
+            echo "::error::$1"
+            exit 1
+          }
+
+          # 캐시 버스터 — 라우트는 쿼리를 무시한다. CDN 이 끼어드는 경우만 대비한 것이다.
+          URL="$BASE_URL/api/report?keepalive=$(date +%s)"
+
+          # 콜드 스타트가 느릴 수 있어 넉넉히 준다. 일시적 5xx 는 재시도로 흡수해
+          # 헛알림(이슈가 열렸다 닫히는 소음)을 막는다.
+          if ! BODY=$(curl -fsS --max-time 60 --retry 3 --retry-delay 15 --retry-all-errors \
+                        -H 'Cache-Control: no-cache' "$URL"); then
+            die "HTTP 요청 자체가 실패했습니다 — Vercel 배포 또는 네트워크 문제입니다 (대상 $BASE_URL)."
+          fi
+
+          if ! jq -e . >/dev/null 2>&1 <<<"$BODY"; then
+            die "응답이 JSON 이 아닙니다 — 대상 URL 이 앱이 아닐 수 있습니다 (대상 $BASE_URL)."
+          fi
+
+          # ⚠ 판정은 schema 점검의 ok 로만 한다.
+          #   storeKind 는 환경변수 존재 여부로만 계산되므로 DB 가 정지돼 있어도 "supabase" 다.
+          #   readiness.ready 도 못 쓴다 — schema 실패는 level:'warn' 이라 ready 가 true 로 남는다.
+          #   reports 테이블 select 가 성공했는지, 즉 이 값만이 "DB 가 답했다"의 증거다.
+          #   불리언에 jq 의 `//` 를 쓰지 않는다 — false 를 빈 값으로 보고 기본값으로 바꿔버린다.
+          OK=$(jq -r '[.readiness.checks[]? | select(.key=="schema") | .ok]
+                       | if length == 0 then "missing" else (.[0] | tostring) end' <<<"$BODY")
+          DETAIL=$(jq -r '[.readiness.checks[]? | select(.key=="schema") | .detail]
+                           | if length == 0 then "(응답에 schema 점검이 없습니다)" else .[0] end' <<<"$BODY")
+          KIND=$(jq -r '.storeKind // "missing"' <<<"$BODY")
+          BAD=$(jq -r 'if has("misconfigured") then (.misconfigured | tostring) else "missing" end' <<<"$BODY")
+
+          # 공개 저장소라 실행 로그가 공개된다 — 판정에 쓴 값만 남기고 응답 전문은 찍지 않는다.
+          {
+            echo "### Supabase keepalive"
+            echo
+            echo "- 대상: \`$BASE_URL\`"
+            echo "- storeKind \`$KIND\` / misconfigured \`$BAD\`"
+            echo "- schema 점검 \`$OK\` — $DETAIL"
+          } >>"$GITHUB_STEP_SUMMARY"
+
+          # 세 경우의 복구 절차가 서로 다르므로 따로 판정해 사유를 구체적으로 남긴다.
+          if [ "$KIND" != "supabase" ]; then
+            die "Vercel 환경변수가 누락됐습니다 — storeKind 가 '$KIND' 입니다. 핑이 DB 에 닿지도 않습니다(런북 §5)."
+          fi
+          if [ "$BAD" = "true" ]; then
+            die "프로덕션이 오설정 상태입니다 (misconfigured=true) — 런북 §5 로 환경변수를 확인하세요."
+          fi
+          if [ "$OK" != "true" ]; then
+            die "Supabase 가 응답하지 않습니다 — 정지되었을 가능성이 큽니다 (schema 점검 '$OK': $DETAIL). 런북 §4-A 로 Restore 하세요."
+          fi
+
+          echo "✅ Supabase 가 응답했습니다 — 정지 타이머가 리셋되었습니다." >>"$GITHUB_STEP_SUMMARY"
+          echo "✅ Supabase 가 응답했습니다 — 정지 타이머가 리셋되었습니다."
+
+      - name: 실패를 이슈로 알린다
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REASON: ${{ steps.ping.outputs.reason }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          # 라벨을 스스로 만든다 — 사람이 미리 준비해 둘 것을 남기지 않기 위해서다.
+          # --force 는 이미 있으면 조용히 갱신한다(멱등).
+          gh label create "$LABEL" --color B60205 \
+            --description 'Supabase keepalive 실패 알림' --force >/dev/null 2>&1 || true
+
+          # 이슈 본문은 파일로 만든다 — YAML 블록 안의 heredoc 들여쓰기 함정을 피한다.
+          {
+            echo "**사유**: ${REASON:-원인을 특정하지 못했습니다 — 실행 로그를 보세요.}"
+            echo
+            echo "- 실행 로그: $RUN_URL"
+            echo "- 대상: \`$BASE_URL\`"
+            echo "- 시각(KST): $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M')"
+            echo
+            echo "정지라면 복구는 \`docs/deploy-runbook.md\` §4-A(대시보드에서 Restore, 수 분)."
+            echo "다음 실행이 성공하면 이 이슈는 자동으로 닫힌다."
+          } >issue-body.md
+
+          # 매일 실패해도 이슈는 하나다 — 열린 것이 있으면 코멘트만 덧붙인다.
+          # 라벨이 아직 없던 첫 실행에서도 죽지 않도록 조회 실패를 흡수한다.
+          NUMBER=$(gh issue list --label "$LABEL" --state open --limit 1 \
+            --json number --jq '.[0].number // empty' 2>/dev/null || true)
+          if [ -n "$NUMBER" ]; then
+            gh issue comment "$NUMBER" --body-file issue-body.md
+            echo "기존 이슈 #$NUMBER 에 코멘트했습니다."
+          else
+            gh issue create --title "⚠ Supabase keepalive 실패 — DB 정지 의심" \
+              --label "$LABEL" --body-file issue-body.md
+          fi
+
+      - name: 회복되면 이슈를 닫는다
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          # 정상일 때는 아무 소음도 내지 않는다 — 닫을 이슈가 없으면 조용히 지나간다.
+          NUMBER=$(gh issue list --label "$LABEL" --state open --limit 1 \
+            --json number --jq '.[0].number // empty' 2>/dev/null || true)
+          if [ -z "$NUMBER" ]; then
+            echo "열린 keepalive 이슈가 없습니다 — 정상입니다."
+            exit 0
+          fi
+          gh issue comment "$NUMBER" --body "✅ 자동 회복 — Supabase 가 다시 응답합니다. 실행 로그: $RUN_URL"
+          gh issue close "$NUMBER" --reason completed
+          echo "이슈 #$NUMBER 를 닫았습니다."
