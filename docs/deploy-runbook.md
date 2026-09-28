@@ -3,7 +3,7 @@ title: 배포 운영 가이드 (Deploy Runbook)
 space: 설계·개발
 status: 정본
 phase: Phase 0
-updated: 2026-09-02
+updated: 2026-09-28
 owner:
 tags: [배포, 런북, 절차]
 ---
@@ -162,14 +162,18 @@ git push
 ## 4. 리셋·정지 복구
 
 ### 4-A. Supabase가 정지됨 (가장 흔함 — 무료 7일 규칙)
-무료 플랜은 **7일간 아무 요청도 없으면 프로젝트가 자동 일시정지**된다. 증상: 사이트에서 저장·조회 실패, `/api/report`가 `storeKind:"file"`로 뜨거나 500 에러.
+무료 플랜은 **7일간 아무 요청도 없으면 프로젝트가 자동 일시정지**된다. 증상: 사이트에서 저장·조회 실패.
+
+⚠ **`storeKind` 로는 정지를 판별할 수 없다.** 그 값은 환경변수 존재 여부로만 계산되므로 정지 상태에서도 `"supabase"` 로 뜨고, 스키마 점검 실패는 `level:'warn'` 이라 `readiness.ready` 조차 `true` 로 남는다. 실제 신호는 **`/api/report` 응답의 `readiness.checks` 중 `리포트 스키마` 항목이 `ok:false` 로 뒤집히는 것**이다 — 그 점검이 곧 `reports` 테이블 select 이므로, DB 가 답하지 않으면 여기서만 드러난다.
 
 **복구(데이터 보존됨 — 삭제 아님)**:
 1. https://supabase.com → 해당 프로젝트 → "Project is paused" 화면의 **Restore project**(또는 Resume)
 2. 수 분 내 복구. 테이블·Storage 파일·환경변수 값 모두 그대로.
 3. Vercel 쪽은 손댈 것 없음(URL·키 동일).
 
-**예방**: UT·시연 등 중요한 날 **직전(전날)에 한 번 접속**해 깨워둔다. §7 정기 점검 참고.
+**예방(자동)**: `.github/workflows/supabase-keepalive.yml` 이 **매일 KST 00:41 에 프로덕션 `/api/report` 를 호출해 DB 를 깨운다** — 평소에는 사람이 할 일이 없다. 깨우기가 실패하면 **`keepalive` 라벨 이슈가 자동으로 열리므로**, 정지를 의심할 상황이면 이슈 목록을 먼저 본다(회복되면 그 이슈는 자동으로 닫힌다).
+
+이 방어선이 사라지는 경우가 하나 있다 — **저장소가 60일간 활동이 없으면 GitHub 가 예약 워크플로를 자동 비활성화한다.** 그래서 §7 에 월 1회 점검을 두었다. 비활성화됐다면 Actions 탭에서 다시 켜고, 급하면 대시보드에 한 번 접속해 직접 깨운다.
 
 ### 4-B. Storage 버킷이 사라짐 / 이미지가 안 뜸
 버킷을 실수로 지웠거나 새 Supabase 프로젝트로 옮겼을 때. 증상: 업로드는 되는데 결과 이미지가 깨짐(`/api/files/[id]` 404).
@@ -259,9 +263,11 @@ API 키 교체, 새 키 추가 등.
 
 | 주기 | 확인 |
 |---|---|
-| 중요한 날 전날 | Supabase 프로젝트 접속(정지 예방, §4-A) · `/api/report`가 `supabase`/`real`인지 |
+| 매일(자동) | `keepalive` 워크플로가 Supabase 를 깨운다 — **사람이 할 일 없음**. 실패 시 `keepalive` 이슈가 열린다(§4-A) |
+| 중요한 날 전날 | `/api/report`가 `supabase`/`real`이고 `readiness.checks`가 전부 `ok`인지 |
 | 배포할 때마다 | Vercel Deployments 성공 · 스모크 최소 1항(§1-C 1번) |
 | 월 1회 | Vercel **Usage**(대역폭·함수 시간) · Supabase **Usage**(DB·Storage 용량)가 무료 한도 내인지([[11-deploy-spec]] §2) |
+| 월 1회 | **`keepalive` 워크플로가 살아 있는지** Actions 탭 확인 — 저장소가 60일간 활동이 없으면 GitHub 가 예약 워크플로를 끈다(§4-A) |
 | 유료 고객 발생 시 | Vercel **Pro 전환**(Hobby 비상업 한정 — [[11-deploy-spec]] §7) |
 
 ---
@@ -348,3 +354,4 @@ curl -s <URL>/api/report | jq '{vercelEnv, supabaseRef, storeKind, llmMode}'
 - 2026-07-24 **§8 "인증 안 될 때" 추가**: 배포본 이메일 가입/로그인 무동작 3원인(Supabase env·`AUTH_MAIL_MODE`·users 테이블) 진단 절차. 코드측 가드 강화([[11-deploy-spec]] §8 완료)와 짝.
 - 2026-08-22 **브랜치 축 도입(dev/stg/main)**: §2 "배포 = main 머지" → 브랜치가 곧 환경(`stg`→Preview, `main`→Production) · §3에 "롤백은 코드만 되돌린다, DB 스키마는 안 돌아간다" · §5 환경변수는 스코프별 · §6에 `db:push` 대상 ref 확인 · **§9 환경 매트릭스 신설**. **DB 분리는 보류** — `stg` 도 운영 Supabase 를 쓰므로 §2·§9의 경고를 그대로 유지한다. 근거 [[decisions/2026-08-22-환경분리-브랜치전략]].
 - 2026-08-11 **§6-A 신설**: ② 상세페이지 만들기 마이그레이션 절차(SQL Editor에서 schema.sql 델타 블록 실행 → readiness 확인). 미적용 시 앱이 붉은 배너로 막고 생성 버튼을 잠근다.
+- 2026-09-28 **Supabase 정지 예방을 자동화**: §4-A 예방을 수동 접속에서 **매일 도는 `keepalive` 워크플로**로 바꾸고, §7 점검표에 자동/수동을 나눠 적고 60일 무활동 시 예약 워크플로 비활성화 점검을 추가했다. **[증상 교정]** 기존 §4-A 의 "`storeKind:"file"`로 뜨거나 500" 은 부정확하다 — `storeKind` 는 환경변수 존재 여부로만 계산되어 정지 상태에서도 `"supabase"` 이고 `readiness.ready` 도 `true` 로 남는다. 실제 신호는 `readiness.checks` 의 `리포트 스키마` 가 `ok:false` 로 뒤집히는 것뿐이다. **[CI]** `.github/workflows/supabase-keepalive.yml` 신설. 근거·설계는 [[11-deploy-spec]] §2.

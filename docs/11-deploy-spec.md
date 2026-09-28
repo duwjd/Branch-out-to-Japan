@@ -3,7 +3,7 @@ title: 11 · 배포 스펙 (Vercel Hobby + Supabase Free)
 space: 설계·개발
 status: 정본
 phase: Phase 0
-updated: 2026-09-02
+updated: 2026-09-28
 owner:
 tags: [배포, 인프라]
 ---
@@ -80,7 +80,7 @@ DB는 서울**이었고, 응답 헤더에 그대로 찍혔다 — `x-vercel-id: 
 | DB | 500MB | 리포트 JSON 수백 건 규모엔 여유 |
 | Storage | 1GB · 파일당 50MB | 앱 업로드 제한 10MB(HOME-02)와 호환. **상세페이지가 최대 소비처** — 아래 표 참조 |
 | Egress | 5GB/월 | 이미지 서빙이 `/api/files/[id]` 경유(함수 대역폭도 소모) — UT 규모 OK |
-| **자동 pause** | **7일 무활동 시 프로젝트 일시정지** | 데이터 보존되나 수동 restore 필요. **UT 직전(7/30~31) 접속 확인**(§6) |
+| **자동 pause** | **7일 무활동 시 프로젝트 일시정지** | 데이터 보존되나 수동 restore 필요. **`.github/workflows/supabase-keepalive.yml` 이 매일 깨운다**(2026-09-28~) — 실패 시 `keepalive` 이슈 자동 생성. 복구는 런북 §4-A |
 
 ## 3. 실행 모델 — `after()` + maxDuration 300 (큐 미도입)
 
@@ -197,7 +197,7 @@ dev 환경은 배포하지 않고 각자 로컬에서 돈다(`.data/` 파일 스
 | 배경컷에 429(요청 제한)가 잦다 | 동시성 6이 OpenAI images 분당 제한에 닿았다 | `IMAGE_CONCURRENCY` 만 5로 내린다 — `MAX_AI_BLOCKS` 는 6으로 두고 `budget.ts` 가 2웨이브를 흡수한다 |
 | Supabase Storage 용량 경고 | 상세페이지가 건당 약 3MB 를 쓴다(§3-1) | 오래된 자산 정리(§8 백로그의 Storage 정리 잡) |
 | 가입 완료 화면에 **인증 링크가 없음** → 로그인 403 | 코드가 오래됐다 — 2026-09-02 이후로는 링크가 항상 노출된다(설정할 env 없음) | 배포본이 최신인지 확인 후 Redeploy. Vercel **로그**의 "실 메일 발송 없이 운영 중…" warn 은 **정상**이다(§4 각주) |
-| Supabase "project paused" | 7일 무활동 | 대시보드에서 Restore(수 분) — UT 직전 접속으로 예방 |
+| Supabase "project paused" | 7일 무활동 | 대시보드에서 Restore(수 분). 예방은 매일 도는 `keepalive` 워크플로이므로, 정지가 났다면 **`keepalive` 이슈가 이미 열려 있다**(런북 §4-A) |
 | 대역폭·빌드 한도 경고 | Hobby 100GB 초과 등 | Vercel Usage 확인 — UT 규모에서 도달 시 원인(대용량 이미지 반복 서빙) 먼저 제거 |
 | **유료 고객 발생** | Hobby 비상업 한정 위반 | **Pro 전환($20/월)** — 과금 전 팀 결정 |
 | 리포 private 전환 필요 | Hobby는 private org 리포 연동 불가 | Pro 전환 또는 GitHub Actions + `vercel deploy --prebuilt` 우회 |
@@ -217,3 +217,4 @@ dev 환경은 배포하지 않고 각자 로컬에서 돈다(`.data/` 파일 스
 - 2026-07-24 **URL 형식 방어**(실장애 후속): 배포본 가입 500(로그 `Invalid path specified in request URL`) 원인 = `NEXT_PUBLIC_SUPABASE_URL` 끝슬래시/공백. **[코드]** `lib/db/supabaseClient.ts`가 URL 앞뒤 공백·끝슬래시 자동 제거 + 비표준 형식 경고. **[문서]** 런북 §8-1b · §7 트러블슈팅 1행 추가.
 - 2026-08-11 **② 상세페이지 만들기 배포 대응**: §3 실행모델에 상세 파이프라인 실측(130~155초)·동시성 하드캡 근거 추가 · **§3-1 신설**(배포 전제 3가지 — 마이그레이션·JP 폰트 트레이싱·Storage 버킷, Storage 소비량 실측표). **[코드]** 제출 전 프리플라이트(`lib/server/detailReadiness.ts` — 마이그레이션·폰트·키·Storage 미비를 한국어 사유+조치와 함께 차단, 폼 배너 + POST 503) · 저장 포맷 분리(`lib/studio/detail/persist.ts` — 건당 12.4MB→3.09MB, 1GB 기준 82건→331건) · 트레이싱 정밀화(`data/processed/**` → 런타임 5개 파일, 함수당 약 4MB 감축). **[운영]** §5-B0 마이그레이션 선행 단계 · §6-1 스모크 · §7 트러블슈팅 5행.
 - 2026-08-22 **페이지 이동 속도 개선**: 배포본 내비게이션 2~3초 대기 대응. **[설정]** `vercel.json` 신설 — 함수 리전 `iad1`→`icn1`(§1-1, 왕복 지연의 대부분) · `next.config.ts`에 `experimental.staleTimes { dynamic: 30, static: 180 }`(Next 15부터 dynamic 기본값 0초라 사이드바 왕복마다 서버 재요청). **[코드]** `loading.tsx` 4종 추가(`app/app/` 공통 + 썸네일·상세·리포트) — App Router는 대상 트리에 loading 경계가 없으면 **프리페치를 조기 종료**해(UT 로그: `/app?_rsc=… ERR_ABORTED` 153회) 클릭 후 RSC 왕복이 끝날 때까지 전환 표시가 전혀 없었다.
+- 2026-09-28 **Supabase 자동 pause 예방을 자동화**: §2 한도표·§7 트러블슈팅의 예방책을 "UT 직전 수동 접속"에서 **매일 도는 keepalive 워크플로**로 갱신했다. **[CI]** `.github/workflows/supabase-keepalive.yml` — GitHub Actions 가 매일 KST 00:41 에 프로덕션 `GET /api/report` 를 호출한다. 그 라우트가 이미 `reports` 테이블을 select 하므로 (`lib/server/reportReadiness.ts`) 전용 헬스 라우트도 새 시크릿도 만들지 않았다. 판정은 `readiness.checks` 의 `schema.ok` 로만 한다 — `storeKind` 는 환경변수 존재 여부라 정지를 못 잡고, 스키마 실패가 `level:'warn'` 이어서 `readiness.ready` 도 `true` 로 남는다. 실패 시 이슈 자동 생성·회복 시 자동 종료. **[수용]** 저장소가 60일간 활동이 없으면 예약 워크플로가 꺼진다 → 런북 §7 월 1회 점검으로 커버(Vercel Cron 이중화는 하지 않았다).
