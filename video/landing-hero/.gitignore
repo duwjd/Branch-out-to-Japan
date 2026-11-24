@@ -1,4 +1,5 @@
-renders/
-out/
+# 렌더 · 인코딩 결과(이 폴더 바로 아래 것만) — 컴포지션이 쓰는 assets/out/ 은 커밋한다
+/renders/
+/out/
 .hyperframes/
 .impeccable/
