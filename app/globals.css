@@ -184,6 +184,40 @@
 .hl-flash { animation: hlFlash 2s ease-out; border-radius: 12px; }
 @media (prefers-reduced-motion: reduce) { .hl-flash { animation: none; } }
 
+/* ── 랜딩 히어로 영상 (components/landing/HeroVideoStage.tsx) ──────────────
+   --hero-p 는 스크롤 진행률(0 = 맨 위, 1 = 뒤따르는 내용이 영상을 다 덮음)이다. 컴포넌트가 프레임마다 써 넣는다.
+   고정·변형은 태블릿 폭(768px) 이상에서, 모션 최소화를 켜지 않았을 때만 건다 — 그 밖에는 위아래로 그냥 이어진다. */
+.lp-hero-frame { width: min(100%, 1200px); }
+/* 영상 바탕은 페이지와 같은 크림이지만 가장자리에 글로우가 걸려 있다. 테두리를 그리는 대신 가장자리를 페이지로 풀어 준다 */
+.lp-hero-video {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent), linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent), linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
+  mask-composite: intersect;
+}
+@media (min-width: 768px) {
+  /* 헤더(76px) 아래 한 화면을 영상이 차지한다. 영상은 높이에도 맞춰 줄어들어 위아래로 잘리지 않는다.
+     1024px 미만에서는 멈춤 버튼이 영상 아래로 내려오므로 그 몫(48px)을 더 남긴다 */
+  /* 세로로 긴 화면(태블릿 세로)에서는 한 화면을 다 쓰면 영상 위아래가 텅 빈다 — 영상 높이(56.25vw) + 여유로 묶는다 */
+  .lp-hero-pin { height: min(calc(100svh - 76px), calc(56.25vw + 200px)); min-height: 480px; }
+  .lp-hero-frame { width: min(100%, 1200px, calc((100svh - 76px - 176px) * 16 / 9)); min-width: 480px; }
+}
+@media (min-width: 1024px) {
+  .lp-hero-frame { width: min(100%, 1200px, calc((100svh - 76px - 128px) * 16 / 9)); min-width: 560px; }
+}
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .lp-hero-pin { position: sticky; top: 76px; }
+  /* 덮이는 만큼 물러난다 — 조금 줄고, 흐려지고, 초점이 풀린다. 투명도는 제곱으로 떨어뜨려
+     아래 헤드라인이 화면 가운데에 올 즈음(p≈0.5)에는 영상 속 글자가 헤드라인과 다투지 않게 한다 */
+  .lp-hero-frame {
+    transform: translateY(calc(var(--hero-p, 0) * -28px)) scale(calc(1 - var(--hero-p, 0) * 0.07));
+    opacity: calc((1 - var(--hero-p, 0)) * (1 - var(--hero-p, 0)));
+    filter: blur(calc(var(--hero-p, 0) * 10px));
+    will-change: transform, opacity, filter;
+  }
+  .lp-hero-cue { opacity: calc(1 - var(--hero-p, 0) * 6); }
+}
+
 /* ── 전역 기본 ─────────────────────────────────────────── */
 html { scroll-behavior: smooth; }
 

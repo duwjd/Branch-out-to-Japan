@@ -1,36 +1,99 @@
 import Link from 'next/link';
-import type { BrandProfileRecord, ReportSummary } from '@/lib/db/store';
+import type { BrandProfileRecord, ProductRecord, ReportSummary } from '@/lib/db/store';
 import { POSITIONING_TAGS } from '@/lib/engine/rules/positioning';
-import { GROUP_LABELS_PREFIXED, GROUP_ORDER } from '@/lib/report/labels';
-import type { UpcomingEvent } from '@/lib/season';
-import { cardClass } from '@/components/ui/primitives';
 import { CATEGORY_LABELS } from '@/lib/engine/types';
+import { ReportCoverPreview, ThumbPreview } from '@/components/app/AssetPreview';
+import { HOME_CARD_TITLE, HOME_LABEL, HOME_LINK, HomeCard } from '@/components/app/homeUi';
+import { AxisChip, cardClass } from '@/components/ui/primitives';
+import { IconCheck } from '@/components/ui/icons';
 
 /**
- * 홈 복귀 뷰 위젯 — MAIN-11 브랜드 정보 · MAIN-10 리포트 요약 · MAIN-12 다가오는 이벤트.
+ * 홈 카드 — 브랜드 프로필(MAIN-11) · 확인할 것 · 작업물(MAIN-05b).
  * 전부 기존 엔티티 재조회 전용(홈은 아무것도 저장하지 않는다 — 08 §7). 서버 컴포넌트.
- *
- * 2026-08-20 개편: 우측 칼럼(리포트 요약·브랜드 정보)의 카드 테두리를 걷고 머리선만 남겼다.
- * 히어로가 카드 없는 페이지 머리로 올라오면서 카드가 3겹(페이지 위 카드 위 칩)으로 쌓여
- * 본문 밀도가 왼쪽 칼럼과 맞지 않았다. 왼쪽(이벤트·자산)은 격자를 담는 그릇이라 카드를 유지한다.
+ * 2026-11-24 전면 재설계: 우측 칼럼의 머리선 목록이던 것들을 12열 격자의 카드로 올렸다
+ * (근거: docs/decisions/2026-11-24-홈-다음단계-히어로.md).
  */
 
 const TAG_LABELS: Record<string, string> = Object.fromEntries(POSITIONING_TAGS.map((t) => [t.value, t.label]));
-
-/** 우측 위젯 공통 표면 — 카드가 아니라 머리선으로만 구분한다(카드 3겹 방지) */
-const WIDGET = 'border-t border-card-border pt-5';
 
 /** 카테고리 한국어 라벨 — 미지의 값이면 원문 그대로(빈 자리를 만들지 않는다) */
 export function categoryLabelKr(category: string): string {
   return CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS] ?? category;
 }
 
-/** MAIN-11 · 브랜드 정보 위젯 — "진단·생성이 무엇을 보고 도는가"를 홈에서 확인 */
-export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
-  const cat = CATEGORY_LABELS[brand.category as keyof typeof CATEGORY_LABELS];
+// ── 확인할 것 ────────────────────────────────────────────────────────────────
+
+/** 확인할 것 1건 — 사용자의 행동을 기다리는 일 */
+export interface AttentionItem {
+  key: string;
+  /** 'danger' = 실패(✕) · 'ok' = 좋은 소식이 도착(○). 색+글자+기호를 title 에 함께 싣는다 */
+  tone: 'danger' | 'ok';
+  /** 굵게 읽히는 머리 — "생성 실패 ✕ 1건" */
+  title: string;
+  detail: string;
+  href: string;
+  /** 링크 글자 — "원인 보기 →" */
+  cta: string;
+}
+
+/**
+ * 확인할 것 — 페이지 머리 바로 아래 한 블록. 항목이 없으면 페이지가 그리지 않는다.
+ * 여러 건이어도 띠를 쌓지 않고 한 테두리 안의 행으로 둔다(배너는 화면에 하나).
+ * 기업 매칭 제안 도착은 사이드바 운영 메뉴를 펼쳐야만 보였다 — 행동을 기다리는 일은 건수보다 앞에 둔다.
+ */
+export function HomeAttention({ items }: { items: AttentionItem[] }) {
+  return (
+    <section aria-label="확인할 것" className={cardClass('overflow-hidden')}>
+      <ul className="list-none divide-y divide-n-150 p-0">
+        {items.map((it) => (
+          <li key={it.key} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-6 py-3.5 text-[13px] max-sm:px-5">
+            <span
+              aria-hidden
+              className={`h-2 w-2 flex-none rounded-full ${it.tone === 'danger' ? 'bg-danger' : 'bg-green'}`}
+            />
+            <b className={`font-bold ${it.tone === 'danger' ? 'text-danger-text' : 'text-green-text'}`}>{it.title}</b>
+            <span className="text-ink-body">{it.detail}</span>
+            <Link href={it.href} className={`${HOME_LINK} ml-auto`}>
+              {it.cta}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+// ── 브랜드 프로필 ────────────────────────────────────────────────────────────
+
+/** 브랜드 카드에 보이는 등록 제품 행 수 */
+const PRODUCT_ROWS = 3;
+
+/** 입력 한 줄의 채움 표식 — 채움 ✓(초록) · 비어 있음(점선 원). 값 글자가 함께 있어 색만으로 읽히지 않는다 */
+function InputMarker({ filled }: { filled: boolean }) {
+  return filled ? (
+    <span
+      aria-hidden
+      className="inline-flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full bg-green-bg text-green-text"
+    >
+      <IconCheck size={11} strokeWidth={2.75} />
+    </span>
+  ) : (
+    <span
+      aria-hidden
+      className="h-[18px] w-[18px] flex-none rounded-full border-[1.5px] border-dashed border-border-strong"
+    />
+  );
+}
+
+/**
+ * MAIN-11 · 브랜드 프로필 카드 — "진단·생성이 무엇을 보고 도는가".
+ * 이전 위젯은 "미등록"이 네 줄 이어져 읽을 것이 없었다. 채움 정도를 먼저 한 줄(n/4 + 4칸 막대)로 말하고,
+ * 줄마다 채움 표식을 붙여 무엇이 비었는지가 한눈에 보이게 했다. 고치는 곳은 브랜드 관리 하나다.
+ * 아래에는 등록 제품을 둔다 — 스튜디오의 제품 피커가 여기서 고른다(BRAND-03 · HOME-02).
+ * @param products 브랜드에 등록한 제품(최신순) — 앞에서 3건까지만 보인다
+ */
+export function HomeBrandCard({ brand, products }: { brand: BrandProfileRecord; products: ProductRecord[] }) {
   const tags = brand.positioningTags.map((v) => TAG_LABELS[v] ?? v);
-  const shownTags = tags.slice(0, 3);
-  const extraTags = tags.length - shownTags.length;
   const kitDone =
     (brand.brandKit.productNamesJa.length > 0 ? 1 : 0) +
     (brand.brandKit.forbiddenTerms.length > 0 ? 1 : 0) +
@@ -38,326 +101,330 @@ export function BrandInfoWidget({ brand }: { brand: BrandProfileRecord }) {
   const hasProductInfo = Boolean(brand.detailDocName || brand.productInfoMemo.trim());
   const jpChannels = brand.channels.jp.map((c) => c.channel).filter(Boolean);
 
-  return (
-    <section className={WIDGET} aria-labelledby="w11t">
-      <div className="flex items-baseline gap-2">
-        <h2 id="w11t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
-          브랜드 정보
-        </h2>
-        <span className="ml-auto text-[11px] text-ink-faint">진단·생성의 입력</span>
-      </div>
+  const rows: { label: string; filled: boolean; value: string }[] = [
+    {
+      label: '포지셔닝',
+      filled: tags.length > 0,
+      value:
+        tags.length > 0 ? tags.slice(0, 2).join(' · ') + (tags.length > 2 ? ` 외 ${tags.length - 2}` : '') : '미등록',
+    },
+    { label: '제품·상세 정보', filled: hasProductInfo, value: hasProductInfo ? '등록됨' : '미등록' },
+    {
+      label: '일본 채널',
+      filled: jpChannels.length > 0,
+      value: jpChannels.length > 0 ? jpChannels.join(' · ') : '미등록',
+    },
+    { label: '브랜드 킷', filled: kitDone > 0, value: `${kitDone}/3 항목` },
+  ];
+  const filled = rows.filter((r) => r.filled).length;
 
-      <div className="mt-3.5 flex items-center gap-3">
+  return (
+    <HomeCard
+      title="브랜드 프로필"
+      titleId="brand-t"
+      action={{ href: '/app/brand', label: '브랜드 관리 →' }}
+      className="h-full"
+    >
+      <div className="mt-5 flex items-center gap-3">
         <span
           aria-hidden
-          className="inline-flex h-[38px] w-[38px] flex-none items-center justify-center rounded-xl bg-linear-135 from-[#ffe9df] to-[#ffcfb8] text-[15px] font-extrabold text-amber-text"
+          className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-panel bg-linear-135 from-[#ffe9df] to-[#ffcfb8] text-[17px] font-extrabold text-amber-text"
         >
           {brand.brandName.slice(0, 1)}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-bold text-ink">{brand.brandName}</span>
-          <span className="mt-0.5 block truncate text-[11.5px] text-ink-mute">
-            {cat ?? brand.category}
-            {' · '}
-            {brand.productClass}
+          <span className="block truncate text-[15px] font-bold text-ink">{brand.brandName}</span>
+          <span className="mt-0.5 block truncate text-[12.5px] text-ink-mute">
+            {categoryLabelKr(brand.category)} · {brand.productClass}
           </span>
         </span>
       </div>
 
-      <p className="mt-4 text-[11.5px] font-bold text-ink-mute">포지셔닝</p>
-      <div className="mt-1.5 flex flex-wrap gap-1.5">
-        {shownTags.length > 0 ? (
-          <>
-            {shownTags.map((t) => (
-              <span
-                key={t}
-                className="inline-flex h-6 items-center rounded-full bg-n-100 px-2.5 text-[11.5px] font-semibold text-ink-body"
-              >
-                {t}
-              </span>
-            ))}
-            {extraTags > 0 && (
-              <span className="inline-flex h-6 items-center px-1 text-[11.5px] font-semibold text-ink-faint">
-                ＋{extraTags}
-              </span>
-            )}
-          </>
-        ) : (
-          <span className="text-[12px] text-ink-faint">미등록</span>
-        )}
+      <div className="mt-5">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className={HOME_LABEL}>진단·생성에 쓰이는 입력</p>
+          <p className="tnum text-[13px] font-bold text-ink">
+            {filled}
+            <span className="font-semibold text-ink-mute">/{rows.length}</span>
+          </p>
+        </div>
+        <div aria-hidden className="mt-2 flex gap-1">
+          {rows.map((r) => (
+            <span key={r.label} className={`h-1.5 flex-1 rounded-full ${r.filled ? 'bg-green' : 'bg-n-150'}`} />
+          ))}
+        </div>
       </div>
 
-      <dl className="mt-4 flex flex-col">
-        <div className="flex items-baseline justify-between gap-3 border-b border-n-150 py-[7px] text-[12.5px]">
-          <dt className="text-ink-body">제품·상세 정보</dt>
-          <dd className={`m-0 font-semibold ${hasProductInfo ? 'text-ink' : 'text-ink-faint'}`}>
-            {hasProductInfo ? '등록됨' : '미등록'}
-          </dd>
-        </div>
-        <div className="flex items-baseline justify-between gap-3 border-b border-n-150 py-[7px] text-[12.5px]">
-          <dt className="flex-none text-ink-body">일본 채널</dt>
-          <dd className={`m-0 min-w-0 truncate font-semibold ${jpChannels.length ? 'text-ink' : 'text-ink-faint'}`}>
-            {jpChannels.length ? jpChannels.join(' · ') : '미등록'}
-          </dd>
-        </div>
-        <div className="flex items-baseline justify-between gap-3 py-[7px] text-[12.5px]">
-          <dt className="text-ink-body">브랜드 킷</dt>
-          <dd className="m-0 font-semibold text-ink">
-            <span className="tnum">{kitDone}</span>
-            <span className="text-ink-faint">/3 항목</span>
-          </dd>
-        </div>
+      <dl className="mt-3 flex flex-col">
+        {rows.map((r) => (
+          <div
+            key={r.label}
+            className="flex items-center gap-2.5 border-b border-n-150 py-2.5 text-[13px] last:border-b-0"
+          >
+            <InputMarker filled={r.filled} />
+            <dt className="flex-none text-ink-body">{r.label}</dt>
+            <dd className={`m-0 ml-auto min-w-0 truncate font-semibold ${r.filled ? 'text-ink' : 'text-ink-mute'}`}>
+              {r.value}
+            </dd>
+          </div>
+        ))}
       </dl>
 
-      <p className="mt-3.5 text-[12px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-        {hasProductInfo
-          ? '채우면 진단·생성 정확도가 올라갑니다.'
-          : '제품을 등록하면 스튜디오에서 제품컷을 바로 골라 쓸 수 있어요.'}
-      </p>
-      <p className="mt-3.5 text-[12.5px]">
-        <Link href="/app/brand" className="font-semibold text-coral-strong no-underline hover:underline">
-          브랜드 관리 →
-        </Link>
-      </p>
-    </section>
-  );
-}
-
-/** MAIN-10 · 리포트 요약 위젯 — "지난 진단 결과가 뭐였더라"를 ①로 나가지 않고 확인 */
-export function ReportSummaryWidget({
-  report,
-  requestId,
-  name,
-  date,
-}: {
-  report: ReportSummary;
-  requestId: string;
-  name: string;
-  date: string;
-}) {
-  const isBrandMode = report.overallScore === null;
-
-  return (
-    <section className={WIDGET} aria-labelledby="w10t">
-      <div className="flex items-baseline gap-2">
-        <h2 id="w10t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
-          최근 진단 리포트
-        </h2>
-        <span className="ml-auto flex-none text-[11px] text-ink-faint">{date} 발행</span>
-      </div>
-      <p className="mt-3 text-[13.5px] font-bold text-ink">{name}</p>
-
-      {isBrandMode ? (
-        <div className="mt-3">
-          <span className="inline-flex h-[26px] items-center rounded-full bg-n-150 px-[11px] text-[12px] font-bold text-ink-mute">
-            종합점수 없음 · brand 모드
-          </span>
-          <p className="mt-3 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-            브랜드 진단은 종합점수를 내지 않아요. 제품 콘텐츠를 넣으면 점수가 나옵니다.
-          </p>
-          <p className="mt-2.5 text-[12.5px]">
-            <Link href="/app/report/new" className="font-semibold text-coral-strong no-underline hover:underline">
-              제품까지 진단하기 →
-            </Link>
+      {/* 등록 제품은 카드 바닥에 붙인다 — 옆 카드에 맞춰 늘어나도 빈 자리가 두 구획 사이에 생기게 */}
+      <div className="mt-auto pt-5">
+        <div className="flex items-baseline justify-between gap-3 border-t border-n-150 pt-5">
+          <p className={HOME_LABEL}>등록 제품</p>
+          <p className="tnum text-[13px] font-bold text-ink">
+            {products.length}
+            <span className="font-semibold text-ink-mute">개</span>
           </p>
         </div>
-      ) : (
-        <>
-          <div className="mt-3 flex items-end gap-3">
-            <span className="flex items-baseline gap-0.5">
-              <span className="tnum text-[38px] leading-none font-extrabold tracking-[-0.03em] text-ink">
-                {report.overallScore}
-              </span>
-              <span className="text-sm font-semibold text-ink-faint">/100</span>
-            </span>
-          </div>
-
-          <dl className="mt-4 flex flex-col gap-[7px]">
-            {GROUP_ORDER.map((g) => {
-              const pct = report.groupScores[g] ?? 0;
+        {products.length > 0 ? (
+          <ul className="mt-2.5 flex list-none flex-col gap-2.5 p-0">
+            {products.slice(0, PRODUCT_ROWS).map((p) => {
+              const primary = p.images.find((im) => im.isPrimary) ?? p.images[0] ?? null;
               return (
-                <div key={g} className="flex items-center gap-2.5 text-[11.5px]">
-                  <dt className="w-[92px] flex-none text-ink-body">{GROUP_LABELS_PREFIXED[g]}</dt>
-                  <dd className="m-0 flex flex-1 items-center gap-2.5">
-                    <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-n-150">
-                      <span className="block h-full rounded-full bg-coral" style={{ width: `${pct}%` }} />
-                    </span>
-                    <b className="tnum w-8 flex-none text-right text-[11px] font-bold text-ink">{pct}%</b>
-                  </dd>
-                </div>
-              );
-            })}
-          </dl>
-
-          {report.top3.length > 0 && (
-            <>
-              <p className="mt-4 text-[11.5px] font-bold text-ink-mute">먼저 고칠 지점</p>
-              <ol className="mt-2 flex list-none flex-col gap-1.5 p-0">
-                {report.top3.slice(0, 3).map((t, i) => (
-                  <li key={t.itemId} className="flex items-start gap-2 text-[12.5px] leading-snug text-ink-body">
+                <li key={p.id} className="flex items-center gap-3">
+                  {primary ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- /api/files 동적 서빙(허용 목록 밖)
+                    <img
+                      src={`/api/files/${primary.fileId}`}
+                      alt=""
+                      loading="lazy"
+                      className="h-10 w-10 flex-none rounded-field border border-card-border bg-n-150 object-cover"
+                    />
+                  ) : (
                     <span
                       aria-hidden
-                      className="mt-px inline-flex h-[17px] w-[17px] flex-none items-center justify-center rounded-[5px] bg-coral-tint text-[10px] font-extrabold text-coral-strong"
-                    >
-                      {i + 1}
+                      className="h-10 w-10 flex-none rounded-field border border-card-border bg-n-100"
+                    />
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[13px] font-bold text-ink">{p.nameKr}</span>
+                    <span className="tnum mt-0.5 block truncate text-[12px] text-ink-mute">
+                      {p.nameJa ? <span lang="ja">{p.nameJa}</span> : `이미지 ${p.images.length}장`}
                     </span>
-                    {t.title}
-                  </li>
-                ))}
-              </ol>
-            </>
-          )}
-        </>
-      )}
-
-      <p className="mt-4 text-[12.5px]">
-        <Link
-          href={`/app/report/${requestId}`}
-          className="font-semibold text-coral-strong no-underline hover:underline"
-        >
-          리포트 전체 보기 →
-        </Link>
-      </p>
-    </section>
+                  </span>
+                </li>
+              );
+            })}
+            {products.length > PRODUCT_ROWS && (
+              <li className="tnum text-[12px] text-ink-mute">외 {products.length - PRODUCT_ROWS}개</li>
+            )}
+          </ul>
+        ) : (
+          <p className="mt-2.5 rounded-field border border-dashed border-border-strong bg-n-50 px-3.5 py-3 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+            제품컷을 등록하면 스튜디오에서 업로드 없이 바로 골라 쓸 수 있어요.
+          </p>
+        )}
+      </div>
+    </HomeCard>
   );
 }
 
+// ── 작업물 ───────────────────────────────────────────────────────────────────
+
+/** 작업물 카드 1장 — 발행 리포트 또는 완성 자산 */
+export interface WorkItem {
+  key: string;
+  kind: 'report' | 'thumbnail' | 'detail';
+  href: string;
+  name: string;
+  /** "2026.11.23" */
+  date: string;
+  /** 리포트 표지용 — 자산이면 null/빈 값 */
+  score: number | null;
+  groupScores: ReportSummary['groupScores'];
+  top3: ReportSummary['top3'];
+  /** 자산 이미지 경로 — 리포트면 null */
+  img: string | null;
+}
+
+/** 작업물 격자의 칸 수(데스크톱) — 한 줄만 보인다. 나머지는 "전체 보기"가 맡는다 */
+export const WORK_COLUMNS = 4;
+
 /**
- * MAIN-10 빈·진행·실패 변형 — 발행 리포트가 없어도 우측 칼럼의 자리를 지킨다.
- * 진행/실패를 여기서 말해 주지 않으면, 새로고침 뒤에는 어디에서도 보이지 않는다
- * (라이브러리는 실패물을 자산으로 치지 않는다 — LIB-05).
+ * MAIN-05b · 최근 작업물 — 이어서 열 것. 한 줄(4칸)만 보이고, 4칸이 안 차면 마지막에 만들기 칸을 붙인다
+ * (칸이 비어 격자가 무너지지 않게 · 만들기 진입을 겸한다).
+ * @param items 최신순 작업물(리포트 + 자산) — 앞에서 4건까지만 쓴다
+ * @param counts 종류별 총 건수 — 머리에서 각 목록으로 가는 링크가 된다
  */
-export function ReportEmptyWidget({
-  pending,
-  failed,
+export function HomeWork({
+  items,
+  counts,
 }: {
-  /** 생성 중인 진단 1건(최신) — 없으면 null */
-  pending: { id: string; name: string } | null;
-  /** 마지막으로 실패한 진단 1건 — 없으면 null */
-  failed: { id: string; name: string } | null;
+  items: WorkItem[];
+  counts: { report: number; thumbnail: number; detail: number };
 }) {
+  const shown = items.slice(0, WORK_COLUMNS);
+  const showCreateTile = shown.length < WORK_COLUMNS;
+  const countLinks = [
+    { label: '진단 리포트', n: counts.report, tab: 'report' },
+    { label: '썸네일', n: counts.thumbnail, tab: 'thumbnail' },
+    { label: '상세페이지', n: counts.detail, tab: 'detail' },
+  ];
+
   return (
-    <section className={WIDGET} aria-labelledby="w10et">
-      <div className="flex items-baseline gap-2">
-        <h2 id="w10et" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
-          최근 진단 리포트
+    <section aria-labelledby="work-t">
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5">
+        <h2 id="work-t" className={HOME_CARD_TITLE}>
+          최근 작업물
         </h2>
-        <span className="ml-auto flex-none text-[11px] text-ink-faint">
-          {pending ? '생성 중' : failed ? '실패 ✕' : '아직 없음'}
-        </span>
+        <p className="flex flex-wrap items-baseline gap-x-3 text-[12.5px] text-ink-mute">
+          {countLinks.map((c) => (
+            <Link
+              key={c.tab}
+              href={`/app/library?tab=${c.tab}`}
+              className="text-ink-mute no-underline hover:text-ink hover:underline"
+            >
+              {c.label} <b className="tnum font-bold text-ink-body">{c.n}</b>
+            </Link>
+          ))}
+        </p>
+        <Link href="/app/library" className={`${HOME_LINK} ml-auto`}>
+          전체 보기 →
+        </Link>
       </div>
 
-      {pending ? (
-        <>
-          <p className="mt-3 flex items-center gap-2 text-[13.5px] font-bold text-ink">
-            <span aria-hidden className="h-[6px] w-[6px] flex-none rounded-full bg-coral animate-soft-pulse" />
-            <span className="min-w-0 truncate">{pending.name}</span>
-          </p>
-          <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-            진단이 도는 중입니다. 9블록이 모두 채워지면 이 자리에 요약이 뜹니다.
-          </p>
-          <p className="mt-3 text-[12.5px]">
+      <ul className="mt-4 grid list-none grid-cols-4 gap-6 p-0 max-xl:grid-cols-2 max-sm:grid-cols-1">
+        {shown.map((r) => (
+          <li key={r.key} className="flex">
             <Link
-              href={`/app/report/${pending.id}`}
-              className="font-semibold text-coral-strong no-underline hover:underline"
+              href={r.href}
+              aria-label={`${r.name} 열기`}
+              className="block w-full overflow-hidden rounded-card border border-card-border bg-canvas no-underline shadow-card transition-[border-color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:border-coral hover:shadow-2"
             >
-              진행 상황 보기 →
+              <span className="relative block aspect-4/3 overflow-hidden border-b border-n-150">
+                {r.kind === 'report' ? (
+                  <ReportCoverPreview score={r.score} groupScores={r.groupScores} top3={r.top3} density="compact" />
+                ) : r.img ? (
+                  <ThumbPreview src={r.img} alt="" anchor={r.kind === 'detail' ? 'top' : 'center'} />
+                ) : (
+                  <span aria-hidden className="absolute inset-0 bg-n-150" />
+                )}
+              </span>
+              <span className="block px-4 py-3.5">
+                <AxisChip axis={r.kind === 'report' ? 'report' : 'studio'} />
+                <span className="mt-2 block truncate text-[14px] font-bold text-ink">{r.name}</span>
+                <span className="tnum mt-0.5 block text-[12px] text-ink-mute">
+                  {r.kind === 'report' ? '발행' : '생성'} {r.date}
+                </span>
+              </span>
             </Link>
-          </p>
-        </>
-      ) : failed ? (
-        <>
-          <p className="mt-3 truncate text-[13.5px] font-bold text-ink">{failed.name}</p>
-          <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-            마지막 진단이 끝까지 돌지 못했습니다. 원인을 확인하고 같은 입력으로 다시 시작할 수 있어요.
-          </p>
-          <p className="mt-3 text-[12.5px]">
+          </li>
+        ))}
+        {showCreateTile && (
+          <li className="flex">
             <Link
-              href={`/app/report/${failed.id}`}
-              className="font-semibold text-coral-strong no-underline hover:underline"
+              href="/app/studio"
+              className="flex min-h-[220px] w-full flex-col items-center justify-center gap-2 rounded-card border border-dashed border-border-strong bg-n-50 px-5 text-center no-underline transition-colors hover:border-coral hover:bg-coral-tint"
             >
-              실패 원인 보기 →
+              <span
+                aria-hidden
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-coral-tint text-[20px] leading-none font-bold text-coral-strong"
+              >
+                ＋
+              </span>
+              <span className="text-[14px] font-bold text-ink">새로 만들기</span>
+              <span className="text-[12.5px] text-ink-mute">썸네일 · 상세페이지</span>
             </Link>
-          </p>
-        </>
-      ) : (
-        <>
-          <p className="mt-3 text-[13.5px] font-bold text-ink">아직 발행된 리포트가 없어요</p>
-          <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-mute [text-wrap:pretty]">
-            상세페이지·SNS 문구를 일본 고객 관점으로 진단합니다. 재설계된 문구가 그대로 썸네일 카피의 재료가 됩니다.
-          </p>
-          <p className="mt-3 text-[12.5px]">
-            <Link href="/app/report/new" className="font-semibold text-coral-strong no-underline hover:underline">
-              진단 시작 →
-            </Link>
-          </p>
-        </>
-      )}
+          </li>
+        )}
+      </ul>
     </section>
   );
 }
 
-/** 이벤트 건수별 열 수 — Tailwind는 정적 클래스만 읽으므로 표로 둔다 */
-const EVENT_COLS: Record<number, string> = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-2',
-  3: 'grid-cols-3',
-};
+/** 스튜디오 예시 타일 1장의 내용 — 스튜디오 메뉴가 이미 쓰는 정적 컷을 재사용한다(새 자산을 만들지 않는다) */
+const STUDIO_SAMPLES: {
+  href: string;
+  title: string;
+  desc: string;
+  cta: string;
+  shape: 'square' | 'tall';
+  images: string[];
+}[] = [
+  {
+    href: '/app/studio/thumbnail',
+    title: '썸네일',
+    desc: '제품 이미지를 일본 채널의 썸네일 문법 8종 중 하나로 만듭니다.',
+    cta: '썸네일 만들기 →',
+    shape: 'square',
+    images: [
+      '/studio-templates/01-clean.jpg',
+      '/studio-templates/03-official.jpg',
+      '/studio-templates/05-award.jpg',
+      '/studio-templates/02-texture.jpg',
+    ],
+  },
+  {
+    href: '/app/studio/detail',
+    title: '상세페이지',
+    desc: '한국형 쇼핑몰 상세페이지를 일본 채널에 맞는 구성과 표현으로 바꿉니다.',
+    cta: '상세페이지 만들기 →',
+    shape: 'tall',
+    images: [
+      '/detail-templates/preview-D3-card.webp',
+      '/detail-templates/preview-D4-card.webp',
+      '/detail-templates/preview-D5-card.webp',
+      '/detail-templates/preview-D1-card.webp',
+    ],
+  },
+];
 
 /**
- * MAIN-12 · 다가오는 이벤트 위젯 — 조회 전용. 예약·발행·알림 없음(금지 포지션).
- * 히어로가 이미 말한 이벤트는 페이지가 걸러서 넘긴다 — 같은 D-day를 한 화면에서 두 번 읽히지 않게.
+ * 작업물이 아직 없을 때 그 자리 — 스튜디오에서 만드는 것 예시 2장.
+ * 빈 격자("아직 없습니다") 대신 무엇이 채워질지를 실제 예시 컷으로 보여 준다. 브랜드의 결과물이 아니므로
+ * "예시" 배지를 붙이고, 타일 전체가 해당 만들기 화면으로 가는 링크다(채워진 버튼은 두지 않는다).
  */
-export function UpcomingEventsWidget({ events }: { events: UpcomingEvent[] }) {
-  // 가장 임박한 카운트다운 1건만 코랄 강조(진행 중은 amber라 대상 아님 — MAIN-12)
-  const nearId = events.find((e) => !e.inProgress)?.id;
-
+export function HomeStudioSamples() {
   return (
-    <section className={cardClass('p-6 max-sm:p-5')} aria-labelledby="w12t">
-      <div className="flex flex-wrap items-baseline gap-2">
-        <h2 id="w12t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
-          다가오는 이벤트
+    <section aria-labelledby="samples-t">
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1.5">
+        <h2 id="samples-t" className={HOME_CARD_TITLE}>
+          스튜디오에서 만드는 것
         </h2>
-        <span className="ml-auto text-[12px]">
-          <Link href="/app/season" className="font-semibold text-coral-strong no-underline hover:underline">
-            시즌 캘린더 →
-          </Link>
-        </span>
+        <p className="text-[12.5px] text-ink-mute">완성한 작업물이 이 자리에 쌓입니다</p>
       </div>
-      {events.length === 0 ? (
-        <p className="mt-3.5 text-[12.5px] leading-relaxed text-ink-mute">
-          지금 챙길 시즌은 위 카운트다운 하나뿐입니다. 다음 시즌은 캘린더에서 미리 볼 수 있어요.
-        </p>
-      ) : (
-        <ul
-          className={`mt-3.5 grid list-none gap-2.5 p-0 max-md:grid-cols-1 ${EVENT_COLS[events.length] ?? 'grid-cols-3'}`}
-        >
-          {events.map((e) => {
-            const near = e.id === nearId;
-            return (
-              <li
-                key={e.id}
-                className={`flex flex-col gap-1 rounded-xl border p-3.5 ${near ? 'border-coral/40 bg-coral-tint' : 'border-card-border bg-n-50'}`}
-              >
-                <span
-                  className={`inline-flex h-[21px] w-fit items-center rounded-full px-2.5 text-[11px] font-bold ${
-                    e.inProgress
-                      ? 'bg-amber-bg text-amber-text'
-                      : near
-                        ? 'bg-coral text-white'
-                        : 'bg-n-150 text-ink-mute'
-                  }`}
-                >
-                  {e.inProgress ? '진행 중 △' : e.dDay === 0 ? '오늘 시작' : `D-${e.dDay}`}
+      <ul className="mt-4 grid list-none grid-cols-2 gap-6 p-0 max-lg:grid-cols-1">
+        {STUDIO_SAMPLES.map((s) => (
+          <li key={s.href} className="flex">
+            <Link
+              href={s.href}
+              className={cardClass(
+                'group grid w-full items-center gap-x-6 gap-y-5 overflow-hidden p-6 no-underline transition-[border-color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:border-coral hover:shadow-2 sm:grid-cols-[minmax(0,1fr)_auto] max-sm:p-5',
+              )}
+            >
+              <span className="min-w-0">
+                <span className="flex items-center gap-2">
+                  <span className="text-[16px] font-bold text-ink">{s.title}</span>
+                  <span className="inline-flex h-5 items-center rounded-full bg-n-150 px-2 text-[11px] font-bold text-ink-mute">
+                    예시
+                  </span>
                 </span>
-                <span className="mt-0.5 text-[13px] font-bold text-ink">{e.name}</span>
-                <span className="text-[11px] text-ink-mute">{e.when}</span>
-                <span className="mt-0.5 text-[11.5px] leading-snug text-ink-body [text-wrap:pretty]">{e.prep}</span>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                <span className="mt-2 block text-[13px] leading-relaxed text-ink-mute [text-wrap:pretty]">
+                  {s.desc}
+                </span>
+                <span className={`${HOME_LINK} mt-4 inline-block group-hover:underline`}>{s.cta}</span>
+              </span>
+              <span aria-hidden className="flex items-end gap-2">
+                {s.images.map((src) => (
+                  // eslint-disable-next-line @next/next/no-img-element -- 정적 public 자산, 고정 크기
+                  <img
+                    key={src}
+                    src={src}
+                    alt=""
+                    loading="lazy"
+                    className={`flex-none rounded-[8px] border border-card-border object-cover object-top ${
+                      s.shape === 'square' ? 'h-[76px] w-[76px]' : 'h-[112px] w-[52px]'
+                    }`}
+                  />
+                ))}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

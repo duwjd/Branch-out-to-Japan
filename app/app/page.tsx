@@ -1,46 +1,79 @@
-import Link from 'next/link';
 import { getStore } from '@/lib/db/store';
 import { getActiveBrand } from '@/lib/server/activeBrand';
 import type { DiagnosisRequestRecord, GeneratedAssetSummary, ReportSummary } from '@/lib/db/store';
 import { PLATFORM_LABELS, type Platform } from '@/lib/studio/platform';
-import { nextMegawari, seasonRunway, upcomingEvents } from '@/lib/season';
-import { ReportCoverPreview, ThumbPreview } from '@/components/app/AssetPreview';
+import { SEASON_EVENTS, seasonFocus, seasonWindow, upcomingEvents, type SeasonFocus } from '@/lib/season';
+import {
+  PIPELINE_ORDER,
+  pipelineDoneCount,
+  pipelineStates,
+  resolveHomeStep,
+  type HomeStep,
+  type HomeStepInput,
+  type PipelineStepId,
+} from '@/lib/home/nextStep';
+import { auditCounts, pickReportMaterial } from '@/lib/home/reportMaterial';
 import { JobPanel, type DashboardJob } from '@/components/app/JobPanel';
 import { BrandOnboarding } from '@/components/app/BrandOnboarding';
-import { HomeHero, type HeroCta } from '@/components/app/HomeHero';
+import { HomeNextStep, type NextStepAxis, type NextStepCta, type PipelineCell } from '@/components/app/HomeNextStep';
+import { HomeSeasonCard } from '@/components/app/HomeSeasonCard';
+import { HomeReportCard, HomeReportEmptyCard } from '@/components/app/HomeReportCard';
 import {
-  BrandInfoWidget,
   categoryLabelKr,
-  ReportEmptyWidget,
-  ReportSummaryWidget,
-  UpcomingEventsWidget,
+  HomeAttention,
+  HomeBrandCard,
+  HomeStudioSamples,
+  HomeWork,
+  type AttentionItem,
+  type WorkItem,
 } from '@/components/app/HomeWidgets';
-import { AxisChip, buttonClass, cardClass } from '@/components/ui/primitives';
 
 /**
- * 홈(앱 홈, MAIN-00~13) — 3축의 현관.
+ * 홈(앱 홈, MAIN-00~13) — 3축의 현관. 12열 격자 위의 카드 대시보드다.
  *
- * 2026-08-20 개편: "YOAKE 대시보드 / 브랜드 · 일본 진출 현황" 제목 아래 현황 타일 4개를 깔던
- * 머리를 **시즌 D-day 히어로**로 바꿨다. 홈에 들어온 사람이 먼저 알아야 하는 건 화면 이름이
- * 아니라 "다음 시즌까지 며칠 남았고 지금 뭘 해야 하는가"라서, 그 숫자를 화면에서 제일 크게 둔다.
- * 함께 정리한 것: ① 메가와리 타일을 없앴다(히어로가 같은 D-day를 말한다 → 타일 3개)
- * ② 다음 단계 밴드를 이벤트 카드에서 떼어 히어로에 합쳤다 ③ 우측 위젯 칼럼은 카드 테두리를 걷고
- * 머리선만 남겼다 ④ 히어로가 가리키는 이벤트는 "다가오는 이벤트" 목록에서 뺀다(중복 낭독 방지).
+ * 2026-11-24 전면 재설계. 유사 서비스 홈을 영역별로 조사한 결과에서 출발했다
+ * (근거·출처·상태표: docs/decisions/2026-11-24-홈-다음단계-히어로.md):
+ *   · 진단형 툴은 점수 옆에 "먼저 고칠 것"과 다음 행동을 한 띠에 둔다(숫자만 세우지 않는다)
+ *   · 크리에이티브 툴은 첫 화면이 "무엇을 만들까" 하나이고, 새 계정은 빈 격자 대신 예시로 채운다
+ *   · 커머스 어드민은 셋업 가이드를 임시 블록으로 두고, 마감은 크기가 아니라 순위·색으로 올린다
+ *   · 디자인 가이드는 화면당 채워진 버튼 1개 · 제목 크기 3단계 · 0건 타일 금지 · 중요한 것은 위·왼쪽
  *
- * 본문 3상태:
- *   ① 브랜드 미등록 → 온보딩 첫 브랜드 캡처(MAIN-13)
- *   ② 브랜드 有·자산 0 → 4단계 셋업 가이드(MAIN-06)
- *   ③ 복귀(리포트·썸네일 有) → 최근 자산 격자(MAIN-05b)
- * 히어로·현황 타일·이벤트·우측 위젯은 세 상태에서 자리를 지킨다 — 상태가 바뀌어도 화면이
- * 통째로 갈리지 않고 내용만 채워진다. 진행 중 잡은 우하단 플로팅 패널이 폴링으로 추적한다.
+ * 화면은 질문 다섯 개에 차례로 답한다. 왼쪽 8열이 주 동선, 오른쪽 4열이 그 줄의 맥락이다.
+ *   머리      어디까지 왔나            — "4단계 중 3단계까지 왔어요"
+ *   확인할 것  내가 봐야 할 일이 있나    — 생성 실패 · 기업 매칭 제안 도착(있을 때만)
+ *   1줄       지금 무엇을 하나 | 언제까지 — 다음 단계 카드(8) | 시즌 카드(4)
+ *   2줄       진단이 뭐라고 했나 | 무엇을 보고 도나 — 진단 카드(8) | 브랜드 프로필(4)
+ *   3줄       무엇을 만들었나           — 최근 작업물(12) · 없으면 스튜디오 예시
+ *
+ * 지키는 것:
+ *   ① 채워진 버튼은 화면에 하나(다음 단계 카드). 나머지는 테두리 버튼·텍스트 링크·카드 링크
+ *   ② 0건을 숫자로 세우지 않는다 — 빈 카드는 "무엇이 채워질지"를 같은 구획의 빈 틀·예시로 보여 준다
+ *   ③ 화면은 실제 동작만 말한다 — 스튜디오는 리포트 결과를 자동으로 받아 쓰지 않고(폐루프 배선은
+ *      04-roadmap §0-4 미해결) 진단 없이도 열린다. 그래서 "그대로 재료가 된다"·"진단 후 열립니다"라고
+ *      쓰지 않고 "리포트를 기준으로 삼는다"고 쓴다
+ *   ④ 홈은 조회 전용이다 — 아무것도 저장하지 않는다(08 §7)
+ *
+ * 브랜드 미등록이면 온보딩 첫 브랜드 캡처가 홈을 대신한다(MAIN-13).
+ * 진행 중 잡은 우하단 플로팅 패널이 폴링으로 추적한다(MAIN-05a).
  */
 
 /** 실패를 홈에서 알리는 기간 — 지난 실패가 영구히 남아 잔소리가 되지 않도록 최근 7일만 본다 */
 const FAIL_NOTICE_DAYS = 7;
 
+/** 시즌 타임라인이 보여 주는 기간(일) — 약 6개월 */
+const SEASON_WINDOW_DAYS = 180;
+
+/** 시즌 카드 아래 "그다음 시즌" 행 수 */
+const SEASON_NEXT_LIMIT = 2;
+
 /** ISO → "2026.07.16" */
 function fmtDate(iso: string | null): string {
   return (iso ?? '').slice(0, 10).replaceAll('-', '.');
+}
+
+/** ISO → "07.16" — 좁은 자리용(스테퍼 칸) */
+function fmtShortDate(iso: string): string {
+  return iso.slice(5, 10).replace('-', '.');
 }
 
 /** 리포트 표시명 — 제품 진단 / 브랜드 진단 구분(디자인 RECENTS 명명) */
@@ -54,54 +87,300 @@ function assetName(a: GeneratedAssetSummary): string {
   return `${a.styleName} · ${PLATFORM_LABELS[a.platform as Platform] ?? a.platform}`;
 }
 
+/** 제목의 강조어 — 한 제목에 한 곳만. 굵은 큰 글자라 coral-strong(4.7:1)으로 둔다 */
+function Em({ children }: { children: React.ReactNode }) {
+  return <em className="text-coral-strong not-italic">{children}</em>;
+}
+
+/** 축 → 만들기 화면 버튼(시즌 캘린더 SEASON-04 와 같은 행선지) */
+const AXIS_CTA: Record<NextStepAxis, NextStepCta> = {
+  report: { href: '/app/report/new', label: '진단 시작 →' },
+  thumbnail: { href: '/app/studio/thumbnail', label: '썸네일 만들기 →' },
+  detail: { href: '/app/studio/detail', label: '상세페이지 만들기 →' },
+};
+
+/** 준비 흐름에서 각 단계가 몇 번째인가 — "다음 단계 · 3/4" 표기용 */
+const STEP_NUMBER: Record<PipelineStepId, number> = { brand: 1, report: 2, thumbnail: 3, detail: 4 };
+
+interface NextStepContent {
+  kicker: string;
+  title: React.ReactNode;
+  desc: string;
+  primary: NextStepCta;
+  secondary: NextStepCta | null;
+  /** 예시 그림을 고르는 축 — 버튼이 가는 곳과 같다 */
+  axis: NextStepAxis;
+}
+
 /**
- * MAIN-04 · 현황 타일 — 숫자 하나 + 근거 한 줄. 눌러서 해당 목록으로 간다.
- * 카드가 곧 링크라 대시보드가 "읽고 끝"이 아니라 다음 화면으로 이어진다.
+ * 다음 단계 판정(lib/home/nextStep) → 다음 단계 카드의 문구·버튼·그림.
+ * 문구는 그 단계가 실제로 하는 일만 말한다 — 없는 성과·소요 시간을 약속하지 않고(증거 원칙),
+ * 리포트 결과가 스튜디오로 자동 전달된다고도 하지 않는다(아직 배선되지 않았다).
+ * @param runningReportName 진행 중 진단의 표시명(diagnose·running 에서만 쓴다)
+ * @param latestReportId 최신 발행 리포트 id(제작 단계의 "리포트 다시 보기" 행선지)
  */
-function StatTile({
-  label,
-  value,
-  unit,
-  sub,
-  href,
-  running = 0,
-}: {
-  label: string;
-  value: number;
-  unit: string;
-  sub: string;
-  href: string;
-  /** 진행 중 건수 — 0보다 크면 코랄 점과 함께 표기한다 */
-  running?: number;
-}) {
-  return (
-    <Link
-      href={href}
-      className={cardClass(
-        'group flex flex-col gap-1.5 p-6 no-underline transition-[border-color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:border-coral hover:shadow-2 max-sm:p-5',
-      )}
-    >
-      <span className="flex items-center gap-1.5 text-[12px] font-bold text-ink-mute">
-        {label}
-        {running > 0 && (
+function nextStepContent(
+  step: HomeStep,
+  ctx: {
+    hasProductInfo: boolean;
+    runningReportName: string | null;
+    latestReportId: string | null;
+    focus: SeasonFocus;
+  },
+): NextStepContent {
+  const total = PIPELINE_ORDER.length;
+
+  if (step.key === 'diagnose') {
+    const n = `${STEP_NUMBER.report}/${total}`;
+    if (step.mode === 'running') {
+      return {
+        kicker: `진행 중 · ${n}`,
+        title: (
           <>
-            <span aria-hidden className="h-[6px] w-[6px] rounded-full bg-coral animate-soft-pulse" />
-            <span className="tnum text-[11px] font-bold text-coral-strong">생성 중 {running}</span>
+            <Em>진단이 진행 중</Em>이에요
           </>
-        )}
-        <span
-          aria-hidden
-          className="ml-auto text-[13px] text-ink-faint transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-coral-strong"
-        >
-          →
-        </span>
-      </span>
-      <span className="flex items-baseline gap-1">
-        <b className="tnum text-[32px] leading-none font-extrabold tracking-[-0.03em] text-ink">{value}</b>
-        <span className="text-[13px] font-semibold text-ink-faint">{unit}</span>
-      </span>
-      <span className="truncate text-[11.5px] text-ink-mute">{sub}</span>
-    </Link>
+        ),
+        desc: `${ctx.runningReportName ?? '진단 리포트'} — 리포트가 발행되면 아래 진단 카드가 채워지고, 다음 단계는 썸네일입니다.`,
+        primary: { href: `/app/report/${step.targetId}`, label: '진행 상황 보기 →' },
+        secondary: null,
+        axis: 'report',
+      };
+    }
+    if (step.mode === 'failed') {
+      return {
+        kicker: `확인 필요 · ${n}`,
+        title: '마지막 진단이 끝까지 돌지 못했어요',
+        desc: '원인을 확인하고 같은 입력으로 다시 시작할 수 있어요.',
+        primary: { href: `/app/report/${step.targetId}`, label: '실패 원인 보기 →' },
+        secondary: { href: '/app/report/new', label: '새로 진단하기' },
+        axis: 'report',
+      };
+    }
+    return {
+      kicker: `다음 단계 · ${n}`,
+      title: (
+        <>
+          일본 고객의 눈으로 <Em>문구부터 진단</Em>해 보세요
+        </>
+      ),
+      desc: '상세페이지·SNS 문구를 올리면 표현 상태와 필요한 근거를 짚고, 일본 고객에게 통하는 문구로 재설계합니다. 이 리포트가 이후 썸네일·상세페이지를 만들 때의 기준이 됩니다.',
+      primary: AXIS_CTA.report,
+      // 제품 등록은 건너뛸 수 있는 준비 단계다 — 아직 안 했을 때만 보조 버튼으로 둔다
+      secondary: ctx.hasProductInfo ? null : { href: '/app/brand', label: '제품 먼저 등록' },
+      axis: 'report',
+    };
+  }
+
+  if (step.key === 'thumbnail') {
+    const n = `${STEP_NUMBER.thumbnail}/${total}`;
+    if (step.mode === 'running') {
+      return {
+        kicker: `진행 중 · ${n}`,
+        title: (
+          <>
+            <Em>첫 썸네일</Em>을 만드는 중이에요
+          </>
+        ),
+        desc: '완성되면 최근 작업물에 쌓입니다. 그다음 단계는 상세페이지입니다.',
+        primary: { href: `/app/studio/thumbnail/${step.targetId}`, label: '진행 상황 보기 →' },
+        secondary: null,
+        axis: 'thumbnail',
+      };
+    }
+    return {
+      kicker: `다음 단계 · ${n}`,
+      title: (
+        <>
+          이제 <Em>썸네일</Em>을 일본 고객의 문법으로 만들 차례예요
+        </>
+      ),
+      desc: '제품 이미지를 올리고 일본 고객이 신뢰하는 썸네일 문법 8종 중 하나를 고르면 됩니다. 리포트의 재설계 문구와 먼저 고칠 지점을 기준으로 삼으세요.',
+      primary: AXIS_CTA.thumbnail,
+      secondary: ctx.latestReportId ? { href: `/app/report/${ctx.latestReportId}`, label: '리포트 다시 보기' } : null,
+      axis: 'thumbnail',
+    };
+  }
+
+  if (step.key === 'detail') {
+    const n = `${STEP_NUMBER.detail}/${total}`;
+    if (step.mode === 'running') {
+      return {
+        kicker: `진행 중 · ${n}`,
+        title: (
+          <>
+            <Em>상세페이지</Em>를 만드는 중이에요
+          </>
+        ),
+        desc: '완성되면 최근 작업물에 쌓이고, 준비 흐름 네 단계가 모두 채워집니다.',
+        primary: { href: `/app/studio/detail/${step.targetId}`, label: '진행 상황 보기 →' },
+        secondary: null,
+        axis: 'detail',
+      };
+    }
+    return {
+      kicker: `다음 단계 · ${n}`,
+      title: (
+        <>
+          이제 <Em>상세페이지</Em>를 일본향으로 바꿔 보세요
+        </>
+      ),
+      desc: '한국형 쇼핑몰 상세페이지를 일본 채널에 맞는 구성과 표현의 상세페이지로 바꿉니다. 리포트의 재설계 문구를 곁에 두고 만들어 보세요.',
+      primary: AXIS_CTA.detail,
+      secondary: { href: '/app/studio/thumbnail', label: '썸네일 더 만들기' },
+      axis: 'detail',
+    };
+  }
+
+  const { event, steps } = ctx.focus.recommendation;
+  if (step.key === 'season') {
+    // 브랜드가 아직 밟지 않은 준비 항목이 앞에 온다(seasonRecommendations) — 그 첫 항목이 버튼이 된다
+    const first = steps.find((s) => s.axis) ?? null;
+    const axis: NextStepAxis = first?.axis ?? 'thumbnail';
+    return {
+      kicker: `시즌 준비 · ${event.dDay === 0 ? '오늘 시작' : `D-${event.dDay}`}`,
+      title:
+        event.dDay === 0 ? (
+          <>
+            오늘 <Em>{event.name}</Em> 시작이에요
+          </>
+        ) : (
+          <>
+            <Em>{event.dDay}일 뒤</Em> {event.name}, 준비를 시작할 시점이에요
+          </>
+        ),
+      // 준비 항목과 그 근거(why)는 시즌 데이터가 갖고 있다 — 일본 구매 관례에서 온 문장이다
+      desc: first ? `먼저 할 일 — ${first.what}. ${first.why}.` : `${event.prep}입니다.`,
+      primary: AXIS_CTA[axis],
+      secondary: { href: '/app/season', label: '준비 항목 모두 보기' },
+      axis,
+    };
+  }
+
+  return {
+    kicker: '다음 제품 준비',
+    title: (
+      <>
+        다음 제품도 <Em>같은 흐름</Em>으로 준비해 보세요
+      </>
+    ),
+    desc: '새 제품의 문구를 진단하고, 그 리포트를 기준으로 썸네일·상세페이지를 만듭니다.',
+    primary: { href: '/app/report/new', label: '새 진단 시작 →' },
+    secondary: { href: '/app/studio', label: '스튜디오로 가기' },
+    axis: 'report',
+  };
+}
+
+/**
+ * 준비 흐름 스테퍼 4칸 — 완료면 "건수 · 최근 날짜", 다음 단계면 "지금 할 차례", 이후면 "아직 없음".
+ * 이후 단계도 링크로 둔다. 구판 체크리스트는 "진단 후 열립니다"라고 적고 막았지만 스튜디오는
+ * 사이드바에서 언제든 들어갈 수 있다 — 화면이 없는 잠금을 말하지 않는다. 권하는 순서는 표식이 전한다.
+ */
+function stepperCells(args: {
+  input: HomeStepInput;
+  latestReportDate: string | null;
+  latestThumbDate: string | null;
+  latestDetailDate: string | null;
+}): PipelineCell[] {
+  const { input } = args;
+  const states = pipelineStates(input);
+
+  /** 만드는 단계 1칸 — 진단·썸네일·상세가 같은 규칙을 쓴다 */
+  const makeCell = (cell: {
+    id: 'report' | 'thumbnail' | 'detail';
+    label: string;
+    count: number;
+    latest: string | null;
+    runningText: string;
+    listHref: string;
+    createHref: string;
+    /** 만드는 중인 대상의 진행 화면 — 없으면 null */
+    runningHref: string | null;
+  }): PipelineCell => {
+    const state = states[cell.id];
+    const running = cell.runningHref !== null;
+    if (state === 'done') {
+      return {
+        id: cell.id,
+        state,
+        label: cell.label,
+        status: `${cell.count}건 · ${cell.latest ?? ''}`.trim(),
+        href: cell.listHref,
+        running,
+      };
+    }
+    return {
+      id: cell.id,
+      state,
+      label: cell.label,
+      status: running ? cell.runningText : state === 'current' ? '지금 할 차례' : '아직 없음',
+      href: cell.runningHref ?? cell.createHref,
+      running,
+    };
+  };
+
+  return [
+    {
+      id: 'brand',
+      state: states.brand,
+      label: '브랜드 프로필',
+      status: '등록 완료',
+      href: '/app/brand',
+      running: false,
+    },
+    makeCell({
+      id: 'report',
+      label: '진단 리포트',
+      count: input.publishedReports,
+      latest: args.latestReportDate,
+      runningText: '진단 중',
+      listHref: '/app/library?tab=report',
+      createHref: '/app/report/new',
+      runningHref: input.runningReportId ? `/app/report/${input.runningReportId}` : null,
+    }),
+    makeCell({
+      id: 'thumbnail',
+      label: '썸네일',
+      count: input.doneThumbnails,
+      latest: args.latestThumbDate,
+      runningText: '만드는 중',
+      listHref: '/app/library?tab=thumbnail',
+      createHref: '/app/studio/thumbnail',
+      runningHref: input.runningThumbnailId ? `/app/studio/thumbnail/${input.runningThumbnailId}` : null,
+    }),
+    makeCell({
+      id: 'detail',
+      label: '상세페이지',
+      count: input.doneDetails,
+      latest: args.latestDetailDate,
+      runningText: '만드는 중',
+      listHref: '/app/library?tab=detail',
+      createHref: '/app/studio/detail',
+      runningHref: input.runningDetailId ? `/app/studio/detail/${input.runningDetailId}` : null,
+    }),
+  ];
+}
+
+/** 페이지 제목 — 준비 흐름을 어디까지 왔는지 한 문장으로(상태가 숫자보다 먼저) */
+function progressHeadline(doneSteps: number): React.ReactNode {
+  const total = PIPELINE_ORDER.length;
+  if (doneSteps >= total) {
+    return (
+      <>
+        일본 진출 준비 <Em>{total}단계</Em>를 모두 마쳤어요
+      </>
+    );
+  }
+  if (doneSteps <= 1) {
+    return (
+      <>
+        일본 진출 준비, <Em>첫 단계</Em>를 마쳤어요
+      </>
+    );
+  }
+  return (
+    <>
+      일본 진출 준비, {total}단계 중 <Em>{doneSteps}단계</Em>까지 왔어요
+    </>
   );
 }
 
@@ -112,23 +391,29 @@ export default async function DashboardPage() {
   // ── MAIN-13 / ONBOARD · 브랜드 미등록이면 첫 브랜드 캡처가 홈을 대신한다 ──
   if (!brandProfile) return <BrandOnboarding />;
 
-  const [requests, reports, assets] = await Promise.all([
+  const [requests, reports, assets, match, products] = await Promise.all([
     store.listRequests(brandProfile.id),
     store.listReports(brandProfile.id),
     store.listAssets(brandProfile.id),
+    store.getActiveMatchRequest(brandProfile.id),
+    store.listProducts(brandProfile.id),
   ]);
 
+  // 목록은 전부 최신순이라 [0]이 최근 1건이다
   const reportByRequest = new Map<string, ReportSummary>(reports.map((r) => [r.requestId, r]));
   const publishedRequests = requests.filter((r) => r.status === 'published' && reportByRequest.has(r.id));
-  const doneAssets = assets.filter((a) => a.status === 'done');
   const latestPublished = publishedRequests[0] ?? null;
+  const latestReport = latestPublished ? (reportByRequest.get(latestPublished.id) ?? null) : null;
+  /* 최신 리포트 **1건만** 본문까지 읽는다 — 진단 카드가 표현 감사 분포와 "문구가 어떻게 바뀌었나"를
+     보여 주려면 9블록이 필요하다. 목록 전체에 대해 읽지 않는다(리포트당 ~30KB). */
+  const latestBlocks = latestPublished ? ((await store.getReport(latestPublished.id))?.blocksJson ?? null) : null;
+  const runningRequests = requests.filter((r) => r.status === 'submitted' || r.status === 'processing');
 
-  // 현황 타일(MAIN-04) — 자산 종류별 완성/진행 건수. 목록은 전부 최신순이라 [0]이 최근 1건이다
+  const doneAssets = assets.filter((a) => a.status === 'done');
   const doneThumbs = doneAssets.filter((a) => a.kind !== 'detail');
   const doneDetails = doneAssets.filter((a) => a.kind === 'detail');
-  const runningRequests = requests.filter((r) => r.status === 'submitted' || r.status === 'processing');
-  const runningThumbs = assets.filter((a) => a.kind !== 'detail' && a.status === 'generating').length;
-  const runningDetails = assets.filter((a) => a.kind === 'detail' && a.status === 'generating').length;
+  const runningThumbs = assets.filter((a) => a.kind !== 'detail' && a.status === 'generating');
+  const runningDetails = assets.filter((a) => a.kind === 'detail' && a.status === 'generating');
 
   // 진행 중 잡 → 플로팅 패널(MAIN-05a)
   const jobs: DashboardJob[] = [
@@ -136,16 +421,62 @@ export default async function DashboardPage() {
     ...assets.filter((a) => a.status === 'generating').map((a) => ({ kind: a.kind, id: a.id, name: assetName(a) })),
   ];
 
-  const firstVisit = publishedRequests.length === 0 && doneAssets.length === 0 && jobs.length === 0;
+  // ── 다음 단계 판정(MAIN-03) — 자산 유무 + 시즌 착수 구간. 규칙 기반, 저장 없음 ──
+  const now = new Date();
+  const focus = seasonFocus(now, {
+    hasReport: publishedRequests.length > 0,
+    hasThumbnail: doneThumbs.length > 0,
+    hasDetail: doneDetails.length > 0,
+  });
+  const stepInput: HomeStepInput = {
+    publishedReports: publishedRequests.length,
+    runningReportId: runningRequests[0]?.id ?? null,
+    failedReportId: requests.find((r) => r.status === 'failed')?.id ?? null,
+    doneThumbnails: doneThumbs.length,
+    runningThumbnailId: runningThumbs[0]?.id ?? null,
+    doneDetails: doneDetails.length,
+    runningDetailId: runningDetails[0]?.id ?? null,
+    seasonInLeadWindow: focus.inLeadWindow,
+  };
+  const step = resolveHomeStep(stepInput);
+  const doneSteps = pipelineDoneCount(stepInput);
 
-  /* 최근 실패 알림 — 라이브러리는 실패물을 자산으로 치지 않고(LIB-05), 플로팅 패널은 이번 방문에
-     시작한 잡만 본다. 그래서 새로고침 뒤에는 실패를 알려 주는 자리가 홈밖에 없다. */
+  const hasProductInfo = Boolean(brandProfile.productInfoMemo.trim() || brandProfile.detailDocName);
+  const next = nextStepContent(step, {
+    hasProductInfo,
+    runningReportName: runningRequests[0] ? reportName(runningRequests[0]) : null,
+    latestReportId: latestPublished?.id ?? null,
+    focus,
+  });
+  const reportDate = latestReport ? fmtDate(latestReport.publishedAt ?? latestPublished!.createdAt) : null;
+  // 스테퍼 칸은 좁다(8열을 넷으로 나눈 폭) — 날짜를 월.일로 줄여 잘리지 않게 한다. 전체 날짜는 카드들이 적는다
+  const steps = stepperCells({
+    input: stepInput,
+    latestReportDate: latestReport ? fmtShortDate(latestReport.publishedAt ?? latestPublished!.createdAt) : null,
+    latestThumbDate: doneThumbs[0] ? fmtShortDate(doneThumbs[0].createdAt) : null,
+    latestDetailDate: doneDetails[0] ? fmtShortDate(doneDetails[0].createdAt) : null,
+  });
+
+  // ── 시즌 카드(MAIN-12) — 앞세운 시즌 1건 + 6개월 타임라인 + 그다음 시즌 ──
+  const focusEvent = focus.recommendation.event;
+  const leadById = new Map(SEASON_EVENTS.map((e) => [e.id, e.leadDays]));
+  const nextEvents = upcomingEvents(now, SEASON_NEXT_LIMIT + 1)
+    .filter((e) => e.id !== focusEvent.id)
+    .slice(0, SEASON_NEXT_LIMIT);
+  const urgentIds = new Set(
+    nextEvents.filter((e) => !e.inProgress && e.dDay <= (leadById.get(e.id) ?? 30)).map((e) => e.id),
+  );
+
+  /* ── 확인할 것 — 사용자의 행동을 기다리는 일을 머리 바로 아래 한 블록에 모은다 ──
+     실패: 라이브러리는 실패물을 자산으로 치지 않고(LIB-05) 플로팅 패널은 이번 방문에 시작한 잡만 본다.
+     그래서 새로고침 뒤에는 실패를 알려 주는 자리가 홈밖에 없다. 다음 단계 카드가 이미 실패를 말하고
+     있으면(첫 진단 실패) 같은 말을 한 번 더 하지 않는다. */
   const failCutoff = new Date(Date.now() - FAIL_NOTICE_DAYS * 86_400_000).toISOString();
   const failedRequests = requests.filter((r) => r.status === 'failed' && r.updatedAt >= failCutoff);
   const failedAssets = assets.filter((a) => a.status === 'failed' && a.updatedAt >= failCutoff);
   const failCount = failedRequests.length + failedAssets.length;
   // 원인 화면은 실패물별로 다르다 — 가장 최근 1건으로 보낸다(리포트/썸네일/상세 각자의 실패 화면)
-  const newestFail: { at: string; href: string } | null =
+  const newestFail =
     [
       ...failedRequests.map((r) => ({ at: r.updatedAt, href: `/app/report/${r.id}` })),
       ...failedAssets.map((a) => ({
@@ -154,8 +485,35 @@ export default async function DashboardPage() {
       })),
     ].sort((x, y) => (x.at < y.at ? 1 : -1))[0] ?? null;
 
-  // 최근 자산(MAIN-05b) — 발행 리포트 + 완성 썸네일 최신순
-  const recents = [
+  const attention: AttentionItem[] = [];
+  if (failCount > 0 && newestFail && step.mode !== 'failed') {
+    const parts = [
+      failedRequests.length > 0 ? `진단 ${failedRequests.length}건` : '',
+      failedAssets.length > 0 ? `자산 ${failedAssets.length}건` : '',
+    ].filter(Boolean);
+    attention.push({
+      key: 'fail',
+      tone: 'danger',
+      title: `생성 실패 ✕ ${failCount}건`,
+      detail: `최근 ${FAIL_NOTICE_DAYS}일 · ${parts.join(' · ')}`,
+      href: newestFail.href,
+      cta: '원인 보기 →',
+    });
+  }
+  // 기업 매칭 제안 도착은 사이드바 운영 메뉴를 펼쳐야만 배지로 보였다 — 홈에서 먼저 알린다
+  if (match?.status === 'proposed') {
+    attention.push({
+      key: 'match',
+      tone: 'ok',
+      title: '기업 매칭 제안 도착 ○',
+      detail: '운영팀이 이메일로 상세를 안내합니다.',
+      href: '/app/matching',
+      cta: '신청 내용 보기 →',
+    });
+  }
+
+  // ── 최근 작업물(MAIN-05b) — 발행 리포트 + 완성 자산 최신순 ──
+  const work: (WorkItem & { sort: string })[] = [
     ...publishedRequests.map((req) => {
       const rep = reportByRequest.get(req.id)!;
       return {
@@ -168,7 +526,7 @@ export default async function DashboardPage() {
         score: rep.overallScore,
         groupScores: rep.groupScores,
         top3: rep.top3,
-        img: null as string | null,
+        img: null,
       };
     }),
     ...doneAssets.map((a) => ({
@@ -180,321 +538,90 @@ export default async function DashboardPage() {
       sort: a.createdAt,
       score: null,
       groupScores: {},
-      top3: [] as ReportSummary['top3'],
+      top3: [],
       img: a.imagePath ? `/api/files/${a.imagePath}` : null,
     })),
-  ]
-    .sort((a, b) => (a.sort < b.sort ? 1 : -1))
-    // 5건 + 만들기 타일 1칸 = 3열 그리드 두 줄. 자산이 적어도 섹션이 한 줄로 납작해지지 않는다
-    .slice(0, 5);
+  ].sort((a, b) => (a.sort < b.sort ? 1 : -1));
 
-  // ── 히어로(MAIN-03) — 시즌 D-day는 상태와 무관한 사실이라 항상 같은 자리에 둔다.
-  //    바뀌는 건 "그래서 지금 뭘 하나"뿐이다(화면 유일 primary 1개 원칙 유지) ──
-  const now = new Date();
-  const megawari = nextMegawari(now);
-  const runway = seasonRunway(now, 6);
-  const hero: { desc: string; primary: HeroCta; secondary: HeroCta | null } =
-    publishedRequests.length === 0
-      ? {
-          desc: '메가와리 준비는 진단에서 시작합니다. 상세페이지·SNS 문구를 일본 고객 관점으로 진단하면, 재설계된 문구가 그대로 썸네일 카피의 재료가 됩니다.',
-          primary: { href: '/app/report/new', label: '진단 시작 →' },
-          secondary: { href: '/app/season', label: '시즌 캘린더' },
-        }
-      : doneAssets.length === 0
-        ? {
-            desc: '썸네일의 재료는 이미 리포트에 있습니다. 재설계한 Before/After 문구를 일본 고객이 신뢰하는 썸네일 문법 8종 중 하나로 옮깁니다.',
-            primary: { href: '/app/studio/thumbnail', label: '썸네일 만들기 →' },
-            secondary: { href: `/app/report/${latestPublished!.id}`, label: '리포트 다시 보기' },
-          }
-        : {
-            desc: '프로모션 강조형 썸네일이 메가와리 표준 문법입니다. 세트·특전 소구를 일본 구매 관례어로 재설계합니다.',
-            primary: { href: '/app/studio', label: '스튜디오에서 준비하기 →' },
-            secondary: { href: '/app/season', label: '시즌 캘린더' },
-          };
-
-  // 4단계 셋업 가이드(MAIN-06) — 2단계(제품)는 Product 엔티티 부재로 proxy 판정
-  const step2Done = Boolean(brandProfile.productInfoMemo.trim() || brandProfile.detailDocName);
-  const doneSteps = 1 + (step2Done ? 1 : 0) + (publishedRequests.length > 0 ? 1 : 0) + (doneAssets.length > 0 ? 1 : 0);
-
-  // 복귀 뷰 위젯(MAIN-10~12) 데이터 — 홈은 재조회 전용, 새 저장 없음
-  const latestReport = latestPublished ? (reportByRequest.get(latestPublished.id) ?? null) : null;
-  const pendingRequest = runningRequests[0] ?? null;
-  const lastFailedRequest = requests.find((r) => r.status === 'failed') ?? null;
-  // 히어로가 이미 말한 이벤트는 목록에서 뺀다 — 같은 D-day를 한 화면에서 두 번 읽히지 않게
-  const events = upcomingEvents(now, 3).filter((e) => e.id !== megawari.id);
+  const today = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
 
   return (
     <main className="animate-fade-up">
-      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 max-sm:px-5">
-        {/* ── MAIN-03 · 시즌 히어로 ────────────────────────────────────── */}
-        <HomeHero
-          eyebrow={`${brandProfile.brandName} · ${categoryLabelKr(brandProfile.category)}`}
-          dDay={megawari.dDay}
-          eventLabel={megawari.label}
-          heroEventId={megawari.id}
-          desc={hero.desc}
-          runway={runway}
-          primary={hero.primary}
-          secondary={hero.secondary}
-        />
+      {/* break-keep — 한국어 문장이 어절 중간에서 끊기지 않게 한다(랜딩과 같은 규칙) */}
+      <div className="mx-auto max-w-[1280px] px-8 pt-[72px] pb-24 break-keep max-sm:px-5">
+        {/* ── 머리 — 어디까지 왔나 ──────────────────────────────────────── */}
+        <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+          <div className="min-w-0">
+            <p className="truncate text-[13px] font-bold tracking-[0.02em] text-coral-strong">
+              {brandProfile.brandName} · {categoryLabelKr(brandProfile.category)}
+            </p>
+            <h1 className="mt-2.5 text-[30px] leading-[1.3] font-extrabold tracking-[-0.02em] text-ink max-sm:text-[24px]">
+              {progressHeadline(doneSteps)}
+            </h1>
+          </div>
+          <p className="tnum pb-1.5 text-[13px] text-ink-mute">{today} 기준</p>
+        </header>
 
-        {/* ── MAIN-04 · 현황 타일 3종. 메가와리는 히어로가 맡는다 ───────── */}
-        <section aria-label="브랜드 현황" className="mt-16 grid grid-cols-3 gap-5 max-md:grid-cols-1 max-md:gap-4">
-          <StatTile
-            label="진단 리포트"
-            value={publishedRequests.length}
-            unit="건"
-            running={runningRequests.length}
-            sub={
-              latestReport
-                ? `최근 발행 ${fmtDate(latestReport.publishedAt ?? latestPublished!.createdAt)}`
-                : '아직 발행된 리포트가 없어요'
-            }
-            href="/app/library?tab=report"
-          />
-          <StatTile
-            label="썸네일"
-            value={doneThumbs.length}
-            unit="건"
-            running={runningThumbs}
-            sub={
-              doneThumbs.length > 0
-                ? `최근 생성 ${fmtDate(doneThumbs[0].createdAt)}`
-                : '스튜디오에서 첫 장을 만들어 보세요'
-            }
-            href="/app/library?tab=thumbnail"
-          />
-          <StatTile
-            label="상세페이지"
-            value={doneDetails.length}
-            unit="건"
-            running={runningDetails}
-            sub={
-              doneDetails.length > 0
-                ? `최근 생성 ${fmtDate(doneDetails[0].createdAt)}`
-                : '한국형 상세를 일본향으로 바꿔 보세요'
-            }
-            href="/app/library?tab=detail"
-          />
-        </section>
-
-        {/* 최근 실패 알림 — 색+글자+기호 3중 표기(✕). 원인 화면으로 바로 보낸다 */}
-        {failCount > 0 && newestFail && (
-          <p className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-xl border border-danger/25 bg-danger-bg px-4 py-3 text-[12.5px]">
-            <b className="font-bold text-danger-text">생성 실패 ✕ {failCount}건</b>
-            <span className="text-ink-body">
-              최근 {FAIL_NOTICE_DAYS}일 · {failedRequests.length > 0 && `진단 ${failedRequests.length}건`}
-              {failedRequests.length > 0 && failedAssets.length > 0 && ' · '}
-              {failedAssets.length > 0 && `자산 ${failedAssets.length}건`}
-            </span>
-            <Link href={newestFail.href} className="font-semibold text-danger-text no-underline hover:underline">
-              원인 보기 →
-            </Link>
-          </p>
+        {/* ── 확인할 것 — 있을 때만. 여러 건이어도 블록은 하나 ────────────── */}
+        {attention.length > 0 && (
+          <div className="mt-7">
+            <HomeAttention items={attention} />
+          </div>
         )}
 
-        {/* ── 본문 2열 — 좌: 시즌·자산 · 우: 위젯(MAIN-10·11) ──────────── */}
-        <div className="mt-9 grid gap-5 lg:grid-cols-[minmax(0,1fr)_356px]">
-          <div className="flex min-w-0 flex-col gap-5">
-            {firstVisit && (
-              /* MAIN-06 · 첫 방문 셋업 가이드(4단계) — 자산이 아직 없으니 자산 격자 대신 이 자리 */
-              <section className={cardClass('px-6 pt-5 pb-2.5 max-sm:px-5')} aria-labelledby="setup-t">
-                <div className="flex flex-wrap items-baseline gap-2.5">
-                  <h2 id="setup-t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
-                    시작하기 4단계
-                  </h2>
-                  <span className="tnum text-[11.5px] font-bold text-green-text">{doneSteps}/4 완료</span>
-                  <span className="ml-auto text-[11.5px] text-ink-mute">
-                    브랜드 정보는 3축 전체에서 그대로 쓰입니다
-                  </span>
-                </div>
-                <ol className="mt-1 mb-0 list-none p-0">
-                  {/* 1 · 브랜드 프로필 (온보딩 완료로 ✓) */}
-                  <li className="flex items-start gap-3.5 border-t border-n-150 py-4">
-                    <span
-                      aria-hidden
-                      className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-green-bg text-[13px] font-extrabold text-green-text"
-                    >
-                      ✓
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[14.5px] font-bold text-ink line-through decoration-ink/35">
-                        브랜드 프로필 등록
-                      </span>
-                      <span className="mt-[3px] block text-[12.5px] leading-relaxed text-ink-mute">
-                        브랜드·카테고리·채널 상정이 3축 전체에서 재사용됩니다.
-                      </span>
-                    </span>
-                    <span className="flex-none text-xs font-bold text-green-text">완료 ○</span>
-                  </li>
-                  {/* 2 · 제품 등록 (건너뛸 수 있음 — 3단계 잠그지 않음) */}
-                  <li className="flex items-start gap-3.5 border-t border-n-150 py-4">
-                    {step2Done ? (
-                      <span
-                        aria-hidden
-                        className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-green-bg text-[13px] font-extrabold text-green-text"
-                      >
-                        ✓
-                      </span>
-                    ) : (
-                      <span
-                        aria-hidden
-                        className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full border-[1.5px] border-coral bg-coral-tint text-[12.5px] font-extrabold text-coral-strong"
-                      >
-                        2
-                      </span>
-                    )}
-                    <span className="min-w-0 flex-1">
-                      <span
-                        className={`block text-[14.5px] font-bold text-ink ${step2Done ? 'line-through decoration-ink/35' : ''}`}
-                      >
-                        제품 등록 <span className="text-[11.5px] font-semibold text-ink-faint">· 건너뛸 수 있어요</span>
-                      </span>
-                      <span className="mt-[3px] block text-[12.5px] leading-relaxed text-ink-mute">
-                        제품컷을 등록하면 썸네일 만들 때 업로드 없이 바로 골라 쓸 수 있어요.
-                      </span>
-                    </span>
-                    {step2Done ? (
-                      <span className="flex-none text-xs font-bold text-green-text">완료 ○</span>
-                    ) : (
-                      <Link href="/app/brand" className={buttonClass('secondary', 'sm', 'no-underline')}>
-                        제품 등록 →
-                      </Link>
-                    )}
-                  </li>
-                  {/* 3 · 첫 진단 — 히어로 primary와 같은 행선지(중복이 아니라 같은 한 걸음) */}
-                  <li className="flex items-start gap-3.5 border-t border-n-150 py-4">
-                    <span
-                      aria-hidden
-                      className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full border-[1.5px] border-coral bg-coral-tint text-[12.5px] font-extrabold text-coral-strong"
-                    >
-                      3
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[14.5px] font-bold text-ink">첫 진단 리포트 받기</span>
-                      <span className="mt-[3px] block text-[12.5px] leading-relaxed text-ink-mute">
-                        상세페이지·SNS 문구를 일본 고객 관점으로 진단합니다. 다음 단계가 여기서 열립니다.
-                      </span>
-                    </span>
-                    <Link href="/app/report/new" className={buttonClass('secondary', 'sm', 'no-underline')}>
-                      진단 시작 →
-                    </Link>
-                  </li>
-                  {/* 4 · 첫 썸네일 (리포트 발행 전 비활성 — 발행 시 홈이 복귀 뷰로 전이) */}
-                  <li className="flex items-start gap-3.5 border-t border-n-150 py-4">
-                    <span
-                      aria-hidden
-                      className="inline-flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-n-150 text-[12.5px] font-extrabold text-ink-faint"
-                    >
-                      4
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[14.5px] font-bold text-ink-faint">첫 일본향 썸네일 만들기</span>
-                      <span className="mt-[3px] block text-[12.5px] text-ink-faint">
-                        진단 후 열립니다. 재설계된 문구가 썸네일 카피의 재료가 됩니다.
-                      </span>
-                    </span>
-                  </li>
-                </ol>
-              </section>
-            )}
-
-            <UpcomingEventsWidget events={events} />
-
-            {!firstVisit && (
-              /* MAIN-05b · 최근 자산 격자 — 좌측 칼럼 전폭 3열 */
-              <section className={cardClass('p-6 max-sm:p-5')} aria-labelledby="recents-t">
-                <div className="flex flex-wrap items-baseline gap-2.5">
-                  <h2 id="recents-t" className="text-sm font-extrabold tracking-[-0.01em] text-ink">
-                    최근 자산
-                  </h2>
-                  {recents.length > 0 && (
-                    <span className="tnum text-[11px] font-semibold text-ink-mute">최신 {recents.length}건</span>
-                  )}
-                  <Link
-                    href="/app/library"
-                    className="ml-auto text-[12px] font-semibold text-coral-strong no-underline hover:underline"
-                  >
-                    전체 자산 보기 →
-                  </Link>
-                </div>
-                {/* 아직 완성물이 없어도(생성 중뿐) 격자를 접지 않는다 — 만들기 타일이 다음 걸음을 남긴다 */}
-                {recents.length === 0 && (
-                  <p className="mt-3.5 text-[12.5px] leading-relaxed text-ink-mute">
-                    {jobs.length > 0
-                      ? '지금 만드는 중입니다. 완성되면 이 격자에 쌓입니다.'
-                      : '완성된 자산이 아직 없습니다. 첫 장을 만들면 여기에 쌓입니다.'}
-                  </p>
-                )}
-                <div className="mt-4 grid grid-cols-3 gap-4 max-md:grid-cols-2 max-sm:grid-cols-1">
-                  {recents.map((r) => (
-                    <Link
-                      key={r.key}
-                      href={r.href}
-                      aria-label={`${r.name} 열기`}
-                      className="block overflow-hidden rounded-2xl border border-card-border bg-canvas no-underline shadow-card transition-[border-color,transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:border-coral hover:shadow-2"
-                    >
-                      <span className="relative block aspect-16/10 overflow-hidden border-b border-n-150">
-                        {r.kind === 'report' ? (
-                          <ReportCoverPreview
-                            score={r.score}
-                            groupScores={r.groupScores}
-                            top3={r.top3}
-                            density="compact"
-                          />
-                        ) : r.img ? (
-                          <ThumbPreview src={r.img} alt="" />
-                        ) : (
-                          <span aria-hidden className="absolute inset-0 bg-n-150" />
-                        )}
-                      </span>
-                      <span className="block px-3.5 py-3">
-                        <AxisChip axis={r.kind === 'report' ? 'report' : 'studio'} />
-                        <span className="mt-1.5 block truncate text-[13px] font-bold text-ink">{r.name}</span>
-                        <span className="mt-0.5 block text-[11px] text-ink-mute">
-                          {r.kind === 'report' ? '발행' : '생성'} {r.date}
-                        </span>
-                      </span>
-                    </Link>
-                  ))}
-                  {/* 만들기 타일 — 마지막 칸을 비워 두지 않는다(자산 1~2건일 때 섹션이 납작해지던 자리) */}
-                  <Link
-                    href="/app/studio"
-                    className={`flex min-h-[180px] flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-border-strong bg-n-50 px-4 py-6 text-center no-underline transition-colors hover:border-coral hover:bg-coral-tint ${
-                      recents.length === 0 ? 'col-span-full' : ''
-                    }`}
-                  >
-                    <span
-                      aria-hidden
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-coral-tint text-[18px] font-extrabold text-coral-strong"
-                    >
-                      ＋
-                    </span>
-                    <span className="mt-0.5 text-[13px] font-bold text-ink">새 자산 만들기</span>
-                    <span className="text-[11.5px] leading-snug text-ink-mute">썸네일 · 상세페이지</span>
-                  </Link>
-                </div>
-              </section>
-            )}
+        {/* ── 1·2줄 — 12열 격자. 왼쪽 8열이 주 동선, 오른쪽 4열이 그 줄의 맥락 ── */}
+        <div className={`grid gap-6 xl:grid-cols-12 ${attention.length > 0 ? 'mt-6' : 'mt-8'}`}>
+          <div className="xl:col-span-8">
+            <HomeNextStep
+              kicker={next.kicker}
+              title={next.title}
+              desc={next.desc}
+              primary={next.primary}
+              secondary={next.secondary}
+              axis={next.axis}
+              steps={steps}
+            />
+          </div>
+          <div className="xl:col-span-4">
+            <HomeSeasonCard
+              focus={focusEvent}
+              inLeadWindow={focus.inLeadWindow}
+              leadDays={focus.leadDays}
+              win={seasonWindow(now, SEASON_WINDOW_DAYS)}
+              next={nextEvents}
+              urgentIds={urgentIds}
+            />
           </div>
 
-          {/* 우측 위젯 칼럼 — 리포트 요약(MAIN-10) · 브랜드 정보(MAIN-11) */}
-          <aside className="flex min-w-0 flex-col gap-6">
+          <div className="xl:col-span-8">
             {latestPublished && latestReport ? (
-              <ReportSummaryWidget
+              <HomeReportCard
                 report={latestReport}
                 requestId={latestPublished.id}
                 name={reportName(latestPublished)}
-                date={fmtDate(latestReport.publishedAt ?? latestPublished.createdAt)}
+                date={reportDate ?? ''}
+                audit={latestBlocks ? auditCounts(latestBlocks) : null}
+                material={latestBlocks ? pickReportMaterial(latestBlocks) : null}
               />
             ) : (
-              <ReportEmptyWidget
-                pending={pendingRequest ? { id: pendingRequest.id, name: reportName(pendingRequest) } : null}
-                failed={lastFailedRequest ? { id: lastFailedRequest.id, name: reportName(lastFailedRequest) } : null}
-              />
+              <HomeReportEmptyCard running={runningRequests.length > 0} />
             )}
-            <BrandInfoWidget brand={brandProfile} />
-          </aside>
+          </div>
+          <div className="xl:col-span-4">
+            <HomeBrandCard brand={brandProfile} products={products} />
+          </div>
+        </div>
+
+        {/* ── 3줄 — 무엇을 만들었나. 완성 자산이 아직 없으면 스튜디오 예시가 그 자리를 채운다 ── */}
+        <div className="mt-10">
+          {doneAssets.length > 0 ? (
+            <HomeWork
+              items={work}
+              counts={{ report: publishedRequests.length, thumbnail: doneThumbs.length, detail: doneDetails.length }}
+            />
+          ) : (
+            <HomeStudioSamples />
+          )}
         </div>
       </div>
 

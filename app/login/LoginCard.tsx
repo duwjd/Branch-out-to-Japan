@@ -10,10 +10,11 @@
 
 import { EmailAuthPanel } from '@/components/auth/EmailAuthPanel';
 
-export function LoginCard() {
+/** @param showDemo 데모 계정 버튼 노출 여부 — page.tsx 가 서버 env 로 판정해 넘긴다 */
+export function LoginCard({ showDemo = false }: { showDemo?: boolean }) {
   return (
     <div className="mt-[18px]">
-      <EmailAuthPanel />
+      <EmailAuthPanel showDemo={showDemo} />
 
       {/* LOGIN-03 · 고지 방식(동의 체크박스 없음) */}
       <p className="mt-[18px] text-[11.5px] leading-relaxed text-ink-mute">
