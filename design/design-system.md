@@ -3,7 +3,7 @@ title: 디자인 시스템 (확정 · YOAKE 일출 코랄)
 space: 디자인
 status: 정본
 phase: Phase 0
-updated: 2026-08-19
+updated: 2026-11-24
 owner:
 tags: [디자인, 토큰]
 ---
@@ -60,6 +60,8 @@ tags: [디자인, 토큰]
 
 ## 타이포
 - 웹 구현 폰트: **Pretendard Variable** (스티비 원본과 동일). Figma 컴포넌트는 환경 제약으로 Noto Sans KR 사용.
+- 일본어 폰트: **Noto Sans JP** (`next/font/google`, `--font-noto-jp`). 일본어 구간에는 반드시 `lang="ja"` 를 붙인다 — `globals.css` 의 `:lang(ja)` 규칙이 그 구간을 Noto Sans JP 로 그린다.
+  `lang` 이 빠지면 가나는 Pretendard 로 그려져 한 줄에 폰트가 섞인다(2026-11-24 실측·교정). 보고용 슬라이드 HTML 은 외부 의존 0 규칙 때문에 웹폰트 대신 일본어 시스템 폰트(Hiragino·Yu Gothic·Meiryo)를 우선한다.
 - 스케일(스티비 기준): Display 44/600, Section 42/600, Feature 36/600, Subhead·Nav 16/400, Body 14/400.
 
 ## 간격 · Radius (Scale 변수)
