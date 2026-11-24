@@ -265,6 +265,7 @@ const RENDERERS: Record<SlideKey, (copy: SlideCopy, b: BlocksJson) => string> = 
 const STYLE = `
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Hiragino Sans","Noto Sans JP",sans-serif;background:#000;color:${T.ink};-webkit-font-smoothing:antialiased}
+:lang(ja){font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,Meiryo,"Pretendard Variable",Pretendard,sans-serif}
 .deck{position:relative;width:100vw;height:100vh;overflow:hidden}
 @media(min-width:769px){.deck{max-width:calc(100vh*16/9);max-height:calc(100vw*9/16);margin:auto;position:absolute;inset:0}}
 .s{position:absolute;inset:0;background:${T.canvas};display:flex;align-items:center;justify-content:center;padding:6vh 6vw;opacity:0;visibility:hidden;transition:opacity .25s;overflow:hidden}

@@ -11,6 +11,8 @@ import { useId, useState } from 'react';
 type BaRow = {
   /** 탭 라벨 */
   tab: string;
+  /** 탭 라벨 뒤에 붙는 일본어 — lang="ja" 로 따로 감싸 일본어 서체로 그린다 */
+  tabJa?: string;
   /** 직역(나쁜 예) — 일본어 */
   before: string;
   /** 재설계(좋은 예) — 일본어 */
@@ -33,7 +35,8 @@ const ROWS: BaRow[] = [
     why: "'기미가 사라진다'는 단정입니다. 일본 미백 표준 문형(생성 억제·예방)으로 바꾸고, 의약외품 승인이 없으면 「明るい印象へ」처럼 더 낮춰 씁니다.",
   },
   {
-    tab: '더마 · 敏感肌',
+    tab: '더마',
+    tabJa: '敏感肌',
     before: '病院処方級、敏感肌のトラブルを治療するケア',
     after: '敏感肌※の方の毎日にも。パッチテスト済み・無添加処方。※すべての方に刺激が起きないわけではありません',
     why: "'치료'와 병원 비교는 쓸 수 없습니다. '패치테스트 완료·무첨가'라는 확인 가능한 안심 근거로 신뢰를 만듭니다.",
@@ -73,6 +76,12 @@ export function BeforeAfterShowcase() {
               }`}
             >
               {r.tab}
+              {r.tabJa && (
+                <>
+                  {' · '}
+                  <span lang="ja">{r.tabJa}</span>
+                </>
+              )}
             </button>
           );
         })}
@@ -120,7 +129,9 @@ export function BeforeAfterShowcase() {
         </p>
       </div>
 
-      <p className="mt-8 text-[12.5px] text-ink-faint">※ 예시 카피이며 최종 약기법(薬機法) 심의 문구는 아닙니다.</p>
+      <p className="mt-8 text-[12.5px] text-ink-faint">
+        ※ 예시 카피이며 최종 약기법(<span lang="ja">薬機法</span>) 심의 문구는 아닙니다.
+      </p>
     </div>
   );
 }
