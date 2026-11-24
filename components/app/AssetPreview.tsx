@@ -81,7 +81,8 @@ export function ReportCoverPreview({
         */}
         <span className="mt-auto flex flex-col gap-[5px] pt-[6%]">
           {bars.map((g) => {
-            const pct = groupScores[g] ?? 0;
+            // 그룹 점수는 소수로 내려올 수 있다(16.7) — 15px 폭 자리에 정수로 적는다(홈 리포트 요약과 같은 표기)
+            const pct = Math.round(groupScores[g] ?? 0);
             return (
               <span key={g} className="flex items-center gap-1.5">
                 <span className="w-[9px] flex-none text-[8px] font-extrabold text-ink-faint">{g}</span>

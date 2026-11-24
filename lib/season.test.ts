@@ -5,7 +5,14 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { eventsInMonth, nextMegawari, seasonRecommendations, seasonRunway, upcomingEvents } from './season';
+import {
+  eventsInMonth,
+  nextMegawari,
+  seasonFocus,
+  seasonRecommendations,
+  seasonWindow,
+  upcomingEvents,
+} from './season';
 
 describe('upcomingEvents', () => {
   const now = new Date(2026, 6, 23); // 2026-07-23 (로컬)
@@ -153,34 +160,88 @@ describe('seasonRecommendations', () => {
   });
 });
 
-describe('seasonRunway', () => {
-  const now = new Date(2026, 7, 19); // 2026-08-19 (로컬)
+describe('seasonFocus', () => {
+  const none = { hasReport: false, hasThumbnail: false, hasDetail: false };
 
-  it('limit 칸수만큼, 임박순으로 돌려준다', () => {
-    const steps = seasonRunway(now, 6);
-    assert.equal(steps.length, 6);
-    for (let i = 1; i < steps.length; i++) {
-      assert.ok(steps[i - 1].dDay <= steps[i].dDay, '임박순 위반');
-    }
+  it('시작 전이고 착수 구간 안인 시즌을 앞세운다 — 진행 중 기간형보다 먼저', () => {
+    // 2026-08-19: 가을 신색 진행 중 · 크리스마스 코프레(8/20) D-1 · 9월 메가와리 D-13
+    const focus = seasonFocus(new Date(2026, 7, 19), none);
+    assert.equal(focus.inLeadWindow, true);
+    assert.equal(focus.recommendation.event.id, 'xmas-coffret');
+    assert.equal(focus.recommendation.event.inProgress, false);
+    assert.equal(focus.leadDays, 60);
   });
 
-  it('진행 중·임박(7일 내) 시즌은 now 구간', () => {
-    const steps = seasonRunway(now, 6);
-    const autumn = steps.find((s) => s.id === 'autumn-shade'); // 진행 중
-    const xmas = steps.find((s) => s.id === 'xmas-coffret'); // 8/20 시작 = D-1
-    assert.equal(autumn?.phase, 'now');
-    assert.equal(xmas?.phase, 'now');
+  it('착수 구간에 든 시즌이 없으면 임박순 첫 건을 돌려주고 inLeadWindow=false', () => {
+    // 2026-11-24: 3월 메가와리 D-97(lead 30) — 아직 멀다
+    const focus = seasonFocus(new Date(2026, 10, 24), none);
+    assert.equal(focus.inLeadWindow, false);
+    assert.equal(focus.recommendation.event.id, 'megawari-3');
+    assert.equal(focus.recommendation.event.dDay, 97);
+    assert.equal(focus.leadDays, 30);
   });
 
-  it('착수 권장 구간(leadDays) 안이면 prep, 밖이면 later', () => {
-    const steps = seasonRunway(now, 6);
-    const mega9 = steps.find((s) => s.id === 'megawari-9'); // D-13 ≤ lead 30
-    const mega11 = steps.find((s) => s.id === 'megawari-11'); // D-74 > lead 30
-    assert.equal(mega9?.phase, 'prep');
-    assert.equal(mega11?.phase, 'later');
+  it('진행 중인 기간형만 있으면 그 시즌을 돌려주되 착수 구간으로 치지 않는다', () => {
+    // 2026-05-10: UV 상전(4/1~7/31) 진행 중 · 6월 메가와리 D-22(lead 30)는 착수 구간 → 메가와리가 앞선다
+    const may = seasonFocus(new Date(2026, 4, 10), none);
+    assert.equal(may.recommendation.event.id, 'megawari-6');
+    assert.equal(may.inLeadWindow, true);
+    // 2026-04-10: UV 상전 진행 중 · 6월 메가와리 D-52 → 착수 구간 시즌 없음
+    const apr = seasonFocus(new Date(2026, 3, 10), none);
+    assert.equal(apr.inLeadWindow, false);
+    assert.equal(apr.recommendation.event.id, 'uv-shift');
+    assert.equal(apr.recommendation.event.inProgress, true);
+  });
+
+  it('시작 당일(D-0)도 착수 구간이다', () => {
+    const focus = seasonFocus(new Date(2026, 8, 1), none); // 9월 메가와리 당일
+    assert.equal(focus.inLeadWindow, true);
+    assert.equal(focus.recommendation.event.id, 'megawari-9');
+    assert.equal(focus.recommendation.event.dDay, 0);
   });
 
   it('같은 now → 같은 결과(결정적)', () => {
-    assert.deepEqual(seasonRunway(now, 6), seasonRunway(now, 6));
+    const now = new Date(2026, 7, 19);
+    assert.deepEqual(seasonFocus(now, none), seasonFocus(now, none));
+  });
+});
+
+describe('seasonWindow', () => {
+  const now = new Date(2026, 10, 24); // 2026-11-24 — 창이 연말을 넘는다
+  const win = seasonWindow(now, 180);
+
+  it('창과 겹치는 시즌만 담고 시작순으로 정렬한다', () => {
+    const ids = win.spans.map((s) => s.id);
+    // 3월 메가와리(3/1) · UV 상전(4/1~) 은 180일 창 안, 6월 메가와리(6/1 = D-189) 는 밖
+    assert.deepEqual(ids, ['megawari-3', 'uv-shift']);
+  });
+
+  it('위치는 날짜에서 나온 0~1 비율이다', () => {
+    const mega = win.spans.find((s) => s.id === 'megawari-3')!;
+    assert.ok(Math.abs(mega.startRatio - 97 / 180) < 1e-9, '3월 메가와리는 D-97');
+    assert.equal(mega.endRatio, mega.startRatio, '시점형은 시작=끝');
+    assert.ok(Math.abs(mega.leadRatio - 67 / 180) < 1e-9, '착수 구간은 D-30부터');
+    assert.equal(mega.isMegawari, true);
+  });
+
+  it('창을 넘어가는 기간형은 끝을 1로 자른다', () => {
+    const uv = win.spans.find((s) => s.id === 'uv-shift')!;
+    assert.equal(uv.endRatio, 1);
+    assert.ok(uv.startRatio > 0 && uv.startRatio < 1);
+  });
+
+  it('진행 중인 기간형은 시작이 0이다', () => {
+    const may = seasonWindow(new Date(2026, 4, 10), 90); // UV 상전 진행 중
+    const uv = may.spans.find((s) => s.id === 'uv-shift')!;
+    assert.equal(uv.startRatio, 0);
+    assert.equal(uv.leadRatio, 0);
+  });
+
+  it('월 눈금은 다음 달 1일부터 창 끝까지다', () => {
+    assert.deepEqual(
+      win.months.map((m) => m.label),
+      ['12월', '1월', '2월', '3월', '4월', '5월'],
+    );
+    assert.ok(win.months.every((m) => m.ratio > 0 && m.ratio <= 1));
   });
 });
