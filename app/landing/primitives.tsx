@@ -12,12 +12,12 @@ export function LpSection({
   className = '',
 }: {
   id?: string;
-  /** white=기본 · warm=따뜻한 회백 · navy=반전(CTA) */
-  tone?: 'white' | 'warm' | 'navy';
+  /** white=기본 · warm=따뜻한 회백 · navy=반전(CTA) · clear=배경 없음(섹션이 직접 바탕을 그릴 때) */
+  tone?: 'white' | 'warm' | 'navy' | 'clear';
   children: React.ReactNode;
   className?: string;
 }) {
-  const bg = tone === 'warm' ? 'bg-lp-surface' : tone === 'navy' ? 'bg-lp-ink' : 'bg-white';
+  const bg = { white: 'bg-white', warm: 'bg-lp-surface', navy: 'bg-lp-ink', clear: '' }[tone];
   return (
     <section id={id} className={`scroll-mt-20 ${bg} ${className}`}>
       <div className="mx-auto max-w-[1440px] px-[120px] py-[140px] max-lg:px-10 max-lg:py-24 max-sm:px-5 max-sm:py-16">
