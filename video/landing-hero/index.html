@@ -1,0 +1,1022 @@
+<!doctype html>
+<!--
+  YOAKE 랜딩 히어로 영상 — 16:9 · 25초 · 무음 · 루프.
+  구성 근거(레퍼런스 리서치)와 장면표는 이 폴더의 README.md 를 본다.
+
+  흐름: 로고(0프레임 = 마지막 프레임) → 질문 → ① 입력 → ② 진단 → 제목 → ③ 재설계 → 제목 → ④ 제작 → ⑤ 결과물 → 로고.
+  글자와 화면이 번갈아 나온다. 큰 제목 세 장은 어절이 마스크에서 올라와 밑줄 하나를 긋고 떠난다(강조 장치는 영상 전체에 밑줄 하나).
+  화면 장면에는 글자를 덧붙이지 않는다 — 확대된 UI 자체의 글자와 커서가 설명한다. 한자리에 붙박인 자막은 없다.
+
+  제목 2·3 은 "규정"을 말한다 — 일본 광고 규정 기준의 재설계, 쇼핑몰 썸네일 규정에 맞춘 템플릿. 화면에서는 실제 UI 가 그 근거를 보인다
+  (재작성 카드의 "薬機法 불가 → + 조건 각주" 칩, 몰 필터와 카드의 추천·부적합 표시). 문구는 "기준으로 · 맞춘"까지다 —
+  랜딩의 필수 고지대로 법적 적합성이나 심의 통과는 보증하지 않으며, 재설계 장면 아래에 그 고지를 함께 띄운다.
+
+  화면은 전부 실제 앱 캡처다(assets/ui/*.webp · 3배율 · capture/capture.mjs). 확대는 카메라(#cam)가,
+  강조는 같은 캡처에서 오려 낸 조각(.lift)이 맡는다 — UI 를 다시 그리지 않는다.
+
+  규약: 타임라인은 paused 로 만들어 window.__timelines.main 에 등록한다. 시계·난수·네트워크를 쓰지 않는다.
+-->
+<html lang="ko" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Pretendard";
+        src: url("./assets/fonts/PretendardVariable.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: block;
+      }
+      /* 색은 앱 디자인 토큰(app/globals.css @theme)과 같은 값이다 */
+      :root {
+        --page: #faf8f5;
+        --canvas: #ffffff;
+        --ink: #182333;
+        --ink-body: #3d4655;
+        --ink-mute: #5b6372;
+        --coral: #ff6f61;
+        --coral-strong: #c93f2e;
+        --coral-tint: #fff1ee;
+        --line: #e9e7e3;
+        --n150: #f2f1ed;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--page);
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--page);
+        font-family: "Pretendard", sans-serif;
+        color: var(--ink);
+        word-break: keep-all;
+      }
+
+      /* ── 바탕: 앱 본문과 같은 크림 + 코랄 글로우 두 점 ──
+            글로우는 프레임 안에서 0 으로 잦아든다(움직이는 범위까지 포함해서). 랜딩에서는 영상을 테두리 없이
+            같은 크림색 페이지에 얹으므로, 글로우가 프레임 가장자리에서 잘리면 얼룩처럼 보인다 ── */
+      .glow {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      #glow-a {
+        left: 240px;
+        top: 50px;
+        width: 1300px;
+        height: 560px;
+        background: radial-gradient(closest-side, rgba(255, 111, 97, 0.17), rgba(255, 111, 97, 0));
+      }
+      #glow-b {
+        left: 1010px;
+        top: 540px;
+        width: 800px;
+        height: 500px;
+        background: radial-gradient(closest-side, rgba(255, 155, 112, 0.14), rgba(255, 155, 112, 0));
+      }
+
+      /* ── UI 스테이지: 실제 화면을 담는 떠 있는 카드. 안쪽 #cam 이 카메라다.
+            아래 자막 띠를 없앤 만큼 키웠다 — 화면 장면에서는 UI 가 프레임을 거의 채운다 ── */
+      #stage {
+        position: absolute;
+        left: 80px;
+        top: 70px;
+        width: 1760px;
+        height: 920px;
+        border-radius: 30px;
+        overflow: hidden;
+        background: var(--canvas);
+        border: 1px solid var(--line);
+        box-shadow:
+          0 2px 6px rgba(24, 35, 51, 0.05),
+          0 34px 80px rgba(24, 35, 51, 0.14);
+        opacity: 0;
+      }
+      #cam {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1440px;
+        height: 900px;
+        transform-origin: 0 0;
+      }
+      #shot {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1440px;
+        height: 900px;
+        background: var(--page);
+      }
+      .scr {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1440px;
+        height: 900px;
+        display: block;
+        opacity: 0;
+      }
+      #s-form {
+        opacity: 1;
+      }
+      /* 강조할 때 나머지를 가라앉히는 막 — 조각(.lift)은 이 위에 뜬다 */
+      #dim {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1440px;
+        height: 900px;
+        background: rgba(24, 35, 51, 0.5);
+        opacity: 0;
+      }
+      .lift {
+        position: absolute;
+        overflow: hidden;
+        border-radius: 12px;
+        background: var(--canvas);
+        box-shadow:
+          0 0 0 1.5px rgba(255, 111, 97, 0.55),
+          0 18px 44px rgba(24, 35, 51, 0.28);
+        opacity: 0;
+      }
+      .crop {
+        background-repeat: no-repeat;
+        background-size: 1440px 900px;
+      }
+
+      /* 문구가 채워지는 순간 — 채워진 캡처의 입력칸 영역만 위에서부터 드러낸다 */
+      #type {
+        position: absolute;
+        overflow: hidden;
+        height: 0;
+        background-image: url("./assets/ui/form-filled.webp");
+      }
+
+      /* 점수 링 카운트업 — 리포트 화면 ScoreDonut 과 같은 치수(200 · r78 · 선 16) */
+      #ring {
+        position: absolute;
+        left: 317px;
+        top: 173px;
+        width: 200px;
+        height: 200px;
+        background: var(--canvas);
+        border-radius: 50%;
+        opacity: 0;
+      }
+      #ring svg {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      #ring .num {
+        position: absolute;
+        left: 0;
+        top: 60px;
+        width: 200px;
+        text-align: center;
+        font-size: 52px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        font-variant-numeric: tabular-nums;
+      }
+      #ring .den {
+        position: absolute;
+        left: 0;
+        top: 118px;
+        width: 200px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: #68707e;
+      }
+
+      /* 클릭 순간에만 보이는 커서 + 물결 */
+      #cursor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 34px;
+        height: 34px;
+        opacity: 0;
+        filter: drop-shadow(0 4px 8px rgba(24, 35, 51, 0.35));
+      }
+      .ripple {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        margin: -30px 0 0 -30px;
+        border-radius: 50%;
+        border: 3px solid var(--coral);
+        opacity: 0;
+      }
+      .press {
+        position: absolute;
+        border-radius: 10px;
+        background: rgba(24, 35, 51, 0.16);
+        opacity: 0;
+      }
+      /* 테두리 없이 또렷하게만 남기는 조각(버튼) — 뒤 화면이 흐려질 때 이것만 초점에 남는다 */
+      .lift.flat {
+        box-shadow: 0 10px 26px rgba(24, 35, 51, 0.2);
+      }
+      #drop {
+        position: absolute;
+        left: 315px;
+        top: 398px;
+        width: 198px;
+        height: 198px;
+        border-radius: 10px;
+        object-fit: cover;
+        box-shadow: 0 16px 36px rgba(24, 35, 51, 0.3);
+        opacity: 0;
+      }
+      /* 원본 → 생성 결과로 닦아 내는 막(결과 이미지 자리에 원본을 덮어 두고 걷는다) */
+      #wipe {
+        position: absolute;
+        right: 609px; /* 결과 이미지의 오른쪽 변(831px)에 붙여 둔다 — 폭이 줄면 왼쪽부터 걷힌다 */
+        top: 198px;
+        width: 516px;
+        height: 516px;
+        background: url("./assets/out/thumb-before.jpg") right top / 516px 516px no-repeat;
+        opacity: 0;
+      }
+      #wipe-line {
+        position: absolute;
+        top: 190px;
+        left: 313px;
+        width: 4px;
+        height: 532px;
+        border-radius: 2px;
+        background: var(--coral);
+        box-shadow: 0 2px 10px rgba(24, 35, 51, 0.28);
+        opacity: 0;
+      }
+
+
+      /* ── 결과물 카드(화면 좌표) — 상세페이지 3장 ── */
+      .card {
+        position: absolute;
+        overflow: hidden;
+        background: var(--canvas);
+        border: 1px solid var(--line);
+        box-shadow:
+          0 2px 6px rgba(24, 35, 51, 0.05),
+          0 30px 70px rgba(24, 35, 51, 0.2);
+        opacity: 0;
+      }
+      .card img {
+        position: absolute;
+        max-width: none;
+        display: block;
+      }
+      /* 결과 썸네일 — 결과 화면 속 이미지가 그 자리에서 떠오른 것처럼 보이게 같은 그림을 같은 크기로 둔다 */
+      #thumb-card {
+        left: 120px;
+        top: 122px;
+        width: 816px;
+        height: 816px;
+        border-radius: 18px;
+        background: url("./assets/out/thumb-after.jpg") center / cover no-repeat;
+      }
+      /* 상세페이지 3장 — 썸네일과 위아래를 맞춘다 */
+      .detail {
+        top: 122px;
+        width: 281px;
+        height: 816px;
+        border-radius: 20px;
+      }
+      .detail img {
+        left: 0;
+        top: 0;
+        width: 281px;
+      }
+      /* 결과물 뒤판 — 스테이지를 흰 판으로 덮어 결과물만 남긴다 */
+      #d-back {
+        position: absolute;
+        left: 81px;
+        top: 71px;
+        width: 1758px;
+        height: 918px;
+        border-radius: 29px;
+        background: var(--canvas);
+        opacity: 0;
+      }
+      /* 결과물 이름표 */
+      .tag {
+        position: absolute;
+        height: 54px;
+        padding: 0 22px;
+        display: flex;
+        align-items: center;
+        border-radius: 27px;
+        background: var(--ink);
+        color: #fff;
+        font-size: 28px;
+        font-weight: 700;
+        opacity: 0;
+      }
+      /* 상태 문구 — 누른 뒤 결과가 나오기 전의 한 박자(스테이지 한가운데) */
+      .status {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 460px;
+        height: 92px;
+        margin: -46px 0 0 -230px;
+        padding: 0 44px 0 36px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border-radius: 46px;
+        background: var(--ink);
+        color: #fff;
+        font-size: 40px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        box-shadow: 0 24px 60px rgba(24, 35, 51, 0.36);
+        opacity: 0;
+      }
+      .status .dots {
+        display: flex;
+        gap: 9px;
+      }
+      .status .dots i {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--coral);
+      }
+      #note,
+      #note-reg {
+        position: absolute;
+        right: 96px;
+        top: 1014px;
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--ink-mute);
+        opacity: 0;
+      }
+
+      /* ── 큰 제목(키네틱 타이포) — 줄마다 마스크(.ln)가 있고 어절(.w)이 그 아래에서 올라온다.
+            처음 상태(마스크 아래)는 CSS 에 둔다. 한 줄 12자 안쪽 · 두 줄까지 · 줄바꿈은 손으로 정한다 ── */
+      .kt {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 112px;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 1.2;
+      }
+      .kt .blk {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      /* 마스크 상자 — 받침과 밑줄이 잘리지 않게 위아래로 여유를 둔다 */
+      .kt .ln {
+        display: flex;
+        align-items: baseline;
+        gap: 0.26em;
+        white-space: nowrap;
+        overflow: hidden;
+        padding: 0.04em 0.1em 0.14em;
+        margin-bottom: -0.1em;
+      }
+      .kt .w,
+      .kt .roll > span {
+        position: relative;
+        display: inline-block;
+      }
+      /* 밑줄이 어절 일부에만 걸릴 때의 단위("썸네일 규정" + 에) */
+      .kt .ul {
+        position: relative;
+        display: inline-block;
+      }
+      /* 강조 장치는 이것 하나 — 어절이 자리 잡은 뒤 밑줄이 한 번 그어진다 */
+      .kt .u {
+        position: absolute;
+        left: -0.02em;
+        right: -0.02em;
+        bottom: -0.04em;
+        height: 0.08em;
+        border-radius: 0.04em;
+        background: var(--coral);
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+      }
+      /* 같은 자리에서 낱말이 굴러 바뀐다(두 낱말을 한 칸에 겹쳐 둔다) — "한국어 카피를 → 일본어 문구로" 한 번만 */
+      .kt .roll {
+        display: inline-grid;
+      }
+      .kt .roll > span {
+        grid-area: 1 / 1;
+        text-align: center;
+      }
+
+      /* ── 끝 장면: 로고를 가운데에. 0프레임이자 마지막 프레임이라 기본 상태가 "다 보이는" 상태다 ── */
+      #end {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      /* 로고는 자산(design/brand/logo/yoake-logo.svg)의 도형·비율·색 그대로다 — 높이만 정하고 폭은 비율에 맡긴다 */
+      #logo {
+        display: block;
+        height: 156px;
+        width: auto;
+        aspect-ratio: 103 / 26;
+        overflow: visible;
+      }
+      #end .tagline {
+        display: flex;
+        gap: 0.26em;
+        margin-top: 64px;
+        padding: 0.06em 0.06em 0.16em;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 46px;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+        color: var(--ink-body);
+      }
+      #end .tagline .w {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="25"
+      data-width="1920"
+      data-height="1080"
+      data-fps="30"
+    >
+      <div class="glow" id="glow-a"></div>
+      <div class="glow" id="glow-b"></div>
+
+      <!-- ── UI 스테이지 ── -->
+      <div id="stage">
+        <div id="cam" data-layout-allow-overflow>
+          <div id="shot">
+            <!-- 화면은 등장 순서대로 쌓는다 — 다음 화면을 켜면 앞 화면이 가려진다 -->
+            <img class="scr" id="s-form" src="./assets/ui/form-empty.webp" alt="" />
+            <img class="scr" id="s-form-filled" src="./assets/ui/form-filled.webp" alt="" />
+            <img class="scr" id="s-report" src="./assets/ui/report-top.webp" alt="" />
+            <img class="scr" id="s-rx" src="./assets/ui/report-rx.webp" alt="" />
+            <img class="scr" id="s-empty" src="./assets/ui/studio-empty.webp" alt="" />
+            <img class="scr" id="s-up" src="./assets/ui/studio-uploaded.webp" alt="" />
+            <img class="scr" id="s-tpl-idle" src="./assets/ui/studio-template-idle.webp" alt="" />
+            <img class="scr" id="s-tpl" src="./assets/ui/studio-template.webp" alt="" />
+            <div class="scr crop" id="s-tpl-soft" style="background-image: url('./assets/ui/studio-template-soft.webp')"></div>
+            <img class="scr" id="s-res" src="./assets/ui/studio-result.webp" alt="" />
+
+            <div id="type" class="crop"></div>
+
+            <div id="ring">
+              <svg width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
+                <circle cx="100" cy="100" r="78" fill="none" stroke="#f2f1ed" stroke-width="16" />
+                <circle
+                  id="ring-arc"
+                  cx="100"
+                  cy="100"
+                  r="78"
+                  fill="none"
+                  stroke="#ff6f61"
+                  stroke-width="16"
+                  stroke-linecap="round"
+                  transform="rotate(-90 100 100)"
+                />
+              </svg>
+              <div class="num" id="ring-num">0</div>
+              <div class="den">/ 100</div>
+            </div>
+
+            <img id="drop" src="./assets/out/thumb-before.jpg" alt="" />
+            <div id="wipe"></div>
+            <div id="wipe-line"></div>
+
+            <div id="dim"></div>
+            <!-- .lift · .press 는 아래 스크립트가 좌표(assets/ui/rects.json 과 같은 값)로 만든다 -->
+
+            <div class="ripple" id="ripple"></div>
+            <svg id="cursor" viewBox="0 0 34 34" aria-hidden="true">
+              <path
+                d="M6 3.5 27.5 16.2l-9.4 2.5-3.3 9.6L6 3.5Z"
+                fill="#182333"
+                stroke="#ffffff"
+                stroke-width="2.4"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="status" id="status-1"><span class="dots"><i></i><i></i><i></i></span><span>진단하는 중</span></div>
+        <div class="status" id="status-2"><span class="dots"><i></i><i></i><i></i></span><span>만드는 중</span></div>
+      </div>
+
+      <!-- ── 결과물: 상세페이지 3장(스크롤) — 결과 썸네일 오른쪽에 나란히 선다 ── -->
+      <div id="d-back"></div>
+      <div class="card" id="thumb-card"></div>
+      <div class="card detail" id="d1" style="left: 967px"><img src="./assets/out/detail-D1.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="card detail" id="d2" style="left: 1263px"><img src="./assets/out/detail-D2.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="card detail" id="d3" style="left: 1559px"><img src="./assets/out/detail-D6.jpg" alt="" data-layout-allow-overflow /></div>
+      <div class="tag" id="tag-thumb" style="right: 1002px; top: 140px">썸네일</div>
+      <div class="tag" id="tag-detail" style="left: 985px; top: 140px">상세페이지</div>
+
+      <div id="note">화면과 결과물은 예시입니다</div>
+      <!-- 규정을 말하는 장면에 붙는 고지 — 랜딩의 필수 고지·FAQ 와 같은 내용이다 -->
+      <div id="note-reg">공개 규정 기준의 1차 스크리닝입니다 · 법적 적합성을 보증하지 않습니다</div>
+
+      <!-- ── 큰 제목 세 장 ── -->
+      <div class="kt" id="t-hook">
+        <div class="blk">
+          <div class="ln"><span class="w" data-layout-allow-overflow>그</span><span class="w" data-layout-allow-overflow>카피,</span></div>
+          <div class="ln">
+            <span class="w" data-layout-allow-overflow>일본에</span><span class="w" data-layout-allow-overflow>그대로<i class="u"></i></span><span class="w" data-layout-allow-overflow>올려도</span
+            ><span class="w" data-layout-allow-overflow>될까요?</span>
+          </div>
+        </div>
+      </div>
+      <div class="kt" id="t-2">
+        <div class="blk">
+          <div class="ln l1">
+            <span class="w" data-layout-allow-overflow>일본</span
+            ><span class="w" data-layout-allow-overflow>광고 규정<i class="u"></i></span
+            ><span class="w" data-layout-allow-overflow>기준으로</span>
+          </div>
+          <div class="ln">
+            <span class="roll"
+              ><span class="a" data-layout-allow-overflow>한국어 카피를</span
+              ><span class="b" data-layout-allow-overflow>일본어 문구로 재설계</span></span
+            >
+          </div>
+        </div>
+      </div>
+      <div class="kt" id="t-3">
+        <div class="blk">
+          <div class="ln l1">
+            <span class="w" data-layout-allow-overflow>쇼핑몰</span
+            ><span class="w" data-layout-allow-overflow><span class="ul">썸네일 규정<i class="u"></i></span>에</span
+            ><span class="w" data-layout-allow-overflow>맞춘</span>
+          </div>
+          <div class="ln l2">
+            <span class="w" data-layout-allow-overflow>템플릿을</span><span class="w" data-layout-allow-overflow>고르면</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 끝 장면(0프레임 = 마지막 프레임) ── -->
+      <div id="end">
+        <svg id="logo" viewBox="0 0 103 26" fill="none" role="img" aria-label="YOAKE">
+          <defs>
+            <linearGradient id="lg-grad" x1="0" y1="9.92308" x2="20" y2="9.92308" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF6F61" />
+              <stop offset="1" stop-color="#FF9B70" />
+            </linearGradient>
+            <!-- 수평선 위로 드러나는 해의 69% — 자산의 마스크(원 ∩ 사각형)와 같은 모양이다 -->
+            <clipPath id="lg-horizon"><rect x="0" y="3" width="20" height="13.8462" /></clipPath>
+          </defs>
+          <g clip-path="url(#lg-horizon)"><circle id="lg-sun" cx="10" cy="13" r="10" fill="url(#lg-grad)" /></g>
+          <rect class="lg-line" y="17.7692" width="20" height="0.904" rx="0.452" fill="#FF6F61" />
+          <rect class="lg-line" x="1.6" y="19.5963" width="16.8" height="0.92" rx="0.46" fill="#FF6F61" />
+          <rect class="lg-line" x="3.2" y="21.4394" width="13.6" height="0.92" rx="0.46" fill="#FF6F61" />
+          <path class="lg-letter" d="M36.2764 11.8159L39.1944 6.9917H42.1993L37.5811 14.2183V19.0073H34.9385V14.27H34.9366L30.3194 6.9917H33.4092L36.2764 11.8159Z" fill="#182333" />
+          <path class="lg-letter" fill-rule="evenodd" clip-rule="evenodd" d="M51.2989 6.78564C55.0073 6.78586 57.668 9.55056 57.668 12.9663V13.0005C57.6678 16.4161 54.973 19.2142 51.2647 19.2144C47.5562 19.2144 44.8958 16.4503 44.8955 13.0347L44.8946 13.0005C44.8946 9.5846 47.5902 6.78564 51.2989 6.78564ZM51.2647 9.22314C49.1364 9.22314 47.6592 10.9062 47.6592 12.9663V13.0005C47.6594 15.0604 49.1707 16.7769 51.2989 16.7769C53.4268 16.7766 54.9031 15.0944 54.9034 13.0347V13.0005C54.9034 10.9405 53.3928 9.22334 51.2647 9.22314Z" fill="#182333" />
+          <path class="lg-letter" fill-rule="evenodd" clip-rule="evenodd" d="M73.5635 19.0083H70.8008L69.7022 16.314H64.6211L63.5235 19.0083H60.8282L65.9756 6.90576H68.4131L73.5635 19.0083ZM65.5635 13.978H68.7569L67.1602 10.0815L65.5635 13.978Z" fill="#182333" />
+          <path class="lg-letter" d="M80.6709 12.2437L85.5118 6.9917H88.7559L83.8457 12.0903L88.962 19.0083H85.7862L82.0606 13.8921L80.67 15.3345V19.0073H78.0264V6.9917H80.6709V12.2437Z" fill="#182333" />
+          <path class="lg-letter" d="M102.233 9.34326H95.7959V11.7808H101.461V14.1323H95.7959V16.6558H102.319V19.0073H93.169V6.9917H102.233V9.34326Z" fill="#182333" />
+        </svg>
+        <div class="tagline">
+          <span class="w">카피</span><span class="w">진단부터</span><span class="w">일본</span><span class="w">채널</span
+          ><span class="w">썸네일·상세페이지까지</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const shot = document.getElementById("shot");
+        const INK = "#182333";
+        const CORAL = "#ff6f61";
+        const CORAL_STRONG = "#c93f2e";
+
+        // ── 좌표: capture/capture.mjs 가 남긴 assets/ui/rects.json 과 같은 값(CSS px · 1440×900 화면 기준) ──
+        const R = {
+          copy: [313, 534, 1062, 176],
+          submit: [280, 801, 1128, 54],
+          tileNg: [760, 333, 197, 75],
+          tileCond: [967, 333, 197, 75],
+          before: [340, 232, 497, 136],
+          after: [851, 232, 497, 136],
+          rxProblem: [394, 194, 338, 24], // "푸는 문제 · … (薬機法 불가)"
+          rxFix1: [740, 194, 104, 24], // "+ ※角層 조건 각주"
+          rxFix2: [852, 194, 138, 24], // "+ 「整える」 등급 내 프레임"
+          malls: [376, 162, 399, 42], // 몰 필터 칩: 아마존JP · 라쿠텐 공식샵(선택) · 라쿠텐 리셀러 · Qoo10
+          dropzone: [314, 397, 1060, 295],
+          preview: [315, 398, 198, 198],
+          template: [852, 232, 253, 339],
+          generate: [280, 805, 1128, 48],
+        };
+
+        /** 캡처에서 조각을 오려 내 dim 막 위에 띄운다 — 실제 UI 조각이 그대로 커진다 */
+        function lift(id, src, rect, extra) {
+          const el = document.createElement("div");
+          el.className = "lift crop" + (extra ? " " + extra : "");
+          el.id = id;
+          el.style.cssText =
+            `left:${rect[0]}px;top:${rect[1]}px;width:${rect[2]}px;height:${rect[3]}px;` +
+            `background-image:url('./assets/ui/${src}.webp');background-position:${-rect[0]}px ${-rect[1]}px`;
+          shot.insertBefore(el, document.getElementById("ripple"));
+        }
+        /** 버튼이 눌리는 순간의 어두운 막 */
+        function press(id, rect) {
+          const el = document.createElement("div");
+          el.className = "press";
+          el.id = id;
+          el.style.cssText = `left:${rect[0]}px;top:${rect[1]}px;width:${rect[2]}px;height:${rect[3]}px`;
+          shot.insertBefore(el, document.getElementById("ripple"));
+        }
+        lift("l-ng", "report-top", R.tileNg);
+        lift("l-cond", "report-top", R.tileCond);
+        lift("l-before", "report-rx", R.before);
+        lift("l-after", "report-rx", R.after);
+        lift("l-prob", "report-rx", R.rxProblem);
+        lift("l-fix1", "report-rx", R.rxFix1);
+        lift("l-fix2", "report-rx", R.rxFix2);
+        lift("l-malls", "studio-template-idle", R.malls);
+        lift("l-tpl", "studio-template", R.template);
+        lift("l-gen", "studio-template", R.generate, "flat");
+        press("p-submit", R.submit);
+        press("p-generate", R.generate);
+
+        // 문구 채움 조각: 입력칸 영역(+포커스 링 여유 4px)만 보이게 맞춘다
+        const TY = [R.copy[0] - 4, R.copy[1] - 4, R.copy[2] + 8, R.copy[3] + 8];
+        const type = document.getElementById("type");
+        type.style.left = TY[0] + "px";
+        type.style.top = TY[1] + "px";
+        type.style.width = TY[2] + "px";
+        type.style.backgroundPosition = `${-TY[0]}px ${-TY[1]}px`;
+
+        // 올린 이미지가 드롭존 한가운데에 놓였다가 미리보기 자리로 간다 — 미리보기 자리 기준의 어긋남
+        const DROP = {
+          x: R.dropzone[0] + R.dropzone[2] / 2 - (R.preview[0] + R.preview[2] / 2),
+          y: R.dropzone[1] + R.dropzone[3] / 2 - (R.preview[1] + R.preview[3] / 2),
+        };
+
+        // ── 카메라: 스테이지(1760×920) 가운데에 화면 좌표 (cx, cy) 가 오게, z 배로 ──
+        //    구도는 앱 사이드바(0~248px)가 걸리지 않고, 위아래 가장자리에서 글줄이 잘리지 않게 잡는다.
+        const SHOTS = {
+          formWide: [844, 612.5, 1.6],
+          formCopy: [640, 612, 2.5],
+          ring: [650, 264, 2.5],
+          tiles: [962, 272, 2.1],
+          rxBefore: [600, 299.5, 3.0],
+          rxAfter: [1044, 292, 2.7],
+          dropzone: [844, 530, 2.0],
+          uploaded: [705, 500, 2.0],
+          template: [719, 360, 2.1],
+          generate: [900, 680, 2.1],
+          result: [844, 417, 1.49],
+        };
+        function camAt(name, k) {
+          const [cx, cy, z] = SHOTS[name];
+          const s = z * (k || 1);
+          return { scale: s, x: 880 - cx * s, y: 460 - cy * s };
+        }
+        const RING_LEN = 2 * Math.PI * 78;
+
+        /* ── 박자표: 글자 박자(hook · t2 · t3)와 화면 박자(s12 · s3 · s45)가 번갈아 온다.
+              앞 박자가 빠지는 0.2초 동안 다음 박자가 들어오기 시작한다(겹침). 길이만 고치면 뒤가 따라 밀린다.
+              글자 박자는 "다 올라온 뒤 빠지기 시작할 때까지"가 1.2초(글자 수 ÷ 8초) 넘게 남도록 잡았다 ── */
+        const DUR = { hook: 2.5, s12: 5.4, t2: 3.1, s3: 3.0, t3: 2.65, s45: 6.6 };
+        const B = {};
+        let clock = 0.3;
+        Object.keys(DUR).forEach((k) => {
+          B[k] = clock;
+          clock += DUR[k] - 0.2;
+        });
+        B.end = clock;
+
+        /* ── 처음 상태 — 타임라인 밖에서 정한다. 타임라인 0 지점의 set 은 0프레임에 반영되지 않는다.
+              0프레임은 끝 장면(가운데 로고)이고, 이것이 포스터이자 마지막 프레임이다 ── */
+        gsap.set("#cam", camAt("formWide"));
+        gsap.set("#stage", { scale: 0.95, y: 36, transformOrigin: "50% 50%" });
+        gsap.set("#ring-arc", { strokeDasharray: `0 ${RING_LEN}` });
+        gsap.set("#l-ng", { transformOrigin: "100% 50%" });
+        gsap.set("#l-cond", { transformOrigin: "0% 50%" });
+        gsap.set("#l-prob", { transformOrigin: "0% 50%" }); // 왼쪽의 "재작성 1" 글자를 덮지 않게 오른쪽으로만 커진다
+        // 제목 어절은 마스크 아래에서 시작한다. CSS transform 으로 두면 GSAP 이 % 를 px 로 읽어 들여 어긋나므로 여기서 정한다
+        gsap.set(".kt .w, .kt .roll > span", { yPercent: 125 });
+
+        const tl = gsap.timeline({ paused: true, defaults: { immediateRender: false } });
+        // 튕기는 이징(back·bounce)은 쓰지 않는다 — 들어올 때는 감속, 나갈 때는 가속 하나씩만 쓴다
+        const E = { out: "power3.out", expo: "expo.out", inout: "power2.inOut", exit: "power2.in" };
+
+        /* 모든 트윈은 fromTo 로 양 끝을 적는다 — 렌더러는 재생하지 않고 프레임마다 바로 찾아가므로(seek),
+           앞 트윈의 끝 상태에 기대는 to() 보다 양 끝이 명시된 쪽이 임의 지점 탐색에 안전하다. */
+        let camNow = "formWide";
+        /** 같은 화면 안에서 카메라를 옮긴다 */
+        function camMove(name, t, d, ease) {
+          tl.fromTo("#cam", camAt(camNow), { ...camAt(name), duration: d, ease: ease || E.inout }, t);
+          camNow = name;
+        }
+        /** 화면이 바뀌는 컷 — 새 구도에서 k 배로 시작해 제자리로 가라앉는다 */
+        function camCut(name, t, k, d) {
+          tl.fromTo("#cam", camAt(name, k), { ...camAt(name), duration: d, ease: E.out }, t);
+          camNow = name;
+        }
+        function fade(sel, from, to, t, d, ease) {
+          tl.fromTo(sel, { opacity: from }, { opacity: to, duration: d, ease: ease || "power1.inOut" }, t);
+        }
+        /** 화면 바꾸기 — 한 프레임에 바꾼다(스테이지가 물러나 있거나 막이 덮인 동안이거나, 같은 자리의 상태 변화다) */
+        let screenNow = "#s-form";
+        function swap(to, t) {
+          tl.set(to, { opacity: 1 }, t);
+          tl.set(screenNow, { opacity: 0 }, t);
+          screenNow = to;
+        }
+        /** 스테이지가 들어온다 / 물러난다 — 글자 박자와 자리를 바꾼다(글자와 화면이 함께 움직이지 않게) */
+        function arrive(t, name, k, settle) {
+          tl.fromTo("#stage", { opacity: 0, scale: 0.95, y: 36 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: E.out }, t);
+          camCut(name, t, k, settle || 0.8);
+        }
+        function recede(t) {
+          tl.fromTo("#stage", { opacity: 1, scale: 1, y: 0 }, { opacity: 0, scale: 0.95, y: -28, duration: 0.3, ease: E.exit }, t);
+        }
+        /** 커서 — 누르는 순간에만 나타나 from 에서 to 로 간다(좌표는 화살표 끝이 아니라 요소의 왼쪽 위) */
+        function cursorMove(from, to, t, d) {
+          tl.fromTo("#cursor", { x: from[0], y: from[1] }, { x: to[0], y: to[1], duration: d, ease: E.inout }, t);
+        }
+        function click(x, y, t, pressSel) {
+          tl.fromTo("#cursor", { scale: 1 }, { scale: 0.82, duration: 0.08, ease: E.exit }, t);
+          tl.fromTo("#cursor", { scale: 0.82 }, { scale: 1, duration: 0.16, ease: E.out }, t + 0.08);
+          tl.fromTo("#ripple", { x: x, y: y, scale: 0.3, opacity: 0.95 }, { x: x, y: y, scale: 1.9, opacity: 0, duration: 0.5, ease: E.out }, t);
+          if (pressSel) {
+            fade(pressSel, 0, 1, t, 0.08);
+            fade(pressSel, 1, 0, t + 0.1, 0.22);
+          }
+        }
+        /** 상태 문구 한 박자 — 누른 뒤 결과가 나오기 전. hold 는 다 뜬 뒤 머무는 시간 */
+        function status(sel, t, hold) {
+          tl.fromTo(sel, { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.2, ease: E.out }, t);
+          tl.fromTo(`${sel} .dots i`, { y: 0 }, { y: -9, duration: 0.14, stagger: 0.07, yoyo: true, repeat: 1, ease: "sine.inOut" }, t + 0.08);
+          tl.fromTo(sel, { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.97, duration: 0.16, ease: E.exit }, t + 0.2 + hold);
+        }
+        /** 조각을 띄웠다 내린다 — 나머지는 dim 이 가라앉힌다 */
+        function raise(sel, t, s) {
+          tl.fromTo(sel, { opacity: 0, scale: 1 }, { opacity: 1, scale: s, duration: 0.4, ease: E.out }, t);
+        }
+        function lower(sel, t, s) {
+          tl.fromTo(sel, { opacity: 1, scale: s }, { opacity: 0, scale: 1, duration: 0.2, ease: E.exit }, t);
+        }
+        /** 큰 제목 — 어절이 마스크 아래에서 60ms 간격으로 올라오고(rise), 짧게 떠오르며 사라진다(leave).
+            나갈 때는 들어올 때보다 짧게, 덜 움직이고, 화면이 들어오기 전에 끝난다(글자와 화면이 겹쳐 움직이지 않는다).
+            밑줄(underline)은 다 올라온 뒤 한 번 긋는다 */
+        function rise(sel, t) {
+          tl.fromTo(sel, { yPercent: 125, opacity: 1 }, { yPercent: 0, opacity: 1, duration: 0.6, ease: E.expo, stagger: 0.06 }, t);
+        }
+        function leave(sel, t) {
+          tl.fromTo(sel, { yPercent: 0, opacity: 1 }, { yPercent: -40, opacity: 0, duration: 0.16, ease: E.exit, stagger: 0.008 }, t);
+        }
+        function underline(sel, t) {
+          tl.fromTo(sel, { scaleX: 0 }, { scaleX: 1, duration: 0.42, ease: E.out, stagger: 0.12 }, t);
+        }
+
+        // 배경 글로우는 25초 동안 천천히 갔다가 제자리로 온다(루프가 이어진다)
+        tl.fromTo("#glow-a", { x: 0 }, { x: 140, duration: 12.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0);
+        tl.fromTo("#glow-b", { x: 0, y: 0 }, { x: -150, y: -50, duration: 12.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0);
+
+        // ── 0프레임의 로고가 물러난다 ─────────────────────────────────────────────
+        tl.fromTo("#end", { opacity: 1, scale: 1, y: 0 }, { opacity: 0, scale: 0.97, y: -20, duration: 0.26, ease: E.exit }, 0.04);
+
+        // ── 제목 1: "그 카피, / 일본에 그대로 올려도 될까요?" ──────────────────────────
+        (function (b) {
+          rise("#t-hook .ln:nth-child(1) .w", b);
+          rise("#t-hook .ln:nth-child(2) .w", b + 0.14);
+          underline("#t-hook .u", b + 1.0);
+          leave("#t-hook .w", b + DUR.hook - 0.4);
+        })(B.hook);
+
+        // ── ①② 입력 → 진단: 카피가 채워지고 → 진단 리포트 생성 → 점수 → 불가·조건부 ──────
+        (function (b) {
+          arrive(b, "formWide", 1.03, 0.2);
+          camMove("formCopy", b + 0.22, 0.55);
+          // 한 줄씩 채운다 — 입력칸 줄 높이는 22px, 첫 줄 아랫변이 조각 위에서 39px 이다(줄 중간에서 끊기지 않는다)
+          for (let n = 0; n < 7; n++) tl.set("#type", { height: 39 + 22 * n }, b + 0.82 + n * 0.065);
+          tl.set("#type", { height: TY[3] }, b + 1.275);
+          swap("#s-form-filled", b + 1.34);
+          tl.set("#type", { opacity: 0 }, b + 1.34);
+          camMove("formWide", b + 1.32, 0.42);
+          fade("#cursor", 0, 1, b + 1.36, 0.1);
+          // 버튼 글자를 가리지 않게 글자 오른쪽을 누른다
+          cursorMove([1050, 716], [919, 830], b + 1.36, 0.36);
+          click(925, 834, b + 1.76, "#p-submit");
+          fade("#cursor", 1, 0, b + 1.92, 0.1);
+          fade("#dim", 0, 0.55, b + 1.82, 0.18);
+          status("#status-1", b + 1.82, 0.32);
+
+          // 막이 덮인 동안 리포트로 바꾸고, 막을 걷으며 점수가 차오른다
+          const r = b + 2.52;
+          swap("#s-report", r);
+          tl.set("#ring", { opacity: 1 }, r);
+          camCut("ring", r, 0.95, 0.8);
+          fade("#dim", 0.55, 0, r + 0.02, 0.24);
+          // 숫자는 콜백이 아니라 속성 트윈으로 센다 — 탐색(seek) 렌더에서도 그대로 따라온다
+          tl.fromTo("#ring-num", { textContent: 0 }, { textContent: 18, snap: { textContent: 1 }, duration: 0.8, ease: "power2.out" }, r + 0.2);
+          tl.fromTo(
+            "#ring-arc",
+            { strokeDasharray: `0 ${RING_LEN}` },
+            { strokeDasharray: `${0.18 * RING_LEN} ${RING_LEN}`, duration: 0.8, ease: "power2.out" },
+            r + 0.2,
+          );
+          camMove("tiles", r + 1.08, 0.45);
+          fade("#dim", 0, 0.5, r + 1.2, 0.28);
+          raise("#l-ng", r + 1.3, 1.05);
+          raise("#l-cond", r + 1.4, 1.05);
+          const x = b + DUR.s12 - 0.44;
+          lower("#l-ng", x - 0.06, 1.05);
+          lower("#l-cond", x - 0.06, 1.05);
+          recede(x);
+          tl.set("#dim", { opacity: 0 }, x + 0.3);
+        })(B.s12);
+
+        // ── 제목 2: "일본 광고 규정 기준으로 / (한국어 카피를 →) 일본어 문구로 재설계" ───────────────
+        //    윗줄이 기준을 말하고, 아랫줄에서 낱말이 같은 자리에서 굴러 바뀐다. 밑줄은 "광고 규정"에 한 번.
+        (function (b) {
+          rise("#t-2 .l1 .w", b);
+          tl.fromTo("#t-2 .a", { yPercent: 125, opacity: 1 }, { yPercent: 0, opacity: 1, duration: 0.6, ease: E.expo }, b + 0.1);
+          tl.fromTo("#t-2 .a", { yPercent: 0 }, { yPercent: -125, duration: 0.45, ease: "power3.inOut" }, b + 0.74);
+          tl.fromTo("#t-2 .b", { yPercent: 125, opacity: 1 }, { yPercent: 0, opacity: 1, duration: 0.45, ease: "power3.inOut" }, b + 0.74);
+          underline("#t-2 .u", b + 1.0);
+          // 규정을 말하는 순간부터 고지를 함께 띄운다 — 재설계 장면이 끝날 때까지 남는다
+          fade("#note-reg", 0, 1, b + 1.0, 0.3);
+          leave("#t-2 .l1 .w, #t-2 .b", b + DUR.t2 - 0.4);
+        })(B.t2);
+
+        // ── ③ 재설계: 원문과 "薬機法 불가" 사유 → 일본어 문구와 "+ 조건 각주 · + 등급 내 프레임" ──────
+        (function (b) {
+          swap("#s-rx", b);
+          tl.set("#ring", { opacity: 0 }, b);
+          arrive(b, "rxBefore", 1.04);
+          fade("#dim", 0, 0.5, b + 0.3, 0.25);
+          raise("#l-before", b + 0.38, 1.03);
+          raise("#l-prob", b + 0.5, 1.06);
+          camMove("rxAfter", b + 1.1, 0.55);
+          lower("#l-before", b + 1.14, 1.03);
+          lower("#l-prob", b + 1.14, 1.06);
+          raise("#l-after", b + 1.38, 1.04);
+          raise("#l-fix1", b + 1.5, 1.06);
+          raise("#l-fix2", b + 1.58, 1.06);
+          const x = b + DUR.s3 - 0.44;
+          lower("#l-after", x - 0.06, 1.04);
+          lower("#l-fix1", x - 0.06, 1.06);
+          lower("#l-fix2", x - 0.06, 1.06);
+          recede(x);
+          fade("#note-reg", 1, 0, x, 0.2);
+          tl.set("#dim", { opacity: 0 }, x + 0.3);
+        })(B.s3);
+
+        // ── 제목 3: "쇼핑몰 썸네일 규정에 맞춘 / 템플릿을 고르면" — 밑줄은 "썸네일 규정"에 한 번 ─────────
+        (function (b) {
+          rise("#t-3 .l1 .w", b);
+          rise("#t-3 .l2 .w", b + 0.14);
+          underline("#t-3 .u", b + 0.84);
+          leave("#t-3 .w", b + DUR.t3 - 0.4);
+        })(B.t3);
+
+        // ── ④⑤ 제작 → 결과물: 이미지를 올리고 → 템플릿을 고르고 → 생성하기 → 썸네일 · 상세페이지 ──
+        (function (b) {
+          swap("#s-empty", b);
+          arrive(b, "dropzone", 1.03);
+          tl.fromTo(
+            "#drop",
+            { opacity: 0, x: DROP.x + 150, y: DROP.y - 170, scale: 2, rotation: -9 },
+            { opacity: 1, x: DROP.x, y: DROP.y, scale: 1.3, rotation: -3, duration: 0.36, ease: E.out },
+            b + 0.4,
+          );
+          // 놓인 이미지가 미리보기 자리(드롭존 왼쪽 위)로 줄어들고, 닿는 순간 화면이 "올린 상태"로 바뀐다
+          tl.fromTo(
+            "#drop",
+            { x: DROP.x, y: DROP.y, scale: 1.3, rotation: -3 },
+            { x: 0, y: 0, scale: 1, rotation: 0, duration: 0.26, ease: E.inout },
+            b + 0.9,
+          );
+          camMove("uploaded", b + 0.9, 0.3);
+          swap("#s-up", b + 1.16);
+          tl.set("#drop", { opacity: 0 }, b + 1.16);
+
+          // 템플릿 화면 — 목표 몰(라쿠텐 공식샵)이 골라져 있고 카드마다 추천 · 부적합 표시가 붙어 있다.
+          // 몰 칩 줄을 먼저 띄워 "몰마다 맞는 템플릿이 다르다"를 보이고, 추천 카드를 누른다
+          const c = b + 1.24;
+          swap("#s-tpl-idle", c);
+          camCut("template", c, 1.04, 0.5);
+          fade("#dim", 0, 0.45, c + 0.18, 0.2);
+          raise("#l-malls", c + 0.2, 1.05);
+          lower("#l-malls", c + 0.7, 1.05);
+          fade("#dim", 0.45, 0, c + 0.7, 0.2);
+          fade("#cursor", 0, 1, c + 0.66, 0.1);
+          cursorMove([1090, 520], [972, 394], c + 0.66, 0.34);
+          click(978, 398, c + 1.04);
+          // 누르면 선택 표시가 켜지고(실제 화면 상태), 고른 카드와 버튼만 또렷이 남는다
+          swap("#s-tpl", c + 1.06);
+          fade("#s-tpl-soft", 0, 1, c + 1.08, 0.22);
+          fade("#dim", 0, 0.36, c + 1.08, 0.22);
+          fade("#l-gen", 0, 1, c + 1.08, 0.22);
+          raise("#l-tpl", c + 1.08, 1.05);
+          camMove("generate", c + 1.42, 0.4);
+          cursorMove([972, 394], [894, 832], c + 1.42, 0.4);
+          click(900, 836, c + 1.88, "#p-generate");
+          fade("#cursor", 1, 0, c + 2.04, 0.1);
+          fade("#dim", 0.36, 0.55, c + 1.94, 0.16);
+          lower("#l-tpl", c + 1.94, 1.05);
+          fade("#l-gen", 1, 0, c + 1.94, 0.2);
+          status("#status-2", c + 1.94, 0.32);
+
+          // 막이 덮인 동안 결과 화면으로 바꾸고, 막을 걷으며 원본이 일본 채널 썸네일로 닦인다
+          const r = c + 2.64;
+          swap("#s-res", r);
+          tl.set("#s-tpl-soft", { opacity: 0 }, r);
+          tl.set("#wipe", { opacity: 1 }, r);
+          tl.set("#cam", camAt("result"), r);
+          camNow = "result";
+          fade("#dim", 0.55, 0, r + 0.02, 0.22);
+          fade("#note", 0, 1, r + 0.2, 0.3);
+          fade("#wipe-line", 0, 1, r + 0.4, 0.08);
+          tl.fromTo("#wipe", { width: 516 }, { width: 0, duration: 0.55, ease: E.inout }, r + 0.48);
+          tl.fromTo("#wipe-line", { x: 0 }, { x: 516, duration: 0.55, ease: E.inout }, r + 0.48);
+          fade("#wipe-line", 1, 0, r + 1.01, 0.12);
+          // 결과 화면이 흰 판으로 물러나고, 썸네일(화면 속 이미지 자리에서 그대로 떠오른다)과 상세페이지 3장이 나란히 선다
+          const L = r + 1.12;
+          fade("#d-back", 0, 1, L, 0.3);
+          fade("#thumb-card", 0, 1, L, 0.1);
+          tl.fromTo("#thumb-card", { x: 28.2, y: 58.1, scale: 0.942 }, { x: 0, y: 0, scale: 1, duration: 0.5, ease: E.inout }, L);
+          ["#d1", "#d2", "#d3"].forEach((sel, i) => {
+            tl.fromTo(sel, { opacity: 0, x: 220, scale: 1 }, { opacity: 1, x: 0, scale: 1, duration: 0.5, ease: E.out }, L + 0.1 + i * 0.07);
+            tl.fromTo(`${sel} img`, { y: 0 }, { y: -440 - i * 70, duration: 1.9, ease: "power1.inOut" }, L + 0.16 + i * 0.07);
+          });
+          tl.fromTo(["#tag-thumb", "#tag-detail"], { opacity: 0, y: 12, scale: 1 }, { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: E.out }, L + 0.46);
+          const x = b + DUR.s45 - 0.44;
+          tl.set("#stage", { opacity: 0 }, x);
+          tl.fromTo(
+            ["#thumb-card", "#d1", "#d2", "#d3", "#tag-thumb", "#tag-detail"],
+            { opacity: 1 },
+            { opacity: 0, duration: 0.28, ease: E.exit },
+            x,
+          );
+          fade(["#d-back", "#note"], 1, 0, x, 0.24);
+        })(B.s45);
+
+        // ── 끝: 로고가 가운데에서 뜬다 — 해가 수평선 위로 오르고, 선이 그어지고, 글자가 선 뒤 한 줄이 붙는다 ──
+        (function (b) {
+          const pre = b - 0.02; // 판이 보이기 직전에 조각들을 숨겨 둔다(0프레임에서는 다 보이는 상태가 기본이다)
+          tl.set("#lg-sun", { y: 14 }, pre);
+          tl.set(".lg-line", { scaleX: 0, transformOrigin: "50% 50%" }, pre);
+          tl.set(".lg-letter", { opacity: 0, y: 3 }, pre);
+          tl.set("#end .tagline .w", { yPercent: 125 }, pre);
+          tl.set("#end", { opacity: 1, scale: 1, y: 0 }, b);
+          tl.fromTo("#lg-sun", { y: 14 }, { y: 0, duration: 0.7, ease: E.out }, b + 0.04);
+          tl.fromTo(".lg-line", { scaleX: 0 }, { scaleX: 1, duration: 0.42, ease: E.out, stagger: 0.06, transformOrigin: "50% 50%" }, b + 0.12);
+          tl.fromTo(".lg-letter", { opacity: 0, y: 3 }, { opacity: 1, y: 0, duration: 0.4, ease: E.out, stagger: 0.045 }, b + 0.28);
+          tl.fromTo("#end .tagline .w", { yPercent: 125 }, { yPercent: 0, duration: 0.55, ease: E.expo, stagger: 0.045 }, b + 0.4);
+        })(B.end);
+
+        // 길이를 25초로 고정한다(남는 구간은 끝 장면을 그대로 둔다)
+        tl.set({}, {}, 25);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines.main = tl;
+        tl.seek(0);
+      })();
+    </script>
+  </body>
+</html>

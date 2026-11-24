@@ -394,38 +394,92 @@ export function seasonRecommendations(now: Date, ctx: BrandReadiness, limit = 3)
   });
 }
 
-/**
- * 시즌 눈금 한 칸의 긴급도 — 색이 아니라 의미로 정의한다(면 색은 화면이 고른다).
- * 'now'   = 진행 중이거나 곧 시작 — 지금 손대는 시즌
- * 'prep'  = 이벤트별 착수 권장 구간(leadDays) 안 — 지금 준비를 시작할 시즌
- * 'later' = 아직 먼 시즌
- */
-export type SeasonPhase = 'now' | 'prep' | 'later';
-
-/** 진행 중이 아니어도 이 일수 안에 시작하면 'now'로 본다 */
-const IMMINENT_DAYS = 7;
-
-export interface SeasonRunwayStep {
+/** 홈 시즌 타임라인의 한 구간 — 창(window) 안에서의 위치를 0~1 비율로 준다 */
+export interface SeasonSpan {
   id: string;
   name: string;
-  /** 시작까지 남은 일수(진행 중이면 0) */
-  dDay: number;
-  inProgress: boolean;
-  phase: SeasonPhase;
+  kind: 'period' | 'point';
+  isMegawari: boolean;
+  /** 창 시작(오늘)에서 이벤트 시작까지 — 0~1. 이미 진행 중이면 0 */
+  startRatio: number;
+  /** 창 시작에서 이벤트 끝까지 — 0~1. 시점형은 startRatio 와 같고, 창을 넘어가면 1 */
+  endRatio: number;
+  /** 착수 권장 구간의 시작(시작일 − leadDays) — 0~1. 이미 지났으면 0 */
+  leadRatio: number;
+}
+
+export interface SeasonWindow {
+  /** 창 길이(일) */
+  days: number;
+  spans: SeasonSpan[];
+  /** 창 안에 들어오는 매월 1일 — 눈금 라벨용. ratio 는 0~1 */
+  months: { label: string; ratio: number }[];
 }
 
 /**
- * 홈 히어로 시즌 눈금 — 임박순 시즌 이벤트 N건에 긴급도를 매긴다(MAIN-03).
- * 전부 날짜만으로 결정된다 — 없는 진척·실적을 만들어 내지 않는다(증거 원칙).
+ * 오늘부터 `days` 일 동안의 시즌 배치 — 홈 시즌 카드의 타임라인이 그린다(MAIN-12 · 2026-11-24).
+ * 위치는 전부 날짜에서 계산한다(장식 좌표 없음). 창과 하루라도 겹치는 이벤트만 담고,
+ * 올해·내년 주기를 모두 훑어 연말을 넘는 창에서도 빠지지 않게 한다.
  * @param now 기준 시각
- * @param limit 눈금 칸 수(기본 6)
+ * @param days 창 길이(기본 180일 ≈ 6개월)
  */
-export function seasonRunway(now: Date, limit = 6): SeasonRunwayStep[] {
-  const byId = new Map(SEASON_EVENTS.map((e) => [e.id, e]));
+export function seasonWindow(now: Date, days = 180): SeasonWindow {
+  const t0 = startOfDay(now);
+  const t1 = t0 + days * MS_DAY;
+  const span = t1 - t0;
+  const clamp = (t: number): number => Math.min(1, Math.max(0, (t - t0) / span));
 
-  return upcomingEvents(now, limit).map((e) => {
-    const leadDays = byId.get(e.id)?.leadDays ?? 30;
-    const phase: SeasonPhase = e.inProgress || e.dDay <= IMMINENT_DAYS ? 'now' : e.dDay <= leadDays ? 'prep' : 'later';
-    return { id: e.id, name: e.name, dDay: e.dDay, inProgress: e.inProgress, phase };
-  });
+  const spans: SeasonSpan[] = [];
+  for (const e of SEASON_EVENTS) {
+    for (const yr of [now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1]) {
+      const { startsAt, endsAt } = resolveIn(e, yr);
+      if (endsAt < t0 || startsAt > t1) continue;
+      spans.push({
+        id: e.id,
+        name: e.name,
+        kind: e.kind,
+        isMegawari: MEGAWARI_IDS.has(e.id),
+        startRatio: clamp(startsAt),
+        endRatio: clamp(endsAt),
+        leadRatio: clamp(startsAt - e.leadDays * MS_DAY),
+      });
+    }
+  }
+  spans.sort((a, b) => a.startRatio - b.startRatio);
+
+  const months: SeasonWindow['months'] = [];
+  const cursor = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  while (cursor.getTime() <= t1) {
+    months.push({ label: `${cursor.getMonth() + 1}월`, ratio: clamp(cursor.getTime()) });
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+
+  return { days, spans, months };
+}
+
+export interface SeasonFocus {
+  /** 홈이 앞세울 시즌 1건과 그 준비 항목 */
+  recommendation: SeasonRecommendation;
+  /** 시작 전이고 착수 구간(leadDays) 안 — 홈 히어로가 시즌을 "다음 할 일"로 올리는 조건 */
+  inLeadWindow: boolean;
+  /** 이 시즌의 착수 권장 일수 — "준비는 D-30부터" 표기용 */
+  leadDays: number;
+}
+
+/**
+ * 홈이 앞세울 시즌 1건을 고른다(MAIN-03 · 2026-11-24).
+ * 우선순위: ① 아직 시작 전이고 착수 구간에 들어온 시즌(가장 임박한 것) ② 없으면 임박순 첫 건.
+ * 진행 중인 기간형 시즌은 ①에 넣지 않는다 — 이미 시작한 시즌은 "착수할 시점"이 지났고,
+ * 넉 달짜리 기간형(UV 상전)이 히어로를 내내 차지하면 정작 다가오는 메가와리가 가려진다.
+ * @param now 기준 시각
+ * @param ctx 브랜드가 이미 가진 자산 상태
+ */
+export function seasonFocus(now: Date, ctx: BrandReadiness): SeasonFocus {
+  const byId = new Map(SEASON_EVENTS.map((e) => [e.id, e]));
+  const leadOf = (id: string): number => byId.get(id)?.leadDays ?? 30;
+
+  const all = seasonRecommendations(now, ctx, SEASON_EVENTS.length);
+  const lead = all.find((r) => !r.event.inProgress && r.event.dDay <= leadOf(r.event.id));
+  const recommendation = lead ?? all[0];
+  return { recommendation, inLeadWindow: Boolean(lead), leadDays: leadOf(recommendation.event.id) };
 }

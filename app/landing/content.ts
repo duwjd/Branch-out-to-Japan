@@ -14,6 +14,24 @@ export const NAV_LINKS = [
   { href: '#faq', label: 'FAQ' },
 ] as const;
 
+/**
+ * 첫 화면 영상(video/landing-hero) — 소리 없는 25초 반복. 화면과 결과물은 예시이며 영상 안에 그 고지가 들어 있다.
+ * 파일은 public/video 에 둔다. 포스터는 영상의 0프레임이라 재생이 시작될 때 화면이 바뀌지 않는다.
+ */
+export const HERO_VIDEO = {
+  webm: '/video/yoake-landing-hero.webm',
+  mp4: '/video/yoake-landing-hero.mp4',
+  poster: '/video/yoake-landing-hero-poster.webp',
+  labels: {
+    region: '제품 소개 영상',
+    description:
+      'YOAKE 사용 흐름 영상: 한국어 카피를 넣으면 표현 위험을 진단하고, 일본 광고 규정을 기준으로 일본어 문구를 재설계한 뒤, 목표 쇼핑몰에 맞는 템플릿으로 썸네일과 상세페이지를 만듭니다.',
+    play: '재생',
+    pause: '일시정지',
+    scrollCue: '아래 소개로 이동',
+  },
+} as const;
+
 export const HERO = {
   eyebrow: 'K-Beauty Japan Growth Studio',
   headline: ['카피와 근거를 진단하고,', '일본 채널에 맞는 크리에이티브로'],

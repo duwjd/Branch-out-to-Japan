@@ -29,7 +29,10 @@ function tabClass(on: boolean): string {
   ].join(' ');
 }
 
-export function EmailAuthPanel() {
+/**
+ * @param showDemo 로그인 탭에 "데모 계정 체험하기" 버튼을 보일지 — 서버가 데모 env 설정 여부로 정한다
+ */
+export function EmailAuthPanel({ showDemo = false }: { showDemo?: boolean }) {
   const router = useRouter();
   const [screen, setScreen] = useState<Screen>({ kind: 'login' });
 
@@ -39,6 +42,7 @@ export function EmailAuthPanel() {
   const [remember, setRemember] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginBusy, setLoginBusy] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(false);
 
   // 회원가입 탭(LOGIN-08)
   const [signupEmail, setSignupEmail] = useState('');
@@ -103,6 +107,26 @@ export function EmailAuthPanel() {
       setLoginError('네트워크 오류로 로그인하지 못했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setLoginBusy(false);
+    }
+  }
+
+  /** 데모 계정 로그인 — 계정 정보는 서버 env 에만 있어 여기선 호출만 한다 */
+  async function loginDemo() {
+    if (loginBusy || demoBusy) return;
+    setDemoBusy(true);
+    setLoginError(null);
+    try {
+      const res = await fetch('/api/auth/demo', { method: 'POST' });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        setLoginError(data.error ?? '데모 계정으로 로그인하지 못했습니다.');
+        return;
+      }
+      handleAuthed();
+    } catch {
+      setLoginError('네트워크 오류로 로그인하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setDemoBusy(false);
     }
   }
 
@@ -262,9 +286,23 @@ export function EmailAuthPanel() {
             />
             로그인 상태 유지
           </label>
-          <button type="submit" disabled={loginBusy} className={buttonClass('primary', 'lg', 'mt-4 w-full')}>
+          <button
+            type="submit"
+            disabled={loginBusy || demoBusy}
+            className={buttonClass('primary', 'lg', 'mt-4 w-full')}
+          >
             {loginBusy ? '로그인 중…' : '로그인'}
           </button>
+          {showDemo && (
+            <button
+              type="button"
+              onClick={loginDemo}
+              disabled={loginBusy || demoBusy}
+              className={buttonClass('secondary', 'lg', 'mt-2 w-full')}
+            >
+              {demoBusy ? '접속 중…' : '데모 계정 체험하기'}
+            </button>
+          )}
           <div className="mt-3.5 text-center">
             <button
               type="button"

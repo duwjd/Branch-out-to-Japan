@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/primitives';
  * UT 로그에 `/app?_rsc=… — net::ERR_ABORTED` 가 153회 남은 것이 그 흔적이다.
  * 이 파일 하나로 프리페치가 되살아나고, 클릭 즉시 골격이 그려진다.
  *
- * 치수는 앱 공통 헤더(eyebrow → h1 → 설명)와 본문 2열에 맞췄다 — 실제 화면이 도착했을 때
+ * 치수는 앱 공통 헤더(eyebrow → h1 → 설명)와 본문 2열(8+4)에 맞췄다 — 실제 화면이 도착했을 때
  * 레이아웃이 튀지 않게 한다. 사이드바는 셸이 이미 그리고 있으므로 본문만 대체한다.
  */
 export default function AppLoading() {
@@ -22,17 +22,13 @@ export default function AppLoading() {
         <Skeleton className="mt-3 h-[38px] w-[280px] rounded-lg" />
         <Skeleton className="mt-4 h-5 w-full max-w-[640px] rounded-md" />
 
-        {/* 현황 타일 3종 */}
-        <div className="mt-7 grid grid-cols-3 gap-5 max-md:grid-cols-1 max-md:gap-4">
-          {Array.from({ length: 3 }, (_, i) => (
-            <Skeleton key={i} className="h-[112px] rounded-card" />
-          ))}
-        </div>
-
-        {/* 본문 2열 — 좌: 주 콘텐츠 · 우: 위젯 */}
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_356px]">
-          <Skeleton className="h-[320px] rounded-card" />
-          <Skeleton className="h-[240px] rounded-card" />
+        {/* 본문 — 왼쪽 주 콘텐츠 + 오른쪽 맥락 카드 두 줄. 홈의 12열 격자(8+4)와 같은 비율이라
+            홈이 도착했을 때 카드 자리가 튀지 않고, 2열 본문을 쓰는 다른 화면에도 그대로 맞는다 */}
+        <div className="mt-8 grid gap-6 xl:grid-cols-12">
+          <Skeleton className="h-[340px] rounded-card xl:col-span-8" />
+          <Skeleton className="h-[340px] rounded-card xl:col-span-4" />
+          <Skeleton className="h-[320px] rounded-card xl:col-span-8" />
+          <Skeleton className="h-[320px] rounded-card xl:col-span-4" />
         </div>
       </div>
     </main>

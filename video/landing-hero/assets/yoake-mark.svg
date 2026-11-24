@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none" role="img" aria-label="YOAKE">
+<title>YOAKE 심볼</title>
+<rect x="7" y="26.2" width="26" height="1.1752" rx="0.5876" fill="#FF6F61"/>
+<rect x="9.08" y="28.5752" width="21.84" height="1.196" rx="0.598" fill="#FF6F61"/>
+<rect x="11.16" y="30.9712" width="17.68" height="1.196" rx="0.598" fill="#FF6F61"/>
+<mask id="yoake-mark-sun" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="7" y="7" width="26" height="26">
+<circle cx="20" cy="20" r="13" fill="#fff"/>
+</mask>
+<g mask="url(#yoake-mark-sun)">
+<rect x="7" y="7" width="26" height="18" fill="url(#yoake-mark-grad)"/>
+</g>
+<defs>
+<linearGradient id="yoake-mark-grad" x1="7" y1="16" x2="33" y2="16" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF6F61"/>
+<stop offset="1" stop-color="#FF9B70"/>
+</linearGradient>
+</defs>
+</svg>
