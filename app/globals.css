@@ -20,10 +20,13 @@
    ════════════════════════════════════════════════════════════════════ */
 
 @theme {
-  /* 전역 서체 — Pretendard Variable(next/font가 --font-pretendard 주입) */
+  /* 전역 서체 — Pretendard Variable(next/font가 --font-pretendard 주입).
+     Noto Sans JP(--font-noto-jp)를 Pretendard 바로 뒤에 두어, lang="ja" 가 빠진 일본어도
+     한자만큼은 한국어 시스템 폰트(Apple SD Gothic Neo·Malgun Gothic)가 아닌 일본어 자형으로 그린다.
+     일본어 구간의 본 규칙은 아래 `:lang(ja)` 다. */
   --font-sans: var(--font-pretendard), "Pretendard Variable", Pretendard,
-    -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo",
-    "Noto Sans KR", "Hiragino Sans", "Noto Sans JP", "Malgun Gothic",
+    var(--font-noto-jp), -apple-system, BlinkMacSystemFont, system-ui,
+    "Apple SD Gothic Neo", "Noto Sans KR", "Hiragino Sans", "Malgun Gothic",
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
 
   /* 표면 · 잉크 — 웜 크림 / 쿨 네이비 */
@@ -230,6 +233,18 @@ body {
 
 input::placeholder,
 textarea::placeholder { color: var(--color-ink-faint); }
+
+/* 일본어 구간 — lang="ja" 요소와 그 자손은 Noto Sans JP 로 그린다.
+   전역 스택만 쓰면 가나는 Pretendard, 한자는 Apple SD Gothic Neo·Hiragino Sans 가 나눠 가져가
+   한 단어(薬機法)에도 폰트가 2~3개 섞였다(2026-11-24 실측).
+   Pretendard 는 가나를 갖고 있어 앞에 두면 다시 가져가므로, 한글 대비용으로 맨 뒤에만 둔다.
+   base 레이어에 두어 font-mono 같은 유틸리티가 필요할 때 이길 수 있게 한다. */
+@layer base {
+  :lang(ja) {
+    font-family: var(--font-noto-jp), "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+      "Yu Gothic", YuGothic, Meiryo, var(--font-pretendard), sans-serif;
+  }
+}
 
 /* 접근성: 키보드 포커스 링 (마우스 클릭엔 안 뜸) */
 :focus-visible {

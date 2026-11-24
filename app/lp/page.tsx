@@ -190,7 +190,7 @@ export default function LpPage() {
             <div className="md:border-l md:border-hairline md:pl-10">
               <p className="text-[13px] font-bold text-coral-strong">운영 정체</p>
               <p className="mt-2 text-[17px] leading-relaxed text-ink-body">
-                입점은 했는데, 리뷰(口コミ)도 랭킹도 오르지 않는다.
+                입점은 했는데, 리뷰(<span lang="ja">口コミ</span>)도 랭킹도 오르지 않는다.
               </p>
             </div>
           </div>
@@ -261,7 +261,9 @@ export default function LpPage() {
               </div>
               <div>
                 <dt className="text-[12px] font-bold uppercase tracking-wide text-ink-faint">약기법 조항</dt>
-                <dd className="mt-1.5 text-[15px] text-ink-body">医薬品等適正広告基準 — 효능 최대 표현 범위</dd>
+                <dd className="mt-1.5 text-[15px] text-ink-body">
+                  <span lang="ja">医薬品等適正広告基準</span> — 효능 최대 표현 범위
+                </dd>
               </div>
             </dl>
             <div className="mt-5 rounded-xl border border-coral/25 bg-coral-tint p-4">
